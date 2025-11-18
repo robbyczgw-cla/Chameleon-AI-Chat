@@ -250,7 +250,7 @@ export default function CookiesPage() {
               Questions about our use of cookies?
             </p>
             <div className="p-4 rounded-lg bg-muted/50 mt-3">
-              <p className="font-mono text-sm">privacy@chameleonai.chat</p>
+              <p className="font-mono text-sm">robchameleon@proton.me</p>
             </div>
           </section>
 

@@ -42,7 +42,8 @@ export default function Page() {
   }
 
   return (
-    <div className="relative flex min-h-svh w-full items-center justify-center overflow-hidden">
+    <div className="relative flex min-h-svh w-full flex-col">
+      <div className="relative flex flex-1 w-full items-center justify-center overflow-hidden">
       {/* Multi-layer animated gradient background - Chameleon colors */}
       <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-slate-950 dark:via-green-950/20 dark:to-slate-900 pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.15),transparent_50%)] pointer-events-none" />
@@ -170,29 +171,22 @@ export default function Page() {
 
           {/* RIGHT SIDE: Login form */}
           <div className="w-full max-w-sm lg:max-w-md flex-shrink-0">
-            <div className="flex flex-col gap-6">
-              {/* Logo & Brand with enhanced effects - Chameleon themed */}
-              <div className="flex flex-col items-center gap-4 mb-2">
+            <div className="flex flex-col gap-4">
+              {/* Logo & Brand - Compact */}
+              <div className="flex flex-col items-center gap-2 mb-1">
                 <div className="relative group">
-                  {/* Glow effect - Chameleon colors */}
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-green-500 via-blue-500 to-purple-500 blur-xl opacity-75 group-hover:opacity-100 transition-opacity duration-500 animate-pulse" />
-
-                  {/* Main icon container */}
-                  <div className="relative flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 border-2 border-green-500/20 shadow-2xl shadow-green-500/30 animate-float group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
-                    <ChameleonLogo size={80} animated colorShift />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-green-500 via-blue-500 to-purple-500 blur-lg opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+                  <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 border border-green-500/20 shadow-lg backdrop-blur-sm">
+                    <ChameleonLogo size={48} animated colorShift />
                   </div>
-
-                  {/* Orbiting particles - Chameleon themed */}
-                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 animate-ping" />
-                  <div className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 animate-ping animation-delay-1000" />
                 </div>
 
-                <div className="text-center space-y-2">
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
+                <div className="text-center space-y-1">
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
                     Welcome Back
                   </h1>
-                  <p className="text-muted-foreground text-base">
-                    Chameleon AI is ready for you 🦎
+                  <p className="text-muted-foreground text-sm">
+                    Chameleon AI 🦎
                   </p>
                 </div>
               </div>
@@ -205,20 +199,20 @@ export default function Page() {
                 {/* Shine effect on hover */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-shine" />
 
-                <CardHeader className="text-center space-y-3 relative">
-                  <CardTitle className="text-2xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <CardHeader className="text-center space-y-2 relative py-4">
+                  <CardTitle className="text-xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
                     Sign In
                   </CardTitle>
-                  <CardDescription className="text-base">
-                    Access your AI chat experience
+                  <CardDescription className="text-sm">
+                    Access your AI chat
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="relative">
+                <CardContent className="relative py-4">
                   <form onSubmit={handleLogin}>
-                    <div className="flex flex-col gap-6">
-                      <div className="grid gap-2">
-                        <Label htmlFor="email" className="text-sm font-semibold flex items-center gap-2">
+                    <div className="flex flex-col gap-4">
+                      <div className="grid gap-1.5">
+                        <Label htmlFor="email" className="text-sm font-semibold flex items-center gap-1.5">
                           📧 Email
                         </Label>
                         <Input
@@ -228,12 +222,12 @@ export default function Page() {
                           required
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="h-12 border-2 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 bg-white/50 dark:bg-slate-800/50"
+                          className="h-10 border-2 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 bg-white/50 dark:bg-slate-800/50"
                         />
                       </div>
 
-                      <div className="grid gap-2">
-                        <Label htmlFor="password" className="text-sm font-semibold flex items-center gap-2">
+                      <div className="grid gap-1.5">
+                        <Label htmlFor="password" className="text-sm font-semibold flex items-center gap-1.5">
                           🔒 Password
                         </Label>
                         <Input
@@ -243,7 +237,7 @@ export default function Page() {
                           required
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="h-12 border-2 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 bg-white/50 dark:bg-slate-800/50"
+                          className="h-10 border-2 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 bg-white/50 dark:bg-slate-800/50"
                         />
                       </div>
 
@@ -258,16 +252,13 @@ export default function Page() {
 
                       <Button
                         type="submit"
-                        className="relative w-full h-12 text-base font-semibold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 hover:from-green-700 hover:via-blue-700 hover:to-purple-700 shadow-lg shadow-green-500/40 hover:shadow-xl hover:shadow-green-500/50 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] overflow-hidden group"
+                        className="relative w-full h-10 text-sm font-semibold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 hover:from-green-700 hover:via-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
                         disabled={isLoading}
                       >
-                        {/* Button shine effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-shine" />
-
                         <span className="relative flex items-center justify-center gap-2">
                           {isLoading ? (
                             <>
-                              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                               </svg>
@@ -286,7 +277,7 @@ export default function Page() {
                       <Button
                         type="button"
                         variant="outline"
-                        className="relative w-full h-12 text-base font-semibold border-2 border-green-500/30 hover:border-green-500/50 hover:bg-green-500/5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group"
+                        className="relative w-full h-10 text-sm font-semibold border-2 border-green-500/30 hover:border-green-500/50 hover:bg-green-500/5 transition-all duration-300"
                         onClick={() => {
                           // SECURITY: Clear any existing API keys before entering guest mode
                           const settingsFromStorage = localStorage.getItem("settings")
@@ -317,16 +308,16 @@ export default function Page() {
                         </span>
                       </Button>
 
-                      <p className="text-xs text-center text-muted-foreground/70 px-2">
-                        Guest mode uses local storage only. Add your API keys in settings to start chatting.
+                      <p className="text-xs text-center text-muted-foreground/70">
+                        Guest mode uses localStorage. Add API keys in settings.
                       </p>
                     </div>
 
-                    <div className="mt-6 text-center text-sm">
+                    <div className="mt-4 text-center text-sm">
                       <span className="text-muted-foreground">Don't have an account?</span>{" "}
                       <Link
                         href="/auth/sign-up"
-                        className="font-bold underline underline-offset-4 bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent hover:from-green-700 hover:via-blue-700 hover:to-purple-700 transition-all duration-200 hover:underline-offset-8"
+                        className="font-bold underline underline-offset-2 bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent hover:underline-offset-4 transition-all"
                       >
                         Sign Up →
                       </Link>
@@ -376,11 +367,10 @@ export default function Page() {
           </div>
         </div>
       </div>
-
-      {/* Legal Footer */}
-      <div className="relative z-50">
-        <LegalFooter />
       </div>
+
+      {/* Legal Footer - Outside background container */}
+      <LegalFooter />
     </div>
   )
 }

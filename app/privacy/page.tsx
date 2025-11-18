@@ -187,7 +187,7 @@ export default function PrivacyPage() {
               If you have questions about this privacy policy or how we handle your data, please contact us at:
             </p>
             <div className="p-4 rounded-lg bg-muted/50 mt-3">
-              <p className="font-mono text-sm">privacy@chameleonai.chat</p>
+              <p className="font-mono text-sm">robchameleon@proton.me</p>
               <p className="text-sm text-muted-foreground mt-2">We aim to respond to all inquiries within 48 hours.</p>
             </div>
           </section>
