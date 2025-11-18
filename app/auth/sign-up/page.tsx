@@ -222,7 +222,7 @@ export default function Page() {
       </div>
 
       {/* Legal Footer */}
-      <div className="fixed bottom-0 left-0 right-0">
+      <div className="fixed bottom-0 left-0 right-0 z-50">
         <LegalFooter />
       </div>
     </div>

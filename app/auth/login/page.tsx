@@ -60,12 +60,123 @@ export default function Page() {
       {/* Grid overlay for depth */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)]" />
 
-      {/* Vertical layout: Login form, then tagline, then features */}
-      <div className="relative w-full max-w-2xl mx-auto px-6 py-8 md:px-10 z-10">
-        <div className="flex flex-col gap-8 items-center justify-center min-h-[calc(100svh-4rem)]">
+      {/* Desktop: Side-by-side | Mobile: Stacked */}
+      <div className="relative w-full max-w-7xl mx-auto px-6 py-8 md:px-10 z-10">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center lg:items-start justify-center min-h-[calc(100svh-4rem)]">
 
-          {/* TOP: Login form */}
-          <div className="w-full max-w-md flex-shrink-0">
+          {/* LEFT SIDE: Feature showcase - Hidden on mobile, shows on desktop */}
+          <div className="hidden lg:flex flex-col w-full lg:max-w-md xl:max-w-lg">
+            {/* Tagline */}
+            <div className="space-y-3 mb-6">
+              <h2 className="text-2xl xl:text-3xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Like a chameleon adapting to its environment
+              </h2>
+              <p className="text-sm text-muted-foreground/80">
+                AI chat platform that transforms to match your needs with unique personas, cost tracking, and 100+ AI models
+              </p>
+            </div>
+
+            {/* Scrollable features container */}
+            <div className="space-y-5 overflow-y-auto max-h-[calc(100svh-16rem)] pr-2 scrollbar-thin scrollbar-thumb-green-500/20 scrollbar-track-transparent">
+              {/* Power Features */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">Power Features</h3>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 text-xs">
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">💸</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">Cost Tracker</div>
+                      <div className="text-muted-foreground/80 leading-tight">Track spending, monthly projections</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">💾</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">Export Training Data</div>
+                      <div className="text-muted-foreground/80 leading-tight">JSONL, HTML, Markdown</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">🎭</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">AI Debate Mode</div>
+                      <div className="text-muted-foreground/80 leading-tight">Watch 2 AIs debate, vote winner</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">🧠</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">Advanced Memory</div>
+                      <div className="text-muted-foreground/80 leading-tight">Long-term context</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Core Features */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">Core Features</h3>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 text-xs">
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">🦎</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">18+ AI Personas</div>
+                      <div className="text-muted-foreground/80 leading-tight">Nova, Cami, Dev, Mythos</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">🤖</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">100+ AI Models</div>
+                      <div className="text-muted-foreground/80 leading-tight">GPT-4, Claude, Gemini, Grok</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">🔍</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">Dual Web Search</div>
+                      <div className="text-muted-foreground/80 leading-tight">Tavily & Serper (Google)</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">📱</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">Mobile-First UI</div>
+                      <div className="text-muted-foreground/80 leading-tight">WhatsApp-style nav</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">✨</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">Prompt Helper</div>
+                      <div className="text-muted-foreground/80 leading-tight">AI-powered improvement</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">⚡</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">Lightning Search</div>
+                      <div className="text-muted-foreground/80 leading-tight">10-40x faster (1-5ms)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Security & Multi-language */}
+              <div className="flex items-center justify-between text-xs text-muted-foreground/60 pt-2">
+                <div className="flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-green-500/70" />
+                  <span>Securely encrypted</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-muted-foreground/80">🌍 DE • EN • ES</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT SIDE: Login form */}
+          <div className="w-full max-w-sm lg:max-w-md flex-shrink-0">
             <div className="flex flex-col gap-6">
               {/* Logo & Brand with enhanced effects - Chameleon themed */}
               <div className="flex flex-col items-center gap-4 mb-2">
@@ -230,113 +341,43 @@ export default function Page() {
                   </form>
                 </CardContent>
               </Card>
-            </div>
-          </div>
 
-          {/* MIDDLE: Tagline */}
-          <div className="w-full max-w-2xl text-center space-y-3">
-            <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Like a chameleon adapting to its environment
-            </h2>
-            <p className="text-sm md:text-base text-muted-foreground/80">
-              AI chat platform that transforms to match your needs with unique personas, cost tracking, and 100+ AI models
-            </p>
-          </div>
+              {/* Mobile: Compact feature highlights (shown only on mobile) */}
+              <div className="lg:hidden space-y-3 backdrop-blur-sm">
+                <div className="text-center space-y-1">
+                  <p className="text-xs font-medium bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Like a chameleon adapting to its environment
+                  </p>
+                </div>
 
-          {/* BOTTOM: Features */}
-          <div className="w-full max-w-2xl space-y-5">
-            {/* Power Features */}
-            <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider text-center">Power Features</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <span className="text-lg">💸</span>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">Cost Tracker</div>
-                    <div className="text-muted-foreground/80 leading-tight">Track spending, monthly projections</div>
+                {/* Condensed features for mobile */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="flex items-center gap-1.5 p-2 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10">
+                    <span className="text-sm">🦎</span>
+                    <span className="font-semibold text-foreground text-[11px]">18+ Personas</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 p-2 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10">
+                    <span className="text-sm">🤖</span>
+                    <span className="font-semibold text-foreground text-[11px]">100+ Models</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 p-2 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10">
+                    <span className="text-sm">💸</span>
+                    <span className="font-semibold text-foreground text-[11px]">Cost Tracking</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 p-2 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10">
+                    <span className="text-sm">🎭</span>
+                    <span className="font-semibold text-foreground text-[11px]">AI Debates</span>
                   </div>
                 </div>
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <span className="text-lg">💾</span>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">Export Training Data</div>
-                    <div className="text-muted-foreground/80 leading-tight">JSONL, HTML, Markdown</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <span className="text-lg">🎭</span>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">AI Debate Mode</div>
-                    <div className="text-muted-foreground/80 leading-tight">Watch 2 AIs debate, vote winner</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <span className="text-lg">🧠</span>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">Advanced Memory</div>
-                    <div className="text-muted-foreground/80 leading-tight">Long-term context</div>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Core Features */}
-            <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider text-center">Core Features</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <span className="text-lg">🦎</span>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">18+ AI Personas</div>
-                    <div className="text-muted-foreground/80 leading-tight">Nova, Cami, Dev, Mythos</div>
+                <div className="flex items-center justify-center gap-3 text-[10px] text-muted-foreground/60">
+                  <div className="flex items-center gap-1">
+                    <Shield className="w-2.5 h-2.5 text-green-500/70" />
+                    <span>Secure</span>
                   </div>
+                  <span>•</span>
+                  <span>🌍 DE • EN • ES</span>
                 </div>
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <span className="text-lg">🤖</span>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">100+ AI Models</div>
-                    <div className="text-muted-foreground/80 leading-tight">GPT-4, Claude, Gemini, Grok</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <span className="text-lg">🔍</span>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">Dual Web Search</div>
-                    <div className="text-muted-foreground/80 leading-tight">Tavily & Serper (Google)</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <span className="text-lg">📱</span>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">Mobile-First UI</div>
-                    <div className="text-muted-foreground/80 leading-tight">WhatsApp-style nav</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <span className="text-lg">✨</span>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">Prompt Helper</div>
-                    <div className="text-muted-foreground/80 leading-tight">AI-powered improvement</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <span className="text-lg">⚡</span>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">Lightning Search</div>
-                    <div className="text-muted-foreground/80 leading-tight">10-40x faster (1-5ms)</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Security & Multi-language */}
-            <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground/60 pt-2">
-              <div className="flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5 text-green-500/70" />
-                <span>Securely encrypted</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-muted-foreground/80">🌍 DE • EN • ES</span>
               </div>
             </div>
           </div>
@@ -344,7 +385,7 @@ export default function Page() {
       </div>
 
       {/* Legal Footer */}
-      <div className="relative z-10">
+      <div className="relative z-50">
         <LegalFooter />
       </div>
     </div>
