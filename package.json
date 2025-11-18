@@ -2,16 +2,16 @@
   "name": "chameleon-ai-chat",
   "version": "0.1.0",
   "description": "Chameleon AI Chat - Adapt to any conversation style with 18+ AI personas, cost tracking, and 100+ AI models via OpenRouter",
-  "author": "robbyczgw-cla <robclaud@proton.me>",
+  "author": "robbyczgw-cla",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/robbyczgw-cla/v0-react-chat-interface.git"
+    "url": "https://github.com/robbyczgw-cla/Chameleon-AI-Chat.git"
   },
   "bugs": {
-    "url": "https://github.com/robbyczgw-cla/v0-react-chat-interface/issues"
+    "url": "https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues"
   },
-  "homepage": "https://github.com/robbyczgw-cla/v0-react-chat-interface#readme",
+  "homepage": "https://github.com/robbyczgw-cla/Chameleon-AI-Chat#readme",
   "keywords": [
     "ai",
     "chat",
@@ -85,6 +85,7 @@
     "react-syntax-highlighter": "latest",
     "recharts": "2.15.4",
     "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
     "remark-gfm": "latest",
     "sonner": "latest",
     "tailwind-merge": "^2.5.5",

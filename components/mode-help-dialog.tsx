@@ -21,7 +21,6 @@ interface ModeHelpDialogProps {
 export function ModeHelpDialog({ open, onOpenChange }: ModeHelpDialogProps) {
   const { settings } = useApp()
   const [isAdvancedMode, setIsAdvancedMode] = useState(false)
-  const isHiFiMode = settings.currentPersona === "hifiteam"
 
   // Detect if we're in Advanced mode from localStorage (consistent with other components)
   useEffect(() => {
@@ -40,16 +39,14 @@ export function ModeHelpDialog({ open, onOpenChange }: ModeHelpDialogProps) {
             Hilfe & Tipps
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm">
-            {isHiFiMode
-              ? "Tipps für die optimale Nutzung des HiFi Experten"
-              : isAdvancedMode
-                ? "Erweiterte Funktionen und Prompting-Tipps"
-                : "Erste Schritte und grundlegende Tipps"}
+            {isAdvancedMode
+              ? "Erweiterte Funktionen und Prompting-Tipps"
+              : "Erste Schritte und grundlegende Tipps"}
           </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[calc(90vh-120px)] pr-2 sm:pr-4">
-          {isHiFiMode ? <HiFiModeHelp /> : isAdvancedMode ? <AdvancedModeHelp /> : <SimpleModeHelp />}
+          {isAdvancedMode ? <AdvancedModeHelp /> : <SimpleModeHelp />}
         </ScrollArea>
       </DialogContent>
     </Dialog>
@@ -980,135 +977,3 @@ function AdvancedModeHelp() {
   )
 }
 
-function HiFiModeHelp() {
-  return (
-    <div className="space-y-6">
-      <section>
-        <h3 className="font-semibold text-lg mb-3">🔊 HiFi Experte optimal nutzen</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Der HiFi Experte ist spezialisiert auf Audio-Equipment Beratung für das HiFi Team.
-          So holst du das Beste aus diesem Modus heraus:
-        </p>
-      </section>
-
-      <section>
-        <h3 className="font-semibold text-base mb-3">📋 Produktberatung</h3>
-        <ul className="space-y-2 text-sm text-muted-foreground">
-          <li>• <strong>Budget angeben:</strong> "Kunde hat Budget von 3.000€ für Lautsprecher"</li>
-          <li>• <strong>Raumgröße nennen:</strong> "Wohnzimmer ca. 25m², Holzboden, normale Möblierung"</li>
-          <li>• <strong>Use-Case beschreiben:</strong> "Hauptsächlich Jazz und Klassik, gelegentlich Filme"</li>
-          <li>• <strong>Existing Setup:</strong> "Kunde hat bereits Naim Verstärker, sucht passende Lautsprecher"</li>
-        </ul>
-      </section>
-
-      <section>
-        <h3 className="font-semibold text-base mb-3">🔍 Web-Suche für aktuelle Preise</h3>
-        <p className="text-sm text-muted-foreground mb-2">
-          Aktiviere die Web-Suche für:
-        </p>
-        <ul className="space-y-2 text-sm text-muted-foreground">
-          <li>• <strong>Aktuelle Preise:</strong> "Was kostet der B&W 805 D4 aktuell?"</li>
-          <li>• <strong>Verfügbarkeit:</strong> "Ist der Pro-Ject X2 auf Lager bei shop.hifiteam.at?"</li>
-          <li>• <strong>Vergleichspreise:</strong> Automatisch Geizhals.de Vergleich</li>
-          <li>• <strong>Neue Produkte:</strong> "Welche neuen Verstärker hat Cambridge Audio 2025 released?"</li>
-        </ul>
-      </section>
-
-      <section>
-        <h3 className="font-semibold text-base mb-3">💡 Effektive Fragen stellen</h3>
-        <div className="space-y-3">
-          <div>
-            <p className="text-sm font-medium mb-1">❌ Weniger gut:</p>
-            <p className="text-sm text-muted-foreground italic ml-4">"Welche Lautsprecher sind gut?"</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium mb-1 text-green-600">✅ Besser:</p>
-            <p className="text-sm text-muted-foreground italic ml-4">
-              "Kunde hat 2.500€ Budget, 20m² Wohnzimmer, hört hauptsächlich Vinyl (Rock/Jazz),
-              hat bereits Rega Planar 3 und Arcam Verstärker. Welche Standlautsprecher aus unserem
-              Sortiment passen?"
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <h3 className="font-semibold text-base mb-3">🎯 Beratungs-Szenarien</h3>
-        <ul className="space-y-2 text-sm text-muted-foreground">
-          <li>
-            <strong>Komplettes Setup:</strong>
-            <p className="ml-4 mt-1">"Kunde ist Einsteiger, 4.000€ Budget für komplettes Stereo-System (Verstärker, Lautsprecher, Quelle)"</p>
-          </li>
-          <li>
-            <strong>Upgrade-Beratung:</strong>
-            <p className="ml-4 mt-1">"Kunde hat NAD C328, möchte Lautsprecher upgraden, max. 1.500€"</p>
-          </li>
-          <li>
-            <strong>Problemlösung:</strong>
-            <p className="ml-4 mt-1">"Kunde klagt über zu helle Höhen mit B&W 606, was können wir empfehlen?"</p>
-          </li>
-          <li>
-            <strong>Vergleich:</strong>
-            <p className="ml-4 mt-1">"Unterschied zwischen Rega Brio und Cambridge Audio CXA61 erklären"</p>
-          </li>
-        </ul>
-      </section>
-
-      <section>
-        <h3 className="font-semibold text-base mb-3">🏪 Unser Sortiment nutzen</h3>
-        <p className="text-sm text-muted-foreground mb-2">
-          Der HiFi Experte kennt unser Sortiment:
-        </p>
-        <div className="grid grid-cols-2 gap-3 text-sm text-muted-foreground">
-          <div>
-            <p className="font-medium mb-1">Premium Marken:</p>
-            <ul className="space-y-1 ml-4">
-              <li>• Linn</li>
-              <li>• Naim</li>
-              <li>• Lab12</li>
-              <li>• MBL</li>
-              <li>• Accuphase</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">High-End Marken:</p>
-            <ul className="space-y-1 ml-4">
-              <li>• Rega</li>
-              <li>• Arcam</li>
-              <li>• Cambridge Audio</li>
-              <li>• NAD</li>
-              <li>• Rotel</li>
-            </ul>
-          </div>
-        </div>
-        <p className="text-sm text-muted-foreground mt-3">
-          <strong>Wichtig:</strong> Der Experte empfiehlt nur Produkte die wir führen!
-        </p>
-      </section>
-
-      <section>
-        <h3 className="font-semibold text-base mb-3">⚡ Profi-Tipps</h3>
-        <ul className="space-y-2 text-sm text-muted-foreground">
-          <li>• <strong>Follow-up Vorschläge nutzen:</strong> Am Ende jeder Antwort bekommst du relevante Vorschläge</li>
-          <li>• <strong>Technische Details:</strong> Frag nach spezifischen Specs wenn Kunde technisch versiert ist</li>
-          <li>• <strong>Vergleichstabellen:</strong> "Vergleiche diese 3 Modelle in einer Tabelle"</li>
-          <li>• <strong>Setup-Hilfe:</strong> "Wie sollte der Kunde die B&W 606 optimal positionieren?"</li>
-          <li>• <strong>Memory System:</strong> Aktiviere es für wiederkehrende Kunden-Szenarien</li>
-        </ul>
-      </section>
-
-      <section className="bg-primary/5 p-4 rounded-lg">
-        <h3 className="font-semibold text-base mb-2 flex items-center gap-2">
-          💰 Preisauskunft Best Practice
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          Bei Preisanfragen aktiviere die Web-Suche und frage:
-          <br/>
-          <span className="italic">"Was kostet der [Produkt] bei shop.hifiteam.at und was ist der Geizhals Vergleichspreis?"</span>
-          <br/><br/>
-          Der Experte gibt dann: HiFi Team Preis, Geizhals Vergleich, technische Highlights und Link (falls verfügbar).
-        </p>
-      </section>
-    </div>
-  )
-}

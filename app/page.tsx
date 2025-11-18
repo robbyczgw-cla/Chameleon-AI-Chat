@@ -32,20 +32,52 @@ function ChatApp() {
     createChat(settings.selectedModel)
   }
 
-  const handleMobileSearch = () => {
-    window.dispatchEvent(new Event("openSearch"))
-  }
-
   const handleMobilePersonas = () => {
     window.dispatchEvent(new Event("openPersonas"))
+  }
+
+  const handleMobilePromptHelper = () => {
+    window.dispatchEvent(new Event("openPromptHelper"))
   }
 
   const handleMobileSettings = () => {
     window.dispatchEvent(new Event("openSettings"))
   }
 
+  const handleMobileProfile = () => {
+    window.dispatchEvent(new Event("openProfile"))
+  }
+
+  const handleMobileMemory = () => {
+    window.dispatchEvent(new Event("openMemory"))
+  }
+
+  const handleMobileComparison = () => {
+    setIsComparisonMode((prev) => !prev)
+  }
+
+  const handleMobileSearch = () => {
+    window.dispatchEvent(new Event("openSearch"))
+  }
+
   const handleMobileCollections = () => {
     window.dispatchEvent(new Event("openDocCollections"))
+  }
+
+  const handleMobileAdvancedSettings = () => {
+    window.dispatchEvent(new Event("openAdvancedSettings"))
+  }
+
+  const handleMobileDebate = () => {
+    window.dispatchEvent(new Event("openDebate"))
+  }
+
+  const handleMobileInspector = () => {
+    window.dispatchEvent(new Event("openInspector"))
+  }
+
+  const handleMobileStats = () => {
+    setShowStatsPanel((prev) => !prev)
   }
 
   // Apply saved theme on mount
@@ -164,10 +196,19 @@ function ChatApp() {
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav
         onMenuClick={() => setIsMobileSidebarOpen(prev => !prev)}
-        onSearchClick={handleMobileSearch}
         onNewChatClick={handleMobileNewChat}
         onPersonasClick={handleMobilePersonas}
-        onCollectionsClick={handleMobileCollections}
+        onPromptHelperClick={handleMobilePromptHelper}
+        onSettingsClick={handleMobileSettings}
+        onProfileClick={handleMobileProfile}
+        onMemoryClick={handleMobileMemory}
+        onComparisonClick={handleMobileComparison}
+        onSearchClick={handleMobileSearch}
+        onDocCollectionsClick={handleMobileCollections}
+        onAdvancedSettingsClick={handleMobileAdvancedSettings}
+        onDebateClick={handleMobileDebate}
+        onInspectorClick={handleMobileInspector}
+        onStatsClick={handleMobileStats}
       />
     </div>
   )

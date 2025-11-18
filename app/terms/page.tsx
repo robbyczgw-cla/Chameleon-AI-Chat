@@ -272,7 +272,7 @@ export default function TermsPage() {
               Questions about these Terms? Contact us:
             </p>
             <div className="p-4 rounded-lg bg-muted/50 mt-3">
-              <p className="font-mono text-sm">legal@chameleonai.chat</p>
+              <p className="font-mono text-sm">robchameleon@proton.me</p>
               <p className="text-sm text-muted-foreground mt-2">We aim to respond within 48 hours.</p>
             </div>
           </section>

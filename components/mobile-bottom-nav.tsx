@@ -2,25 +2,44 @@
 
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
-import { MessageSquare, Search, Plus, Wand2, Settings, Menu, FolderOpen } from "lucide-react"
+import { MessageSquare, Plus, Wand2, Sparkles, Menu } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
+import { MobileMoreMenu } from "@/components/mobile-more-menu"
 
 interface MobileBottomNavProps {
   onMenuClick: () => void
-  onSearchClick: () => void
   onNewChatClick: () => void
   onPersonasClick: () => void
-  onCollectionsClick: () => void
-  activeView?: "chats" | "search" | "personas" | "collections"
+  onPromptHelperClick: () => void
+  onSettingsClick: () => void
+  onProfileClick: () => void
+  onMemoryClick: () => void
+  onComparisonClick: () => void
+  onSearchClick: () => void
+  onDocCollectionsClick: () => void
+  onAdvancedSettingsClick: () => void
+  onDebateClick: () => void
+  onInspectorClick: () => void
+  onStatsClick: () => void
+  activeView?: "chats" | "personas"
 }
 
 export function MobileBottomNav({
   onMenuClick,
-  onSearchClick,
   onNewChatClick,
   onPersonasClick,
-  onCollectionsClick,
+  onPromptHelperClick,
+  onSettingsClick,
+  onProfileClick,
+  onMemoryClick,
+  onComparisonClick,
+  onSearchClick,
+  onDocCollectionsClick,
+  onAdvancedSettingsClick,
+  onDebateClick,
+  onInspectorClick,
+  onStatsClick,
   activeView = "chats",
 }: MobileBottomNavProps) {
   return (
@@ -45,38 +64,6 @@ export function MobileBottomNav({
           <span className="text-[10px] font-medium">Chats</span>
         </Button>
 
-        {/* Search */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            haptics.trigger('selection')
-            onSearchClick()
-          }}
-          className={cn(
-            "flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg transition-all",
-            activeView === "search"
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <Search className="h-5 w-5" />
-          <span className="text-[10px] font-medium">Suche</span>
-        </Button>
-
-        {/* New Chat - Bigger, centered */}
-        <Button
-          size="sm"
-          onClick={() => {
-            haptics.trigger('medium')
-            onNewChatClick()
-          }}
-          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25"
-        >
-          <Plus className="h-6 w-6" />
-          <span className="text-[10px] font-medium">Neu</span>
-        </Button>
-
         {/* Personas */}
         <Button
           variant="ghost"
@@ -96,24 +83,46 @@ export function MobileBottomNav({
           <span className="text-[10px] font-medium">Personas</span>
         </Button>
 
-        {/* Document Collections */}
+        {/* New Chat - Bigger, centered */}
+        <Button
+          size="sm"
+          onClick={() => {
+            haptics.trigger('medium')
+            onNewChatClick()
+          }}
+          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25"
+        >
+          <Plus className="h-6 w-6" />
+          <span className="text-[10px] font-medium">New</span>
+        </Button>
+
+        {/* Prompt Helper */}
         <Button
           variant="ghost"
           size="sm"
           onClick={() => {
             haptics.trigger('selection')
-            onCollectionsClick()
+            onPromptHelperClick()
           }}
-          className={cn(
-            "flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg transition-all",
-            activeView === "collections"
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:text-foreground"
-          )}
+          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg transition-all text-muted-foreground hover:text-foreground"
         >
-          <FolderOpen className="h-5 w-5" />
-          <span className="text-[10px] font-medium">Docs</span>
+          <Sparkles className="h-5 w-5 text-yellow-500" />
+          <span className="text-[10px] font-medium">Prompts</span>
         </Button>
+
+        {/* More Menu */}
+        <MobileMoreMenu
+          onSettingsClick={onSettingsClick}
+          onProfileClick={onProfileClick}
+          onMemoryClick={onMemoryClick}
+          onComparisonClick={onComparisonClick}
+          onSearchClick={onSearchClick}
+          onDocCollectionsClick={onDocCollectionsClick}
+          onAdvancedSettingsClick={onAdvancedSettingsClick}
+          onDebateClick={onDebateClick}
+          onInspectorClick={onInspectorClick}
+          onStatsClick={onStatsClick}
+        />
       </div>
     </div>
   )

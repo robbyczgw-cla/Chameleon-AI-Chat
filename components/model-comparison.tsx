@@ -127,8 +127,8 @@ export function ModelComparison() {
     if (webSearchEnabled && settings.apiKeys.tavily) {
       try {
         toast({
-          title: "Suche im Web...",
-          description: "Sammle Informationen aus dem Internet",
+          title: "Searching the web...",
+          description: "Gathering information from the internet",
         })
 
         const tavilySettings = settings.tavilySettings || {
@@ -145,23 +145,23 @@ export function ModelComparison() {
           apiKey: settings.apiKeys.tavily,
         })
 
-        searchContext = `Websuchergebnisse für: "${input.trim()}"\n\n`
+        searchContext = `Web search results for: "${input.trim()}"\n\n`
 
         if (tavilySettings.includeAnswer && searchResults.answer) {
-          searchContext += `Zusammenfassung: ${searchResults.answer}\n\n`
+          searchContext += `Summary: ${searchResults.answer}\n\n`
         }
 
-        searchContext += `Detaillierte Ergebnisse:\n${formatSearchResults(searchResults.results)}\n\nBitte verwenden Sie die obigen Websuchergebnisse, um eine genaue und aktuelle Antwort auf die Frage des Benutzers zu geben.`
+        searchContext += `Detailed results:\n${formatSearchResults(searchResults.results)}\n\nPlease use the above web search results to provide an accurate and up-to-date answer to the user's question.`
 
         toast({
-          title: "Suche abgeschlossen",
-          description: `${searchResults.results.length} Ergebnisse gefunden`,
+          title: "Search complete",
+          description: `${searchResults.results.length} results found`,
         })
       } catch (searchError) {
         console.error("[v0] Search error:", searchError)
         toast({
-          title: "Suche fehlgeschlagen",
-          description: "Fahre ohne Websuche fort",
+          title: "Search failed",
+          description: "Continuing without web search",
           variant: "destructive",
         })
       }
@@ -296,12 +296,12 @@ export function ModelComparison() {
       } catch (error) {
         console.error(`[v0] Error with model ${panel.model}:`, error)
 
-        let errorMessage = "Unbekannter Fehler"
+        let errorMessage = "Unknown error"
         if (error instanceof Error) {
           if (error.name === "AbortError") {
-            errorMessage = "Anfrage abgebrochen"
+            errorMessage = "Request aborted"
           } else if (error.message.includes("HTTP")) {
-            errorMessage = `API-Fehler: ${error.message}`
+            errorMessage = `API error: ${error.message}`
           } else {
             errorMessage = error.message
           }
@@ -317,7 +317,7 @@ export function ModelComparison() {
                     {
                       id: `msg-${Date.now()}`,
                       role: "assistant",
-                      content: `❌ Fehler: ${errorMessage}`,
+                      content: `❌ Error: ${errorMessage}`,
                       timestamp: Date.now(),
                     },
                   ],
@@ -385,7 +385,7 @@ export function ModelComparison() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b p-3 sm:p-4">
-        <h2 className="text-base sm:text-lg font-semibold">Modellvergleich</h2>
+        <h2 className="text-base sm:text-lg font-semibold">Model Comparison</h2>
         <div className="flex flex-wrap gap-2">
           <Button
             variant="outline"
@@ -394,7 +394,7 @@ export function ModelComparison() {
               const event = new CustomEvent("toggleComparison")
               window.dispatchEvent(event)
             }}
-            title="Zurück zum Chat"
+            title="Back to Chat"
             className="min-h-[44px] min-w-[44px]"
           >
             <X className="h-4 w-4" />
@@ -403,7 +403,7 @@ export function ModelComparison() {
             variant="outline"
             size="sm"
             onClick={() => setHistoryOpen(true)}
-            title="Historie anzeigen"
+            title="Show History"
             className="min-h-[44px] min-w-[44px]"
           >
             <History className="h-4 w-4" />
@@ -439,7 +439,7 @@ export function ModelComparison() {
               onClick={addPanel}
               className="min-h-[44px] text-xs sm:text-sm bg-transparent"
             >
-              <span className="hidden sm:inline">Panel hinzufügen</span>
+              <span className="hidden sm:inline">Add Panel</span>
               <span className="sm:hidden">+</span>
             </Button>
           )}
@@ -538,7 +538,7 @@ export function ModelComparison() {
               {panel.isLoading && (
                 <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                   <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-                  Generiere...
+                  Generating...
                 </div>
               )}
             </div>
@@ -554,7 +554,7 @@ export function ModelComparison() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendToAll()}
-              placeholder="An alle Modelle senden..."
+              placeholder="Send to all models..."
               className="w-full rounded-lg border bg-background px-3 sm:px-4 py-2.5 sm:py-2 pr-12 text-sm sm:text-base min-h-[44px]"
             />
             <Button
@@ -565,7 +565,7 @@ export function ModelComparison() {
                 webSearchEnabled ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""
               }`}
               onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-              title={webSearchEnabled ? "Websuche deaktivieren" : "Websuche aktivieren (Tavily)"}
+              title={webSearchEnabled ? "Disable web search" : "Enable web search (Tavily)"}
               disabled={!settings.apiKeys.tavily}
             >
               <Globe className={`h-4 w-4 ${webSearchEnabled ? "animate-pulse" : ""}`} />
@@ -576,18 +576,18 @@ export function ModelComparison() {
             disabled={!input.trim() || panels.some((p) => p.isLoading)}
             className="min-h-[44px] text-sm sm:text-base"
           >
-            An alle senden
+            Send to All
           </Button>
         </div>
         {webSearchEnabled && settings.apiKeys.tavily && (
           <p className="text-xs text-primary mt-2 flex items-center gap-1">
             <Globe className="h-3 w-3" />
-            Websuche aktiviert - Alle Antworten nutzen aktuelle Informationen aus dem Internet
+            Web search enabled - All responses use current information from the internet
           </p>
         )}
         {!settings.apiKeys.tavily && (
           <p className="text-xs text-muted-foreground mt-2">
-            💡 Tipp: Aktiviere Websuche mit einem Tavily API-Schlüssel in den Einstellungen für aktuelle Informationen
+            💡 Tip: Enable web search with a Tavily API key in settings for current information
           </p>
         )}
       </div>

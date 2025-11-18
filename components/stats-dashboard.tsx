@@ -37,9 +37,9 @@ export function StatsDashboard() {
     <div className="h-full overflow-y-auto">
       <div className="space-y-6 p-4 sm:p-6 max-w-6xl mx-auto">
         <div>
-          <h2 className="text-2xl font-bold">Nutzungsstatistiken</h2>
+          <h2 className="text-2xl font-bold">Usage Statistics</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Verfolgen Sie Ihre API-Nutzung, Kosten und Chat-Aktivität
+            Track your API usage, costs, and chat activity
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export function StatsDashboard() {
                 <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Nachrichten</p>
+                <p className="text-sm text-muted-foreground">Messages</p>
                 <p className="text-2xl font-bold">{totalMessages}</p>
               </div>
             </div>
@@ -74,7 +74,7 @@ export function StatsDashboard() {
                 <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Durchschnitt</p>
+                <p className="text-sm text-muted-foreground">Average</p>
                 <p className="text-2xl font-bold">{avgMessagesPerChat}</p>
                 <p className="text-xs text-muted-foreground">msg/chat</p>
               </div>
@@ -87,7 +87,7 @@ export function StatsDashboard() {
                 <Clock className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Aktivste Zeit</p>
+                <p className="text-sm text-muted-foreground">Most Active Time</p>
                 <p className="text-2xl font-bold">{mostActiveTimeDisplay}</p>
               </div>
             </div>
@@ -98,7 +98,7 @@ export function StatsDashboard() {
 
         {topModels.length > 0 && (
           <Card className="p-6">
-            <h3 className="mb-4 text-lg font-semibold">Meist genutzte Modelle</h3>
+            <h3 className="mb-4 text-lg font-semibold">Most Used Models</h3>
             <div className="space-y-3">
               {topModels.map(([model, count]) => (
                 <div key={model}>

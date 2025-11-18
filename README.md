@@ -46,8 +46,8 @@ Like a chameleon adapting to its environment, this AI chat platform transforms t
 
 ```bash
 # Clone repo
-git clone https://github.com/robbyczgw-cla/v0-react-chat-interface.git
-cd v0-react-chat-interface
+git clone https://github.com/robbyczgw-cla/Chameleon-AI-Chat.git
+cd Chameleon-AI-Chat
 
 # Install dependencies
 npm install

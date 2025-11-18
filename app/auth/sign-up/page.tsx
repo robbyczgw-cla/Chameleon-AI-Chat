@@ -33,8 +33,8 @@ export default function Page() {
       return
     }
 
-    if (password.length < 6) {
-      setError("Passwort muss mindestens 6 Zeichen lang sein")
+    if (password.length < 8) {
+      setError("Passwort muss mindestens 8 Zeichen lang sein")
       setIsLoading(false)
       return
     }
@@ -222,7 +222,7 @@ export default function Page() {
       </div>
 
       {/* Legal Footer */}
-      <div className="fixed bottom-0 left-0 right-0">
+      <div className="fixed bottom-0 left-0 right-0 z-50">
         <LegalFooter />
       </div>
     </div>

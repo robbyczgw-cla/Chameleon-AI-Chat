@@ -216,7 +216,7 @@ export interface AppSettings {
   codeTheme?: "github-dark" | "github-light" | "monokai" | "dracula"
   enableKeyboardShortcuts?: boolean
   showDetailedStats?: boolean // Show detailed LLM stats (tokens, cost, performance)
-  useExaSearch?: boolean // Use Exa semantic search via OpenRouter :online (HiFi mode only)
+  useExaSearch?: boolean // Use Exa semantic search via OpenRouter :online
   experimental?: ExperimentalSettings // Experimental features
 }
 

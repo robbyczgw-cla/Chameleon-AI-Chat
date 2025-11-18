@@ -63,43 +63,43 @@ type TopicCategory = "philosophy" | "technology" | "society" | "fun" | "custom"
 
 const DEBATE_TOPICS: Record<TopicCategory, { label: string; emoji: string; examples: string[] }> = {
   philosophy: {
-    label: "Philosophie",
+    label: "Philosophy",
     emoji: "🤔",
     examples: [
-      "Ist freier Wille eine Illusion?",
-      "Gibt es objektive Moral?",
-      "Was macht ein gutes Leben aus?",
+      "Is free will an illusion?",
+      "Does objective morality exist?",
+      "What makes a good life?",
     ],
   },
   technology: {
-    label: "Technologie",
+    label: "Technology",
     emoji: "💻",
     examples: [
-      "Sollte AGI stärker reguliert werden?",
-      "Ist Kryptowährung die Zukunft des Geldes?",
-      "Bringen soziale Medien mehr Schaden als Nutzen?",
+      "Should AGI be more heavily regulated?",
+      "Is cryptocurrency the future of money?",
+      "Do social media do more harm than good?",
     ],
   },
   society: {
-    label: "Gesellschaft",
+    label: "Society",
     emoji: "🏛️",
     examples: [
-      "Bedingungsloses Grundeinkommen - Pro oder Contra?",
-      "Ist Remote Work besser als Office?",
-      "Sollte Bildung komplett kostenlos sein?",
+      "Universal Basic Income - Pro or Con?",
+      "Is remote work better than office?",
+      "Should education be completely free?",
     ],
   },
   fun: {
-    label: "Spaß",
+    label: "Fun",
     emoji: "🎉",
     examples: [
-      "Ananas auf Pizza - Verbrechen oder kulinarisches Meisterwerk?",
-      "Katzen vs. Hunde - wer ist besser?",
-      "Ist ein Hot Dog ein Sandwich?",
+      "Pineapple on pizza - crime or culinary masterpiece?",
+      "Cats vs. Dogs - which is better?",
+      "Is a hot dog a sandwich?",
     ],
   },
   custom: {
-    label: "Eigenes",
+    label: "Custom",
     emoji: "✏️",
     examples: [],
   },
@@ -109,17 +109,17 @@ const DEBATE_STYLES: Record<DebateStyle, { label: string; description: string; e
   freestyle: {
     label: "Freestyle",
     emoji: "🎭",
-    description: "Offen und kreativ - keine Regeln",
+    description: "Open and creative - no rules",
   },
   oxford: {
     label: "Oxford",
     emoji: "🎓",
-    description: "Formale Struktur mit klaren Argumenten",
+    description: "Formal structure with clear arguments",
   },
   socratic: {
-    label: "Sokratisch",
+    label: "Socratic",
     emoji: "💬",
-    description: "Durch Fragen zum Widerspruch führen",
+    description: "Lead through questions to contradiction",
   },
 }
 
@@ -184,14 +184,14 @@ export function AIDebateMode() {
           searchDepth: "basic",
           apiKey: settings.apiKeys.tavily,
         })
-        verification = result.answer || result.results[0]?.content || "Keine Verifizierung verfügbar"
+        verification = result.answer || result.results[0]?.content || "No verification available"
         sources = result.results.slice(0, 2).map((r) => r.url)
       } else if (settings.apiKeys.serper) {
         const result = await searchWithSerper(searchQuery, {
           maxResults: 3,
           apiKey: settings.apiKeys.serper,
         })
-        verification = result.answer || result.results[0]?.content || "Keine Verifizierung verfügbar"
+        verification = result.answer || result.results[0]?.content || "No verification available"
         sources = result.results.slice(0, 2).map((r) => r.url)
       }
 
@@ -280,7 +280,7 @@ export function AIDebateMode() {
 
   const startDebate = async () => {
     if (!topic.trim()) {
-      alert("Bitte gib ein Debattenthema ein!")
+      alert("Please enter a debate topic!")
       return
     }
 
@@ -416,7 +416,7 @@ export function AIDebateMode() {
       }
     } catch (error) {
       console.error("Debate failed:", error)
-      alert("Debate fehlgeschlagen. Bitte versuche es erneut.")
+      alert("Debate failed. Please try again.")
     } finally {
       setIsDebating(false)
     }
@@ -512,7 +512,7 @@ Sei objektiv und fair. Nenne klar den Gewinner!`
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-lg sm:text-xl font-bold truncate">AI Debate Arena</h2>
-            <p className="text-xs sm:text-sm text-muted-foreground truncate">Zwei KI-Modelle debattieren ein Thema</p>
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">Two AI models debate a topic</p>
           </div>
         </div>
 
@@ -633,7 +633,7 @@ Sei objektiv und fair. Nenne klar den Gewinner!`
             </div>
 
             <div>
-              <Label className="text-xs sm:text-sm font-medium mb-2 block">Runden</Label>
+              <Label className="text-xs sm:text-sm font-medium mb-2 block">Rounds</Label>
               <select
                 value={maxRounds}
                 onChange={(e) => setMaxRounds(Number(e.target.value))}
@@ -722,12 +722,12 @@ Sei objektiv und fair. Nenne klar den Gewinner!`
             {isDebating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Runde {currentRound} von {maxRounds}...
+                Round {currentRound} of {maxRounds}...
               </>
             ) : (
               <>
                 <Swords className="mr-2 h-4 w-4" />
-                Debate Starten ({maxRounds} Runden)
+                Start Debate ({maxRounds} Rounds)
               </>
             )}
           </Button>
@@ -739,8 +739,8 @@ Sei objektiv und fair. Nenne klar den Gewinner!`
         {debateMessages.length === 0 && !isDebating && (
           <div className="text-center py-8 sm:py-12 text-muted-foreground">
             <Swords className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 opacity-50" />
-            <p className="text-base sm:text-lg font-medium">Bereit für die Debatte?</p>
-            <p className="text-xs sm:text-sm mt-2">Wähle ein Thema, Stil und zwei Modelle</p>
+            <p className="text-base sm:text-lg font-medium">Ready for the debate?</p>
+            <p className="text-xs sm:text-sm mt-2">Choose a topic, style, and two models</p>
           </div>
         )}
 
@@ -758,7 +758,7 @@ Sei objektiv und fair. Nenne klar den Gewinner!`
                   <div className="flex items-center gap-2 sm:gap-3">
                     <Badge variant="outline" className="px-3 sm:px-4 py-1 sm:py-1.5 text-sm sm:text-base font-bold">
                       <Trophy className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                      Runde {round}
+                      Round {round}
                     </Badge>
                     {round <= currentRound && roundMessages.length < 2 && isDebating && (
                       <Loader2 className="h-4 w-4 animate-spin text-primary" />

@@ -70,7 +70,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   serperSettings: {
     maxResults: 5,
     includeImages: false,
-    country: "at", // Austria for HiFi Team
+    country: "at",
     language: "de", // German
   },
   showDetailedStats: false, // Disabled by default, enable for hardcore LLM nerds

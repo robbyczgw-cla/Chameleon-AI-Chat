@@ -161,7 +161,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
                 size="icon"
                 className="h-7 w-7 hover:scale-110 transition-all rounded-lg bg-background/80 backdrop-blur-sm"
                 onClick={(e) => handleTogglePin(chat.id, e)}
-                title={chat.pinned ? "Lösen" : "Anheften"}
+                title={chat.pinned ? "Unpin" : "Pin"}
               >
                 <Pin className={cn("h-3.5 w-3.5", chat.pinned && "fill-current text-primary")} />
               </Button>
@@ -170,7 +170,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
                 size="icon"
                 className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/15 hover:scale-110 transition-all rounded-lg bg-background/80 backdrop-blur-sm"
                 onClick={(e) => handleDeleteChat(chat.id, e)}
-                title="Chat löschen"
+                title="Delete chat"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -183,12 +183,12 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={(e) => handleEditStart(chat.id, chat.title, e)}>
                     <Edit2 className="h-3 w-3 mr-2" />
-                    Umbenennen
+                    Rename
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={(e) => handleDeleteChat(chat.id, e)} className="text-destructive">
                     <Trash2 className="h-3 w-3 mr-2" />
-                    Löschen
+                    Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -203,7 +203,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
     <div className="flex h-full w-[280px] sm:w-80 md:w-64 flex-col border-r border-border/60 bg-gradient-to-b from-background/98 via-background to-muted/10 shadow-2xl md:shadow-lg backdrop-blur-sm">
       <div className="flex items-center gap-3 border-b border-border/50 p-4 md:p-5 bg-gradient-to-r from-primary/15 via-primary/8 to-transparent">
         {onClose && (
-          <Button variant="ghost" size="icon" className="md:hidden h-10 w-10 hover:scale-105 transition-all rounded-xl shrink-0 hover:bg-primary/10" onClick={onClose} title="Schließen">
+          <Button variant="ghost" size="icon" className="md:hidden h-10 w-10 hover:scale-105 transition-all rounded-xl shrink-0 hover:bg-primary/10" onClick={onClose} title="Close">
             <X className="h-5 w-5" />
           </Button>
         )}
@@ -221,7 +221,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
       <div className="flex items-center gap-2 border-b border-border/50 p-4 md:p-5">
         <Button onClick={handleNewChat} className="flex-1 gap-2 shadow-md hover:shadow-lg h-10 md:h-11 font-semibold rounded-xl transition-all hover:scale-105" size="sm">
           <MessageSquarePlus className="h-4 w-4" />
-          <span className="hidden sm:inline">Neuer Chat</span>
+          <span className="hidden sm:inline">New Chat</span>
         </Button>
         <Dialog open={isNewFolderOpen} onOpenChange={setIsNewFolderOpen}>
           <DialogTrigger asChild>
@@ -231,14 +231,14 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Ordner erstellen</DialogTitle>
+              <DialogTitle>Create Folder</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="folder-name">Ordnername</Label>
+                <Label htmlFor="folder-name">Folder Name</Label>
                 <Input
                   id="folder-name"
-                  placeholder="Mein Ordner"
+                  placeholder="My Folder"
                   value={newFolderName}
                   onChange={(e) => setNewFolderName(e.target.value)}
                   onKeyDown={(e) => {
@@ -247,7 +247,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
                 />
               </div>
               <Button onClick={handleCreateFolder} className="w-full">
-                Ordner erstellen
+                Create Folder
               </Button>
             </div>
           </DialogContent>
@@ -257,7 +257,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
           size="icon"
           className="h-10 w-10 md:h-11 md:w-11 shadow-md hover:shadow-lg text-destructive hover:text-destructive hover:bg-destructive/15 hover:scale-105 transition-all rounded-xl border-border/60 bg-background/50"
           onClick={() => setIsDeleteAllOpen(true)}
-          title="Alle Chats löschen"
+          title="Delete All Chats"
           disabled={chats.length === 0}
         >
           <Trash2 className="h-4 w-4" />
@@ -268,7 +268,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
           <Input
-            placeholder="Chats durchsuchen..."
+            placeholder="Search chats..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 shadow-md rounded-xl border-border/60 bg-background/50 focus:bg-background transition-all"
@@ -280,7 +280,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         <div className="space-y-0">
           {pinnedChats.length > 0 && (
             <>
-              <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">Angeheftet</div>
+              <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">Pinned</div>
               {pinnedChats.map(renderChatItem)}
               <div className="my-2 border-t border-border" />
             </>
@@ -288,7 +288,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
 
           {folders.length > 0 && (
             <>
-              <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">Ordner</div>
+              <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">Folders</div>
               {folders.map((folder) => (
                 <div key={folder.id} className="space-y-1">
                   <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium">
@@ -302,9 +302,9 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             </>
           )}
 
-          <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">Letzte</div>
+          <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">Recent</div>
           {unpinnedChats.length === 0 ? (
-            <div className="px-3 py-8 text-center text-sm text-muted-foreground">Noch keine Chats</div>
+            <div className="px-3 py-8 text-center text-sm text-muted-foreground">No chats yet</div>
           ) : (
             unpinnedChats.map(renderChatItem)
           )}
@@ -322,7 +322,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             variant="default"
           >
             <User className="h-4 w-4" />
-            Anmelden
+            Sign In
           </Button>
         </div>
       )}
@@ -336,14 +336,14 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{user.email}</p>
-              <p className="text-xs text-muted-foreground">Angemeldet</p>
+              <p className="text-xs text-muted-foreground">Signed In</p>
             </div>
             <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-muted-foreground hover:text-foreground"
               onClick={() => signOut()}
-              title="Abmelden"
+              title="Sign Out"
             >
               <LogOut className="h-4 w-4" />
             </Button>
@@ -354,19 +354,19 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
       <AlertDialog open={isDeleteAllOpen} onOpenChange={setIsDeleteAllOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Alle Chats löschen?</AlertDialogTitle>
+            <AlertDialogTitle>Delete all chats?</AlertDialogTitle>
             <AlertDialogDescription>
-              Diese Aktion kann nicht rückgängig gemacht werden. Alle {chats.length} Chat{chats.length !== 1 ? "s" : ""}{" "}
-              werden dauerhaft gelöscht.
+              This action cannot be undone. All {chats.length} chat{chats.length !== 1 ? "s" : ""}{" "}
+              will be permanently deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAllChats}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Alle löschen
+              Delete All
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

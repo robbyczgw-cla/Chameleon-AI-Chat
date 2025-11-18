@@ -548,7 +548,7 @@ export async function improvePrompt(originalPrompt: string, apiKey: string): Pro
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "",
-      "X-Title": "Marachat - Prompt Helper",
+      "X-Title": "Chameleon Chat - Prompt Helper",
     },
     body: JSON.stringify({
       model: "x-ai/grok-4-fast", // Fast and cheap for this task

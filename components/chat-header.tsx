@@ -126,17 +126,35 @@ export function ChatHeader() {
     const handleOpenPersonas = () => setIsPersonasOpen(true)
     const handleOpenSettings = () => setIsSettingsOpen(true)
     const handleOpenDocCollections = () => setIsDocCollectionsOpen(true)
+    const handleOpenPromptHelper = () => setIsPromptHelperOpen(true)
+    const handleOpenProfile = () => setIsProfileOpen(true)
+    const handleOpenMemory = () => setIsMemoryOpen(true)
+    const handleOpenAdvancedSettings = () => setIsAdvancedSettingsOpen(true)
+    const handleOpenDebate = () => setIsDebateOpen(true)
+    const handleOpenInspector = () => setIsInspectorOpen(true)
 
     window.addEventListener("openSearch", handleOpenSearch)
     window.addEventListener("openPersonas", handleOpenPersonas)
     window.addEventListener("openSettings", handleOpenSettings)
     window.addEventListener("openDocCollections", handleOpenDocCollections)
+    window.addEventListener("openPromptHelper", handleOpenPromptHelper)
+    window.addEventListener("openProfile", handleOpenProfile)
+    window.addEventListener("openMemory", handleOpenMemory)
+    window.addEventListener("openAdvancedSettings", handleOpenAdvancedSettings)
+    window.addEventListener("openDebate", handleOpenDebate)
+    window.addEventListener("openInspector", handleOpenInspector)
 
     return () => {
       window.removeEventListener("openSearch", handleOpenSearch)
       window.removeEventListener("openPersonas", handleOpenPersonas)
       window.removeEventListener("openSettings", handleOpenSettings)
       window.removeEventListener("openDocCollections", handleOpenDocCollections)
+      window.removeEventListener("openPromptHelper", handleOpenPromptHelper)
+      window.removeEventListener("openProfile", handleOpenProfile)
+      window.removeEventListener("openMemory", handleOpenMemory)
+      window.removeEventListener("openAdvancedSettings", handleOpenAdvancedSettings)
+      window.removeEventListener("openDebate", handleOpenDebate)
+      window.removeEventListener("openInspector", handleOpenInspector)
     }
   }, [])
 
@@ -199,17 +217,23 @@ export function ChatHeader() {
   return (
     <>
       <header className="flex h-14 md:h-16 items-center justify-between border-b border-border/60 bg-gradient-to-r from-background/98 to-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 px-2 sm:px-4 md:px-5 shadow-md">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-          {/* Mobile Menu Button */}
-          <Button variant="ghost" size="icon" className="md:hidden flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 hover:bg-primary/10 hover:scale-105 transition-all rounded-xl" onClick={toggleMobileSidebar}>
-            <Menu className="h-5 w-5 sm:h-5.5 sm:w-5.5" />
-          </Button>
+        {/* Mobile: Simple title only */}
+        <div className="flex md:hidden items-center gap-2 min-w-0 flex-1 justify-center">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-lg border border-primary/10 flex-shrink-0">
+            <ChameleonLogoSimple className="text-green-600" size={20} animated />
+          </div>
+          <h1 className="text-sm font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
+            {currentChat?.title || "Chameleon AI"}
+          </h1>
+        </div>
 
+        {/* Desktop: Full header with all controls */}
+        <div className="hidden md:flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           {/* Desktop Sidebar Toggle */}
           <Button
             variant="ghost"
             size="icon"
-            className="hidden md:flex flex-shrink-0 h-10 w-10 hover:bg-primary/10 hover:scale-105 transition-all rounded-xl"
+            className="flex-shrink-0 h-10 w-10 hover:bg-primary/10 hover:scale-105 transition-all rounded-xl"
             onClick={toggleDesktopSidebar}
             title="Toggle Sidebar"
           >
@@ -217,7 +241,7 @@ export function ChatHeader() {
           </Button>
 
           <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-            <div className="hidden sm:flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-lg border border-primary/10 flex-shrink-0">
+            <div className="flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-lg border border-primary/10 flex-shrink-0">
               <ChameleonLogoSimple className="text-green-600" size={20} animated />
             </div>
             <h1 className="text-sm sm:text-base lg:text-lg font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
@@ -226,7 +250,7 @@ export function ChatHeader() {
           </div>
         </div>
 
-        <div className="flex items-center gap-0.5 sm:gap-1 md:gap-1.5 flex-shrink-0">
+        <div className="hidden md:flex items-center gap-0.5 sm:gap-1 md:gap-1.5 flex-shrink-0">
           <Button
             variant="ghost"
             size="icon"
