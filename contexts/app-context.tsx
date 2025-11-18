@@ -179,32 +179,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setUser(null)
         setHasInitiallyLoaded(true)
 
-        // SECURITY: Clear any existing API keys from previous sessions
-        // Guest users must add their own API keys
-        console.log("[v0] 🔒 GUEST MODE: Clearing existing API keys for security")
-        setSettings((prev) => ({
-          ...prev,
-          apiKeys: {
-            openRouter: "",
-            tavily: "",
-            serper: "",
-          },
-        }))
-        // Also clear from localStorage immediately
-        const settingsFromStorage = localStorage.getItem("settings")
-        if (settingsFromStorage) {
-          try {
-            const parsed = JSON.parse(settingsFromStorage)
-            parsed.apiKeys = {
-              openRouter: "",
-              tavily: "",
-              serper: "",
-            }
-            localStorage.setItem("settings", JSON.stringify(parsed))
-          } catch (e) {
-            console.error("[v0] Failed to clear API keys from localStorage:", e)
-          }
-        }
+        // Guest mode: API keys and settings are stored in localStorage only
+        // No need to clear them - user's data persists across sessions
+        console.log("[v0] 🔒 GUEST MODE: Using existing settings from localStorage")
 
         return
       }
@@ -694,6 +671,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       messages: [],
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      model: model || settings.selectedModel, // Use provided model or default to settings
     }
 
     setChats((prev) => [newChat, ...prev])
