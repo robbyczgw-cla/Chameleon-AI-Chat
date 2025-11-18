@@ -280,13 +280,13 @@ export function AIDebateMode() {
 
   const startDebate = async () => {
     if (!topic.trim()) {
-      alert("Please enter a debate topic!")
+      alert("Please enter a discussion topic!")
       return
     }
 
     // Check if API key is configured
     if (!settings.apiKeys.openRouter) {
-      alert("OpenRouter API Key Required!\n\nPlease add your OpenRouter API key in Settings → API Keys to use the debate feature.")
+      alert("OpenRouter API Key Required!\n\nPlease add your OpenRouter API key in Settings → API Keys to use the discussion feature.")
       return
     }
 
@@ -301,10 +301,7 @@ export function AIDebateMode() {
       model2: { arguments: 0, factAccuracy: 0, rebuttals: 0, clarity: 0, total: 0 },
     })
 
-    // 🎲 RANDOMIZE POSITIONS: Randomly assign Pro/Con to prevent predictable debates
-    const positions = Math.random() > 0.5
-      ? { model1: "Pro", model2: "Contra" }
-      : { model1: "Contra", model2: "Pro" }
+    // Let models express their genuine views (no forced Pro/Contra positions)
 
     try {
       // Collect all messages locally to avoid React state async issues
@@ -314,7 +311,7 @@ export function AIDebateMode() {
         setCurrentRound(round)
 
         // Model 1's turn
-        const prompt1 = buildDebatePrompt(model1, topic, allMessages, round, positions.model1, getModelName(model2), debateStyle, positions.model2)
+        const prompt1 = buildDebatePrompt(model1, topic, allMessages, round, getModelName(model2), debateStyle)
         let response1 = ""
 
         await streamChatMessage(
@@ -358,7 +355,7 @@ export function AIDebateMode() {
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
         // Model 2's turn
-        const prompt2 = buildDebatePrompt(model2, topic, allMessages, round, positions.model2, getModelName(model1), debateStyle, positions.model1)
+        const prompt2 = buildDebatePrompt(model2, topic, allMessages, round, getModelName(model1), debateStyle)
         let response2 = ""
 
         await streamChatMessage(
@@ -426,8 +423,8 @@ export function AIDebateMode() {
         setJudgeVerdict(verdict)
       }
     } catch (error) {
-      console.error("Debate failed:", error)
-      let errorMessage = "Debate failed. Please try again."
+      console.error("Discussion failed:", error)
+      let errorMessage = "Discussion failed. Please try again."
 
       if (error instanceof Error) {
         if (error.message.includes("401") || error.message.includes("Unauthorized")) {
@@ -439,7 +436,7 @@ export function AIDebateMode() {
         } else if (error.message.includes("500") || error.message.includes("502") || error.message.includes("503")) {
           errorMessage = "Server Error: The AI service is temporarily unavailable.\n\nPlease try again in a few moments."
         } else {
-          errorMessage = `Debate failed: ${error.message}`
+          errorMessage = `Discussion failed: ${error.message}`
         }
       }
 
@@ -454,10 +451,8 @@ export function AIDebateMode() {
     debateTopic: string,
     previousMessages: DebateMessage[],
     round: number,
-    myPosition: string,
     opponentName: string,
-    style: DebateStyle,
-    opponentPosition: string
+    style: DebateStyle
   ): string => {
     const previousContext = previousMessages
       .filter((msg) => msg.round < round || (msg.round === round && msg.model !== currentModel))
@@ -465,17 +460,14 @@ export function AIDebateMode() {
       .join("\n\n")
 
     const styleInstructions = {
-      freestyle: "Sei kreativ und leidenschaftlich. Keine festen Regeln - überzeuge auf deine Art!",
-      oxford: "Nutze formale Argumentationsstruktur: These, Begründung, Beispiel, Schlussfolgerung. Bleib akademisch und präzise.",
-      socratic: "Stelle clevere Fragen die Widersprüche in den Argumenten deines Gegners aufdecken. Führe durch Fragen zur Wahrheit.",
+      freestyle: "Sei kreativ und authentisch. Teile deine echte Perspektive!",
+      oxford: "Nutze strukturierte Argumentation: Analyse, Begründung, Beispiele. Bleib akademisch und präzise.",
+      socratic: "Stelle durchdachte Fragen und erkunde verschiedene Perspektiven durch Dialog.",
     }
 
-    return `Du bist Teilnehmer einer KI-Debatte im ${DEBATE_STYLES[style].label}-Stil. Du debattierst gegen ${opponentName}.
+    return `Du bist Teilnehmer einer KI-Diskussion mit ${opponentName}. Teile deine ECHTE Meinung und Perspektive zu diesem Thema.
 
-**DEBATTENTHEMA:** ${debateTopic}
-
-**DEINE POSITION:** ${myPosition} (Du argumentierst ${myPosition === "Pro" ? "FÜR" : "GEGEN"} das Thema)
-**GEGNER POSITION:** ${opponentPosition} (${opponentName} argumentiert ${opponentPosition === "Pro" ? "FÜR" : "GEGEN"} das Thema)
+**DISKUSSIONSTHEMA:** ${debateTopic}
 
 **STIL:** ${DEBATE_STYLES[style].label} (${styleInstructions[style]})
 
@@ -485,18 +477,18 @@ ${previousContext ? `**BISHERIGER VERLAUF:**\n${previousContext}\n\n` : ""}
 
 **DEINE AUFGABE:**
 ${round === 1
-  ? `Präsentiere deine Eröffnungsargumente ${myPosition === "Pro" ? "FÜR" : "GEGEN"} das Thema. Verteidige die ${myPosition}-Position mit überzeugenden Argumenten.`
-  : `Reagiere auf die Argumente deines Gegners und verstärke deine ${myPosition}-Position. ${round === maxRounds ? "Dies ist deine finale Argumentation - fasse zusammen und überzeuge!" : ""}`
+  ? `Teile deine authentische Sicht auf dieses Thema. Was denkst DU wirklich darüber? Sei ehrlich und nuanciert.`
+  : `Reagiere auf ${opponentName}'s Perspektive. Du kannst zustimmen, widersprechen, oder eine andere Sichtweise einbringen. Sei authentisch! ${round === maxRounds ? "Dies ist deine finale Stellungnahme - fasse deine Sicht zusammen." : ""}`
 }
 
-**REGELN:**
+**WICHTIG:**
 - Maximal 3-4 Sätze
-- Sei prägnant und überzeugend
-- Verteidige IMMER deine ${myPosition}-Position
-- Beziehe dich auf Gegner-Argumente wenn vorhanden
-- Bleibe sachlich aber leidenschaftlich
+- Teile deine ECHTE Meinung (nicht künstlich Pro oder Contra)
+- Du darfst nuanciert sein, teilweise zustimmen/widersprechen
+- Beziehe dich auf ${opponentName}'s Punkte wenn vorhanden
+- Sei authentisch und durchdacht
 
-**DEINE ANTWORT:**`
+**DEINE EHRLICHE MEINUNG:**`
   }
 
   const buildJudgePrompt = (
@@ -505,33 +497,33 @@ ${round === 1
     model1Name: string,
     model2Name: string
   ): string => {
-    const fullDebate = messages.map((msg, i) => `Runde ${msg.round} - ${msg.modelName}:\n${msg.content}`).join("\n\n")
+    const fullDiscussion = messages.map((msg, i) => `Runde ${msg.round} - ${msg.modelName}:\n${msg.content}`).join("\n\n")
 
-    return `Du bist ein unparteiischer Richter einer KI-Debatte. Analysiere die Argumente beider Seiten und verkünde einen Gewinner.
+    return `Du bist ein neutraler Beobachter einer KI-Diskussion. Analysiere die Perspektiven beider Modelle und bewerte ihre Beiträge.
 
-**DEBATTENTHEMA:** ${debateTopic}
+**DISKUSSIONSTHEMA:** ${debateTopic}
 
 **TEILNEHMER:**
 - ${model1Name} (Model 1)
 - ${model2Name} (Model 2)
 
-**KOMPLETTE DEBATTE:**
-${fullDebate}
+**KOMPLETTE DISKUSSION:**
+${fullDiscussion}
 
 **DEINE AUFGABE:**
-Bewerte die Debatte nach folgenden Kriterien:
-1. **Logik** (25%): Wie schlüssig sind die Argumente?
-2. **Überzeungskraft** (25%): Wie stark ist die Argumentation?
-3. **Reaktion auf Gegner** (25%): Wie gut wurden Gegenargumente entkräftet?
-4. **Klarheit** (25%): Wie verständlich war die Argumentation?
+Bewerte die Diskussion nach folgenden Kriterien:
+1. **Tiefgang** (25%): Wie nuanciert und durchdacht sind die Perspektiven?
+2. **Authentizität** (25%): Wie ehrlich und genuine wirken die Ansichten?
+3. **Konstruktivität** (25%): Wie gut bauen sie aufeinander auf?
+4. **Klarheit** (25%): Wie verständlich wurden die Gedanken kommuniziert?
 
 **FORMAT DEINER ANTWORT:**
 1. Kurze Analyse für ${model1Name} (2 Sätze)
 2. Kurze Analyse für ${model2Name} (2 Sätze)
-3. **GEWINNER:** [Name des Gewinners]
-4. **BEGRÜNDUNG:** 2-3 Sätze warum dieser Teilnehmer gewonnen hat
+3. **ÜBERZEUGENDSTE PERSPEKTIVE:** [Name]
+4. **BEGRÜNDUNG:** 2-3 Sätze warum diese Sichtweise am überzeugendsten war
 
-Sei objektiv und fair. Nenne klar den Gewinner!`
+Sei objektiv und fair in deiner Bewertung!`
   }
 
   return (
@@ -543,8 +535,8 @@ Sei objektiv und fair. Nenne klar den Gewinner!`
             <Swords className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg sm:text-xl font-bold truncate">AI Debate Arena</h2>
-            <p className="text-xs sm:text-sm text-muted-foreground truncate">Two AI models debate a topic</p>
+            <h2 className="text-lg sm:text-xl font-bold truncate">AI Discussion</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">Two AI models share their genuine perspectives</p>
           </div>
         </div>
 
@@ -593,22 +585,22 @@ Sei objektiv und fair. Nenne klar den Gewinner!`
             </div>
           )}
 
-          {/* Debate Topic Input */}
+          {/* Discussion Topic Input */}
           <div>
-            <Label className="text-xs sm:text-sm font-medium mb-2 block">Debattenthema</Label>
+            <Label className="text-xs sm:text-sm font-medium mb-2 block">Diskussionsthema</Label>
             <Textarea
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="z.B. 'Sollte KI stärker reguliert werden?'"
+              placeholder="z.B. 'Was sind die Chancen und Risiken von KI?'"
               disabled={isDebating}
               rows={2}
               className="resize-none text-sm"
             />
           </div>
 
-          {/* Debate Style Selection */}
+          {/* Discussion Style Selection */}
           <div>
-            <Label className="text-xs sm:text-sm font-medium mb-2 block">Debate-Stil</Label>
+            <Label className="text-xs sm:text-sm font-medium mb-2 block">Diskussions-Stil</Label>
             <div className="grid grid-cols-3 gap-2">
               {Object.entries(DEBATE_STYLES).map(([key, { label, emoji, description }]) => (
                 <Button
@@ -759,19 +751,19 @@ Sei objektiv und fair. Nenne klar den Gewinner!`
             ) : (
               <>
                 <Swords className="mr-2 h-4 w-4" />
-                Start Debate ({maxRounds} Rounds)
+                Start Discussion ({maxRounds} Rounds)
               </>
             )}
           </Button>
         </div>
       </div>
 
-      {/* Debate Arena */}
+      {/* Discussion Arena */}
       <ScrollArea className="flex-1 p-3 sm:p-4 md:p-6">
         {debateMessages.length === 0 && !isDebating && (
           <div className="text-center py-8 sm:py-12 text-muted-foreground">
             <Swords className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 opacity-50" />
-            <p className="text-base sm:text-lg font-medium">Ready for the debate?</p>
+            <p className="text-base sm:text-lg font-medium">Ready to see what models really think?</p>
             <p className="text-xs sm:text-sm mt-2">Choose a topic, style, and two models</p>
           </div>
         )}
@@ -1010,7 +1002,7 @@ Sei objektiv und fair. Nenne klar den Gewinner!`
               </Card>
             )}
 
-            {/* New Debate Button */}
+            {/* New Discussion Button */}
             {debateMessages.length === maxRounds * 2 && !isDebating && (
               <div className="text-center pt-4">
                 <Button
@@ -1028,7 +1020,7 @@ Sei objektiv und fair. Nenne klar den Gewinner!`
                   size="sm"
                   className="text-sm"
                 >
-                  Neue Debate Starten
+                  Neue Diskussion Starten
                 </Button>
               </div>
             )}
