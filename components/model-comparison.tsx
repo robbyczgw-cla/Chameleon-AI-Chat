@@ -397,63 +397,74 @@ export function ModelComparison() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b p-3 sm:p-4">
-        <h2 className="text-base sm:text-lg font-semibold">Model Comparison</h2>
-        <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-3 border-b p-3 sm:p-4">
+        {/* Top row: Title and primary actions */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-base sm:text-lg font-semibold">Model Comparison</h2>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setHistoryOpen(true)}
+              title="Show History"
+              className="min-h-[44px] min-w-[44px]"
+            >
+              <History className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const event = new CustomEvent("toggleComparison")
+                window.dispatchEvent(event)
+              }}
+              title="Back to Chat"
+              className="min-h-[44px] min-w-[44px]"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Second row: Layout controls */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground mr-2">Layout:</span>
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const event = new CustomEvent("toggleComparison")
-              window.dispatchEvent(event)
-            }}
-            title="Back to Chat"
-            className="min-h-[44px] min-w-[44px]"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setHistoryOpen(true)}
-            title="Show History"
-            className="min-h-[44px] min-w-[44px]"
-          >
-            <History className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
+            variant={layout === "2-column" ? "default" : "outline"}
             size="sm"
             onClick={() => setLayout("2-column")}
-            className="min-h-[44px] min-w-[44px]"
+            className="min-h-[44px] min-w-[44px] flex-1 sm:flex-none"
           >
-            <Columns2 className="h-4 w-4" />
+            <Columns2 className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">2 Col</span>
           </Button>
           <Button
-            variant="outline"
+            variant={layout === "3-column" ? "default" : "outline"}
             size="sm"
             onClick={() => setLayout("3-column")}
-            className="min-h-[44px] min-w-[44px]"
+            className="min-h-[44px] min-w-[44px] flex-1 sm:flex-none"
           >
-            <Columns3 className="h-4 w-4" />
+            <Columns3 className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">3 Col</span>
           </Button>
           <Button
-            variant="outline"
+            variant={layout === "4-column" ? "default" : "outline"}
             size="sm"
             onClick={() => setLayout("4-column")}
-            className="min-h-[44px] min-w-[44px]"
+            className="min-h-[44px] min-w-[44px] flex-1 sm:flex-none"
           >
-            <Grid2x2 className="h-4 w-4" />
+            <Grid2x2 className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">4 Col</span>
           </Button>
           {panels.length < 4 && (
             <Button
               variant="outline"
               size="sm"
               onClick={addPanel}
-              className="min-h-[44px] text-xs sm:text-sm bg-transparent"
+              className="min-h-[44px] min-w-[44px]"
+              title="Add another model"
             >
-              <span className="hidden sm:inline">Add Panel</span>
-              <span className="sm:hidden">+</span>
+              <span className="text-lg">+</span>
             </Button>
           )}
         </div>
@@ -462,7 +473,7 @@ export function ModelComparison() {
       <div className={`grid flex-1 gap-3 sm:gap-4 p-3 sm:p-4 ${gridCols}`} style={{ minHeight: 0 }}>
         {panels.map((panel, index) => (
           <Card key={index} className="flex flex-col" style={{ minHeight: 0 }}>
-            <div className="flex items-center justify-between border-b p-2 sm:p-3 flex-shrink-0">
+            <div className="flex items-center gap-2 border-b p-3 flex-shrink-0">
               <select
                 value={panel.model}
                 onChange={(e) => {
@@ -470,11 +481,11 @@ export function ModelComparison() {
                   newPanels[index].model = e.target.value
                   setPanels(newPanels)
                 }}
-                className="rounded border bg-background px-2 py-1.5 text-xs sm:text-sm min-h-[44px] flex-1 mr-2"
+                className="rounded-md border bg-background px-3 py-2.5 text-sm min-h-[44px] flex-1 font-medium"
               >
                 {availableModels.map((model) => (
                   <option key={model.id} value={model.id}>
-                    {model.name} ({model.provider})
+                    {model.name}
                   </option>
                 ))}
               </select>
@@ -483,7 +494,8 @@ export function ModelComparison() {
                   variant="ghost"
                   size="sm"
                   onClick={() => removePanel(index)}
-                  className="min-h-[44px] min-w-[44px]"
+                  className="min-h-[44px] min-w-[44px] flex-shrink-0"
+                  title="Remove this panel"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -560,37 +572,36 @@ export function ModelComparison() {
       </div>
 
       <div className="border-t p-3 sm:p-4 flex-shrink-0">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="flex-1 relative">
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendToAll()}
               placeholder="Send to all models..."
-              className="w-full rounded-lg border bg-background px-3 sm:px-4 py-2.5 sm:py-2 pr-12 text-sm sm:text-base min-h-[44px]"
+              className="w-full rounded-lg border bg-background px-3 sm:px-4 py-3 text-sm sm:text-base min-h-[48px] flex-1"
             />
             <Button
               type="button"
-              size="icon"
-              variant={webSearchEnabled ? "default" : "ghost"}
-              className={`absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 ${
-                webSearchEnabled ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""
-              }`}
+              size="sm"
+              variant={webSearchEnabled ? "default" : "outline"}
+              className="min-h-[48px] min-w-[48px]"
               onClick={() => setWebSearchEnabled(!webSearchEnabled)}
               title={webSearchEnabled ? "Disable web search" : "Enable web search (Tavily)"}
               disabled={!settings.apiKeys.tavily}
             >
-              <Globe className={`h-4 w-4 ${webSearchEnabled ? "animate-pulse" : ""}`} />
+              <Globe className={`h-5 w-5 ${webSearchEnabled ? "animate-pulse" : ""}`} />
+            </Button>
+            <Button
+              onClick={sendToAll}
+              disabled={!input.trim() || panels.some((p) => p.isLoading)}
+              className="min-h-[48px] px-4 sm:px-6 text-sm sm:text-base font-medium"
+            >
+              <span className="hidden sm:inline">Send to All</span>
+              <span className="sm:hidden">Send</span>
             </Button>
           </div>
-          <Button
-            onClick={sendToAll}
-            disabled={!input.trim() || panels.some((p) => p.isLoading)}
-            className="min-h-[44px] text-sm sm:text-base"
-          >
-            Send to All
-          </Button>
         </div>
         {webSearchEnabled && settings.apiKeys.tavily && (
           <p className="text-xs text-primary mt-2 flex items-center gap-1">
