@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import ReactMarkdown from "react-markdown"
 import { voiceService } from "@/lib/voice"
 import remarkGfm from "remark-gfm"
-import rehypeRaw from "rehype-raw"
+import rehypeSanitize from "rehype-sanitize"
 /* Removed remark-math and rehype-katex to fix module loading error */
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism"
@@ -259,7 +259,7 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
                     )}
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
-                      rehypePlugins={[rehypeRaw]}
+                      rehypePlugins={[rehypeSanitize]}
                       components={{
                         p: ({ children }) => <p className="mb-4 last:mb-0 leading-7">{children}</p>,
                         h1: ({ children }) => (
