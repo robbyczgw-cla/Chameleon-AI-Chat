@@ -1,5 +1,5 @@
 "use client"
-
+// Cache bust: v2024-mobile-nav
 import { useState, useRef, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
