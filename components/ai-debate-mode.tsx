@@ -301,6 +301,11 @@ export function AIDebateMode() {
       model2: { arguments: 0, factAccuracy: 0, rebuttals: 0, clarity: 0, total: 0 },
     })
 
+    // 🎲 RANDOMIZE POSITIONS: Randomly assign Pro/Con to prevent predictable debates
+    const positions = Math.random() > 0.5
+      ? { model1: "Pro", model2: "Contra" }
+      : { model1: "Contra", model2: "Pro" }
+
     try {
       // Collect all messages locally to avoid React state async issues
       const allMessages: DebateMessage[] = []
@@ -309,7 +314,7 @@ export function AIDebateMode() {
         setCurrentRound(round)
 
         // Model 1's turn
-        const prompt1 = buildDebatePrompt(model1, topic, allMessages, round, "Model 1", getModelName(model2), debateStyle)
+        const prompt1 = buildDebatePrompt(model1, topic, allMessages, round, positions.model1, getModelName(model2), debateStyle, positions.model2)
         let response1 = ""
 
         await streamChatMessage(
@@ -353,7 +358,7 @@ export function AIDebateMode() {
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
         // Model 2's turn
-        const prompt2 = buildDebatePrompt(model2, topic, allMessages, round, "Model 2", getModelName(model1), debateStyle)
+        const prompt2 = buildDebatePrompt(model2, topic, allMessages, round, positions.model2, getModelName(model1), debateStyle, positions.model1)
         let response2 = ""
 
         await streamChatMessage(
@@ -449,9 +454,10 @@ export function AIDebateMode() {
     debateTopic: string,
     previousMessages: DebateMessage[],
     round: number,
-    position: string,
+    myPosition: string,
     opponentName: string,
-    style: DebateStyle
+    style: DebateStyle,
+    opponentPosition: string
   ): string => {
     const previousContext = previousMessages
       .filter((msg) => msg.round < round || (msg.round === round && msg.model !== currentModel))
@@ -468,6 +474,9 @@ export function AIDebateMode() {
 
 **DEBATTENTHEMA:** ${debateTopic}
 
+**DEINE POSITION:** ${myPosition} (Du argumentierst ${myPosition === "Pro" ? "FÜR" : "GEGEN"} das Thema)
+**GEGNER POSITION:** ${opponentPosition} (${opponentName} argumentiert ${opponentPosition === "Pro" ? "FÜR" : "GEGEN"} das Thema)
+
 **STIL:** ${DEBATE_STYLES[style].label} (${styleInstructions[style]})
 
 **RUNDE:** ${round} von ${maxRounds}
@@ -476,13 +485,14 @@ ${previousContext ? `**BISHERIGER VERLAUF:**\n${previousContext}\n\n` : ""}
 
 **DEINE AUFGABE:**
 ${round === 1
-  ? "Präsentiere deine Eröffnungsargumente zu diesem Thema. Sei überzeugend und strukturiert."
-  : `Reagiere auf die Argumente deines Gegners und verstärke deine Position. ${round === maxRounds ? "Dies ist deine finale Argumentation - fasse zusammen und überzeuge!" : ""}`
+  ? `Präsentiere deine Eröffnungsargumente ${myPosition === "Pro" ? "FÜR" : "GEGEN"} das Thema. Verteidige die ${myPosition}-Position mit überzeugenden Argumenten.`
+  : `Reagiere auf die Argumente deines Gegners und verstärke deine ${myPosition}-Position. ${round === maxRounds ? "Dies ist deine finale Argumentation - fasse zusammen und überzeuge!" : ""}`
 }
 
 **REGELN:**
 - Maximal 3-4 Sätze
 - Sei prägnant und überzeugend
+- Verteidige IMMER deine ${myPosition}-Position
 - Beziehe dich auf Gegner-Argumente wenn vorhanden
 - Bleibe sachlich aber leidenschaftlich
 
