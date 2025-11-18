@@ -189,6 +189,34 @@ export class SupabaseSync {
         serper: settings.apiKeys?.serper ? "***" + settings.apiKeys.serper.slice(-4) : "empty",
       })
 
+      // CRITICAL: Get existing settings to preserve API keys if new settings have empty values
+      const { data: existingSettings } = await this.supabase
+        .from("user_settings")
+        .select("openrouter_api_key, openai_api_key, tavily_api_key, serper_api_key")
+        .eq("user_id", userId)
+        .single()
+
+      // Prepare API key values - NEVER overwrite existing keys with null/empty
+      const openRouterKey = settings.apiKeys?.openRouter || existingSettings?.openrouter_api_key || null
+      const openAIKey = settings.apiKeys?.openAI || existingSettings?.openai_api_key || null
+      const tavilyKey = settings.apiKeys?.tavily || existingSettings?.tavily_api_key || null
+      const serperKey = settings.apiKeys?.serper || existingSettings?.serper_api_key || null
+
+      if (existingSettings) {
+        if (existingSettings.openrouter_api_key && !settings.apiKeys?.openRouter) {
+          console.warn("[Supabase] 🛡️ PROTECTION: Preserving existing OpenRouter key, refusing to clear it")
+        }
+        if (existingSettings.openai_api_key && !settings.apiKeys?.openAI) {
+          console.warn("[Supabase] 🛡️ PROTECTION: Preserving existing OpenAI key, refusing to clear it")
+        }
+        if (existingSettings.tavily_api_key && !settings.apiKeys?.tavily) {
+          console.warn("[Supabase] 🛡️ PROTECTION: Preserving existing Tavily key, refusing to clear it")
+        }
+        if (existingSettings.serper_api_key && !settings.apiKeys?.serper) {
+          console.warn("[Supabase] 🛡️ PROTECTION: Preserving existing Serper key, refusing to clear it")
+        }
+      }
+
       const { error } = await this.supabase.from("user_settings").upsert(
         {
           user_id: userId,
@@ -204,10 +232,10 @@ export class SupabaseSync {
           tavily_max_results: settings.tavilySettings.maxResults,
           tavily_include_images: settings.tavilySettings.includeImages,
           tavily_include_answer: settings.tavilySettings.includeAnswer,
-          openrouter_api_key: settings.apiKeys?.openRouter || null,
-          openai_api_key: settings.apiKeys?.openAI || null,
-          tavily_api_key: settings.apiKeys?.tavily || null,
-          serper_api_key: settings.apiKeys?.serper || null,
+          openrouter_api_key: openRouterKey,
+          openai_api_key: openAIKey,
+          tavily_api_key: tavilyKey,
+          serper_api_key: serperKey,
           search_provider: settings.searchProvider || "tavily",
           serper_max_results: settings.serperSettings?.maxResults || 5,
           serper_include_images: settings.serperSettings?.includeImages ?? true,
