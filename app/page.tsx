@@ -148,7 +148,7 @@ function ChatApp() {
     <div className="flex h-screen overflow-hidden bg-background">
       <PersonaLevelUpNotifier />
       {isMobileSidebarOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300" onClick={() => setIsMobileSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 md:hidden smooth-transition animate-fade-in" onClick={() => setIsMobileSidebarOpen(false)} />
       )}
 
       <div
@@ -219,16 +219,16 @@ function LoadingWrapper() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="flex flex-col items-center gap-6">
-          <div className="flex h-32 w-32 md:h-40 md:w-40 items-center justify-center rounded-3xl bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-2xl border border-primary/10">
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 animate-fade-in">
+        <div className="flex flex-col items-center gap-6 animate-scale-in">
+          <div className="flex h-32 w-32 md:h-40 md:w-40 items-center justify-center rounded-3xl glass-strong backdrop-blur-xl shadow-2xl border border-primary/20 hover-glow animate-pulse-glow">
             <ChameleonLogo size={120} animated colorShift />
           </div>
-          <div className="text-center space-y-2">
+          <div className="text-center space-y-2 animate-slide-in-up">
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
               Chameleon AI
             </h1>
-            <p className="text-sm md:text-base text-muted-foreground font-medium">Adapting to your conversation...</p>
+            <p className="text-sm md:text-base text-muted-foreground font-medium animate-shimmer">Adapting to your conversation...</p>
           </div>
         </div>
       </div>

@@ -194,10 +194,10 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
         {currentChat.messages.map((message, index) => (
           <div
             key={message.id}
-            className={cn("flex gap-1 sm:gap-4 group w-full", message.role === "user" ? "justify-end" : "justify-start")}
+            className={cn("flex gap-1 sm:gap-4 group w-full animate-slide-in-up", message.role === "user" ? "justify-end" : "justify-start")}
           >
             {message.role === "assistant" && (
-              <Avatar className="h-6 w-6 sm:h-8 sm:w-8 border-2 border-primary/20 shrink-0 glow-subtle">
+              <Avatar className="h-6 w-6 sm:h-8 sm:w-8 border-2 border-primary/20 shrink-0 glow-subtle hover-glow smooth-transition">
                 {currentPersona?.avatarUrl ? (
                   <>
                     <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
@@ -238,10 +238,10 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
 
               <div
                 className={cn(
-                  "rounded-2xl px-2 py-1.5 sm:px-4 sm:py-3 text-sm sm:text-base transition-all duration-200 max-w-full",
+                  "rounded-2xl px-2 py-1.5 sm:px-4 sm:py-3 text-sm sm:text-base smooth-transition max-w-full",
                   message.role === "user"
-                    ? "bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg shadow-primary/20"
-                    : "glass backdrop-blur-xl border border-border/50 shadow-sm",
+                    ? "gradient-premium text-primary-foreground shadow-lg shadow-primary/30 hover-lift glow-subtle"
+                    : "glass-strong backdrop-blur-xl border border-border/50 shadow-md hover-lift",
                 )}
               >
                 {message.role === "assistant" ? (
@@ -501,7 +501,7 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
             </div>
 
             {message.role === "user" && (
-              <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border border-border shrink-0">
+              <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border border-border shrink-0 hover-scale smooth-transition">
                 <AvatarFallback className="bg-secondary text-secondary-foreground">
                   <User className="h-4 w-4" />
                 </AvatarFallback>
@@ -512,8 +512,8 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
 
         {/* Typing indicator when loading */}
         {isChatLoading && (
-          <div className="flex gap-2 sm:gap-4">
-            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border-2 border-primary/20 shrink-0 glow-subtle">
+          <div className="flex gap-2 sm:gap-4 animate-slide-in-up">
+            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border-2 border-primary/20 shrink-0 animate-pulse-glow">
               {currentPersona?.avatarUrl ? (
                 <>
                   <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
@@ -532,7 +532,7 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
               )}
             </Avatar>
             <div className="flex flex-col gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]">
-              <div className="rounded-2xl px-3 py-2 sm:px-4 sm:py-3 glass backdrop-blur-xl border border-border/50 shadow-sm">
+              <div className="rounded-2xl px-3 py-2 sm:px-4 sm:py-3 glass-strong backdrop-blur-xl border border-border/50 shadow-md">
                 <div className="flex gap-1 items-center">
                   <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                   <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
