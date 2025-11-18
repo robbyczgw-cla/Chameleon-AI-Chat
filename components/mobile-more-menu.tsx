@@ -206,7 +206,6 @@ export function MobileMoreMenu({
 
           <div className="border-t pt-2 space-y-1">
             <MenuItem icon={Sliders} label="Advanced Settings" onClick={onAdvancedSettingsClick} />
-            <MenuItem icon={Settings} label="Settings" onClick={onSettingsClick} />
           </div>
         </div>
       </SheetContent>
