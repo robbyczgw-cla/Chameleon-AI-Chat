@@ -1,8 +1,10 @@
+"use client"
+
 import Link from "next/link"
 
 export function LegalFooter() {
   return (
-    <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <footer className="relative border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
@@ -10,22 +12,22 @@ export function LegalFooter() {
             <span>© {new Date().getFullYear()} Chameleon AI Chat</span>
           </div>
 
-          <nav className="flex items-center gap-4 md:gap-6">
+          <nav className="flex items-center gap-4 md:gap-6 relative z-50">
             <Link
               href="/privacy"
-              className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
+              className="hover:text-foreground transition-colors underline-offset-4 hover:underline cursor-pointer"
             >
               Privacy Policy
             </Link>
             <Link
               href="/terms"
-              className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
+              className="hover:text-foreground transition-colors underline-offset-4 hover:underline cursor-pointer"
             >
               Terms of Service
             </Link>
             <Link
               href="/cookies"
-              className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
+              className="hover:text-foreground transition-colors underline-offset-4 hover:underline cursor-pointer"
             >
               Cookies
             </Link>
