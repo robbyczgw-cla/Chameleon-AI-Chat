@@ -44,21 +44,21 @@ export default function Page() {
   return (
     <div className="relative flex min-h-svh w-full items-center justify-center overflow-hidden">
       {/* Multi-layer animated gradient background - Chameleon colors */}
-      <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-slate-950 dark:via-green-950/20 dark:to-slate-900" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.15),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.15),transparent_50%)]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-slate-950 dark:via-green-950/20 dark:to-slate-900 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.15),transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.15),transparent_50%)] pointer-events-none" />
 
       {/* Large animated blobs - Chameleon colors */}
-      <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-br from-green-400/40 to-emerald-500/40 dark:from-green-600/30 dark:to-emerald-700/30 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl animate-blob opacity-70" />
-      <div className="absolute top-40 right-10 w-96 h-96 bg-gradient-to-br from-blue-400/40 to-cyan-500/40 dark:from-blue-600/30 dark:to-cyan-700/30 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl animate-blob animation-delay-2000 opacity-70" />
-      <div className="absolute -bottom-8 left-20 w-96 h-96 bg-gradient-to-br from-purple-400/40 to-violet-500/40 dark:from-purple-600/30 dark:to-violet-700/30 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl animate-blob animation-delay-4000 opacity-70" />
+      <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-br from-green-400/40 to-emerald-500/40 dark:from-green-600/30 dark:to-emerald-700/30 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl animate-blob opacity-70 pointer-events-none" />
+      <div className="absolute top-40 right-10 w-96 h-96 bg-gradient-to-br from-blue-400/40 to-cyan-500/40 dark:from-blue-600/30 dark:to-cyan-700/30 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl animate-blob animation-delay-2000 opacity-70 pointer-events-none" />
+      <div className="absolute -bottom-8 left-20 w-96 h-96 bg-gradient-to-br from-purple-400/40 to-violet-500/40 dark:from-purple-600/30 dark:to-violet-700/30 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl animate-blob animation-delay-4000 opacity-70 pointer-events-none" />
 
       {/* Smaller accent blobs */}
-      <div className="absolute top-1/3 left-1/3 w-48 h-48 bg-gradient-to-br from-cyan-400/30 to-blue-500/30 dark:from-cyan-600/20 dark:to-blue-700/20 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-2xl animate-blob animation-delay-1000 opacity-60" />
-      <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-gradient-to-br from-fuchsia-400/30 to-purple-500/30 dark:from-fuchsia-600/20 dark:to-purple-700/20 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-2xl animate-blob animation-delay-3000 opacity-60" />
+      <div className="absolute top-1/3 left-1/3 w-48 h-48 bg-gradient-to-br from-cyan-400/30 to-blue-500/30 dark:from-cyan-600/20 dark:to-blue-700/20 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-2xl animate-blob animation-delay-1000 opacity-60 pointer-events-none" />
+      <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-gradient-to-br from-fuchsia-400/30 to-purple-500/30 dark:from-fuchsia-600/20 dark:to-purple-700/20 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-2xl animate-blob animation-delay-3000 opacity-60 pointer-events-none" />
 
       {/* Grid overlay for depth */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)] pointer-events-none" />
 
       {/* Desktop: Side-by-side | Mobile: Stacked */}
       <div className="relative w-full max-w-7xl mx-auto px-6 py-8 md:px-10 z-10">
@@ -78,41 +78,6 @@ export default function Page() {
 
             {/* Scrollable features container */}
             <div className="space-y-5 overflow-y-auto max-h-[calc(100svh-16rem)] pr-2 scrollbar-thin scrollbar-thumb-green-500/20 scrollbar-track-transparent">
-              {/* Power Features */}
-              <div className="space-y-3">
-                <h3 className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">Power Features</h3>
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 text-xs">
-                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                    <span className="text-lg">💸</span>
-                    <div>
-                      <div className="font-semibold text-foreground text-sm">Cost Tracker</div>
-                      <div className="text-muted-foreground/80 leading-tight">Track spending, monthly projections</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                    <span className="text-lg">💾</span>
-                    <div>
-                      <div className="font-semibold text-foreground text-sm">Export Training Data</div>
-                      <div className="text-muted-foreground/80 leading-tight">JSONL, HTML, Markdown</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                    <span className="text-lg">🎭</span>
-                    <div>
-                      <div className="font-semibold text-foreground text-sm">AI Debate Mode</div>
-                      <div className="text-muted-foreground/80 leading-tight">Watch 2 AIs debate, vote winner</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
-                    <span className="text-lg">🧠</span>
-                    <div>
-                      <div className="font-semibold text-foreground text-sm">Advanced Memory</div>
-                      <div className="text-muted-foreground/80 leading-tight">Long-term context</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Core Features */}
               <div className="space-y-3">
                 <h3 className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">Core Features</h3>
@@ -132,10 +97,38 @@ export default function Page() {
                     </div>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">💸</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">Cost Tracker</div>
+                      <div className="text-muted-foreground/80 leading-tight">Track spending, projections</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">🎭</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">AI Debate Mode</div>
+                      <div className="text-muted-foreground/80 leading-tight">Watch 2 AIs debate</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
                     <span className="text-lg">🔍</span>
                     <div>
                       <div className="font-semibold text-foreground text-sm">Dual Web Search</div>
-                      <div className="text-muted-foreground/80 leading-tight">Tavily & Serper (Google)</div>
+                      <div className="text-muted-foreground/80 leading-tight">Tavily & Serper</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">🧠</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">Advanced Memory</div>
+                      <div className="text-muted-foreground/80 leading-tight">Long-term context</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-lg">💾</span>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm">Export Data</div>
+                      <div className="text-muted-foreground/80 leading-tight">JSONL, HTML, Markdown</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
