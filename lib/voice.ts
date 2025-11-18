@@ -54,6 +54,25 @@ export class VoiceService {
   }
 
   /**
+   * Check microphone permission status (for browsers that support it)
+   */
+  async checkMicrophonePermission(): Promise<'granted' | 'denied' | 'prompt' | 'unsupported'> {
+    try {
+      // Check if Permissions API is supported
+      if (!navigator.permissions || !navigator.permissions.query) {
+        return 'unsupported'
+      }
+
+      // @ts-ignore - microphone is valid but TypeScript doesn't know
+      const result = await navigator.permissions.query({ name: 'microphone' })
+      return result.state as 'granted' | 'denied' | 'prompt'
+    } catch (error) {
+      console.log('[Voice] Permission API not supported:', error)
+      return 'unsupported'
+    }
+  }
+
+  /**
    * Start recording audio using MediaRecorder and transcribe with Whisper API
    * This works in all browsers including Firefox and mobile
    */
@@ -70,6 +89,21 @@ export class VoiceService {
         return
       }
 
+      // Check permission state first (if supported)
+      const permState = await this.checkMicrophonePermission()
+      console.log('[Voice] Permission state:', permState)
+
+      if (permState === 'denied') {
+        // Permission was previously denied - guide user to settings
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches
+        if (isPWA) {
+          onError?.('Microphone blocked. Fix: Chrome menu (⋮) → Site settings → Microphone → Allow')
+        } else {
+          onError?.('Microphone blocked. Click the 🔒 icon in address bar → Site settings → Microphone → Allow')
+        }
+        return
+      }
+
       // Request microphone permission (Firefox/Zen need this FIRST before enumerateDevices shows devices)
       let stream: MediaStream
       try {
@@ -82,12 +116,19 @@ export class VoiceService {
         })
       } catch (permError: any) {
         // Handle permission errors
+        console.error('[Voice] getUserMedia error:', permError)
+
         if (permError.name === 'NotAllowedError') {
-          onError?.('Microphone permission denied. Please allow microphone access in browser settings.')
+          const isPWA = window.matchMedia('(display-mode: standalone)').matches
+          if (isPWA) {
+            onError?.('Microphone denied. Fix: Chrome menu (⋮) → Site settings → Microphone → Allow, then reload app')
+          } else {
+            onError?.('Microphone denied. Click 🔒 in address bar → Site settings → Microphone → Allow')
+          }
         } else if (permError.name === 'NotFoundError') {
-          onError?.('No microphone found. Please connect a microphone and reload the page.')
+          onError?.('No microphone found. Please connect a microphone and reload.')
         } else if (permError.name === 'NotReadableError') {
-          onError?.('Microphone is being used by another application. Please close other apps using the microphone.')
+          onError?.('Microphone in use by another app. Close other apps and try again.')
         } else {
           onError?.(`Microphone error: ${permError.message || 'Unknown error'}`)
         }

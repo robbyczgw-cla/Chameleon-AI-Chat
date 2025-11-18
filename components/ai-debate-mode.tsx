@@ -284,6 +284,12 @@ export function AIDebateMode() {
       return
     }
 
+    // Check if API key is configured
+    if (!settings.apiKeys.openRouter) {
+      alert("OpenRouter API Key Required!\n\nPlease add your OpenRouter API key in Settings → API Keys to use the debate feature.")
+      return
+    }
+
     setIsDebating(true)
     setDebateMessages([])
     setJudgeVerdict(null)
@@ -416,7 +422,23 @@ export function AIDebateMode() {
       }
     } catch (error) {
       console.error("Debate failed:", error)
-      alert("Debate failed. Please try again.")
+      let errorMessage = "Debate failed. Please try again."
+
+      if (error instanceof Error) {
+        if (error.message.includes("401") || error.message.includes("Unauthorized")) {
+          errorMessage = "Authentication Error: Invalid or missing OpenRouter API key.\n\nPlease check your API key in Settings → API Keys."
+        } else if (error.message.includes("403") || error.message.includes("Forbidden")) {
+          errorMessage = "Access Denied: Your API key doesn't have permission for this model.\n\nPlease check your OpenRouter account or try a different model."
+        } else if (error.message.includes("429")) {
+          errorMessage = "Rate Limit Exceeded: Too many requests.\n\nPlease wait a moment and try again."
+        } else if (error.message.includes("500") || error.message.includes("502") || error.message.includes("503")) {
+          errorMessage = "Server Error: The AI service is temporarily unavailable.\n\nPlease try again in a few moments."
+        } else {
+          errorMessage = `Debate failed: ${error.message}`
+        }
+      }
+
+      alert(errorMessage)
     } finally {
       setIsDebating(false)
     }

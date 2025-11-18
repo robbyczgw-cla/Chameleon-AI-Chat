@@ -811,7 +811,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
       validatedUpdates.modelParameters.maxTokens = 4096
     }
 
-    setSettings((prev) => deepMergeSettings(prev, validatedUpdates))
+    setSettings((prev) => {
+      const merged = deepMergeSettings(prev, validatedUpdates)
+
+      // BULLETPROOF API KEY PROTECTION: Never allow API keys to be cleared if they were previously set
+      if (prev.apiKeys.openRouter && !merged.apiKeys.openRouter) {
+        console.warn("[v0] 🛡️ PROTECTION: Prevented OpenRouter API key from being cleared!")
+        merged.apiKeys.openRouter = prev.apiKeys.openRouter
+      }
+      if (prev.apiKeys.openAI && !merged.apiKeys.openAI) {
+        console.warn("[v0] 🛡️ PROTECTION: Prevented OpenAI API key from being cleared!")
+        merged.apiKeys.openAI = prev.apiKeys.openAI
+      }
+      if (prev.apiKeys.tavily && !merged.apiKeys.tavily) {
+        console.warn("[v0] 🛡️ PROTECTION: Prevented Tavily API key from being cleared!")
+        merged.apiKeys.tavily = prev.apiKeys.tavily
+      }
+      if (prev.apiKeys.serper && !merged.apiKeys.serper) {
+        console.warn("[v0] 🛡️ PROTECTION: Prevented Serper API key from being cleared!")
+        merged.apiKeys.serper = prev.apiKeys.serper
+      }
+
+      return merged
+    })
   }
 
   const createFolder = (name: string): string => {
