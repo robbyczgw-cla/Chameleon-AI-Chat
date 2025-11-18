@@ -455,6 +455,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
         // selectedModels from database are already loaded in mapSettingsFromDB()
         let mergedSettings = deepMergeSettings(DEFAULT_SETTINGS, settingsData)
 
+        // CRITICAL FIX: Preserve localStorage API keys if database has empty values
+        // This prevents database NULL values from overwriting valid localStorage keys
+        const localStorageSettings = localStorage.getItem("settings")
+        if (localStorageSettings) {
+          try {
+            const localSettings = JSON.parse(localStorageSettings)
+            if (localSettings.apiKeys) {
+              // Only use localStorage API keys if database keys are empty
+              if (!mergedSettings.apiKeys.openRouter && localSettings.apiKeys.openRouter) {
+                console.log("[v0] Preserving OpenRouter API key from localStorage")
+                mergedSettings.apiKeys.openRouter = localSettings.apiKeys.openRouter
+              }
+              if (!mergedSettings.apiKeys.openAI && localSettings.apiKeys.openAI) {
+                console.log("[v0] Preserving OpenAI API key from localStorage")
+                mergedSettings.apiKeys.openAI = localSettings.apiKeys.openAI
+              }
+              if (!mergedSettings.apiKeys.tavily && localSettings.apiKeys.tavily) {
+                console.log("[v0] Preserving Tavily API key from localStorage")
+                mergedSettings.apiKeys.tavily = localSettings.apiKeys.tavily
+              }
+              if (!mergedSettings.apiKeys.serper && localSettings.apiKeys.serper) {
+                console.log("[v0] Preserving Serper API key from localStorage")
+                mergedSettings.apiKeys.serper = localSettings.apiKeys.serper
+              }
+            }
+          } catch (e) {
+            console.error("[v0] Failed to parse localStorage settings:", e)
+          }
+        }
+
         // CRITICAL FIX: If selectedModel is gpt-4o (old default), replace with grok-4-fast
         if (mergedSettings.selectedModel === "openai/gpt-4o" || mergedSettings.selectedModel === "openai/gpt-4o-mini") {
           console.warn("[v0] Found old default model", mergedSettings.selectedModel, "- replacing with grok-4-fast")
