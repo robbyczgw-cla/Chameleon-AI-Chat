@@ -2,7 +2,7 @@
 
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
-import { MessageSquare, Plus, Wand2, Sparkles, Menu } from "lucide-react"
+import { MessageSquare, Plus, Wand2, Sparkles, Menu, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
 import { MobileMoreMenu } from "@/components/mobile-more-menu"
@@ -108,6 +108,20 @@ export function MobileBottomNav({
         >
           <Sparkles className="h-5 w-5 text-yellow-500" />
           <span className="text-[10px] font-medium">Prompts</span>
+        </Button>
+
+        {/* Settings */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            haptics.trigger('selection')
+            onSettingsClick()
+          }}
+          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg transition-all text-muted-foreground hover:text-foreground"
+        >
+          <Settings className="h-5 w-5" />
+          <span className="text-[10px] font-medium">Settings</span>
         </Button>
 
         {/* More Menu */}

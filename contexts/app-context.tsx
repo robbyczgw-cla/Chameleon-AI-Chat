@@ -339,7 +339,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
           "You are an AI assistant",
         ]
 
-        if (!parsed.systemPrompt || OLD_GENERIC_PROMPTS.includes(parsed.systemPrompt)) {
+        // CRITICAL: Ensure system prompt always includes the FOLLOWUP format
+        // If user has old prompt without FOLLOWUP, upgrade to new default
+        if (!parsed.systemPrompt ||
+            OLD_GENERIC_PROMPTS.includes(parsed.systemPrompt) ||
+            !parsed.systemPrompt.includes("[FOLLOWUP]")) {
+          console.log("[v0] Upgrading system prompt to include FOLLOWUP format")
           parsed.systemPrompt = DEFAULT_SETTINGS.systemPrompt
         }
 

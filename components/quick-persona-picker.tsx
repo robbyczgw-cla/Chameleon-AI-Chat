@@ -81,7 +81,7 @@ export function QuickPersonaPicker() {
         className="w-[320px] md:w-[380px] max-h-[400px] overflow-y-auto"
       >
         <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
-          Persona wählen
+          Select Persona
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
@@ -99,7 +99,7 @@ export function QuickPersonaPicker() {
             "font-medium text-sm",
             !currentPersona && "text-primary"
           )}>
-            Standard (keine Persona)
+            Standard (no persona)
           </span>
         </DropdownMenuItem>
 
