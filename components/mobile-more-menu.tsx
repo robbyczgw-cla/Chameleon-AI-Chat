@@ -193,7 +193,7 @@ export function MobileMoreMenu({
 
           <div className="border-t pt-2 space-y-1">
             <MenuItem icon={Columns2} label="Model Comparison" onClick={onComparisonClick} />
-            <MenuItem icon={Swords} label="AI Debate Arena" onClick={onDebateClick} />
+            <MenuItem icon={Swords} label="AI Discussion" onClick={onDebateClick} />
             <MenuItem
               icon={FileCode}
               label="Prompt Inspector"
