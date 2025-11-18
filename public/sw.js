@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v1.0.6'
+const CACHE_VERSION = 'v1.0.7'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 const PRECACHE_ASSETS = [
@@ -123,7 +123,7 @@ self.addEventListener('fetch', (event) => {
                 // No cache, return offline page
                 console.log('[SW] No cache available, returning offline page')
                 return new Response(
-                  '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Offline</title><style>body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#0a0a0a;color:#fff}div{text-align:center}</style></head><body><div><h1>Offline</h1><p>Keine Internetverbindung. Bitte überprüfen Sie Ihre Verbindung.</p></div></body></html>',
+                  '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Offline</title><style>body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#0a0a0a;color:#fff}div{text-align:center}</style></head><body><div><h1>Offline</h1><p>No internet connection. Please check your connection.</p></div></body></html>',
                   {
                     status: 503,
                     statusText: 'Service Unavailable',
@@ -137,7 +137,7 @@ self.addEventListener('fetch', (event) => {
             .catch(() => {
               // If even cache fails, return error response
               return new Response(
-                '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Error</title><style>body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#0a0a0a;color:#fff}div{text-align:center}</style></head><body><div><h1>Error</h1><p>Die App konnte nicht geladen werden. Bitte versuchen Sie, die Seite zu aktualisieren.</p></div></body></html>',
+                '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Error</title><style>body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#0a0a0a;color:#fff}div{text-align:center}</style></head><body><div><h1>Error</h1><p>The app could not be loaded. Please try refreshing the page.</p></div></body></html>',
                 {
                   status: 500,
                   statusText: 'Server Error',
@@ -222,7 +222,7 @@ self.addEventListener('message', (event) => {
 // Push notification support (for future features)
 self.addEventListener('push', (event) => {
   const options = {
-    body: event.data ? event.data.text() : 'Neue Nachricht',
+    body: event.data ? event.data.text() : 'New message',
     icon: '/icon-192.png',
     badge: '/icon-192.png',
     vibrate: [100, 50, 100],
@@ -233,11 +233,11 @@ self.addEventListener('push', (event) => {
     actions: [
       {
         action: 'open',
-        title: 'Öffnen'
+        title: 'Open'
       },
       {
         action: 'close',
-        title: 'Schließen'
+        title: 'Close'
       }
     ]
   }
