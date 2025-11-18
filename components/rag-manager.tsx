@@ -76,7 +76,7 @@ export function RAGManager() {
         <div>
           <h3 className="text-lg font-semibold">RAG Wissensdatenbank</h3>
           <p className="text-sm text-muted-foreground">
-            {documents.length} Dokumente • Interne Produktinformationen für HiFi Mode
+            {documents.length} Dokumente • Interne Produktinformationen
           </p>
         </div>
         {!isAdding && !editingDoc && (
@@ -279,7 +279,7 @@ TECHNISCHE DATEN:
 - Anschlüsse: HDMI eARC, 3x optisch, 2x koaxial
 ...
 
-VERFÜGBARKEIT: Bei HiFi Team verfügbar
+VERFÜGBARKEIT: Verfügbar
 PREIS: €X.XXX
 QUELLE: linn.co.uk`}
             required

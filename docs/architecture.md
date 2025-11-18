@@ -1,6 +1,6 @@
 # 🏗️ Architecture Overview
 
-Technical deep dive into Marachat's architecture, design decisions, and implementation details.
+Technical deep dive into Chameleon Chat's architecture, design decisions, and implementation details.
 
 ---
 
@@ -53,8 +53,7 @@ v0-react-chat-interface/
 │   └── ...
 │
 ├── components_archived_*/        # Archived features
-│   ├── simple_mode/              # Old simple mode
-│   └── hifi_mode/                # Old HiFi B2B mode
+│   └── simple_mode/              # Old simple mode
 │
 ├── contexts/                     # React Context
 │   └── app-context.tsx           # Global app state

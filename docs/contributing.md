@@ -1,6 +1,6 @@
 # 🤝 Contributing Guide
 
-Want to contribute to Marachat? Awesome! Here's how.
+Want to contribute to Chameleon Chat? Awesome! Here's how.
 
 ---
 

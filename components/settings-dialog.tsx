@@ -246,7 +246,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 />
               </div>
 
-              {/* Exa Search Toggle - Only in HiFi Mode */}
+              {/* Exa Search Toggle */}
               {hideOptions.includes("mode") && (
                 <div className="p-3 sm:p-4 rounded-lg border border-blue-500/30 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
                   <div className="space-y-3">
@@ -420,7 +420,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
 
                 <div className="space-y-2">
                   <Label htmlFor="search-provider" className="text-sm sm:text-base">
-                    Search Provider (für Advanced & HiFi Mode)
+                    Search Provider (für Advanced Mode)
                   </Label>
                   <select
                     id="search-provider"
@@ -437,7 +437,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                     <option value="serper">Serper - Google Search (günstig, DACH)</option>
                   </select>
                   <p className="text-xs text-muted-foreground">
-                    Simple Mode verwendet immer Tavily. Diese Einstellung gilt nur für Advanced & HiFi Mode.
+                    Simple Mode verwendet immer Tavily. Diese Einstellung gilt nur für Advanced Mode.
                   </p>
                 </div>
 

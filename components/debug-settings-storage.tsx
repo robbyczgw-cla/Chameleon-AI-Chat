@@ -127,11 +127,6 @@ export function DebugSettingsStorage() {
                     ✅ Perfect sync! Local and database match.
                   </div>
                 )}
-                {dbSettings.search_provider !== "serper" && user?.email?.endsWith("@hifiteam.at") && (
-                  <div className="text-xs p-2 bg-blue-100 dark:bg-blue-950/30 rounded">
-                    💡 HiFi user detected! Search provider should auto-switch to Serper on next login.
-                  </div>
-                )}
               </div>
             </div>
           )}

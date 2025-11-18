@@ -1,6 +1,6 @@
 # 🚀 Deployment Guide
 
-How to deploy Marachat to production.
+How to deploy Chameleon Chat to production.
 
 ---
 
@@ -109,7 +109,7 @@ NODE_ENV=production npm start
 npm install -g pm2
 
 # Start app
-pm2 start npm --name "marachat" -- start
+pm2 start npm --name "chameleon-chat" -- start
 
 # Auto-restart on reboot
 pm2 startup
@@ -138,7 +138,7 @@ server {
     ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
 
-    # Proxy to Next.js
+    # Proxy to Next.js (Chameleon Chat)
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -156,7 +156,7 @@ server {
 
 **Enable config:**
 ```bash
-sudo ln -s /etc/nginx/sites-available/marachat /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/chameleon-chat /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```

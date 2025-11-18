@@ -56,7 +56,7 @@ export function ChatAnalytics() {
   }, [chats])
 
   const loadSavedInsights = () => {
-    const saved = localStorage.getItem("marachat-analytics-insights")
+    const saved = localStorage.getItem("chameleon-analytics-insights")
     if (saved) {
       try {
         setInsights(JSON.parse(saved))
@@ -159,7 +159,7 @@ Gib eine Analyse in folgendem JSON-Format:
             timestamp: Date.now()
           }
           setInsights(newInsights)
-          localStorage.setItem("marachat-analytics-insights", JSON.stringify(newInsights))
+          localStorage.setItem("chameleon-analytics-insights", JSON.stringify(newInsights))
         }
       } catch (parseError) {
         console.error("Failed to parse AI insights:", parseError)

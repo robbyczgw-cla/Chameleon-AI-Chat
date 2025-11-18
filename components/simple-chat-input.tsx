@@ -23,13 +23,12 @@ import type { Persona } from "@/lib/personas"
 import { getRAGContext } from "@/lib/rag-service"
 import { parseSlashCommand, getCommandSuggestions, buildCommandPrompt, type SlashCommand } from "@/lib/slash-commands"
 import { memoryService } from "@/lib/memory-service"
-import { hifiPromptService } from "@/lib/hifi-prompt-service"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
   profileContext?: string
   webSearchEnabled?: boolean
-  overrideModel?: string // Override the model (e.g., for Perplexity Sonar in HiFi mode)
+  overrideModel?: string // Override the model
 }
 
 export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
@@ -48,7 +47,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
   // Load web search state from localStorage (PERSIST USER PREFERENCE!)
   const [webSearchEnabled, setWebSearchEnabled] = useState(() => {
     if (typeof window === "undefined") return initialWebSearchEnabled ?? true
-    const saved = localStorage.getItem("marachat-web-search-enabled")
+    const saved = localStorage.getItem("chameleon-web-search-enabled")
     if (saved !== null) {
       return saved === "true"
     }
@@ -58,7 +57,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
   // Save web search state to localStorage whenever it changes
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("marachat-web-search-enabled", String(webSearchEnabled))
+      localStorage.setItem("chameleon-web-search-enabled", String(webSearchEnabled))
       console.log("[SimpleChatInput] Web search state saved:", webSearchEnabled)
     }
   }, [webSearchEnabled])
@@ -157,23 +156,12 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
 
     const currentChat = chats.find((c) => c.id === chatId)
 
-    // Apply Exa search if enabled in HiFi mode (appends :online to model)
-    const isHiFiMode = selectedPersona?.id === "hifiteam"
-    let model = overrideModel || settings.selectedModel
-    if (isHiFiMode && settings.useExaSearch && !model.includes(':online')) {
-      model = `${model}:online`
-      console.log("[Simple Chat] 🔍 Exa search enabled - using model:", model)
-    } else {
-      console.log("[Simple Chat] Using model:", model, overrideModel ? "(override)" : "(default)")
-    }
+    // Use override model or settings default
+    const model = overrideModel || settings.selectedModel
+    console.log("[Simple Chat] Using model:", model, overrideModel ? "(override)" : "(default)")
 
     // Build system prompt: Use persona prompt if provided, otherwise use settings
-    // Special case: For HiFi Team persona, use custom prompt from localStorage
     let systemPrompt = selectedPersona?.prompt || settings.systemPrompt
-    if (selectedPersona?.id === "hifiteam") {
-      systemPrompt = hifiPromptService.getPrompt()
-      console.log("[Simple Chat] Using custom HiFi prompt from localStorage")
-    }
 
     // Add language instruction based on UI language setting
     const languageInstruction = settings.language === "en"
@@ -205,26 +193,6 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     ]
 
     try {
-      // RAG: Retrieve knowledge base documents for HiFi mode
-      const isHiFiMode = selectedPersona?.id === "hifiteam"
-      if (isHiFiMode) {
-        console.log("[Simple Chat] 📚 Retrieving RAG knowledge base for query:", input.trim())
-        const ragContext = getRAGContext(input.trim(), 3) // Retrieve top 3 relevant documents
-
-        if (ragContext) {
-          messages.splice(-1, 0, { role: "system" as const, content: ragContext })
-          console.log("[Simple Chat] ✅ RAG context added (length:", ragContext.length, "chars)")
-
-          toast({
-            title: "📚 Wissensdatenbank durchsucht",
-            description: "Interne Produktinfos gefunden",
-            duration: 2000,
-          })
-        } else {
-          console.log("[Simple Chat] ℹ️ No relevant RAG documents found")
-        }
-      }
-
       // Memory: Add relevant memories (works for all personas when enabled)
       if (settings.memorySettings?.enabled) {
         console.log("[Simple Chat] 🧠 Retrieving relevant memories for query:", input.trim())
@@ -249,16 +217,10 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
             description: "Sammle aktuelle Informationen",
           })
 
-          // Enhance search query to always get DACH-specific results in HiFi mode
-          let searchQuery = input.trim()
-          if (isHiFiMode && !/(österreich|deutschland|austria|germany)/i.test(searchQuery)) {
-            searchQuery += " österreich deutschland"
-            console.log("[Simple Chat] 📍 Enhanced query for DACH market:", searchQuery)
-          }
-
+          const searchQuery = input.trim()
           let searchResults: SearchResponse
 
-          // Simple Mode uses Tavily, Advanced/HiFi Mode respects settings.searchProvider
+          // Simple Mode uses Tavily, Advanced Mode respects settings.searchProvider
           const searchProvider = selectedPersona ? (settings.searchProvider || "tavily") : "tavily"
 
           if (searchProvider === "serper") {
@@ -307,7 +269,6 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
           console.log("[Simple Chat] ✅ Web search completed, results:", searchResults.results.length)
           console.log("[Simple Chat] 🔍 Full search response:", JSON.stringify(searchResults, null, 2))
 
-          // Show original query to user, but searched with enhanced query
           let searchContext = `Websuchergebnisse für: "${input.trim()}"\n\n`
 
           if (searchResults.answer) {
@@ -320,82 +281,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
             searchProvider === "youcom" ? formatYoucomResults :
             formatTavilyResults
 
-          // For HiFi Mode: Prioritize official manufacturer sources for technical specs
-          if (isHiFiMode) {
-            // Tier 1: Official manufacturer websites (Premium HiFi brands we actually sell)
-            const tier1Domains = [
-              // Premium Brands (HiFi Team Sortiment)
-              'linn.co.uk', 'naimaudio.com', 'lab12.gr', 'doacoustics.com', 'guruaudio.de',
-              'technics.com', 'bowerswilkins.com', 'triangle-fr.com', 'project-audio.com',
-              'dali-speakers.com', 'focal.com', 'viennaacoustics.com',
-              // Our Shops
-              'shop.hifiteam.at', 'hifiteam.at',
-              // High-End Brands
-              'rega.co.uk', 'arcam.co.uk', 'monitoraudio.com', 'mbl.de', 'cambridge-audio.com',
-              'cambridgeaudio.com', 'dynaudio.com', 'sennheiser.com', 'nadelectronics.com',
-              'bluesound.com', 'ayon-audio.com', 'atoll-electronique.com', 'accuphase.com',
-              'musicalfidelity.com', 'rotel.com', 'kef.com', 'klipsch.com', 'denon.com'
-            ]
-
-            // Tier 2: Trusted retailers & professional HiFi sources
-            const tier2Domains = [
-              'geizhals.de', 'geizhals.at', 'idealo.de', 'hifiakademie.de', 'hifi-regler.de',
-              'hifi-studio.de', 'analogmusic.de', 'fairaudio.de', 'hifistatement.net',
-              'stereoplay.de', 'hifitest.de', 'avguide.ch', 'audio.de', 'heimkinoraum.de'
-            ]
-
-            // Tier 3: Avoid - User forums, unreliable sources
-            const tier3Patterns = [
-              'hifi-forum.de', 'reddit.com', 'gutefrage.net', 'answers.yahoo',
-              'facebook.com', 'quora.com'
-            ]
-
-            const tier1Results = searchResults.results.filter(r =>
-              tier1Domains.some(domain => r.url.includes(domain))
-            )
-            const tier2Results = searchResults.results.filter(r =>
-              !tier1Domains.some(d => r.url.includes(d)) &&
-              tier2Domains.some(domain => r.url.includes(domain))
-            )
-            const tier3Results = searchResults.results.filter(r =>
-              !tier1Domains.some(d => r.url.includes(d)) &&
-              !tier2Domains.some(d => r.url.includes(d)) &&
-              tier3Patterns.some(pattern => r.url.includes(pattern))
-            )
-            const otherResults = searchResults.results.filter(r =>
-              !tier1Domains.some(d => r.url.includes(d)) &&
-              !tier2Domains.some(d => r.url.includes(d)) &&
-              !tier3Patterns.some(p => r.url.includes(p))
-            )
-
-            searchContext += `QUELLENPRIORISIERUNG für technische Daten:\n\n`
-
-            if (tier1Results.length > 0) {
-              searchContext += `🏆 BESTE QUELLEN (Offizielle Hersteller + shop.hifiteam.at):\n`
-              searchContext += formatResults(tier1Results)
-              searchContext += `\n\n`
-            }
-
-            if (tier2Results.length > 0) {
-              searchContext += `✅ VERTRAUENSWÜRDIGE QUELLEN (Seriöse Händler & Fachmagazine):\n`
-              searchContext += formatResults(tier2Results)
-              searchContext += `\n\n`
-            }
-
-            if (otherResults.length > 0 || tier3Results.length > 0) {
-              searchContext += `⚠️ WEITERE QUELLEN (nur für subjektive Infos nutzen):\n`
-              searchContext += formatResults([...otherResults, ...tier3Results])
-              searchContext += `\n\n`
-            }
-
-            searchContext += `📋 ANWEISUNG:\n`
-            searchContext += `- Technische Specs: Nutze PRIMÄR 🏆 Beste Quellen\n`
-            searchContext += `- Falls 🏆 nicht verfügbar: Nutze ✅ Vertrauenswürdige Quellen\n`
-            searchContext += `- ⚠️ Weitere Quellen: NUR für subjektive Bewertungen/Erfahrungen, NIEMALS für technische Daten\n`
-            searchContext += `- Schreibe KEINE Phrasen wie "ca." oder "nicht verfügbar" - nutze die besten verfügbaren Daten!`
-          } else {
-            searchContext += `Detaillierte Ergebnisse:\n${formatResults(searchResults.results)}`
-          }
+          searchContext += `Detaillierte Ergebnisse:\n${formatResults(searchResults.results)}`
 
           // Add images if available
           if (searchResults.images && searchResults.images.length > 0) {

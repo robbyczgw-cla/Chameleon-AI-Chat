@@ -1,6 +1,6 @@
-# 📖 Marachat User Guide - Master All Features
+# 📖 Chameleon Chat User Guide - Master All Features
 
-Complete guide to getting the most out of Marachat's power user features.
+Complete guide to getting the most out of Chameleon Chat's power user features.
 
 ---
 
@@ -86,7 +86,6 @@ Personas are AI personalities with unique:
 - Learns your preferences over time!
 
 **For Professional Help:**
-- **HiFi Experte** 🔊 - Audio equipment consulting (AT/DE market)
 - **Coach Taylor** 🏈 - Mentorship and motivation
 - **Saga Noren** 🔍 - Analytical detective, problem-solving
 
@@ -955,7 +954,7 @@ AI: Since you're using Next.js, Vercel is perfect - made by same team.
 
 ---
 
-**🎉 You're now a Marachat Power User!**
+**🎉 You're now a Chameleon Chat Power User!**
 
 Master these features and you'll:
 - Save money with cost optimization

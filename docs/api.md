@@ -1,6 +1,6 @@
 # 🔌 API Reference
 
-Complete documentation for all API routes in Marachat.
+Complete documentation for all API routes in Chameleon Chat.
 
 ---
 
@@ -331,9 +331,9 @@ data: [DONE]
 
 **JavaScript/TypeScript:**
 ```typescript
-import { MarachatClient } from '@marachat/client'
+import { ChameleonClient } from '@chameleon/client'
 
-const client = new MarachatClient({
+const client = new ChameleonClient({
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
   supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   openRouterKey: process.env.OPENROUTER_API_KEY
@@ -350,9 +350,9 @@ await client.chat({
 
 **Python:**
 ```python
-from marachat import MarachatClient
+from chameleon import ChameleonClient
 
-client = MarachatClient(
+client = ChameleonClient(
     supabase_url=os.getenv('SUPABASE_URL'),
     supabase_key=os.getenv('SUPABASE_KEY'),
     openrouter_key=os.getenv('OPENROUTER_KEY')
@@ -373,7 +373,7 @@ for chunk in client.chat(
 ## Testing
 
 **Postman Collection:**
-- Download: [marachat-api.postman_collection.json](./postman/)
+- Download: [chameleon-api.postman_collection.json](./postman/)
 - Import to Postman
 - Set environment variables
 - Test all endpoints
