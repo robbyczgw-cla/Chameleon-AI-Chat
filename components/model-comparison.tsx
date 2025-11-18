@@ -1,0 +1,598 @@
+"use client"
+
+import { useState, useRef, useEffect } from "react"
+import { useApp } from "@/contexts/app-context"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Columns2, Columns3, Grid2x2, X, History, Globe } from "lucide-react"
+import type { Message } from "@/types"
+import { POPULAR_OPENROUTER_MODELS } from "@/lib/openrouter"
+import { getUserSelectedModels } from "@/lib/model-preferences"
+import ReactMarkdown from "react-markdown"
+import { cn } from "@/lib/utils"
+import { ComparisonHistoryDialog } from "./comparison-history-dialog"
+import type { ComparisonSession } from "@/types"
+import { searchWeb, formatSearchResults } from "@/lib/tavily"
+import { useToast } from "@/hooks/use-toast"
+
+interface ComparisonPanel {
+  model: string
+  messages: Message[]
+  isLoading: boolean
+}
+
+interface ModelOption {
+  id: string
+  name: string
+  provider: string
+}
+
+// Helper function to get model details from the list
+function getModelDetails(modelId: string): ModelOption {
+  const found = POPULAR_OPENROUTER_MODELS.find((m) => m.id === modelId)
+  if (found) {
+    return { id: found.id, name: found.name, provider: found.provider }
+  }
+  // Fallback: extract provider and use model ID as name
+  const [provider, ...rest] = modelId.split("/")
+  return {
+    id: modelId,
+    name: rest.join("/"),
+    provider: provider,
+  }
+}
+
+// Helper function to get all available models (user's selected + popular as fallback)
+function getAvailableModels(): ModelOption[] {
+  const selectedModelIds = getUserSelectedModels()
+
+  if (selectedModelIds.length > 0) {
+    return selectedModelIds.map((id) => getModelDetails(id))
+  }
+
+  // Fallback to popular models if no selection
+  return POPULAR_OPENROUTER_MODELS.map((m) => ({
+    id: m.id,
+    name: m.name,
+    provider: m.provider,
+  }))
+}
+
+export function ModelComparison() {
+  const { settings, saveComparisonSession } = useApp()
+  const [availableModels, setAvailableModels] = useState<ModelOption[]>(getAvailableModels())
+  const [panels, setPanels] = useState<ComparisonPanel[]>([
+    { model: availableModels[0]?.id || "openai/gpt-4o", messages: [], isLoading: false },
+    { model: availableModels[1]?.id || "anthropic/claude-4.5-sonnet-20250929", messages: [], isLoading: false },
+  ])
+  const [input, setInput] = useState("")
+  const [layout, setLayout] = useState<"2-column" | "3-column" | "4-column">("2-column")
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false)
+  const scrollRefs = useRef<(HTMLDivElement | null)[]>([])
+  const wasAtBottomRef = useRef<boolean[]>([])
+  const { toast } = useToast()
+
+  // Listen to model preference changes and update available models
+  useEffect(() => {
+    const handleModelPreferencesChanged = () => {
+      const updatedModels = getAvailableModels()
+      setAvailableModels(updatedModels)
+    }
+
+    window.addEventListener("modelPreferencesChanged", handleModelPreferencesChanged)
+    return () => {
+      window.removeEventListener("modelPreferencesChanged", handleModelPreferencesChanged)
+    }
+  }, [])
+
+  useEffect(() => {
+    scrollRefs.current.forEach((ref, index) => {
+      if (ref) {
+        // Check if user was near bottom (within 100px threshold)
+        const isNearBottom = ref.scrollHeight - ref.scrollTop - ref.clientHeight < 100
+
+        // Only auto-scroll if user was already at bottom or it's the first message
+        if (isNearBottom || wasAtBottomRef.current[index] === undefined) {
+          ref.scrollTop = ref.scrollHeight
+        }
+
+        // Update the tracking ref
+        wasAtBottomRef.current[index] = isNearBottom
+      }
+    })
+  }, [panels])
+
+  const sendToAll = async () => {
+    if (!input.trim()) return
+
+    const userMessage: Message = {
+      id: `msg-${Date.now()}`,
+      role: "user",
+      content: input,
+      timestamp: Date.now(),
+    }
+
+    setPanels((prev) =>
+      prev.map((panel) => ({
+        ...panel,
+        messages: [...panel.messages, userMessage],
+        isLoading: true,
+      })),
+    )
+
+    setInput("")
+
+    let searchContext = ""
+    if (webSearchEnabled && settings.apiKeys.tavily) {
+      try {
+        toast({
+          title: "Suche im Web...",
+          description: "Sammle Informationen aus dem Internet",
+        })
+
+        const tavilySettings = settings.tavilySettings || {
+          searchDepth: "basic",
+          maxResults: 5,
+          includeImages: false,
+          includeAnswer: true,
+        }
+
+        const searchResults = await searchWeb(input.trim(), {
+          maxResults: tavilySettings.maxResults,
+          searchDepth: tavilySettings.searchDepth,
+          includeImages: tavilySettings.includeImages,
+          apiKey: settings.apiKeys.tavily,
+        })
+
+        searchContext = `Websuchergebnisse für: "${input.trim()}"\n\n`
+
+        if (tavilySettings.includeAnswer && searchResults.answer) {
+          searchContext += `Zusammenfassung: ${searchResults.answer}\n\n`
+        }
+
+        searchContext += `Detaillierte Ergebnisse:\n${formatSearchResults(searchResults.results)}\n\nBitte verwenden Sie die obigen Websuchergebnisse, um eine genaue und aktuelle Antwort auf die Frage des Benutzers zu geben.`
+
+        toast({
+          title: "Suche abgeschlossen",
+          description: `${searchResults.results.length} Ergebnisse gefunden`,
+        })
+      } catch (searchError) {
+        console.error("[v0] Search error:", searchError)
+        toast({
+          title: "Suche fehlgeschlagen",
+          description: "Fahre ohne Websuche fort",
+          variant: "destructive",
+        })
+      }
+    }
+
+    const promises = panels.map(async (panel, panelIndex) => {
+      const abortController = new AbortController()
+
+      try {
+        const messagesToSend = [...panel.messages, userMessage]
+        if (searchContext) {
+          messagesToSend.splice(-1, 0, {
+            id: `msg-${Date.now()}`,
+            role: "system" as const,
+            content: searchContext,
+            timestamp: Date.now(),
+          })
+        }
+
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: messagesToSend,
+            model: panel.model,
+            temperature: settings.temperature,
+            maxTokens: settings.maxTokens,
+            stream: true,
+          }),
+          signal: abortController.signal,
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+
+        const reader = response.body?.getReader()
+        if (!reader) throw new Error("No reader available")
+
+        const decoder = new TextDecoder()
+        let assistantContent = ""
+        const assistantMessageId = `msg-${Date.now()}`
+        let buffer = ""
+        let messageAdded = false
+
+        try {
+          while (true) {
+            let readResult
+            try {
+              readResult = await reader.read()
+            } catch (readError) {
+              break
+            }
+
+            const { done, value } = readResult
+            if (done) break
+
+            buffer += decoder.decode(value, { stream: true })
+            const lines = buffer.split("\n")
+            buffer = lines.pop() || ""
+
+            for (const line of lines) {
+              if (!line.trim() || !line || !line.startsWith("data: ")) continue
+
+              const data = line.slice(6).trim()
+              if (data === "[DONE]") continue
+
+              try {
+                const parsed = JSON.parse(data)
+                const content = parsed.choices?.[0]?.delta?.content
+                if (content) {
+                  assistantContent += content
+
+                  setPanels((prev) =>
+                    prev.map((p, idx) => {
+                      if (idx !== panelIndex) return p
+
+                      const existingMsgIndex = p.messages.findIndex((m) => m.id === assistantMessageId)
+                      const updatedMessages = [...p.messages]
+
+                      if (existingMsgIndex >= 0) {
+                        updatedMessages[existingMsgIndex] = {
+                          ...updatedMessages[existingMsgIndex],
+                          content: assistantContent,
+                        }
+                      } else {
+                        updatedMessages.push({
+                          id: assistantMessageId,
+                          role: "assistant",
+                          content: assistantContent,
+                          timestamp: Date.now(),
+                        })
+                        messageAdded = true
+                      }
+
+                      return { ...p, messages: updatedMessages }
+                    }),
+                  )
+                }
+              } catch (parseError) {
+                continue
+              }
+            }
+          }
+        } catch (streamError) {
+          console.log(`[v0] Stream ended for ${panel.model} (this is normal)`)
+        } finally {
+          try {
+            reader.releaseLock()
+          } catch (e) {}
+        }
+
+        if (assistantContent && !messageAdded) {
+          setPanels((prev) =>
+            prev.map((p, idx) => {
+              if (idx !== panelIndex) return p
+              return {
+                ...p,
+                messages: [
+                  ...p.messages,
+                  {
+                    id: assistantMessageId,
+                    role: "assistant",
+                    content: assistantContent,
+                    timestamp: Date.now(),
+                  },
+                ],
+              }
+            }),
+          )
+        }
+      } catch (error) {
+        console.error(`[v0] Error with model ${panel.model}:`, error)
+
+        let errorMessage = "Unbekannter Fehler"
+        if (error instanceof Error) {
+          if (error.name === "AbortError") {
+            errorMessage = "Anfrage abgebrochen"
+          } else if (error.message.includes("HTTP")) {
+            errorMessage = `API-Fehler: ${error.message}`
+          } else {
+            errorMessage = error.message
+          }
+        }
+
+        setPanels((prev) =>
+          prev.map((p, idx) =>
+            idx === panelIndex
+              ? {
+                  ...p,
+                  messages: [
+                    ...p.messages,
+                    {
+                      id: `msg-${Date.now()}`,
+                      role: "assistant",
+                      content: `❌ Fehler: ${errorMessage}`,
+                      timestamp: Date.now(),
+                    },
+                  ],
+                }
+              : p,
+          ),
+        )
+      } finally {
+        setPanels((prev) => prev.map((p, idx) => (idx === panelIndex ? { ...p, isLoading: false } : p)))
+      }
+    })
+
+    await Promise.all(promises)
+
+    const modelsUsed = panels.map((p) => p.model)
+    const allMessages = panels.flatMap((p) => [...p.messages, userMessage])
+
+    saveComparisonSession({
+      models: modelsUsed,
+      messages: allMessages,
+    })
+  }
+
+  const addPanel = () => {
+    if (panels.length >= 4) return
+
+    // Find a model that's not already in use
+    const usedModels = new Set(panels.map((p) => p.model))
+    const unusedModel = availableModels.find((m) => !usedModels.has(m.id))
+    const modelToAdd = unusedModel?.id || availableModels[0]?.id || "openai/gpt-4o-mini"
+
+    setPanels([...panels, { model: modelToAdd, messages: [], isLoading: false }])
+  }
+
+  const removePanel = (index: number) => {
+    if (panels.length <= 2) return
+    setPanels(panels.filter((_, i) => i !== index))
+  }
+
+  const loadSession = (session: ComparisonSession) => {
+    if (!session.models || session.models.length === 0) {
+      console.error("[v0] Cannot load session: no models found")
+      return
+    }
+
+    // Group messages by model if possible, otherwise distribute evenly
+    const messagesPerModel = Math.ceil((session.messages?.length || 0) / session.models.length)
+
+    setPanels(
+      session.models.map((model, index) => ({
+        model: model,
+        messages: session.messages?.slice(index * messagesPerModel, (index + 1) * messagesPerModel) || [],
+        isLoading: false,
+      })),
+    )
+  }
+
+  const gridCols =
+    layout === "2-column"
+      ? "grid-cols-1 md:grid-cols-2"
+      : layout === "3-column"
+        ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+        : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b p-3 sm:p-4">
+        <h2 className="text-base sm:text-lg font-semibold">Modellvergleich</h2>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const event = new CustomEvent("toggleComparison")
+              window.dispatchEvent(event)
+            }}
+            title="Zurück zum Chat"
+            className="min-h-[44px] min-w-[44px]"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setHistoryOpen(true)}
+            title="Historie anzeigen"
+            className="min-h-[44px] min-w-[44px]"
+          >
+            <History className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setLayout("2-column")}
+            className="min-h-[44px] min-w-[44px]"
+          >
+            <Columns2 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setLayout("3-column")}
+            className="min-h-[44px] min-w-[44px]"
+          >
+            <Columns3 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setLayout("4-column")}
+            className="min-h-[44px] min-w-[44px]"
+          >
+            <Grid2x2 className="h-4 w-4" />
+          </Button>
+          {panels.length < 4 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={addPanel}
+              className="min-h-[44px] text-xs sm:text-sm bg-transparent"
+            >
+              <span className="hidden sm:inline">Panel hinzufügen</span>
+              <span className="sm:hidden">+</span>
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className={`grid flex-1 gap-3 sm:gap-4 p-3 sm:p-4 ${gridCols}`} style={{ minHeight: 0 }}>
+        {panels.map((panel, index) => (
+          <Card key={index} className="flex flex-col" style={{ minHeight: 0 }}>
+            <div className="flex items-center justify-between border-b p-2 sm:p-3 flex-shrink-0">
+              <select
+                value={panel.model}
+                onChange={(e) => {
+                  const newPanels = [...panels]
+                  newPanels[index].model = e.target.value
+                  setPanels(newPanels)
+                }}
+                className="rounded border bg-background px-2 py-1.5 text-xs sm:text-sm min-h-[44px] flex-1 mr-2"
+              >
+                {availableModels.map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.name} ({model.provider})
+                  </option>
+                ))}
+              </select>
+              {panels.length > 2 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removePanel(index)}
+                  className="min-h-[44px] min-w-[44px]"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            <div
+              ref={(el) => (scrollRefs.current[index] = el)}
+              className="flex-1 overflow-y-auto p-3 sm:p-4"
+              style={{ minHeight: 0 }}
+            >
+              {panel.messages.map((msg) => (
+                <div key={msg.id} className={`mb-3 sm:mb-4 ${msg.role === "user" ? "text-right" : "text-left"}`}>
+                  <div
+                    className={`inline-block rounded-lg px-3 sm:px-4 py-2 max-w-[95%] sm:max-w-[90%] break-words ${
+                      msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                    }`}
+                  >
+                    {msg.role === "assistant" ? (
+                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <ReactMarkdown
+                          components={{
+                            code({ node, inline, className, children, ...props }: any) {
+                              const match = /language-(\w+)/.exec(className || "")
+                              return !inline && match ? (
+                                <pre className="bg-black/50 rounded-md p-2 sm:p-3 overflow-x-auto my-2">
+                                  <code className={cn("text-xs", className)} {...props}>
+                                    {children}
+                                  </code>
+                                </pre>
+                              ) : (
+                                <code className="bg-black/30 px-1.5 py-0.5 rounded text-xs" {...props}>
+                                  {children}
+                                </code>
+                              )
+                            },
+                            p({ children }) {
+                              return <p className="mb-2 last:mb-0 text-xs sm:text-sm">{children}</p>
+                            },
+                            strong({ children }) {
+                              return <strong className="font-bold">{children}</strong>
+                            },
+                            em({ children }) {
+                              return <em className="italic">{children}</em>
+                            },
+                            ul({ children }) {
+                              return <ul className="list-disc list-inside mb-2 text-xs sm:text-sm">{children}</ul>
+                            },
+                            ol({ children }) {
+                              return <ol className="list-decimal list-inside mb-2 text-xs sm:text-sm">{children}</ol>
+                            },
+                            li({ children }) {
+                              return <li className="mb-1">{children}</li>
+                            },
+                          }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {panel.isLoading && (
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                  <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+                  Generiere...
+                </div>
+              )}
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <div className="border-t p-3 sm:p-4 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex-1 relative">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendToAll()}
+              placeholder="An alle Modelle senden..."
+              className="w-full rounded-lg border bg-background px-3 sm:px-4 py-2.5 sm:py-2 pr-12 text-sm sm:text-base min-h-[44px]"
+            />
+            <Button
+              type="button"
+              size="icon"
+              variant={webSearchEnabled ? "default" : "ghost"}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 ${
+                webSearchEnabled ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""
+              }`}
+              onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+              title={webSearchEnabled ? "Websuche deaktivieren" : "Websuche aktivieren (Tavily)"}
+              disabled={!settings.apiKeys.tavily}
+            >
+              <Globe className={`h-4 w-4 ${webSearchEnabled ? "animate-pulse" : ""}`} />
+            </Button>
+          </div>
+          <Button
+            onClick={sendToAll}
+            disabled={!input.trim() || panels.some((p) => p.isLoading)}
+            className="min-h-[44px] text-sm sm:text-base"
+          >
+            An alle senden
+          </Button>
+        </div>
+        {webSearchEnabled && settings.apiKeys.tavily && (
+          <p className="text-xs text-primary mt-2 flex items-center gap-1">
+            <Globe className="h-3 w-3" />
+            Websuche aktiviert - Alle Antworten nutzen aktuelle Informationen aus dem Internet
+          </p>
+        )}
+        {!settings.apiKeys.tavily && (
+          <p className="text-xs text-muted-foreground mt-2">
+            💡 Tipp: Aktiviere Websuche mit einem Tavily API-Schlüssel in den Einstellungen für aktuelle Informationen
+          </p>
+        )}
+      </div>
+
+      <ComparisonHistoryDialog open={historyOpen} onOpenChange={setHistoryOpen} onLoadSession={loadSession} />
+    </div>
+  )
+}

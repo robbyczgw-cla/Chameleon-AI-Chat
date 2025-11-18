@@ -1,0 +1,548 @@
+"use client"
+
+import { useApp } from "@/contexts/app-context"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react"
+import { useToast } from "@/hooks/use-toast"
+import ReactMarkdown from "react-markdown"
+import { voiceService } from "@/lib/voice"
+import remarkGfm from "remark-gfm"
+import rehypeRaw from "rehype-raw"
+/* Removed remark-math and rehype-katex to fix module loading error */
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism"
+import { FollowUpSuggestions } from "@/components/follow-up-suggestions"
+import { parseFollowUps } from "@/lib/follow-up-parser"
+import { MessageStats } from "@/components/message-stats"
+import { FilePreviewInline } from "@/components/file-preview-inline"
+import { ResponseAnalysisPanel } from "@/components/response-analysis-panel"
+import { ResponseAnalyzer } from "@/lib/response-analyzer"
+import type { FileAttachment } from "@/lib/file-handler"
+import type { Persona } from "@/lib/personas"
+import type { MessageContent } from "@/types"
+import { contentToText } from "@/lib/multimodal-utils"
+
+interface ChatMessagesProps {
+  currentPersona?: Persona
+}
+
+/**
+ * Helper component to render multimodal message content
+ * Handles both text-only and text+image messages
+ */
+function RenderMessageContent({ content }: { content: MessageContent }) {
+  // If it's a string, return it directly
+  if (typeof content === "string") {
+    return <>{content}</>
+  }
+
+  // If it's an array (multimodal), render each part
+  return (
+    <>
+      {content.map((part, index) => {
+        if (part.type === "text") {
+          return <span key={index}>{part.text}</span>
+        }
+        if (part.type === "image_url" && part.image_url) {
+          return (
+            <div key={index} className="my-3 rounded-lg overflow-hidden border border-border/50 shadow-md">
+              <img
+                src={part.image_url.url}
+                alt="Uploaded image"
+                className="w-full h-auto object-contain max-h-[400px] bg-muted/30"
+                loading="lazy"
+              />
+            </div>
+          )
+        }
+        return null
+      })}
+    </>
+  )
+}
+
+export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
+  const { chats, currentChatId, addMessage, updateChat, settings, isChatLoading } = useApp()
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [speakingId, setSpeakingId] = useState<string | null>(null)
+  const { toast } = useToast()
+
+  const currentChat = chats.find((chat) => chat.id === currentChatId)
+
+  const handleCopy = async (content: MessageContent, messageId: string) => {
+    const textContent = contentToText(content)
+    await navigator.clipboard.writeText(textContent)
+    setCopiedId(messageId)
+    setTimeout(() => setCopiedId(null), 2000)
+    toast({
+      title: "Copied to clipboard",
+      description: "Message content copied successfully",
+    })
+  }
+
+  const handleCopyCode = async (code: string) => {
+    await navigator.clipboard.writeText(code)
+    toast({
+      title: "Code copied",
+      description: "Code block copied to clipboard",
+    })
+  }
+
+  const handleSpeak = (content: MessageContent, messageId: string) => {
+    if (!voiceService.isSupported()) {
+      toast({
+        title: "Not supported",
+        description: "Text-to-speech is not supported in your browser",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (speakingId === messageId) {
+      voiceService.stopSpeaking()
+      setSpeakingId(null)
+    } else {
+      setSpeakingId(messageId)
+      const textContent = contentToText(content)
+      const cleanText = textContent.replace(/[#*`[\]]/g, "").replace(/\n+/g, ". ")
+
+      // Use persona-specific voice settings if available and enabled
+      const usePersonaVoice = currentPersona?.voiceSettings?.enabled
+      const voiceOptions = usePersonaVoice
+        ? {
+            rate: currentPersona.voiceSettings?.rate || settings.voiceSettings?.rate || 1,
+            pitch: currentPersona.voiceSettings?.pitch || settings.voiceSettings?.pitch || 1,
+            voice: currentPersona.voiceSettings?.voiceName || settings.voiceSettings?.voice,
+          }
+        : {
+            rate: settings.voiceSettings?.rate || 1,
+            pitch: settings.voiceSettings?.pitch || 1,
+            voice: settings.voiceSettings?.voice,
+          }
+
+      console.log(
+        `[ChatMessages] 🔊 Speaking with ${usePersonaVoice ? `${currentPersona?.name}'s voice` : "default voice"}`,
+        voiceOptions
+      )
+
+      voiceService.speak(cleanText, voiceOptions)
+      const estimatedDuration = (cleanText.length / 10) * 1000
+      setTimeout(() => setSpeakingId(null), estimatedDuration)
+    }
+  }
+
+  const handleRegenerate = async (messageIndex: number) => {
+    if (!currentChat) return
+
+    const updatedMessages = currentChat.messages.slice(0, messageIndex)
+    updateChat(currentChat.id, { messages: updatedMessages })
+
+    toast({
+      title: "Regenerating response",
+      description: "This will be implemented with the chat input integration",
+    })
+  }
+
+  const handleDelete = (messageIndex: number) => {
+    if (!currentChat) return
+
+    const updatedMessages = currentChat.messages.filter((_, index) => index !== messageIndex)
+    updateChat(currentChat.id, { messages: updatedMessages })
+
+    toast({
+      title: "Message deleted",
+      description: "Message removed from chat history",
+    })
+  }
+
+  const handleFollowUpSelect = (suggestion: string) => {
+    // Dispatch custom event to insert prompt into input
+    window.dispatchEvent(new CustomEvent("insertPrompt", { detail: suggestion }))
+  }
+
+  if (!currentChat) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="text-6xl">💬</div>
+          <h3 className="text-xl font-semibold">No chat selected</h3>
+          <p className="text-sm text-muted-foreground">Create a new chat or select an existing one to get started</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (currentChat.messages.length === 0) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="text-6xl">✨</div>
+          <h3 className="text-xl font-semibold">Start a conversation</h3>
+          <p className="text-sm text-muted-foreground">Type a message below to begin chatting with AI</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <ScrollArea className="h-full w-full">
+      <div className="w-full sm:max-w-5xl sm:mx-auto space-y-4 sm:space-y-6 px-4 sm:px-6 py-3 sm:py-6">
+        {currentChat.messages.map((message, index) => (
+          <div
+            key={message.id}
+            className={cn("flex gap-1 sm:gap-4 group w-full", message.role === "user" ? "justify-end" : "justify-start")}
+          >
+            {message.role === "assistant" && (
+              <Avatar className="h-6 w-6 sm:h-8 sm:w-8 border-2 border-primary/20 shrink-0 glow-subtle">
+                {currentPersona?.avatarUrl ? (
+                  <>
+                    <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                      <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
+                    </AvatarFallback>
+                  </>
+                ) : currentPersona?.emoji ? (
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                    <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
+                  </AvatarFallback>
+                ) : (
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                    <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            )}
+
+            <div className={cn(
+              "flex flex-col gap-2 min-w-0 w-full",
+              message.role === "user"
+                ? "max-w-[55%] sm:max-w-[75%] md:max-w-[80%]"
+                : "max-w-[65%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]"
+            )}>
+              {message.attachments && message.attachments.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
+                  {message.attachments.map((attachment) => (
+                    <FilePreviewInline
+                      key={attachment.id}
+                      file={attachment as FileAttachment}
+                      showRemove={false}
+                      compact={false}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <div
+                className={cn(
+                  "rounded-2xl px-2 py-1.5 sm:px-4 sm:py-3 text-sm sm:text-base transition-all duration-200 max-w-full",
+                  message.role === "user"
+                    ? "bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg shadow-primary/20"
+                    : "glass backdrop-blur-xl border border-border/50 shadow-sm",
+                )}
+              >
+                {message.role === "assistant" ? (
+                  <div className="prose prose-sm sm:prose-base dark:prose-invert w-full break-words">
+                    {/* Display generated image if present */}
+                    {message.imageUrl && (
+                      <div className="mb-4 rounded-lg overflow-hidden border border-border/50 shadow-md">
+                        <img
+                          src={message.imageUrl}
+                          alt={contentToText(message.content)}
+                          className="w-full h-auto object-contain max-h-[500px] bg-muted/30"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeRaw]}
+                      components={{
+                        p: ({ children }) => <p className="mb-4 last:mb-0 leading-7">{children}</p>,
+                        h1: ({ children }) => (
+                          <h1 className="text-2xl font-bold mt-6 mb-4 first:mt-0 scroll-m-20">{children}</h1>
+                        ),
+                        h2: ({ children }) => (
+                          <h2 className="text-xl font-semibold mt-5 mb-3 first:mt-0 scroll-m-20">{children}</h2>
+                        ),
+                        h3: ({ children }) => (
+                          <h3 className="text-lg font-semibold mt-4 mb-2 first:mt-0 scroll-m-20">{children}</h3>
+                        ),
+                        h4: ({ children }) => (
+                          <h4 className="text-base font-semibold mt-3 mb-2 first:mt-0">{children}</h4>
+                        ),
+                        ul: ({ children }) => <ul className="list-disc pl-6 my-4 space-y-2">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-6 my-4 space-y-2">{children}</ol>,
+                        li: ({ children }) => <li className="leading-7">{children}</li>,
+                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                        em: ({ children }) => <em className="italic">{children}</em>,
+                        blockquote: ({ children }) => (
+                          <blockquote className="border-l-4 border-primary pl-4 italic my-4 text-muted-foreground">
+                            {children}
+                          </blockquote>
+                        ),
+                        hr: () => <hr className="my-6 border-border" />,
+                        a: ({ href, children }) => (
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary underline underline-offset-4 hover:text-primary/80"
+                          >
+                            {children}
+                          </a>
+                        ),
+                        table: ({ children }) => (
+                          <div className="my-4 overflow-x-auto rounded-lg border border-border">
+                            <table className="w-full min-w-full border-collapse">{children}</table>
+                          </div>
+                        ),
+                        thead: ({ children }) => <thead className="bg-muted/70">{children}</thead>,
+                        tbody: ({ children }) => <tbody className="divide-y divide-border">{children}</tbody>,
+                        tr: ({ children }) => (
+                          <tr className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                            {children}
+                          </tr>
+                        ),
+                        th: ({ children }) => (
+                          <th className="px-3 py-2.5 text-left font-semibold border-r border-border last:border-r-0 text-xs sm:text-sm whitespace-nowrap">
+                            {children}
+                          </th>
+                        ),
+                        td: ({ children }) => (
+                          <td className="px-3 py-2.5 border-r border-border last:border-r-0 text-xs sm:text-sm align-top">
+                            {children}
+                          </td>
+                        ),
+                        input: ({ checked, type, ...props }) => {
+                          if (type === "checkbox") {
+                            return (
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                disabled
+                                className="mr-2 align-middle"
+                                {...props}
+                              />
+                            )
+                          }
+                          return <input type={type} {...props} />
+                        },
+                        code({ node, inline, className, children, ...props }: any) {
+                          const match = /language-(\w+)/.exec(className || "")
+                          const language = match ? match[1] : ""
+                          const codeString = String(children).replace(/\n$/, "")
+
+                          return !inline && match ? (
+                            <div className="relative group/code my-4 rounded-lg w-full max-w-full overflow-hidden">
+                              <div className="flex items-center justify-between bg-zinc-800 px-4 py-2 rounded-t-lg w-full">
+                                <span className="text-xs text-zinc-400 font-mono">{language}</span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 text-xs opacity-0 group-hover/code:opacity-100 transition-opacity"
+                                  onClick={() => handleCopyCode(codeString)}
+                                >
+                                  <Copy className="h-3 w-3 mr-1" />
+                                  Copy
+                                </Button>
+                              </div>
+                              <SyntaxHighlighter
+                                style={vscDarkPlus}
+                                language={language}
+                                PreTag="div"
+                                wrapLines
+                                wrapLongLines
+                                customStyle={{
+                                  margin: 0,
+                                  borderTopLeftRadius: 0,
+                                  borderTopRightRadius: 0,
+                                  borderBottomLeftRadius: "0.5rem",
+                                  borderBottomRightRadius: "0.5rem",
+                                  width: "100%",
+                                  maxWidth: "100%",
+                                  overflow: "auto",
+                                }}
+                                codeTagProps={{
+                                  style: {
+                                    fontSize: "0.875rem",
+                                    lineHeight: "1.5",
+                                  },
+                                }}
+                                {...props}
+                              >
+                                {codeString}
+                              </SyntaxHighlighter>
+                            </div>
+                          ) : (
+                            <code
+                              className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono border border-border break-all inline-block max-w-full"
+                              {...props}
+                            >
+                              {children}
+                            </code>
+                          )
+                        },
+                        img: ({ src, alt }) => (
+                          <img
+                            src={src}
+                            alt={alt || "Product image"}
+                            className="max-w-full sm:max-w-sm md:max-w-md h-auto rounded-lg my-4 border border-border"
+                            loading="lazy"
+                          />
+                        ),
+                      }}
+                    >
+                      {typeof message.content === "string" ? message.content : contentToText(message.content)}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <div className="text-sm leading-relaxed whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                    <RenderMessageContent content={message.content} />
+                  </div>
+                )}
+                {message.tokens && (
+                  <div className="mt-2 text-xs opacity-70 flex items-center gap-2">
+                    <span>{message.tokens.total} tokens</span>
+                    {message.tokens.estimatedCost && (
+                      <span className="text-muted-foreground">≈ ${message.tokens.estimatedCost.toFixed(4)}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Suggested prompts and follow-up questions for assistant messages (last message only) */}
+              {message.role === "assistant" && index === currentChat.messages.length - 1 && (() => {
+                const parsed = parseFollowUps(contentToText(message.content))
+                return (
+                  <>
+                    {/* Categorized follow-ups (new format) */}
+                    {parsed.categorizedFollowUps.length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-xs text-muted-foreground mb-2">💬 Weiter geht's:</p>
+                        <FollowUpSuggestions
+                          categorizedSuggestions={parsed.categorizedFollowUps}
+                          onSelect={handleFollowUpSelect}
+                        />
+                      </div>
+                    )}
+                    {/* Follow-up questions (AI asks user) - old format fallback */}
+                    {parsed.followUps.length > 0 && parsed.categorizedFollowUps.length === 0 && (
+                      <div className="mt-4">
+                        <p className="text-xs text-muted-foreground mb-2">❓ Noch Fragen?</p>
+                        <FollowUpSuggestions suggestions={parsed.followUps} onSelect={handleFollowUpSelect} />
+                      </div>
+                    )}
+                    {/* Suggested prompts (user can ask AI) - shown last, most prominent */}
+                    {parsed.suggestedPrompts.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-xs text-muted-foreground mb-2">💡 Das könntest du als Nächstes fragen:</p>
+                        <FollowUpSuggestions suggestions={parsed.suggestedPrompts} onSelect={handleFollowUpSelect} />
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
+
+              {/* Detailed Stats for assistant messages (when enabled) */}
+              {message.role === "assistant" && settings.showDetailedStats && (
+                <MessageStats message={message} />
+              )}
+
+              {/* Response Analysis for assistant messages (when enabled in experimental settings) */}
+              {message.role === "assistant" && settings.experimental?.enableResponseAnalysis && (() => {
+                const textContent = contentToText(message.content)
+                const analysis = ResponseAnalyzer.analyze(textContent)
+                return <ResponseAnalysisPanel analysis={analysis} className="mt-3" />
+              })()}
+
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 sm:h-7 sm:w-7"
+                  onClick={() => handleCopy(message.content, message.id)}
+                >
+                  {copiedId === message.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                </Button>
+                {message.role === "assistant" && settings.voiceSettings?.enabled !== false && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 sm:h-7 sm:w-7"
+                    onClick={() => handleSpeak(message.content, message.id)}
+                    title={speakingId === message.id ? "Stop speaking" : "Read aloud"}
+                  >
+                    {speakingId === message.id ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
+                  </Button>
+                )}
+                {message.role === "assistant" && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 sm:h-7 sm:w-7"
+                    onClick={() => handleRegenerate(index)}
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 sm:h-7 sm:w-7"
+                  onClick={() => handleDelete(index)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+
+            {message.role === "user" && (
+              <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border border-border shrink-0">
+                <AvatarFallback className="bg-secondary text-secondary-foreground">
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+            )}
+          </div>
+        ))}
+
+        {/* Typing indicator when loading */}
+        {isChatLoading && (
+          <div className="flex gap-2 sm:gap-4">
+            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border-2 border-primary/20 shrink-0 glow-subtle">
+              {currentPersona?.avatarUrl ? (
+                <>
+                  <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                    <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
+                  </AvatarFallback>
+                </>
+              ) : currentPersona?.emoji ? (
+                <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                  <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
+                </AvatarFallback>
+              ) : (
+                <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                  <Bot className="h-4 w-4" />
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <div className="flex flex-col gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]">
+              <div className="rounded-2xl px-3 py-2 sm:px-4 sm:py-3 glass backdrop-blur-xl border border-border/50 shadow-sm">
+                <div className="flex gap-1 items-center">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </ScrollArea>
+  )
+}
