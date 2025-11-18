@@ -106,6 +106,16 @@ export function ModelComparison() {
   const sendToAll = async () => {
     if (!input.trim()) return
 
+    // Check if API key is configured
+    if (!settings.apiKeys.openRouter) {
+      toast({
+        title: "API Key Required",
+        description: "Please add your OpenRouter API key in Settings → API Keys",
+        variant: "destructive",
+      })
+      return
+    }
+
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
       role: "user",
@@ -183,7 +193,10 @@ export function ModelComparison() {
 
         const response = await fetch("/api/chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-openrouter-api-key": settings.apiKeys.openRouter || "",
+          },
           body: JSON.stringify({
             messages: messagesToSend,
             model: panel.model,
