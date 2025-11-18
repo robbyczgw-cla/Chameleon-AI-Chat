@@ -795,8 +795,8 @@ export function ChatInput() {
 
   return (
     <div className={cn(
-      "bg-gradient-to-b from-background/98 to-background backdrop-blur-md p-3 sm:p-5 md:p-6 border-t-2 border-border/80",
-      isEmpty ? "shadow-2xl rounded-2xl border-2 border-border/60" : "shadow-xl"
+      "glass-subtle backdrop-blur-xl p-3 sm:p-5 md:p-6 border-t-2 border-border/50 smooth-transition",
+      isEmpty ? "shadow-2xl rounded-2xl border-2 border-border/40 glass-strong" : "shadow-xl"
     )}>
       {attachedCollectionId && (
         <div className="mx-auto max-w-4xl mb-3 md:mb-4 flex items-center gap-2 rounded-xl bg-gradient-to-r from-muted/70 to-muted/50 border border-border/40 px-4 py-2.5 text-xs sm:text-sm shadow-sm">
@@ -825,10 +825,10 @@ export function ChatInput() {
           <div className="flex-1 relative">
             {/* Slash Command Autocomplete Menu */}
             {showCommandMenu && commandSuggestions.length > 0 && (
-              <div className="absolute bottom-full left-0 right-0 mb-3 md:mb-4 bg-popover/95 backdrop-blur-xl border border-border/60 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[300px] md:max-h-[350px] overflow-y-auto">
-                <div className="p-3 md:p-3.5 border-b border-border/50 bg-gradient-to-r from-muted/60 to-muted/40">
+              <div className="absolute bottom-full left-0 right-0 mb-3 md:mb-4 glass-strong backdrop-blur-xl border-2 border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[300px] md:max-h-[350px] overflow-y-auto animate-slide-in-down">
+                <div className="p-3 md:p-3.5 border-b border-border/40 gradient-glass">
                   <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground font-semibold">
-                    <Zap className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
+                    <Zap className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary glow-subtle" />
                     <span>Slash Commands</span>
                   </div>
                 </div>
@@ -837,7 +837,7 @@ export function ChatInput() {
                     key={cmd.command}
                     type="button"
                     onClick={() => selectCommand(cmd)}
-                    className="w-full text-left px-3 md:px-4 py-2.5 md:py-3 hover:bg-accent/80 transition-all hover:scale-[1.01] flex items-start gap-2 md:gap-3 border-b border-border/20 last:border-0"
+                    className="w-full text-left px-3 md:px-4 py-2.5 md:py-3 hover:bg-accent/70 smooth-transition hover-lift flex items-start gap-2 md:gap-3 border-b border-border/20 last:border-0"
                   >
                     <div className="flex-1">
                       <div className="font-semibold text-sm md:text-base">{cmd.command}</div>
@@ -854,7 +854,7 @@ export function ChatInput() {
               onChange={(e) => handleInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Nachricht eingeben... (/ für Commands)"
-              className="min-h-[50px] sm:min-h-[60px] md:min-h-[70px] max-h-[200px] resize-none md:pr-28 text-sm sm:text-base md:text-base rounded-xl border-2 border-border/70 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 shadow-md hover:shadow-lg transition-all bg-background/80 backdrop-blur-sm"
+              className="min-h-[50px] sm:min-h-[60px] md:min-h-[70px] max-h-[200px] resize-none md:pr-28 text-sm sm:text-base md:text-base rounded-xl border-2 border-border/50 focus:border-primary/70 focus:ring-2 focus:ring-primary/40 shadow-md hover:shadow-xl smooth-transition glass-subtle backdrop-blur-md hover-lift"
               disabled={isLoading}
             />
             {/* Desktop: Buttons inside textarea */}
@@ -907,7 +907,7 @@ export function ChatInput() {
             type={isLoading ? "button" : "submit"}
             onClick={isLoading ? stopGeneration : undefined}
             disabled={!isLoading && !input.trim() && attachedFiles.length === 0}
-            className="h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] md:h-[70px] md:w-[70px] rounded-xl shadow-xl hover:shadow-2xl transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 border-2 border-primary/30 hover:border-primary/50"
+            className="h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] md:h-[70px] md:w-[70px] rounded-xl shadow-xl hover:shadow-2xl smooth-transition hover-scale disabled:opacity-50 disabled:hover:scale-100 border-2 border-primary/30 hover:border-primary/60 gradient-premium glow-subtle hover-glow"
           >
             {isLoading ? <Square className="h-4 w-4 sm:h-5 sm:w-5 md:h-5 md:w-5" /> : <Send className="h-4 w-4 sm:h-5 sm:w-5 md:h-5 md:w-5" />}
           </Button>
