@@ -1,6 +1,6 @@
 # 🎭 All Personas - Complete Reference
 
-Complete guide to all 18+ AI personalities in Marachat.
+Complete guide to all 18+ AI personalities in Chameleon Chat.
 
 ---
 

@@ -3,7 +3,7 @@
  * Stores vector embeddings for documents to enable semantic search
  */
 
-const DB_NAME = "marachat-embeddings"
+const DB_NAME = "chameleon-embeddings"
 const DB_VERSION = 1
 const STORE_NAME = "embeddings"
 

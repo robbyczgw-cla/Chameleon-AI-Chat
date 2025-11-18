@@ -21,7 +21,7 @@ export function PersonalityAnalysis() {
 
   // Load saved analysis from localStorage
   useState(() => {
-    const saved = localStorage.getItem("marachat-personality-analysis")
+    const saved = localStorage.getItem("chameleon-personality-analysis")
     if (saved) {
       try {
         setAnalysis(JSON.parse(saved))
@@ -113,7 +113,7 @@ Erstelle eine strukturierte Persönlichkeitsanalyse mit folgenden Punkten:
       }
 
       setAnalysis(newAnalysis)
-      localStorage.setItem("marachat-personality-analysis", JSON.stringify(newAnalysis))
+      localStorage.setItem("chameleon-personality-analysis", JSON.stringify(newAnalysis))
     } catch (error) {
       console.error("Personality analysis failed:", error)
       alert("Analyse fehlgeschlagen. Bitte versuche es später erneut.")

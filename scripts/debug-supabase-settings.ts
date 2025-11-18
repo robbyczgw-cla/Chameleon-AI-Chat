@@ -117,7 +117,7 @@ async function debugSettings() {
   if (settings.search_provider !== 'serper') {
     console.log('⚠️  Search provider is NOT set to Serper')
     console.log(`   → Current: ${settings.search_provider}`)
-    console.log('   → For HiFi users, switch to Serper in Settings → Websuche')
+    console.log('   → Switch to Serper in Settings → Websuche for better results')
   } else {
     console.log('✅ Search provider is set to Serper')
   }

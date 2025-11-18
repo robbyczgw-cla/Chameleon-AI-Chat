@@ -46,7 +46,7 @@ export function PromptEvolutionTracker() {
 
   useEffect(() => {
     // Load cached analysis
-    const cached = localStorage.getItem("marachat-prompt-evolution")
+    const cached = localStorage.getItem("chameleon-prompt-evolution")
     if (cached) {
       try {
         setAnalysis(JSON.parse(cached))
@@ -173,7 +173,7 @@ Antworte NUR mit dem JSON-Objekt.`
       }
 
       setAnalysis(newAnalysis)
-      localStorage.setItem("marachat-prompt-evolution", JSON.stringify(newAnalysis))
+      localStorage.setItem("chameleon-prompt-evolution", JSON.stringify(newAnalysis))
 
       console.log("[PromptEvolution] Analysis complete:", newAnalysis)
     } catch (error) {
