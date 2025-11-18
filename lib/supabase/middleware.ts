@@ -38,14 +38,15 @@ export async function updateSession(request: NextRequest) {
     const isAuthPage = pathname.startsWith("/auth")
     const isApiRoute = pathname.startsWith("/api")
     const isPublicAsset = pathname.startsWith("/_next") || pathname.startsWith("/favicon")
+    const isPublicPage = pathname === "/privacy" || pathname === "/terms" || pathname === "/cookies"
 
     // Check if guest mode is requested (from localStorage check on client or via cookie)
     const guestModeCookie = request.cookies.get("guest-mode")
     const isGuestMode = guestModeCookie?.value === "true"
 
     // Redirect to login if not authenticated and trying to access protected routes
-    // BUT allow access to homepage if in guest mode
-    if (!user && !isAuthPage && !isPublicAsset && !isGuestMode) {
+    // BUT allow access to homepage if in guest mode and allow public pages
+    if (!user && !isAuthPage && !isPublicAsset && !isPublicPage && !isGuestMode) {
       const url = request.nextUrl.clone()
       url.pathname = "/auth/login"
       return NextResponse.redirect(url)
