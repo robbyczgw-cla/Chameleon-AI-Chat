@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export const runtime = 'edge'
 
@@ -24,6 +25,26 @@ const IMAGE_MODELS = {
  */
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: Get client identifier (IP or forwarded IP)
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown'
+    const rateLimitResult = checkRateLimit(`image:${clientIp}`, { limit: 20, windowMs: 60000 }) // 20 image requests per minute
+
+    if (rateLimitResult.limited) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Too many image generation requests. Please try again later.' }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-RateLimit-Limit': '20',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': new Date(rateLimitResult.resetTime).toISOString(),
+            'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString(),
+          },
+        }
+      )
+    }
+
     const { prompt, model, apiKey } = await req.json()
 
     if (!prompt) {

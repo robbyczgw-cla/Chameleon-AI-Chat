@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export const runtime = "edge"
 
@@ -34,6 +35,26 @@ interface ChatRequest {
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: Get client identifier (IP or forwarded IP)
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown'
+    const rateLimitResult = checkRateLimit(`chat:${clientIp}`, { limit: 100, windowMs: 60000 }) // 100 requests per minute
+
+    if (rateLimitResult.limited) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Too many requests. Please try again later.' }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-RateLimit-Limit': '100',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': new Date(rateLimitResult.resetTime).toISOString(),
+            'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString(),
+          },
+        }
+      )
+    }
+
     const body = await req.json()
     console.log("[v0] API route - full request body:", JSON.stringify(body).substring(0, 200))
 
