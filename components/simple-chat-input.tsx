@@ -207,10 +207,14 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
 
       // Web search if enabled - server has fallback API key via env vars
       console.log("[Simple Chat] Web Search check - Enabled:", webSearchEnabled)
-      console.log("[Simple Chat] Search Provider: tavily (Simple Mode always uses Tavily)")
+      console.log("[Simple Chat] Search Provider:", settings.searchProvider || "tavily")
+
+      // Track search stats
+      let searchStats: { provider: string; results: number; time: number } | null = null
 
       if (webSearchEnabled) {
         try {
+          const searchStartTime = performance.now()
           console.log("[Simple Chat] 🔍 Starting web search for query:", input.trim())
           toast({
             title: "🔍 Suche im Web...",
@@ -222,6 +226,8 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
 
           // Simple Mode uses Tavily, Advanced Mode respects settings.searchProvider
           const searchProvider = selectedPersona ? (settings.searchProvider || "tavily") : "tavily"
+
+          console.log(`[Simple Chat] 🔍 Using search provider: ${searchProvider.toUpperCase()}`)
 
           if (searchProvider === "serper") {
             console.log("[Simple Chat] Using Serper (Google Search)")
@@ -266,7 +272,21 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
             })
           }
 
-          console.log("[Simple Chat] ✅ Web search completed, results:", searchResults.results.length)
+          const searchEndTime = performance.now()
+          const searchTimeSeconds = (searchEndTime - searchStartTime) / 1000
+
+          // Store search stats
+          searchStats = {
+            provider: searchProvider,
+            results: searchResults.results.length,
+            time: searchTimeSeconds
+          }
+
+          console.log("[Simple Chat] ✅ Web search completed:", {
+            provider: searchProvider.toUpperCase(),
+            results: searchResults.results.length,
+            time: `${searchTimeSeconds.toFixed(2)}s`
+          })
           console.log("[Simple Chat] 🔍 Full search response:", JSON.stringify(searchResults, null, 2))
 
           let searchContext = `Websuchergebnisse für: "${input.trim()}"\n\n`
@@ -300,7 +320,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
           const imageCount = searchResults.images?.length || 0
           toast({
             title: "✅ Suche abgeschlossen",
-            description: `${searchResults.results.length} Ergebnisse${imageCount > 0 ? ` + ${imageCount} Bilder` : ''} (${searchProvider})`,
+            description: `${searchResults.results.length} Ergebnisse${imageCount > 0 ? ` + ${imageCount} Bilder` : ''} via ${searchProvider.charAt(0).toUpperCase() + searchProvider.slice(1)}`,
           })
         } catch (searchError) {
           console.error("[Simple Chat] ❌ Web search error:", searchError)
@@ -310,6 +330,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
             variant: "destructive",
           })
           // Continue without search
+          searchStats = null
         }
       } else {
         console.log("[Simple Chat] ⏭️ Web search disabled")
@@ -392,6 +413,15 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
             completion: completionTokens,
             total: totalTokens,
           },
+          stats: {
+            model,
+            cost: estimatedCost,
+            ...(searchStats && {
+              searchProvider: searchStats.provider,
+              searchResults: searchStats.results,
+              searchTime: searchStats.time,
+            }),
+          },
         }
 
         if (user) {
@@ -411,7 +441,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
           return prevChats.map((chat) => {
             if (chat.id !== chatId) return chat
             const updatedMessages = chat.messages.map((m) =>
-              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens } : m,
+              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, stats: finalMessage.stats } : m,
             )
             return { ...chat, messages: updatedMessages }
           })
