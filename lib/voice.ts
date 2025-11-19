@@ -125,8 +125,14 @@ export class VoiceService {
           } else {
             onError?.('Microphone denied. Click 🔒 in address bar → Site settings → Microphone → Allow')
           }
-        } else if (permError.name === 'NotFoundError') {
-          onError?.('No microphone found. Please connect a microphone and reload.')
+        } else if (permError.name === 'NotFoundError' || permError.message?.includes('object can not be found')) {
+          // macOS specific: "The object can not be found here" = system-level permission issue
+          const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+          if (isMac) {
+            onError?.('No microphone found. Fix macOS: System Settings → Privacy & Security → Microphone → Enable Zen Browser. Then restart browser.')
+          } else {
+            onError?.('No microphone found. Please connect a microphone and reload.')
+          }
         } else if (permError.name === 'NotReadableError') {
           onError?.('Microphone in use by another app. Close other apps and try again.')
         } else {
