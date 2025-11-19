@@ -189,6 +189,9 @@ export class SupabaseSync {
         serper: settings.apiKeys?.serper ? "***" + settings.apiKeys.serper.slice(-4) : "empty",
       })
 
+      // DEBUG: Log memory settings being saved
+      console.log("[Supabase] Saving memorySettings:", settings.memorySettings)
+
       // CRITICAL: Get existing settings to preserve API keys if new settings have empty values
       // Use .maybeSingle() to avoid errors if settings don't exist yet
       const { data: existingSettings, error: fetchError } = await this.supabase
@@ -525,6 +528,12 @@ export class SupabaseSync {
       serper: dbSettings.serper_api_key ? "***" + dbSettings.serper_api_key.slice(-4) : "NULL/empty",
     })
 
+    // DEBUG: Log memory settings being loaded
+    console.log("[Supabase] Loading memorySettings from DB:", {
+      raw: dbSettings.memory_settings,
+      type: typeof dbSettings.memory_settings,
+    })
+
     return {
       systemPrompt:
         dbSettings.system_prompt ||
@@ -560,11 +569,16 @@ export class SupabaseSync {
         language: dbSettings.serper_language || "de",
       },
       useExaSearch: dbSettings.use_exa_search ?? false,
-      memorySettings: dbSettings.memory_settings
-        ? (typeof dbSettings.memory_settings === "string"
-            ? JSON.parse(dbSettings.memory_settings)
-            : dbSettings.memory_settings)
-        : { enabled: false, autoExtract: true, maxMemoriesInContext: 5, importanceThreshold: 2 },
+      memorySettings: (() => {
+        const parsed = dbSettings.memory_settings
+          ? (typeof dbSettings.memory_settings === "string"
+              ? JSON.parse(dbSettings.memory_settings)
+              : dbSettings.memory_settings)
+          : { enabled: false, autoExtract: true, maxMemoriesInContext: 5, importanceThreshold: 2 }
+
+        console.log("[Supabase] Parsed memorySettings:", parsed)
+        return parsed
+      })(),
     }
   }
 

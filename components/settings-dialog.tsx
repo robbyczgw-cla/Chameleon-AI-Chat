@@ -36,13 +36,25 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const currentLanguage = settings.language || "en"
   const { t, translations } = useTranslation(currentLanguage)
 
-  // CRITICAL: Sync localSettings when dialog opens
+  // CRITICAL: Sync localSettings when dialog is open and settings change
   // This prevents stale state from overwriting memory toggle changes
   useEffect(() => {
     if (open) {
+      console.log("[SettingsDialog] Syncing localSettings with global settings:", {
+        globalMemoryEnabled: settings.memorySettings?.enabled,
+        localMemoryEnabled: localSettings.memorySettings?.enabled
+      })
       setLocalSettings(settings)
     }
-  }, [open]) // Only sync when dialog opens, not on every settings change
+  }, [open, settings]) // Sync when dialog opens OR when settings change while dialog is open
+
+  // DEBUG: Log whenever localSettings changes
+  useEffect(() => {
+    console.log("[SettingsDialog] localSettings changed:", {
+      memoryEnabled: localSettings.memorySettings?.enabled,
+      hasApiKeys: !!localSettings.apiKeys?.openRouter
+    })
+  }, [localSettings])
 
   useEffect(() => {
     if (voiceService.isSupported()) {
@@ -83,6 +95,10 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   }
 
   const handleSave = () => {
+    console.log("[SettingsDialog] handleSave called, saving localSettings:", {
+      memoryEnabled: localSettings.memorySettings?.enabled,
+      hasApiKeys: !!localSettings.apiKeys
+    })
     updateSettings(localSettings)
     onOpenChange(false)
   }

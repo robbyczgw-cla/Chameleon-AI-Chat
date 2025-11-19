@@ -27,9 +27,12 @@ import {
 import { memoryService } from "@/lib/memory-service"
 import type { Memory } from "@/types"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n"
 
 export function AIMemoryHub() {
   const { settings, updateSettings } = useApp()
+  const currentLanguage = settings.language || "en"
+  const { t, translations } = useTranslation(currentLanguage)
   const [memories, setMemories] = useState<Memory[]>([])
   const [isEnabled, setIsEnabled] = useState(settings.memorySettings?.enabled ?? false)
   const [activeTab, setActiveTab] = useState<Memory["type"]>("preference")
@@ -59,19 +62,27 @@ export function AIMemoryHub() {
   }
 
   const toggleMemorySystem = (enabled: boolean) => {
+    console.log("[AIMemoryHub] Toggle clicked:", {
+      newValue: enabled,
+      currentSettings: settings.memorySettings
+    })
     setIsEnabled(enabled)
+
+    const newMemorySettings = {
+      ...settings.memorySettings,
+      enabled,
+    }
+    console.log("[AIMemoryHub] Calling updateSettings with:", newMemorySettings)
+
     // CRITICAL: Preserve existing memorySettings, only update enabled flag
     updateSettings({
-      memorySettings: {
-        ...settings.memorySettings,
-        enabled,
-      },
+      memorySettings: newMemorySettings,
     })
   }
 
   const addMemory = () => {
     if (!newMemory.content.trim()) {
-      alert("Bitte gib einen Inhalt ein!")
+      alert(translations.memory.content)
       return
     }
 
@@ -93,7 +104,7 @@ export function AIMemoryHub() {
   }
 
   const deleteMemory = (id: string) => {
-    if (confirm("Memory wirklich löschen?")) {
+    if (confirm(translations.memory.deleteConfirm)) {
       memoryService.deleteMemory(id)
       loadMemories()
     }
@@ -121,11 +132,11 @@ export function AIMemoryHub() {
 
   const getTypeLabel = (type: Memory["type"]) => {
     const labels = {
-      preference: "Präferenzen",
-      fact: "Fakten",
-      context: "Kontext",
-      skill: "Fähigkeiten",
-      goal: "Ziele",
+      preference: translations.memory.preferences,
+      fact: translations.memory.facts,
+      context: translations.memory.context,
+      skill: translations.memory.skills,
+      goal: translations.memory.goals,
     }
     return labels[type]
   }
@@ -147,9 +158,9 @@ export function AIMemoryHub() {
             <Brain className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-base">AI Memory System</h3>
+            <h3 className="font-semibold text-base">{translations.memory.title}</h3>
             <p className="text-xs text-muted-foreground">
-              Intelligentes Langzeit-Gedächtnis für deine Konversationen
+              {translations.memory.subtitle}
             </p>
           </div>
         </div>
@@ -160,14 +171,14 @@ export function AIMemoryHub() {
         <Card className="p-6 text-center bg-muted/30 border-dashed">
           <Brain className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
           <p className="text-sm text-muted-foreground mb-3">
-            Memory System ist deaktiviert
+            {translations.memory.disabled}
           </p>
           <p className="text-xs text-muted-foreground mb-4">
-            Aktiviere das System, um wichtige Informationen über dich zu speichern und in zukünftigen Chats zu nutzen
+            {translations.memory.disabledDescription}
           </p>
           <Button onClick={() => toggleMemorySystem(true)} size="sm">
             <Sparkles className="h-4 w-4 mr-2" />
-            Jetzt aktivieren
+            {translations.memory.enableButton}
           </Button>
         </Card>
       )}
@@ -178,23 +189,23 @@ export function AIMemoryHub() {
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             <Card className="p-3 text-center">
               <div className="text-2xl font-bold text-purple-500">{stats.total}</div>
-              <div className="text-xs text-muted-foreground">Gesamt</div>
+              <div className="text-xs text-muted-foreground">{translations.memory.total}</div>
             </Card>
             <Card className="p-3 text-center">
               <div className="text-2xl font-bold">{stats.byType.preference}</div>
-              <div className="text-xs text-muted-foreground">Präferenzen</div>
+              <div className="text-xs text-muted-foreground">{translations.memory.preferences}</div>
             </Card>
             <Card className="p-3 text-center">
               <div className="text-2xl font-bold">{stats.byType.fact}</div>
-              <div className="text-xs text-muted-foreground">Fakten</div>
+              <div className="text-xs text-muted-foreground">{translations.memory.facts}</div>
             </Card>
             <Card className="p-3 text-center">
               <div className="text-2xl font-bold">{stats.byType.skill}</div>
-              <div className="text-xs text-muted-foreground">Skills</div>
+              <div className="text-xs text-muted-foreground">{translations.memory.skills}</div>
             </Card>
             <Card className="p-3 text-center">
               <div className="text-2xl font-bold">{stats.byType.goal}</div>
-              <div className="text-xs text-muted-foreground">Ziele</div>
+              <div className="text-xs text-muted-foreground">{translations.memory.goals}</div>
             </Card>
           </div>
 
@@ -204,14 +215,9 @@ export function AIMemoryHub() {
               <Info className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
               <div className="text-xs space-y-1">
                 <p>
-                  <strong>Wie funktioniert es?</strong>
+                  <strong>{translations.memory.howItWorks}</strong>
                 </p>
-                <ul className="list-disc list-inside space-y-0.5 ml-2">
-                  <li>Conversation Insights → speichert wichtige Fakten automatisch</li>
-                  <li>Personality Analysis → erstellt Präferenz-Memories</li>
-                  <li>Prompt Evolution → trackt deine Skills</li>
-                  <li>Knowledge Base → nutzt Memories für bessere Suche</li>
-                </ul>
+                <p className="whitespace-pre-line">{translations.memory.howItWorksDescription}</p>
               </div>
             </div>
           </Card>
@@ -221,23 +227,23 @@ export function AIMemoryHub() {
             <TabsList className="w-full grid grid-cols-5">
               <TabsTrigger value="preference" className="text-xs">
                 {getTypeIcon("preference")}
-                <span className="ml-1.5 hidden sm:inline">Präferenzen</span>
+                <span className="ml-1.5 hidden sm:inline">{translations.memory.preferences}</span>
               </TabsTrigger>
               <TabsTrigger value="fact" className="text-xs">
                 {getTypeIcon("fact")}
-                <span className="ml-1.5 hidden sm:inline">Fakten</span>
+                <span className="ml-1.5 hidden sm:inline">{translations.memory.facts}</span>
               </TabsTrigger>
               <TabsTrigger value="context" className="text-xs">
                 {getTypeIcon("context")}
-                <span className="ml-1.5 hidden sm:inline">Kontext</span>
+                <span className="ml-1.5 hidden sm:inline">{translations.memory.context}</span>
               </TabsTrigger>
               <TabsTrigger value="skill" className="text-xs">
                 {getTypeIcon("skill")}
-                <span className="ml-1.5 hidden sm:inline">Skills</span>
+                <span className="ml-1.5 hidden sm:inline">{translations.memory.skills}</span>
               </TabsTrigger>
               <TabsTrigger value="goal" className="text-xs">
                 {getTypeIcon("goal")}
-                <span className="ml-1.5 hidden sm:inline">Ziele</span>
+                <span className="ml-1.5 hidden sm:inline">{translations.memory.goals}</span>
               </TabsTrigger>
             </TabsList>
 
@@ -246,44 +252,44 @@ export function AIMemoryHub() {
               {!isAddingNew ? (
                 <Button onClick={() => setIsAddingNew(true)} size="sm" variant="outline" className="w-full">
                   <Plus className="h-4 w-4 mr-2" />
-                  Neue {getTypeLabel(activeTab)} hinzufügen
+                  {translations.memory.addNew} {getTypeLabel(activeTab)}
                 </Button>
               ) : (
                 <Card className="p-4 space-y-3 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
                   <div className="space-y-2">
-                    <Label className="text-sm">Inhalt</Label>
+                    <Label className="text-sm">{translations.memory.content}</Label>
                     <Input
                       value={newMemory.content}
                       onChange={(e) => setNewMemory({ ...newMemory, content: e.target.value })}
-                      placeholder="z.B. 'Bevorzugt Dark Mode' oder 'Arbeitet als Entwickler'"
+                      placeholder={translations.memory.contentPlaceholder}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-2">
-                      <Label className="text-sm">Kategorie (optional)</Label>
+                      <Label className="text-sm">{translations.memory.category}</Label>
                       <Input
                         value={newMemory.category}
                         onChange={(e) => setNewMemory({ ...newMemory, category: e.target.value })}
-                        placeholder="z.B. 'UI/UX'"
+                        placeholder={translations.memory.categoryPlaceholder}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm">Wichtigkeit</Label>
+                      <Label className="text-sm">{translations.memory.importance}</Label>
                       <select
                         value={newMemory.importance}
                         onChange={(e) => setNewMemory({ ...newMemory, importance: parseInt(e.target.value) as 1 | 2 | 3 })}
                         className="w-full rounded-md border bg-background px-3 py-2 text-sm"
                       >
-                        <option value={1}>Niedrig</option>
-                        <option value={2}>Mittel</option>
-                        <option value={3}>Hoch</option>
+                        <option value={1}>{translations.memory.importanceLow}</option>
+                        <option value={2}>{translations.memory.importanceMedium}</option>
+                        <option value={3}>{translations.memory.importanceHigh}</option>
                       </select>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <Button onClick={addMemory} size="sm" className="flex-1">
                       <Save className="h-4 w-4 mr-2" />
-                      Speichern
+                      {translations.memory.saveMemory}
                     </Button>
                     <Button onClick={() => setIsAddingNew(false)} size="sm" variant="outline">
                       <X className="h-4 w-4" />
@@ -301,7 +307,7 @@ export function AIMemoryHub() {
                     {getTypeIcon(activeTab)}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Keine {getTypeLabel(activeTab)} vorhanden
+                    {translations.memory.noMemories}
                   </p>
                 </Card>
               ) : (
@@ -337,9 +343,9 @@ export function AIMemoryHub() {
                             <p className="text-sm">{memory.content}</p>
                             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                               <span>
-                                {new Date(memory.createdAt).toLocaleDateString("de-DE")}
+                                {new Date(memory.createdAt).toLocaleDateString(currentLanguage === "de" ? "de-DE" : "en-US")}
                               </span>
-                              <span>• {memory.accessCount} mal verwendet</span>
+                              <span>• {memory.accessCount} {translations.memory.usedTimes}</span>
                             </div>
                           </div>
                           <Button
