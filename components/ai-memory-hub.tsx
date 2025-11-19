@@ -59,13 +59,21 @@ export function AIMemoryHub() {
   }
 
   const toggleMemorySystem = (enabled: boolean) => {
+    console.log("[AIMemoryHub] Toggle clicked:", {
+      newValue: enabled,
+      currentSettings: settings.memorySettings
+    })
     setIsEnabled(enabled)
+
+    const newMemorySettings = {
+      ...settings.memorySettings,
+      enabled,
+    }
+    console.log("[AIMemoryHub] Calling updateSettings with:", newMemorySettings)
+
     // CRITICAL: Preserve existing memorySettings, only update enabled flag
     updateSettings({
-      memorySettings: {
-        ...settings.memorySettings,
-        enabled,
-      },
+      memorySettings: newMemorySettings,
     })
   }
 

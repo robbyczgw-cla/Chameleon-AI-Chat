@@ -825,6 +825,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   const updateSettings = (updates: Partial<AppSettings>) => {
+    console.log("[AppContext] updateSettings called with:", {
+      memorySettings: updates.memorySettings,
+      hasApiKeys: !!updates.apiKeys
+    })
+
     const validatedUpdates = { ...updates }
 
     if (validatedUpdates.modelParameters?.maxTokens && validatedUpdates.modelParameters.maxTokens < 4096) {
@@ -832,7 +837,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     setSettings((prev) => {
+      console.log("[AppContext] Previous memorySettings:", prev.memorySettings)
       const merged = deepMergeSettings(prev, validatedUpdates)
+      console.log("[AppContext] Merged memorySettings:", merged.memorySettings)
 
       // BULLETPROOF API KEY PROTECTION: Never allow API keys to be cleared if they were previously set
       if (prev.apiKeys.openRouter && !merged.apiKeys.openRouter) {
