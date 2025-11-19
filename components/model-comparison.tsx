@@ -69,6 +69,7 @@ export function ModelComparison() {
   const [layout, setLayout] = useState<"2-column" | "3-column" | "4-column">("2-column")
   const [historyOpen, setHistoryOpen] = useState(false)
   const [webSearchEnabled, setWebSearchEnabled] = useState(false)
+  const [mobileActivePanel, setMobileActivePanel] = useState(0) // For mobile tab view
   const scrollRefs = useRef<(HTMLDivElement | null)[]>([])
   const wasAtBottomRef = useRef<boolean[]>([])
   const { toast } = useToast()
@@ -397,7 +398,7 @@ export function ModelComparison() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-col gap-3 border-b p-3 sm:p-4">
+      <div className="flex flex-col gap-2 border-b p-3 sm:p-4">
         {/* Top row: Title and primary actions */}
         <div className="flex items-center justify-between">
           <h2 className="text-base sm:text-lg font-semibold">Model Comparison</h2>
@@ -407,7 +408,7 @@ export function ModelComparison() {
               size="sm"
               onClick={() => setHistoryOpen(true)}
               title="Show History"
-              className="min-h-[44px] min-w-[44px]"
+              className="h-9 w-9 sm:min-h-[44px] sm:min-w-[44px]"
             >
               <History className="h-4 w-4" />
             </Button>
@@ -419,42 +420,72 @@ export function ModelComparison() {
                 window.dispatchEvent(event)
               }}
               title="Back to Chat"
-              className="min-h-[44px] min-w-[44px]"
+              className="h-9 w-9 sm:min-h-[44px] sm:min-w-[44px]"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        {/* Second row: Layout controls */}
-        <div className="flex items-center gap-2">
+        {/* Mobile: Tab switcher for panels */}
+        <div className="flex md:hidden overflow-x-auto gap-1 pb-1">
+          {panels.map((panel, index) => {
+            const modelDetails = getModelDetails(panel.model)
+            return (
+              <Button
+                key={index}
+                variant={mobileActivePanel === index ? "default" : "outline"}
+                size="sm"
+                onClick={() => setMobileActivePanel(index)}
+                className="flex-shrink-0 text-xs h-8 px-3"
+              >
+                {modelDetails.name.split('/').pop()?.substring(0, 12) || `Model ${index + 1}`}
+                {panel.isLoading && <span className="ml-1 h-1.5 w-1.5 rounded-full bg-current animate-pulse" />}
+              </Button>
+            )
+          })}
+          {panels.length < 4 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={addPanel}
+              className="flex-shrink-0 h-8 w-8"
+              title="Add model"
+            >
+              +
+            </Button>
+          )}
+        </div>
+
+        {/* Desktop: Layout controls */}
+        <div className="hidden md:flex items-center gap-2">
           <span className="text-xs text-muted-foreground mr-2">Layout:</span>
           <Button
             variant={layout === "2-column" ? "default" : "outline"}
             size="sm"
             onClick={() => setLayout("2-column")}
-            className="min-h-[44px] min-w-[44px] flex-1 sm:flex-none"
+            className="min-h-[44px] min-w-[44px]"
           >
-            <Columns2 className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">2 Col</span>
+            <Columns2 className="h-4 w-4 mr-2" />
+            2 Col
           </Button>
           <Button
             variant={layout === "3-column" ? "default" : "outline"}
             size="sm"
             onClick={() => setLayout("3-column")}
-            className="min-h-[44px] min-w-[44px] flex-1 sm:flex-none"
+            className="min-h-[44px] min-w-[44px]"
           >
-            <Columns3 className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">3 Col</span>
+            <Columns3 className="h-4 w-4 mr-2" />
+            3 Col
           </Button>
           <Button
             variant={layout === "4-column" ? "default" : "outline"}
             size="sm"
             onClick={() => setLayout("4-column")}
-            className="min-h-[44px] min-w-[44px] flex-1 sm:flex-none"
+            className="min-h-[44px] min-w-[44px]"
           >
-            <Grid2x2 className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">4 Col</span>
+            <Grid2x2 className="h-4 w-4 mr-2" />
+            4 Col
           </Button>
           {panels.length < 4 && (
             <Button
@@ -470,7 +501,115 @@ export function ModelComparison() {
         </div>
       </div>
 
-      <div className={`grid flex-1 gap-3 sm:gap-4 p-3 sm:p-4 ${gridCols}`} style={{ minHeight: 0 }}>
+      {/* Mobile: Single panel view with tabs */}
+      <div className="flex-1 md:hidden flex flex-col p-3" style={{ minHeight: 0 }}>
+        {panels[mobileActivePanel] && (
+          <Card className="flex flex-col flex-1" style={{ minHeight: 0 }}>
+            <div className="flex items-center gap-2 border-b p-2 flex-shrink-0">
+              <select
+                value={panels[mobileActivePanel].model}
+                onChange={(e) => {
+                  const newPanels = [...panels]
+                  newPanels[mobileActivePanel].model = e.target.value
+                  setPanels(newPanels)
+                }}
+                className="rounded-md border bg-background px-2 py-2 text-sm h-10 flex-1 font-medium"
+              >
+                {availableModels.map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.name}
+                  </option>
+                ))}
+              </select>
+              {panels.length > 2 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    removePanel(mobileActivePanel)
+                    if (mobileActivePanel >= panels.length - 1) {
+                      setMobileActivePanel(Math.max(0, panels.length - 2))
+                    }
+                  }}
+                  className="h-10 w-10 flex-shrink-0"
+                  title="Remove this model"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            <div
+              ref={(el) => (scrollRefs.current[mobileActivePanel] = el)}
+              className="flex-1 overflow-y-auto p-3"
+              style={{ minHeight: 0 }}
+            >
+              {panels[mobileActivePanel].messages.map((msg) => (
+                <div key={msg.id} className={`mb-3 ${msg.role === "user" ? "text-right" : "text-left"}`}>
+                  <div
+                    className={`inline-block rounded-lg px-3 py-2 max-w-[95%] break-words ${
+                      msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                    }`}
+                  >
+                    {msg.role === "assistant" ? (
+                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <ReactMarkdown
+                          components={{
+                            code({ node, inline, className, children, ...props }: any) {
+                              const match = /language-(\w+)/.exec(className || "")
+                              return !inline && match ? (
+                                <pre className="bg-black/50 rounded-md p-2 overflow-x-auto my-2">
+                                  <code className={cn("text-xs", className)} {...props}>
+                                    {children}
+                                  </code>
+                                </pre>
+                              ) : (
+                                <code className="bg-black/30 px-1.5 py-0.5 rounded text-xs" {...props}>
+                                  {children}
+                                </code>
+                              )
+                            },
+                            p({ children }) {
+                              return <p className="mb-2 last:mb-0 text-xs">{children}</p>
+                            },
+                            strong({ children }) {
+                              return <strong className="font-bold">{children}</strong>
+                            },
+                            em({ children }) {
+                              return <em className="italic">{children}</em>
+                            },
+                            ul({ children }) {
+                              return <ul className="list-disc list-inside mb-2 text-xs">{children}</ul>
+                            },
+                            ol({ children }) {
+                              return <ol className="list-decimal list-inside mb-2 text-xs">{children}</ol>
+                            },
+                            li({ children }) {
+                              return <li className="mb-1">{children}</li>
+                            },
+                          }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="text-xs leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {panels[mobileActivePanel].isLoading && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+                  Generating...
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
+      </div>
+
+      {/* Desktop: Grid view */}
+      <div className={`hidden md:grid flex-1 gap-4 p-4 ${gridCols}`} style={{ minHeight: 0 }}>
         {panels.map((panel, index) => (
           <Card key={index} className="flex flex-col" style={{ minHeight: 0 }}>
             <div className="flex items-center gap-2 border-b p-3 flex-shrink-0">
@@ -503,13 +642,13 @@ export function ModelComparison() {
             </div>
             <div
               ref={(el) => (scrollRefs.current[index] = el)}
-              className="flex-1 overflow-y-auto p-3 sm:p-4"
+              className="flex-1 overflow-y-auto p-4"
               style={{ minHeight: 0 }}
             >
               {panel.messages.map((msg) => (
-                <div key={msg.id} className={`mb-3 sm:mb-4 ${msg.role === "user" ? "text-right" : "text-left"}`}>
+                <div key={msg.id} className={`mb-4 ${msg.role === "user" ? "text-right" : "text-left"}`}>
                   <div
-                    className={`inline-block rounded-lg px-3 sm:px-4 py-2 max-w-[95%] sm:max-w-[90%] break-words ${
+                    className={`inline-block rounded-lg px-4 py-2 max-w-[90%] break-words ${
                       msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                     }`}
                   >
@@ -520,7 +659,7 @@ export function ModelComparison() {
                             code({ node, inline, className, children, ...props }: any) {
                               const match = /language-(\w+)/.exec(className || "")
                               return !inline && match ? (
-                                <pre className="bg-black/50 rounded-md p-2 sm:p-3 overflow-x-auto my-2">
+                                <pre className="bg-black/50 rounded-md p-3 overflow-x-auto my-2">
                                   <code className={cn("text-xs", className)} {...props}>
                                     {children}
                                   </code>
@@ -532,7 +671,7 @@ export function ModelComparison() {
                               )
                             },
                             p({ children }) {
-                              return <p className="mb-2 last:mb-0 text-xs sm:text-sm">{children}</p>
+                              return <p className="mb-2 last:mb-0 text-sm">{children}</p>
                             },
                             strong({ children }) {
                               return <strong className="font-bold">{children}</strong>
@@ -541,10 +680,10 @@ export function ModelComparison() {
                               return <em className="italic">{children}</em>
                             },
                             ul({ children }) {
-                              return <ul className="list-disc list-inside mb-2 text-xs sm:text-sm">{children}</ul>
+                              return <ul className="list-disc list-inside mb-2 text-sm">{children}</ul>
                             },
                             ol({ children }) {
-                              return <ol className="list-decimal list-inside mb-2 text-xs sm:text-sm">{children}</ol>
+                              return <ol className="list-decimal list-inside mb-2 text-sm">{children}</ol>
                             },
                             li({ children }) {
                               return <li className="mb-1">{children}</li>
@@ -555,13 +694,13 @@ export function ModelComparison() {
                         </ReactMarkdown>
                       </div>
                     ) : (
-                      <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                     )}
                   </div>
                 </div>
               ))}
               {panel.isLoading && (
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
                   Generating...
                 </div>
@@ -571,47 +710,40 @@ export function ModelComparison() {
         ))}
       </div>
 
-      <div className="border-t p-3 sm:p-4 flex-shrink-0">
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendToAll()}
-              placeholder="Send to all models..."
-              className="w-full rounded-lg border bg-background px-3 sm:px-4 py-3 text-sm sm:text-base min-h-[48px] flex-1"
-            />
-            <Button
-              type="button"
-              size="sm"
-              variant={webSearchEnabled ? "default" : "outline"}
-              className="min-h-[48px] min-w-[48px]"
-              onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-              title={webSearchEnabled ? "Disable web search" : "Enable web search (Tavily)"}
-              disabled={!settings.apiKeys.tavily}
-            >
-              <Globe className={`h-5 w-5 ${webSearchEnabled ? "animate-pulse" : ""}`} />
-            </Button>
-            <Button
-              onClick={sendToAll}
-              disabled={!input.trim() || panels.some((p) => p.isLoading)}
-              className="min-h-[48px] px-4 sm:px-6 text-sm sm:text-base font-medium"
-            >
-              <span className="hidden sm:inline">Send to All</span>
-              <span className="sm:hidden">Send</span>
-            </Button>
-          </div>
+      <div className="border-t p-3 sm:p-4 pb-20 md:pb-4 flex-shrink-0">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendToAll()}
+            placeholder="Send to all models..."
+            className="w-full rounded-lg border bg-background px-3 sm:px-4 py-3 text-sm min-h-[44px] flex-1"
+          />
+          <Button
+            type="button"
+            size="sm"
+            variant={webSearchEnabled ? "default" : "outline"}
+            className="h-[44px] w-[44px] flex-shrink-0"
+            onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+            title={webSearchEnabled ? "Disable web search" : "Enable web search (Tavily)"}
+            disabled={!settings.apiKeys.tavily}
+          >
+            <Globe className={`h-4 w-4 ${webSearchEnabled ? "animate-pulse" : ""}`} />
+          </Button>
+          <Button
+            onClick={sendToAll}
+            disabled={!input.trim() || panels.some((p) => p.isLoading)}
+            className="h-[44px] px-4 text-sm font-medium flex-shrink-0"
+          >
+            Send
+          </Button>
         </div>
         {webSearchEnabled && settings.apiKeys.tavily && (
           <p className="text-xs text-primary mt-2 flex items-center gap-1">
             <Globe className="h-3 w-3" />
-            Web search enabled - All responses use current information from the internet
-          </p>
-        )}
-        {!settings.apiKeys.tavily && (
-          <p className="text-xs text-muted-foreground mt-2">
-            💡 Tip: Enable web search with a Tavily API key in settings for current information
+            <span className="hidden sm:inline">Web search enabled - All responses use current information</span>
+            <span className="sm:hidden">Web search on</span>
           </p>
         )}
       </div>
