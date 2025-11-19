@@ -124,12 +124,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Validate and cleanup localStorage on app mount
-  if (typeof window !== "undefined") {
-    validateLocalStorage()
-    forceCleanupLocalStorage() // Remove old image data and limit to 50 chats
-  }
-
   // Helper function to deeply merge settings objects
   const deepMergeSettings = (defaults: AppSettings, parsed: Partial<AppSettings>): AppSettings => {
     // CRITICAL: When merging API keys, filter out undefined/null/empty values from parsed
@@ -183,6 +177,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let hasRun = false
+
+    // Validate and cleanup localStorage on app mount (runs once)
+    if (typeof window !== "undefined") {
+      validateLocalStorage()
+      forceCleanupLocalStorage() // Remove old image data and limit to 50 chats
+    }
 
     const initAuth = () => {
       if (hasRun) return
