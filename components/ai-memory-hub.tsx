@@ -60,12 +60,11 @@ export function AIMemoryHub() {
 
   const toggleMemorySystem = (enabled: boolean) => {
     setIsEnabled(enabled)
+    // CRITICAL: Preserve existing memorySettings, only update enabled flag
     updateSettings({
       memorySettings: {
+        ...settings.memorySettings,
         enabled,
-        autoExtract: true,
-        maxMemoriesInContext: 5,
-        importanceThreshold: 2,
       },
     })
   }
