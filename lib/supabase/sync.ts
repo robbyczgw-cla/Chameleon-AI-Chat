@@ -229,89 +229,63 @@ export class SupabaseSync {
         serper: serperKey ? "***" + serperKey.slice(-4) : "NULL",
       })
 
-      const { error } = await this.supabase.from("user_settings").upsert(
-        {
-          user_id: userId,
-          system_prompt: settings.systemPrompt,
-          temperature: settings.modelParameters.temperature,
-          max_tokens: settings.modelParameters.maxTokens,
-          top_p: settings.modelParameters.topP,
-          frequency_penalty: settings.modelParameters.frequencyPenalty,
-          presence_penalty: settings.modelParameters.presencePenalty,
-          selected_model: settings.selectedModel,
-          selected_models: settings.selectedModels || ["x-ai/grok-4-fast"],
-          tavily_search_depth: settings.tavilySettings.searchDepth,
-          tavily_max_results: settings.tavilySettings.maxResults,
-          tavily_include_images: settings.tavilySettings.includeImages,
-          tavily_include_answer: settings.tavilySettings.includeAnswer,
-          openrouter_api_key: openRouterKey,
-          openai_api_key: openAIKey,
-          tavily_api_key: tavilyKey,
-          serper_api_key: serperKey,
-          search_provider: settings.searchProvider || "tavily",
-          serper_max_results: settings.serperSettings?.maxResults || 5,
-          serper_include_images: settings.serperSettings?.includeImages ?? true,
-          serper_country: settings.serperSettings?.country || "at",
-          serper_language: settings.serperSettings?.language || "de",
-          use_exa_search: settings.useExaSearch ?? false,
-          memory_settings: settings.memorySettings
-            ? JSON.stringify(settings.memorySettings)
-            : JSON.stringify({ enabled: false, autoExtract: true, maxMemoriesInContext: 5, importanceThreshold: 2 }),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: "user_id",
-          ignoreDuplicates: false,
-        },
-      )
+      const settingsData = {
+        system_prompt: settings.systemPrompt,
+        temperature: settings.modelParameters.temperature,
+        max_tokens: settings.modelParameters.maxTokens,
+        top_p: settings.modelParameters.topP,
+        frequency_penalty: settings.modelParameters.frequencyPenalty,
+        presence_penalty: settings.modelParameters.presencePenalty,
+        selected_model: settings.selectedModel,
+        selected_models: settings.selectedModels || ["x-ai/grok-4-fast"],
+        tavily_search_depth: settings.tavilySettings.searchDepth,
+        tavily_max_results: settings.tavilySettings.maxResults,
+        tavily_include_images: settings.tavilySettings.includeImages,
+        tavily_include_answer: settings.tavilySettings.includeAnswer,
+        openrouter_api_key: openRouterKey,
+        openai_api_key: openAIKey,
+        tavily_api_key: tavilyKey,
+        serper_api_key: serperKey,
+        search_provider: settings.searchProvider || "tavily",
+        serper_max_results: settings.serperSettings?.maxResults || 5,
+        serper_include_images: settings.serperSettings?.includeImages ?? true,
+        serper_country: settings.serperSettings?.country || "at",
+        serper_language: settings.serperSettings?.language || "de",
+        use_exa_search: settings.useExaSearch ?? false,
+        memory_settings: settings.memorySettings
+          ? JSON.stringify(settings.memorySettings)
+          : JSON.stringify({ enabled: false, autoExtract: true, maxMemoriesInContext: 5, importanceThreshold: 2 }),
+        updated_at: new Date().toISOString(),
+      }
+
+      // Use explicit INSERT or UPDATE based on whether settings exist
+      let error
+      if (existingSettings) {
+        // UPDATE existing settings
+        const result = await this.supabase
+          .from("user_settings")
+          .update(settingsData)
+          .eq("user_id", userId)
+        error = result.error
+      } else {
+        // INSERT new settings
+        const result = await this.supabase
+          .from("user_settings")
+          .insert({
+            user_id: userId,
+            ...settingsData,
+          })
+        error = result.error
+      }
 
       if (error) {
         if (error.code === "42501") {
-          console.error("[v0] RLS policy blocking settings save. Run SQL script 008_fix_rls_insert_policy.sql!")
-          return
-        }
-        if (error.code === "23505") {
-          console.log("[v0] Settings already exist, trying update...")
-          const { error: updateError } = await this.supabase
-            .from("user_settings")
-            .update({
-              system_prompt: settings.systemPrompt,
-              temperature: settings.modelParameters.temperature,
-              max_tokens: settings.modelParameters.maxTokens,
-              top_p: settings.modelParameters.topP,
-              frequency_penalty: settings.modelParameters.frequencyPenalty,
-              presence_penalty: settings.modelParameters.presencePenalty,
-              selected_model: settings.selectedModel,
-              selected_models: settings.selectedModels || ["x-ai/grok-4-fast"],
-              tavily_search_depth: settings.tavilySettings.searchDepth,
-              tavily_max_results: settings.tavilySettings.maxResults,
-              tavily_include_images: settings.tavilySettings.includeImages,
-              tavily_include_answer: settings.tavilySettings.includeAnswer,
-              openrouter_api_key: settings.apiKeys?.openRouter || null,
-              openai_api_key: settings.apiKeys?.openAI || null,
-              tavily_api_key: settings.apiKeys?.tavily || null,
-              serper_api_key: settings.apiKeys?.serper || null,
-              search_provider: settings.searchProvider || "tavily",
-              serper_max_results: settings.serperSettings?.maxResults || 5,
-              serper_include_images: settings.serperSettings?.includeImages ?? true,
-              serper_country: settings.serperSettings?.country || "at",
-              serper_language: settings.serperSettings?.language || "de",
-              use_exa_search: settings.useExaSearch ?? false,
-              memory_settings: settings.memorySettings
-                ? JSON.stringify(settings.memorySettings)
-                : JSON.stringify({ enabled: false, autoExtract: true, maxMemoriesInContext: 5, importanceThreshold: 2 }),
-              updated_at: new Date().toISOString(),
-            })
-            .eq("user_id", userId)
-
-          if (updateError && updateError.code !== "42501") {
-            throw updateError
-          }
+          console.error("[Supabase] RLS policy blocking settings save. Check RLS policies!")
           return
         }
         throw error
       }
-      console.log("[v0] Settings saved for user:", userId)
+      console.log("[Supabase] Settings saved successfully for user:", userId)
     } catch (err: any) {
       console.error("[v0] Error saving settings:", err)
     }

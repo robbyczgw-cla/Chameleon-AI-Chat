@@ -426,14 +426,23 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
 
         if (user) {
           console.log("[Simple Chat] Saving final message to Supabase")
-          supabaseSync.createMessage(finalMessage, chatId).catch((error) => {
-            console.error("[Simple Chat] Failed to save final message:", error)
-          })
-
+          // CRITICAL: Save message FIRST, then track usage (to avoid FK violation)
           supabaseSync
-            .trackUsage(user.id, chatId, assistantMessageId, model, promptTokens, completionTokens, estimatedCost)
+            .createMessage(finalMessage, chatId)
+            .then(() => {
+              // Only track usage after message is saved to avoid foreign key violation
+              return supabaseSync.trackUsage(
+                user.id,
+                chatId,
+                assistantMessageId,
+                model,
+                promptTokens,
+                completionTokens,
+                estimatedCost,
+              )
+            })
             .catch((error) => {
-              console.error("[Simple Chat] Failed to track usage:", error)
+              console.error("[Simple Chat] Failed to save message or track usage:", error)
             })
         }
 

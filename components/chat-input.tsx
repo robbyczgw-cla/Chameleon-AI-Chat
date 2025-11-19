@@ -687,14 +687,23 @@ export function ChatInput() {
 
         if (user) {
           console.log("[v0] Saving final message to Supabase with tokens:", totalTokens)
-          supabaseSync.createMessage(finalMessage, chatId).catch((error) => {
-            console.error("[v0] Failed to save final message:", error)
-          })
-
+          // CRITICAL: Save message FIRST, then track usage (to avoid FK violation)
           supabaseSync
-            .trackUsage(user.id, chatId, assistantMessageId, model, promptTokens, completionTokens, estimatedCost)
+            .createMessage(finalMessage, chatId)
+            .then(() => {
+              // Only track usage after message is saved to avoid foreign key violation
+              return supabaseSync.trackUsage(
+                user.id,
+                chatId,
+                assistantMessageId,
+                model,
+                promptTokens,
+                completionTokens,
+                estimatedCost,
+              )
+            })
             .catch((error) => {
-              console.error("[v0] Failed to track usage:", error)
+              console.error("[v0] Failed to save message or track usage:", error)
             })
         }
 
