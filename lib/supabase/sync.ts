@@ -190,13 +190,18 @@ export class SupabaseSync {
       })
 
       // CRITICAL: Get existing settings to preserve API keys if new settings have empty values
-      const { data: existingSettings } = await this.supabase
+      // Use .maybeSingle() to avoid errors if settings don't exist yet
+      const { data: existingSettings, error: fetchError } = await this.supabase
         .from("user_settings")
         .select("openrouter_api_key, openai_api_key, tavily_api_key, serper_api_key")
         .eq("user_id", userId)
-        .single()
+        .maybeSingle()
 
-      // Prepare API key values - NEVER overwrite existing keys with null/empty
+      if (fetchError) {
+        console.warn("[Supabase] Failed to fetch existing settings (will create new):", fetchError.message)
+      }
+
+      // Prepare API key values - NEVER overwrite existing keys with null/empty/undefined
       const openRouterKey = settings.apiKeys?.openRouter || existingSettings?.openrouter_api_key || null
       const openAIKey = settings.apiKeys?.openAI || existingSettings?.openai_api_key || null
       const tavilyKey = settings.apiKeys?.tavily || existingSettings?.tavily_api_key || null
@@ -216,6 +221,13 @@ export class SupabaseSync {
           console.warn("[Supabase] 🛡️ PROTECTION: Preserving existing Serper key, refusing to clear it")
         }
       }
+
+      console.log("[Supabase] Final API keys being saved to DB:", {
+        openRouter: openRouterKey ? "***" + openRouterKey.slice(-4) : "NULL",
+        openAI: openAIKey ? "***" + openAIKey.slice(-4) : "NULL",
+        tavily: tavilyKey ? "***" + tavilyKey.slice(-4) : "NULL",
+        serper: serperKey ? "***" + serperKey.slice(-4) : "NULL",
+      })
 
       const { error } = await this.supabase.from("user_settings").upsert(
         {
@@ -553,10 +565,12 @@ export class SupabaseSync {
       selectedModel: dbSettings.selected_model || "x-ai/grok-4-fast",
       selectedModels: dbSettings.selected_models || ["x-ai/grok-4-fast"],
       apiKeys: {
-        openRouter: dbSettings.openrouter_api_key || "",
-        openAI: dbSettings.openai_api_key || "",
-        tavily: dbSettings.tavily_api_key || "",
-        serper: dbSettings.serper_api_key || "",
+        // CRITICAL: Return undefined for NULL database values instead of empty strings
+        // This allows localStorage keys to be preserved during merge in app-context
+        openRouter: dbSettings.openrouter_api_key || undefined,
+        openAI: dbSettings.openai_api_key || undefined,
+        tavily: dbSettings.tavily_api_key || undefined,
+        serper: dbSettings.serper_api_key || undefined,
       },
       searchProvider: dbSettings.search_provider || "tavily",
       tavilySettings: {

@@ -126,6 +126,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Helper function to deeply merge settings objects
   const deepMergeSettings = (defaults: AppSettings, parsed: Partial<AppSettings>): AppSettings => {
+    // CRITICAL: When merging API keys, filter out undefined/null/empty values from parsed
+    // This prevents database NULL values from overwriting valid localStorage keys
+    const mergedApiKeys = { ...defaults.apiKeys }
+    if (parsed.apiKeys) {
+      Object.keys(parsed.apiKeys).forEach((key) => {
+        const value = (parsed.apiKeys as any)[key]
+        // Only overwrite if the new value is truthy (not null, undefined, or empty string)
+        if (value) {
+          (mergedApiKeys as any)[key] = value
+        }
+      })
+    }
+
     return {
       ...defaults,
       ...parsed,
@@ -145,10 +158,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...defaults.youcomSettings,
         ...(parsed.youcomSettings || {}),
       },
-      apiKeys: {
-        ...defaults.apiKeys,
-        ...(parsed.apiKeys || {}),
-      },
+      apiKeys: mergedApiKeys,
       voiceSettings: {
         ...defaults.voiceSettings,
         ...(parsed.voiceSettings || {}),
@@ -451,39 +461,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
           console.error("[v0] Failed to save initial settings:", error)
         })
       } else {
-        // Database is source of truth for selected_models - never override with localStorage
-        // selectedModels from database are already loaded in mapSettingsFromDB()
-        let mergedSettings = deepMergeSettings(DEFAULT_SETTINGS, settingsData)
-
-        // CRITICAL FIX: Preserve localStorage API keys if database has empty values
-        // This prevents database NULL values from overwriting valid localStorage keys
+        // CRITICAL FIX: Load localStorage API keys FIRST to use as base
+        // This ensures we never lose API keys during sync
+        let baseSettings = { ...DEFAULT_SETTINGS }
         const localStorageSettings = localStorage.getItem("settings")
         if (localStorageSettings) {
           try {
             const localSettings = JSON.parse(localStorageSettings)
             if (localSettings.apiKeys) {
-              // Only use localStorage API keys if database keys are empty
-              if (!mergedSettings.apiKeys.openRouter && localSettings.apiKeys.openRouter) {
-                console.log("[v0] Preserving OpenRouter API key from localStorage")
-                mergedSettings.apiKeys.openRouter = localSettings.apiKeys.openRouter
-              }
-              if (!mergedSettings.apiKeys.openAI && localSettings.apiKeys.openAI) {
-                console.log("[v0] Preserving OpenAI API key from localStorage")
-                mergedSettings.apiKeys.openAI = localSettings.apiKeys.openAI
-              }
-              if (!mergedSettings.apiKeys.tavily && localSettings.apiKeys.tavily) {
-                console.log("[v0] Preserving Tavily API key from localStorage")
-                mergedSettings.apiKeys.tavily = localSettings.apiKeys.tavily
-              }
-              if (!mergedSettings.apiKeys.serper && localSettings.apiKeys.serper) {
-                console.log("[v0] Preserving Serper API key from localStorage")
-                mergedSettings.apiKeys.serper = localSettings.apiKeys.serper
+              console.log("[v0] Loading API keys from localStorage as base")
+              baseSettings.apiKeys = {
+                openRouter: localSettings.apiKeys.openRouter || "",
+                openAI: localSettings.apiKeys.openAI || "",
+                tavily: localSettings.apiKeys.tavily || "",
+                serper: localSettings.apiKeys.serper || "",
               }
             }
           } catch (e) {
             console.error("[v0] Failed to parse localStorage settings:", e)
           }
         }
+
+        // Now merge with database settings (database wins for everything EXCEPT empty API keys)
+        let mergedSettings = deepMergeSettings(baseSettings, settingsData)
 
         // CRITICAL FIX: If selectedModel is gpt-4o (old default), replace with grok-4-fast
         if (mergedSettings.selectedModel === "openai/gpt-4o" || mergedSettings.selectedModel === "openai/gpt-4o-mini") {
@@ -648,8 +648,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         saveCountRef.current = 0
       }, 5000)
 
-      // Always save to localStorage as backup, even for authenticated users
-      localStorage.setItem("settings", JSON.stringify(settings))
+      // CRITICAL: Always save to localStorage as backup FIRST, even for authenticated users
+      // This ensures we never lose API keys even if Supabase sync fails
+      try {
+        localStorage.setItem("settings", JSON.stringify(settings))
+        console.log("[v0] ✅ Settings saved to localStorage (including API keys)")
+      } catch (error) {
+        console.error("[v0] ❌ Failed to save settings to localStorage:", error)
+      }
 
       if (user) {
         console.log(`[v0] Saving settings to Supabase... (${saveCountRef.current}/3 in last 5s)`)
