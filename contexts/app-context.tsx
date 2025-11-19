@@ -73,6 +73,12 @@ const DEFAULT_SETTINGS: AppSettings = {
     country: "at",
     language: "de", // German
   },
+  memorySettings: {
+    enabled: false,
+    autoExtract: true,
+    importanceThreshold: 2,
+    maxMemoriesInContext: 5,
+  },
   showDetailedStats: false, // Disabled by default, enable for hardcore LLM nerds
   fontSize: "medium",
   messageDensity: "comfortable",
@@ -162,6 +168,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       voiceSettings: {
         ...defaults.voiceSettings,
         ...(parsed.voiceSettings || {}),
+      },
+      memorySettings: {
+        ...defaults.memorySettings,
+        ...(parsed.memorySettings || {}),
+      },
+      experimental: {
+        ...defaults.experimental,
+        ...(parsed.experimental || {}),
       },
     }
   }
