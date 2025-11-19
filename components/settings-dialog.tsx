@@ -36,6 +36,14 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const currentLanguage = settings.language || "en"
   const { t, translations } = useTranslation(currentLanguage)
 
+  // CRITICAL: Sync localSettings when dialog opens
+  // This prevents stale state from overwriting memory toggle changes
+  useEffect(() => {
+    if (open) {
+      setLocalSettings(settings)
+    }
+  }, [open]) // Only sync when dialog opens, not on every settings change
+
   useEffect(() => {
     if (voiceService.isSupported()) {
       setTimeout(() => setVoices(voiceService.getVoices()), 100)
