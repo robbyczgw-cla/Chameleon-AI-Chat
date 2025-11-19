@@ -242,6 +242,9 @@ export class SupabaseSync {
           serper_country: settings.serperSettings?.country || "at",
           serper_language: settings.serperSettings?.language || "de",
           use_exa_search: settings.useExaSearch ?? false,
+          memory_settings: settings.memorySettings
+            ? JSON.stringify(settings.memorySettings)
+            : JSON.stringify({ enabled: false, autoExtract: true, maxMemoriesInContext: 5, importanceThreshold: 2 }),
           updated_at: new Date().toISOString(),
         },
         {
@@ -282,6 +285,9 @@ export class SupabaseSync {
               serper_country: settings.serperSettings?.country || "at",
               serper_language: settings.serperSettings?.language || "de",
               use_exa_search: settings.useExaSearch ?? false,
+              memory_settings: settings.memorySettings
+                ? JSON.stringify(settings.memorySettings)
+                : JSON.stringify({ enabled: false, autoExtract: true, maxMemoriesInContext: 5, importanceThreshold: 2 }),
               updated_at: new Date().toISOString(),
             })
             .eq("user_id", userId)
@@ -566,6 +572,11 @@ export class SupabaseSync {
         language: dbSettings.serper_language || "de",
       },
       useExaSearch: dbSettings.use_exa_search ?? false,
+      memorySettings: dbSettings.memory_settings
+        ? (typeof dbSettings.memory_settings === "string"
+            ? JSON.parse(dbSettings.memory_settings)
+            : dbSettings.memory_settings)
+        : { enabled: false, autoExtract: true, maxMemoriesInContext: 5, importanceThreshold: 2 },
     }
   }
 
