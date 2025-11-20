@@ -293,13 +293,20 @@ export async function streamChatMessage(
             const parsed = JSON.parse(data)
             const delta = parsed.choices?.[0]?.delta
             const content = delta?.content
-            // OpenRouter uses different field names for reasoning depending on model
-            const reasoningContent = delta?.reasoning_content || delta?.reasoning || delta?.thinking
             const finishReason = parsed.choices?.[0]?.finish_reason
 
-            // Debug: log all delta keys to find reasoning field
-            if (delta && Object.keys(delta).length > 0 && !content) {
-              console.log("[v0] Delta keys (no content):", Object.keys(delta))
+            // Extract reasoning from various possible formats
+            let reasoningContent = delta?.reasoning_content || delta?.reasoning || delta?.thinking
+
+            // Handle reasoning_details array format (OpenRouter standard)
+            if (!reasoningContent && delta?.reasoning_details && Array.isArray(delta.reasoning_details)) {
+              for (const detail of delta.reasoning_details) {
+                if (detail.type === "reasoning.text" && detail.text) {
+                  reasoningContent = detail.text
+                } else if (detail.type === "reasoning.summary" && detail.summary) {
+                  reasoningContent = detail.summary
+                }
+              }
             }
 
             if (finishReason) {
