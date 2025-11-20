@@ -31,7 +31,8 @@ const MODEL_PRICING: Record<string, ModelPricing> = {
 
   // xAI Models (updated 2025-01)
   "x-ai/grok-beta": { inputCost: 5.0, outputCost: 15.0 },
-  "x-ai/grok-4-fast": { inputCost: 0.60, outputCost: 2.0 }, // Updated from OpenRouter actual pricing
+  "x-ai/grok-4.1-fast": { inputCost: 0.60, outputCost: 2.0 }, // New default - 2M context, reasoning support
+  "x-ai/grok-4-fast": { inputCost: 0.60, outputCost: 2.0 },
   "x-ai/grok-4": { inputCost: 0.60, outputCost: 2.0 },
   "xai/grok-4": { inputCost: 0.60, outputCost: 2.0 },
   "xai/grok-4-fast": { inputCost: 0.60, outputCost: 2.0 },

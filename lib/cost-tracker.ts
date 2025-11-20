@@ -24,6 +24,7 @@ export interface CostStats {
 
 // Model pricing (per 1K tokens) - update these based on actual pricing
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
+  "x-ai/grok-4.1-fast": { input: 0.005, output: 0.015 },
   "x-ai/grok-4-fast": { input: 0.005, output: 0.015 },
   "x-ai/grok-2": { input: 0.01, output: 0.03 },
   "anthropic/claude-3.5-sonnet": { input: 0.003, output: 0.015 },

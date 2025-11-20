@@ -62,7 +62,7 @@ export function ModelComparison() {
   const { settings, saveComparisonSession } = useApp()
   const [availableModels, setAvailableModels] = useState<ModelOption[]>(getAvailableModels())
   const [panels, setPanels] = useState<ComparisonPanel[]>([
-    { model: availableModels[0]?.id || "openai/gpt-4o", messages: [], isLoading: false },
+    { model: availableModels[0]?.id || "x-ai/grok-4.1-fast", messages: [], isLoading: false },
     { model: availableModels[1]?.id || "anthropic/claude-4.5-sonnet-20250929", messages: [], isLoading: false },
   ])
   const [input, setInput] = useState("")
@@ -361,7 +361,7 @@ export function ModelComparison() {
     // Find a model that's not already in use
     const usedModels = new Set(panels.map((p) => p.model))
     const unusedModel = availableModels.find((m) => !usedModels.has(m.id))
-    const modelToAdd = unusedModel?.id || availableModels[0]?.id || "openai/gpt-4o-mini"
+    const modelToAdd = unusedModel?.id || availableModels[0]?.id || "x-ai/grok-4.1-fast"
 
     setPanels([...panels, { model: modelToAdd, messages: [], isLoading: false }])
   }
