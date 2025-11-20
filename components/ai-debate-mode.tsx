@@ -129,7 +129,7 @@ export function AIDebateMode() {
   const [selectedCategory, setSelectedCategory] = useState<TopicCategory>("custom")
   const [debateStyle, setDebateStyle] = useState<DebateStyle>("freestyle")
 
-  const defaultModel = settings.selectedModel || "x-ai/grok-4-fast"
+  const defaultModel = settings.selectedModel || "x-ai/grok-4.1-fast"
   const [model1, setModel1] = useState(defaultModel)
   const [model2, setModel2] = useState("openai/gpt-5.1")
   const [judgeModel, setJudgeModel] = useState<string | null>(null)
