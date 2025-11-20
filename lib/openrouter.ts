@@ -35,6 +35,20 @@ export interface ChatCompletionResponse {
   }
 }
 
+// Models that support reasoning parameter
+export const REASONING_MODELS = new Set([
+  "x-ai/grok-4.1-fast",
+  "x-ai/grok-4",
+  "x-ai/grok-4-fast",
+  "anthropic/claude-4.5-sonnet-20250929",
+  "anthropic/claude-opus-4.1",
+  "anthropic/claude-haiku-4.5",
+  "google/gemini-2.5-pro",
+  "google/gemini-2.5-flash",
+  "deepseek/deepseek-chat-v3.2-experimental",
+  "qwen/qwen3-235b-a22b-thinking-2507",
+])
+
 export const POPULAR_OPENROUTER_MODELS = [
   // 🏆 Flagship Models 2025 - Die Besten der Besten
   { id: "openai/gpt-5-2025-08-07", name: "GPT-5 (August 2025)", provider: "OpenAI", category: "flagship" },
@@ -49,6 +63,7 @@ export const POPULAR_OPENROUTER_MODELS = [
   { id: "anthropic/claude-opus-4.1", name: "Claude Opus 4.1", provider: "Anthropic", category: "flagship" },
 
   // 💰 Beste Preis-Leistung 2025
+  { id: "x-ai/grok-4.1-fast", name: "Grok 4.1 Fast (2M Context)", provider: "xAI", category: "value" },
   { id: "x-ai/grok-4-fast", name: "Grok 4 Fast", provider: "xAI", category: "value" },
   {
     id: "google/gemini-2.5-flash",
@@ -147,6 +162,7 @@ export async function streamChatMessage(
     presencePenalty?: number
     apiKey?: string
     signal?: AbortSignal
+    reasoning?: boolean
   } = {},
 ): Promise<void> {
   const {
@@ -157,6 +173,7 @@ export async function streamChatMessage(
     presencePenalty = 0,
     apiKey,
     signal,
+    reasoning = false,
   } = options
   const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
 
@@ -177,7 +194,7 @@ export async function streamChatMessage(
     headers["x-openrouter-api-key"] = apiKey
   }
 
-  const requestBody = {
+  const requestBody: Record<string, any> = {
     messages,
     model,
     temperature,
@@ -186,6 +203,11 @@ export async function streamChatMessage(
     frequencyPenalty,
     presencePenalty,
     stream: true,
+  }
+
+  // Add reasoning parameter if enabled
+  if (reasoning) {
+    requestBody.reasoning = true
   }
 
   console.log("[v0] FINAL REQUEST BODY TO /api/chat:", JSON.stringify(requestBody, null, 2))

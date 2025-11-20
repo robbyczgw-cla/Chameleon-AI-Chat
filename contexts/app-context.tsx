@@ -49,8 +49,8 @@ const DEFAULT_SETTINGS: AppSettings = {
     tavily: "",
     serper: "",
   },
-  selectedModel: "x-ai/grok-4-fast",
-  selectedModels: ["x-ai/grok-4-fast"],
+  selectedModel: "x-ai/grok-4.1-fast",
+  selectedModels: ["x-ai/grok-4.1-fast"],
   searchProvider: "tavily", // Default to Tavily, can switch to Serper
   modelParameters: {
     temperature: 0.7,
