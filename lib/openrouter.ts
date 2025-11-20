@@ -295,11 +295,18 @@ export async function streamChatMessage(
             const content = delta?.content
             const finishReason = parsed.choices?.[0]?.finish_reason
 
+            // Debug: log delta keys on first chunk to see what fields exist
+            if (chunkCount === 0 && delta) {
+              console.log("[v0] Delta keys:", Object.keys(delta))
+              console.log("[v0] Full parsed:", JSON.stringify(parsed).substring(0, 500))
+            }
+
             // Extract reasoning from various possible formats
             let reasoningContent = delta?.reasoning_content || delta?.reasoning || delta?.thinking
 
             // Handle reasoning_details array format (OpenRouter standard)
             if (!reasoningContent && delta?.reasoning_details && Array.isArray(delta.reasoning_details)) {
+              console.log("[v0] Found reasoning_details:", JSON.stringify(delta.reasoning_details))
               for (const detail of delta.reasoning_details) {
                 if (detail.type === "reasoning.text" && detail.text) {
                   reasoningContent = detail.text
@@ -315,7 +322,7 @@ export async function streamChatMessage(
             }
 
             if (reasoningContent && onReasoning) {
-              console.log("[v0] Received reasoning chunk, length:", reasoningContent.length)
+              console.log("[v0] ✓ Received reasoning chunk, length:", reasoningContent.length)
               onReasoning(reasoningContent)
             }
 
