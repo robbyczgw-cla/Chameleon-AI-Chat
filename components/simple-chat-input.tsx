@@ -1,13 +1,13 @@
 "use client"
 
 import type React from "react"
-import { Send, Globe, Square } from "lucide-react"
+import { Send, Globe, Square, Lightbulb } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import type { Message } from "@/types"
-import { streamChatMessage } from "@/lib/openrouter"
+import { streamChatMessage, REASONING_MODELS } from "@/lib/openrouter"
 import { searchWeb, formatSearchResults as formatTavilyResults } from "@/lib/tavily"
 import { searchWithSerper, formatSearchResults as formatSerperResults } from "@/lib/serper"
 import { searchWithYoucom, formatSearchResults as formatYoucomResults } from "@/lib/youcom"
@@ -54,6 +54,13 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     return initialWebSearchEnabled ?? true
   })
 
+  // Load reasoning state from localStorage
+  const [reasoningEnabled, setReasoningEnabled] = useState(() => {
+    if (typeof window === "undefined") return false
+    const saved = localStorage.getItem("chameleon-reasoning-enabled")
+    return saved === "true"
+  })
+
   // Save web search state to localStorage whenever it changes
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -61,6 +68,18 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
       console.log("[SimpleChatInput] Web search state saved:", webSearchEnabled)
     }
   }, [webSearchEnabled])
+
+  // Save reasoning state to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("chameleon-reasoning-enabled", String(reasoningEnabled))
+      console.log("[SimpleChatInput] Reasoning state saved:", reasoningEnabled)
+    }
+  }, [reasoningEnabled])
+
+  // Check if current model supports reasoning
+  const model = overrideModel || settings.selectedModel
+  const modelSupportsReasoning = REASONING_MODELS.has(model)
 
   useEffect(() => {
     const mode = localStorage.getItem("app-mode")
@@ -392,6 +411,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         presencePenalty: 0,
         apiKey: settings.apiKeys.openRouter,
         signal: abortControllerRef.current?.signal,
+        reasoning: reasoningEnabled && modelSupportsReasoning,
       })
 
       console.log("[Simple Chat] Stream complete, final content length:", assistantContent.length)
@@ -580,6 +600,18 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
 
             <div className="absolute bottom-3 right-3 flex gap-1">
               <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
+              {modelSupportsReasoning && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={reasoningEnabled ? "default" : "ghost"}
+                  className={`h-8 w-8 rounded-full ${reasoningEnabled ? "bg-amber-500 hover:bg-amber-600" : ""}`}
+                  onClick={() => setReasoningEnabled(!reasoningEnabled)}
+                  title={reasoningEnabled ? "Reasoning enabled - model will think step by step" : "Enable reasoning for deeper analysis"}
+                >
+                  <Lightbulb className={`h-4 w-4 ${reasoningEnabled ? "text-white" : ""}`} />
+                </Button>
+              )}
               <Button
                 type="button"
                 size="icon"

@@ -31,6 +31,7 @@ interface ChatRequest {
   frequencyPenalty?: number
   presencePenalty?: number
   stream?: boolean
+  reasoning?: boolean
 }
 
 export async function POST(req: NextRequest) {
@@ -67,6 +68,7 @@ export async function POST(req: NextRequest) {
       frequencyPenalty = 0,
       presencePenalty = 0,
       stream = false,
+      reasoning = false,
     } = body as ChatRequest
 
     const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
@@ -88,7 +90,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "OpenRouter API key not configured" }, { status: 401 })
     }
 
-    const openRouterBody = {
+    const openRouterBody: Record<string, any> = {
       model,
       messages,
       temperature,
@@ -97,6 +99,11 @@ export async function POST(req: NextRequest) {
       frequency_penalty: frequencyPenalty,
       presence_penalty: presencePenalty,
       stream,
+    }
+
+    // Add reasoning parameter if enabled (for models that support it)
+    if (reasoning) {
+      openRouterBody.reasoning = { enabled: true }
     }
 
     console.log("[v0] ===== SENDING TO OPENROUTER =====")
