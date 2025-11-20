@@ -1,14 +1,14 @@
 "use client"
 
 import type React from "react"
-import { FolderOpen, Send, Mic, Globe, MicOff, Square, Zap, Image } from "lucide-react"
+import { FolderOpen, Send, Mic, Globe, MicOff, Square, Zap, Image, Lightbulb } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import type { Message } from "@/types"
-import { streamChatMessage } from "@/lib/openrouter"
+import { streamChatMessage, REASONING_MODELS } from "@/lib/openrouter"
 import { searchWeb, formatSearchResults } from "@/lib/tavily"
 import { useToast } from "@/hooks/use-toast"
 import { FileUpload } from "@/components/file-upload"
@@ -44,6 +44,22 @@ export function ChatInput() {
   const [isListening, setIsListening] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [imageMode, setImageMode] = useState(false)
+  const [reasoningEnabled, setReasoningEnabled] = useState(() => {
+    if (typeof window === "undefined") return false
+    const saved = localStorage.getItem("chameleon-reasoning-enabled")
+    return saved === "true"
+  })
+
+  // Check if current model supports reasoning
+  const model = settings.selectedModel || "x-ai/grok-4.1-fast"
+  const modelSupportsReasoning = REASONING_MODELS.has(model)
+
+  // Save reasoning state
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("chameleon-reasoning-enabled", String(reasoningEnabled))
+    }
+  }, [reasoningEnabled])
   const [attachedCollectionId, setAttachedCollectionId] = useState<string | null>(null)
   const [commandSuggestions, setCommandSuggestions] = useState<typeof SLASH_COMMANDS>([])
   const [showCommandMenu, setShowCommandMenu] = useState(false)
@@ -664,6 +680,7 @@ export function ChatInput() {
         presencePenalty: modelParams.presencePenalty,
         apiKey: settings.apiKeys.openRouter,
         signal: abortControllerRef.current?.signal,
+        reasoning: reasoningEnabled && modelSupportsReasoning,
       })
 
       console.log("[v0] Stream complete, final content length:", assistantContent.length)
@@ -910,6 +927,18 @@ export function ChatInput() {
               >
                 <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
+              {modelSupportsReasoning && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={reasoningEnabled ? "default" : "ghost"}
+                  className={`h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 rounded-lg hover:scale-105 transition-all shadow-sm ${reasoningEnabled ? "bg-amber-500 hover:bg-amber-600" : ""}`}
+                  onClick={() => setReasoningEnabled(!reasoningEnabled)}
+                  title={reasoningEnabled ? "Reasoning aktiv" : "Reasoning aktivieren"}
+                >
+                  <Lightbulb className={`h-3 w-3 sm:h-4 sm:w-4 ${reasoningEnabled ? "text-white" : ""}`} />
+                </Button>
+              )}
             </div>
           </div>
           <Button
@@ -965,6 +994,18 @@ export function ChatInput() {
           >
             <Globe className="h-4 w-4" />
           </Button>
+          {modelSupportsReasoning && (
+            <Button
+              type="button"
+              size="icon"
+              variant={reasoningEnabled ? "default" : "ghost"}
+              className={`h-9 w-9 rounded-lg hover:scale-105 transition-all shadow-sm ${reasoningEnabled ? "bg-amber-500 hover:bg-amber-600" : ""}`}
+              onClick={() => setReasoningEnabled(!reasoningEnabled)}
+              title={reasoningEnabled ? "Reasoning aktiv" : "Reasoning aktivieren"}
+            >
+              <Lightbulb className={`h-4 w-4 ${reasoningEnabled ? "text-white" : ""}`} />
+            </Button>
+          )}
         </div>
         <div className="mt-2">
           <TokenCounterPreview input={input} />
