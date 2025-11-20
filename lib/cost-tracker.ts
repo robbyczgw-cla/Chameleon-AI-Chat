@@ -22,18 +22,25 @@ export interface CostStats {
   avgCostPerMessage: number
 }
 
-// Model pricing (per 1K tokens) - update these based on actual pricing
+// Model pricing (per 1M tokens) - OpenRouter standard format
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
-  "x-ai/grok-4.1-fast": { input: 0.005, output: 0.015 },
-  "x-ai/grok-4-fast": { input: 0.005, output: 0.015 },
-  "x-ai/grok-2": { input: 0.01, output: 0.03 },
-  "anthropic/claude-3.5-sonnet": { input: 0.003, output: 0.015 },
-  "anthropic/claude-3.5-haiku": { input: 0.001, output: 0.005 },
-  "openai/gpt-4o": { input: 0.005, output: 0.015 },
-  "openai/gpt-4o-mini": { input: 0.00015, output: 0.0006 },
-  "google/gemini-2.0-flash-exp": { input: 0.0001, output: 0.0007 },
-  "deepseek/deepseek-chat": { input: 0.00027, output: 0.0011 },
-  "deepseek/deepseek-r1": { input: 0.00055, output: 0.00219 },
+  "x-ai/grok-4.1-fast": { input: 0.60, output: 2.0 },
+  "x-ai/grok-4-fast": { input: 0.60, output: 2.0 },
+  "x-ai/grok-4": { input: 3.0, output: 15.0 },
+  "x-ai/grok-2": { input: 2.0, output: 10.0 },
+  "anthropic/claude-4.5-sonnet-20250929": { input: 3.0, output: 15.0 },
+  "anthropic/claude-3.5-sonnet": { input: 3.0, output: 15.0 },
+  "anthropic/claude-haiku-4.5": { input: 0.80, output: 4.0 },
+  "anthropic/claude-3.5-haiku": { input: 1.0, output: 5.0 },
+  "openai/gpt-4o": { input: 2.50, output: 10.0 },
+  "openai/gpt-4o-mini": { input: 0.15, output: 0.60 },
+  "google/gemini-2.5-pro": { input: 1.25, output: 5.0 },
+  "google/gemini-2.5-flash": { input: 0.075, output: 0.30 },
+  "google/gemini-2.0-flash-exp": { input: 0.10, output: 0.70 },
+  "deepseek/deepseek-chat": { input: 0.27, output: 1.10 },
+  "deepseek/deepseek-chat-v3.2-experimental": { input: 0.27, output: 1.10 },
+  "deepseek/deepseek-r1": { input: 0.55, output: 2.19 },
+  "qwen/qwen3-235b-a22b-thinking-2507": { input: 1.0, output: 3.0 },
   // Add more models as needed
 }
 
@@ -54,10 +61,11 @@ export class CostTracker {
 
   // Calculate cost for a specific model and token usage
   calculateCost(model: string, inputTokens: number, outputTokens: number): number {
-    const pricing = MODEL_PRICING[model] || MODEL_PRICING["x-ai/grok-4-fast"] // fallback
+    const pricing = MODEL_PRICING[model] || MODEL_PRICING["x-ai/grok-4.1-fast"] // fallback
 
-    const inputCost = (inputTokens / 1000) * pricing.input
-    const outputCost = (outputTokens / 1000) * pricing.output
+    // Pricing is per 1M tokens
+    const inputCost = (inputTokens / 1_000_000) * pricing.input
+    const outputCost = (outputTokens / 1_000_000) * pricing.output
 
     return inputCost + outputCost
   }
