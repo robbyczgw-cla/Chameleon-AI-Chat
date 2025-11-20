@@ -291,9 +291,23 @@ export async function streamChatMessage(
 
           try {
             const parsed = JSON.parse(data)
-            const content = parsed.choices?.[0]?.delta?.content
-            const reasoningContent = parsed.choices?.[0]?.delta?.reasoning_content
+            const delta = parsed.choices?.[0]?.delta
+            const content = delta?.content
             const finishReason = parsed.choices?.[0]?.finish_reason
+
+            // Extract reasoning from various possible formats
+            let reasoningContent = delta?.reasoning_content || delta?.reasoning || delta?.thinking
+
+            // Handle reasoning_details array format (OpenRouter standard)
+            if (!reasoningContent && delta?.reasoning_details && Array.isArray(delta.reasoning_details)) {
+              for (const detail of delta.reasoning_details) {
+                if (detail.type === "reasoning.text" && detail.text) {
+                  reasoningContent = detail.text
+                } else if (detail.type === "reasoning.summary" && detail.summary) {
+                  reasoningContent = detail.summary
+                }
+              }
+            }
 
             if (finishReason) {
               lastFinishReason = finishReason
@@ -308,7 +322,6 @@ export async function streamChatMessage(
             if (content) {
               chunkCount++
               totalContent += content
-              console.log("[v0] Received chunk, total length:", totalContent.length)
               onChunk(content)
             }
           } catch (e) {
