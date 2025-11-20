@@ -63,7 +63,7 @@ export const POPULAR_OPENROUTER_MODELS = [
   { id: "anthropic/claude-opus-4.1", name: "Claude Opus 4.1", provider: "Anthropic", category: "flagship" },
 
   // 💰 Beste Preis-Leistung 2025
-  { id: "x-ai/grok-4.1-fast", name: "Grok 4.1 Fast (2M Context)", provider: "xAI", category: "value" },
+  { id: "x-ai/grok-4.1-fast", name: "Grok 4.1 Fast", provider: "xAI", category: "value" },
   { id: "x-ai/grok-4-fast", name: "Grok 4 Fast", provider: "xAI", category: "value" },
   {
     id: "google/gemini-2.5-flash",
