@@ -291,9 +291,16 @@ export async function streamChatMessage(
 
           try {
             const parsed = JSON.parse(data)
-            const content = parsed.choices?.[0]?.delta?.content
-            const reasoningContent = parsed.choices?.[0]?.delta?.reasoning_content
+            const delta = parsed.choices?.[0]?.delta
+            const content = delta?.content
+            // OpenRouter uses different field names for reasoning depending on model
+            const reasoningContent = delta?.reasoning_content || delta?.reasoning || delta?.thinking
             const finishReason = parsed.choices?.[0]?.finish_reason
+
+            // Debug: log all delta keys to find reasoning field
+            if (delta && Object.keys(delta).length > 0 && !content) {
+              console.log("[v0] Delta keys (no content):", Object.keys(delta))
+            }
 
             if (finishReason) {
               lastFinishReason = finishReason
@@ -308,7 +315,6 @@ export async function streamChatMessage(
             if (content) {
               chunkCount++
               totalContent += content
-              console.log("[v0] Received chunk, total length:", totalContent.length)
               onChunk(content)
             }
           } catch (e) {
