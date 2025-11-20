@@ -78,8 +78,13 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
   }, [reasoningEnabled])
 
   // Check if current model supports reasoning
-  const model = overrideModel || settings.selectedModel
+  const model = overrideModel || settings.selectedModel || "x-ai/grok-4.1-fast"
   const modelSupportsReasoning = REASONING_MODELS.has(model)
+
+  // Debug: Log model and reasoning support
+  useEffect(() => {
+    console.log("[SimpleChatInput] Model:", model, "| Supports reasoning:", modelSupportsReasoning, "| REASONING_MODELS has:", REASONING_MODELS.has(model))
+  }, [model, modelSupportsReasoning])
 
   useEffect(() => {
     const mode = localStorage.getItem("app-mode")
