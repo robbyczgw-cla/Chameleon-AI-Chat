@@ -311,11 +311,9 @@ export async function streamChatMessage(
 
             if (finishReason) {
               lastFinishReason = finishReason
-              console.log("[v0] finish_reason received:", finishReason)
             }
 
             if (reasoningContent && onReasoning) {
-              console.log("[v0] Received reasoning chunk, length:", reasoningContent.length)
               onReasoning(reasoningContent)
             }
 
