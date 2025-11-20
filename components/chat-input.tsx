@@ -588,6 +588,7 @@ export function ChatInput() {
 
       const assistantMessageId = generateUUID()
       let assistantContent = ""
+      let reasoningContent = ""
       let messageAdded = false
 
       console.log("[v0] Creating assistant message:", assistantMessageId)
@@ -672,6 +673,10 @@ export function ChatInput() {
         })
       }
 
+      const onReasoning = (chunk: string) => {
+        reasoningContent += chunk
+      }
+
       await streamChatMessage(messages, model, onChunk, {
         temperature: modelParams.temperature,
         maxTokens: modelParams.maxTokens,
@@ -681,6 +686,7 @@ export function ChatInput() {
         apiKey: settings.apiKeys.openRouter,
         signal: abortControllerRef.current?.signal,
         reasoning: reasoningEnabled && modelSupportsReasoning,
+        onReasoning,
       })
 
       console.log("[v0] Stream complete, final content length:", assistantContent.length)
@@ -700,6 +706,7 @@ export function ChatInput() {
             completion: completionTokens,
             total: totalTokens,
           },
+          ...(reasoningContent ? { reasoning: reasoningContent } : {}),
         }
 
         if (user) {
@@ -728,7 +735,7 @@ export function ChatInput() {
           return prevChats.map((chat) => {
             if (chat.id !== chatId) return chat
             const updatedMessages = chat.messages.map((m) =>
-              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens } : m,
+              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, reasoning: finalMessage.reasoning } : m,
             )
             return { ...chat, messages: updatedMessages }
           })

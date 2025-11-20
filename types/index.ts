@@ -18,6 +18,7 @@ export interface Message {
   content: MessageContent // Now supports both string and multimodal array
   timestamp: number
   imageUrl?: string // Generated image URL (for DALL-E, Stable Diffusion, etc.)
+  reasoning?: string // Model's reasoning/thinking process when reasoning is enabled
   tokens?: {
     prompt: number
     completion: number

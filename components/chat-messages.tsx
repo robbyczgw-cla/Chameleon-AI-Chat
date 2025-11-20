@@ -4,7 +4,7 @@ import { useApp } from "@/contexts/app-context"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX } from "lucide-react"
+import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX, ChevronDown, ChevronRight, Lightbulb } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
@@ -69,7 +69,20 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
   const { chats, currentChatId, addMessage, updateChat, settings, isChatLoading } = useApp()
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [speakingId, setSpeakingId] = useState<string | null>(null)
+  const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set())
   const { toast } = useToast()
+
+  const toggleReasoning = (messageId: string) => {
+    setExpandedReasoning(prev => {
+      const next = new Set(prev)
+      if (next.has(messageId)) {
+        next.delete(messageId)
+      } else {
+        next.add(messageId)
+      }
+      return next
+    })
+  }
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
 
@@ -255,6 +268,31 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
                           className="w-full h-auto object-contain max-h-[500px] bg-muted/30"
                           loading="lazy"
                         />
+                      </div>
+                    )}
+                    {/* Collapsible Reasoning Section */}
+                    {message.reasoning && (
+                      <div className="mb-3 rounded-lg border border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 overflow-hidden">
+                        <button
+                          onClick={() => toggleReasoning(message.id)}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-amber-700 dark:text-amber-400 hover:bg-amber-100/50 dark:hover:bg-amber-900/30 transition-colors"
+                        >
+                          {expandedReasoning.has(message.id) ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
+                          <Lightbulb className="h-4 w-4" />
+                          <span>Reasoning</span>
+                          <span className="text-xs text-amber-600/70 dark:text-amber-500/70 ml-auto">
+                            {message.reasoning.length} chars
+                          </span>
+                        </button>
+                        {expandedReasoning.has(message.id) && (
+                          <div className="px-3 pb-3 pt-1 text-sm text-amber-900/80 dark:text-amber-100/80 whitespace-pre-wrap border-t border-amber-500/20">
+                            {message.reasoning}
+                          </div>
+                        )}
                       </div>
                     )}
                     <ReactMarkdown
