@@ -362,6 +362,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
 
       const assistantMessageId = generateUUID()
       let assistantContent = ""
+      let reasoningContent = ""
       let messageAdded = false
 
       console.log("[Simple Chat] Creating assistant message:", assistantMessageId)
@@ -408,6 +409,10 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
       // Use 8192 tokens for all modes (sufficient for detailed responses)
       const maxTokens = settings.maxTokens || 8192
 
+      const onReasoning = (chunk: string) => {
+        reasoningContent += chunk
+      }
+
       await streamChatMessage(messages, model, onChunk, {
         temperature: settings.temperature || 0.7,
         maxTokens,
@@ -417,6 +422,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         apiKey: settings.apiKeys.openRouter,
         signal: abortControllerRef.current?.signal,
         reasoning: reasoningEnabled && modelSupportsReasoning,
+        onReasoning,
       })
 
       console.log("[Simple Chat] Stream complete, final content length:", assistantContent.length)
@@ -447,6 +453,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
               searchTime: searchStats.time,
             }),
           },
+          ...(reasoningContent ? { reasoning: reasoningContent } : {}),
         }
 
         if (user) {
@@ -475,7 +482,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
           return prevChats.map((chat) => {
             if (chat.id !== chatId) return chat
             const updatedMessages = chat.messages.map((m) =>
-              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, stats: finalMessage.stats } : m,
+              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning } : m,
             )
             return { ...chat, messages: updatedMessages }
           })

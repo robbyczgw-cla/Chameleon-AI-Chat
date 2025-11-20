@@ -163,6 +163,7 @@ export async function streamChatMessage(
     apiKey?: string
     signal?: AbortSignal
     reasoning?: boolean
+    onReasoning?: (content: string) => void
   } = {},
 ): Promise<void> {
   const {
@@ -174,6 +175,7 @@ export async function streamChatMessage(
     apiKey,
     signal,
     reasoning = false,
+    onReasoning,
   } = options
   const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
 
@@ -290,11 +292,17 @@ export async function streamChatMessage(
           try {
             const parsed = JSON.parse(data)
             const content = parsed.choices?.[0]?.delta?.content
+            const reasoningContent = parsed.choices?.[0]?.delta?.reasoning_content
             const finishReason = parsed.choices?.[0]?.finish_reason
 
             if (finishReason) {
               lastFinishReason = finishReason
               console.log("[v0] finish_reason received:", finishReason)
+            }
+
+            if (reasoningContent && onReasoning) {
+              console.log("[v0] Received reasoning chunk, length:", reasoningContent.length)
+              onReasoning(reasoningContent)
             }
 
             if (content) {
