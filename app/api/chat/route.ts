@@ -102,8 +102,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Add reasoning parameter if enabled (for models that support it)
+    // OpenRouter expects { effort: "high" } format for reasoning
     if (reasoning) {
-      openRouterBody.reasoning = { enabled: true }
+      openRouterBody.reasoning = { effort: "high" }
     }
 
     console.log("[v0] ===== SENDING TO OPENROUTER =====")
