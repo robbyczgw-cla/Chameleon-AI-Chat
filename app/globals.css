@@ -192,39 +192,39 @@
 }
 
 .blueprint {
-  /* Neo Blueprint theme - inky charcoals with electric teal & amber accents */
-  --background: #0c111b;
-  --foreground: #e8edf5;
-  --card: #101827;
-  --card-foreground: #e8edf5;
-  --popover: #0f1724;
-  --popover-foreground: #e8edf5;
+  /* Neo Blueprint v2 - brighter text, clearer panels, stronger accent contrast */
+  --background: #0b1220;
+  --foreground: #f3f6ff;
+  --card: #111b2c;
+  --card-foreground: #f3f6ff;
+  --popover: #10182a;
+  --popover-foreground: #f3f6ff;
   --primary: #3cf2c8;
-  --primary-foreground: #041012;
-  --secondary: #122036;
-  --secondary-foreground: #d5deeb;
-  --muted: #151f30;
-  --muted-foreground: #8ea2c2;
-  --accent: #ffb547;
-  --accent-foreground: #0b101b;
-  --destructive: #ff5c8d;
-  --destructive-foreground: #0b0f17;
-  --border: #1f2a3d;
-  --input: #1f2a3d;
+  --primary-foreground: #051618;
+  --secondary: #14233a;
+  --secondary-foreground: #dfe7fb;
+  --muted: #1a2740;
+  --muted-foreground: #b5c5e2;
+  --accent: #ffd166;
+  --accent-foreground: #0c141f;
+  --destructive: #ff6b8f;
+  --destructive-foreground: #0c0f17;
+  --border: #22324e;
+  --input: #22324e;
   --ring: #3cf2c8;
   --chart-1: #3cf2c8;
-  --chart-2: #ffb547;
-  --chart-3: #6dd6ff;
-  --chart-4: #c5a3ff;
-  --chart-5: #61a0ff;
+  --chart-2: #ffd166;
+  --chart-3: #7ad3ff;
+  --chart-4: #cbb5ff;
+  --chart-5: #6fa4ff;
   --radius: 1.1rem;
-  --sidebar: #0f1724;
-  --sidebar-foreground: #e8edf5;
+  --sidebar: #101a2b;
+  --sidebar-foreground: #f3f6ff;
   --sidebar-primary: #3cf2c8;
   --sidebar-primary-foreground: #041012;
-  --sidebar-accent: #122036;
-  --sidebar-accent-foreground: #d5deeb;
-  --sidebar-border: #1f2a3d;
+  --sidebar-accent: #152537;
+  --sidebar-accent-foreground: #dfe7fb;
+  --sidebar-border: #243554;
   --sidebar-ring: #3cf2c8;
 }
 .retro-wave {
@@ -448,22 +448,22 @@
     position: relative;
     isolation: isolate;
     background:
-      radial-gradient(900px circle at 20% 18%, rgba(60, 242, 200, 0.14), transparent 45%),
-      radial-gradient(1200px circle at 82% 12%, rgba(255, 181, 71, 0.14), transparent 52%),
-      linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.0)),
-      #0c111b;
+      radial-gradient(960px circle at 20% 18%, rgba(60, 242, 200, 0.14), transparent 48%),
+      radial-gradient(1240px circle at 82% 10%, rgba(255, 209, 102, 0.12), transparent 58%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.0)),
+      #0b1220;
   }
 
   .blueprint-grid {
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(to right, rgba(99, 146, 189, 0.18) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(99, 146, 189, 0.18) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55), transparent 73%);
-    -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55), transparent 73%);
-    opacity: 0.35;
+      linear-gradient(to right, rgba(131, 173, 220, 0.15) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(131, 173, 220, 0.15) 1px, transparent 1px);
+    background-size: 52px 52px;
+    mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.45), transparent 78%);
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.45), transparent 78%);
+    opacity: 0.28;
     z-index: 0;
   }
 
@@ -472,7 +472,7 @@
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.28'/%3E%3C/svg%3E");
     mix-blend-mode: soft-light;
-    opacity: 0.35;
+    opacity: 0.22;
     z-index: 0;
   }
 
