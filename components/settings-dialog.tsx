@@ -80,7 +80,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const applyTheme = (theme: string) => {
     const html = document.documentElement
     // Remove all theme classes
-    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "blueprint")
+    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "paper-mint")
     // Add the selected theme
     if (theme !== "light") {
       html.classList.add(theme)
@@ -232,7 +232,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   <option value="retro-wave">🌆 Retro Wave - 80s Neon Vibes</option>
                   <option value="girly-violet">💜 Girly Violet - Soft & Purple</option>
                   <option value="ocean-breeze">🌊 Ocean Breeze - Fresh & Aqua</option>
-                  <option value="blueprint">📐 Neo Blueprint - Electric Drafting</option>
+                  <option value="paper-mint">📄 Paper Mint - Warm & Crisp</option>
                 </select>
                 <p className="text-xs text-muted-foreground">
                   Choose your favorite theme for the user interface

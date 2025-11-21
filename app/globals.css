@@ -191,41 +191,41 @@
   --sidebar-ring: oklch(0.52 0.18 200);
 }
 
-.blueprint {
-  /* Neo Blueprint v2 - brighter text, clearer panels, stronger accent contrast */
-  --background: #0b1220;
-  --foreground: #f3f6ff;
-  --card: #111b2c;
-  --card-foreground: #f3f6ff;
-  --popover: #10182a;
-  --popover-foreground: #f3f6ff;
-  --primary: #3cf2c8;
-  --primary-foreground: #051618;
-  --secondary: #14233a;
-  --secondary-foreground: #dfe7fb;
-  --muted: #1a2740;
-  --muted-foreground: #b5c5e2;
-  --accent: #ffd166;
-  --accent-foreground: #0c141f;
-  --destructive: #ff6b8f;
-  --destructive-foreground: #0c0f17;
-  --border: #22324e;
-  --input: #22324e;
-  --ring: #3cf2c8;
-  --chart-1: #3cf2c8;
-  --chart-2: #ffd166;
-  --chart-3: #7ad3ff;
-  --chart-4: #cbb5ff;
-  --chart-5: #6fa4ff;
-  --radius: 1.1rem;
-  --sidebar: #101a2b;
-  --sidebar-foreground: #f3f6ff;
-  --sidebar-primary: #3cf2c8;
-  --sidebar-primary-foreground: #041012;
-  --sidebar-accent: #152537;
-  --sidebar-accent-foreground: #dfe7fb;
-  --sidebar-border: #243554;
-  --sidebar-ring: #3cf2c8;
+.paper-mint {
+  /* Paper Mint theme - warm paper base with crisp mint & ink accents */
+  --background: #f9f6ef;
+  --foreground: #111419;
+  --card: #ffffff;
+  --card-foreground: #111419;
+  --popover: #ffffff;
+  --popover-foreground: #111419;
+  --primary: #2fbf9f;
+  --primary-foreground: #041814;
+  --secondary: #f1ecde;
+  --secondary-foreground: #1e252d;
+  --muted: #ece6d8;
+  --muted-foreground: #4d5764;
+  --accent: #ffb454;
+  --accent-foreground: #1c1205;
+  --destructive: #d64242;
+  --destructive-foreground: #fdf7f4;
+  --border: #e0d7c6;
+  --input: #e0d7c6;
+  --ring: #2fbf9f;
+  --chart-1: #2fbf9f;
+  --chart-2: #ffb454;
+  --chart-3: #6fa7ff;
+  --chart-4: #c07bff;
+  --chart-5: #f47c6c;
+  --radius: 1.05rem;
+  --sidebar: #f6f1e4;
+  --sidebar-foreground: #111419;
+  --sidebar-primary: #2fbf9f;
+  --sidebar-primary-foreground: #041814;
+  --sidebar-accent: #f1ecde;
+  --sidebar-accent-foreground: #1e252d;
+  --sidebar-border: #e3d9c8;
+  --sidebar-ring: #2fbf9f;
 }
 .retro-wave {
   /* Retro Wave theme - 80s neon aesthetics with pink, purple, orange */
@@ -443,36 +443,36 @@
     opacity: 0.5;
   }
 
-  /* Blueprint-specific background treatment */
-  .blueprint-bg {
+  /* Paper Mint background layers */
+  .paper-mint-bg {
     position: relative;
     isolation: isolate;
     background:
-      radial-gradient(960px circle at 20% 18%, rgba(60, 242, 200, 0.14), transparent 48%),
-      radial-gradient(1240px circle at 82% 10%, rgba(255, 209, 102, 0.12), transparent 58%),
-      linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.0)),
-      #0b1220;
+      radial-gradient(680px circle at 18% 20%, rgba(47, 191, 159, 0.16), transparent 52%),
+      radial-gradient(820px circle at 82% 16%, rgba(255, 180, 84, 0.18), transparent 58%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.65)),
+      #f9f6ef;
   }
 
-  .blueprint-grid {
+  .paper-mint-grid {
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(to right, rgba(131, 173, 220, 0.15) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(131, 173, 220, 0.15) 1px, transparent 1px);
-    background-size: 52px 52px;
-    mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.45), transparent 78%);
-    -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.45), transparent 78%);
-    opacity: 0.28;
+      linear-gradient(to right, rgba(17, 20, 25, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(17, 20, 25, 0.04) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(circle at 50% 45%, rgba(0,0,0,0.32), transparent 78%);
+    -webkit-mask-image: radial-gradient(circle at 50% 45%, rgba(0,0,0,0.32), transparent 78%);
+    opacity: 0.35;
     z-index: 0;
   }
 
-  .blueprint-noise {
+  .paper-mint-noise {
     position: absolute;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.28'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.74' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
     mix-blend-mode: soft-light;
-    opacity: 0.22;
+    opacity: 0.28;
     z-index: 0;
   }
 

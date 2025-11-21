@@ -83,7 +83,7 @@ function ChatApp() {
   useEffect(() => {
     const savedTheme = localStorage.getItem("chameleon-theme") || "light"
     const html = document.documentElement
-    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "blueprint")
+    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "paper-mint")
     if (savedTheme !== "light") {
       html.classList.add(savedTheme)
     }
@@ -144,11 +144,11 @@ function ChatApp() {
   }, [])
 
   return (
-    <div className={cn("modern-shell", settings.theme === "blueprint" && "blueprint-bg")}>
-      {settings.theme === "blueprint" ? (
+    <div className={cn("modern-shell", settings.theme === "paper-mint" && "paper-mint-bg")}>
+      {settings.theme === "paper-mint" ? (
         <>
-          <div className="blueprint-grid" />
-          <div className="blueprint-noise" />
+          <div className="paper-mint-grid" />
+          <div className="paper-mint-noise" />
         </>
       ) : (
         <>
