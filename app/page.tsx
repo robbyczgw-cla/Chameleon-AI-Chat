@@ -15,7 +15,6 @@ import { ChameleonLogo } from "@/components/chameleon-logo"
 import { MobileBottomNav } from "@/components/mobile-bottom-nav"
 import { PersonaLevelUpNotifier } from "@/components/persona-level-up-notifier"
 import { cn } from "@/lib/utils"
-import { Sparkles } from "lucide-react"
 
 function ChatApp() {
   const { chats, currentChatId, createChat, settings } = useApp()
@@ -145,71 +144,80 @@ function ChatApp() {
   }, [])
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <PersonaLevelUpNotifier />
-      {isMobileSidebarOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 md:hidden smooth-transition animate-fade-in" onClick={() => setIsMobileSidebarOpen(false)} />
-      )}
+    <div className="modern-shell">
+      <div className="mesh-layer" />
+      <div className="grid-layer" />
+      <div className="noise-layer" />
 
-      <div
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 md:relative md:z-0 transition-transform duration-300 ease-in-out",
-          isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-          !showSidebar && "md:hidden",
+      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-3 md:px-6 pb-[92px] md:pb-6 gap-3 md:gap-4">
+        <PersonaLevelUpNotifier />
+        {isMobileSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 md:hidden smooth-transition animate-fade-in"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
         )}
-      >
-        <ChatSidebar onClose={() => setIsMobileSidebarOpen(false)} />
-      </div>
 
-      <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
-        <ChatHeader />
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          {showStatsPanel ? (
-            <StatsDashboard />
-          ) : isComparisonMode ? (
-            <ModelComparison />
-          ) : isEmpty ? (
-            /* Centered layout for empty state */
-            <div className="flex-1 flex flex-col items-center justify-center p-4 pb-20 md:pb-4 overflow-hidden">
-              <div className="w-full max-w-4xl mx-auto flex flex-col gap-6">
-                <ChatMessages currentPersona={settings.selectedPersona} />
-                <div className="w-full">
-                  <ChatInput />
+        <div
+          className={cn(
+            "fixed inset-y-0 left-0 z-50 md:relative md:z-0 transition-transform duration-300 ease-in-out",
+            isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+            !showSidebar && "md:hidden",
+          )}
+        >
+          <ChatSidebar onClose={() => setIsMobileSidebarOpen(false)} />
+        </div>
+
+        <div className="flex flex-1 flex-col min-w-0 overflow-hidden rounded-2xl md:rounded-3xl panel-elevated border border-border/60 shadow-xl">
+          <ChatHeader />
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-2 md:px-4 pb-2 md:pb-4">
+            {showStatsPanel ? (
+              <StatsDashboard />
+            ) : isComparisonMode ? (
+              <ModelComparison />
+            ) : isEmpty ? (
+              /* Centered layout for empty state */
+              <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-6 overflow-hidden">
+                <div className="w-full max-w-4xl mx-auto flex flex-col gap-6">
+                  <ChatMessages currentPersona={settings.selectedPersona} />
+                  <div className="w-full">
+                    <ChatInput />
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            /* Normal layout with messages */
-            <>
-              <div className="flex-1 overflow-hidden">
-                <ChatMessages currentPersona={settings.selectedPersona} />
-              </div>
-              <div className="flex-shrink-0 pb-16 md:pb-0">
-                <BranchNavigator />
-                <ChatInput />
-              </div>
-            </>
-          )}
+            ) : (
+              /* Normal layout with messages */
+              <>
+                <div className="flex-1 overflow-hidden">
+                  <ChatMessages currentPersona={settings.selectedPersona} />
+                </div>
+                <div className="flex-shrink-0 pb-4 md:pb-0">
+                  <BranchNavigator />
+                  <ChatInput />
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Mobile Bottom Navigation */}
-      <MobileBottomNav
-        onMenuClick={() => setIsMobileSidebarOpen(prev => !prev)}
-        onNewChatClick={handleMobileNewChat}
-        onPersonasClick={handleMobilePersonas}
-        onPromptHelperClick={handleMobilePromptHelper}
-        onSettingsClick={handleMobileSettings}
-        onProfileClick={handleMobileProfile}
-        onMemoryClick={handleMobileMemory}
-        onComparisonClick={handleMobileComparison}
-        onSearchClick={handleMobileSearch}
-        onDocCollectionsClick={handleMobileCollections}
-        onAdvancedSettingsClick={handleMobileAdvancedSettings}
-        onDebateClick={handleMobileDebate}
-        onInspectorClick={handleMobileInspector}
-        onStatsClick={handleMobileStats}
-      />
+        {/* Mobile Bottom Navigation */}
+        <MobileBottomNav
+          onMenuClick={() => setIsMobileSidebarOpen(prev => !prev)}
+          onNewChatClick={handleMobileNewChat}
+          onPersonasClick={handleMobilePersonas}
+          onPromptHelperClick={handleMobilePromptHelper}
+          onSettingsClick={handleMobileSettings}
+          onProfileClick={handleMobileProfile}
+          onMemoryClick={handleMobileMemory}
+          onComparisonClick={handleMobileComparison}
+          onSearchClick={handleMobileSearch}
+          onDocCollectionsClick={handleMobileCollections}
+          onAdvancedSettingsClick={handleMobileAdvancedSettings}
+          onDebateClick={handleMobileDebate}
+          onInspectorClick={handleMobileInspector}
+          onStatsClick={handleMobileStats}
+        />
+      </div>
     </div>
   )
 }
@@ -219,16 +227,21 @@ function LoadingWrapper() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 animate-fade-in">
-        <div className="flex flex-col items-center gap-6 animate-scale-in">
-          <div className="flex h-32 w-32 md:h-40 md:w-40 items-center justify-center rounded-3xl glass-strong backdrop-blur-xl shadow-2xl border border-primary/20 hover-glow animate-pulse-glow">
-            <ChameleonLogo size={120} animated colorShift />
-          </div>
-          <div className="text-center space-y-2 animate-slide-in-up">
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Chameleon AI
-            </h1>
-            <p className="text-sm md:text-base text-muted-foreground font-medium animate-shimmer">Adapting to your conversation...</p>
+      <div className="modern-shell">
+        <div className="mesh-layer" />
+        <div className="grid-layer" />
+        <div className="noise-layer" />
+        <div className="relative z-10 flex h-screen items-center justify-center animate-fade-in px-4">
+          <div className="flex flex-col items-center gap-6 animate-scale-in">
+            <div className="flex h-32 w-32 md:h-40 md:w-40 items-center justify-center rounded-3xl glass-strong backdrop-blur-xl shadow-2xl border border-primary/20 hover-glow animate-pulse-glow">
+              <ChameleonLogo size={120} animated colorShift />
+            </div>
+            <div className="text-center space-y-2 animate-slide-in-up">
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary/80 bg-clip-text text-transparent">
+                Chameleon AI
+              </h1>
+              <p className="text-sm md:text-base text-muted-foreground font-medium animate-shimmer">Adapting to your conversation...</p>
+            </div>
           </div>
         </div>
       </div>
