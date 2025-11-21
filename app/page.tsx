@@ -83,7 +83,7 @@ function ChatApp() {
   useEffect(() => {
     const savedTheme = localStorage.getItem("chameleon-theme") || "light"
     const html = document.documentElement
-    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon")
+    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "paper-mint")
     if (savedTheme !== "light") {
       html.classList.add(savedTheme)
     }
@@ -144,10 +144,19 @@ function ChatApp() {
   }, [])
 
   return (
-    <div className="modern-shell">
-      <div className="mesh-layer" />
-      <div className="grid-layer" />
-      <div className="noise-layer" />
+    <div className={cn("modern-shell", settings.theme === "paper-mint" && "paper-mint-bg")}>
+      {settings.theme === "paper-mint" ? (
+        <>
+          <div className="paper-mint-grid" />
+          <div className="paper-mint-noise" />
+        </>
+      ) : (
+        <>
+          <div className="mesh-layer" />
+          <div className="grid-layer" />
+          <div className="noise-layer" />
+        </>
+      )}
 
       <div className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 pb-[92px] md:pb-6 gap-0">
         <PersonaLevelUpNotifier />
@@ -168,7 +177,7 @@ function ChatApp() {
           <ChatSidebar onClose={() => setIsMobileSidebarOpen(false)} />
         </div>
 
-        <div className="flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl">
+        <div className={cn("flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl", settings.theme === "blueprint" && "animate-[rise_0.6s_ease-out]")}>
           <ChatHeader />
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-2 md:px-4 pb-2 md:pb-4">
             {showStatsPanel ? (
