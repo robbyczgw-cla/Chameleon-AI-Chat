@@ -421,6 +421,18 @@
     box-shadow: 0 18px 28px -18px rgba(0, 0, 0, 0.35);
   }
 
+  .sidebar-bridge {
+    position: absolute;
+    right: -16px;
+    top: 14px;
+    bottom: 14px;
+    width: 38px;
+    background: linear-gradient(90deg, color-mix(in oklch, var(--card) 88%, transparent) 0%, transparent 60%);
+    box-shadow: 12px 0 32px -18px rgba(0, 0, 0, 0.3);
+    filter: blur(12px);
+    opacity: 0.65;
+  }
+
   /* Enhanced glass effects with multiple variants */
   .glass {
     background: rgba(255, 255, 255, 0.7);
