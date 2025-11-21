@@ -434,6 +434,34 @@
     z-index: 2;
   }
 
+  .sidebar-halo {
+    position: relative;
+  }
+
+  .sidebar-halo::before,
+  .sidebar-halo::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    pointer-events: none;
+    opacity: 0.65;
+    filter: blur(14px);
+    z-index: 1;
+  }
+
+  .sidebar-halo::before {
+    left: -22px;
+    width: 38px;
+    background: linear-gradient(90deg, color-mix(in oklch, var(--card) 82%, var(--primary) 18%) 0%, transparent 85%);
+  }
+
+  .sidebar-halo::after {
+    right: -22px;
+    width: 38px;
+    background: linear-gradient(90deg, transparent 0%, color-mix(in oklch, var(--card) 80%, var(--primary) 20%) 70%);
+  }
+
   .main-bridge-left {
     position: relative;
   }

@@ -149,7 +149,7 @@ function ChatApp() {
       <div className="grid-layer" />
       <div className="noise-layer" />
 
-      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-3 md:px-6 pb-[92px] md:pb-6 gap-3 md:gap-4">
+      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-3 md:px-5 pb-[92px] md:pb-6 gap-2.5 md:gap-3">
         <PersonaLevelUpNotifier />
         {isMobileSidebarOpen && (
           <div

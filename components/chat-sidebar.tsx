@@ -116,6 +116,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
       month: "short",
       day: "numeric",
     })
+    const isActive = currentChatId === chat.id
 
     return (
       <div
@@ -146,11 +147,11 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             {/* Title Row with Timestamp */}
             <div className="flex items-center justify-between gap-2">
               <span className="flex-1 truncate font-semibold text-sm">{chat.title}</span>
-              <span className="text-xs text-muted-foreground/70 shrink-0">{timestamp}</span>
+              <span className={cn("text-xs shrink-0", isActive ? "text-foreground/70" : "text-muted-foreground/80")}>{timestamp}</span>
             </div>
 
             {/* Message Preview */}
-            <p className="text-xs text-muted-foreground/80 line-clamp-1 truncate">
+            <p className={cn("text-xs line-clamp-1 truncate", isActive ? "text-foreground/80 drop-shadow-sm" : "text-muted-foreground/90")}>
               {messagePreview}
             </p>
 
@@ -200,7 +201,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
   }
 
   return (
-    <div className="relative flex h-full w-[280px] sm:w-80 md:w-64 flex-col overflow-hidden rounded-2xl md:rounded-2xl border border-border/60 panel-elevated glass-subtle backdrop-blur-xl shadow-2xl md:shadow-lg smooth-transition bg-gradient-to-b from-card/90 via-card/85 to-card/80">
+    <div className="relative flex h-full w-[280px] sm:w-80 md:w-64 flex-col overflow-hidden rounded-2xl md:rounded-2xl border border-border/60 panel-elevated glass-subtle backdrop-blur-xl shadow-2xl md:shadow-lg smooth-transition bg-gradient-to-b from-card/90 via-card/85 to-card/80 sidebar-halo">
       <div className="sidebar-bridge hidden md:block" aria-hidden="true" />
       <div className="flex items-center gap-3 border-b border-border/30 p-4 md:p-5 gradient-glass backdrop-blur-md">
         {onClose && (
