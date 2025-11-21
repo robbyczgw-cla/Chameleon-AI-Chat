@@ -149,7 +149,7 @@ function ChatApp() {
       <div className="grid-layer" />
       <div className="noise-layer" />
 
-      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-3 md:px-5 pb-[92px] md:pb-6 gap-2.5 md:gap-3">
+      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 pb-[92px] md:pb-6 gap-0">
         <PersonaLevelUpNotifier />
         {isMobileSidebarOpen && (
           <div
@@ -168,7 +168,7 @@ function ChatApp() {
           <ChatSidebar onClose={() => setIsMobileSidebarOpen(false)} />
         </div>
 
-        <div className="flex flex-1 flex-col min-w-0 overflow-hidden rounded-2xl md:rounded-3xl panel-elevated main-bridge-left border border-border/60 shadow-xl">
+        <div className="flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl">
           <ChatHeader />
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-2 md:px-4 pb-2 md:pb-4">
             {showStatsPanel ? (
