@@ -1,8 +1,7 @@
 "use client"
 
-import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
-import { MessageSquare, Plus, Wand2, Sparkles, Menu, Settings } from "lucide-react"
+import { Plus, Wand2, Sparkles, Menu, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
 import { MobileMoreMenu } from "@/components/mobile-more-menu"
@@ -43,9 +42,10 @@ export function MobileBottomNav({
   activeView = "chats",
 }: MobileBottomNavProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl shadow-lg">
-      <div className="flex items-center justify-around px-2 py-2 safe-bottom">
-        {/* Chats/Menu */}
+    <div className="fixed bottom-4 left-0 right-0 z-50 md:hidden px-4 pointer-events-none">
+      <div className="mx-auto max-w-3xl rounded-2xl pill-nav backdrop-blur-2xl p-2 shadow-2xl shadow-primary/15 border border-border/70 pointer-events-auto safe-bottom">
+        <div className="flex items-center justify-between gap-1.5">
+          {/* Chats/Menu */}
         <Button
           variant="ghost"
           size="sm"
@@ -54,10 +54,10 @@ export function MobileBottomNav({
             onMenuClick()
           }}
           className={cn(
-            "flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg transition-all",
+            "flex-1 flex flex-col items-center gap-1 h-auto py-2 px-2 rounded-xl transition-all text-xs font-semibold",
             activeView === "chats"
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-primary/15 text-primary shadow-sm shadow-primary/20"
+              : "text-muted-foreground hover:text-foreground/80"
           )}
         >
           <Menu className="h-5 w-5" />
@@ -73,10 +73,10 @@ export function MobileBottomNav({
             onPersonasClick()
           }}
           className={cn(
-            "flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg transition-all",
+            "flex-1 flex flex-col items-center gap-1 h-auto py-2 px-2 rounded-xl transition-all text-xs font-semibold",
             activeView === "personas"
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-primary/15 text-primary shadow-sm shadow-primary/20"
+              : "text-muted-foreground hover:text-foreground/80"
           )}
         >
           <Wand2 className="h-5 w-5" />
@@ -90,7 +90,7 @@ export function MobileBottomNav({
             haptics.trigger('medium')
             onNewChatClick()
           }}
-          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25"
+          className="flex-1 flex flex-col items-center gap-1 h-auto py-3 px-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg shadow-primary/35 hover:brightness-105"
         >
           <Plus className="h-6 w-6" />
           <span className="text-[10px] font-medium">New</span>
@@ -104,7 +104,7 @@ export function MobileBottomNav({
             haptics.trigger('selection')
             onPromptHelperClick()
           }}
-          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg transition-all text-muted-foreground hover:text-foreground"
+          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 px-2 rounded-xl transition-all text-xs font-semibold text-muted-foreground hover:text-foreground/80"
         >
           <Sparkles className="h-5 w-5 text-yellow-500" />
           <span className="text-[10px] font-medium">Prompts</span>
@@ -118,7 +118,7 @@ export function MobileBottomNav({
             haptics.trigger('selection')
             onSettingsClick()
           }}
-          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg transition-all text-muted-foreground hover:text-foreground"
+          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 px-2 rounded-xl transition-all text-xs font-semibold text-muted-foreground hover:text-foreground/80"
         >
           <Settings className="h-5 w-5" />
           <span className="text-[10px] font-medium">Settings</span>
@@ -137,6 +137,7 @@ export function MobileBottomNav({
           onInspectorClick={onInspectorClick}
           onStatsClick={onStatsClick}
         />
+        </div>
       </div>
     </div>
   )
