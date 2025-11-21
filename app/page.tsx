@@ -168,7 +168,7 @@ function ChatApp() {
           <ChatSidebar onClose={() => setIsMobileSidebarOpen(false)} />
         </div>
 
-        <div className="flex flex-1 flex-col min-w-0 overflow-hidden rounded-2xl md:rounded-3xl panel-elevated border border-border/60 shadow-xl">
+        <div className="flex flex-1 flex-col min-w-0 overflow-hidden rounded-2xl md:rounded-3xl panel-elevated main-bridge-left border border-border/60 shadow-xl">
           <ChatHeader />
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-2 md:px-4 pb-2 md:pb-4">
             {showStatsPanel ? (
