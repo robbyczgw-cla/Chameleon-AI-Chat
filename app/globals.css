@@ -191,6 +191,42 @@
   --sidebar-ring: oklch(0.52 0.18 200);
 }
 
+.blueprint {
+  /* Neo Blueprint theme - inky charcoals with electric teal & amber accents */
+  --background: #0c111b;
+  --foreground: #e8edf5;
+  --card: #101827;
+  --card-foreground: #e8edf5;
+  --popover: #0f1724;
+  --popover-foreground: #e8edf5;
+  --primary: #3cf2c8;
+  --primary-foreground: #041012;
+  --secondary: #122036;
+  --secondary-foreground: #d5deeb;
+  --muted: #151f30;
+  --muted-foreground: #8ea2c2;
+  --accent: #ffb547;
+  --accent-foreground: #0b101b;
+  --destructive: #ff5c8d;
+  --destructive-foreground: #0b0f17;
+  --border: #1f2a3d;
+  --input: #1f2a3d;
+  --ring: #3cf2c8;
+  --chart-1: #3cf2c8;
+  --chart-2: #ffb547;
+  --chart-3: #6dd6ff;
+  --chart-4: #c5a3ff;
+  --chart-5: #61a0ff;
+  --radius: 1.1rem;
+  --sidebar: #0f1724;
+  --sidebar-foreground: #e8edf5;
+  --sidebar-primary: #3cf2c8;
+  --sidebar-primary-foreground: #041012;
+  --sidebar-accent: #122036;
+  --sidebar-accent-foreground: #d5deeb;
+  --sidebar-border: #1f2a3d;
+  --sidebar-ring: #3cf2c8;
+}
 .retro-wave {
   /* Retro Wave theme - 80s neon aesthetics with pink, purple, orange */
   --background: oklch(0.1 0.03 300);
@@ -269,8 +305,8 @@
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: "Public Sans", "Neue Haas Grotesk", "Satoshi", "Geist", "Geist Fallback";
+  --font-mono: "IBM Plex Mono", "Soehne Mono Buch", "JetBrains Mono", "Geist Mono", "Geist Mono Fallback";
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -405,6 +441,39 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
     mix-blend-mode: soft-light;
     opacity: 0.5;
+  }
+
+  /* Blueprint-specific background treatment */
+  .blueprint-bg {
+    position: relative;
+    isolation: isolate;
+    background:
+      radial-gradient(900px circle at 20% 18%, rgba(60, 242, 200, 0.14), transparent 45%),
+      radial-gradient(1200px circle at 82% 12%, rgba(255, 181, 71, 0.14), transparent 52%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.0)),
+      #0c111b;
+  }
+
+  .blueprint-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(99, 146, 189, 0.18) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(99, 146, 189, 0.18) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55), transparent 73%);
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55), transparent 73%);
+    opacity: 0.35;
+    z-index: 0;
+  }
+
+  .blueprint-noise {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.28'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
+    opacity: 0.35;
+    z-index: 0;
   }
 
   .panel-elevated {
@@ -571,6 +640,21 @@
     }
     50% {
       background-position: 100% 50%;
+    }
+  }
+
+  @keyframes rise {
+    0% {
+      transform: translateY(18px) scale(0.98);
+      opacity: 0;
+    }
+    60% {
+      transform: translateY(-4px) scale(1.01);
+      opacity: 0.9;
+    }
+    100% {
+      transform: translateY(0) scale(1);
+      opacity: 1;
     }
   }
 
