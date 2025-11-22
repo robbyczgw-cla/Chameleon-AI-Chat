@@ -841,10 +841,10 @@ export function ChatInput() {
         </div>
       )}
       <form onSubmit={handleSubmit} className="mx-auto max-w-4xl">
-        {/* Compact Toolbar - inline with less vertical space */}
-        <div className="flex items-center gap-1.5 mb-1.5 text-xs">
-          <QuickModelPicker />
-          <QuickPersonaPicker />
+        {/* Compact Toolbar - single row, smaller on mobile */}
+        <div className="flex items-center gap-1 mb-1.5 text-xs overflow-x-auto">
+          <div className="shrink-0"><QuickModelPicker /></div>
+          <div className="shrink-0"><QuickPersonaPicker /></div>
         </div>
         <div className="flex items-end gap-2">
           <div className="flex-1 relative">
@@ -882,62 +882,58 @@ export function ChatInput() {
               className="min-h-[48px] max-h-[200px] resize-none md:pr-28 text-sm sm:text-base rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-sm transition-all duration-200"
               disabled={isLoading}
             />
-            {/* Desktop: Buttons inside textarea */}
-            <div className="hidden md:flex absolute bottom-2 md:bottom-3 right-2 md:right-3 gap-1 md:gap-1.5">
-              <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-              <Button
-                type="button"
-                size="icon"
-                variant={imageMode ? "default" : "ghost"}
-                className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 rounded-lg hover:scale-105 transition-all shadow-sm"
-                onClick={() => {
-                  haptics.trigger('selection')
-                  const newImageMode = !imageMode
-                  setImageMode(newImageMode)
-
-                  if (newImageMode) {
-                    toast({
-                      title: "🎨 Bildgenerierung aktiviert",
-                      description: "Image generation mode enabled",
-                    })
-                  }
-                }}
-                title={imageMode ? "Text-Modus" : "Bild generieren"}
-              >
-                <Image className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-              <Button
-                type="button"
-                size="icon"
-                variant={isListening ? "default" : "ghost"}
-                className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 rounded-lg hover:scale-105 transition-all shadow-sm"
-                onClick={toggleVoiceInput}
-                title={isListening ? "Aufnahme stoppen" : "Spracheingabe"}
-              >
-                {isListening ? <MicOff className="h-3 w-3 sm:h-4 sm:w-4" /> : <Mic className="h-3 w-3 sm:h-4 sm:w-4" />}
-              </Button>
+            {/* Buttons inside textarea - mobile shows only web search, desktop shows all */}
+            <div className="absolute bottom-2 right-2 flex gap-1">
+              {/* Mobile: Only web search */}
               <Button
                 type="button"
                 size="icon"
                 variant={webSearchEnabled ? "default" : "ghost"}
-                className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 rounded-lg hover:scale-105 transition-all shadow-sm"
+                className="h-8 w-8 rounded-lg transition-all"
                 onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                title={webSearchEnabled ? "Websuche aktiviert" : "Websuche aktivieren"}
+                title="Web search"
               >
-                <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Globe className="h-4 w-4" />
               </Button>
-              {modelSupportsReasoning && (
+              {/* Desktop only: Other buttons */}
+              <div className="hidden md:flex gap-1">
+                <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
                 <Button
                   type="button"
                   size="icon"
-                  variant={reasoningEnabled ? "default" : "ghost"}
-                  className={`h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 rounded-lg hover:scale-105 transition-all shadow-sm ${reasoningEnabled ? "bg-amber-500 hover:bg-amber-600" : ""}`}
-                  onClick={() => setReasoningEnabled(!reasoningEnabled)}
-                  title={reasoningEnabled ? "Reasoning aktiv" : "Reasoning aktivieren"}
+                  variant={imageMode ? "default" : "ghost"}
+                  className="h-8 w-8 rounded-lg transition-all"
+                  onClick={() => {
+                    haptics.trigger('selection')
+                    setImageMode(!imageMode)
+                  }}
+                  title="Image mode"
                 >
-                  <Lightbulb className={`h-3 w-3 sm:h-4 sm:w-4 ${reasoningEnabled ? "text-white" : ""}`} />
+                  <Image className="h-4 w-4" />
                 </Button>
-              )}
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={isListening ? "default" : "ghost"}
+                  className="h-8 w-8 rounded-lg transition-all"
+                  onClick={toggleVoiceInput}
+                  title="Voice input"
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
+                {modelSupportsReasoning && (
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant={reasoningEnabled ? "default" : "ghost"}
+                    className={`h-8 w-8 rounded-lg transition-all ${reasoningEnabled ? "bg-amber-500" : ""}`}
+                    onClick={() => setReasoningEnabled(!reasoningEnabled)}
+                    title="Reasoning"
+                  >
+                    <Lightbulb className={`h-4 w-4 ${reasoningEnabled ? "text-white" : ""}`} />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
           <Button
@@ -947,59 +943,6 @@ export function ChatInput() {
             className="h-12 w-12 rounded-xl bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100"
           >
             {isLoading ? <Square className="h-5 w-5" /> : <Send className="h-5 w-5" />}
-          </Button>
-        </div>
-        {/* Mobile: Simplified buttons - Web search always visible, others in group */}
-        <div className="flex md:hidden gap-1.5 mt-2 justify-between items-center">
-          {/* Left: Secondary actions */}
-          <div className="flex gap-1">
-            <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-            <Button
-              type="button"
-              size="icon"
-              variant={imageMode ? "default" : "ghost"}
-              className="h-9 w-9 rounded-lg transition-all"
-              onClick={() => {
-                haptics.trigger('selection')
-                setImageMode(!imageMode)
-              }}
-              title="Image mode"
-            >
-              <Image className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              size="icon"
-              variant={isListening ? "default" : "ghost"}
-              className="h-9 w-9 rounded-lg transition-all"
-              onClick={toggleVoiceInput}
-              title="Voice input"
-            >
-              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-            </Button>
-            {modelSupportsReasoning && (
-              <Button
-                type="button"
-                size="icon"
-                variant={reasoningEnabled ? "default" : "ghost"}
-                className={`h-9 w-9 rounded-lg transition-all ${reasoningEnabled ? "bg-amber-500" : ""}`}
-                onClick={() => setReasoningEnabled(!reasoningEnabled)}
-                title="Reasoning"
-              >
-                <Lightbulb className={`h-4 w-4 ${reasoningEnabled ? "text-white" : ""}`} />
-              </Button>
-            )}
-          </div>
-          {/* Right: Web search - always accessible */}
-          <Button
-            type="button"
-            size="icon"
-            variant={webSearchEnabled ? "default" : "ghost"}
-            className="h-9 w-9 rounded-lg transition-all"
-            onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-            title="Web search"
-          >
-            <Globe className="h-4 w-4" />
           </Button>
         </div>
         <div className="mt-2">
