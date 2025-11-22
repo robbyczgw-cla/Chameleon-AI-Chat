@@ -42,9 +42,9 @@ export function MobileBottomNav({
   activeView = "chats",
 }: MobileBottomNavProps) {
   return (
-    <div className="fixed bottom-4 left-0 right-0 z-50 md:hidden px-4 pointer-events-none">
-      <div className="mx-auto max-w-3xl rounded-2xl pill-nav backdrop-blur-2xl p-2 shadow-2xl shadow-primary/15 border border-border/70 pointer-events-auto safe-bottom">
-        <div className="flex items-center justify-between gap-1.5">
+    <div className="fixed bottom-4 left-0 right-0 z-50 md:hidden px-3 pointer-events-none">
+      <div className="mx-auto max-w-md rounded-3xl glass-strong backdrop-blur-3xl p-1.5 shadow-2xl shadow-black/20 border border-white/20 dark:border-white/10 pointer-events-auto safe-bottom">
+        <div className="flex items-center justify-between gap-1">
           {/* Chats/Menu */}
           <Button
             variant="ghost"
@@ -54,27 +54,14 @@ export function MobileBottomNav({
               onMenuClick()
             }}
             className={cn(
-              "flex-1 flex flex-col items-center gap-1 h-auto py-2 px-2 rounded-xl transition-all text-xs font-semibold",
+              "flex-1 flex flex-col items-center gap-0.5 h-auto py-2 px-1.5 rounded-2xl transition-all duration-200",
               activeView === "chats"
-                ? "bg-primary/15 text-primary shadow-sm shadow-primary/20"
-                : "text-muted-foreground hover:text-foreground/80"
+                ? "bg-primary/20 text-primary shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
             )}
           >
-            <Menu className="h-5 w-5" />
-            <span className="text-[10px] font-medium">Chats</span>
-          </Button>
-
-          {/* New Chat - Bigger, centered */}
-          <Button
-            size="sm"
-            onClick={() => {
-              haptics.trigger('medium')
-              onNewChatClick()
-            }}
-            className="flex-1 flex flex-col items-center gap-1 h-auto py-3 px-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg shadow-primary/35 hover:brightness-105"
-          >
-            <Plus className="h-6 w-6" />
-            <span className="text-[10px] font-medium">New</span>
+            <Menu className="h-[18px] w-[18px]" />
+            <span className="text-[9px] font-medium tracking-tight">Chats</span>
           </Button>
 
           {/* Settings */}
@@ -85,10 +72,23 @@ export function MobileBottomNav({
               haptics.trigger('selection')
               onSettingsClick()
             }}
-            className="flex-1 flex flex-col items-center gap-1 h-auto py-2 px-2 rounded-xl transition-all text-xs font-semibold text-muted-foreground hover:text-foreground/80"
+            className="flex-1 flex flex-col items-center gap-0.5 h-auto py-2 px-1.5 rounded-2xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"
           >
-            <Settings className="h-5 w-5" />
-            <span className="text-[10px] font-medium">Settings</span>
+            <Settings className="h-[18px] w-[18px]" />
+            <span className="text-[9px] font-medium tracking-tight">Settings</span>
+          </Button>
+
+          {/* New Chat - Prominent center button */}
+          <Button
+            size="sm"
+            onClick={() => {
+              haptics.trigger('medium')
+              onNewChatClick()
+            }}
+            className="flex flex-col items-center gap-0.5 h-auto py-2.5 px-4 rounded-2xl bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground shadow-lg shadow-primary/40 hover:shadow-xl hover:shadow-primary/50 hover:scale-105 active:scale-95 transition-all duration-200"
+          >
+            <Plus className="h-5 w-5" strokeWidth={2.5} />
+            <span className="text-[9px] font-semibold tracking-tight">New</span>
           </Button>
 
           {/* Advanced Settings */}
@@ -99,10 +99,10 @@ export function MobileBottomNav({
               haptics.trigger('selection')
               onAdvancedSettingsClick()
             }}
-            className="flex-1 flex flex-col items-center gap-1 h-auto py-2 px-2 rounded-xl transition-all text-xs font-semibold text-muted-foreground hover:text-foreground/80"
+            className="flex-1 flex flex-col items-center gap-0.5 h-auto py-2 px-1.5 rounded-2xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"
           >
-            <Sliders className="h-5 w-5" />
-            <span className="text-[10px] font-medium">Advanced</span>
+            <Sliders className="h-[18px] w-[18px]" />
+            <span className="text-[9px] font-medium tracking-tight">Tune</span>
           </Button>
 
           {/* More Menu */}

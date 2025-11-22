@@ -548,10 +548,11 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
           </div>
         ))}
 
-        {/* Typing indicator when loading */}
+        {/* Modern AI Loading Indicator */}
         {isChatLoading && (
           <div className="flex gap-2 sm:gap-4 animate-slide-in-up">
-            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border-2 border-primary/20 shrink-0 animate-pulse-glow">
+            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border-2 border-primary/30 shrink-0 relative">
+              <div className="absolute inset-0 rounded-full gradient-border-animated opacity-60" />
               {currentPersona?.avatarUrl ? (
                 <>
                   <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
@@ -570,11 +571,22 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
               )}
             </Avatar>
             <div className="flex flex-col gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]">
-              <div className="rounded-2xl px-3 py-2 sm:px-4 sm:py-3 glass-strong backdrop-blur-xl border border-border/50 shadow-md">
-                <div className="flex gap-1 items-center">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+              <div className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4 glass-strong backdrop-blur-xl border border-primary/20 shadow-lg ai-thinking-container">
+                {/* Thinking indicator with wave dots */}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex gap-1 items-end h-4">
+                    <div className="w-1.5 h-3 bg-primary/80 rounded-full ai-thinking-dot" style={{ animationDelay: "0ms" }} />
+                    <div className="w-1.5 h-3 bg-primary/80 rounded-full ai-thinking-dot" style={{ animationDelay: "100ms" }} />
+                    <div className="w-1.5 h-3 bg-primary/80 rounded-full ai-thinking-dot" style={{ animationDelay: "200ms" }} />
+                    <div className="w-1.5 h-3 bg-primary/80 rounded-full ai-thinking-dot" style={{ animationDelay: "300ms" }} />
+                  </div>
+                  <span className="text-xs text-muted-foreground/70 font-medium">Thinking...</span>
+                </div>
+                {/* Skeleton content preview */}
+                <div className="space-y-2">
+                  <div className="ai-loading-bar w-full" style={{ animationDelay: "0ms" }} />
+                  <div className="ai-loading-bar w-4/5" style={{ animationDelay: "150ms" }} />
+                  <div className="ai-loading-bar w-3/5" style={{ animationDelay: "300ms" }} />
                 </div>
               </div>
             </div>
