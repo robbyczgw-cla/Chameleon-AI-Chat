@@ -304,6 +304,45 @@
   --sidebar-ring: oklch(0.72 0.24 145);
 }
 
+.modern-minimal {
+  /* Modern Minimal theme - Clean dark UI with cyan accent, optimal readability */
+  --background: #0a0a0a;
+  --foreground: #e5e5e5;
+  --card: #1a1a1a;
+  --card-foreground: #e5e5e5;
+  --popover: #1a1a1a;
+  --popover-foreground: #e5e5e5;
+  /* Modern cyan accent */
+  --primary: #06b6d4;
+  --primary-foreground: #0a0a0a;
+  --secondary: #252525;
+  --secondary-foreground: #e5e5e5;
+  --muted: #303030;
+  --muted-foreground: #a3a3a3;
+  /* Electric blue accent */
+  --accent: #3b82f6;
+  --accent-foreground: #0a0a0a;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: #2a2a2a;
+  --input: #2a2a2a;
+  --ring: #06b6d4;
+  --chart-1: #06b6d4;
+  --chart-2: #3b82f6;
+  --chart-3: #8b5cf6;
+  --chart-4: #22c55e;
+  --chart-5: #f59e0b;
+  --radius: 0.75rem;
+  --sidebar: #0f0f0f;
+  --sidebar-foreground: #e5e5e5;
+  --sidebar-primary: #06b6d4;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #252525;
+  --sidebar-accent-foreground: #e5e5e5;
+  --sidebar-border: #2a2a2a;
+  --sidebar-ring: #06b6d4;
+}
+
 @theme inline {
   --font-sans: "Public Sans", "Neue Haas Grotesk", "Satoshi", "Geist", "Geist Fallback";
   --font-mono: "IBM Plex Mono", "Soehne Mono Buch", "JetBrains Mono", "Geist Mono", "Geist Mono Fallback";
