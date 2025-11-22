@@ -123,10 +123,10 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         key={chat.id}
         onClick={() => setCurrentChat(chat.id)}
         className={cn(
-          "group relative flex flex-col gap-1.5 rounded-xl px-3 py-3 md:py-3.5 text-sm cursor-pointer smooth-transition mb-2 border",
+          "group relative flex flex-col gap-1.5 rounded-xl px-3 py-3 md:py-3.5 text-sm cursor-pointer smooth-transition mb-2",
           currentChatId === chat.id
-            ? "gradient-premium text-accent-foreground shadow-md border-primary/30 glow-subtle"
-            : "border-border/40 hover:border-border/60 glass-subtle hover:shadow-sm hover-lift",
+            ? "bg-primary/10 border-l-[3px] border-l-primary border-y border-r border-border/30 shadow-sm"
+            : "border border-border/40 hover:border-border/60 glass-subtle hover:shadow-sm hover-lift",
         )}
       >
         {editingId === chat.id ? (

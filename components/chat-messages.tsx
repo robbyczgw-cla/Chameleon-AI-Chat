@@ -190,12 +190,46 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
   }
 
   if (currentChat.messages.length === 0) {
+    const starterPrompts = [
+      { icon: "💻", title: "Write Code", prompt: "Help me write a function that...", color: "from-blue-500/20 to-cyan-500/20" },
+      { icon: "📝", title: "Creative Writing", prompt: "Write a short story about...", color: "from-purple-500/20 to-pink-500/20" },
+      { icon: "🔍", title: "Research & Explain", prompt: "Explain how...", color: "from-green-500/20 to-emerald-500/20" },
+      { icon: "📊", title: "Analyze Data", prompt: "Analyze this data and...", color: "from-orange-500/20 to-amber-500/20" },
+    ]
+
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="text-center space-y-3">
-          <div className="text-6xl">✨</div>
-          <h3 className="text-xl font-semibold">Start a conversation</h3>
-          <p className="text-sm text-muted-foreground">Type a message below to begin chatting with AI</p>
+      <div className="flex h-full items-center justify-center p-4">
+        <div className="text-center space-y-6 max-w-md w-full">
+          <div className="space-y-2">
+            <h3 className="text-2xl font-semibold">What can I help with?</h3>
+            <p className="text-sm text-muted-foreground">Choose a starter or type your own message</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {starterPrompts.map((item, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  const input = document.querySelector('textarea') as HTMLTextAreaElement
+                  if (input) {
+                    input.value = item.prompt
+                    input.focus()
+                    input.dispatchEvent(new Event('input', { bubbles: true }))
+                  }
+                }}
+                className={cn(
+                  "flex flex-col items-center gap-2 p-4 rounded-xl border border-border/50",
+                  "bg-gradient-to-br", item.color,
+                  "hover:border-primary/50 hover:shadow-md",
+                  "transition-all duration-200 hover:-translate-y-0.5",
+                  "text-left group"
+                )}
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
+                <span className="text-sm font-medium">{item.title}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -203,7 +237,7 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
 
   return (
     <ScrollArea className="h-full w-full">
-      <div className="w-full sm:max-w-5xl sm:mx-auto space-y-4 sm:space-y-6 px-4 sm:px-6 py-3 sm:py-6">
+      <div className="w-full max-w-3xl mx-auto space-y-6 px-4 sm:px-6 py-6">
         {currentChat.messages.map((message, index) => (
           <div
             key={message.id}
@@ -251,10 +285,10 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
 
               <div
                 className={cn(
-                  "rounded-2xl px-2 py-1.5 sm:px-4 sm:py-3 text-sm sm:text-base smooth-transition max-w-full",
+                  "text-sm sm:text-base smooth-transition max-w-full",
                   message.role === "user"
-                    ? "gradient-premium text-primary-foreground shadow-lg shadow-primary/30 hover-lift glow-subtle"
-                    : "glass-strong backdrop-blur-xl border border-border/50 shadow-md hover-lift",
+                    ? "rounded-2xl rounded-br-md px-4 py-3 bg-primary text-primary-foreground shadow-md"
+                    : "rounded-2xl rounded-bl-md px-4 py-3 bg-card border border-border/40 shadow-sm",
                 )}
               >
                 {message.role === "assistant" ? (

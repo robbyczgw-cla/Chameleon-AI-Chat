@@ -304,49 +304,113 @@
   --sidebar-ring: oklch(0.72 0.24 145);
 }
 
-.aurora {
-  /* Aurora theme - Ethereal northern lights with deep space background */
-  --background: oklch(0.12 0.02 280);
-  --foreground: oklch(0.95 0.01 280);
-  --card: oklch(0.16 0.025 280);
-  --card-foreground: oklch(0.95 0.01 280);
-  --popover: oklch(0.14 0.02 280);
-  --popover-foreground: oklch(0.95 0.01 280);
-  /* Vibrant aurora green-cyan */
-  --primary: oklch(0.75 0.2 165);
-  --primary-foreground: oklch(0.12 0.02 280);
-  --secondary: oklch(0.22 0.03 280);
-  --secondary-foreground: oklch(0.92 0.01 280);
-  --muted: oklch(0.2 0.025 280);
-  --muted-foreground: oklch(0.7 0.02 280);
-  /* Aurora pink-magenta accent */
-  --accent: oklch(0.72 0.22 330);
-  --accent-foreground: oklch(0.12 0.02 280);
-  --destructive: oklch(0.65 0.25 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.28 0.04 280);
-  --input: oklch(0.2 0.03 280);
-  --ring: oklch(0.75 0.2 165);
-  /* Aurora spectrum for charts */
-  --chart-1: oklch(0.75 0.2 165);
-  --chart-2: oklch(0.72 0.22 330);
-  --chart-3: oklch(0.7 0.18 200);
-  --chart-4: oklch(0.68 0.2 290);
-  --chart-5: oklch(0.74 0.16 80);
+.midnight-hologram {
+  /* Midnight Hologram - Deep space with neon cyan and purple accents */
+  --background: #05050A;
+  --foreground: #FFFFFF;
+  --card: rgba(20, 20, 30, 0.6);
+  --card-foreground: #FFFFFF;
+  --popover: rgba(20, 20, 30, 0.8);
+  --popover-foreground: #FFFFFF;
+  /* Neon Cyan primary */
+  --primary: #00F0FF;
+  --primary-foreground: #05050A;
+  --secondary: rgba(255, 255, 255, 0.05);
+  --secondary-foreground: #FFFFFF;
+  --muted: rgba(255, 255, 255, 0.08);
+  --muted-foreground: #94A3B8;
+  /* Electric Purple accent */
+  --accent: #7000FF;
+  --accent-foreground: #FFFFFF;
+  --destructive: #FF3366;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.05);
+  --ring: #00F0FF;
+  /* Neon spectrum for charts */
+  --chart-1: #00F0FF;
+  --chart-2: #7000FF;
+  --chart-3: #FF3366;
+  --chart-4: #00FF88;
+  --chart-5: #FFE600;
   --radius: 1rem;
-  --sidebar: oklch(0.1 0.015 280);
-  --sidebar-foreground: oklch(0.95 0.01 280);
-  --sidebar-primary: oklch(0.75 0.2 165);
-  --sidebar-primary-foreground: oklch(0.12 0.02 280);
-  --sidebar-accent: oklch(0.22 0.03 280);
-  --sidebar-accent-foreground: oklch(0.92 0.01 280);
-  --sidebar-border: oklch(0.25 0.035 280);
-  --sidebar-ring: oklch(0.75 0.2 165);
+  --sidebar: rgba(10, 10, 15, 0.9);
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #00F0FF;
+  --sidebar-primary-foreground: #05050A;
+  --sidebar-accent: rgba(112, 0, 255, 0.2);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #00F0FF;
+}
+
+.clean-slate {
+  /* Clean Slate - Minimal & Neutral, easy on the eyes */
+  --background: #F4F5F7;
+  --foreground: #111827;
+  --card: #FFFFFF;
+  --card-foreground: #111827;
+  --popover: #FFFFFF;
+  --popover-foreground: #111827;
+  /* Calm blue primary */
+  --primary: #2563EB;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EEF2FF;
+  --secondary-foreground: #2563EB;
+  --muted: #F9FAFB;
+  --muted-foreground: #6B7280;
+  /* Subtle sky accent */
+  --accent: #38BDF8;
+  --accent-foreground: #0C4A6E;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E7EB;
+  --input: #F9FAFB;
+  --ring: #2563EB;
+  /* Chart colors */
+  --chart-1: #2563EB;
+  --chart-2: #38BDF8;
+  --chart-3: #16A34A;
+  --chart-4: #F59E0B;
+  --chart-5: #8B5CF6;
+  --radius: 0.75rem;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #2563EB;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #EEF2FF;
+  --sidebar-accent-foreground: #2563EB;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #2563EB;
 }
 
 @theme inline {
-  --font-sans: "Public Sans", "Neue Haas Grotesk", "Satoshi", "Geist", "Geist Fallback";
-  --font-mono: "IBM Plex Mono", "Soehne Mono Buch", "JetBrains Mono", "Geist Mono", "Geist Mono Fallback";
+  --font-sans: "Inter", "SF Pro Display", -apple-system, "Public Sans", "Neue Haas Grotesk", "Satoshi", "Geist", "Geist Fallback", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", "Soehne Mono Buch", "Fira Code", "Geist Mono", "Geist Mono Fallback", monospace;
+
+  /* Design tokens - Spacing (8-point grid) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+
+  /* Design tokens - Typography */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  /* Line heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  /* Color mappings */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

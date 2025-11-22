@@ -841,18 +841,10 @@ export function ChatInput() {
         </div>
       )}
       <form onSubmit={handleSubmit} className="mx-auto max-w-4xl">
-        {/* Toolbar - Mobile shows only quick picker, Desktop shows all */}
-        <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3 flex-wrap">
-          {/* Quick Model Picker - Always visible */}
+        {/* Compact Toolbar - inline with less vertical space */}
+        <div className="flex items-center gap-1.5 mb-1.5 text-xs">
           <QuickModelPicker />
-
-          {/* Quick Persona Picker - Always visible */}
           <QuickPersonaPicker />
-
-          {/* Tip - Desktop only */}
-          <span className="hidden md:inline-block text-xs md:text-sm text-muted-foreground/80 font-medium">
-            Tipp: Verwende <kbd className="px-1.5 py-0.5 bg-muted border border-border/40 rounded text-xs font-mono">/</kbd> für Slash Commands
-          </span>
         </div>
         <div className="flex items-end gap-2">
           <div className="flex-1 relative">
@@ -886,8 +878,8 @@ export function ChatInput() {
               value={input}
               onChange={(e) => handleInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Nachricht eingeben... (/ für Commands)"
-              className="min-h-[50px] sm:min-h-[60px] md:min-h-[70px] max-h-[200px] resize-none md:pr-28 text-sm sm:text-base md:text-base rounded-xl border-2 border-border/50 focus:border-primary/70 focus:ring-2 focus:ring-primary/40 shadow-md hover:shadow-xl smooth-transition glass-subtle backdrop-blur-md hover-lift"
+              placeholder="Message... (/ for commands)"
+              className="min-h-[48px] max-h-[200px] resize-none md:pr-28 text-sm sm:text-base rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-sm transition-all duration-200"
               disabled={isLoading}
             />
             {/* Desktop: Buttons inside textarea */}
@@ -952,9 +944,9 @@ export function ChatInput() {
             type={isLoading ? "button" : "submit"}
             onClick={isLoading ? stopGeneration : undefined}
             disabled={!isLoading && !input.trim() && attachedFiles.length === 0}
-            className="h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] md:h-[70px] md:w-[70px] rounded-xl shadow-xl hover:shadow-2xl smooth-transition hover-scale disabled:opacity-50 disabled:hover:scale-100 border-2 border-primary/30 hover:border-primary/60 gradient-premium glow-subtle hover-glow"
+            className="h-12 w-12 rounded-xl bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100"
           >
-            {isLoading ? <Square className="h-4 w-4 sm:h-5 sm:w-5 md:h-5 md:w-5" /> : <Send className="h-4 w-4 sm:h-5 sm:w-5 md:h-5 md:w-5" />}
+            {isLoading ? <Square className="h-5 w-5" /> : <Send className="h-5 w-5" />}
           </Button>
         </div>
         {/* Mobile: Buttons below textarea in own container */}

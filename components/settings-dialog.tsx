@@ -227,7 +227,8 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 >
                   <option value="light">☀️ Light - Bright & Classic</option>
                   <option value="dark">🌙 Dark - Dark & Modern</option>
-                  <option value="aurora">🌌 Aurora - Northern Lights</option>
+                  <option value="clean-slate">🧼 Clean Slate - Minimal & Neutral</option>
+                  <option value="midnight-hologram">🌌 Midnight Hologram - Neon Cyan & Purple</option>
                   <option value="chameleon">🦎 Chameleon - Adaptive Green/Blue/Purple</option>
                   <option value="cyberpunk">🌃 Cyberpunk - Neon & Futuristic</option>
                   <option value="retro-wave">🌆 Retro Wave - 80s Neon Vibes</option>

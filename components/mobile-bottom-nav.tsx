@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Plus, Menu, Settings, Sliders } from "lucide-react"
+import { Plus, Menu, Settings, Sliders, MoreHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
 import { MobileMoreMenu } from "@/components/mobile-more-menu"
@@ -21,7 +21,7 @@ interface MobileBottomNavProps {
   onStatsClick: () => void
   onPersonasClick: () => void
   onPromptHelperClick: () => void
-  activeView?: "chats" | "personas"
+  activeView?: "chats" | "settings" | "tune" | "more"
 }
 
 export function MobileBottomNav({
@@ -42,70 +42,64 @@ export function MobileBottomNav({
   activeView = "chats",
 }: MobileBottomNavProps) {
   return (
-    <div className="fixed bottom-4 left-0 right-0 z-50 md:hidden px-3 pointer-events-none">
-      <div className="mx-auto max-w-md rounded-3xl glass-strong backdrop-blur-3xl p-1.5 shadow-2xl shadow-black/20 border border-white/20 dark:border-white/10 pointer-events-auto safe-bottom">
-        <div className="flex items-center justify-between gap-1">
-          {/* Chats/Menu */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              haptics.trigger('selection')
-              onMenuClick()
-            }}
-            className={cn(
-              "flex-1 flex flex-col items-center gap-0.5 h-auto py-2 px-1.5 rounded-2xl transition-all duration-200",
-              activeView === "chats"
-                ? "bg-primary/20 text-primary shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            )}
-          >
-            <Menu className="h-[18px] w-[18px]" />
-            <span className="text-[9px] font-medium tracking-tight">Chats</span>
-          </Button>
+    <nav className="fixed inset-x-4 bottom-4 z-50 md:hidden pb-[env(safe-area-inset-bottom)]">
+      <div className="relative flex items-center justify-between rounded-full bg-slate-900/95 backdrop-blur-xl px-4 py-3 shadow-lg border border-white/5">
+        {/* Chats */}
+        <button
+          onClick={() => {
+            haptics.trigger('selection')
+            onMenuClick()
+          }}
+          className={cn(
+            "flex flex-1 flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center transition-all duration-200",
+            activeView === "chats"
+              ? "text-slate-100"
+              : "text-slate-100/60 hover:text-slate-100/80"
+          )}
+        >
+          <Menu className="h-5 w-5" />
+          <span className="text-[11px] font-medium">Chats</span>
+        </button>
 
-          {/* Settings */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              haptics.trigger('selection')
-              onSettingsClick()
-            }}
-            className="flex-1 flex flex-col items-center gap-0.5 h-auto py-2 px-1.5 rounded-2xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"
-          >
-            <Settings className="h-[18px] w-[18px]" />
-            <span className="text-[9px] font-medium tracking-tight">Settings</span>
-          </Button>
+        {/* Settings */}
+        <button
+          onClick={() => {
+            haptics.trigger('selection')
+            onSettingsClick()
+          }}
+          className={cn(
+            "flex flex-1 flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center transition-all duration-200",
+            activeView === "settings"
+              ? "text-slate-100"
+              : "text-slate-100/60 hover:text-slate-100/80"
+          )}
+        >
+          <Settings className="h-5 w-5" />
+          <span className="text-[11px] font-medium">Settings</span>
+        </button>
 
-          {/* New Chat - Prominent center button */}
-          <Button
-            size="sm"
-            onClick={() => {
-              haptics.trigger('medium')
-              onNewChatClick()
-            }}
-            className="flex flex-col items-center gap-0.5 h-auto py-2.5 px-4 rounded-2xl bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground shadow-lg shadow-primary/40 hover:shadow-xl hover:shadow-primary/50 hover:scale-105 active:scale-95 transition-all duration-200"
-          >
-            <Plus className="h-5 w-5" strokeWidth={2.5} />
-            <span className="text-[9px] font-semibold tracking-tight">New</span>
-          </Button>
+        {/* Spacer for FAB */}
+        <div className="w-16" />
 
-          {/* Advanced Settings */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              haptics.trigger('selection')
-              onAdvancedSettingsClick()
-            }}
-            className="flex-1 flex flex-col items-center gap-0.5 h-auto py-2 px-1.5 rounded-2xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"
-          >
-            <Sliders className="h-[18px] w-[18px]" />
-            <span className="text-[9px] font-medium tracking-tight">Tune</span>
-          </Button>
+        {/* Tune */}
+        <button
+          onClick={() => {
+            haptics.trigger('selection')
+            onAdvancedSettingsClick()
+          }}
+          className={cn(
+            "flex flex-1 flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center transition-all duration-200",
+            activeView === "tune"
+              ? "text-slate-100"
+              : "text-slate-100/60 hover:text-slate-100/80"
+          )}
+        >
+          <Sliders className="h-5 w-5" />
+          <span className="text-[11px] font-medium">Tune</span>
+        </button>
 
-          {/* More Menu */}
+        {/* More */}
+        <div className="flex flex-1 flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center">
           <MobileMoreMenu
             onSettingsClick={onSettingsClick}
             onProfileClick={onProfileClick}
@@ -120,7 +114,21 @@ export function MobileBottomNav({
             onPromptHelperClick={onPromptHelperClick}
           />
         </div>
+
+        {/* Central FAB - New Chat */}
+        <button
+          onClick={() => {
+            haptics.trigger('medium')
+            onNewChatClick()
+          }}
+          className="absolute left-1/2 -translate-x-1/2 -translate-y-5 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-accent shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+          style={{
+            boxShadow: '0 0 20px rgba(var(--primary), 0.4), 0 4px 15px rgba(0, 0, 0, 0.3)',
+          }}
+        >
+          <Plus className="h-6 w-6 text-white" strokeWidth={2.5} />
+        </button>
       </div>
-    </div>
+    </nav>
   )
 }
