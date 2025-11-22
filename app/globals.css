@@ -304,6 +304,46 @@
   --sidebar-ring: oklch(0.72 0.24 145);
 }
 
+.aurora {
+  /* Aurora theme - Ethereal northern lights with deep space background */
+  --background: oklch(0.12 0.02 280);
+  --foreground: oklch(0.95 0.01 280);
+  --card: oklch(0.16 0.025 280);
+  --card-foreground: oklch(0.95 0.01 280);
+  --popover: oklch(0.14 0.02 280);
+  --popover-foreground: oklch(0.95 0.01 280);
+  /* Vibrant aurora green-cyan */
+  --primary: oklch(0.75 0.2 165);
+  --primary-foreground: oklch(0.12 0.02 280);
+  --secondary: oklch(0.22 0.03 280);
+  --secondary-foreground: oklch(0.92 0.01 280);
+  --muted: oklch(0.2 0.025 280);
+  --muted-foreground: oklch(0.7 0.02 280);
+  /* Aurora pink-magenta accent */
+  --accent: oklch(0.72 0.22 330);
+  --accent-foreground: oklch(0.12 0.02 280);
+  --destructive: oklch(0.65 0.25 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.28 0.04 280);
+  --input: oklch(0.2 0.03 280);
+  --ring: oklch(0.75 0.2 165);
+  /* Aurora spectrum for charts */
+  --chart-1: oklch(0.75 0.2 165);
+  --chart-2: oklch(0.72 0.22 330);
+  --chart-3: oklch(0.7 0.18 200);
+  --chart-4: oklch(0.68 0.2 290);
+  --chart-5: oklch(0.74 0.16 80);
+  --radius: 1rem;
+  --sidebar: oklch(0.1 0.015 280);
+  --sidebar-foreground: oklch(0.95 0.01 280);
+  --sidebar-primary: oklch(0.75 0.2 165);
+  --sidebar-primary-foreground: oklch(0.12 0.02 280);
+  --sidebar-accent: oklch(0.22 0.03 280);
+  --sidebar-accent-foreground: oklch(0.92 0.01 280);
+  --sidebar-border: oklch(0.25 0.035 280);
+  --sidebar-ring: oklch(0.75 0.2 165);
+}
+
 @theme inline {
   --font-sans: "Public Sans", "Neue Haas Grotesk", "Satoshi", "Geist", "Geist Fallback";
   --font-mono: "IBM Plex Mono", "Soehne Mono Buch", "JetBrains Mono", "Geist Mono", "Geist Mono Fallback";
