@@ -42,8 +42,8 @@ export function MobileBottomNav({
   activeView = "chats",
 }: MobileBottomNavProps) {
   return (
-    <nav className="fixed inset-x-4 bottom-4 z-50 md:hidden pb-[env(safe-area-inset-bottom)]">
-      <div className="relative flex items-center justify-between rounded-full bg-slate-900/95 backdrop-blur-xl px-4 py-3 shadow-lg border border-white/5">
+    <nav className="fixed inset-x-0 bottom-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)]">
+      <div className="relative flex items-center justify-between bg-slate-900/95 backdrop-blur-xl px-4 py-3 shadow-lg border-t border-white/5">
         {/* Chats */}
         <button
           onClick={() => {
