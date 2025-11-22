@@ -841,18 +841,10 @@ export function ChatInput() {
         </div>
       )}
       <form onSubmit={handleSubmit} className="mx-auto max-w-4xl">
-        {/* Toolbar - Mobile shows only quick picker, Desktop shows all */}
-        <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3 flex-wrap">
-          {/* Quick Model Picker - Always visible */}
+        {/* Compact Toolbar - inline with less vertical space */}
+        <div className="flex items-center gap-1.5 mb-1.5 text-xs">
           <QuickModelPicker />
-
-          {/* Quick Persona Picker - Always visible */}
           <QuickPersonaPicker />
-
-          {/* Tip - Desktop only */}
-          <span className="hidden md:inline-block text-xs md:text-sm text-muted-foreground/80 font-medium">
-            Tipp: Verwende <kbd className="px-1.5 py-0.5 bg-muted border border-border/40 rounded text-xs font-mono">/</kbd> für Slash Commands
-          </span>
         </div>
         <div className="flex items-end gap-2">
           <div className="flex-1 relative">
