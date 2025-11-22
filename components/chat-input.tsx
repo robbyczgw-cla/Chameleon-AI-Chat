@@ -949,62 +949,58 @@ export function ChatInput() {
             {isLoading ? <Square className="h-5 w-5" /> : <Send className="h-5 w-5" />}
           </Button>
         </div>
-        {/* Mobile: Buttons below textarea in own container */}
-        <div className="flex md:hidden gap-1.5 mt-2 justify-end">
-          <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-          <Button
-            type="button"
-            size="icon"
-            variant={imageMode ? "default" : "ghost"}
-            className="h-9 w-9 rounded-lg hover:scale-105 transition-all shadow-sm"
-            onClick={() => {
-              haptics.trigger('selection')
-              const newImageMode = !imageMode
-              setImageMode(newImageMode)
-
-              if (newImageMode) {
-                toast({
-                  title: "🎨 Bildgenerierung aktiviert",
-                  description: "Image generation mode enabled",
-                })
-              }
-            }}
-            title={imageMode ? "Text-Modus" : "Bild generieren"}
-          >
-            <Image className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            size="icon"
-            variant={isListening ? "default" : "ghost"}
-            className="h-9 w-9 rounded-lg hover:scale-105 transition-all shadow-sm"
-            onClick={toggleVoiceInput}
-            title={isListening ? "Aufnahme stoppen" : "Spracheingabe"}
-          >
-            {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-          </Button>
+        {/* Mobile: Simplified buttons - Web search always visible, others in group */}
+        <div className="flex md:hidden gap-1.5 mt-2 justify-between items-center">
+          {/* Left: Secondary actions */}
+          <div className="flex gap-1">
+            <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
+            <Button
+              type="button"
+              size="icon"
+              variant={imageMode ? "default" : "ghost"}
+              className="h-9 w-9 rounded-lg transition-all"
+              onClick={() => {
+                haptics.trigger('selection')
+                setImageMode(!imageMode)
+              }}
+              title="Image mode"
+            >
+              <Image className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              size="icon"
+              variant={isListening ? "default" : "ghost"}
+              className="h-9 w-9 rounded-lg transition-all"
+              onClick={toggleVoiceInput}
+              title="Voice input"
+            >
+              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </Button>
+            {modelSupportsReasoning && (
+              <Button
+                type="button"
+                size="icon"
+                variant={reasoningEnabled ? "default" : "ghost"}
+                className={`h-9 w-9 rounded-lg transition-all ${reasoningEnabled ? "bg-amber-500" : ""}`}
+                onClick={() => setReasoningEnabled(!reasoningEnabled)}
+                title="Reasoning"
+              >
+                <Lightbulb className={`h-4 w-4 ${reasoningEnabled ? "text-white" : ""}`} />
+              </Button>
+            )}
+          </div>
+          {/* Right: Web search - always accessible */}
           <Button
             type="button"
             size="icon"
             variant={webSearchEnabled ? "default" : "ghost"}
-            className="h-9 w-9 rounded-lg hover:scale-105 transition-all shadow-sm"
+            className="h-9 w-9 rounded-lg transition-all"
             onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-            title={webSearchEnabled ? "Websuche aktiviert" : "Websuche aktivieren"}
+            title="Web search"
           >
             <Globe className="h-4 w-4" />
           </Button>
-          {modelSupportsReasoning && (
-            <Button
-              type="button"
-              size="icon"
-              variant={reasoningEnabled ? "default" : "ghost"}
-              className={`h-9 w-9 rounded-lg hover:scale-105 transition-all shadow-sm ${reasoningEnabled ? "bg-amber-500 hover:bg-amber-600" : ""}`}
-              onClick={() => setReasoningEnabled(!reasoningEnabled)}
-              title={reasoningEnabled ? "Reasoning aktiv" : "Reasoning aktivieren"}
-            >
-              <Lightbulb className={`h-4 w-4 ${reasoningEnabled ? "text-white" : ""}`} />
-            </Button>
-          )}
         </div>
         <div className="mt-2">
           <TokenCounterPreview input={input} />

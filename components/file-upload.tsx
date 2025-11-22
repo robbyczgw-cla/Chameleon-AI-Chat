@@ -107,10 +107,10 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
         type="button"
         size="icon"
         variant="ghost"
-        className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 rounded-lg hover:scale-105 transition-all shadow-sm"
+        className="h-9 w-9 rounded-lg hover:scale-105 transition-all"
         onClick={() => fileInputRef.current?.click()}
         disabled={isProcessing}
-        title="Dateien anhängen"
+        title="Attach files"
       >
         {isProcessing ? (
           <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />

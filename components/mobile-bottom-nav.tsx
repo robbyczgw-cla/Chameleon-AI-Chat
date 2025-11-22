@@ -53,8 +53,8 @@ export function MobileBottomNav({
           className={cn(
             "flex flex-1 flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center transition-all duration-200",
             activeView === "chats"
-              ? "text-slate-100"
-              : "text-slate-100/60 hover:text-slate-100/80"
+              ? "text-white"
+              : "text-white/80 hover:text-white"
           )}
         >
           <Menu className="h-5 w-5" />
@@ -70,8 +70,8 @@ export function MobileBottomNav({
           className={cn(
             "flex flex-1 flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center transition-all duration-200",
             activeView === "settings"
-              ? "text-slate-100"
-              : "text-slate-100/60 hover:text-slate-100/80"
+              ? "text-white"
+              : "text-white/80 hover:text-white"
           )}
         >
           <Settings className="h-5 w-5" />
@@ -90,8 +90,8 @@ export function MobileBottomNav({
           className={cn(
             "flex flex-1 flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center transition-all duration-200",
             activeView === "tune"
-              ? "text-slate-100"
-              : "text-slate-100/60 hover:text-slate-100/80"
+              ? "text-white"
+              : "text-white/80 hover:text-white"
           )}
         >
           <Sliders className="h-5 w-5" />

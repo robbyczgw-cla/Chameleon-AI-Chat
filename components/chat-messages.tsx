@@ -190,46 +190,10 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
   }
 
   if (currentChat.messages.length === 0) {
-    const starterPrompts = [
-      { icon: "💻", title: "Write Code", prompt: "Help me write a function that...", color: "from-blue-500/20 to-cyan-500/20" },
-      { icon: "📝", title: "Creative Writing", prompt: "Write a short story about...", color: "from-purple-500/20 to-pink-500/20" },
-      { icon: "🔍", title: "Research & Explain", prompt: "Explain how...", color: "from-green-500/20 to-emerald-500/20" },
-      { icon: "📊", title: "Analyze Data", prompt: "Analyze this data and...", color: "from-orange-500/20 to-amber-500/20" },
-    ]
-
     return (
       <div className="flex h-full items-center justify-center p-4">
-        <div className="text-center space-y-6 max-w-md w-full">
-          <div className="space-y-2">
-            <h3 className="text-2xl font-semibold">What can I help with?</h3>
-            <p className="text-sm text-muted-foreground">Choose a starter or type your own message</p>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {starterPrompts.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  const input = document.querySelector('textarea') as HTMLTextAreaElement
-                  if (input) {
-                    input.value = item.prompt
-                    input.focus()
-                    input.dispatchEvent(new Event('input', { bubbles: true }))
-                  }
-                }}
-                className={cn(
-                  "flex flex-col items-center gap-2 p-4 rounded-xl border border-border/50",
-                  "bg-gradient-to-br", item.color,
-                  "hover:border-primary/50 hover:shadow-md",
-                  "transition-all duration-200 hover:-translate-y-0.5",
-                  "text-left group"
-                )}
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
-                <span className="text-sm font-medium">{item.title}</span>
-              </button>
-            ))}
-          </div>
+        <div className="text-center text-muted-foreground">
+          <p className="text-sm">Start typing to begin...</p>
         </div>
       </div>
     )
