@@ -237,7 +237,7 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
 
   return (
     <ScrollArea className="h-full w-full">
-      <div className="w-full sm:max-w-5xl sm:mx-auto space-y-4 sm:space-y-6 px-4 sm:px-6 py-3 sm:py-6">
+      <div className="w-full max-w-3xl mx-auto space-y-6 px-4 sm:px-6 py-6">
         {currentChat.messages.map((message, index) => (
           <div
             key={message.id}
@@ -285,10 +285,10 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
 
               <div
                 className={cn(
-                  "rounded-2xl px-2 py-1.5 sm:px-4 sm:py-3 text-sm sm:text-base smooth-transition max-w-full",
+                  "text-sm sm:text-base smooth-transition max-w-full",
                   message.role === "user"
-                    ? "gradient-premium text-primary-foreground shadow-lg shadow-primary/30 hover-lift glow-subtle"
-                    : "glass-strong backdrop-blur-xl border border-border/50 shadow-md hover-lift",
+                    ? "rounded-2xl rounded-br-md px-4 py-3 bg-primary text-primary-foreground shadow-md"
+                    : "rounded-2xl rounded-bl-md px-4 py-3 bg-card border border-border/40 shadow-sm",
                 )}
               >
                 {message.role === "assistant" ? (
