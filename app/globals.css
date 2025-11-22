@@ -344,6 +344,46 @@
   --sidebar-ring: #00F0FF;
 }
 
+.clean-slate {
+  /* Clean Slate - Minimal & Neutral, easy on the eyes */
+  --background: #F4F5F7;
+  --foreground: #111827;
+  --card: #FFFFFF;
+  --card-foreground: #111827;
+  --popover: #FFFFFF;
+  --popover-foreground: #111827;
+  /* Calm blue primary */
+  --primary: #2563EB;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EEF2FF;
+  --secondary-foreground: #2563EB;
+  --muted: #F9FAFB;
+  --muted-foreground: #6B7280;
+  /* Subtle sky accent */
+  --accent: #38BDF8;
+  --accent-foreground: #0C4A6E;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E7EB;
+  --input: #F9FAFB;
+  --ring: #2563EB;
+  /* Chart colors */
+  --chart-1: #2563EB;
+  --chart-2: #38BDF8;
+  --chart-3: #16A34A;
+  --chart-4: #F59E0B;
+  --chart-5: #8B5CF6;
+  --radius: 0.75rem;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #2563EB;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #EEF2FF;
+  --sidebar-accent-foreground: #2563EB;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #2563EB;
+}
+
 @theme inline {
   --font-sans: "Inter", "SF Pro Display", -apple-system, "Public Sans", "Neue Haas Grotesk", "Satoshi", "Geist", "Geist Fallback", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "IBM Plex Mono", "Soehne Mono Buch", "Fira Code", "Geist Mono", "Geist Mono Fallback", monospace;
