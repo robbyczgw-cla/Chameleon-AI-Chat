@@ -304,6 +304,46 @@
   --sidebar-ring: oklch(0.72 0.24 145);
 }
 
+.midnight-hologram {
+  /* Midnight Hologram - Deep space with neon cyan and purple accents */
+  --background: #05050A;
+  --foreground: #FFFFFF;
+  --card: rgba(20, 20, 30, 0.6);
+  --card-foreground: #FFFFFF;
+  --popover: rgba(20, 20, 30, 0.8);
+  --popover-foreground: #FFFFFF;
+  /* Neon Cyan primary */
+  --primary: #00F0FF;
+  --primary-foreground: #05050A;
+  --secondary: rgba(255, 255, 255, 0.05);
+  --secondary-foreground: #FFFFFF;
+  --muted: rgba(255, 255, 255, 0.08);
+  --muted-foreground: #94A3B8;
+  /* Electric Purple accent */
+  --accent: #7000FF;
+  --accent-foreground: #FFFFFF;
+  --destructive: #FF3366;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.05);
+  --ring: #00F0FF;
+  /* Neon spectrum for charts */
+  --chart-1: #00F0FF;
+  --chart-2: #7000FF;
+  --chart-3: #FF3366;
+  --chart-4: #00FF88;
+  --chart-5: #FFE600;
+  --radius: 1rem;
+  --sidebar: rgba(10, 10, 15, 0.9);
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #00F0FF;
+  --sidebar-primary-foreground: #05050A;
+  --sidebar-accent: rgba(112, 0, 255, 0.2);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #00F0FF;
+}
+
 @theme inline {
   --font-sans: "Public Sans", "Neue Haas Grotesk", "Satoshi", "Geist", "Geist Fallback";
   --font-mono: "IBM Plex Mono", "Soehne Mono Buch", "JetBrains Mono", "Geist Mono", "Geist Mono Fallback";
