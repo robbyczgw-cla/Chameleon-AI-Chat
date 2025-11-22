@@ -304,201 +304,44 @@
   --sidebar-ring: oklch(0.72 0.24 145);
 }
 
-.modern-minimal {
-  /* Modern Minimal theme - Clean dark UI with cyan accent, optimal readability */
-  --background: #0a0a0a;
-  --foreground: #e5e5e5;
-  --card: #1a1a1a;
-  --card-foreground: #e5e5e5;
-  --popover: #1a1a1a;
-  --popover-foreground: #e5e5e5;
-  /* Modern cyan accent */
-  --primary: #06b6d4;
-  --primary-foreground: #0a0a0a;
-  --secondary: #252525;
-  --secondary-foreground: #e5e5e5;
-  --muted: #303030;
-  --muted-foreground: #a3a3a3;
-  /* Electric blue accent */
-  --accent: #3b82f6;
-  --accent-foreground: #0a0a0a;
-  --destructive: #ef4444;
-  --destructive-foreground: #fafafa;
-  --border: #2a2a2a;
-  --input: #2a2a2a;
-  --ring: #06b6d4;
-  --chart-1: #06b6d4;
-  --chart-2: #3b82f6;
-  --chart-3: #8b5cf6;
-  --chart-4: #22c55e;
-  --chart-5: #f59e0b;
-  --radius: 0.75rem;
-  --sidebar: #0f0f0f;
-  --sidebar-foreground: #e5e5e5;
-  --sidebar-primary: #06b6d4;
-  --sidebar-primary-foreground: #0a0a0a;
-  --sidebar-accent: #252525;
-  --sidebar-accent-foreground: #e5e5e5;
-  --sidebar-border: #2a2a2a;
-  --sidebar-ring: #06b6d4;
-}
-
-/* Modern Minimal Enhanced Styling */
-.modern-minimal {
-  /* Typography overhaul */
-  font-family: 'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif;
-
-  /* Custom properties for modern minimal enhancements */
-  --modern-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --modern-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
-  --modern-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
-  --modern-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --modern-gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --modern-gradient-accent: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
-}
-
-.modern-minimal body {
-  font-size: clamp(14px, 2vw, 16px);
-  line-height: 1.6;
-  letter-spacing: -0.01em;
-}
-
-.modern-minimal h1, .modern-minimal h2, .modern-minimal h3,
-.modern-minimal h4, .modern-minimal h5, .modern-minimal h6 {
-  line-height: 1.2;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-/* Modern buttons */
-.modern-minimal button {
-  transition: all var(--modern-transition);
-}
-
-.modern-minimal button:hover {
-  transform: translateY(-1px);
-}
-
-.modern-minimal button:active {
-  transform: translateY(0);
-}
-
-/* Modern input fields */
-.modern-minimal input,
-.modern-minimal textarea,
-.modern-minimal select {
-  background: #1a1a1a;
-  border: 2px solid #2a2a2a;
-  border-radius: 12px;
-  transition: all var(--modern-transition);
-}
-
-.modern-minimal input:focus,
-.modern-minimal textarea:focus,
-.modern-minimal select:focus {
-  border-color: #06b6d4;
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
-  outline: none;
-}
-
-.modern-minimal input::placeholder,
-.modern-minimal textarea::placeholder {
-  color: #6b6b6b;
-}
-
-/* Modern cards and surfaces */
-.modern-minimal [class*="card"],
-.modern-minimal [class*="Card"] {
-  border-radius: 12px;
-  box-shadow: var(--modern-shadow-sm);
-}
-
-/* Modern scrollbar */
-.modern-minimal ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.modern-minimal ::-webkit-scrollbar-track {
-  background: #1a1a1a;
-}
-
-.modern-minimal ::-webkit-scrollbar-thumb {
-  background: #3a3a3a;
-  border-radius: 4px;
-}
-
-.modern-minimal ::-webkit-scrollbar-thumb:hover {
-  background: #505050;
-}
-
-/* Code blocks */
-.modern-minimal pre,
-.modern-minimal code {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', monospace;
-  background: #1e1e1e;
-  border-radius: 8px;
-}
-
-.modern-minimal pre {
-  padding: 16px;
-  box-shadow: var(--modern-shadow-sm);
-}
-
-/* Smooth scrolling */
-.modern-minimal {
-  scroll-behavior: smooth;
-}
-
-/* Header with blur effect */
-.modern-minimal header,
-.modern-minimal [class*="header"] {
-  backdrop-filter: blur(10px);
-  background: rgba(10, 10, 10, 0.8);
-}
-
-/* Animations */
-@keyframes modernSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes modernFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.modern-minimal [class*="message"] {
-  animation: modernSlideUp 0.3s ease-out;
-}
-
-/* Primary button gradient style */
-.modern-minimal .btn-primary,
-.modern-minimal [class*="primary"] button {
-  background: var(--modern-gradient-accent);
-  border: none;
-  color: white;
-  font-weight: 500;
-}
-
-/* Mobile optimizations */
-@media (max-width: 768px) {
-  .modern-minimal button,
-  .modern-minimal [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  .modern-minimal input,
-  .modern-minimal textarea {
-    min-height: 44px;
-  }
+.aurora {
+  /* Aurora theme - Ethereal northern lights with deep space background */
+  --background: oklch(0.12 0.02 280);
+  --foreground: oklch(0.95 0.01 280);
+  --card: oklch(0.16 0.025 280);
+  --card-foreground: oklch(0.95 0.01 280);
+  --popover: oklch(0.14 0.02 280);
+  --popover-foreground: oklch(0.95 0.01 280);
+  /* Vibrant aurora green-cyan */
+  --primary: oklch(0.75 0.2 165);
+  --primary-foreground: oklch(0.12 0.02 280);
+  --secondary: oklch(0.22 0.03 280);
+  --secondary-foreground: oklch(0.92 0.01 280);
+  --muted: oklch(0.2 0.025 280);
+  --muted-foreground: oklch(0.7 0.02 280);
+  /* Aurora pink-magenta accent */
+  --accent: oklch(0.72 0.22 330);
+  --accent-foreground: oklch(0.12 0.02 280);
+  --destructive: oklch(0.65 0.25 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.28 0.04 280);
+  --input: oklch(0.2 0.03 280);
+  --ring: oklch(0.75 0.2 165);
+  /* Aurora spectrum for charts */
+  --chart-1: oklch(0.75 0.2 165);
+  --chart-2: oklch(0.72 0.22 330);
+  --chart-3: oklch(0.7 0.18 200);
+  --chart-4: oklch(0.68 0.2 290);
+  --chart-5: oklch(0.74 0.16 80);
+  --radius: 1rem;
+  --sidebar: oklch(0.1 0.015 280);
+  --sidebar-foreground: oklch(0.95 0.01 280);
+  --sidebar-primary: oklch(0.75 0.2 165);
+  --sidebar-primary-foreground: oklch(0.12 0.02 280);
+  --sidebar-accent: oklch(0.22 0.03 280);
+  --sidebar-accent-foreground: oklch(0.92 0.01 280);
+  --sidebar-border: oklch(0.25 0.035 280);
+  --sidebar-ring: oklch(0.75 0.2 165);
 }
 
 @theme inline {
