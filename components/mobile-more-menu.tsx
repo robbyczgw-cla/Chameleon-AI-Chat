@@ -17,7 +17,6 @@ import {
   Columns2,
   Search,
   FolderOpen,
-  Sliders,
   Swords,
   FileCode,
   BarChart3,
@@ -26,6 +25,8 @@ import {
   Moon,
   Sun,
   MoreHorizontal,
+  Wand2,
+  Sparkles,
 } from "lucide-react"
 import { useApp } from "@/contexts/app-context"
 import { cn } from "@/lib/utils"
@@ -40,10 +41,11 @@ interface MobileMoreMenuProps {
   onComparisonClick: () => void
   onSearchClick: () => void
   onDocCollectionsClick: () => void
-  onAdvancedSettingsClick: () => void
   onDebateClick: () => void
   onInspectorClick: () => void
   onStatsClick: () => void
+  onPersonasClick: () => void
+  onPromptHelperClick: () => void
 }
 
 export function MobileMoreMenu({
@@ -53,10 +55,11 @@ export function MobileMoreMenu({
   onComparisonClick,
   onSearchClick,
   onDocCollectionsClick,
-  onAdvancedSettingsClick,
   onDebateClick,
   onInspectorClick,
   onStatsClick,
+  onPersonasClick,
+  onPromptHelperClick,
 }: MobileMoreMenuProps) {
   const { settings, updateSettings } = useApp()
   const { inspectorData } = usePromptInspectorStore()
@@ -179,6 +182,12 @@ export function MobileMoreMenu({
           </div>
 
           <div className="border-t pt-2 space-y-1">
+            <MenuItem icon={Wand2} label="Personas" onClick={onPersonasClick} />
+            <MenuItem
+              icon={Sparkles}
+              label="Prompt Helper"
+              onClick={onPromptHelperClick}
+            />
             <MenuItem icon={User} label="Profile" onClick={onProfileClick} />
             <MenuItem
               icon={Brain}
@@ -202,10 +211,6 @@ export function MobileMoreMenu({
               badgeColor="bg-blue-500"
             />
             <MenuItem icon={BarChart3} label="Statistics" onClick={onStatsClick} />
-          </div>
-
-          <div className="border-t pt-2 space-y-1">
-            <MenuItem icon={Sliders} label="Advanced Settings" onClick={onAdvancedSettingsClick} />
           </div>
         </div>
       </SheetContent>
