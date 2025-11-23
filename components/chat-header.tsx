@@ -65,6 +65,14 @@ export function ChatHeader() {
   const [isPromptHelperOpen, setIsPromptHelperOpen] = useState(false)
   const { inspectorData } = usePromptInspectorStore()
 
+  // Mobile toggle states
+  const [isVoiceActive, setIsVoiceActive] = useState(false)
+  const [isImageModeActive, setIsImageModeActive] = useState(false)
+  const [isReasoningActive, setIsReasoningActive] = useState(() => {
+    if (typeof window === "undefined") return false
+    return localStorage.getItem("chameleon-reasoning-enabled") === "true"
+  })
+
   const currentChat = chats.find((chat) => chat.id === currentChatId)
 
   useEffect(() => {
@@ -235,9 +243,12 @@ export function ChatHeader() {
             <Button
               type="button"
               size="icon"
-              variant="ghost"
+              variant={isVoiceActive ? "default" : "ghost"}
               className="h-7 w-7 rounded-md"
-              onClick={() => window.dispatchEvent(new CustomEvent("toggleVoice"))}
+              onClick={() => {
+                setIsVoiceActive(!isVoiceActive)
+                window.dispatchEvent(new CustomEvent("toggleVoice"))
+              }}
               title="Voice input"
             >
               <Mic className="h-3.5 w-3.5" />
@@ -245,9 +256,12 @@ export function ChatHeader() {
             <Button
               type="button"
               size="icon"
-              variant="ghost"
+              variant={isImageModeActive ? "default" : "ghost"}
               className="h-7 w-7 rounded-md"
-              onClick={() => window.dispatchEvent(new CustomEvent("toggleImageMode"))}
+              onClick={() => {
+                setIsImageModeActive(!isImageModeActive)
+                window.dispatchEvent(new CustomEvent("toggleImageMode"))
+              }}
               title="Image mode"
             >
               <Image className="h-3.5 w-3.5" />
@@ -255,9 +269,12 @@ export function ChatHeader() {
             <Button
               type="button"
               size="icon"
-              variant="ghost"
-              className="h-7 w-7 rounded-md"
-              onClick={() => window.dispatchEvent(new CustomEvent("toggleReasoning"))}
+              variant={isReasoningActive ? "default" : "ghost"}
+              className={`h-7 w-7 rounded-md ${isReasoningActive ? "bg-amber-500 text-white" : ""}`}
+              onClick={() => {
+                setIsReasoningActive(!isReasoningActive)
+                window.dispatchEvent(new CustomEvent("toggleReasoning"))
+              }}
               title="Reasoning"
             >
               <Lightbulb className="h-3.5 w-3.5" />
