@@ -231,7 +231,7 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
             <div className={cn(
               "flex flex-col gap-2 min-w-0",
               message.role === "user"
-                ? "max-w-[85%] sm:max-w-[75%] md:max-w-[70%]"
+                ? "max-w-[70%] sm:max-w-[65%] md:max-w-[60%]"
                 : "w-full max-w-[85%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]"
             )}>
               {message.attachments && message.attachments.length > 0 && (
