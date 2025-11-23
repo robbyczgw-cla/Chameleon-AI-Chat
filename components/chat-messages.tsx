@@ -432,7 +432,10 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
                         ),
                       }}
                     >
-                      {typeof message.content === "string" ? message.content : contentToText(message.content)}
+                      {(() => {
+                        const raw = typeof message.content === "string" ? message.content : contentToText(message.content)
+                        return parseFollowUps(raw).content
+                      })()}
                     </ReactMarkdown>
                   </div>
                 ) : (
