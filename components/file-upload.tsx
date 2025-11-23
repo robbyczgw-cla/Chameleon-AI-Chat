@@ -107,7 +107,7 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
         type="button"
         size="icon"
         variant="ghost"
-        className="h-9 w-9 rounded-lg hover:scale-105 transition-all"
+        className="h-7 w-7 md:h-8 md:w-8 rounded-lg hover:scale-105 transition-all"
         onClick={() => fileInputRef.current?.click()}
         disabled={isProcessing}
         title="Attach files"

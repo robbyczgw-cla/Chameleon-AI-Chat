@@ -87,13 +87,13 @@ export function QuickModelPicker() {
         <Button
           variant="outline"
           size="sm"
-          className="h-8 md:h-9 px-3 md:px-4 rounded-lg border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all hover:shadow-md"
+          className="h-7 md:h-8 px-2 md:px-3 rounded-md border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all text-xs"
         >
-          <Bot className="h-4 w-4 mr-2 text-primary" />
-          <span className="font-medium max-w-[120px] md:max-w-[160px] truncate">
+          <Bot className="h-3 w-3 md:h-3.5 md:w-3.5 mr-1.5 text-primary" />
+          <span className="font-medium max-w-[80px] md:max-w-[120px] truncate">
             {getModelDisplay(currentModel)}
           </span>
-          <ChevronDown className="h-3.5 w-3.5 ml-1.5 opacity-60" />
+          <ChevronDown className="h-3 w-3 ml-1 opacity-60" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
