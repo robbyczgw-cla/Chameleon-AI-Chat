@@ -1,13 +1,13 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Outfit, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import { PWARegister } from "@/components/pwa-register"
 import { CookieConsentBanner } from "@/components/cookie-consent-banner"
 
-const geistSans = Geist({ subsets: ["latin"] })
+const outfit = Outfit({ subsets: ["latin"] })
 const geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -49,7 +49,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={geistSans.className}>
+      <body className={outfit.className}>
         <PWARegister />
         {children}
         <Toaster />

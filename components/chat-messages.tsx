@@ -127,15 +127,15 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
       const usePersonaVoice = currentPersona?.voiceSettings?.enabled
       const voiceOptions = usePersonaVoice
         ? {
-            rate: currentPersona.voiceSettings?.rate || settings.voiceSettings?.rate || 1,
-            pitch: currentPersona.voiceSettings?.pitch || settings.voiceSettings?.pitch || 1,
-            voice: currentPersona.voiceSettings?.voiceName || settings.voiceSettings?.voice,
-          }
+          rate: currentPersona.voiceSettings?.rate || settings.voiceSettings?.rate || 1,
+          pitch: currentPersona.voiceSettings?.pitch || settings.voiceSettings?.pitch || 1,
+          voice: currentPersona.voiceSettings?.voiceName || settings.voiceSettings?.voice,
+        }
         : {
-            rate: settings.voiceSettings?.rate || 1,
-            pitch: settings.voiceSettings?.pitch || 1,
-            voice: settings.voiceSettings?.voice,
-          }
+          rate: settings.voiceSettings?.rate || 1,
+          pitch: settings.voiceSettings?.pitch || 1,
+          voice: settings.voiceSettings?.voice,
+        }
 
       console.log(
         `[ChatMessages] 🔊 Speaking with ${usePersonaVoice ? `${currentPersona?.name}'s voice` : "default voice"}`,
@@ -201,11 +201,11 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
 
   return (
     <ScrollArea className="h-full w-full">
-      <div className="w-full max-w-3xl mx-auto space-y-6 px-4 sm:px-6 py-6">
+      <div className="w-full max-w-3xl mx-auto space-y-8 px-4 sm:px-6 py-8">
         {currentChat.messages.map((message, index) => (
           <div
             key={message.id}
-            className={cn("flex gap-1 sm:gap-4 group w-full animate-slide-in-up", message.role === "user" ? "justify-end" : "justify-start")}
+            className={cn("flex gap-2 sm:gap-6 group w-full animate-slide-in-up", message.role === "user" ? "justify-end" : "justify-start")}
           >
             {message.role === "assistant" && (
               <Avatar className="h-6 w-6 sm:h-8 sm:w-8 border-2 border-primary/20 shrink-0 glow-subtle hover-glow smooth-transition">
@@ -249,12 +249,16 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
 
               <div
                 className={cn(
-                  "text-sm sm:text-base smooth-transition",
+                  "text-sm sm:text-base smooth-transition relative overflow-hidden",
                   message.role === "user"
-                    ? "rounded-2xl rounded-br-md px-4 py-3 bg-primary text-primary-foreground shadow-md w-fit"
-                    : "rounded-2xl rounded-bl-md px-4 py-3 bg-card border border-border/40 shadow-sm max-w-full",
+                    ? "rounded-2xl rounded-br-md px-5 py-4 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-md w-fit"
+                    : "rounded-2xl rounded-bl-md px-5 py-4 bg-card/40 backdrop-blur-md border border-border/30 shadow-sm max-w-full hover:bg-card/50 transition-colors",
                 )}
               >
+                {/* Glass shine effect for user messages */}
+                {message.role === "user" && (
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                )}
                 {message.role === "assistant" ? (
                   <div className="prose prose-sm sm:prose-base dark:prose-invert w-full break-words">
                     {/* Display generated image if present */}
@@ -446,9 +450,6 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
                 {message.tokens && (
                   <div className="mt-2 text-xs opacity-70 flex items-center gap-2">
                     <span>{message.tokens.total} tokens</span>
-                    {message.tokens.estimatedCost && (
-                      <span className="text-muted-foreground">≈ ${message.tokens.estimatedCost.toFixed(4)}</span>
-                    )}
                   </div>
                 )}
               </div>

@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { useState, useEffect } from "react"
+import { useState, useEffect, type ChangeEvent } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -80,7 +80,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const applyTheme = (theme: string) => {
     const html = document.documentElement
     // Remove all theme classes
-    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "paper-mint")
+    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "paper-mint", "clean-slate", "midnight-hologram", "cosmic-glass")
     // Add the selected theme
     if (theme !== "light") {
       html.classList.add(theme)
@@ -162,7 +162,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   id="system-prompt"
                   placeholder={translations.settings.systemPromptPlaceholder}
                   value={localSettings.systemPrompt}
-                  onChange={(e) => setLocalSettings({ ...localSettings, systemPrompt: e.target.value })}
+                  onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setLocalSettings({ ...localSettings, systemPrompt: e.target.value })}
                   rows={4}
                   className="text-sm sm:text-base"
                 />
@@ -175,7 +175,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 <Label className="text-sm sm:text-base">{translations.settings.language}</Label>
                 <select
                   value={localSettings.language || "en"}
-                  onChange={(e) =>
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setLocalSettings({ ...localSettings, language: e.target.value as "en" | "de" })
                   }
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
@@ -189,7 +189,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 <Label className="text-sm sm:text-base">{translations.settings.fontSize}</Label>
                 <select
                   value={localSettings.fontSize || "medium"}
-                  onChange={(e) =>
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setLocalSettings({ ...localSettings, fontSize: e.target.value as "small" | "medium" | "large" })
                   }
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
@@ -204,7 +204,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 <Label className="text-sm sm:text-base">Message Spacing</Label>
                 <select
                   value={localSettings.messageDensity || "comfortable"}
-                  onChange={(e) =>
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setLocalSettings({
                       ...localSettings,
                       messageDensity: e.target.value as "compact" | "comfortable" | "spacious",
@@ -222,11 +222,12 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 <Label className="text-sm sm:text-base">Color Theme</Label>
                 <select
                   value={currentTheme}
-                  onChange={(e) => handleThemeChange(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) => handleThemeChange(e.target.value)}
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
                 >
                   <option value="light">☀️ Light - Bright & Classic</option>
                   <option value="dark">🌙 Dark - Dark & Modern</option>
+                  <option value="cosmic-glass">🔮 Cosmic Glass - Deep Space & Neon</option>
                   <option value="clean-slate">🧼 Clean Slate - Minimal & Neutral</option>
                   <option value="midnight-hologram">🌌 Midnight Hologram - Neon Cyan & Purple</option>
                   <option value="chameleon">🦎 Chameleon - Adaptive Green/Blue/Purple</option>
