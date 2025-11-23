@@ -388,41 +388,81 @@
 .cosmic-glass {
   /* Cosmic Glass - Deep space with neon accents and heavy glassmorphism */
   --background: #030014;
-  --foreground: #E2E8F0;
-  --card: rgba(17, 25, 40, 0.75);
-  --card-foreground: #F8FAFC;
-  --popover: rgba(17, 25, 40, 0.85);
-  --popover-foreground: #F8FAFC;
+  --foreground: #FFFFFF;
+  --card: rgba(13, 18, 30, 0.85);
+  --card-foreground: #FFFFFF;
+  --popover: rgba(13, 18, 30, 0.95);
+  --popover-foreground: #FFFFFF;
   /* Neon Purple Primary */
-  --primary: #8B5CF6;
+  --primary: #A78BFA;
   --primary-foreground: #FFFFFF;
-  --secondary: rgba(139, 92, 246, 0.15);
-  --secondary-foreground: #E2E8F0;
-  --muted: rgba(30, 41, 59, 0.5);
-  --muted-foreground: #94A3B8;
+  --secondary: rgba(167, 139, 250, 0.2);
+  --secondary-foreground: #FFFFFF;
+  --muted: rgba(30, 41, 59, 0.7);
+  --muted-foreground: #CBD5E1;
   /* Cyan Accent */
-  --accent: #06B6D4;
+  --accent: #22D3EE;
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  --border: rgba(148, 163, 184, 0.1);
-  --input: rgba(30, 41, 59, 0.5);
-  --ring: #8B5CF6;
+  --border: rgba(148, 163, 184, 0.2);
+  --input: rgba(30, 41, 59, 0.7);
+  --ring: #A78BFA;
   /* Chart colors */
-  --chart-1: #8B5CF6;
-  --chart-2: #06B6D4;
-  --chart-3: #EC4899;
-  --chart-4: #10B981;
-  --chart-5: #F59E0B;
+  --chart-1: #A78BFA;
+  --chart-2: #22D3EE;
+  --chart-3: #F472B6;
+  --chart-4: #34D399;
+  --chart-5: #FBBF24;
   --radius: 1rem;
-  --sidebar: rgba(10, 14, 23, 0.8);
-  --sidebar-foreground: #E2E8F0;
-  --sidebar-primary: #8B5CF6;
+  --sidebar: rgba(5, 8, 16, 0.9);
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #A78BFA;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: rgba(139, 92, 246, 0.15);
-  --sidebar-accent-foreground: #E2E8F0;
-  --sidebar-border: rgba(148, 163, 184, 0.1);
-  --sidebar-ring: #8B5CF6;
+  --sidebar-accent: rgba(167, 139, 250, 0.2);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(148, 163, 184, 0.15);
+  --sidebar-ring: #A78BFA;
+}
+
+.modern-light {
+  /* Modern Light - Clean, airy, and soft with high readability */
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  /* Soft Indigo Primary */
+  --primary: #6366F1;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  /* Rose Accent */
+  --accent: #F43F5E;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #6366F1;
+  /* Chart colors */
+  --chart-1: #6366F1;
+  --chart-2: #F43F5E;
+  --chart-3: #10B981;
+  --chart-4: #F59E0B;
+  --chart-5: #8B5CF6;
+  --radius: 0.75rem;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0F172A;
+  --sidebar-primary: #6366F1;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F1F5F9;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #6366F1;
 }
 
 @theme inline {

@@ -80,7 +80,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const applyTheme = (theme: string) => {
     const html = document.documentElement
     // Remove all theme classes
-    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "paper-mint", "clean-slate", "midnight-hologram", "cosmic-glass")
+    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "paper-mint", "clean-slate", "midnight-hologram", "cosmic-glass", "modern-light")
     // Add the selected theme
     if (theme !== "light") {
       html.classList.add(theme)
@@ -228,6 +228,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   <option value="light">☀️ Light - Bright & Classic</option>
                   <option value="dark">🌙 Dark - Dark & Modern</option>
                   <option value="cosmic-glass">🔮 Cosmic Glass - Deep Space & Neon</option>
+                  <option value="modern-light">✨ Modern Light - Clean & Airy</option>
                   <option value="clean-slate">🧼 Clean Slate - Minimal & Neutral</option>
                   <option value="midnight-hologram">🌌 Midnight Hologram - Neon Cyan & Purple</option>
                   <option value="chameleon">🦎 Chameleon - Adaptive Green/Blue/Purple</option>
