@@ -201,7 +201,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
   }
 
   return (
-    <div className="relative flex h-full max-h-[100dvh] w-[280px] sm:w-80 md:w-64 flex-col overflow-hidden rounded-none md:rounded-none border border-border/60 panel-elevated glass-subtle backdrop-blur-xl shadow-2xl md:shadow-lg smooth-transition bg-gradient-to-b from-card/90 via-card/85 to-card/80 sidebar-halo">
+    <div className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[280px] sm:w-80 md:w-64 flex-col overflow-hidden rounded-none md:rounded-none border border-border/60 panel-elevated glass-subtle backdrop-blur-xl shadow-2xl md:shadow-lg smooth-transition bg-gradient-to-b from-card/90 via-card/85 to-card/80 sidebar-halo">
       <div className="sidebar-bridge hidden md:block" aria-hidden="true" />
       <div className="flex items-center gap-3 border-b border-border/30 p-4 md:p-5 gradient-glass backdrop-blur-md">
         {onClose && (
@@ -278,7 +278,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 px-3">
+      <ScrollArea className="flex-1 min-h-0 px-3">
         <div className="space-y-0">
           {pinnedChats.length > 0 && (
             <>
