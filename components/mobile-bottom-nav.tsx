@@ -43,7 +43,7 @@ export function MobileBottomNav({
 }: MobileBottomNavProps) {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)]">
-      <div className="relative flex items-center justify-between bg-background/95 backdrop-blur-xl px-3 py-1.5 shadow-lg border-t border-border/50">
+      <div className="flex items-center justify-between px-3 py-1.5 shadow-lg border-t border-border/50 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/40">
         {/* Chats */}
         <button
           onClick={() => {
@@ -53,7 +53,7 @@ export function MobileBottomNav({
           className={cn(
             "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "chats"
-              ? "text-foreground"
+              ? "text-primary drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
@@ -70,7 +70,7 @@ export function MobileBottomNav({
           className={cn(
             "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "settings"
-              ? "text-foreground"
+              ? "text-primary drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
@@ -90,7 +90,7 @@ export function MobileBottomNav({
           className={cn(
             "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "tune"
-              ? "text-foreground"
+              ? "text-primary drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
@@ -121,7 +121,7 @@ export function MobileBottomNav({
             haptics.trigger('medium')
             onNewChatClick()
           }}
-          className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-accent shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
+          className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-accent shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 animate-pulse-glow"
         >
           <Plus className="h-5 w-5 text-white" strokeWidth={2.5} />
         </button>
