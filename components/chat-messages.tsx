@@ -229,10 +229,10 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
             )}
 
             <div className={cn(
-              "flex flex-col gap-2 min-w-0",
+              "flex flex-col gap-2",
               message.role === "user"
-                ? "max-w-[85%] sm:max-w-[75%] md:max-w-[70%]"
-                : "w-full max-w-[85%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]"
+                ? "w-fit max-w-[70%] sm:max-w-[65%] md:max-w-[60%]"
+                : "min-w-0 w-full max-w-[85%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]"
             )}>
               {message.attachments && message.attachments.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
@@ -249,10 +249,10 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
 
               <div
                 className={cn(
-                  "text-sm sm:text-base smooth-transition max-w-full",
+                  "text-sm sm:text-base smooth-transition",
                   message.role === "user"
-                    ? "rounded-2xl rounded-br-md px-4 py-3 bg-primary text-primary-foreground shadow-md"
-                    : "rounded-2xl rounded-bl-md px-4 py-3 bg-card border border-border/40 shadow-sm",
+                    ? "rounded-2xl rounded-br-md px-4 py-3 bg-primary text-primary-foreground shadow-md w-fit"
+                    : "rounded-2xl rounded-bl-md px-4 py-3 bg-card border border-border/40 shadow-sm max-w-full",
                 )}
               >
                 {message.role === "assistant" ? (

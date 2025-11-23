@@ -43,7 +43,7 @@ export function MobileBottomNav({
 }: MobileBottomNavProps) {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)]">
-      <div className="relative flex items-center justify-between bg-slate-900/95 backdrop-blur-xl px-4 py-3 shadow-lg border-t border-white/5">
+      <div className="relative flex items-center justify-between bg-background/95 backdrop-blur-xl px-3 py-1.5 shadow-lg border-t border-border/50">
         {/* Chats */}
         <button
           onClick={() => {
@@ -51,10 +51,10 @@ export function MobileBottomNav({
             onMenuClick()
           }}
           className={cn(
-            "flex flex-1 flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center transition-all duration-200",
+            "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "chats"
-              ? "text-white"
-              : "text-white/80 hover:text-white"
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Menu className="h-5 w-5" />
@@ -68,10 +68,10 @@ export function MobileBottomNav({
             onSettingsClick()
           }}
           className={cn(
-            "flex flex-1 flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center transition-all duration-200",
+            "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "settings"
-              ? "text-white"
-              : "text-white/80 hover:text-white"
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Settings className="h-5 w-5" />
@@ -79,7 +79,7 @@ export function MobileBottomNav({
         </button>
 
         {/* Spacer for FAB */}
-        <div className="w-16" />
+        <div className="w-12" />
 
         {/* Tune */}
         <button
@@ -88,10 +88,10 @@ export function MobileBottomNav({
             onAdvancedSettingsClick()
           }}
           className={cn(
-            "flex flex-1 flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center transition-all duration-200",
+            "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "tune"
-              ? "text-white"
-              : "text-white/80 hover:text-white"
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Sliders className="h-5 w-5" />
@@ -99,7 +99,7 @@ export function MobileBottomNav({
         </button>
 
         {/* More */}
-        <div className="flex flex-1 flex-col items-center gap-1 min-w-[44px] min-h-[44px] justify-center">
+        <div className="flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center">
           <MobileMoreMenu
             onSettingsClick={onSettingsClick}
             onProfileClick={onProfileClick}
@@ -121,12 +121,9 @@ export function MobileBottomNav({
             haptics.trigger('medium')
             onNewChatClick()
           }}
-          className="absolute left-1/2 -translate-x-1/2 -translate-y-5 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-accent shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
-          style={{
-            boxShadow: '0 0 20px rgba(var(--primary), 0.4), 0 4px 15px rgba(0, 0, 0, 0.3)',
-          }}
+          className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-accent shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
         >
-          <Plus className="h-6 w-6 text-white" strokeWidth={2.5} />
+          <Plus className="h-5 w-5 text-white" strokeWidth={2.5} />
         </button>
       </div>
     </nav>

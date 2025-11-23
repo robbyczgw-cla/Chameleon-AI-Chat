@@ -507,7 +507,7 @@
       radial-gradient(1200px circle at 18% 12%, color-mix(in oklch, var(--primary) 32%, transparent) 0%, transparent 38%),
       radial-gradient(900px circle at 82% 8%, color-mix(in oklch, var(--accent) 34%, transparent) 0%, transparent 32%),
       radial-gradient(1100px circle at 72% 82%, color-mix(in oklch, var(--primary) 24%, transparent) 0%, transparent 36%),
-      linear-gradient(135deg, color-mix(in oklch, var(--muted) 80%, transparent) 0%, rgba(255, 255, 255, 0.25) 100%),
+      linear-gradient(135deg, color-mix(in oklch, var(--muted) 80%, transparent) 0%, color-mix(in oklch, var(--background) 75%, transparent) 100%),
       var(--background);
     isolation: isolate;
   }
