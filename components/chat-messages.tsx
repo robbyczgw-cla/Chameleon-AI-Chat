@@ -249,10 +249,10 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
 
               <div
                 className={cn(
-                  "text-sm sm:text-base smooth-transition max-w-full",
+                  "text-sm sm:text-base smooth-transition",
                   message.role === "user"
                     ? "rounded-2xl rounded-br-md px-4 py-3 bg-primary text-primary-foreground shadow-md"
-                    : "rounded-2xl rounded-bl-md px-4 py-3 bg-card border border-border/40 shadow-sm",
+                    : "rounded-2xl rounded-bl-md px-4 py-3 bg-card border border-border/40 shadow-sm max-w-full",
                 )}
               >
                 {message.role === "assistant" ? (
