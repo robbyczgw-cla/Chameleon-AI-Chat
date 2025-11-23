@@ -158,7 +158,7 @@ function ChatApp() {
         </>
       )}
 
-      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 pb-[60px] md:pb-6 gap-0">
+      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 pb-[48px] md:pb-6 gap-0">
         <PersonaLevelUpNotifier />
         {isMobileSidebarOpen && (
           <div

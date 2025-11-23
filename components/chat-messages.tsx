@@ -229,10 +229,10 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
             )}
 
             <div className={cn(
-              "flex flex-col gap-2 min-w-0",
+              "flex flex-col gap-2",
               message.role === "user"
-                ? "max-w-[70%] sm:max-w-[65%] md:max-w-[60%]"
-                : "w-full max-w-[85%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]"
+                ? "w-fit max-w-[70%] sm:max-w-[65%] md:max-w-[60%]"
+                : "min-w-0 w-full max-w-[85%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]"
             )}>
               {message.attachments && message.attachments.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
