@@ -847,7 +847,7 @@ export function ChatInput() {
 
   return (
     <div className={cn(
-      "glass-subtle backdrop-blur-xl p-3 sm:p-5 md:p-6 border-t-2 border-border/50 smooth-transition",
+      "glass-subtle backdrop-blur-xl p-2 sm:p-4 md:p-5 border-t-2 border-border/50 smooth-transition",
       isEmpty ? "shadow-2xl rounded-2xl border-2 border-border/40 glass-strong" : "shadow-xl"
     )}>
       {attachedCollectionId && (
@@ -898,7 +898,7 @@ export function ChatInput() {
               onChange={(e) => handleInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Message..."
-              className="min-h-[48px] max-h-[200px] resize-none md:pr-28 text-sm sm:text-base rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-sm transition-all duration-200"
+              className="min-h-[40px] max-h-[200px] resize-none md:pr-28 text-sm sm:text-base rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-sm transition-all duration-200 py-2"
               disabled={isLoading}
             />
             {/* Buttons inside textarea */}
@@ -965,7 +965,7 @@ export function ChatInput() {
             {isLoading ? <Square className="h-5 w-5" /> : <Send className="h-5 w-5" />}
           </Button>
         </div>
-        <div className="mt-2">
+        <div className="mt-1 hidden sm:block">
           <TokenCounterPreview input={input} />
         </div>
       </form>
