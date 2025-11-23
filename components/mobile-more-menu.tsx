@@ -140,7 +140,7 @@ export function MobileMoreMenu({
           size="sm"
           className={cn(
             "flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg transition-all",
-            "text-white/80 hover:text-white"
+            "text-muted-foreground hover:text-foreground"
           )}
         >
           <MoreHorizontal className="h-5 w-5" />
