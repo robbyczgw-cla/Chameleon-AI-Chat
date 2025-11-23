@@ -24,6 +24,9 @@ import {
   VolumeX,
   Swords,
   FileCode,
+  Mic,
+  Image,
+  Lightbulb,
 } from "lucide-react"
 import { useEffect } from "react"
 import { ModelSelector } from "@/components/model-selector"
@@ -217,14 +220,49 @@ export function ChatHeader() {
   return (
     <>
       <header className="flex h-14 md:h-16 items-center justify-between border-b border-border/60 bg-gradient-to-r from-background/98 to-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 px-2 sm:px-4 md:px-5 shadow-md">
-        {/* Mobile: Simple title only */}
-        <div className="flex md:hidden items-center gap-2 min-w-0 flex-1 justify-center">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-lg border border-primary/10 flex-shrink-0">
-            <ChameleonLogoSimple className="text-green-600" size={20} animated />
+        {/* Mobile: Title + toggles */}
+        <div className="flex md:hidden items-center gap-2 min-w-0 flex-1">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-md border border-primary/10 flex-shrink-0">
+              <ChameleonLogoSimple className="text-green-600" size={16} animated />
+            </div>
+            <h1 className="text-xs font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
+              {currentChat?.title || "Chameleon"}
+            </h1>
           </div>
-          <h1 className="text-sm font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
-            {currentChat?.title || "Chameleon AI"}
-          </h1>
+          {/* Mobile toggles */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-7 w-7 rounded-md"
+              onClick={() => window.dispatchEvent(new CustomEvent("toggleVoice"))}
+              title="Voice input"
+            >
+              <Mic className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-7 w-7 rounded-md"
+              onClick={() => window.dispatchEvent(new CustomEvent("toggleImageMode"))}
+              title="Image mode"
+            >
+              <Image className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-7 w-7 rounded-md"
+              onClick={() => window.dispatchEvent(new CustomEvent("toggleReasoning"))}
+              title="Reasoning"
+            >
+              <Lightbulb className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
 
         {/* Desktop: Full header with all controls */}

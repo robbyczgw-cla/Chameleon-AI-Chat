@@ -166,6 +166,25 @@ export function ChatInput() {
     }
   }
 
+  // Listen for toggle events from header
+  useEffect(() => {
+    const handleToggleVoice = () => toggleVoiceInput()
+    const handleToggleImageMode = () => {
+      haptics.trigger('selection')
+      setImageMode(prev => !prev)
+    }
+    const handleToggleReasoning = () => setReasoningEnabled(prev => !prev)
+
+    window.addEventListener("toggleVoice", handleToggleVoice)
+    window.addEventListener("toggleImageMode", handleToggleImageMode)
+    window.addEventListener("toggleReasoning", handleToggleReasoning)
+    return () => {
+      window.removeEventListener("toggleVoice", handleToggleVoice)
+      window.removeEventListener("toggleImageMode", handleToggleImageMode)
+      window.removeEventListener("toggleReasoning", handleToggleReasoning)
+    }
+  })
+
   const stopGeneration = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
@@ -845,44 +864,6 @@ export function ChatInput() {
         <div className="flex items-center gap-1 mb-1.5 text-xs overflow-x-auto">
           <div className="shrink-0"><QuickModelPicker /></div>
           <div className="shrink-0"><QuickPersonaPicker /></div>
-          {/* Mobile-only toggles in toolbar */}
-          <div className="md:hidden flex items-center gap-0.5 ml-auto">
-            <Button
-              type="button"
-              size="icon"
-              variant={isListening ? "default" : "ghost"}
-              className="h-6 w-6 rounded-md"
-              onClick={toggleVoiceInput}
-              title="Voice input"
-            >
-              {isListening ? <MicOff className="h-3 w-3" /> : <Mic className="h-3 w-3" />}
-            </Button>
-            <Button
-              type="button"
-              size="icon"
-              variant={imageMode ? "default" : "ghost"}
-              className="h-6 w-6 rounded-md"
-              onClick={() => {
-                haptics.trigger('selection')
-                setImageMode(!imageMode)
-              }}
-              title="Image mode"
-            >
-              <Image className="h-3 w-3" />
-            </Button>
-            {modelSupportsReasoning && (
-              <Button
-                type="button"
-                size="icon"
-                variant={reasoningEnabled ? "default" : "ghost"}
-                className={`h-6 w-6 rounded-md ${reasoningEnabled ? "bg-amber-500" : ""}`}
-                onClick={() => setReasoningEnabled(!reasoningEnabled)}
-                title="Reasoning"
-              >
-                <Lightbulb className={`h-3 w-3 ${reasoningEnabled ? "text-white" : ""}`} />
-              </Button>
-            )}
-          </div>
         </div>
         <div className="flex items-end gap-2">
           <div className="flex-1 relative">
