@@ -845,6 +845,44 @@ export function ChatInput() {
         <div className="flex items-center gap-1 mb-1.5 text-xs overflow-x-auto">
           <div className="shrink-0"><QuickModelPicker /></div>
           <div className="shrink-0"><QuickPersonaPicker /></div>
+          {/* Mobile-only toggles in toolbar */}
+          <div className="md:hidden flex items-center gap-0.5 ml-auto">
+            <Button
+              type="button"
+              size="icon"
+              variant={isListening ? "default" : "ghost"}
+              className="h-6 w-6 rounded-md"
+              onClick={toggleVoiceInput}
+              title="Voice input"
+            >
+              {isListening ? <MicOff className="h-3 w-3" /> : <Mic className="h-3 w-3" />}
+            </Button>
+            <Button
+              type="button"
+              size="icon"
+              variant={imageMode ? "default" : "ghost"}
+              className="h-6 w-6 rounded-md"
+              onClick={() => {
+                haptics.trigger('selection')
+                setImageMode(!imageMode)
+              }}
+              title="Image mode"
+            >
+              <Image className="h-3 w-3" />
+            </Button>
+            {modelSupportsReasoning && (
+              <Button
+                type="button"
+                size="icon"
+                variant={reasoningEnabled ? "default" : "ghost"}
+                className={`h-6 w-6 rounded-md ${reasoningEnabled ? "bg-amber-500" : ""}`}
+                onClick={() => setReasoningEnabled(!reasoningEnabled)}
+                title="Reasoning"
+              >
+                <Lightbulb className={`h-3 w-3 ${reasoningEnabled ? "text-white" : ""}`} />
+              </Button>
+            )}
+          </div>
         </div>
         <div className="flex items-end gap-2">
           <div className="flex-1 relative">
@@ -897,44 +935,44 @@ export function ChatInput() {
               </Button>
               {/* File upload - next to search */}
               <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-              {/* Voice input */}
-              <Button
-                type="button"
-                size="icon"
-                variant={isListening ? "default" : "ghost"}
-                className="h-7 w-7 md:h-8 md:w-8 rounded-lg transition-all"
-                onClick={toggleVoiceInput}
-                title="Voice input"
-              >
-                {isListening ? <MicOff className="h-3.5 w-3.5 md:h-4 md:w-4" /> : <Mic className="h-3.5 w-3.5 md:h-4 md:w-4" />}
-              </Button>
-              {/* Image mode */}
-              <Button
-                type="button"
-                size="icon"
-                variant={imageMode ? "default" : "ghost"}
-                className="h-7 w-7 md:h-8 md:w-8 rounded-lg transition-all"
-                onClick={() => {
-                  haptics.trigger('selection')
-                  setImageMode(!imageMode)
-                }}
-                title="Image mode"
-              >
-                <Image className="h-3.5 w-3.5 md:h-4 md:w-4" />
-              </Button>
-              {/* Reasoning */}
-              {modelSupportsReasoning && (
+              {/* Desktop only: Voice, Image, Reasoning */}
+              <div className="hidden md:flex gap-1">
                 <Button
                   type="button"
                   size="icon"
-                  variant={reasoningEnabled ? "default" : "ghost"}
-                  className={`h-7 w-7 md:h-8 md:w-8 rounded-lg transition-all ${reasoningEnabled ? "bg-amber-500" : ""}`}
-                  onClick={() => setReasoningEnabled(!reasoningEnabled)}
-                  title="Reasoning"
+                  variant={isListening ? "default" : "ghost"}
+                  className="h-8 w-8 rounded-lg transition-all"
+                  onClick={toggleVoiceInput}
+                  title="Voice input"
                 >
-                  <Lightbulb className={`h-3.5 w-3.5 md:h-4 md:w-4 ${reasoningEnabled ? "text-white" : ""}`} />
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                 </Button>
-              )}
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={imageMode ? "default" : "ghost"}
+                  className="h-8 w-8 rounded-lg transition-all"
+                  onClick={() => {
+                    haptics.trigger('selection')
+                    setImageMode(!imageMode)
+                  }}
+                  title="Image mode"
+                >
+                  <Image className="h-4 w-4" />
+                </Button>
+                {modelSupportsReasoning && (
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant={reasoningEnabled ? "default" : "ghost"}
+                    className={`h-8 w-8 rounded-lg transition-all ${reasoningEnabled ? "bg-amber-500" : ""}`}
+                    onClick={() => setReasoningEnabled(!reasoningEnabled)}
+                    title="Reasoning"
+                  >
+                    <Lightbulb className={`h-4 w-4 ${reasoningEnabled ? "text-white" : ""}`} />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
           <Button
