@@ -43,7 +43,7 @@ export function MobileBottomNav({
 }: MobileBottomNavProps) {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)]">
-      <div className="relative flex items-center justify-between bg-slate-900/95 backdrop-blur-xl px-3 py-1.5 shadow-lg border-t border-white/5">
+      <div className="relative flex items-center justify-between bg-background/95 backdrop-blur-xl px-3 py-1.5 shadow-lg border-t border-border/50">
         {/* Chats */}
         <button
           onClick={() => {
@@ -53,8 +53,8 @@ export function MobileBottomNav({
           className={cn(
             "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "chats"
-              ? "text-white"
-              : "text-white/80 hover:text-white"
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Menu className="h-5 w-5" />
@@ -70,8 +70,8 @@ export function MobileBottomNav({
           className={cn(
             "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "settings"
-              ? "text-white"
-              : "text-white/80 hover:text-white"
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Settings className="h-5 w-5" />
@@ -90,8 +90,8 @@ export function MobileBottomNav({
           className={cn(
             "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "tune"
-              ? "text-white"
-              : "text-white/80 hover:text-white"
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Sliders className="h-5 w-5" />
