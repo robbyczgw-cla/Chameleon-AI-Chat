@@ -1,151 +1,94 @@
-# 📚 Chameleon AI Chat - Documentation
+# Chameleon AI Chat - Documentation
 
-Welcome to the Chameleon AI Chat documentation! This directory contains comprehensive guides for users, developers, and contributors.
+This directory contains all documentation for Chameleon AI Chat.
 
-## 📖 Table of Contents
+## Quick Links
 
-### For Users
-
-1. **[POWER_USER_GUIDE.md](./POWER_USER_GUIDE.md)** ⚡
-   - Quick start guide
-   - Advanced features
-   - Keyboard shortcuts
-   - Cost optimization
-   - Tips & tricks
-   - **Start here if you want to master Chameleon!**
-
-### For Developers
-
-2. **[ARCHITECTURE.md](./ARCHITECTURE.md)** 🏗️
-   - Technical deep dive
-   - Technology stack
-   - Directory structure
-   - Core systems explained
-   - Database schema
-   - Performance optimizations
-   - Security architecture
-   - **Read this to understand how Chameleon works**
-
-3. **[FUTURE_FEATURES.md](./FUTURE_FEATURES.md)** 🚀
-   - Implementation guides for new features
-   - Chameleon-themed feature ideas
-   - Power user enhancements
-   - Collaborative intelligence
-   - Multi-modal expansions
-   - Agent swarms
-   - Wild ideas & moonshots
-   - **Contribute by implementing these features!**
-
-### For Dreamers
-
-4. **[CHAMELEON_VISION.md](./CHAMELEON_VISION.md)** 🦎
-   - Origin story
-   - Philosophy & core principles
-   - Design principles
-   - The roadmap ahead
-   - Why open source?
-   - **Read this to understand the soul of Chameleon**
+| Document | For | Description |
+|----------|-----|-------------|
+| [Power User Guide](./POWER_USER_GUIDE.md) | Users | Master all features, shortcuts, and tips |
+| [Architecture](./ARCHITECTURE.md) | Developers | Technical deep dive into the codebase |
+| [Future Features](./FUTURE_FEATURES.md) | Contributors | Roadmap with implementation guides |
+| [Vision](./CHAMELEON_VISION.md) | Everyone | Philosophy and design principles |
 
 ---
 
-## Quick Navigation
+## All Documentation
 
-### I want to...
+### User Guides
+- **[Power User Guide](./POWER_USER_GUIDE.md)** — Keyboard shortcuts, cost optimization, advanced features
+- **[User Guide](./user-guide.md)** — Getting started basics
+- **[Personas](./personas.md)** — All 18+ AI personalities explained
 
-**...learn how to use Chameleon like a pro**
-→ [POWER_USER_GUIDE.md](./POWER_USER_GUIDE.md)
+### Developer Guides
+- **[Architecture](./ARCHITECTURE.md)** — Codebase structure, core systems, data flow
+- **[API Reference](./api.md)** — API routes and endpoints
+- **[Database Schema](./database.md)** — Supabase tables and RLS policies
+- **[Deployment](./deployment.md)** — Production deployment guide
+- **[Contributing](./contributing.md)** — Development setup and guidelines
 
-**...understand the codebase**
-→ [ARCHITECTURE.md](./ARCHITECTURE.md)
+### Project
+- **[Future Features](./FUTURE_FEATURES.md)** — 20+ planned features with implementation guides
+- **[Vision](./CHAMELEON_VISION.md)** — Origin story, philosophy, roadmap
+- **[Power User Innovations](./POWER_USER_INNOVATIONS.md)** — Advanced customization ideas
 
-**...contribute a new feature**
-→ [FUTURE_FEATURES.md](./FUTURE_FEATURES.md)
+### Setup
+- **[Supabase Setup](../SUPABASE_SETUP.md)** — Database configuration
+- **[PWA Testing](../PWA_TESTING.md)** — Progressive Web App testing
+- **[Security](../SECURITY.md)** — Security considerations
 
-**...understand the vision**
-→ [CHAMELEON_VISION.md](./CHAMELEON_VISION.md)
+---
+
+## I want to...
+
+**...start using Chameleon effectively**
+→ Start with the [Power User Guide](./POWER_USER_GUIDE.md)
+
+**...understand how the code works**
+→ Read the [Architecture](./ARCHITECTURE.md) guide
+
+**...contribute a feature**
+→ Pick something from [Future Features](./FUTURE_FEATURES.md) and read [Contributing](./contributing.md)
+
+**...add a new AI persona**
+→ See [Personas](./personas.md) and check `lib/personas/`
+
+**...set up the database**
+→ Follow [Supabase Setup](../SUPABASE_SETUP.md) and [Database Schema](./database.md)
+
+**...deploy to production**
+→ Read the [Deployment](./deployment.md) guide
 
 ---
 
 ## Recent Updates
 
+### 2025-11-24
+- Added Vitest test suite for critical paths (cost-tracker, memory-service, search-service)
+- Refactored personas into categorized modules (`lib/personas/`)
+- Extracted reusable components (MarkdownRenderer, MessageBubble)
+- Extracted custom hooks (useVoiceInput, useSlashCommands)
+
 ### 2025-11-19
-
-✅ **CRITICAL FIX: Memory System Persistence**
-- Memory settings now persist to database (were only in localStorage before)
-- Added `memory_settings` JSONB column to `user_settings` table
-- Migration script: `scripts/028_add_memory_settings.sql`
-- When you enable Memory System, it now stays enabled across sessions!
-
-✅ **Comprehensive Documentation Created**
-- 4 major documentation files totaling 20,000+ words
-- Complete architecture guide
-- Power user guide with advanced tips
-- Future features implementation roadmap
-- Vision & philosophy document
-
-✅ **Mobile Menu Fix**
-- Changed "AI Debate Arena" → "AI Discussion" in mobile menu
-- Consistency across all UI elements
+- Memory system now persists to database (not just localStorage)
+- Complete documentation overhaul (20,000+ words)
+- Mobile menu consistency fix ("AI Discussion")
 
 ---
 
-## Documentation Standards
+## Contributing to Documentation
 
-When contributing documentation:
-
-1. **Use clear headings**: H2 for major sections, H3 for subsections
-2. **Include code examples**: Always show, don't just tell
-3. **Add use cases**: Explain *why*, not just *how*
-4. **Keep it updated**: When you change code, update docs
-5. **Be beginner-friendly**: Don't assume knowledge
-6. **Add Table of Contents**: For documents >500 lines
-
----
-
-## File Sizes
-
-| Document | Lines | Topics Covered |
-|----------|-------|----------------|
-| POWER_USER_GUIDE.md | ~800 | User features, tips, shortcuts |
-| ARCHITECTURE.md | ~800 | Technical details, schema, systems |
-| FUTURE_FEATURES.md | ~1000 | Implementation guides for new features |
-| CHAMELEON_VISION.md | ~400 | Philosophy, origin story, roadmap |
-
----
-
-## Contributing to Docs
-
-Found an error? Have a suggestion? Want to add a guide?
-
-1. Fork the repository
-2. Edit the relevant `.md` file in `docs/`
-3. Submit a pull request
-4. Tag with `documentation` label
+1. Use clear headings (H2 for sections, H3 for subsections)
+2. Include code examples where helpful
+3. Explain *why*, not just *how*
+4. Keep examples up to date with the code
+5. Add to this index when creating new docs
 
 ---
 
 ## External Resources
 
-- **Main README**: [../README.md](../README.md)
-- **GitHub Issues**: https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues
-- **OpenRouter Docs**: https://openrouter.ai/docs
-- **Supabase Docs**: https://supabase.com/docs
-
----
-
-## License
-
-All documentation is MIT licensed, same as the code.
-
-**You are free to**:
-- Copy and redistribute
-- Remix, transform, and build upon
-- Use for commercial purposes
-
-**Under the condition that**:
-- You provide attribution
-- You include the MIT license
-
----
-
-**Happy learning, building, and adapting!** 🦎
+- [OpenRouter Documentation](https://openrouter.ai/docs)
+- [Supabase Documentation](https://supabase.com/docs)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [shadcn/ui Components](https://ui.shadcn.com)
