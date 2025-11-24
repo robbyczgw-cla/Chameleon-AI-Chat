@@ -301,6 +301,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSettings((prev) => ({
           ...prev,
           selectedModels: userSelectedModels,
+          // CRITICAL: Always keep the default model (first in list) as selectedModel
+          // This ensures that adding new models doesn't change the default for new chats
+          selectedModel: userSelectedModels[0],
         }))
       }
     }
