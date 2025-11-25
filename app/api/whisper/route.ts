@@ -27,9 +27,22 @@ export async function POST(req: NextRequest) {
       filename
     })
 
+    // Convert to proper File with correct MIME type (edge runtime fix)
+    const arrayBuffer = await audioFile.arrayBuffer()
+    const properMimeType = mimeType.includes('mp4') || mimeType.includes('m4a')
+      ? 'audio/mp4'
+      : 'audio/webm'
+    const file = new File([arrayBuffer], filename, { type: properMimeType })
+
+    console.log('[Whisper API] Sending to OpenAI:', {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    })
+
     // Prepare the form data for OpenAI Whisper API
     const whisperFormData = new FormData()
-    whisperFormData.append('file', audioFile, filename)
+    whisperFormData.append('file', file)
     whisperFormData.append('model', 'whisper-1')
     // Let Whisper auto-detect language for better multilingual support
 
