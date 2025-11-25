@@ -67,6 +67,7 @@ export interface ExaSearchOptions extends BaseSearchOptions {
   includeFullText?: boolean
   includeHighlights?: boolean
   includeSummary?: boolean
+  includeImages?: boolean // Include images from results
   highlightsPerResult?: number
   maxTextCharacters?: number
   livecrawl?: "never" | "fallback" | "always"

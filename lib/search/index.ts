@@ -183,6 +183,7 @@ async function searchExa(
     includeFullText = true,
     includeHighlights = true,
     includeSummary = false,
+    includeImages = false, // Don't include images by default
     highlightsPerResult = 3,
     maxTextCharacters = 3000,
     livecrawl = "fallback",
@@ -251,7 +252,7 @@ async function searchExa(
     query,
     answer,
     results,
-    images: results.filter(r => r.image).map(r => r.image!).slice(0, 5),
+    images: includeImages ? results.filter(r => r.image).map(r => r.image!).slice(0, 5) : undefined,
     responseTime: Date.now() - startTime,
     provider: "exa",
     metadata: {

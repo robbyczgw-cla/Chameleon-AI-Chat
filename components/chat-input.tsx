@@ -507,6 +507,7 @@ export function ChatInput() {
             includeFullText: settings.exaSettings?.includeFullText ?? true,
             includeHighlights: settings.exaSettings?.includeHighlights ?? true,
             includeSummary: settings.exaSettings?.includeSummary ?? false,
+            includeImages: settings.exaSettings?.includeImages ?? false,
             highlightsPerResult: settings.exaSettings?.highlightsPerResult || 3,
             maxTextCharacters: settings.exaSettings?.maxTextCharacters || 3000,
             livecrawl: settings.exaSettings?.livecrawl || "fallback",
@@ -539,7 +540,7 @@ export function ChatInput() {
 
           // Build context using unified formatter
           const searchContext = buildSearchContext(searchResponse, {
-            includeImages: settings.tavilySettings?.includeImages || settings.serperSettings?.includeImages,
+            includeImages: settings.tavilySettings?.includeImages || settings.serperSettings?.includeImages || settings.exaSettings?.includeImages,
           })
 
           messages.splice(-1, 0, { role: "system" as const, content: searchContext })
