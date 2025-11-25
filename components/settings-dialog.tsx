@@ -136,8 +136,31 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   }, [localSettings])
 
   useEffect(() => {
+    // Load voices - they load asynchronously on most browsers
+    const loadVoices = () => {
+      const availableVoices = voiceService.getVoices()
+      if (availableVoices.length > 0) {
+        // Sort voices: English first, then by name
+        const sorted = availableVoices.sort((a, b) => {
+          const aEn = a.lang.startsWith('en')
+          const bEn = b.lang.startsWith('en')
+          if (aEn && !bEn) return -1
+          if (!aEn && bEn) return 1
+          return a.name.localeCompare(b.name)
+        })
+        setVoices(sorted)
+      }
+    }
+
     if (voiceService.isSupported()) {
-      setTimeout(() => setVoices(voiceService.getVoices()), 100)
+      // Try immediately
+      loadVoices()
+      // Also listen for voiceschanged event (required for Chrome)
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = loadVoices
+      }
+      // Fallback timeout for older browsers
+      setTimeout(loadVoices, 500)
     }
 
     // Load theme from localStorage
@@ -153,6 +176,9 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
 
     return () => {
       window.removeEventListener("closeSettings", handleCloseSettings)
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null
+      }
     }
   }, [onOpenChange])
 
@@ -1124,24 +1150,45 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm sm:text-base">Voice</Label>
-                  <select
-                    value={localSettings.voiceSettings?.voice || ""}
-                    onChange={(e) =>
-                      setLocalSettings({
-                        ...localSettings,
-                        voiceSettings: { ...localSettings.voiceSettings, voice: e.target.value } as any,
-                      })
-                    }
-                    className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
-                  >
-                    <option value="">Default</option>
-                    {voices.map((voice) => (
-                      <option key={voice.name} value={voice.name}>
-                        {voice.name} ({voice.lang})
-                      </option>
-                    ))}
-                  </select>
+                  <Label className="text-sm sm:text-base">Voice ({voices.length} available)</Label>
+                  <div className="flex gap-2">
+                    <select
+                      value={localSettings.voiceSettings?.voice || ""}
+                      onChange={(e) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          voiceSettings: { ...localSettings.voiceSettings, voice: e.target.value } as any,
+                        })
+                      }
+                      className="flex-1 rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
+                    >
+                      <option value="">System Default</option>
+                      {voices.length === 0 && <option disabled>Loading voices...</option>}
+                      {voices.map((voice) => (
+                        <option key={voice.name} value={voice.name}>
+                          {voice.name} ({voice.lang}){voice.localService ? '' : ' ☁️'}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="min-h-[44px] px-3"
+                      onClick={() => {
+                        const testText = "Hello! This is a test of the text-to-speech voice."
+                        voiceService.speak(testText, {
+                          rate: localSettings.voiceSettings?.rate || 1,
+                          pitch: localSettings.voiceSettings?.pitch || 1,
+                          voice: localSettings.voiceSettings?.voice,
+                        })
+                      }}
+                    >
+                      Test
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    ☁️ = Online voice (higher quality). Choose an English voice for best results.
+                  </p>
                 </div>
 
                 <div className="space-y-2">
