@@ -5,8 +5,9 @@ export const runtime = 'edge'
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
-    const audioFile = formData.get('audio') as Blob
+    const audioFile = formData.get('audio') as File | Blob
     const apiKey = formData.get('apiKey') as string
+    const mimeType = formData.get('mimeType') as string || 'audio/webm'
 
     if (!audioFile) {
       return NextResponse.json({ error: 'No audio file provided' }, { status: 400 })
@@ -16,11 +17,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No API key provided' }, { status: 400 })
     }
 
+    // Determine correct filename based on mimeType
+    const extension = mimeType.includes('mp4') || mimeType.includes('m4a') ? 'm4a' : 'webm'
+    const filename = `audio.${extension}`
+
+    console.log('[Whisper API] Received audio:', {
+      size: audioFile.size,
+      type: audioFile.type || mimeType,
+      filename
+    })
+
     // Prepare the form data for OpenAI Whisper API
     const whisperFormData = new FormData()
-    whisperFormData.append('file', audioFile, 'audio.webm')
+    whisperFormData.append('file', audioFile, filename)
     whisperFormData.append('model', 'whisper-1')
-    whisperFormData.append('language', 'de') // German by default, but Whisper auto-detects
+    // Let Whisper auto-detect language for better multilingual support
 
     // Call OpenAI Whisper API
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
