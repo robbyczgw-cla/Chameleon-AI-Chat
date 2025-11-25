@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import type { Message } from "@/types"
 import { streamChatMessage, REASONING_MODELS } from "@/lib/openrouter"
 import { searchWeb, formatSearchResults } from "@/lib/tavily"
+import { searchWithExa, formatExaResults } from "@/lib/exa"
 import { useToast } from "@/hooks/use-toast"
 import { FileUpload } from "@/components/file-upload"
 import { extractTextFromAttachments, type FileAttachment, getFileCategory } from "@/lib/file-handler"
@@ -482,58 +483,144 @@ export function ChatInput() {
         }
       }
 
-      if (webSearchEnabled && settings.apiKeys.tavily) {
+      // Web search with provider selection (Tavily, Serper, or Exa)
+      const searchProvider = settings.searchProvider || "tavily"
+      const hasSearchKey =
+        (searchProvider === "tavily" && settings.apiKeys.tavily) ||
+        (searchProvider === "serper" && settings.apiKeys.serper) ||
+        (searchProvider === "exa" && settings.apiKeys.exa)
+
+      if (webSearchEnabled && hasSearchKey) {
         try {
-          toast({
-            title: "Suche im Web...",
-            description: "Sammle Informationen aus dem Internet",
-          })
-
-          const tavilySettings = settings.tavilySettings || {
-            searchDepth: "basic",
-            maxResults: 5,
-            includeImages: false,
-            includeAnswer: true,
+          // Show provider-specific toast
+          if (searchProvider === "exa") {
+            toast({
+              title: "🔮 Exa Neural Search...",
+              description: "Semantische Suche mit AI-Verständnis",
+            })
+          } else if (searchProvider === "serper") {
+            toast({
+              title: "🔍 Google Search (Serper)...",
+              description: "Suche via Google",
+            })
+          } else {
+            toast({
+              title: "🌐 Tavily Search...",
+              description: "Sammle Informationen aus dem Internet",
+            })
           }
 
-          const searchResults = await searchWeb(input.trim(), {
-            maxResults: tavilySettings.maxResults,
-            searchDepth: tavilySettings.searchDepth,
-            includeImages: tavilySettings.includeImages,
-            includeDomains: settings.tavilySettings?.includeDomains,
-            excludeDomains: settings.tavilySettings?.excludeDomains,
-            includeRawContent: settings.tavilySettings?.includeRawContent || false,
-            topic: settings.tavilySettings?.topic || "general",
-            apiKey: settings.apiKeys.tavily,
-          })
+          let searchContext = ""
+          let resultCount = 0
+          let imageCount = 0
 
-          let searchContext = `Websuchergebnisse für: "${input.trim()}"\n\n`
+          // Use Exa search
+          if (searchProvider === "exa" && settings.apiKeys.exa) {
+            const exaSettings = settings.exaSettings || {
+              maxResults: 5,
+              searchType: "auto",
+              useAutoprompt: true,
+              includeFullText: true,
+              includeHighlights: true,
+              includeSummary: false,
+              highlightsPerResult: 3,
+              maxTextCharacters: 3000,
+              livecrawl: "fallback",
+            }
 
-          if (tavilySettings.includeAnswer && searchResults.answer) {
-            searchContext += `Zusammenfassung: ${searchResults.answer}\n\n`
+            const searchResults = await searchWithExa(input.trim(), {
+              maxResults: exaSettings.maxResults,
+              type: exaSettings.searchType,
+              useAutoprompt: exaSettings.useAutoprompt,
+              includeFullText: exaSettings.includeFullText,
+              includeHighlights: exaSettings.includeHighlights,
+              includeSummary: exaSettings.includeSummary,
+              highlightsPerResult: exaSettings.highlightsPerResult,
+              maxTextCharacters: exaSettings.maxTextCharacters,
+              livecrawl: exaSettings.livecrawl,
+              category: exaSettings.category,
+              includeDomains: exaSettings.includeDomains,
+              excludeDomains: exaSettings.excludeDomains,
+              apiKey: settings.apiKeys.exa,
+            })
+
+            searchContext = `🔮 Exa Neural Search für: "${input.trim()}"\n`
+            if (searchResults.autoprompt) {
+              searchContext += `(Optimierte Suche: "${searchResults.autoprompt}")\n`
+            }
+            searchContext += `\n`
+
+            if (searchResults.answer) {
+              searchContext += `Zusammenfassung: ${searchResults.answer}\n\n`
+            }
+
+            searchContext += `Detaillierte Ergebnisse:\n${formatExaResults(searchResults.results)}`
+
+            if (searchResults.images && searchResults.images.length > 0) {
+              searchContext += `\n\n📸 Bilder:\n${searchResults.images.slice(0, 5).map((img, i) => `[${i + 1}] ${img}`).join('\n')}`
+              imageCount = searchResults.images.length
+            }
+
+            searchContext += `\n\nBitte verwenden Sie die obigen Websuchergebnisse, um eine genaue und aktuelle Antwort auf die Frage des Benutzers zu geben.`
+
+            resultCount = searchResults.results.length
+
+            // Exa-specific success toast
+            toast({
+              title: "🔮 Exa Search abgeschlossen",
+              description: `${resultCount} Ergebnisse via Neural Search${searchResults.autoprompt ? ' (optimiert)' : ''}`,
+            })
           }
+          // Use Tavily search (default)
+          else {
+            const tavilySettings = settings.tavilySettings || {
+              searchDepth: "basic",
+              maxResults: 5,
+              includeImages: false,
+              includeAnswer: true,
+            }
 
-          searchContext += `Detaillierte Ergebnisse:\n${formatSearchResults(searchResults.results)}`
+            const searchResults = await searchWeb(input.trim(), {
+              maxResults: tavilySettings.maxResults,
+              searchDepth: tavilySettings.searchDepth,
+              includeImages: tavilySettings.includeImages,
+              includeDomains: settings.tavilySettings?.includeDomains,
+              excludeDomains: settings.tavilySettings?.excludeDomains,
+              includeRawContent: settings.tavilySettings?.includeRawContent || false,
+              topic: settings.tavilySettings?.topic || "general",
+              apiKey: settings.apiKeys.tavily,
+            })
 
-          // Add images if available and enabled in settings
-          if (tavilySettings.includeImages && searchResults.images && searchResults.images.length > 0) {
-            searchContext += `\n\n📸 Bilder:\n${searchResults.images.slice(0, 5).map((img, i) => `[${i + 1}] ${img}`).join('\n')}`
+            searchContext = `Websuchergebnisse für: "${input.trim()}"\n\n`
+
+            if (tavilySettings.includeAnswer && searchResults.answer) {
+              searchContext += `Zusammenfassung: ${searchResults.answer}\n\n`
+            }
+
+            searchContext += `Detaillierte Ergebnisse:\n${formatSearchResults(searchResults.results)}`
+
+            if (tavilySettings.includeImages && searchResults.images && searchResults.images.length > 0) {
+              searchContext += `\n\n📸 Bilder:\n${searchResults.images.slice(0, 5).map((img, i) => `[${i + 1}] ${img}`).join('\n')}`
+              imageCount = searchResults.images.length
+            }
+
+            searchContext += `\n\nBitte verwenden Sie die obigen Websuchergebnisse, um eine genaue und aktuelle Antwort auf die Frage des Benutzers zu geben.${tavilySettings.includeImages ? ' Bei Bildern bitte die URLs im Markdown-Format einbinden: ![Beschreibung](URL)' : ''}`
+
+            resultCount = searchResults.results.length
+
+            toast({
+              title: "🌐 Suche abgeschlossen",
+              description: `${resultCount} Ergebnisse${imageCount > 0 ? ` + ${imageCount} Bilder` : ''} gefunden`,
+            })
           }
-
-          searchContext += `\n\nBitte verwenden Sie die obigen Websuchergebnisse, um eine genaue und aktuelle Antwort auf die Frage des Benutzers zu geben.${tavilySettings.includeImages ? ' Bei Bildern bitte die URLs im Markdown-Format einbinden: ![Beschreibung](URL)' : ''}`
 
           messages.splice(-1, 0, { role: "system" as const, content: searchContext })
 
-          const imageCount = (tavilySettings.includeImages && searchResults.images?.length) || 0
-          toast({
-            title: "Suche abgeschlossen",
-            description: `${searchResults.results.length} Ergebnisse${imageCount > 0 ? ` + ${imageCount} Bilder` : ''} gefunden`,
-          })
         } catch (searchError) {
           console.error("[v0] Search error:", searchError)
           toast({
             title: "Suche fehlgeschlagen",
-            description: "Fahre ohne Websuche fort",
+            description: `${searchProvider === "exa" ? "Exa" : searchProvider === "serper" ? "Serper" : "Tavily"} Suche fehlgeschlagen - fahre ohne Websuche fort`,
             variant: "destructive",
           })
         }

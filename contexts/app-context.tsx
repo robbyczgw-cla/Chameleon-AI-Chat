@@ -48,6 +48,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     openRouter: "",
     tavily: "",
     serper: "",
+    exa: "",
   },
   selectedModel: "x-ai/grok-4.1-fast",
   selectedModels: ["x-ai/grok-4.1-fast"],
@@ -72,6 +73,17 @@ const DEFAULT_SETTINGS: AppSettings = {
     includeImages: false,
     country: "at",
     language: "de", // German
+  },
+  exaSettings: {
+    maxResults: 5,
+    searchType: "auto", // Combined neural + keyword
+    useAutoprompt: true, // Let Exa optimize queries
+    includeFullText: true,
+    includeHighlights: true,
+    includeSummary: false,
+    highlightsPerResult: 3,
+    maxTextCharacters: 3000,
+    livecrawl: "fallback", // Crawl if content is stale
   },
   memorySettings: {
     enabled: false,
@@ -153,6 +165,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       serperSettings: {
         ...defaults.serperSettings,
         ...(parsed.serperSettings || {}),
+      },
+      exaSettings: {
+        ...defaults.exaSettings,
+        ...(parsed.exaSettings || {}),
       },
       youcomSettings: {
         ...defaults.youcomSettings,
@@ -492,6 +508,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 openAI: localSettings.apiKeys.openAI || "",
                 tavily: localSettings.apiKeys.tavily || "",
                 serper: localSettings.apiKeys.serper || "",
+                exa: localSettings.apiKeys.exa || "",
               }
             }
           } catch (e) {
@@ -853,6 +870,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (prev.apiKeys.serper && !merged.apiKeys.serper) {
         console.warn("[v0] 🛡️ PROTECTION: Prevented Serper API key from being cleared!")
         merged.apiKeys.serper = prev.apiKeys.serper
+      }
+      if (prev.apiKeys.exa && !merged.apiKeys.exa) {
+        console.warn("[v0] 🛡️ PROTECTION: Prevented Exa API key from being cleared!")
+        merged.apiKeys.exa = prev.apiKeys.exa
       }
 
       return merged

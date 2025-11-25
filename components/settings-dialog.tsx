@@ -433,6 +433,32 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 </p>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="exa-key" className="text-sm sm:text-base">
+                  🔮 Exa API Key (Neural/Semantic Search)
+                </Label>
+                <Input
+                  id="exa-key"
+                  type="password"
+                  placeholder="exa-..."
+                  value={localSettings.apiKeys?.exa || ""}
+                  onChange={(e) =>
+                    setLocalSettings({
+                      ...localSettings,
+                      apiKeys: { ...localSettings.apiKeys, exa: e.target.value },
+                    })
+                  }
+                  className="text-sm sm:text-base min-h-[44px]"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Optional: Get your API key from{" "}
+                  <a href="https://exa.ai" target="_blank" rel="noopener noreferrer" className="underline">
+                    exa.ai
+                  </a>{" "}
+                  - Best for RAG, semantic search & research (~$0.01/search)
+                </p>
+              </div>
+
             </TabsContent>
 
             <TabsContent value="search" className="space-y-4 mt-0">
@@ -446,7 +472,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
 
                 <div className="space-y-2">
                   <Label htmlFor="search-provider" className="text-sm sm:text-base">
-                    Search Provider (für Advanced Mode)
+                    Search Provider
                   </Label>
                   <select
                     id="search-provider"
@@ -454,16 +480,17 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                     onChange={(e) =>
                       setLocalSettings({
                         ...localSettings,
-                        searchProvider: e.target.value as "tavily" | "serper",
+                        searchProvider: e.target.value as "tavily" | "serper" | "exa",
                       })
                     }
                     className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
                   >
-                    <option value="tavily">Tavily - LLM-optimiert</option>
-                    <option value="serper">Serper - Google Search (günstig, DACH)</option>
+                    <option value="tavily">🌐 Tavily - LLM-optimiert (~$0.01/search)</option>
+                    <option value="serper">🔍 Serper - Google Search (~$0.001/search)</option>
+                    <option value="exa">🔮 Exa - Neural/Semantic Search (~$0.01/search)</option>
                   </select>
                   <p className="text-xs text-muted-foreground">
-                    Simple Mode verwendet immer Tavily. Diese Einstellung gilt nur für Advanced Mode.
+                    Wähle den Suchanbieter für die Web-Suche. Exa bietet semantische Suche für beste RAG-Ergebnisse.
                   </p>
                 </div>
 
@@ -609,6 +636,201 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                             })
                           }
                         />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {localSettings.searchProvider === "exa" && (
+                  <div className="rounded-lg border p-3 sm:p-4 bg-purple-50 dark:bg-purple-950/20">
+                    <h4 className="font-medium mb-2 text-sm sm:text-base">🔮 Exa Neural Search</h4>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Semantische Suche mit AI-Verständnis - optimal für RAG und Recherche
+                    </p>
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <Label className="text-sm sm:text-base">
+                          Max Ergebnisse: {localSettings.exaSettings?.maxResults || 5}
+                        </Label>
+                        <Slider
+                          value={[localSettings.exaSettings?.maxResults || 5]}
+                          onValueChange={([value]) =>
+                            setLocalSettings({
+                              ...localSettings,
+                              exaSettings: { ...localSettings.exaSettings, maxResults: value } as any,
+                            })
+                          }
+                          min={1}
+                          max={20}
+                          step={1}
+                          className="touch-none"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="exa-search-type" className="text-sm sm:text-base">
+                          Suchmethode
+                        </Label>
+                        <select
+                          id="exa-search-type"
+                          value={localSettings.exaSettings?.searchType || "auto"}
+                          onChange={(e) =>
+                            setLocalSettings({
+                              ...localSettings,
+                              exaSettings: { ...localSettings.exaSettings, searchType: e.target.value as any } as any,
+                            })
+                          }
+                          className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
+                        >
+                          <option value="auto">🤖 Auto - Kombination aus Neural & Keyword</option>
+                          <option value="neural">🧠 Neural - Semantische Suche (Embeddings)</option>
+                          <option value="keyword">🔤 Keyword - Traditionelle Stichwortsuche</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="exa-category" className="text-sm sm:text-base">
+                          Kategorie-Filter (optional)
+                        </Label>
+                        <select
+                          id="exa-category"
+                          value={localSettings.exaSettings?.category || ""}
+                          onChange={(e) =>
+                            setLocalSettings({
+                              ...localSettings,
+                              exaSettings: { ...localSettings.exaSettings, category: e.target.value || undefined } as any,
+                            })
+                          }
+                          className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
+                        >
+                          <option value="">Alle Kategorien</option>
+                          <option value="news">📰 News</option>
+                          <option value="research paper">📄 Research Papers</option>
+                          <option value="github">💻 GitHub</option>
+                          <option value="company">🏢 Unternehmen</option>
+                          <option value="pdf">📑 PDFs</option>
+                          <option value="tweet">🐦 Tweets</option>
+                          <option value="linkedin profile">💼 LinkedIn</option>
+                          <option value="personal site">🏠 Personal Sites</option>
+                        </select>
+                      </div>
+
+                      <div className="flex items-center justify-between py-2">
+                        <div className="space-y-0.5 flex-1 pr-4">
+                          <Label htmlFor="exa-autoprompt" className="text-sm sm:text-base">
+                            Autoprompt
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Exa optimiert deine Suchanfrage automatisch
+                          </p>
+                        </div>
+                        <Switch
+                          id="exa-autoprompt"
+                          checked={localSettings.exaSettings?.useAutoprompt !== false}
+                          onCheckedChange={(checked) =>
+                            setLocalSettings({
+                              ...localSettings,
+                              exaSettings: { ...localSettings.exaSettings, useAutoprompt: checked } as any,
+                            })
+                          }
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between py-2">
+                        <div className="space-y-0.5 flex-1 pr-4">
+                          <Label htmlFor="exa-fulltext" className="text-sm sm:text-base">
+                            Volltext einbeziehen
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Kompletten Seiteninhalt für RAG laden
+                          </p>
+                        </div>
+                        <Switch
+                          id="exa-fulltext"
+                          checked={localSettings.exaSettings?.includeFullText !== false}
+                          onCheckedChange={(checked) =>
+                            setLocalSettings({
+                              ...localSettings,
+                              exaSettings: { ...localSettings.exaSettings, includeFullText: checked } as any,
+                            })
+                          }
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between py-2">
+                        <div className="space-y-0.5 flex-1 pr-4">
+                          <Label htmlFor="exa-highlights" className="text-sm sm:text-base">
+                            Highlights einbeziehen
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Relevante Textausschnitte extrahieren
+                          </p>
+                        </div>
+                        <Switch
+                          id="exa-highlights"
+                          checked={localSettings.exaSettings?.includeHighlights !== false}
+                          onCheckedChange={(checked) =>
+                            setLocalSettings({
+                              ...localSettings,
+                              exaSettings: { ...localSettings.exaSettings, includeHighlights: checked } as any,
+                            })
+                          }
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between py-2">
+                        <div className="space-y-0.5 flex-1 pr-4">
+                          <Label htmlFor="exa-summary" className="text-sm sm:text-base">
+                            AI-Zusammenfassung
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Generierte Zusammenfassung pro Ergebnis (+$0.001)
+                          </p>
+                        </div>
+                        <Switch
+                          id="exa-summary"
+                          checked={localSettings.exaSettings?.includeSummary || false}
+                          onCheckedChange={(checked) =>
+                            setLocalSettings({
+                              ...localSettings,
+                              exaSettings: { ...localSettings.exaSettings, includeSummary: checked } as any,
+                            })
+                          }
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="exa-livecrawl" className="text-sm sm:text-base">
+                          Livecrawl-Modus
+                        </Label>
+                        <select
+                          id="exa-livecrawl"
+                          value={localSettings.exaSettings?.livecrawl || "fallback"}
+                          onChange={(e) =>
+                            setLocalSettings({
+                              ...localSettings,
+                              exaSettings: { ...localSettings.exaSettings, livecrawl: e.target.value as any } as any,
+                            })
+                          }
+                          className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
+                        >
+                          <option value="never">⚡ Nie - Nur aus Cache</option>
+                          <option value="fallback">🔄 Fallback - Bei veraltetem Content</option>
+                          <option value="always">🌐 Immer - Stets frische Daten</option>
+                        </select>
+                        <p className="text-xs text-muted-foreground">
+                          Steuert, ob Exa Seiten live crawlt für aktuelle Inhalte
+                        </p>
+                      </div>
+
+                      <div className="rounded-lg border p-3 bg-purple-100 dark:bg-purple-900/30">
+                        <h5 className="font-medium text-sm mb-1">💡 Exa Tipps</h5>
+                        <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                          <li>Neural-Suche versteht Bedeutung, nicht nur Stichwörter</li>
+                          <li>Kategorie-Filter für spezifische Quellen (GitHub, News, Papers)</li>
+                          <li>Highlights sind ideal für prägnante RAG-Kontexte</li>
+                          <li>Volltext für tiefgehende Analyse und längere Dokumente</li>
+                        </ul>
                       </div>
                     </div>
                   </div>

@@ -187,6 +187,7 @@ export class SupabaseSync {
         openAI: settings.apiKeys?.openAI ? "***" + settings.apiKeys.openAI.slice(-4) : "empty",
         tavily: settings.apiKeys?.tavily ? "***" + settings.apiKeys.tavily.slice(-4) : "empty",
         serper: settings.apiKeys?.serper ? "***" + settings.apiKeys.serper.slice(-4) : "empty",
+        exa: settings.apiKeys?.exa ? "***" + settings.apiKeys.exa.slice(-4) : "empty",
       })
 
       // DEBUG: Log memory settings being saved
@@ -196,7 +197,7 @@ export class SupabaseSync {
       // Use .maybeSingle() to avoid errors if settings don't exist yet
       const { data: existingSettings, error: fetchError } = await this.supabase
         .from("user_settings")
-        .select("openrouter_api_key, openai_api_key, tavily_api_key, serper_api_key")
+        .select("openrouter_api_key, openai_api_key, tavily_api_key, serper_api_key, exa_api_key")
         .eq("user_id", userId)
         .maybeSingle()
 
@@ -209,6 +210,7 @@ export class SupabaseSync {
       const openAIKey = settings.apiKeys?.openAI || existingSettings?.openai_api_key || null
       const tavilyKey = settings.apiKeys?.tavily || existingSettings?.tavily_api_key || null
       const serperKey = settings.apiKeys?.serper || existingSettings?.serper_api_key || null
+      const exaKey = settings.apiKeys?.exa || existingSettings?.exa_api_key || null
 
       if (existingSettings) {
         if (existingSettings.openrouter_api_key && !settings.apiKeys?.openRouter) {
@@ -223,6 +225,9 @@ export class SupabaseSync {
         if (existingSettings.serper_api_key && !settings.apiKeys?.serper) {
           console.warn("[Supabase] 🛡️ PROTECTION: Preserving existing Serper key, refusing to clear it")
         }
+        if (existingSettings.exa_api_key && !settings.apiKeys?.exa) {
+          console.warn("[Supabase] 🛡️ PROTECTION: Preserving existing Exa key, refusing to clear it")
+        }
       }
 
       console.log("[Supabase] Final API keys being saved to DB:", {
@@ -230,6 +235,7 @@ export class SupabaseSync {
         openAI: openAIKey ? "***" + openAIKey.slice(-4) : "NULL",
         tavily: tavilyKey ? "***" + tavilyKey.slice(-4) : "NULL",
         serper: serperKey ? "***" + serperKey.slice(-4) : "NULL",
+        exa: exaKey ? "***" + exaKey.slice(-4) : "NULL",
       })
 
       const settingsData = {
@@ -249,12 +255,24 @@ export class SupabaseSync {
         openai_api_key: openAIKey,
         tavily_api_key: tavilyKey,
         serper_api_key: serperKey,
+        exa_api_key: exaKey,
         search_provider: settings.searchProvider || "tavily",
         serper_max_results: settings.serperSettings?.maxResults || 5,
         serper_include_images: settings.serperSettings?.includeImages ?? true,
         serper_country: settings.serperSettings?.country || "at",
         serper_language: settings.serperSettings?.language || "de",
         use_exa_search: settings.useExaSearch ?? false,
+        // Exa settings
+        exa_max_results: settings.exaSettings?.maxResults || 5,
+        exa_search_type: settings.exaSettings?.searchType || "auto",
+        exa_use_autoprompt: settings.exaSettings?.useAutoprompt ?? true,
+        exa_include_full_text: settings.exaSettings?.includeFullText ?? true,
+        exa_include_highlights: settings.exaSettings?.includeHighlights ?? true,
+        exa_include_summary: settings.exaSettings?.includeSummary ?? false,
+        exa_highlights_per_result: settings.exaSettings?.highlightsPerResult || 3,
+        exa_max_text_characters: settings.exaSettings?.maxTextCharacters || 3000,
+        exa_livecrawl: settings.exaSettings?.livecrawl || "fallback",
+        exa_category: settings.exaSettings?.category || null,
         memory_settings: settings.memorySettings
           ? JSON.stringify(settings.memorySettings)
           : JSON.stringify({ enabled: false, autoExtract: true, maxMemoriesInContext: 5, importanceThreshold: 2 }),
@@ -526,6 +544,7 @@ export class SupabaseSync {
       openAI: dbSettings.openai_api_key ? "***" + dbSettings.openai_api_key.slice(-4) : "NULL/empty",
       tavily: dbSettings.tavily_api_key ? "***" + dbSettings.tavily_api_key.slice(-4) : "NULL/empty",
       serper: dbSettings.serper_api_key ? "***" + dbSettings.serper_api_key.slice(-4) : "NULL/empty",
+      exa: dbSettings.exa_api_key ? "***" + dbSettings.exa_api_key.slice(-4) : "NULL/empty",
     })
 
     // DEBUG: Log memory settings being loaded
@@ -554,6 +573,7 @@ export class SupabaseSync {
         openAI: dbSettings.openai_api_key || undefined,
         tavily: dbSettings.tavily_api_key || undefined,
         serper: dbSettings.serper_api_key || undefined,
+        exa: dbSettings.exa_api_key || undefined,
       },
       searchProvider: dbSettings.search_provider || "tavily",
       tavilySettings: {
@@ -567,6 +587,18 @@ export class SupabaseSync {
         includeImages: dbSettings.serper_include_images ?? false,
         country: dbSettings.serper_country || "at",
         language: dbSettings.serper_language || "de",
+      },
+      exaSettings: {
+        maxResults: dbSettings.exa_max_results || 5,
+        searchType: dbSettings.exa_search_type || "auto",
+        useAutoprompt: dbSettings.exa_use_autoprompt ?? true,
+        includeFullText: dbSettings.exa_include_full_text ?? true,
+        includeHighlights: dbSettings.exa_include_highlights ?? true,
+        includeSummary: dbSettings.exa_include_summary ?? false,
+        highlightsPerResult: dbSettings.exa_highlights_per_result || 3,
+        maxTextCharacters: dbSettings.exa_max_text_characters || 3000,
+        livecrawl: dbSettings.exa_livecrawl || "fallback",
+        category: dbSettings.exa_category || undefined,
       },
       useExaSearch: dbSettings.use_exa_search ?? false,
       memorySettings: (() => {
