@@ -540,6 +540,63 @@
     @apply bg-background text-foreground antialiased;
   }
 
+  /* =========================================================================
+     PWA Native-Feel Optimizations
+     ========================================================================= */
+
+  /* Remove 300ms touch delay globally - CRITICAL for native feel */
+  button,
+  a,
+  [role="button"],
+  input,
+  textarea,
+  select,
+  [tabindex]:not([tabindex="-1"]),
+  .touchable {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Active state for instant visual feedback */
+  button:active:not(:disabled),
+  [role="button"]:active,
+  a:active,
+  .touchable:active {
+    transform: scale(0.97);
+    transition: transform 0.08s ease-out;
+  }
+
+  /* GPU-accelerated layer hints */
+  .gpu-layer {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+
+  /* Smooth native-like scrolling */
+  .native-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    overscroll-behavior-y: contain;
+  }
+
+  /* iOS-like overscroll bounce */
+  .overscroll-bounce {
+    overscroll-behavior-y: auto;
+  }
+
+  /* Prevent overscroll (for custom pull-to-refresh) */
+  .overscroll-none {
+    overscroll-behavior: none;
+  }
+
+  /* Prevent text selection during drag gestures */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
   /* Force all containers to stay within viewport on mobile ONLY */
   @media (max-width: 768px) {
 
@@ -1257,6 +1314,137 @@
     body {
       min-height: 100dvh;
       /* Dynamic viewport height for mobile browsers */
+    }
+  }
+
+  /* =========================================================================
+     View Transitions API (Native-like page transitions)
+     ========================================================================= */
+
+  /* Default view transition - smooth cross-fade */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Slide transitions for navigation */
+  ::view-transition-old(slide-forward) {
+    animation: slide-out-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  ::view-transition-new(slide-forward) {
+    animation: slide-in-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  ::view-transition-old(slide-back) {
+    animation: slide-out-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  ::view-transition-new(slide-back) {
+    animation: slide-in-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slide-out-left {
+    to { transform: translateX(-100%); opacity: 0; }
+  }
+
+  @keyframes slide-in-right {
+    from { transform: translateX(100%); opacity: 0; }
+  }
+
+  @keyframes slide-out-right {
+    to { transform: translateX(100%); opacity: 0; }
+  }
+
+  @keyframes slide-in-left {
+    from { transform: translateX(-100%); opacity: 0; }
+  }
+
+  /* =========================================================================
+     Ripple Touch Effect (Material-like feedback)
+     ========================================================================= */
+
+  .ripple-container {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.2;
+    transform: scale(0);
+    animation: ripple-expand 0.6s cubic-bezier(0, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  @keyframes ripple-expand {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  /* =========================================================================
+     Pull-to-Refresh Styles
+     ========================================================================= */
+
+  .pull-indicator {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    z-index: 9999;
+    transition: transform 0.2s ease-out;
+  }
+
+  .pull-indicator.pulling {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .pull-indicator.refreshing .pull-spinner {
+    animation: spin 0.8s linear infinite;
+  }
+
+  .pull-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* =========================================================================
+     High Refresh Rate Optimizations (120Hz)
+     ========================================================================= */
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Use shorter durations on high refresh rate displays */
+    @media (min-resolution: 2dppx) {
+      .smooth-transition {
+        transition-duration: 0.15s !important;
+      }
+
+      .animate-slide-in-up {
+        animation-duration: 0.25s !important;
+      }
+    }
+  }
+
+  /* Reduced motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
     }
   }
 

@@ -1,9 +1,13 @@
 "use client"
 
 import { useEffect } from "react"
+import { initPWAPerformance, runWhenIdle, shouldLoadHeavyResources } from "@/lib/pwa-performance"
 
 export function PWARegister() {
   useEffect(() => {
+    // Initialize PWA performance optimizations (fast tap, etc.)
+    initPWAPerformance()
+
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
       // Register service worker
       navigator.serviceWorker
@@ -104,6 +108,18 @@ export function PWARegister() {
       window.addEventListener('pageshow', (event) => {
         if (event.persisted) {
           console.log('[PWA] ⚡ Page restored from cache - still in memory!')
+        }
+      })
+
+      // Run non-critical optimizations during idle time
+      runWhenIdle(() => {
+        // Log network-aware loading decision
+        const loadHeavy = shouldLoadHeavyResources()
+        console.log(`[PWA] Network-aware loading: ${loadHeavy ? 'full quality' : 'lite mode'}`)
+
+        // Add performance mark for debugging
+        if ('performance' in window && 'mark' in performance) {
+          performance.mark('pwa-optimizations-complete')
         }
       })
     }

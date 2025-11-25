@@ -1,10 +1,10 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Plus, Menu, Settings, Sliders, MoreHorizontal } from "lucide-react"
+import { Plus, Menu, Settings, Sliders } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
 import { MobileMoreMenu } from "@/components/mobile-more-menu"
+import { useViewTransition } from "@/hooks/use-view-transition"
 
 interface MobileBottomNavProps {
   onMenuClick: () => void
@@ -41,15 +41,20 @@ export function MobileBottomNav({
   onPromptHelperClick,
   activeView = "chats",
 }: MobileBottomNavProps) {
+  const { navigateWithTransition } = useViewTransition()
+
+  // Wrap navigation actions with view transitions for smoother feel
+  const handleNavigation = (callback: () => void) => {
+    haptics.trigger('selection')
+    navigateWithTransition(callback)
+  }
+
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed inset-x-0 bottom-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)] gpu-layer">
       <div className="flex items-center justify-between px-3 py-1.5 shadow-lg border-t border-border/50 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/40">
         {/* Chats */}
         <button
-          onClick={() => {
-            haptics.trigger('selection')
-            onMenuClick()
-          }}
+          onClick={() => handleNavigation(onMenuClick)}
           className={cn(
             "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "chats"
@@ -63,10 +68,7 @@ export function MobileBottomNav({
 
         {/* Settings */}
         <button
-          onClick={() => {
-            haptics.trigger('selection')
-            onSettingsClick()
-          }}
+          onClick={() => handleNavigation(onSettingsClick)}
           className={cn(
             "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "settings"
@@ -83,10 +85,7 @@ export function MobileBottomNav({
 
         {/* Tune */}
         <button
-          onClick={() => {
-            haptics.trigger('selection')
-            onAdvancedSettingsClick()
-          }}
+          onClick={() => handleNavigation(onAdvancedSettingsClick)}
           className={cn(
             "flex flex-1 flex-col items-center gap-0.5 min-w-[40px] min-h-[36px] justify-center transition-all duration-200",
             activeView === "tune"
@@ -119,9 +118,9 @@ export function MobileBottomNav({
         <button
           onClick={() => {
             haptics.trigger('medium')
-            onNewChatClick()
+            navigateWithTransition(onNewChatClick)
           }}
-          className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-accent shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 animate-pulse-glow"
+          className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-accent shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 animate-pulse-glow gpu-layer"
         >
           <Plus className="h-5 w-5 text-white" strokeWidth={2.5} />
         </button>
