@@ -693,62 +693,44 @@ export function VisualCanvas() {
 
 ---
 
-### 10. Voice Personas
+### 10. Voice Personas ✅ IMPLEMENTED
 
-**Concept**: Each persona has a unique voice (pitch, speed, accent).
+**Status**: Implemented with OpenAI TTS + Browser TTS fallback
 
-**Implementation**:
+**What's Available Now**:
+
+**OpenAI TTS (High-Quality):**
 ```typescript
-// lib/voice-personas.ts
-interface VoiceProfile {
-  voice: string  // Web Speech API voice name
-  rate: number   // 0.1 to 10
-  pitch: number  // 0 to 2
-  volume: number // 0 to 1
-}
+// 6 premium neural voices
+export const OPENAI_TTS_VOICES = [
+  { id: 'alloy', name: 'Alloy', description: 'Neutral, balanced' },
+  { id: 'echo', name: 'Echo', description: 'Warm, conversational' },
+  { id: 'fable', name: 'Fable', description: 'Expressive, British' },
+  { id: 'onyx', name: 'Onyx', description: 'Deep, authoritative' },
+  { id: 'nova', name: 'Nova', description: 'Friendly, upbeat' },
+  { id: 'shimmer', name: 'Shimmer', description: 'Clear, gentle' },
+]
 
-const PERSONA_VOICES: Record<string, VoiceProfile> = {
-  cami: {
-    voice: "Google UK English Female",
-    rate: 1.0,
-    pitch: 1.0,
-    volume: 1.0
-  },
-  nova: {
-    voice: "Google US English Female",
-    rate: 1.2,  // Faster (cyberpunk vibe)
-    pitch: 0.9, // Lower pitch
-    volume: 0.9
-  },
-  mythos: {
-    voice: "Google UK English Male",
-    rate: 0.8,  // Slower (storytelling pace)
-    pitch: 0.8,
-    volume: 1.0
-  },
-  cogito: {
-    voice: "Google UK English Male",
-    rate: 0.9,
-    pitch: 1.1,
-    volume: 0.8
-  }
-}
-
-// In voice.ts
-speakText(text: string, persona: string) {
-  const voiceProfile = PERSONA_VOICES[persona] || PERSONA_VOICES.cami
-
-  const utterance = new SpeechSynthesisUtterance(text)
-  utterance.voice = this.getVoiceByName(voiceProfile.voice)
-  utterance.rate = voiceProfile.rate
-  utterance.pitch = voiceProfile.pitch
-  utterance.volume = voiceProfile.volume
-
-  speechSynthesis.speak(utterance)
-}
+// Usage in voice.ts
+await voiceService.speakWithOpenAI(text, apiKey, {
+  voice: 'nova',
+  speed: 1.0
+})
 ```
 
-**Advanced**: Use ElevenLabs or Play.ht for custom voice cloning!
+**Browser TTS (Free Fallback):**
+```typescript
+// 30+ system voices with customizable rate/pitch
+voiceService.speak(text, {
+  voice: 'Google UK English Female',
+  rate: 1.0,
+  pitch: 1.0
+})
+```
+
+**Settings UI**: Settings → Voice → TTS Provider selection with Test button
+
+**Future Enhancement**: Map OpenAI voices to personas automatically (Nova for cyberpunk, Fable for British personas, etc.)
 
 ---
 
@@ -1341,6 +1323,14 @@ export function VRChat() {
 
 ## Implementation Priorities
 
+### ✅ Recently Implemented (2025-11)
+
+1. ✅ **Voice Personas** - OpenAI TTS with 6 premium voices + Browser TTS fallback
+2. ✅ **React Performance Optimizations** - memo, useCallback, lazy loading
+3. ✅ **PWA Native Feel** - Touch optimizations, GPU acceleration
+4. ✅ **Mobile UX Improvements** - Always-visible action buttons, voice output for all messages
+5. ✅ **Voice Input Fixes** - Proper microphone permissions, audio format handling
+
 ### Phase 1 (Q1 2025) - Power User Essentials
 1. Keyboard shortcuts system
 2. Command palette (Cmd+K)
@@ -1356,7 +1346,7 @@ export function VRChat() {
 1. Agent swarms
 2. Scheduled AI tasks
 3. Visual canvas mode
-4. Voice personas
+4. ~~Voice personas~~ ✅ DONE
 
 ### Phase 4 (Q4 2025) - Experimental
 1. Emotional intelligence

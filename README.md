@@ -33,6 +33,18 @@ Like a chameleon adapting to its environment, this AI chat platform transforms t
 - 💡 **Smart Suggestions** - Context-aware prompts (9 categories, 50+ keywords)
 - 🎯 **Quick Actions** - Document collections, ambient music, export menu
 
+**Voice Features (NEW):**
+- 🎙️ **OpenAI Whisper** - High-quality voice input transcription
+- 🔊 **OpenAI TTS** - 6 premium voices (Alloy, Echo, Fable, Onyx, Nova, Shimmer)
+- 🗣️ **Browser TTS** - Free fallback with 30+ system voices
+- ▶️ **Voice Output for All Messages** - Read any message aloud (user or AI)
+
+**PWA & Performance (NEW):**
+- 📱 **Native-Feel PWA** - Touch optimizations, GPU acceleration, haptic feedback
+- ⚡ **React Performance** - Memo, useCallback, lazy loading for faster renders
+- 🖼️ **Image Optimization** - Next.js automatic WebP conversion and resizing
+- 👆 **Mobile-First Buttons** - Action buttons always visible on touch devices
+
 ---
 
 ## 🚀 Quick Start
@@ -185,9 +197,11 @@ Perfect for:
 - **Styling**: Tailwind CSS 4.1 + shadcn/ui components
 - **Database**: Supabase PostgreSQL (Row-Level Security)
 - **AI**: OpenRouter (100+ models)
+- **Voice Input**: OpenAI Whisper API
+- **Voice Output**: OpenAI TTS + Browser SpeechSynthesis
 - **Search**: Tavily + Serper (Google Search)
 - **State**: React Context API
-- **Deployment**: Vercel
+- **Deployment**: Vercel (Edge Runtime)
 
 ---
 
