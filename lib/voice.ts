@@ -195,7 +195,12 @@ export class VoiceService {
 
           if (!response.ok) {
             const error = await response.json()
-            onError?.(error.error || 'Failed to transcribe audio')
+            console.error('[Voice] Whisper API error:', error)
+            // Show more details if available (helps debugging)
+            const msg = error.details
+              ? `${error.error}: ${typeof error.details === 'string' ? error.details.slice(0, 100) : JSON.stringify(error.details).slice(0, 100)}`
+              : error.error || 'Failed to transcribe audio'
+            onError?.(msg)
             return
           }
 
