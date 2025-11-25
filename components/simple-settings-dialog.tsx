@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { User, Palette, Key, Volume2, Sparkles, Settings2, ChevronRight } from "lucide-react"
+import { User, Palette, Key, Volume2, Sparkles, Settings2, ChevronRight, Search } from "lucide-react"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { useToast } from "@/hooks/use-toast"
@@ -103,20 +103,24 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
         </DialogHeader>
 
         <Tabs defaultValue="profile" className="w-full flex-1 flex flex-col overflow-hidden">
-          <TabsList className="grid grid-cols-4 gap-1">
-            <TabsTrigger value="profile" className="text-xs gap-1">
+          <TabsList className="grid grid-cols-5 gap-1">
+            <TabsTrigger value="profile" className="text-xs gap-1 px-2">
               <User className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="appearance" className="text-xs gap-1">
+            <TabsTrigger value="appearance" className="text-xs gap-1 px-2">
               <Palette className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Look</span>
             </TabsTrigger>
-            <TabsTrigger value="voice" className="text-xs gap-1">
+            <TabsTrigger value="search" className="text-xs gap-1 px-2">
+              <Search className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Search</span>
+            </TabsTrigger>
+            <TabsTrigger value="voice" className="text-xs gap-1 px-2">
               <Volume2 className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Voice</span>
             </TabsTrigger>
-            <TabsTrigger value="api" className="text-xs gap-1">
+            <TabsTrigger value="api" className="text-xs gap-1 px-2">
               <Key className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">API</span>
             </TabsTrigger>
@@ -231,6 +235,60 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   <option value="large">Large</option>
                 </select>
               </div>
+            </TabsContent>
+
+            {/* Search Tab */}
+            <TabsContent value="search" className="space-y-4 mt-0">
+              <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <p className="text-sm text-blue-600 dark:text-blue-400">
+                  Web search lets the AI find current information from the internet.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="serper-key" className="text-sm">Serper API Key (Google Search)</Label>
+                <Input
+                  id="serper-key"
+                  type="password"
+                  placeholder="Enter your Serper API key..."
+                  value={localSettings.apiKeys?.serper || ""}
+                  onChange={(e) =>
+                    setLocalSettings({
+                      ...localSettings,
+                      apiKeys: { ...localSettings.apiKeys, serper: e.target.value },
+                      searchProvider: "serper", // Auto-select Serper when key is added
+                    })
+                  }
+                  className="h-10"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Get free key from <a href="https://serper.dev" target="_blank" rel="noopener noreferrer" className="underline">serper.dev</a> (2,500 free searches)
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <div>
+                  <Label className="text-sm">Include Images</Label>
+                  <p className="text-xs text-muted-foreground">Show images in search results</p>
+                </div>
+                <Switch
+                  checked={localSettings.serperSettings?.includeImages || false}
+                  onCheckedChange={(checked) =>
+                    setLocalSettings({
+                      ...localSettings,
+                      serperSettings: { ...localSettings.serperSettings, includeImages: checked } as any,
+                    })
+                  }
+                />
+              </div>
+
+              {localSettings.apiKeys?.serper && (
+                <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                  <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
+                    <span>✓</span> Web search is ready! Use the globe icon in chat to search.
+                  </p>
+                </div>
+              )}
             </TabsContent>
 
             {/* Voice Tab */}
