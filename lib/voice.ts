@@ -1,9 +1,22 @@
+// OpenAI TTS voices
+export const OPENAI_TTS_VOICES = [
+  { id: 'alloy', name: 'Alloy', description: 'Neutral, balanced' },
+  { id: 'echo', name: 'Echo', description: 'Warm, conversational' },
+  { id: 'fable', name: 'Fable', description: 'Expressive, British' },
+  { id: 'onyx', name: 'Onyx', description: 'Deep, authoritative' },
+  { id: 'nova', name: 'Nova', description: 'Friendly, upbeat' },
+  { id: 'shimmer', name: 'Shimmer', description: 'Clear, gentle' },
+] as const
+
+export type OpenAIVoiceId = typeof OPENAI_TTS_VOICES[number]['id']
+
 export class VoiceService {
   private recognition: any
   private synthesis: SpeechSynthesis
   private isListening = false
   private mediaRecorder: MediaRecorder | null = null
   private audioChunks: Blob[] = []
+  private currentAudio: HTMLAudioElement | null = null
 
   constructor() {
     if (typeof window !== "undefined") {
@@ -265,9 +278,95 @@ export class VoiceService {
   }
 
   stopSpeaking() {
+    // Stop browser TTS
     if (this.synthesis) {
       this.synthesis.cancel()
     }
+    // Stop OpenAI TTS audio
+    if (this.currentAudio) {
+      this.currentAudio.pause()
+      this.currentAudio.currentTime = 0
+      this.currentAudio = null
+    }
+  }
+
+  /**
+   * Speak text using OpenAI TTS API (higher quality)
+   */
+  async speakWithOpenAI(
+    text: string,
+    apiKey: string,
+    options?: { voice?: OpenAIVoiceId; speed?: number },
+    onEnd?: () => void,
+    onError?: (error: string) => void
+  ) {
+    // Stop any current playback
+    this.stopSpeaking()
+
+    try {
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          voice: options?.voice || 'nova',
+          speed: options?.speed || 1.0,
+          apiKey,
+        }),
+      })
+
+      // Check content type - if JSON, it's an error response
+      const contentType = response.headers.get('content-type') || ''
+
+      if (!response.ok || contentType.includes('application/json')) {
+        let errorMessage = 'TTS failed'
+        try {
+          const error = await response.json()
+          console.error('[Voice] OpenAI TTS error:', error)
+          errorMessage = error.details || error.error || 'TTS failed'
+        } catch {
+          errorMessage = `TTS failed with status ${response.status}`
+        }
+        onError?.(errorMessage)
+        return
+      }
+
+      // Get audio blob and play it
+      const audioBlob = await response.blob()
+
+      // Verify we got actual audio data
+      if (audioBlob.size === 0) {
+        onError?.('No audio data received')
+        return
+      }
+
+      const audioUrl = URL.createObjectURL(audioBlob)
+
+      this.currentAudio = new Audio(audioUrl)
+      this.currentAudio.onended = () => {
+        URL.revokeObjectURL(audioUrl)
+        this.currentAudio = null
+        onEnd?.()
+      }
+      this.currentAudio.onerror = (e) => {
+        console.error('[Voice] Audio playback error:', e)
+        URL.revokeObjectURL(audioUrl)
+        this.currentAudio = null
+        onError?.('Failed to play audio')
+      }
+
+      await this.currentAudio.play()
+    } catch (error) {
+      console.error('[Voice] OpenAI TTS error:', error)
+      onError?.(error instanceof Error ? error.message : 'TTS failed')
+    }
+  }
+
+  /**
+   * Check if OpenAI TTS is currently playing
+   */
+  isOpenAIPlaying(): boolean {
+    return this.currentAudio !== null && !this.currentAudio.paused
   }
 
   getVoices(): SpeechSynthesisVoice[] {

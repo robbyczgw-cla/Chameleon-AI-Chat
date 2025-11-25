@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { useState, useEffect, type ChangeEvent } from "react"
+import { useState, useEffect, type ChangeEvent, lazy, Suspense } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,15 +11,26 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import type { SettingsDialogProps } from "@/types"
-import { MCPManager } from "@/components/mcp-manager"
-import { voiceService } from "@/lib/voice"
-import { SystemPromptsManager } from "@/components/system-prompts-manager"
+import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { memoryService } from "@/lib/memory-service"
-import { UsageStatsWidget } from "@/components/usage-stats-widget"
-import { AIMemoryHub } from "@/components/ai-memory-hub"
 import { ModeHelpDialog } from "@/components/mode-help-dialog"
-import { ChatAnalytics } from "@/components/chat-analytics"
-import { ExperimentalSettings } from "@/components/experimental-settings"
+
+// Lazy load heavy components for better initial bundle size
+const MCPManager = lazy(() => import("@/components/mcp-manager").then(m => ({ default: m.MCPManager })))
+const SystemPromptsManager = lazy(() => import("@/components/system-prompts-manager").then(m => ({ default: m.SystemPromptsManager })))
+const UsageStatsWidget = lazy(() => import("@/components/usage-stats-widget").then(m => ({ default: m.UsageStatsWidget })))
+const AIMemoryHub = lazy(() => import("@/components/ai-memory-hub").then(m => ({ default: m.AIMemoryHub })))
+const ChatAnalytics = lazy(() => import("@/components/chat-analytics").then(m => ({ default: m.ChatAnalytics })))
+const ExperimentalSettings = lazy(() => import("@/components/experimental-settings").then(m => ({ default: m.ExperimentalSettings })))
+
+// Loading fallback for lazy components
+function TabLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center py-8">
+      <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+    </div>
+  )
+}
 import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
@@ -125,8 +136,31 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   }, [localSettings])
 
   useEffect(() => {
+    // Load voices - they load asynchronously on most browsers
+    const loadVoices = () => {
+      const availableVoices = voiceService.getVoices()
+      if (availableVoices.length > 0) {
+        // Sort voices: English first, then by name
+        const sorted = availableVoices.sort((a, b) => {
+          const aEn = a.lang.startsWith('en')
+          const bEn = b.lang.startsWith('en')
+          if (aEn && !bEn) return -1
+          if (!aEn && bEn) return 1
+          return a.name.localeCompare(b.name)
+        })
+        setVoices(sorted)
+      }
+    }
+
     if (voiceService.isSupported()) {
-      setTimeout(() => setVoices(voiceService.getVoices()), 100)
+      // Try immediately
+      loadVoices()
+      // Also listen for voiceschanged event (required for Chrome)
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = loadVoices
+      }
+      // Fallback timeout for older browsers
+      setTimeout(loadVoices, 500)
     }
 
     // Load theme from localStorage
@@ -142,6 +176,9 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
 
     return () => {
       window.removeEventListener("closeSettings", handleCloseSettings)
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null
+      }
     }
   }, [onOpenChange])
 
@@ -392,11 +429,15 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
             </TabsContent>
 
             <TabsContent value="memory" className="space-y-4 mt-0">
-              <AIMemoryHub />
+              <Suspense fallback={<TabLoadingFallback />}>
+                <AIMemoryHub />
+              </Suspense>
             </TabsContent>
 
             <TabsContent value="analytics" className="space-y-4 mt-0">
-              <ChatAnalytics />
+              <Suspense fallback={<TabLoadingFallback />}>
+                <ChatAnalytics />
+              </Suspense>
             </TabsContent>
 
             <TabsContent value="api" className="space-y-4 mt-0">
@@ -1108,26 +1149,123 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   />
                 </div>
 
+                {/* TTS Provider Selection */}
                 <div className="space-y-2">
-                  <Label className="text-sm sm:text-base">Voice</Label>
+                  <Label className="text-sm sm:text-base">TTS Provider</Label>
                   <select
-                    value={localSettings.voiceSettings?.voice || ""}
+                    value={localSettings.voiceSettings?.ttsProvider || "browser"}
                     onChange={(e) =>
                       setLocalSettings({
                         ...localSettings,
-                        voiceSettings: { ...localSettings.voiceSettings, voice: e.target.value } as any,
+                        voiceSettings: { ...localSettings.voiceSettings, ttsProvider: e.target.value } as any,
                       })
                     }
                     className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
                   >
-                    <option value="">Default</option>
-                    {voices.map((voice) => (
-                      <option key={voice.name} value={voice.name}>
-                        {voice.name} ({voice.lang})
-                      </option>
-                    ))}
+                    <option value="browser">Browser (Free, basic quality)</option>
+                    <option value="openai">OpenAI (Requires API key, high quality)</option>
                   </select>
                 </div>
+
+                {/* Browser Voice Selection */}
+                {(localSettings.voiceSettings?.ttsProvider || "browser") === "browser" && (
+                  <div className="space-y-2">
+                    <Label className="text-sm sm:text-base">Voice ({voices.length} available)</Label>
+                    <div className="flex gap-2">
+                      <select
+                        value={localSettings.voiceSettings?.voice || ""}
+                        onChange={(e) =>
+                          setLocalSettings({
+                            ...localSettings,
+                            voiceSettings: { ...localSettings.voiceSettings, voice: e.target.value } as any,
+                          })
+                        }
+                        className="flex-1 rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
+                      >
+                        <option value="">System Default</option>
+                        {voices.length === 0 && <option disabled>Loading voices...</option>}
+                        {voices.map((voice) => (
+                          <option key={voice.name} value={voice.name}>
+                            {voice.name} ({voice.lang}){voice.localService ? '' : ' ☁️'}
+                          </option>
+                        ))}
+                      </select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="min-h-[44px] px-3"
+                        onClick={() => {
+                          const testText = "Hello! This is a test of the browser text-to-speech."
+                          voiceService.speak(testText, {
+                            rate: localSettings.voiceSettings?.rate || 1,
+                            pitch: localSettings.voiceSettings?.pitch || 1,
+                            voice: localSettings.voiceSettings?.voice,
+                          })
+                        }}
+                      >
+                        Test
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      ☁️ = Online voice (higher quality). Choose an English voice for best results.
+                    </p>
+                  </div>
+                )}
+
+                {/* OpenAI Voice Selection */}
+                {localSettings.voiceSettings?.ttsProvider === "openai" && (
+                  <div className="space-y-2">
+                    <Label className="text-sm sm:text-base">OpenAI Voice</Label>
+                    <div className="flex gap-2">
+                      <select
+                        value={localSettings.voiceSettings?.openaiVoice || "nova"}
+                        onChange={(e) =>
+                          setLocalSettings({
+                            ...localSettings,
+                            voiceSettings: { ...localSettings.voiceSettings, openaiVoice: e.target.value } as any,
+                          })
+                        }
+                        className="flex-1 rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
+                      >
+                        {OPENAI_TTS_VOICES.map((voice) => (
+                          <option key={voice.id} value={voice.id}>
+                            {voice.name} - {voice.description}
+                          </option>
+                        ))}
+                      </select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="min-h-[44px] px-3"
+                        onClick={async () => {
+                          const openAiKey = localSettings.apiKeys?.openAI
+                          if (!openAiKey) {
+                            toast({
+                              title: "API Key Required",
+                              description: "Please add your OpenAI API key in the API Keys tab",
+                              variant: "destructive",
+                            })
+                            return
+                          }
+                          toast({ title: "🔊 Generating speech..." })
+                          await voiceService.speakWithOpenAI(
+                            "Hello! This is a test of the OpenAI text-to-speech voice.",
+                            openAiKey,
+                            {
+                              voice: (localSettings.voiceSettings?.openaiVoice as any) || 'nova',
+                              speed: localSettings.voiceSettings?.rate || 1,
+                            }
+                          )
+                        }}
+                      >
+                        Test
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      High-quality neural voices. Requires OpenAI API key.
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label className="text-sm sm:text-base">Speech Rate: {localSettings.voiceSettings?.rate || 1}</Label>
@@ -1233,7 +1371,9 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
 
             {!hideOptions.includes("mcp") && (
               <TabsContent value="mcp" className="space-y-4 mt-0">
-                <MCPManager />
+                <Suspense fallback={<TabLoadingFallback />}>
+                  <MCPManager />
+                </Suspense>
               </TabsContent>
             )}
 
@@ -1245,12 +1385,16 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                     Verfolgen Sie Ihre API-Nutzung, Kosten und Chat-Aktivität im Detail.
                   </p>
                 </div>
-                <UsageStatsWidget />
+                <Suspense fallback={<TabLoadingFallback />}>
+                  <UsageStatsWidget />
+                </Suspense>
               </div>
             </TabsContent>
 
             <TabsContent value="experimental" className="space-y-4 mt-0">
-              <ExperimentalSettings />
+              <Suspense fallback={<TabLoadingFallback />}>
+                <ExperimentalSettings />
+              </Suspense>
             </TabsContent>
           </div>
         </Tabs>
