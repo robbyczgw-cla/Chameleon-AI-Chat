@@ -175,6 +175,7 @@ export interface ExaSettings {
   includeFullText: boolean // Get full page content
   includeHighlights: boolean // Get relevant snippets
   includeSummary: boolean // Get AI-generated summary
+  includeImages: boolean // Include images from results in response
   highlightsPerResult: number // Number of highlight sentences
   maxTextCharacters: number // Limit text length
   livecrawl: "never" | "fallback" | "always" // Fresh content crawling

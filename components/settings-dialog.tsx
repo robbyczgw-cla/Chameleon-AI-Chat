@@ -799,6 +799,27 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                         />
                       </div>
 
+                      <div className="flex items-center justify-between py-1">
+                        <div>
+                          <Label htmlFor="exa-images" className="text-sm sm:text-base cursor-pointer">
+                            🖼️ Bilder einbeziehen
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Bilder aus Suchergebnissen anzeigen
+                          </p>
+                        </div>
+                        <Switch
+                          id="exa-images"
+                          checked={localSettings.exaSettings?.includeImages || false}
+                          onCheckedChange={(checked) =>
+                            setLocalSettings({
+                              ...localSettings,
+                              exaSettings: { ...localSettings.exaSettings, includeImages: checked } as any,
+                            })
+                          }
+                        />
+                      </div>
+
                       <div className="space-y-2">
                         <Label htmlFor="exa-livecrawl" className="text-sm sm:text-base">
                           Livecrawl-Modus

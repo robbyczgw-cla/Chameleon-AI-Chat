@@ -81,6 +81,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     includeFullText: true,
     includeHighlights: true,
     includeSummary: false,
+    includeImages: false, // Don't include images by default
     highlightsPerResult: 3,
     maxTextCharacters: 3000,
     livecrawl: "fallback", // Crawl if content is stale
