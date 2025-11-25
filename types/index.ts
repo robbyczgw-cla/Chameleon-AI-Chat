@@ -167,6 +167,21 @@ export interface SerperSettings {
   page?: number // Pagination
 }
 
+export interface ExaSettings {
+  maxResults: number // 1-100
+  searchType: "neural" | "keyword" | "auto" // Search method
+  useAutoprompt: boolean // Let Exa optimize query
+  category?: "company" | "research paper" | "news" | "pdf" | "github" | "tweet" | "personal site" | "linkedin profile" | "financial report"
+  includeFullText: boolean // Get full page content
+  includeHighlights: boolean // Get relevant snippets
+  includeSummary: boolean // Get AI-generated summary
+  highlightsPerResult: number // Number of highlight sentences
+  maxTextCharacters: number // Limit text length
+  livecrawl: "never" | "fallback" | "always" // Fresh content crawling
+  includeDomains?: string[] // Only search these domains
+  excludeDomains?: string[] // Exclude these domains
+}
+
 export interface KeyboardShortcut {
   key: string
   ctrl?: boolean
@@ -197,6 +212,7 @@ export interface AppSettings {
     openAI?: string
     tavily?: string
     serper?: string
+    exa?: string
   }
   selectedModel: string
   selectedModels?: string[] // Array of user's selected OpenRouter models (persisted to database)
@@ -204,12 +220,13 @@ export interface AppSettings {
   temperature?: number
   maxTokens?: number
   systemPrompt: string
-  searchProvider?: "tavily" | "serper" // Which search API to use
+  searchProvider?: "tavily" | "serper" | "exa" // Which search API to use
   mcpServers?: MCPServerConfig[]
   modelParameters?: ModelParameters
   voiceSettings?: VoiceSettings
   tavilySettings?: TavilySettings
   serperSettings?: SerperSettings
+  exaSettings?: ExaSettings
   comparisonMode?: ComparisonMode
   memorySettings?: MemorySettings
   fontSize?: "small" | "medium" | "large"
