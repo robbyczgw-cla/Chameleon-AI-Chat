@@ -315,15 +315,31 @@ export class VoiceService {
         }),
       })
 
-      if (!response.ok) {
-        const error = await response.json()
-        console.error('[Voice] OpenAI TTS error:', error)
-        onError?.(error.details || error.error || 'TTS failed')
+      // Check content type - if JSON, it's an error response
+      const contentType = response.headers.get('content-type') || ''
+
+      if (!response.ok || contentType.includes('application/json')) {
+        let errorMessage = 'TTS failed'
+        try {
+          const error = await response.json()
+          console.error('[Voice] OpenAI TTS error:', error)
+          errorMessage = error.details || error.error || 'TTS failed'
+        } catch {
+          errorMessage = `TTS failed with status ${response.status}`
+        }
+        onError?.(errorMessage)
         return
       }
 
       // Get audio blob and play it
       const audioBlob = await response.blob()
+
+      // Verify we got actual audio data
+      if (audioBlob.size === 0) {
+        onError?.('No audio data received')
+        return
+      }
+
       const audioUrl = URL.createObjectURL(audioBlob)
 
       this.currentAudio = new Audio(audioUrl)
@@ -332,7 +348,8 @@ export class VoiceService {
         this.currentAudio = null
         onEnd?.()
       }
-      this.currentAudio.onerror = () => {
+      this.currentAudio.onerror = (e) => {
+        console.error('[Voice] Audio playback error:', e)
         URL.revokeObjectURL(audioUrl)
         this.currentAudio = null
         onError?.('Failed to play audio')

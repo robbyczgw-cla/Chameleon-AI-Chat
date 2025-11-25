@@ -43,10 +43,16 @@ export async function POST(req: NextRequest) {
     })
 
     if (!response.ok) {
-      const error = await response.text()
-      console.error('[TTS API] OpenAI error:', error)
+      let errorDetails = 'Unknown error'
+      try {
+        const errorData = await response.json()
+        console.error('[TTS API] OpenAI error:', errorData)
+        errorDetails = errorData.error?.message || JSON.stringify(errorData)
+      } catch {
+        errorDetails = await response.text()
+      }
       return NextResponse.json(
-        { error: 'Failed to generate speech', details: error },
+        { error: 'Failed to generate speech', details: errorDetails },
         { status: response.status }
       )
     }
