@@ -13,7 +13,7 @@ import { searchWithSerper, formatSearchResults as formatSerperResults } from "@/
 import { searchWithYoucom, formatSearchResults as formatYoucomResults } from "@/lib/youcom"
 import type { SearchResponse } from "@/lib/serper"
 import { useToast } from "@/hooks/use-toast"
-import { generateUUID } from "@/lib/utils"
+import { generateUUID, cn } from "@/lib/utils"
 import { supabaseSync } from "@/lib/supabase/sync"
 import { estimateTokens, calculateCost } from "@/lib/token-tracker"
 import { languageService, getTranslation } from "@/lib/languages"

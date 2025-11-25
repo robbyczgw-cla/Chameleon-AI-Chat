@@ -143,6 +143,8 @@ export interface VoiceSettings {
   voice: string
   rate: number
   pitch: number
+  ttsProvider?: "browser" | "openai"
+  openaiVoice?: string
 }
 
 export interface TavilySettings {
@@ -208,6 +210,7 @@ export interface ExperimentalSettings {
 export interface AppSettings {
   theme?: "light" | "dark"
   language?: "en" | "de" // UI language: English or German
+  simpleMode?: boolean // Simple Mode: Clean UI focused on personas & profile
   apiKeys: {
     openRouter?: string
     openAI?: string
