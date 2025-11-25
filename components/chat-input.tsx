@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { FolderOpen, Send, Mic, Globe, MicOff, Square, Zap, Image, Lightbulb } from "lucide-react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -185,7 +185,7 @@ export function ChatInput() {
     }
   })
 
-  const stopGeneration = () => {
+  const stopGeneration = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
       abortControllerRef.current = null
@@ -195,10 +195,10 @@ export function ChatInput() {
         description: "Response generation has been cancelled",
       })
     }
-  }
+  }, [toast])
 
   // Handle input change and slash command suggestions
-  const handleInputChange = (value: string) => {
+  const handleInputChange = useCallback((value: string) => {
     setInput(value)
 
     // Check for slash commands
@@ -210,14 +210,14 @@ export function ChatInput() {
       setShowCommandMenu(false)
       setCommandSuggestions([])
     }
-  }
+  }, [])
 
   // Select a slash command from suggestions
-  const selectCommand = (command: typeof SLASH_COMMANDS[0]) => {
+  const selectCommand = useCallback((command: typeof SLASH_COMMANDS[0]) => {
     setInput(command.command + ' ')
     setShowCommandMenu(false)
     textareaRef.current?.focus()
-  }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

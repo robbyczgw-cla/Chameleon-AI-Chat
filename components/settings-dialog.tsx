@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { useState, useEffect, type ChangeEvent } from "react"
+import { useState, useEffect, type ChangeEvent, lazy, Suspense } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,15 +11,26 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import type { SettingsDialogProps } from "@/types"
-import { MCPManager } from "@/components/mcp-manager"
 import { voiceService } from "@/lib/voice"
-import { SystemPromptsManager } from "@/components/system-prompts-manager"
 import { memoryService } from "@/lib/memory-service"
-import { UsageStatsWidget } from "@/components/usage-stats-widget"
-import { AIMemoryHub } from "@/components/ai-memory-hub"
 import { ModeHelpDialog } from "@/components/mode-help-dialog"
-import { ChatAnalytics } from "@/components/chat-analytics"
-import { ExperimentalSettings } from "@/components/experimental-settings"
+
+// Lazy load heavy components for better initial bundle size
+const MCPManager = lazy(() => import("@/components/mcp-manager").then(m => ({ default: m.MCPManager })))
+const SystemPromptsManager = lazy(() => import("@/components/system-prompts-manager").then(m => ({ default: m.SystemPromptsManager })))
+const UsageStatsWidget = lazy(() => import("@/components/usage-stats-widget").then(m => ({ default: m.UsageStatsWidget })))
+const AIMemoryHub = lazy(() => import("@/components/ai-memory-hub").then(m => ({ default: m.AIMemoryHub })))
+const ChatAnalytics = lazy(() => import("@/components/chat-analytics").then(m => ({ default: m.ChatAnalytics })))
+const ExperimentalSettings = lazy(() => import("@/components/experimental-settings").then(m => ({ default: m.ExperimentalSettings })))
+
+// Loading fallback for lazy components
+function TabLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center py-8">
+      <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+    </div>
+  )
+}
 import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
@@ -392,11 +403,15 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
             </TabsContent>
 
             <TabsContent value="memory" className="space-y-4 mt-0">
-              <AIMemoryHub />
+              <Suspense fallback={<TabLoadingFallback />}>
+                <AIMemoryHub />
+              </Suspense>
             </TabsContent>
 
             <TabsContent value="analytics" className="space-y-4 mt-0">
-              <ChatAnalytics />
+              <Suspense fallback={<TabLoadingFallback />}>
+                <ChatAnalytics />
+              </Suspense>
             </TabsContent>
 
             <TabsContent value="api" className="space-y-4 mt-0">
@@ -1233,7 +1248,9 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
 
             {!hideOptions.includes("mcp") && (
               <TabsContent value="mcp" className="space-y-4 mt-0">
-                <MCPManager />
+                <Suspense fallback={<TabLoadingFallback />}>
+                  <MCPManager />
+                </Suspense>
               </TabsContent>
             )}
 
@@ -1245,12 +1262,16 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                     Verfolgen Sie Ihre API-Nutzung, Kosten und Chat-Aktivität im Detail.
                   </p>
                 </div>
-                <UsageStatsWidget />
+                <Suspense fallback={<TabLoadingFallback />}>
+                  <UsageStatsWidget />
+                </Suspense>
               </div>
             </TabsContent>
 
             <TabsContent value="experimental" className="space-y-4 mt-0">
-              <ExperimentalSettings />
+              <Suspense fallback={<TabLoadingFallback />}>
+                <ExperimentalSettings />
+              </Suspense>
             </TabsContent>
           </div>
         </Tabs>

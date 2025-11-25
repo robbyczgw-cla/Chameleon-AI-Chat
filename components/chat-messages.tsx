@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX, ChevronDown, ChevronRight, Lightbulb } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo, useCallback } from "react"
 import { useToast } from "@/hooks/use-toast"
 import ReactMarkdown from "react-markdown"
 import { voiceService } from "@/lib/voice"
@@ -34,7 +34,7 @@ interface ChatMessagesProps {
  * Helper component to render multimodal message content
  * Handles both text-only and text+image messages
  */
-function RenderMessageContent({ content }: { content: MessageContent }) {
+const RenderMessageContent = memo(function RenderMessageContent({ content }: { content: MessageContent }) {
   // If it's a string, return it directly
   if (typeof content === "string") {
     return <>{content}</>
@@ -63,16 +63,16 @@ function RenderMessageContent({ content }: { content: MessageContent }) {
       })}
     </>
   )
-}
+})
 
-export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
+export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
   const { chats, currentChatId, addMessage, updateChat, settings, isChatLoading } = useApp()
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [speakingId, setSpeakingId] = useState<string | null>(null)
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set())
   const { toast } = useToast()
 
-  const toggleReasoning = (messageId: string) => {
+  const toggleReasoning = useCallback((messageId: string) => {
     setExpandedReasoning(prev => {
       const next = new Set(prev)
       if (next.has(messageId)) {
@@ -82,11 +82,11 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
       }
       return next
     })
-  }
+  }, [])
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
 
-  const handleCopy = async (content: MessageContent, messageId: string) => {
+  const handleCopy = useCallback(async (content: MessageContent, messageId: string) => {
     const textContent = contentToText(content)
     await navigator.clipboard.writeText(textContent)
     setCopiedId(messageId)
@@ -95,15 +95,15 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
       title: "Copied to clipboard",
       description: "Message content copied successfully",
     })
-  }
+  }, [toast])
 
-  const handleCopyCode = async (code: string) => {
+  const handleCopyCode = useCallback(async (code: string) => {
     await navigator.clipboard.writeText(code)
     toast({
       title: "Code copied",
       description: "Code block copied to clipboard",
     })
-  }
+  }, [toast])
 
   const handleSpeak = (content: MessageContent, messageId: string) => {
     if (!voiceService.isSupported()) {
@@ -499,16 +499,18 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
                 return <ResponseAnalysisPanel analysis={analysis} className="mt-3" />
               })()}
 
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Message action buttons - always visible on mobile, hover on desktop */}
+              <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-6 w-6 sm:h-7 sm:w-7"
                   onClick={() => handleCopy(message.content, message.id)}
+                  title="Copy message"
                 >
                   {copiedId === message.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                 </Button>
-                {message.role === "assistant" && settings.voiceSettings?.enabled !== false && (
+                {settings.voiceSettings?.enabled !== false && (
                   <Button
                     variant="ghost"
                     size="icon"
@@ -525,6 +527,7 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
                     size="icon"
                     className="h-6 w-6 sm:h-7 sm:w-7"
                     onClick={() => handleRegenerate(index)}
+                    title="Regenerate response"
                   >
                     <RefreshCw className="h-3 w-3" />
                   </Button>
@@ -534,6 +537,7 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
                   size="icon"
                   className="h-6 w-6 sm:h-7 sm:w-7"
                   onClick={() => handleDelete(index)}
+                  title="Delete message"
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>
@@ -597,4 +601,4 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
       </div>
     </ScrollArea>
   )
-}
+})
