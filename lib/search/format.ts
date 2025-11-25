@@ -85,7 +85,8 @@ export function buildSearchContext(
       results: "Detaillierte Ergebnisse",
       images: "Bilder",
       optimized: "Optimierte Suche",
-      instruction: "Bitte verwenden Sie die obigen Websuchergebnisse, um eine genaue und aktuelle Antwort auf die Frage des Benutzers zu geben."
+      instruction: "Bitte verwenden Sie die obigen Websuchergebnisse, um eine genaue und aktuelle Antwort auf die Frage des Benutzers zu geben.",
+      imageInstruction: " Bei Bildern bitte die URLs im Markdown-Format einbinden: ![Beschreibung](URL)"
     },
     en: {
       searchFor: "Web search results for",
@@ -93,7 +94,8 @@ export function buildSearchContext(
       results: "Detailed results",
       images: "Images",
       optimized: "Optimized search",
-      instruction: "Please use the above web search results to provide an accurate and up-to-date answer to the user's question."
+      instruction: "Please use the above web search results to provide an accurate and up-to-date answer to the user's question.",
+      imageInstruction: " For images, please include URLs in Markdown format: ![Description](URL)"
     }
   }
 
@@ -124,12 +126,12 @@ export function buildSearchContext(
     context += `${l.results}:\n${formatSearchResults(response.results)}`
   }
 
-  // Add images if available
+  // Add images if available (as markdown images for rendering)
   if (includeImages && response.images?.length) {
-    context += `\n\n📸 ${l.images}:\n${response.images.slice(0, 5).map((img, i) => `[${i + 1}] ${img}`).join('\n')}`
+    context += `\n\n📸 ${l.images}:\n${response.images.slice(0, 5).map((img, i) => `![${l.images} ${i + 1}](${img})`).join('\n\n')}`
   }
 
-  context += `\n\n${l.instruction}`
+  context += `\n\n${l.instruction}${includeImages && response.images?.length ? l.imageInstruction : ''}`
 
   return context
 }
