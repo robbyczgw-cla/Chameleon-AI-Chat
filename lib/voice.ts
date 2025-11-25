@@ -173,9 +173,20 @@ export class VoiceService {
 
         try {
           // Send to Whisper API
+          // Use correct file extension based on mimeType
+          const extension = mimeType === 'audio/webm' ? 'webm' : 'm4a'
+          const filename = `recording.${extension}`
+
+          console.log('[Voice] Sending audio to Whisper:', {
+            size: audioBlob.size,
+            type: audioBlob.type,
+            filename
+          })
+
           const formData = new FormData()
-          formData.append('audio', audioBlob)
+          formData.append('audio', audioBlob, filename)
           formData.append('apiKey', apiKey)
+          formData.append('mimeType', mimeType)
 
           const response = await fetch('/api/whisper', {
             method: 'POST',
@@ -184,7 +195,12 @@ export class VoiceService {
 
           if (!response.ok) {
             const error = await response.json()
-            onError?.(error.error || 'Failed to transcribe audio')
+            console.error('[Voice] Whisper API error:', error)
+            // Show more details if available (helps debugging)
+            const msg = error.details
+              ? `${error.error}: ${typeof error.details === 'string' ? error.details.slice(0, 100) : JSON.stringify(error.details).slice(0, 100)}`
+              : error.error || 'Failed to transcribe audio'
+            onError?.(msg)
             return
           }
 
