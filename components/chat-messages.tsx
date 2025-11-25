@@ -105,47 +105,87 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
     })
   }, [toast])
 
-  const handleSpeak = (content: MessageContent, messageId: string) => {
+  const handleSpeak = async (content: MessageContent, messageId: string) => {
+    // Check if already speaking this message - stop if so
+    if (speakingId === messageId) {
+      voiceService.stopSpeaking()
+      setSpeakingId(null)
+      return
+    }
+
+    const textContent = contentToText(content)
+    const cleanText = textContent.replace(/[#*`[\]]/g, "").replace(/\n+/g, ". ")
+    const ttsProvider = settings.voiceSettings?.ttsProvider || 'browser'
+
+    setSpeakingId(messageId)
+
+    // Use OpenAI TTS if selected
+    if (ttsProvider === 'openai') {
+      const openAiKey = settings.apiKeys?.openAI
+      if (!openAiKey) {
+        toast({
+          title: "API Key Required",
+          description: "Please add your OpenAI API key in Settings → API Keys",
+          variant: "destructive",
+        })
+        setSpeakingId(null)
+        return
+      }
+
+      console.log('[ChatMessages] 🔊 Speaking with OpenAI TTS')
+      await voiceService.speakWithOpenAI(
+        cleanText,
+        openAiKey,
+        {
+          voice: (settings.voiceSettings?.openaiVoice as any) || 'nova',
+          speed: settings.voiceSettings?.rate || 1,
+        },
+        () => setSpeakingId(null), // onEnd
+        (error) => {
+          toast({
+            title: "TTS Error",
+            description: error,
+            variant: "destructive",
+          })
+          setSpeakingId(null)
+        }
+      )
+      return
+    }
+
+    // Browser TTS fallback
     if (!voiceService.isSupported()) {
       toast({
         title: "Not supported",
         description: "Text-to-speech is not supported in your browser",
         variant: "destructive",
       })
+      setSpeakingId(null)
       return
     }
 
-    if (speakingId === messageId) {
-      voiceService.stopSpeaking()
-      setSpeakingId(null)
-    } else {
-      setSpeakingId(messageId)
-      const textContent = contentToText(content)
-      const cleanText = textContent.replace(/[#*`[\]]/g, "").replace(/\n+/g, ". ")
+    // Use persona-specific voice settings if available and enabled
+    const usePersonaVoice = currentPersona?.voiceSettings?.enabled
+    const voiceOptions = usePersonaVoice
+      ? {
+        rate: currentPersona.voiceSettings?.rate || settings.voiceSettings?.rate || 1,
+        pitch: currentPersona.voiceSettings?.pitch || settings.voiceSettings?.pitch || 1,
+        voice: currentPersona.voiceSettings?.voiceName || settings.voiceSettings?.voice,
+      }
+      : {
+        rate: settings.voiceSettings?.rate || 1,
+        pitch: settings.voiceSettings?.pitch || 1,
+        voice: settings.voiceSettings?.voice,
+      }
 
-      // Use persona-specific voice settings if available and enabled
-      const usePersonaVoice = currentPersona?.voiceSettings?.enabled
-      const voiceOptions = usePersonaVoice
-        ? {
-          rate: currentPersona.voiceSettings?.rate || settings.voiceSettings?.rate || 1,
-          pitch: currentPersona.voiceSettings?.pitch || settings.voiceSettings?.pitch || 1,
-          voice: currentPersona.voiceSettings?.voiceName || settings.voiceSettings?.voice,
-        }
-        : {
-          rate: settings.voiceSettings?.rate || 1,
-          pitch: settings.voiceSettings?.pitch || 1,
-          voice: settings.voiceSettings?.voice,
-        }
+    console.log(
+      `[ChatMessages] 🔊 Speaking with ${usePersonaVoice ? `${currentPersona?.name}'s voice` : "browser voice"}`,
+      voiceOptions
+    )
 
-      console.log(
-        `[ChatMessages] 🔊 Speaking with ${usePersonaVoice ? `${currentPersona?.name}'s voice` : "default voice"}`,
-        voiceOptions
-      )
-
-      voiceService.speak(cleanText, voiceOptions)
-      const estimatedDuration = (cleanText.length / 10) * 1000
-      setTimeout(() => setSpeakingId(null), estimatedDuration)
-    }
+    voiceService.speak(cleanText, voiceOptions)
+    const estimatedDuration = (cleanText.length / 10) * 1000
+    setTimeout(() => setSpeakingId(null), estimatedDuration)
   }
 
   const handleRegenerate = async (messageIndex: number) => {

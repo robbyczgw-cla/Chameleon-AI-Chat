@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import type { SettingsDialogProps } from "@/types"
-import { voiceService } from "@/lib/voice"
+import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { memoryService } from "@/lib/memory-service"
 import { ModeHelpDialog } from "@/components/mode-help-dialog"
 
@@ -1149,47 +1149,123 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   />
                 </div>
 
+                {/* TTS Provider Selection */}
                 <div className="space-y-2">
-                  <Label className="text-sm sm:text-base">Voice ({voices.length} available)</Label>
-                  <div className="flex gap-2">
-                    <select
-                      value={localSettings.voiceSettings?.voice || ""}
-                      onChange={(e) =>
-                        setLocalSettings({
-                          ...localSettings,
-                          voiceSettings: { ...localSettings.voiceSettings, voice: e.target.value } as any,
-                        })
-                      }
-                      className="flex-1 rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
-                    >
-                      <option value="">System Default</option>
-                      {voices.length === 0 && <option disabled>Loading voices...</option>}
-                      {voices.map((voice) => (
-                        <option key={voice.name} value={voice.name}>
-                          {voice.name} ({voice.lang}){voice.localService ? '' : ' ☁️'}
-                        </option>
-                      ))}
-                    </select>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="min-h-[44px] px-3"
-                      onClick={() => {
-                        const testText = "Hello! This is a test of the text-to-speech voice."
-                        voiceService.speak(testText, {
-                          rate: localSettings.voiceSettings?.rate || 1,
-                          pitch: localSettings.voiceSettings?.pitch || 1,
-                          voice: localSettings.voiceSettings?.voice,
-                        })
-                      }}
-                    >
-                      Test
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    ☁️ = Online voice (higher quality). Choose an English voice for best results.
-                  </p>
+                  <Label className="text-sm sm:text-base">TTS Provider</Label>
+                  <select
+                    value={localSettings.voiceSettings?.ttsProvider || "browser"}
+                    onChange={(e) =>
+                      setLocalSettings({
+                        ...localSettings,
+                        voiceSettings: { ...localSettings.voiceSettings, ttsProvider: e.target.value } as any,
+                      })
+                    }
+                    className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
+                  >
+                    <option value="browser">Browser (Free, basic quality)</option>
+                    <option value="openai">OpenAI (Requires API key, high quality)</option>
+                  </select>
                 </div>
+
+                {/* Browser Voice Selection */}
+                {(localSettings.voiceSettings?.ttsProvider || "browser") === "browser" && (
+                  <div className="space-y-2">
+                    <Label className="text-sm sm:text-base">Voice ({voices.length} available)</Label>
+                    <div className="flex gap-2">
+                      <select
+                        value={localSettings.voiceSettings?.voice || ""}
+                        onChange={(e) =>
+                          setLocalSettings({
+                            ...localSettings,
+                            voiceSettings: { ...localSettings.voiceSettings, voice: e.target.value } as any,
+                          })
+                        }
+                        className="flex-1 rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
+                      >
+                        <option value="">System Default</option>
+                        {voices.length === 0 && <option disabled>Loading voices...</option>}
+                        {voices.map((voice) => (
+                          <option key={voice.name} value={voice.name}>
+                            {voice.name} ({voice.lang}){voice.localService ? '' : ' ☁️'}
+                          </option>
+                        ))}
+                      </select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="min-h-[44px] px-3"
+                        onClick={() => {
+                          const testText = "Hello! This is a test of the browser text-to-speech."
+                          voiceService.speak(testText, {
+                            rate: localSettings.voiceSettings?.rate || 1,
+                            pitch: localSettings.voiceSettings?.pitch || 1,
+                            voice: localSettings.voiceSettings?.voice,
+                          })
+                        }}
+                      >
+                        Test
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      ☁️ = Online voice (higher quality). Choose an English voice for best results.
+                    </p>
+                  </div>
+                )}
+
+                {/* OpenAI Voice Selection */}
+                {localSettings.voiceSettings?.ttsProvider === "openai" && (
+                  <div className="space-y-2">
+                    <Label className="text-sm sm:text-base">OpenAI Voice</Label>
+                    <div className="flex gap-2">
+                      <select
+                        value={localSettings.voiceSettings?.openaiVoice || "nova"}
+                        onChange={(e) =>
+                          setLocalSettings({
+                            ...localSettings,
+                            voiceSettings: { ...localSettings.voiceSettings, openaiVoice: e.target.value } as any,
+                          })
+                        }
+                        className="flex-1 rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
+                      >
+                        {OPENAI_TTS_VOICES.map((voice) => (
+                          <option key={voice.id} value={voice.id}>
+                            {voice.name} - {voice.description}
+                          </option>
+                        ))}
+                      </select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="min-h-[44px] px-3"
+                        onClick={async () => {
+                          const openAiKey = localSettings.apiKeys?.openAI
+                          if (!openAiKey) {
+                            toast({
+                              title: "API Key Required",
+                              description: "Please add your OpenAI API key in the API Keys tab",
+                              variant: "destructive",
+                            })
+                            return
+                          }
+                          toast({ title: "🔊 Generating speech..." })
+                          await voiceService.speakWithOpenAI(
+                            "Hello! This is a test of the OpenAI text-to-speech voice.",
+                            openAiKey,
+                            {
+                              voice: (localSettings.voiceSettings?.openaiVoice as any) || 'nova',
+                              speed: localSettings.voiceSettings?.rate || 1,
+                            }
+                          )
+                        }}
+                      >
+                        Test
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      High-quality neural voices. Requires OpenAI API key.
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label className="text-sm sm:text-base">Speech Rate: {localSettings.voiceSettings?.rate || 1}</Label>
