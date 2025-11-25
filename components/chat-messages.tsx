@@ -200,8 +200,8 @@ export function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
   }
 
   return (
-    <ScrollArea className="h-full w-full">
-      <div className="w-full max-w-3xl mx-auto space-y-8 px-4 sm:px-6 py-8">
+    <ScrollArea className="h-full w-full native-scroll">
+      <div className="w-full max-w-3xl mx-auto space-y-8 px-4 sm:px-6 py-8 gpu-layer">
         {currentChat.messages.map((message, index) => (
           <div
             key={message.id}
