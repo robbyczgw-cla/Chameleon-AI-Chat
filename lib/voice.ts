@@ -89,24 +89,12 @@ export class VoiceService {
         return
       }
 
-      // Check permission state first (if supported)
-      const permState = await this.checkMicrophonePermission()
-      console.log('[Voice] Permission state:', permState)
-
-      if (permState === 'denied') {
-        // Permission was previously denied - guide user to settings
-        const isPWA = window.matchMedia('(display-mode: standalone)').matches
-        if (isPWA) {
-          onError?.('Microphone blocked. Fix: Chrome menu (⋮) → Site settings → Microphone → Allow')
-        } else {
-          onError?.('Microphone blocked. Click the 🔒 icon in address bar → Site settings → Microphone → Allow')
-        }
-        return
-      }
-
-      // Request microphone permission (Firefox/Zen need this FIRST before enumerateDevices shows devices)
+      // IMPORTANT: Always try getUserMedia() FIRST - this triggers the actual permission prompt!
+      // Don't check permission state beforehand as it can incorrectly report 'denied' on some devices
+      // even when the user has never seen a prompt.
       let stream: MediaStream
       try {
+        console.log('[Voice] Requesting microphone access via getUserMedia...')
         stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             echoCancellation: true,
@@ -114,29 +102,37 @@ export class VoiceService {
             autoGainControl: true
           }
         })
+        console.log('[Voice] Microphone access granted!')
       } catch (permError: any) {
         // Handle permission errors
-        console.error('[Voice] getUserMedia error:', permError)
+        console.error('[Voice] getUserMedia error:', permError.name, permError.message)
 
-        if (permError.name === 'NotAllowedError') {
-          const isPWA = window.matchMedia('(display-mode: standalone)').matches
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches
+
+        if (permError.name === 'NotAllowedError' || permError.name === 'PermissionDeniedError') {
+          // Check if permission was explicitly denied or just not prompted
+          const permState = await this.checkMicrophonePermission()
+          console.log('[Voice] Permission state after denial:', permState)
+
           if (isPWA) {
-            onError?.('Microphone denied. Fix: Chrome menu (⋮) → Site settings → Microphone → Allow, then reload app')
+            onError?.('Microphone access needed. Open Chrome browser → go to this site → tap mic → Allow permission → return to app')
           } else {
-            onError?.('Microphone denied. Click 🔒 in address bar → Site settings → Microphone → Allow')
+            onError?.('Microphone denied. Allow it in the popup, or click 🔒 in address bar → Site settings → Microphone → Allow')
           }
         } else if (permError.name === 'NotFoundError' || permError.message?.includes('object can not be found')) {
           // macOS specific: "The object can not be found here" = system-level permission issue
-          const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+          const isMac = navigator.platform?.toUpperCase().indexOf('MAC') >= 0
           if (isMac) {
-            onError?.('No microphone found. Fix macOS: System Settings → Privacy & Security → Microphone → Enable Zen Browser. Then restart browser.')
+            onError?.('No microphone found. Fix macOS: System Settings → Privacy & Security → Microphone → Enable browser. Then restart.')
           } else {
             onError?.('No microphone found. Please connect a microphone and reload.')
           }
         } else if (permError.name === 'NotReadableError') {
           onError?.('Microphone in use by another app. Close other apps and try again.')
+        } else if (permError.name === 'AbortError') {
+          onError?.('Microphone request was aborted. Please try again.')
         } else {
-          onError?.(`Microphone error: ${permError.message || 'Unknown error'}`)
+          onError?.(`Microphone error: ${permError.name} - ${permError.message || 'Unknown error'}`)
         }
         return
       }
