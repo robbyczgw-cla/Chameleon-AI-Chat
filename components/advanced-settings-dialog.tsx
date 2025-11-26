@@ -13,7 +13,8 @@ import { Switch } from "@/components/ui/switch"
 import { CostTrackerDashboard } from "@/components/cost-tracker-dashboard"
 import { ExportTrainingDataDialog } from "@/components/export-training-data-dialog"
 import { ModelManagement } from "@/components/model-management"
-import { DollarSign, Download } from "lucide-react"
+import { DollarSign, Download, Lightbulb, Copy, Check } from "lucide-react"
+import { getPersonaExamplePrompts, PERSONAS } from "@/lib/personas"
 
 interface AdvancedSettingsDialogProps {
   open: boolean
@@ -24,6 +25,18 @@ export function AdvancedSettingsDialog({ open, onOpenChange }: AdvancedSettingsD
   const { settings, updateSettings } = useApp()
   const [costDashboardOpen, setCostDashboardOpen] = useState(false)
   const [exportDataOpen, setExportDataOpen] = useState(false)
+  const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null)
+
+  // Get current persona and its example prompts
+  const currentPersona = settings.selectedPersona || PERSONAS[0]
+  const lang = (settings.language as "en" | "de") || "en"
+  const examplePrompts = getPersonaExamplePrompts(currentPersona.id, lang)
+
+  const handleCopyPrompt = (prompt: string) => {
+    navigator.clipboard.writeText(prompt)
+    setCopiedPrompt(prompt)
+    setTimeout(() => setCopiedPrompt(null), 2000)
+  }
 
   const params: ModelParameters = settings.modelParameters || {
     temperature: 0.7,
@@ -192,6 +205,37 @@ export function AdvancedSettingsDialog({ open, onOpenChange }: AdvancedSettingsD
                     Instructions that guide the model's behavior and personality.
                   </p>
                 </div>
+
+              {/* Persona Example Prompts */}
+              <div className="space-y-3 p-4 rounded-lg border bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
+                <div className="flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-amber-500" />
+                  <Label className="text-sm sm:text-base">
+                    {lang === "de" ? "Beispiel-Prompts für" : "Example Prompts for"} {currentPersona.emoji} {currentPersona.name}
+                  </Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {lang === "de"
+                    ? "Klicke auf einen Prompt um ihn zu kopieren und probiere ihn in deinem Chat aus."
+                    : "Click a prompt to copy it and try it in your chat."}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {examplePrompts.map((prompt, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleCopyPrompt(prompt)}
+                      className="flex items-center gap-2 p-2 text-left text-xs rounded-md border bg-background hover:bg-muted transition-colors group"
+                    >
+                      <span className="flex-1 truncate">{prompt}</span>
+                      {copiedPrompt === prompt ? (
+                        <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      ) : (
+                        <Copy className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </TabsContent>
 
             <TabsContent value="models" className="flex-1 overflow-y-auto mt-4">

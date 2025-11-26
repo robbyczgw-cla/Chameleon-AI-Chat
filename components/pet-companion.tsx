@@ -647,9 +647,10 @@ export function TamagotchiDialog({ open, onOpenChange, pet, onPetUpdate, onRelea
 interface PetWidgetProps {
   onOpenAdopt: () => void
   lang: "en" | "de"
+  onChatWithPet?: (prompt: string) => void
 }
 
-export function PetWidget({ onOpenAdopt, lang }: PetWidgetProps) {
+export function PetWidget({ onOpenAdopt, lang, onChatWithPet }: PetWidgetProps) {
   const [pet, setPet] = useState<Pet | null>(null)
   const [message, setMessage] = useState<PetMessage | null>(null)
   const [showMessage, setShowMessage] = useState(false)
@@ -657,14 +658,16 @@ export function PetWidget({ onOpenAdopt, lang }: PetWidgetProps) {
 
   const t = translations[lang]
   const settings = gamificationService.getSettings()
+  const petMode = settings.petMode || (settings.petEnabled ? "full" : "off")
 
   // Update pet stats periodically
   useEffect(() => {
-    if (!settings.petEnabled) return
+    if (petMode === "off") return
 
     const savedPet = petService.getPet()
     if (savedPet) {
-      const updated = petService.updateStats(savedPet)
+      // Only update stats in full mode
+      const updated = petMode === "full" ? petService.updateStats(savedPet) : savedPet
       setPet(updated)
       const greeting = petService.getGreeting(updated)
       setMessage(greeting)
@@ -674,11 +677,11 @@ export function PetWidget({ onOpenAdopt, lang }: PetWidgetProps) {
     } else {
       setPet(null)
     }
-  }, [settings.petEnabled])
+  }, [petMode])
 
-  // Periodic stat update
+  // Periodic stat update (only in full mode)
   useEffect(() => {
-    if (!pet || !settings.petEnabled) return
+    if (!pet || petMode !== "full") return
 
     const interval = setInterval(() => {
       const updated = petService.updateStats(pet)
@@ -686,10 +689,21 @@ export function PetWidget({ onOpenAdopt, lang }: PetWidgetProps) {
     }, 60000) // Update every minute
 
     return () => clearInterval(interval)
-  }, [pet, settings.petEnabled])
+  }, [pet, petMode])
 
   const handleInteract = () => {
-    if (pet) {
+    if (!pet) return
+
+    if (petMode === "minimal") {
+      // In minimal mode, just interact and show a message
+      const updated = petService.interact(pet)
+      setPet(updated)
+      const greeting = petService.getGreeting(updated)
+      setMessage(greeting)
+      setShowMessage(true)
+      setTimeout(() => setShowMessage(false), 3000)
+    } else {
+      // In full mode, open the Tamagotchi dialog
       setShowTamagotchi(true)
     }
   }
@@ -703,7 +717,19 @@ export function PetWidget({ onOpenAdopt, lang }: PetWidgetProps) {
     setPet(null)
   }
 
-  if (!settings.petEnabled) return null
+  // Public method to trigger pet reaction from chat
+  const triggerReaction = useCallback((userMessage: string) => {
+    if (!pet || petMode === "off") return null
+    const reaction = petService.reactToMessage(pet, userMessage)
+    if (reaction) {
+      setMessage(reaction)
+      setShowMessage(true)
+      setTimeout(() => setShowMessage(false), 3000)
+    }
+    return reaction
+  }, [pet, petMode])
+
+  if (petMode === "off") return null
 
   if (!pet) {
     return (
@@ -717,7 +743,7 @@ export function PetWidget({ onOpenAdopt, lang }: PetWidgetProps) {
     )
   }
 
-  const attention = petService.needsAttention(pet)
+  const attention = petMode === "full" ? petService.needsAttention(pet) : { needs: false, urgent: false, reasons: [] }
   const mood = petService.getMood(pet)
   const petEmoji = petService.getEmoji(pet)
 
@@ -729,15 +755,20 @@ export function PetWidget({ onOpenAdopt, lang }: PetWidgetProps) {
           onClick={handleInteract}
           className={cn(
             "flex items-center gap-1.5 px-2 py-1.5 rounded-full bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 border transition-all",
-            attention.urgent ? "border-red-500 animate-pulse" : attention.needs ? "border-yellow-500" : "border-violet-500/20",
+            petMode === "full" && attention.urgent ? "border-red-500 animate-pulse" :
+            petMode === "full" && attention.needs ? "border-yellow-500" : "border-violet-500/20",
             mood === "happy" && "animate-bounce",
             mood === "sleeping" && "opacity-75"
           )}
           title={pet.name}
         >
           <span className="text-base">{petEmoji}</span>
-          <span className="text-xs font-medium max-w-[60px] truncate">{pet.name}</span>
-          {attention.urgent && <span className="text-xs">⚠️</span>}
+          {petMode === "full" && (
+            <>
+              <span className="text-xs font-medium max-w-[60px] truncate">{pet.name}</span>
+              {attention.urgent && <span className="text-xs">⚠️</span>}
+            </>
+          )}
         </button>
 
         {/* Speech Bubble */}
@@ -749,8 +780,8 @@ export function PetWidget({ onOpenAdopt, lang }: PetWidgetProps) {
         )}
       </div>
 
-      {/* Tamagotchi Dialog */}
-      {pet && (
+      {/* Tamagotchi Dialog - only in full mode */}
+      {pet && petMode === "full" && (
         <TamagotchiDialog
           open={showTamagotchi}
           onOpenChange={setShowTamagotchi}
@@ -762,4 +793,26 @@ export function PetWidget({ onOpenAdopt, lang }: PetWidgetProps) {
       )}
     </>
   )
+}
+
+// Export a hook for other components to use pet features
+export function usePetFeatures(lang: "en" | "de" = "en") {
+  const pet = petService.getPet()
+  const settings = gamificationService.getSettings()
+  const petMode = settings.petMode || "off"
+
+  return {
+    pet,
+    petMode,
+    isEnabled: petMode !== "off",
+    isFullMode: petMode === "full",
+    // Get conversation suggestions based on pet personality
+    getSuggestions: () => pet ? petService.getConversationSuggestions(pet, lang) : [],
+    // Get system prompt for LLM
+    getSystemPrompt: () => pet ? petService.getPetSystemPrompt(pet, lang) : null,
+    // Get chat with pet prompt
+    getChatWithPetPrompt: (message: string) => pet ? petService.getChatWithPetPrompt(pet, message, lang) : null,
+    // React to a message
+    reactToMessage: (message: string) => pet ? petService.reactToMessage(pet, message) : null,
+  }
 }

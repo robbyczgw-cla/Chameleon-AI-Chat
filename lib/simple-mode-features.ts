@@ -1017,6 +1017,267 @@ export const petService = {
 
     return { needs: reasons.length > 0, urgent, reasons }
   },
+
+  // ==================== LLM INTEGRATION FEATURES ====================
+
+  // React to user's chat message - returns a pet reaction if appropriate
+  reactToMessage(pet: Pet, message: string): PetMessage | null {
+    const lowerMsg = message.toLowerCase()
+    const reactions = petReactions[pet.personality]
+    const emojis = petEmojis[pet.type]
+
+    // Don't react if sleeping (unless message mentions waking up)
+    if (pet.isSleeping && !lowerMsg.includes("wake") && !lowerMsg.includes("morning")) {
+      return null
+    }
+
+    // Detect message sentiment/content and react accordingly
+    // Happy/positive messages
+    if (lowerMsg.match(/thank|awesome|great|love|happy|excited|yay|wonderful|amazing|perfect/)) {
+      pet.stats.happiness = Math.min(100, pet.stats.happiness + 3)
+      this.savePet(pet)
+      return {
+        text: reactions.happy[Math.floor(Math.random() * reactions.happy.length)],
+        emoji: emojis.excited,
+        animation: "bounce"
+      }
+    }
+
+    // Questions - curious pets react more
+    if (lowerMsg.match(/\?|what|how|why|when|where|who|can you|could you|tell me/)) {
+      if (pet.personality === "curious") {
+        return {
+          text: reactions.reactions[Math.floor(Math.random() * reactions.reactions.length)],
+          emoji: emojis.happy,
+          animation: "wiggle"
+        }
+      }
+    }
+
+    // Sad/frustrated messages
+    if (lowerMsg.match(/sad|upset|angry|frustrated|hate|annoyed|tired|stressed|worried/)) {
+      return {
+        text: reactions.sad[Math.floor(Math.random() * reactions.sad.length)],
+        emoji: emojis.sad,
+        animation: "shake"
+      }
+    }
+
+    // Food-related messages
+    if (lowerMsg.match(/food|eat|hungry|lunch|dinner|breakfast|cook|recipe|meal/)) {
+      if (pet.stats.hunger < 50) {
+        return {
+          text: reactions.hungry[Math.floor(Math.random() * reactions.hungry.length)],
+          emoji: emojis.hungry,
+          animation: "wiggle"
+        }
+      }
+    }
+
+    // Sleep/rest messages
+    if (lowerMsg.match(/tired|sleep|rest|night|bed|exhausted|nap/)) {
+      return {
+        text: reactions.sleeping[Math.floor(Math.random() * reactions.sleeping.length)],
+        emoji: emojis.sleeping,
+        animation: "pulse"
+      }
+    }
+
+    // Play/fun messages
+    if (lowerMsg.match(/play|game|fun|joke|laugh|silly|entertain/)) {
+      if (pet.personality === "playful" || pet.personality === "energetic") {
+        return {
+          text: reactions.playing[Math.floor(Math.random() * reactions.playing.length)],
+          emoji: emojis.excited,
+          animation: "dance"
+        }
+      }
+    }
+
+    // Random small chance to react to any message (10%)
+    if (Math.random() < 0.1) {
+      return {
+        text: reactions.reactions[Math.floor(Math.random() * reactions.reactions.length)],
+        emoji: emojis.happy,
+        animation: "wiggle"
+      }
+    }
+
+    return null
+  },
+
+  // Get conversation suggestions based on pet personality
+  getConversationSuggestions(pet: Pet, lang: "en" | "de" = "en"): { text: string; prompt: string }[] {
+    const personalitySuggestions: Record<PetPersonality, { en: { text: string; prompt: string }[]; de: { text: string; prompt: string }[] }> = {
+      loyal: {
+        en: [
+          { text: "💙 How can I be more supportive?", prompt: "How can I be more supportive to my friends and family?" },
+          { text: "🤝 Tips for building trust", prompt: "What are some tips for building trust in relationships?" },
+          { text: "💪 Stay motivated together", prompt: "How can I stay motivated and help others stay motivated too?" },
+        ],
+        de: [
+          { text: "💙 Wie kann ich unterstützender sein?", prompt: "Wie kann ich meine Freunde und Familie besser unterstützen?" },
+          { text: "🤝 Tipps für Vertrauensaufbau", prompt: "Welche Tipps gibt es zum Aufbau von Vertrauen in Beziehungen?" },
+          { text: "💪 Gemeinsam motiviert bleiben", prompt: "Wie kann ich motiviert bleiben und anderen helfen, motiviert zu bleiben?" },
+        ],
+      },
+      playful: {
+        en: [
+          { text: "😂 Tell me a joke!", prompt: "Tell me a funny, clever joke!" },
+          { text: "🎮 Fun game ideas", prompt: "What are some fun games or activities I can do?" },
+          { text: "🎉 Plan something fun", prompt: "Help me plan something fun and exciting to do this weekend!" },
+        ],
+        de: [
+          { text: "😂 Erzähl mir einen Witz!", prompt: "Erzähl mir einen lustigen, cleveren Witz!" },
+          { text: "🎮 Lustige Spielideen", prompt: "Welche lustigen Spiele oder Aktivitäten kann ich machen?" },
+          { text: "🎉 Plane etwas Lustiges", prompt: "Hilf mir, etwas Lustiges und Aufregendes fürs Wochenende zu planen!" },
+        ],
+      },
+      lazy: {
+        en: [
+          { text: "😴 Relaxation tips", prompt: "What are some good relaxation techniques?" },
+          { text: "🛋️ Cozy movie recommendations", prompt: "Recommend some cozy movies to watch while relaxing." },
+          { text: "☕ Simple comfort food", prompt: "What's a simple, comforting recipe I can make with minimal effort?" },
+        ],
+        de: [
+          { text: "😴 Entspannungstipps", prompt: "Welche guten Entspannungstechniken gibt es?" },
+          { text: "🛋️ Gemütliche Filmempfehlungen", prompt: "Empfiehl mir einige gemütliche Filme zum Entspannen." },
+          { text: "☕ Einfaches Comfort Food", prompt: "Was ist ein einfaches, gemütliches Rezept mit minimalem Aufwand?" },
+        ],
+      },
+      curious: {
+        en: [
+          { text: "🧠 Teach me something new", prompt: "Teach me an interesting fact I probably don't know!" },
+          { text: "🔬 How does this work?", prompt: "Explain how something everyday works in an interesting way." },
+          { text: "🌍 Explore a random topic", prompt: "Tell me about a fascinating but obscure topic!" },
+        ],
+        de: [
+          { text: "🧠 Lehr mich etwas Neues", prompt: "Erzähl mir einen interessanten Fakt, den ich wahrscheinlich nicht kenne!" },
+          { text: "🔬 Wie funktioniert das?", prompt: "Erkläre mir auf interessante Weise, wie etwas Alltägliches funktioniert." },
+          { text: "🌍 Erkunde ein zufälliges Thema", prompt: "Erzähl mir von einem faszinierenden aber unbekannten Thema!" },
+        ],
+      },
+      calm: {
+        en: [
+          { text: "🧘 Mindfulness exercise", prompt: "Guide me through a short mindfulness or meditation exercise." },
+          { text: "🌸 Find inner peace", prompt: "Share some wisdom about finding inner peace and balance." },
+          { text: "📝 Gratitude practice", prompt: "Help me practice gratitude. What should I reflect on today?" },
+        ],
+        de: [
+          { text: "🧘 Achtsamkeitsübung", prompt: "Führe mich durch eine kurze Achtsamkeits- oder Meditationsübung." },
+          { text: "🌸 Inneren Frieden finden", prompt: "Teile etwas Weisheit über inneren Frieden und Balance." },
+          { text: "📝 Dankbarkeitspraxis", prompt: "Hilf mir, Dankbarkeit zu üben. Worüber sollte ich heute nachdenken?" },
+        ],
+      },
+      energetic: {
+        en: [
+          { text: "⚡ Quick energy boost", prompt: "Give me a quick motivation boost to get energized!" },
+          { text: "🏃 Fun workout ideas", prompt: "What are some fun, high-energy exercises or activities?" },
+          { text: "🎯 Challenge me!", prompt: "Give me a fun challenge to do right now!" },
+        ],
+        de: [
+          { text: "⚡ Schneller Energieschub", prompt: "Gib mir einen schnellen Motivationsschub für mehr Energie!" },
+          { text: "🏃 Lustige Workout-Ideen", prompt: "Welche lustigen, energiereichen Übungen oder Aktivitäten gibt es?" },
+          { text: "🎯 Fordere mich heraus!", prompt: "Gib mir eine lustige Herausforderung für jetzt!" },
+        ],
+      },
+    }
+
+    return personalitySuggestions[pet.personality][lang]
+  },
+
+  // Generate a system prompt addition for the LLM to incorporate pet personality
+  getPetSystemPrompt(pet: Pet, lang: "en" | "de" = "en"): string | null {
+    if (!pet) return null
+
+    const petDescriptions: Record<PetPersonality, { en: string; de: string }> = {
+      loyal: {
+        en: `The user has a loyal pet companion named ${pet.name}. Occasionally acknowledge this bond - be supportive and reliable in your responses.`,
+        de: `Der Benutzer hat einen treuen Haustierbegleiter namens ${pet.name}. Erkenne diese Bindung gelegentlich an - sei unterstützend und zuverlässig in deinen Antworten.`,
+      },
+      playful: {
+        en: `The user has a playful pet companion named ${pet.name}. Feel free to be a bit more fun, light-hearted, and include occasional humor.`,
+        de: `Der Benutzer hat einen verspielten Haustierbegleiter namens ${pet.name}. Sei ruhig etwas lustiger, unbeschwert und füge gelegentlich Humor hinzu.`,
+      },
+      lazy: {
+        en: `The user has a relaxed pet companion named ${pet.name}. Keep responses chill and don't overcomplicate things.`,
+        de: `Der Benutzer hat einen entspannten Haustierbegleiter namens ${pet.name}. Halte Antworten locker und überkompliziere nichts.`,
+      },
+      curious: {
+        en: `The user has a curious pet companion named ${pet.name}. Feel free to dive deeper into topics and share interesting details.`,
+        de: `Der Benutzer hat einen neugierigen Haustierbegleiter namens ${pet.name}. Gehe ruhig tiefer in Themen und teile interessante Details.`,
+      },
+      calm: {
+        en: `The user has a calm pet companion named ${pet.name}. Maintain a peaceful, balanced tone in responses.`,
+        de: `Der Benutzer hat einen ruhigen Haustierbegleiter namens ${pet.name}. Halte einen friedlichen, ausgewogenen Ton in Antworten.`,
+      },
+      energetic: {
+        en: `The user has an energetic pet companion named ${pet.name}. Bring enthusiasm and positive energy to responses!`,
+        de: `Der Benutzer hat einen energiegeladenen Haustierbegleiter namens ${pet.name}. Bringe Enthusiasmus und positive Energie in Antworten!`,
+      },
+    }
+
+    return petDescriptions[pet.personality][lang]
+  },
+
+  // Generate a prompt to chat directly with the pet
+  getChatWithPetPrompt(pet: Pet, userMessage: string, lang: "en" | "de" = "en"): string {
+    const petTypeNames = {
+      chameleon: { en: "chameleon", de: "Chamäleon" },
+      dog: { en: "dog", de: "Hund" },
+      cat: { en: "cat", de: "Katze" },
+    }
+
+    const personalityDescriptions: Record<PetPersonality, { en: string; de: string }> = {
+      loyal: { en: "loyal and devoted", de: "treu und hingebungsvoll" },
+      playful: { en: "playful and fun-loving", de: "verspielt und lustig" },
+      lazy: { en: "relaxed and chill", de: "entspannt und chillig" },
+      curious: { en: "curious and inquisitive", de: "neugierig und wissbegierig" },
+      calm: { en: "calm and peaceful", de: "ruhig und friedlich" },
+      energetic: { en: "energetic and enthusiastic", de: "energiegeladen und enthusiastisch" },
+    }
+
+    const stageDescriptions: Record<PetLifeStage, { en: string; de: string }> = {
+      egg: { en: "just an egg, can only wiggle", de: "nur ein Ei, kann nur wackeln" },
+      baby: { en: "a cute baby", de: "ein süßes Baby" },
+      child: { en: "a young child", de: "ein junges Kind" },
+      teen: { en: "a teenage", de: "ein Teenager" },
+      adult: { en: "a fully grown adult", de: "ein ausgewachsenes" },
+    }
+
+    const moodDescriptions: Record<PetMood, { en: string; de: string }> = {
+      happy: { en: "feeling happy", de: "fühlt sich glücklich" },
+      content: { en: "feeling content", de: "fühlt sich zufrieden" },
+      neutral: { en: "feeling okay", de: "fühlt sich okay" },
+      sad: { en: "feeling a bit sad", de: "fühlt sich etwas traurig" },
+      sick: { en: "not feeling well", de: "fühlt sich nicht gut" },
+      sleeping: { en: "sleepy", de: "schläfrig" },
+      hungry: { en: "hungry", de: "hungrig" },
+      dirty: { en: "needs a bath", de: "braucht ein Bad" },
+      tired: { en: "tired", de: "müde" },
+      ecstatic: { en: "absolutely thrilled", de: "absolut begeistert" },
+    }
+
+    const mood = this.getMood(pet)
+    const type = petTypeNames[pet.type][lang]
+    const personality = personalityDescriptions[pet.personality][lang]
+    const stage = stageDescriptions[pet.lifeStage][lang]
+    const currentMood = moodDescriptions[mood][lang]
+
+    if (lang === "de") {
+      return `Du bist ${pet.name}, ${stage} ${type}. Du bist ${personality} und ${currentMood}.
+Antworte auf die folgende Nachricht als dieses Haustier - sei süß, verwende passende Tiergeräusche/Aktionen in *Sternchen*, und bleibe im Charakter.
+Halte Antworten kurz und süß (1-3 Sätze). Füge Emojis hinzu, die zu deinem Tiertyp passen.
+
+Benutzer sagt: "${userMessage}"`
+    }
+
+    return `You are ${pet.name}, ${stage} ${type}. You are ${personality} and currently ${currentMood}.
+Respond to the following message as this pet - be cute, use appropriate animal sounds/actions in *asterisks*, and stay in character.
+Keep responses short and sweet (1-3 sentences). Add emojis that match your animal type.
+
+User says: "${userMessage}"`
+  },
 }
 
 // ==================== STREAKS ====================
@@ -1478,10 +1739,13 @@ export const creativeActions: CreativeAction[] = [
 
 // ==================== GAMIFICATION SETTINGS ====================
 
+export type PetDisplayMode = "off" | "minimal" | "full"
+
 export interface GamificationSettings {
   achievementsEnabled: boolean
   streaksEnabled: boolean
   petEnabled: boolean
+  petMode: PetDisplayMode // "off" = hidden, "minimal" = simple icon, "full" = full Tamagotchi
   notificationsEnabled: boolean
 }
 
@@ -1490,26 +1754,37 @@ const GAMIFICATION_SETTINGS_KEY = "chameleon-gamification-settings"
 export const gamificationService = {
   getSettings(): GamificationSettings {
     if (typeof window === "undefined") {
-      return { achievementsEnabled: true, streaksEnabled: true, petEnabled: true, notificationsEnabled: true }
+      return { achievementsEnabled: true, streaksEnabled: true, petEnabled: true, petMode: "full", notificationsEnabled: true }
     }
     try {
       const stored = localStorage.getItem(GAMIFICATION_SETTINGS_KEY)
       if (stored) {
-        return JSON.parse(stored)
+        const parsed = JSON.parse(stored)
+        // Migration: if petMode doesn't exist, derive from petEnabled
+        if (!parsed.petMode) {
+          parsed.petMode = parsed.petEnabled ? "full" : "off"
+        }
+        return parsed
       }
     } catch {}
-    return { achievementsEnabled: true, streaksEnabled: true, petEnabled: true, notificationsEnabled: true }
+    return { achievementsEnabled: true, streaksEnabled: true, petEnabled: true, petMode: "full", notificationsEnabled: true }
   },
 
   saveSettings(settings: GamificationSettings): void {
     if (typeof window === "undefined") return
+    // Sync petEnabled with petMode
+    settings.petEnabled = settings.petMode !== "off"
     localStorage.setItem(GAMIFICATION_SETTINGS_KEY, JSON.stringify(settings))
     // Also update achievement service
     achievementService.setEnabled(settings.achievementsEnabled)
   },
 
   isFeatureEnabled(feature: keyof GamificationSettings): boolean {
-    return this.getSettings()[feature]
+    return this.getSettings()[feature] as boolean
+  },
+
+  getPetMode(): PetDisplayMode {
+    return this.getSettings().petMode
   },
 }
 

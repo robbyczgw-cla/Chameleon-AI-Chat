@@ -37,7 +37,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
-import type { Persona } from "@/lib/personas"
+import { type Persona, PERSONA_EXAMPLE_PROMPTS } from "@/lib/personas"
 
 // Translations for Simple Mode
 const translations = {
@@ -87,178 +87,25 @@ const translations = {
   },
 }
 
-// Persona-specific question suggestions
-const personaTips: Record<string, { en: string[]; de: string[] }> = {
-  default: {
-    en: [
-      "What can you help me with?",
-      "Tell me something interesting",
-      "Help me brainstorm ideas",
-      "Explain something complex simply",
-      "Write a short story",
-      "Give me advice on...",
-    ],
-    de: [
-      "Wobei kannst du mir helfen?",
-      "Erzähl mir etwas Interessantes",
-      "Hilf mir beim Brainstorming",
-      "Erkläre mir etwas Komplexes einfach",
-      "Schreibe eine kurze Geschichte",
-      "Gib mir einen Rat zu...",
-    ],
-  },
-  // Cami - friendly adaptable chameleon
-  friendly: {
-    en: [
-      "What's on your mind today?",
-      "Help me solve a problem",
-      "I need some motivation",
-      "Explain this topic to me",
-      "Let's brainstorm together",
-      "What would you suggest?",
-    ],
-    de: [
-      "Was beschäftigt dich heute?",
-      "Hilf mir ein Problem zu lösen",
-      "Ich brauche etwas Motivation",
-      "Erkläre mir dieses Thema",
-      "Lass uns zusammen brainstormen",
-      "Was würdest du vorschlagen?",
-    ],
-  },
-  // Professor Stein - expert knowledge
-  expert: {
-    en: [
-      "Give me a deep dive on...",
-      "What does the research say?",
-      "Explain the science behind...",
-      "Compare these theories",
-      "What are common misconceptions?",
-      "Cite sources for this topic",
-    ],
-    de: [
-      "Erkläre mir ausführlich...",
-      "Was sagt die Forschung dazu?",
-      "Erkläre die Wissenschaft dahinter",
-      "Vergleiche diese Theorien",
-      "Was sind häufige Irrtümer?",
-      "Nenne Quellen zu diesem Thema",
-    ],
-  },
-  // Luna - creative brainstorming
-  creative: {
-    en: [
-      "I need creative ideas for...",
-      "Think outside the box with me",
-      "Create a unique concept",
-      "What's an unusual approach?",
-      "Help me with creative writing",
-      "Design something imaginative",
-    ],
-    de: [
-      "Ich brauche kreative Ideen für...",
-      "Denk mit mir um die Ecke",
-      "Erstelle ein einzigartiges Konzept",
-      "Was wäre ein ungewöhnlicher Ansatz?",
-      "Hilf mir beim kreativen Schreiben",
-      "Entwirf etwas Fantasievolles",
-    ],
-  },
-  // Dev - programming partner
-  coder: {
-    en: [
-      "Debug this code for me",
-      "How do I implement...?",
-      "Explain this algorithm",
-      "Review my code",
-      "Best practices for...",
-      "Convert this to TypeScript",
-    ],
-    de: [
-      "Finde den Fehler in diesem Code",
-      "Wie implementiere ich...?",
-      "Erkläre diesen Algorithmus",
-      "Überprüfe meinen Code",
-      "Best Practices für...",
-      "Konvertiere das zu TypeScript",
-    ],
-  },
-  // Flash - quick concise answers
-  concise: {
-    en: [
-      "Quick answer: what is...?",
-      "TL;DR this for me",
-      "In one sentence explain...",
-      "Yes or no: should I...?",
-      "Top 3 tips for...",
-      "Fast facts about...",
-    ],
-    de: [
-      "Kurze Antwort: was ist...?",
-      "Fass das kurz zusammen",
-      "In einem Satz erkläre...",
-      "Ja oder nein: soll ich...?",
-      "Top 3 Tipps für...",
-      "Schnelle Fakten über...",
-    ],
-  },
-  // Herr Müller - teacher
-  teacher: {
-    en: [
-      "Explain this like I'm 5",
-      "Quiz me on this topic",
-      "Create a study plan",
-      "What should I learn next?",
-      "Break this down step by step",
-      "Give me practice exercises",
-    ],
-    de: [
-      "Erkläre es mir wie einem Kind",
-      "Teste mich zu diesem Thema",
-      "Erstelle einen Lernplan",
-      "Was sollte ich als nächstes lernen?",
-      "Erkläre das Schritt für Schritt",
-      "Gib mir Übungsaufgaben",
-    ],
-  },
-  // Nova - cyberpunk friend
-  nova: {
-    en: [
-      "What's happening in Neo-Tokyo?",
-      "Tell me about your latest hack",
-      "What music are you listening to?",
-      "How's life in District 7?",
-      "Any news from the Resistance?",
-      "What tech are you working on?",
-    ],
-    de: [
-      "Was passiert gerade in Neo-Tokyo?",
-      "Erzähl von deinem letzten Hack",
-      "Welche Musik hörst du gerade?",
-      "Wie ist das Leben in Distrikt 7?",
-      "Gibt's Neuigkeiten vom Widerstand?",
-      "An welcher Tech arbeitest du?",
-    ],
-  },
-  // Mythos - worldbuilding
-  mythos: {
-    en: [
-      "Let's create a new world",
-      "Design a magic system",
-      "Create a unique civilization",
-      "What conflicts exist here?",
-      "Tell me about this world's history",
-      "Describe a legendary hero",
-    ],
-    de: [
-      "Lass uns eine Welt erschaffen",
-      "Entwirf ein Magiesystem",
-      "Erschaffe eine Zivilisation",
-      "Welche Konflikte gibt es hier?",
-      "Erzähl von der Weltgeschichte",
-      "Beschreibe einen legendären Helden",
-    ],
-  },
+// Use shared persona example prompts from lib/personas.ts
+// getPersonaTips combines shared prompts with extended prompts for additional personas
+const getPersonaTips = (personaId: string, lang: "en" | "de"): string[] => {
+  // First check shared prompts
+  const sharedPrompts = PERSONA_EXAMPLE_PROMPTS[personaId]
+  if (sharedPrompts) {
+    return sharedPrompts[lang]
+  }
+  // Then check extended prompts
+  const extendedPrompts = extendedPersonaTips[personaId]
+  if (extendedPrompts) {
+    return extendedPrompts[lang]
+  }
+  // Fallback to default
+  return PERSONA_EXAMPLE_PROMPTS.default[lang]
+}
+
+// Extended persona tips for personas not in shared config
+const extendedPersonaTips: Record<string, { en: string[]; de: string[] }> = {
   // Cogito - consciousness philosophy
   cogito: {
     en: [
@@ -1027,7 +874,7 @@ export function SimpleChatApp() {
                         {t.tryAsking}
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
-                        {(personaTips[selectedPersona?.id || "default"] || personaTips.default)[lang].map((tip, index) => (
+                        {getPersonaTips(selectedPersona?.id || "default", lang).map((tip, index) => (
                           <button
                             key={index}
                             onClick={() => handleQuickPrompt(tip)}
