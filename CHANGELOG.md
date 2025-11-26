@@ -2,156 +2,322 @@
 
 All notable changes to Chameleon AI Chat are documented in this file.
 
----
-
-## [v2.5.0] - 2025-11-26
-
-### 🚀 New Features
-
-#### Message Editing
-- **Edit your sent messages** - Click the edit icon on any of your messages
-- **Inline editing** - Edit directly in the chat without popups
-- **Auto re-generation** - AI automatically responds to your edited message
-- **Simple UX** - Save to confirm, Cancel to discard
-
-#### Full-Text Search
-- **Search all chat content** - Not just titles anymore!
-- **Lightning fast** - Inverted index provides 1-5ms search times (10-40x faster)
-- **Real-time results** - Updates as you type
-- **Relevance scoring** - Title matches rank higher than content matches
-- Minimum 3 characters to trigger search
-
-#### Draft Auto-Save
-- **Never lose drafts** - Auto-saves to localStorage every 500ms
-- **Per-chat drafts** - Each chat has its own separate draft
-- **24-hour expiry** - Prevents stale drafts from appearing
-- **Seamless restore** - Drafts appear automatically when you return to a chat
-- **Clear on send** - Drafts cleared after successful message send
-
-#### AI-Powered Chat Titles
-- **Smart title generation** - AI generates 2-6 word titles from your first message
-- **Privacy-focused model** - Uses `openai/gpt-oss-20b` (open-source)
-- **Background processing** - Doesn't block UI while generating
-- **Graceful fallback** - Falls back to truncated message if API fails
-
-#### Title Animation
-- **Subtle slide-in effect** - New titles animate in from the left
-- **Primary color highlight** - Brief color flash then fades to normal
-- **GPU-friendly** - Pure CSS animation (no JavaScript loops)
-- **Accessibility** - Respects `prefers-reduced-motion` preference
-- 1.2s duration with smooth easing
-
-### 🐛 Bug Fixes
-
-#### PWA Stability
-- **Image compression** - Large images auto-compressed on upload (max 1920x1080, 80% quality)
-- **Memory optimization** - Historical images stripped from API requests to prevent memory leaks
-- **WebP format** - Better compression with JPEG fallback
-- **90%+ size reduction** - Dramatic reduction for large images
-
-#### Touch Device Support
-- **Action buttons visible** - Edit, copy, audio buttons now visible on touch devices
-- **Smart detection** - Uses `@media(hover:hover)` instead of screen width
-- **iPad fix** - Buttons no longer hidden on iPad/tablet browsers
-- **Touch laptops** - Works on Surface and other touch-enabled laptops
-
-#### Image Conversation Titles
-- **Fixed "[object Object]" bug** - Multimodal messages now generate proper titles
-- **Text extraction** - Correctly extracts text from image+text messages
-- **Fallback title** - "Image conversation" if no text content
-
-### 🔧 Technical Improvements
-
-#### New Files Created
-- `hooks/use-draft.ts` - Draft persistence hook with debounce
-- `lib/title-generator.ts` - AI title generation service
-
-#### Modified Files
-- `components/chat-messages.tsx` - Added message editing UI
-- `components/chat-sidebar.tsx` - Full-text search integration, title animation
-- `components/chat-header.tsx` - Header title animation
-- `components/chat-input.tsx` - Draft integration, image data stripping
-- `components/simple-chat-input.tsx` - Draft integration
-- `components/simple-chat-app.tsx` - Title animation for simple mode
-- `contexts/app-context.tsx` - AI title generation, multimodal title fix
-- `lib/file-handler.ts` - Image compression function
-- `lib/multimodal-utils.ts` - stripImageDataFromContent function
-- `lib/search-service.ts` - Inverted index search
-- `app/globals.css` - Title animation keyframes
-- `types/index.ts` - Added titleGeneratedAt property
+This project is currently in **alpha stage** (v0.x). APIs and features may change.
 
 ---
 
-## Recent Commits Explained
+## [0.7.0-alpha] - 2025-11-26
 
-### 1. Message Editing, Full-Text Search, and Draft Auto-Save
-**Commit:** `a9d1f90`
+### Message Editing & Content Management
+- **Message Editing** - Edit your sent messages with inline editor
+  - Click edit icon on any user message
+  - AI automatically re-generates response after edit
+  - Save/Cancel buttons for confirmation
+- **Draft Auto-Save** - Never lose your work
+  - Auto-saves to localStorage every 500ms
+  - Per-chat drafts with 24-hour expiry
+  - Automatic restoration when returning to chat
+  - Files: `hooks/use-draft.ts`
 
-Added three highly-requested features:
-- **Message editing**: Users can now edit their sent messages. The AI will automatically re-generate its response based on the edited message.
-- **Full-text search**: The sidebar search now uses an inverted index to search across all chat content (not just titles). This is 10-40x faster than linear search.
-- **Draft auto-save**: Drafts are automatically saved to localStorage every 500ms. When you return to a chat, your draft is restored.
+### Search & Discovery
+- **Full-Text Search** - Search all chat content, not just titles
+  - Inverted index for O(1) lookups (1-5ms vs 50-200ms)
+  - Real-time results as you type
+  - Relevance scoring (titles rank higher)
+  - Minimum 3 characters to trigger
+  - Files: `lib/search-service.ts`, `components/chat-sidebar.tsx`
 
-### 2. Touch Device Button Visibility Fix
-**Commit:** `edf6362`
+### AI-Powered Features
+- **Smart Chat Titles** - AI generates concise titles from first message
+  - Uses `openai/gpt-oss-20b` (privacy-focused open-source model)
+  - 2-6 word titles, no quotes or trailing punctuation
+  - Background generation (non-blocking)
+  - Fallback to truncated message on failure
+  - Files: `lib/title-generator.ts`
+- **Title Animation** - Subtle slide-in effect when title appears
+  - GPU-friendly CSS animation (no JS loops)
+  - Primary color highlight that fades
+  - Respects `prefers-reduced-motion`
+  - 1.2s duration with smooth easing
 
-Fixed an issue where action buttons (edit, copy, audio) were hidden on touch devices like iPad. Changed from screen-width-based hiding (`sm:opacity-0`) to hover-capability detection (`@media(hover:hover)`).
+### PWA Stability
+- **Image Compression** - Auto-compress uploads to prevent crashes
+  - Max 1920x1080, 80% quality
+  - WebP format with JPEG fallback
+  - ~90% size reduction for large images
+  - Skip compression for small images (<100KB) and SVGs
+  - Files: `lib/file-handler.ts`
+- **Memory Optimization** - Strip historical images from API requests
+  - Prevents memory accumulation in long conversations
+  - Placeholder text: "[Previous image was shared here]"
+  - Critical for PWA stability
+  - Files: `lib/multimodal-utils.ts`
+- **Touch Device Fix** - Action buttons visible on iPad/tablets
+  - Uses `@media(hover:hover)` instead of screen width
+  - Works on all touch-enabled devices
 
-### 3. Image Conversation Title Bug Fix
-**Commit:** `119eff2`
-
-Fixed a bug where conversations starting with images showed `"[object Object]"` as the title. Added proper extraction of text content from multimodal messages.
-
-### 4. Image Compression for PWA Stability
-**Commit:** `2a192cb`
-
-Added automatic image compression to prevent PWA crashes. Images over 100KB are compressed to max 1920x1080 at 80% quality using WebP format (with JPEG fallback). Reduces image sizes by ~90%.
-
-### 5. AI-Powered Chat Title Generation
-**Commit:** `70e0cf9` + `c0782b8`
-
-Implemented automatic title generation using AI. When you start a new chat, the first message is sent to `openai/gpt-oss-20b` (privacy-focused open-source model) to generate a concise 2-6 word title.
-
-### 6. Title Animation
-**Commit:** `4ac763d`
-
-Added a subtle CSS animation for when AI-generated titles appear. The animation slides in from the left with a primary color highlight that fades to normal. GPU-friendly and respects reduced motion preferences.
-
-### 7. PWA Memory Optimization
-**Commit:** `ff85944`
-
-Fixed PWA crashes caused by accumulating image data in memory. Historical images are now stripped from API requests (replaced with placeholder text). This prevents memory leaks in long conversations with multiple images.
+### Bug Fixes
+- Fixed `[object Object]` bug for image conversation titles
+- Fixed context compression model (now uses `grok-4.1-fast`)
+- Removed missing UI component dependencies
 
 ---
 
-## Usage Notes
+## [0.6.0-alpha] - 2025-11-24
 
-### Message Editing
-1. Hover over your message (or tap on touch devices)
-2. Click the pencil (edit) icon
-3. Modify your text
-4. Click Save to confirm
+### Context Window Management
+- **Context Window Meter** - Visual indicator of token usage
+  - Shows current/max tokens for selected model
+  - Color-coded warnings (green/yellow/red)
+  - Compact mode for input area
+  - Files: `components/context-window-meter.tsx`
+- **Auto-Compression** - Automatic context summarization
+  - Triggers at 80% context usage
+  - Uses fast model for compression
+  - Preserves conversation flow
 
-### Draft Auto-Save
-- Works automatically - just start typing
-- Switch between chats - drafts are preserved
-- Return to a chat - draft is restored
-- Drafts expire after 24 hours
+### Pet Companion System
+- **Tamagotchi Experience** - Interactive pet companion
+  - Multiple pet types (Cat, Dog, Dragon, Robot, etc.)
+  - Mood system based on chat activity
+  - Stats: Happiness, Energy, Friendship
+  - LLM integration for pet responses
+  - Files: `components/pet-companion.tsx`, `lib/pet-system.ts`
+- **Pet Modes** - Optional integration levels
+  - Observer mode (watches silently)
+  - Reactive mode (occasional comments)
+  - Active mode (participates in chat)
 
-### Full-Text Search
-1. Open sidebar search (or press Ctrl+K)
-2. Type at least 3 characters
-3. Results show instantly
-4. Click to open a chat
+### Performance
+- **Performance Mode Toggle** - GPU optimization settings
+  - Reduces animations for lower-end devices
+  - Disables blur effects when enabled
 
-### AI Chat Titles
-- Requires OpenRouter API key
-- Only triggers on first message of new chats
-- Message must be at least 10 characters
-- Fallback to truncated message if API fails
+---
 
-### PWA Best Practices
-- Images are auto-compressed on upload
-- Don't worry about image sizes - we handle it
-- Long conversations with images are now stable
-- Touch device buttons always visible
+## [0.5.0-alpha] - 2025-11-20
+
+### Simple Mode
+- **Simple Mode** - Cleaner, persona-focused experience
+  - Simplified UI for casual users
+  - Persona-based tips instead of feature overload
+  - Streamlined settings dialog
+  - Files: `components/simple-chat-app.tsx`, `components/simple-chat-input.tsx`
+- **Mode Selection** - First-time user dialog
+  - Choose between Simple and Advanced mode
+  - Skip for existing users
+  - Persistent preference
+
+### Gamification (Simple Mode)
+- **Achievements System** - Unlock badges for milestones
+  - First chat, streak days, message counts
+  - Visual achievement cards
+- **Streaks** - Track daily chat activity
+- **Quick Start Personas** - Curated persona suggestions
+
+### Voice Features
+- **OpenAI TTS** - High-quality text-to-speech
+  - 6 premium voices (Alloy, Echo, Fable, Onyx, Nova, Shimmer)
+  - Speed and voice selection
+  - Files: `lib/openai-tts.ts`
+- **Browser TTS Fallback** - Free alternative
+  - 30+ system voices
+  - Voice testing in settings
+- **Whisper Integration** - Voice input transcription
+  - OpenAI Whisper API
+  - Microphone permission handling
+  - Files: `lib/voice.ts`
+
+### PWA Enhancements
+- **Native-Feel PWA** - Touch optimizations
+  - Haptic feedback on interactions
+  - GPU acceleration
+  - Smooth animations
+  - Files: `lib/haptics.ts`
+- **Microphone Permissions** - Better handling
+  - Permission tester in settings
+  - CSP headers for audio
+
+### Internationalization
+- **Image Generation** - DALL-E integration in Simple Mode
+- **Chat Deletion** - Per-chat delete in Simple Mode
+- **Web Search Settings** - Configure in Simple Mode
+
+---
+
+## [0.4.0-alpha] - 2025-11-15
+
+### UI Refresh
+- **Paper-Mint Theme** - New default theme
+  - Soft, readable color palette
+  - Improved contrast ratios
+- **Neo Blueprint Theme** - Alternative dark theme
+  - Technical aesthetic
+  - High contrast
+- **Modern Shell** - Updated chrome
+  - Blended sidebar
+  - Tighter spacing
+  - Bridge elements
+
+### Persona Expansion
+- **5 New Personas**
+  - Pixel (retro game dev)
+  - Chef Marco (Italian cuisine)
+  - Zen (meditation guide)
+  - Startup Sam (entrepreneur)
+  - Aria (songwriter)
+- **Translations** - All personas in DE/EN/ES
+
+### Model Updates
+- **Grok 4.1 Support** - New default model
+  - `grok-4.1-fast` as default
+  - Vision model detection
+  - Reasoning toggle support
+- **Reasoning Display** - Collapsible thinking sections
+  - Shows model's reasoning process
+  - Toggle in chat input
+
+### Bug Fixes
+- Fixed reasoning format for OpenRouter
+- Fixed cost tracker pricing (per 1M tokens)
+- Reduced verbose console logging
+
+---
+
+## [0.3.0-alpha] - 2025-11-10
+
+### Memory System
+- **AI Memory** - Long-term context persistence
+  - Store preferences, facts, skills, goals
+  - Automatic extraction from conversations
+  - Importance scoring (1-3)
+  - Relevance-based retrieval
+  - Files: `lib/memory-service.ts`
+- **Memory Hub** - Management interface
+  - View, edit, delete memories
+  - Category filtering
+  - i18n translations
+
+### Discussion Mode
+- **AI Discussion** - Multi-model debates (renamed from Debate)
+  - Choose 2 models to discuss topics
+  - 2-5 round conversations
+  - Real-time streaming
+  - Vote for winner
+  - Mobile-friendly UI
+
+### Model Comparison
+- **Side-by-Side** - Compare model responses
+  - Same prompt to multiple models
+  - Visual comparison
+  - Mobile navigation
+
+### Security & Stability
+- **API Key Protection** - Critical fixes
+  - Prevent keys from being cleared
+  - Bulletproof updateSettings
+  - PWA mode protection
+  - Files: `contexts/app-context.tsx`
+- **Search Provider Visibility** - Show which API is used
+
+---
+
+## [0.2.0-alpha] - 2025-11-05
+
+### PWA & Mobile
+- **Mobile-First UI** - WhatsApp-style experience
+  - Bottom navigation (5 buttons)
+  - Settings in mobile nav
+  - Compact layout
+- **PWA Icons** - Chameleon logo branding
+- **Glassmorphism UI** - Premium visual effects
+  - Backdrop blur
+  - Smooth animations
+  - Modern aesthetics
+
+### Security
+- **Content Security Policy** - HTTP headers
+  - Strict CSP rules
+  - Rate limiting preparation
+- **Supabase Integration** - NULL value handling
+  - Prevent key overwrites
+  - Proper merge logic
+
+### Bug Fixes
+- Fixed personas and default system prompt
+- Fixed FOLLOWUP format parsing
+- Translated German UI text to English
+- Fixed login page layout
+- Fixed footer link accessibility
+
+---
+
+## [0.1.0-alpha] - 2025-11-01
+
+### Initial Release
+- **Core Chat** - Basic chat functionality
+  - Message streaming
+  - OpenRouter integration
+  - Multiple model support
+- **Personas** - 18+ AI personalities
+  - Cami, Nova, Dev, Professor, etc.
+  - Unique system prompts
+  - Communication styles
+- **Cost Tracking** - LLM spending analytics
+  - Per-model breakdown
+  - Token counting
+  - Monthly projections
+- **Training Data Export** - JSONL/JSON export
+  - Fine-tuning format
+  - Conversation selection
+- **Web Search** - Tavily & Serper integration
+  - Real-time search
+  - Citation support
+- **File Upload** - Document handling
+  - Text, image, PDF support
+  - Drag & drop
+- **Authentication** - Supabase auth
+  - Email/password
+  - Profile system
+- **Themes** - Dark/Light mode
+- **Languages** - DE/EN/ES support
+
+---
+
+## Version History Summary
+
+| Version | Date | Highlights |
+|---------|------|------------|
+| 0.7.0-alpha | 2025-11-26 | Message editing, full-text search, AI titles, PWA stability |
+| 0.6.0-alpha | 2025-11-24 | Context window meter, pet companion, performance mode |
+| 0.5.0-alpha | 2025-11-20 | Simple Mode, TTS, gamification, PWA enhancements |
+| 0.4.0-alpha | 2025-11-15 | UI refresh, new personas, Grok 4.1, reasoning display |
+| 0.3.0-alpha | 2025-11-10 | Memory system, discussion mode, model comparison |
+| 0.2.0-alpha | 2025-11-05 | PWA, mobile UI, security fixes, glassmorphism |
+| 0.1.0-alpha | 2025-11-01 | Initial release with core features |
+
+---
+
+## Upcoming (Roadmap)
+
+### 0.8.0-alpha (Planned)
+- [ ] Conversation branching UI improvements
+- [ ] Artifact generation (code, diagrams)
+- [ ] Voice conversations (real-time)
+- [ ] Plugin system
+
+### 1.0.0 (Stable)
+- [ ] API stabilization
+- [ ] Performance benchmarks
+- [ ] Full test coverage
+- [ ] Production deployment guide
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](docs/contributing.md) for how to contribute to this project.
+
+## License
+
+MIT License - see [LICENSE](LICENSE)

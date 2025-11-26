@@ -45,7 +45,7 @@ Like a chameleon adapting to its environment, this AI chat platform transforms t
 - 🖼️ **Image Optimization** - Next.js automatic WebP conversion and resizing
 - 👆 **Mobile-First Buttons** - Action buttons always visible on touch devices
 
-**Latest Features (v2.5):**
+**Latest Features (v0.7.0-alpha):**
 - ✏️ **Message Editing** - Edit your sent messages, AI re-responds automatically
 - 🔍 **Full-Text Search** - Lightning-fast search across all chat content (inverted index)
 - 💾 **Draft Auto-Save** - Never lose your message drafts (localStorage, 24hr expiry)
@@ -272,6 +272,8 @@ Perfect for:
 
 ## 📚 Documentation
 
+- [Changelog](./CHANGELOG.md) - Version history & release notes
+- [User Guide](./docs/user-guide.md) - Complete feature guide
 - [Architecture](./docs/architecture.md) - Technical deep dive
 - [Personas](./docs/personas.md) - All 18+ personas explained
 - [API Reference](./docs/api.md) - API routes documentation
