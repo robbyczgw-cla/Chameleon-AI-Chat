@@ -1471,4 +1471,22 @@
     animation: shake 0.5s ease-in-out;
   }
 
+  /* GPU-accelerated color shift for chameleon logo */
+  @keyframes chameleon-hue-shift {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+  }
+
+  .chameleon-color-shift {
+    animation: chameleon-hue-shift 18s linear infinite;
+    will-change: filter;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    .chameleon-color-shift {
+      animation: none;
+    }
+  }
+
 }
