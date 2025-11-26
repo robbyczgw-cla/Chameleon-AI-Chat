@@ -8,14 +8,18 @@ Complete guide to getting the most out of Chameleon Chat's power user features.
 
 1. [Getting Started](#getting-started)
 2. [Understanding Personas](#understanding-personas)
-3. [Cost Tracking & Optimization](#cost-tracking--optimization)
-4. [AI Debate Mode](#ai-debate-mode)
-5. [Training Data Export](#training-data-export)
-6. [Advanced Settings](#advanced-settings)
-7. [Web Search Integration](#web-search-integration)
-8. [User Profile System](#user-profile-system)
-9. [Chat Management](#chat-management)
-10. [Pro Tips & Tricks](#pro-tips--tricks)
+3. [Message Editing & Drafts](#message-editing--drafts) ⭐ NEW
+4. [Full-Text Search](#full-text-search) ⭐ NEW
+5. [AI Chat Titles](#ai-chat-titles) ⭐ NEW
+6. [Cost Tracking & Optimization](#cost-tracking--optimization)
+7. [AI Debate Mode](#ai-debate-mode)
+8. [Training Data Export](#training-data-export)
+9. [Advanced Settings](#advanced-settings)
+10. [Web Search Integration](#web-search-integration)
+11. [User Profile System](#user-profile-system)
+12. [Chat Management](#chat-management)
+13. [PWA & Mobile Tips](#pwa--mobile-tips) ⭐ NEW
+14. [Pro Tips & Tricks](#pro-tips--tricks)
 
 ---
 
@@ -111,6 +115,127 @@ After each AI response, you'll see 2-3 clickable questions like:
 - AI generates contextual follow-ups in `[FOLLOWUP]Q1|Q2|Q3[/FOLLOWUP]` format
 - App parses and displays as clickable chips
 - One click inserts the question into your input
+
+---
+
+## ✏️ Message Editing & Drafts
+
+### Editing Your Messages
+
+Made a typo? Want to rephrase your question? Now you can edit your sent messages!
+
+**How to Edit:**
+1. Hover over (or tap on) any of your sent messages
+2. Click the **Edit** (pencil) icon
+3. Modify your text in the inline editor
+4. Click **Save** to confirm, or **Cancel** to discard
+
+**What Happens When You Edit:**
+- Your message is updated with the new text
+- AI automatically re-generates its response to your edited message
+- The conversation flows naturally from your new question
+- Original message is replaced (no edit history shown)
+
+**Best Uses:**
+- Fix typos or grammar errors
+- Clarify confusing questions
+- Try different phrasings to get better answers
+- Remove sensitive information you accidentally included
+
+### Draft Auto-Save
+
+Never lose your message drafts again! Chameleon Chat automatically saves your drafts.
+
+**How It Works:**
+- Every 500ms, your current input is saved to localStorage
+- Each chat has its own separate draft
+- Drafts expire after 24 hours (prevents stale content)
+- When you return to a chat, your draft is restored automatically
+- Drafts clear when you successfully send a message
+
+**Draft Indicators:**
+- Your draft appears in the input box when you revisit a chat
+- No notification needed - it just works seamlessly
+
+**Technical Details:**
+- Stored in localStorage as `chameleon-draft-{chatId}`
+- JSON format: `{ text: "...", timestamp: 1234567890 }`
+- Debounced saves (every 500ms) to prevent excessive writes
+- 24hr expiry prevents outdated drafts from appearing
+
+---
+
+## 🔍 Full-Text Search
+
+### Searching Your Chats
+
+The sidebar search now searches **all chat content**, not just titles!
+
+**How to Use:**
+1. Click the search icon in the sidebar or press `Ctrl/Cmd + K`
+2. Type at least 3 characters
+3. Results appear instantly (1-5ms!)
+4. Click a result to open that chat
+
+**Search Features:**
+- **Title Matching**: Chat titles are searched first
+- **Message Content**: All messages in all chats are indexed
+- **Real-Time**: Results update as you type
+- **Relevance Scoring**: Title matches rank higher than content matches
+
+**Technical Implementation:**
+- Uses an **inverted index** for O(1) lookups
+- 10-40x faster than linear search (50-200ms → 1-5ms)
+- Index rebuilds when chats change
+- Prefix matching for partial word searches
+
+**Search Tips:**
+- Use specific keywords for best results
+- Search for code snippets, URLs, or unique phrases
+- Minimum 3 characters required to trigger search
+- Results limited to top 100 matches for performance
+
+---
+
+## 🤖 AI Chat Titles
+
+### Automatic Title Generation
+
+When you start a new chat, the AI automatically generates a concise, descriptive title!
+
+**How It Works:**
+1. You send your first message in a new chat
+2. AI reads your message (first 500 characters)
+3. Generates a 2-6 word title in the background
+4. Title appears with a subtle slide-in animation
+5. Fallback to truncated message if API fails
+
+**Model Used:**
+- `openai/gpt-oss-20b` - Privacy-focused open-source model
+- Runs via OpenRouter (requires OpenRouter API key)
+- Very cheap: ~$0.0001 per title
+- Fast: Usually generates in 1-2 seconds
+
+**Title Quality:**
+- Concise: 2-6 words
+- Descriptive: Captures the topic
+- Clean: No quotes, no trailing punctuation
+- Examples:
+  - "Python List Sorting"
+  - "Recipe for Pasta"
+  - "Debug React Error"
+  - "Travel Tips Tokyo"
+
+**Title Animation:**
+- Subtle slide-in from left with primary color highlight
+- Fades to normal text color over 1.2 seconds
+- GPU-friendly CSS animation (no JavaScript loops)
+- Respects `prefers-reduced-motion` for accessibility
+
+**Requirements:**
+- OpenRouter API key must be configured
+- Message must be at least 10 characters
+- Only triggers on first message of a new chat
 
 ---
 
@@ -857,6 +982,83 @@ AI: Since you're using Next.js, Vercel is perfect - made by same team.
 - Ask same question to 2+ models
 - Side-by-side responses
 - Pick best answer
+
+---
+
+## 📱 PWA & Mobile Tips
+
+### Installing as PWA
+
+Chameleon Chat works great as a Progressive Web App (PWA)!
+
+**iOS (Safari):**
+1. Open Chameleon Chat in Safari
+2. Tap the Share button (square with arrow)
+3. Scroll down and tap "Add to Home Screen"
+4. Name it and tap "Add"
+5. Launch from your home screen for app-like experience
+
+**Android (Chrome):**
+1. Open Chameleon Chat in Chrome
+2. Tap the three-dot menu
+3. Select "Add to Home Screen" or "Install App"
+4. Confirm installation
+
+**Desktop (Chrome/Edge):**
+1. Look for install icon in URL bar (or three-dot menu)
+2. Click "Install Chameleon Chat"
+3. Launch from Start Menu/Applications
+
+### PWA Stability Features
+
+We've implemented several features to ensure stable PWA experience:
+
+**Image Compression:**
+- Images over 100KB are automatically compressed on upload
+- Maximum resolution: 1920x1080 pixels
+- WebP format (with JPEG fallback)
+- 80% quality setting
+- ~90% size reduction for large images
+
+**Memory Optimization:**
+- Historical images are stripped from API requests
+- Only current message images are sent to AI
+- Placeholder text: "[Previous image was shared here]"
+- Prevents memory leaks in long conversations
+
+**Why This Matters:**
+- PWAs have stricter memory limits than browsers
+- Large image data URLs can crash PWA mode
+- Our optimizations keep memory usage stable
+
+### Touch Device Support
+
+Action buttons (edit, copy, audio) are now always visible on touch devices!
+
+**How It Works:**
+- On devices with hover capability (mouse): Buttons show on hover
+- On touch devices (iPad, tablets): Buttons always visible
+- Uses CSS `@media(hover:hover)` for smart detection
+
+**Supported Devices:**
+- iPad (all models)
+- Android tablets
+- Touch-screen laptops (Surface, etc.)
+- Any device without hover capability
+
+### Mobile Keyboard Tips
+
+**Sending Messages:**
+- Press Enter to send (no Shift needed)
+- Shift+Enter for new line
+
+**Gestures:**
+- Swipe right to open sidebar (if enabled)
+- Pull down to refresh
+
+**File Upload:**
+- Tap paperclip icon
+- Or drag & drop files onto chat area
 
 ---
 

@@ -45,6 +45,15 @@ Like a chameleon adapting to its environment, this AI chat platform transforms t
 - 🖼️ **Image Optimization** - Next.js automatic WebP conversion and resizing
 - 👆 **Mobile-First Buttons** - Action buttons always visible on touch devices
 
+**Latest Features (v2.5):**
+- ✏️ **Message Editing** - Edit your sent messages, AI re-responds automatically
+- 🔍 **Full-Text Search** - Lightning-fast search across all chat content (inverted index)
+- 💾 **Draft Auto-Save** - Never lose your message drafts (localStorage, 24hr expiry)
+- 🤖 **AI Chat Titles** - Auto-generated titles using `openai/gpt-oss-20b` (privacy-focused)
+- ✨ **Title Animation** - Subtle slide-in animation when AI generates titles
+- 🛡️ **PWA Stability** - Image compression + memory optimization prevents crashes
+- 📱 **Touch Device Fix** - Action buttons always visible on iPad/touch screens
+
 ---
 
 ## 🚀 Quick Start
@@ -188,6 +197,62 @@ Perfect for:
 - Relevance-based retrieval
 - Recency bonus for fresh context
 - Only loads relevant memories per query
+
+### ✏️ Message Editing & Draft Auto-Save
+
+**Edit Your Messages:**
+- Click the edit icon on any of your sent messages
+- Modify your text in an inline editor
+- Save → AI automatically re-generates its response
+- Cancel to discard changes
+- Full history preserved
+
+**Never Lose Your Drafts:**
+- Drafts auto-save to localStorage every 500ms
+- 24-hour expiry (prevents stale drafts)
+- Restored automatically when you return to a chat
+- Per-chat drafts (each chat has its own draft)
+- Clear on successful send
+
+### 🔍 Full-Text Search
+
+**Lightning-Fast Chat Search:**
+- Search across ALL chat content (not just titles!)
+- Inverted index for 10-40x faster search (1-5ms)
+- Minimum 3 characters to trigger search
+- Combines title and message content results
+- Relevance scoring (title matches rank higher)
+- Real-time results as you type
+
+### 🤖 AI-Powered Chat Titles
+
+**Smart Title Generation:**
+- First message → AI generates concise title (2-6 words)
+- Uses `openai/gpt-oss-20b` (privacy-focused open-source model)
+- Runs in background (doesn't block UI)
+- Fallback to truncated message if API fails
+- Requires OpenRouter API key
+
+**Title Animation:**
+- Subtle slide-in animation when title appears
+- GPU-friendly CSS animation (no JavaScript loops)
+- Respects `prefers-reduced-motion` for accessibility
+- 1.2s duration with smooth easing
+
+### 🛡️ PWA Stability Improvements
+
+**Image Handling:**
+- Auto-compress images on upload (max 1920x1080, 80% quality)
+- WebP format with JPEG fallback
+- 90%+ size reduction for large images
+- Historical images stripped from API requests (prevents memory leaks)
+- Critical for stable PWA experience
+
+**Touch Device Support:**
+- Action buttons (edit, copy, audio) visible on touch screens
+- Uses `@media(hover:hover)` detection instead of screen width
+- Works on iPad, tablets, touch laptops
+- No more hidden buttons on non-mouse devices
 
 ---
 
