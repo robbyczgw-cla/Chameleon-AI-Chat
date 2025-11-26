@@ -866,10 +866,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       generateChatTitle(textContent, settings.apiKeys.openRouter)
         .then(({ title: aiTitle, success }) => {
           if (success) {
-            // Update chat with AI-generated title
+            // Update chat with AI-generated title and timestamp for animation
             setChats((prev) =>
               prev.map((chat) =>
-                chat.id === chatId ? { ...chat, title: aiTitle } : chat
+                chat.id === chatId ? { ...chat, title: aiTitle, titleGeneratedAt: Date.now() } : chat
               )
             )
 

@@ -74,6 +74,21 @@ export function ChatHeader() {
   })
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
+  const [isTitleAnimated, setIsTitleAnimated] = useState(false)
+
+  // Track AI-generated title animation for header
+  useEffect(() => {
+    if (currentChat?.titleGeneratedAt) {
+      const now = Date.now()
+      // Animate if title was generated in the last 3 seconds
+      if (now - currentChat.titleGeneratedAt < 3000) {
+        setIsTitleAnimated(true)
+        const timer = setTimeout(() => setIsTitleAnimated(false), 1500)
+        return () => clearTimeout(timer)
+      }
+    }
+    setIsTitleAnimated(false)
+  }, [currentChat?.title, currentChat?.titleGeneratedAt])
 
   useEffect(() => {
     setMounted(true)
@@ -234,7 +249,10 @@ export function ChatHeader() {
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-md border border-primary/10 flex-shrink-0">
               <ChameleonLogoSimple className="text-green-600" size={16} animated />
             </div>
-            <h1 className="text-xs font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
+            <h1 className={cn(
+              "text-xs font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate",
+              isTitleAnimated && "animate-title-appear"
+            )}>
               {currentChat?.title || "Chameleon"}
             </h1>
           </div>
@@ -299,7 +317,10 @@ export function ChatHeader() {
             <div className="flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-lg border border-primary/10 flex-shrink-0">
               <ChameleonLogoSimple className="text-green-600" size={20} animated />
             </div>
-            <h1 className="text-sm sm:text-base lg:text-lg font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
+            <h1 className={cn(
+              "text-sm sm:text-base lg:text-lg font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate",
+              isTitleAnimated && "animate-title-appear"
+            )}>
               {currentChat?.title || "Chameleon AI"}
             </h1>
           </div>

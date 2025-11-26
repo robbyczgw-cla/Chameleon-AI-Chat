@@ -3,8 +3,8 @@
  * Uses a small, cheap open-source model to generate concise titles from user messages
  */
 
-// Use open-source model for privacy (no data sent to Google/Anthropic/OpenAI proprietary systems)
-const TITLE_MODEL = "openai/gpt-4.1-nano"
+// Use open-source model for privacy
+const TITLE_MODEL = "openai/gpt-oss-20b"
 
 interface TitleGenerationResult {
   title: string

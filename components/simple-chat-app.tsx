@@ -465,6 +465,7 @@ export function SimpleChatApp() {
   const [isAchievementsOpen, setIsAchievementsOpen] = useState(false)
   const [newAchievement, setNewAchievement] = useState<Achievement | null>(null)
   const [pet, setPet] = useState<Pet | null>(null)
+  const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
@@ -474,6 +475,25 @@ export function SimpleChatApp() {
     const profile = userProfileService.getProfile()
     setProfileContext(userProfileService.getProfileContext(profile))
   }, [])
+
+  // Track AI-generated titles for animation
+  useEffect(() => {
+    const now = Date.now()
+    const newAnimatedIds = new Set<string>()
+
+    chats.forEach((chat) => {
+      // Animate titles generated in the last 3 seconds
+      if (chat.titleGeneratedAt && now - chat.titleGeneratedAt < 3000) {
+        newAnimatedIds.add(chat.id)
+      }
+    })
+
+    if (newAnimatedIds.size > 0) {
+      setAnimatedTitleIds(newAnimatedIds)
+      const timer = setTimeout(() => setAnimatedTitleIds(new Set()), 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [chats])
 
 
   // Check if onboarding should be shown (first time Simple Mode user)
@@ -725,7 +745,7 @@ export function SimpleChatApp() {
                         setIsSidebarOpen(false)
                       }}
                     >
-                      <div className="flex-1 truncate text-sm">{chat.title}</div>
+                      <div className={cn("flex-1 truncate text-sm", animatedTitleIds.has(chat.id) && "animate-title-appear")}>{chat.title}</div>
                       <Button
                         variant="ghost"
                         size="icon"
