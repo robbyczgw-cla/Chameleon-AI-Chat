@@ -118,16 +118,17 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col overflow-hidden">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-violet-500" />
-            {t.adoptPet}
-          </DialogTitle>
-          <DialogDescription>{t.adoptDesc}</DialogDescription>
-        </DialogHeader>
+      <DialogContent className="w-full max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-hidden p-0">
+        <div className="flex flex-col h-full max-h-[90vh] p-6">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-violet-500" />
+              {t.adoptPet}
+            </DialogTitle>
+            <DialogDescription>{t.adoptDesc}</DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-4 py-2 flex-1 overflow-y-auto min-h-0">
+          <div className="space-y-4 py-2 flex-1 overflow-y-auto min-h-0">
           {/* Pet Type Selection */}
           <div className="space-y-2">
             <Label>{t.choosePet}</Label>
@@ -193,19 +194,20 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
               ))}
             </div>
           </div>
-        </div>
+          </div>
 
-        <div className="flex justify-end gap-2 pt-2 flex-shrink-0">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {t.cancel}
-          </Button>
-          <Button
-            onClick={handleAdopt}
-            className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
-          >
-            <Sparkles className="h-4 w-4 mr-2" />
-            {t.adopt}
-          </Button>
+          <div className="flex justify-end gap-2 pt-2 flex-shrink-0">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              {t.cancel}
+            </Button>
+            <Button
+              onClick={handleAdopt}
+              className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {t.adopt}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
