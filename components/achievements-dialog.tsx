@@ -408,16 +408,16 @@ export function StreakWidget({ onClick }: StreakWidgetProps) {
     }
   }, [settings.streaksEnabled])
 
-  if (!settings.streaksEnabled || !streaks) return null
+  if (!settings.streaksEnabled || !streaks || streaks.currentStreak === 0) return null
 
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500/10 to-red-500/10 hover:from-orange-500/20 hover:to-red-500/20 border border-orange-500/20 transition-all"
+      className="flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r from-orange-500/10 to-red-500/10 hover:from-orange-500/20 hover:to-red-500/20 border border-orange-500/20 transition-all"
+      title={`${streaks.currentStreak} day streak`}
     >
-      <Flame className="h-4 w-4 text-orange-500" />
-      <span className="text-sm font-bold">{streaks.currentStreak}</span>
-      <span className="text-xs">{streakService.getStreakEmoji(streaks.currentStreak)}</span>
+      <Flame className="h-3.5 w-3.5 text-orange-500" />
+      <span className="text-xs font-bold">{streaks.currentStreak}</span>
     </button>
   )
 }
