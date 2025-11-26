@@ -3,8 +3,9 @@
 import type React from "react"
 import { X, LogOut, User } from "lucide-react"
 
-import { useState } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
+import { searchService } from "@/lib/search-service"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -52,7 +53,41 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
   const [newFolderName, setNewFolderName] = useState("")
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false)
 
-  const filteredChats = chats.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  // Build search index when chats change
+  useEffect(() => {
+    if (chats.length > 0) {
+      searchService.buildIndex(chats)
+    }
+  }, [chats])
+
+  // Enhanced search: title + message content
+  const filteredChats = useMemo(() => {
+    if (!searchQuery.trim()) return chats
+
+    // If short query, just do title search for speed
+    if (searchQuery.length < 3) {
+      return chats.filter((chat) =>
+        chat.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }
+
+    // Full-text search through titles AND message content
+    const searchResults = searchService.search(searchQuery, chats, 100)
+    const matchedChatIds = new Set(searchResults.map(r => r.chatId))
+
+    // Also include title matches not found by search service
+    const titleMatches = chats.filter((chat) =>
+      chat.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !matchedChatIds.has(chat.id)
+    )
+
+    // Combine: search results first (sorted by relevance), then title matches
+    const searchChats = searchResults
+      .map(r => chats.find(c => c.id === r.chatId))
+      .filter(Boolean) as typeof chats
+
+    return [...searchChats, ...titleMatches]
+  }, [searchQuery, chats])
 
   const pinnedChats = filteredChats.filter((chat) => chat.pinned)
   const unpinnedChats = filteredChats.filter((chat) => !chat.pinned)
@@ -270,11 +305,16 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
           <Input
-            placeholder="Search chats..."
+            placeholder="Search titles & messages..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 shadow-md rounded-xl border-border/40 hover-lift smooth-transition"
           />
+          {searchQuery.length >= 3 && filteredChats.length > 0 && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+              {filteredChats.length} found
+            </div>
+          )}
         </div>
       </div>
 

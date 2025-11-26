@@ -4,7 +4,8 @@ import { useApp } from "@/contexts/app-context"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX, ChevronDown, ChevronRight, Lightbulb } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX, ChevronDown, ChevronRight, Lightbulb, Pencil, X, Save } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect, memo, useCallback } from "react"
 import { useToast } from "@/hooks/use-toast"
@@ -70,6 +71,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [speakingId, setSpeakingId] = useState<string | null>(null)
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set())
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
+  const [editContent, setEditContent] = useState("")
   const { toast } = useToast()
 
   const toggleReasoning = useCallback((messageId: string) => {
@@ -212,6 +215,51 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
     })
   }
 
+  const handleEditStart = useCallback((message: any) => {
+    const textContent = contentToText(message.content)
+    setEditingMessageId(message.id)
+    setEditContent(textContent)
+  }, [])
+
+  const handleEditCancel = useCallback(() => {
+    setEditingMessageId(null)
+    setEditContent("")
+  }, [])
+
+  const handleEditSave = useCallback((messageIndex: number) => {
+    if (!currentChat || !editContent.trim()) return
+
+    const message = currentChat.messages[messageIndex]
+    if (!message) return
+
+    // Update the message content
+    const updatedMessages = [...currentChat.messages]
+    updatedMessages[messageIndex] = {
+      ...message,
+      content: editContent.trim(),
+    }
+
+    // If editing a user message, remove all subsequent messages to allow regeneration
+    if (message.role === "user") {
+      const messagesUpToEdit = updatedMessages.slice(0, messageIndex + 1)
+      updateChat(currentChat.id, { messages: messagesUpToEdit })
+      toast({
+        title: "Message updated",
+        description: "Send your message again to get a new response",
+      })
+    } else {
+      // For assistant messages, just update in place
+      updateChat(currentChat.id, { messages: updatedMessages })
+      toast({
+        title: "Message updated",
+        description: "Message content has been saved",
+      })
+    }
+
+    setEditingMessageId(null)
+    setEditContent("")
+  }, [currentChat, editContent, updateChat, toast])
+
   const handleFollowUpSelect = (suggestion: string) => {
     // Dispatch custom event to insert prompt into input
     window.dispatchEvent(new CustomEvent("insertPrompt", { detail: suggestion }))
@@ -299,7 +347,43 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                 {message.role === "user" && (
                   <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 )}
-                {message.role === "assistant" ? (
+                {/* Edit mode for user messages */}
+                {editingMessageId === message.id && message.role === "user" ? (
+                  <div className="space-y-2 w-full">
+                    <Textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      className="min-h-[80px] resize-none text-sm"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") handleEditCancel()
+                        if (e.key === "Enter" && e.ctrlKey) handleEditSave(index)
+                      }}
+                    />
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleEditCancel}
+                        className="h-7 px-2"
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleEditSave(index)}
+                        className="h-7 px-2"
+                      >
+                        <Save className="h-3 w-3 mr-1" />
+                        Save & Regenerate
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Ctrl+Enter to save • Esc to cancel
+                    </p>
+                  </div>
+                ) : message.role === "assistant" ? (
                   <div className="prose prose-sm sm:prose-base dark:prose-invert w-full break-words">
                     {/* Display generated image if present */}
                     {message.imageUrl && (
@@ -570,6 +654,17 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                     title="Regenerate response"
                   >
                     <RefreshCw className="h-3 w-3" />
+                  </Button>
+                )}
+                {message.role === "user" && editingMessageId !== message.id && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 sm:h-7 sm:w-7"
+                    onClick={() => handleEditStart(message)}
+                    title="Edit message"
+                  >
+                    <Pencil className="h-3 w-3" />
                   </Button>
                 )}
                 <Button

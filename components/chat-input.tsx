@@ -33,12 +33,23 @@ import { QuickModelPicker } from "@/components/quick-model-picker"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 import type { Persona } from "@/lib/personas"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
+import { useDraft } from "@/hooks/use-draft"
 
 export function ChatInput() {
   const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading } = useApp()
   const currentChat = chats.find((c) => c.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
+
+  // Draft auto-save system
+  const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
   const [input, setInput] = useState("")
+
+  // Restore draft when hook is ready
+  useEffect(() => {
+    if (isRestored && draft && !input) {
+      setInput(draft)
+    }
+  }, [isRestored, draft])
   const [isLoading, setIsLoading] = useState(false)
   const [webSearchEnabled, setWebSearchEnabled] = useState(false)
   const [attachedFiles, setAttachedFiles] = useState<FileAttachment[]>([])
@@ -202,6 +213,7 @@ export function ChatInput() {
   // Handle input change and slash command suggestions
   const handleInputChange = useCallback((value: string) => {
     setInput(value)
+    saveDraft(value) // Auto-save draft
 
     // Check for slash commands
     if (value.trim().startsWith('/')) {
@@ -212,7 +224,7 @@ export function ChatInput() {
       setShowCommandMenu(false)
       setCommandSuggestions([])
     }
-  }, [])
+  }, [saveDraft])
 
   // Select a slash command from suggestions
   const selectCommand = useCallback((command: typeof SLASH_COMMANDS[0]) => {
@@ -350,6 +362,7 @@ export function ChatInput() {
     addMessage(chatId, userMessage)
     console.log("[v0] Added user message")
     setInput("")
+    clearDraft() // Clear saved draft after successful send
     setAttachedFiles([])
     setIsLoading(true)
     setIsChatLoading(true) // Triggers loading animation in ChatMessages
