@@ -380,7 +380,7 @@ export function SimpleChatApp() {
         </>
       )}
 
-      <div className="relative z-10 flex h-[100dvh] overflow-hidden gap-0">
+      <div className="relative z-10 flex h-[100dvh] w-full overflow-hidden gap-0 pb-[44px] md:pb-6">
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
@@ -502,7 +502,7 @@ export function SimpleChatApp() {
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <main className="flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
           {/* Header */}
           <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/50 bg-background">
             <div className="flex items-center gap-3">
