@@ -389,15 +389,15 @@ export function SimpleChatApp() {
           />
         )}
 
-        {/* Sidebar Wrapper - matches Advanced mode pattern */}
+        {/* Sidebar Wrapper - shrink-0 prevents flex shrinking on desktop */}
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-50 w-72 md:relative md:inset-auto md:z-0 md:h-full md:shrink-0 transition-transform duration-300 ease-out",
+            "fixed inset-y-0 left-0 z-50 md:relative md:z-0 md:shrink-0 transition-transform duration-300 ease-out",
             isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           )}
         >
-          {/* Sidebar - Chat History */}
-          <aside className="h-full bg-background border-r border-border/50 flex flex-col">
+          {/* Sidebar - Chat History - height pattern matches ChatSidebar component */}
+          <aside className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-72 flex-col overflow-hidden bg-background border-r border-border/50">
             {/* Sidebar Header */}
             <div className="p-4 border-b border-border/50">
               <div className="flex items-center justify-between">
