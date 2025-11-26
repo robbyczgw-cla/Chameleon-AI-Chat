@@ -34,7 +34,7 @@ import type { Persona } from "@/lib/personas"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 
 export function ChatInput() {
-  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings } = useApp()
+  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading } = useApp()
   const currentChat = chats.find((c) => c.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
   const [input, setInput] = useState("")
@@ -190,12 +190,13 @@ export function ChatInput() {
       abortControllerRef.current.abort()
       abortControllerRef.current = null
       setIsLoading(false)
+      setIsChatLoading(false)
       toast({
         title: "Generation stopped",
         description: "Response generation has been cancelled",
       })
     }
-  }, [toast])
+  }, [toast, setIsChatLoading])
 
   // Handle input change and slash command suggestions
   const handleInputChange = useCallback((value: string) => {
@@ -350,6 +351,7 @@ export function ChatInput() {
     setInput("")
     setAttachedFiles([])
     setIsLoading(true)
+    setIsChatLoading(true) // Triggers loading animation in ChatMessages
 
     // Handle image generation mode
     if (imageMode) {
@@ -423,6 +425,7 @@ export function ChatInput() {
         })
       } finally {
         setIsLoading(false)
+        setIsChatLoading(false)
         setImageMode(false) // Reset image mode after generation
       }
       return
@@ -857,6 +860,7 @@ export function ChatInput() {
       })
     } finally {
       setIsLoading(false)
+      setIsChatLoading(false)
       setAttachedCollectionId(null)
       abortControllerRef.current = null
       console.log("[v0] Chat submission complete")
