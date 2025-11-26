@@ -209,16 +209,16 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] sm:max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
-        <DialogHeader className="flex-shrink-0">
+      <DialogContent className="max-w-[95vw] sm:max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0 pb-2">
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-violet-500" />
             {t.settings}
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="profile" className="w-full flex-1 flex flex-col overflow-hidden">
-          <TabsList className="grid grid-cols-5 gap-1">
+        <Tabs defaultValue="profile" className="w-full flex-1 flex flex-col min-h-0 overflow-hidden">
+          <TabsList className="grid grid-cols-5 gap-1 flex-shrink-0">
             <TabsTrigger value="profile" className="text-xs gap-1 px-2">
               <User className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.profile}</span>
@@ -241,9 +241,9 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1 overflow-y-auto mt-4 pr-1">
+          <div className="flex-1 overflow-y-auto mt-4 pr-1 min-h-0">
             {/* Profile Tab */}
-            <TabsContent value="profile" className="space-y-4 mt-0">
+            <TabsContent value="profile" className="space-y-4 mt-0 h-full">
               <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-lg font-bold">
@@ -540,7 +540,7 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
         </Tabs>
 
         {/* Footer */}
-        <div className="flex flex-col gap-3 pt-4 border-t flex-shrink-0">
+        <div className="flex flex-col gap-2 pt-3 border-t flex-shrink-0 mt-2">
           {onOpenAchievements && (
             <Button
               variant="ghost"

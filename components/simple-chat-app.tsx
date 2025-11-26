@@ -392,8 +392,9 @@ export function SimpleChatApp() {
         {/* Sidebar - Chat History */}
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-50 w-72 bg-background/95 backdrop-blur-xl border-r border-border/50 transition-transform duration-300 ease-out md:relative md:translate-x-0",
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            "fixed inset-y-0 left-0 z-50 w-72 bg-background/95 backdrop-blur-xl border-r border-border/50 transition-transform duration-300 ease-out",
+            "md:relative md:inset-auto md:z-auto",
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           )}
         >
           <div className="flex flex-col h-full">
@@ -501,7 +502,7 @@ export function SimpleChatApp() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0 w-0 overflow-hidden">
           {/* Header */}
           <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/50 bg-background/80 backdrop-blur-sm">
             <div className="flex items-center gap-3">
@@ -579,9 +580,9 @@ export function SimpleChatApp() {
           <div className="flex-1 flex flex-col overflow-hidden">
             {isEmpty ? (
               /* Welcome Screen - Uses full width on desktop */
-              <div className="flex-1 flex flex-col overflow-y-auto">
-                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 text-center min-h-0">
-                  <div className="w-full max-w-md sm:max-w-xl lg:max-w-2xl space-y-4 sm:space-y-6">
+              <div className="flex-1 flex flex-col overflow-y-auto w-full">
+                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 text-center min-h-0 w-full">
+                  <div className="w-full max-w-[90%] sm:max-w-xl lg:max-w-2xl space-y-4 sm:space-y-6 mx-auto">
                     {/* Greeting - Compact */}
                     <div className="space-y-2">
                       <div className="flex justify-center mb-2 sm:mb-4">
@@ -631,22 +632,20 @@ export function SimpleChatApp() {
                 </div>
 
                 {/* Input at bottom - always visible */}
-                <div className="flex-shrink-0 p-3 sm:p-4 border-t bg-background/80">
-                  <div className="max-w-2xl mx-auto">
-                    <SimpleChatInput
-                      selectedPersona={selectedPersona || undefined}
-                      profileContext={profileContext}
-                    />
-                  </div>
+                <div className="flex-shrink-0 w-full">
+                  <SimpleChatInput
+                    selectedPersona={selectedPersona || undefined}
+                    profileContext={profileContext}
+                  />
                 </div>
               </div>
             ) : (
               /* Chat View */
               <>
-                <div className="flex-1 overflow-hidden px-2 md:px-4">
+                <div className="flex-1 overflow-hidden px-2 md:px-4 w-full">
                   <ChatMessages currentPersona={selectedPersona || undefined} />
                 </div>
-                <div className="flex-shrink-0 pb-4 px-2 md:px-4">
+                <div className="flex-shrink-0 w-full">
                   <SimpleChatInput
                     selectedPersona={selectedPersona || undefined}
                     profileContext={profileContext}

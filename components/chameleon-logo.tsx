@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useState } from "react"
+import { cn } from "@/lib/utils"
 
 interface ChameleonLogoProps {
   className?: string
@@ -16,18 +16,6 @@ export function ChameleonLogo({
   animated = false,
   colorShift = false
 }: ChameleonLogoProps) {
-  const [hue, setHue] = useState(120) // Start with green
-
-  useEffect(() => {
-    if (!colorShift) return
-
-    const interval = setInterval(() => {
-      setHue((prev) => (prev + 1) % 360)
-    }, 50) // Color shift every 50ms
-
-    return () => clearInterval(interval)
-  }, [colorShift])
-
   return (
     <svg
       width={size}
@@ -35,8 +23,7 @@ export function ChameleonLogo({
       viewBox="0 0 200 200"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      style={{ filter: colorShift ? `hue-rotate(${hue}deg)` : undefined }}
+      className={cn(className, colorShift && "chameleon-color-shift")}
     >
       {animated && (
         <defs>
