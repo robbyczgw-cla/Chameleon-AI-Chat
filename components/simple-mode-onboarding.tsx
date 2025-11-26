@@ -5,7 +5,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { useApp } from "@/contexts/app-context"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
@@ -24,8 +26,71 @@ import {
   Waves,
   Heart,
   Gem,
+  MapPin,
+  Target,
+  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+// Interest tags with emojis
+const interestOptions = {
+  en: [
+    { id: "tech", emoji: "💻", label: "Technology" },
+    { id: "art", emoji: "🎨", label: "Art & Design" },
+    { id: "music", emoji: "🎵", label: "Music" },
+    { id: "gaming", emoji: "🎮", label: "Gaming" },
+    { id: "sports", emoji: "⚽", label: "Sports" },
+    { id: "travel", emoji: "✈️", label: "Travel" },
+    { id: "food", emoji: "🍕", label: "Food & Cooking" },
+    { id: "books", emoji: "📚", label: "Books & Reading" },
+    { id: "movies", emoji: "🎬", label: "Movies & TV" },
+    { id: "science", emoji: "🔬", label: "Science" },
+    { id: "fitness", emoji: "💪", label: "Fitness" },
+    { id: "nature", emoji: "🌿", label: "Nature" },
+    { id: "photography", emoji: "📷", label: "Photography" },
+    { id: "business", emoji: "💼", label: "Business" },
+    { id: "languages", emoji: "🌍", label: "Languages" },
+    { id: "diy", emoji: "🔧", label: "DIY & Crafts" },
+  ],
+  de: [
+    { id: "tech", emoji: "💻", label: "Technologie" },
+    { id: "art", emoji: "🎨", label: "Kunst & Design" },
+    { id: "music", emoji: "🎵", label: "Musik" },
+    { id: "gaming", emoji: "🎮", label: "Gaming" },
+    { id: "sports", emoji: "⚽", label: "Sport" },
+    { id: "travel", emoji: "✈️", label: "Reisen" },
+    { id: "food", emoji: "🍕", label: "Essen & Kochen" },
+    { id: "books", emoji: "📚", label: "Bücher & Lesen" },
+    { id: "movies", emoji: "🎬", label: "Filme & Serien" },
+    { id: "science", emoji: "🔬", label: "Wissenschaft" },
+    { id: "fitness", emoji: "💪", label: "Fitness" },
+    { id: "nature", emoji: "🌿", label: "Natur" },
+    { id: "photography", emoji: "📷", label: "Fotografie" },
+    { id: "business", emoji: "💼", label: "Business" },
+    { id: "languages", emoji: "🌍", label: "Sprachen" },
+    { id: "diy", emoji: "🔧", label: "DIY & Basteln" },
+  ],
+}
+
+// Goal options
+const goalOptions = {
+  en: [
+    { id: "learn", emoji: "🎓", label: "Learn new things" },
+    { id: "creative", emoji: "✨", label: "Get creative help" },
+    { id: "productive", emoji: "📈", label: "Be more productive" },
+    { id: "fun", emoji: "🎉", label: "Have fun conversations" },
+    { id: "work", emoji: "💼", label: "Help with work" },
+    { id: "writing", emoji: "✍️", label: "Improve my writing" },
+  ],
+  de: [
+    { id: "learn", emoji: "🎓", label: "Neues lernen" },
+    { id: "creative", emoji: "✨", label: "Kreative Hilfe" },
+    { id: "productive", emoji: "📈", label: "Produktiver sein" },
+    { id: "fun", emoji: "🎉", label: "Spaß haben" },
+    { id: "work", emoji: "💼", label: "Bei der Arbeit helfen" },
+    { id: "writing", emoji: "✍️", label: "Besser schreiben" },
+  ],
+}
 
 // Translations for Onboarding
 const translations = {
@@ -37,15 +102,23 @@ const translations = {
     yourName: "Your Name",
     namePlaceholder: "What should I call you?",
     nameRequired: "Name is required to continue",
-    occupation: "What do you do? (optional)",
+    occupation: "What do you do?",
     occupationPlaceholder: "e.g., Student, Developer, Designer",
-    step2Title: "Personalize",
-    step2Desc: "Choose your language and theme.",
+    location: "Where are you from?",
+    locationPlaceholder: "e.g., Vienna, Berlin, Zurich",
+    aboutMe: "Tell me about yourself",
+    aboutMePlaceholder: "Anything you'd like the AI to know about you...",
+    step2Title: "Your Interests",
+    step2Desc: "Select what you're into - this helps personalize your experience!",
+    selectInterests: "Pick your interests",
+    selectGoals: "What do you want to achieve?",
+    step3Title: "Personalize",
+    step3Desc: "Choose your language and theme.",
     language: "Language",
     theme: "Theme",
     preview: "Preview",
-    step3Title: "API Keys",
-    step3Desc: "Add your API keys to start chatting.",
+    step4Title: "API Keys",
+    step4Desc: "Add your API keys to start chatting.",
     openRouterKey: "OpenRouter API Key",
     openRouterDesc: "Required for AI chat. Free tier available!",
     getKey: "Get your key",
@@ -53,8 +126,8 @@ const translations = {
     openAIDesc: "For voice input & premium voice output",
     serperKey: "Serper API Key (optional)",
     serperDesc: "For web search - 2,500 free searches!",
-    step4Title: "You're all set!",
-    step4Desc: "Your AI assistant is ready. Here's a preview of your setup:",
+    step5Title: "You're all set!",
+    step5Desc: "Your AI assistant is ready. Here's a preview of your setup:",
     back: "Back",
     next: "Next",
     skip: "Skip for now",
@@ -68,11 +141,14 @@ const translations = {
     themeGirlyViolet: "Girly Violet",
     themeOceanBreeze: "Ocean Breeze",
     yourProfile: "Your Profile",
+    yourInterests: "Your Interests",
+    yourGoals: "Your Goals",
     appearance: "Appearance",
     apiStatus: "API Status",
     ready: "Ready",
     notConfigured: "Not configured",
     configured: "Configured",
+    optional: "optional",
   },
   de: {
     welcome: "Willkommen bei Chameleon AI",
@@ -82,15 +158,23 @@ const translations = {
     yourName: "Dein Name",
     namePlaceholder: "Wie soll ich dich nennen?",
     nameRequired: "Name ist erforderlich um fortzufahren",
-    occupation: "Was machst du? (optional)",
+    occupation: "Was machst du?",
     occupationPlaceholder: "z.B. Student, Entwickler, Designer",
-    step2Title: "Personalisieren",
-    step2Desc: "Wähle deine Sprache und Design.",
+    location: "Woher kommst du?",
+    locationPlaceholder: "z.B. Wien, Berlin, Zürich",
+    aboutMe: "Erzähl mir von dir",
+    aboutMePlaceholder: "Was soll die KI über dich wissen...",
+    step2Title: "Deine Interessen",
+    step2Desc: "Wähle aus was dich interessiert - das hilft bei der Personalisierung!",
+    selectInterests: "Wähle deine Interessen",
+    selectGoals: "Was möchtest du erreichen?",
+    step3Title: "Personalisieren",
+    step3Desc: "Wähle deine Sprache und Design.",
     language: "Sprache",
     theme: "Design",
     preview: "Vorschau",
-    step3Title: "API Keys",
-    step3Desc: "Füge deine API Keys hinzu um loszulegen.",
+    step4Title: "API Keys",
+    step4Desc: "Füge deine API Keys hinzu um loszulegen.",
     openRouterKey: "OpenRouter API Key",
     openRouterDesc: "Erforderlich für KI-Chat. Kostenlose Stufe verfügbar!",
     getKey: "Key holen",
@@ -98,8 +182,8 @@ const translations = {
     openAIDesc: "Für Spracheingabe & Premium-Sprachausgabe",
     serperKey: "Serper API Key (optional)",
     serperDesc: "Für Websuche - 2.500 kostenlose Suchen!",
-    step4Title: "Alles bereit!",
-    step4Desc: "Dein KI-Assistent ist bereit. Hier ist eine Vorschau deiner Einstellungen:",
+    step5Title: "Alles bereit!",
+    step5Desc: "Dein KI-Assistent ist bereit. Hier ist eine Vorschau deiner Einstellungen:",
     back: "Zurück",
     next: "Weiter",
     skip: "Vorerst überspringen",
@@ -113,11 +197,14 @@ const translations = {
     themeGirlyViolet: "Girly Violet",
     themeOceanBreeze: "Ocean Breeze",
     yourProfile: "Dein Profil",
+    yourInterests: "Deine Interessen",
+    yourGoals: "Deine Ziele",
     appearance: "Aussehen",
     apiStatus: "API Status",
     ready: "Bereit",
     notConfigured: "Nicht konfiguriert",
     configured: "Konfiguriert",
+    optional: "optional",
   },
 }
 
@@ -138,21 +225,29 @@ const themes = [
 export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingProps) {
   const { settings, updateSettings, user } = useApp()
   const [currentStep, setCurrentStep] = useState(0)
-  const [profile, setProfile] = useState<UserProfile>({ name: "" })
+  const [profile, setProfile] = useState<UserProfile>({ name: "", interests: [], goals: [] })
   const [localSettings, setLocalSettings] = useState(settings)
   const [currentTheme, setCurrentTheme] = useState<string>("light")
   const [nameError, setNameError] = useState(false)
 
-  const totalSteps = 4
+  const totalSteps = 5
 
   // Get translations based on language
   const lang = localSettings.language === "de" ? "de" : "en"
   const t = translations[lang]
+  const interests = interestOptions[lang]
+  const goals = goalOptions[lang]
 
   useEffect(() => {
     if (open) {
       setLocalSettings(settings)
-      setProfile(userProfileService.getProfile())
+      const existingProfile = userProfileService.getProfile()
+      setProfile({
+        ...existingProfile,
+        name: existingProfile.name || "",
+        interests: existingProfile.interests || [],
+        goals: existingProfile.goals || [],
+      })
       const savedTheme = localStorage.getItem("chameleon-theme") || "light"
       setCurrentTheme(savedTheme)
     }
@@ -170,6 +265,36 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
   const handleThemeChange = (theme: string) => {
     setCurrentTheme(theme)
     applyTheme(theme)
+  }
+
+  const toggleInterest = (interestLabel: string) => {
+    const currentInterests = profile.interests || []
+    if (currentInterests.includes(interestLabel)) {
+      setProfile({
+        ...profile,
+        interests: currentInterests.filter((i) => i !== interestLabel),
+      })
+    } else {
+      setProfile({
+        ...profile,
+        interests: [...currentInterests, interestLabel],
+      })
+    }
+  }
+
+  const toggleGoal = (goalLabel: string) => {
+    const currentGoals = profile.goals || []
+    if (currentGoals.includes(goalLabel)) {
+      setProfile({
+        ...profile,
+        goals: currentGoals.filter((g) => g !== goalLabel),
+      })
+    } else {
+      setProfile({
+        ...profile,
+        goals: [...currentGoals, goalLabel],
+      })
+    }
   }
 
   const handleNext = () => {
@@ -247,9 +372,9 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          {/* Step 0: Profile */}
+          {/* Step 0: Basic Profile */}
           {currentStep === 0 && (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div className="text-center">
                 <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
                   <User className="h-8 w-8 text-white" />
@@ -280,29 +405,134 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
                   )}
                 </div>
 
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="occupation" className="flex items-center gap-1">
+                      {t.occupation}
+                      <span className="text-xs text-muted-foreground">({t.optional})</span>
+                    </Label>
+                    <Input
+                      id="occupation"
+                      placeholder={t.occupationPlaceholder}
+                      value={profile.occupation || ""}
+                      onChange={(e) => setProfile({ ...profile, occupation: e.target.value })}
+                      className="h-11"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="location" className="flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {t.location}
+                      <span className="text-xs text-muted-foreground">({t.optional})</span>
+                    </Label>
+                    <Input
+                      id="location"
+                      placeholder={t.locationPlaceholder}
+                      value={profile.location || ""}
+                      onChange={(e) => setProfile({ ...profile, location: e.target.value })}
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="occupation">{t.occupation}</Label>
-                  <Input
-                    id="occupation"
-                    placeholder={t.occupationPlaceholder}
-                    value={profile.occupation || ""}
-                    onChange={(e) => setProfile({ ...profile, occupation: e.target.value })}
-                    className="h-12 text-base"
+                  <Label htmlFor="aboutMe" className="flex items-center gap-1">
+                    {t.aboutMe}
+                    <span className="text-xs text-muted-foreground">({t.optional})</span>
+                  </Label>
+                  <Textarea
+                    id="aboutMe"
+                    placeholder={t.aboutMePlaceholder}
+                    value={profile.aboutMe || ""}
+                    onChange={(e) => setProfile({ ...profile, aboutMe: e.target.value })}
+                    className="min-h-[80px] resize-none"
+                    rows={3}
                   />
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 1: Appearance */}
+          {/* Step 1: Interests & Goals */}
           {currentStep === 1 && (
             <div className="space-y-6">
               <div className="text-center">
                 <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center">
-                  <Palette className="h-8 w-8 text-white" />
+                  <Heart className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{t.step2Title}</h3>
                 <p className="text-muted-foreground">{t.step2Desc}</p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">{t.selectInterests}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {interests.map((interest) => {
+                      const isSelected = (profile.interests || []).includes(interest.label)
+                      return (
+                        <button
+                          key={interest.id}
+                          onClick={() => toggleInterest(interest.label)}
+                          className={cn(
+                            "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all",
+                            isSelected
+                              ? "bg-violet-500 text-white shadow-md"
+                              : "bg-muted hover:bg-violet-100 dark:hover:bg-violet-900/30"
+                          )}
+                        >
+                          <span>{interest.emoji}</span>
+                          <span>{interest.label}</span>
+                          {isSelected && <X className="h-3 w-3 ml-1" />}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    {t.selectGoals}
+                  </Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {goals.map((goal) => {
+                      const isSelected = (profile.goals || []).includes(goal.label)
+                      return (
+                        <button
+                          key={goal.id}
+                          onClick={() => toggleGoal(goal.label)}
+                          className={cn(
+                            "flex items-center gap-2 p-3 rounded-xl text-sm transition-all border-2",
+                            isSelected
+                              ? "bg-violet-500/10 border-violet-500 text-violet-700 dark:text-violet-300"
+                              : "border-border hover:border-violet-300"
+                          )}
+                        >
+                          <span className="text-lg">{goal.emoji}</span>
+                          <span className="text-left">{goal.label}</span>
+                          {isSelected && (
+                            <Check className="h-4 w-4 ml-auto text-violet-500" />
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Appearance */}
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+                  <Palette className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{t.step3Title}</h3>
+                <p className="text-muted-foreground">{t.step3Desc}</p>
               </div>
 
               <div className="space-y-4">
@@ -368,15 +598,15 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
             </div>
           )}
 
-          {/* Step 2: API Keys */}
-          {currentStep === 2 && (
+          {/* Step 3: API Keys */}
+          {currentStep === 3 && (
             <div className="space-y-6">
               <div className="text-center">
                 <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
                   <Key className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{t.step3Title}</h3>
-                <p className="text-muted-foreground">{t.step3Desc}</p>
+                <h3 className="text-xl font-semibold mb-2">{t.step4Title}</h3>
+                <p className="text-muted-foreground">{t.step4Desc}</p>
               </div>
 
               <div className="space-y-4">
@@ -480,37 +710,78 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
             </div>
           )}
 
-          {/* Step 3: Complete */}
-          {currentStep === 3 && (
-            <div className="space-y-6">
+          {/* Step 4: Complete */}
+          {currentStep === 4 && (
+            <div className="space-y-5">
               <div className="text-center">
                 <div className="h-20 w-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
                   <Wand2 className="h-10 w-10 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{t.step4Title}</h3>
-                <p className="text-muted-foreground">{t.step4Desc}</p>
+                <h3 className="text-xl font-semibold mb-2">{t.step5Title}</h3>
+                <p className="text-muted-foreground">{t.step5Desc}</p>
               </div>
 
               {/* Summary Cards */}
               <div className="space-y-3">
                 {/* Profile Summary */}
                 <div className="p-4 rounded-xl border bg-gradient-to-br from-violet-500/5 to-purple-500/5">
-                  <div className="flex items-center gap-2 mb-2 text-sm font-medium text-violet-600 dark:text-violet-400">
+                  <div className="flex items-center gap-2 mb-3 text-sm font-medium text-violet-600 dark:text-violet-400">
                     <User className="h-4 w-4" />
                     {t.yourProfile}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-lg font-bold">
+                  <div className="flex items-start gap-3">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-lg font-bold flex-shrink-0">
                       {profile.name?.[0]?.toUpperCase() || "?"}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-medium">{profile.name}</p>
-                      {profile.occupation && (
-                        <p className="text-sm text-muted-foreground">{profile.occupation}</p>
-                      )}
+                      <div className="flex flex-wrap gap-1 text-sm text-muted-foreground">
+                        {profile.occupation && <span>{profile.occupation}</span>}
+                        {profile.occupation && profile.location && <span>•</span>}
+                        {profile.location && (
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {profile.location}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {/* Interests Summary */}
+                {(profile.interests?.length || 0) > 0 && (
+                  <div className="p-4 rounded-xl border">
+                    <div className="flex items-center gap-2 mb-2 text-sm font-medium">
+                      <Heart className="h-4 w-4" />
+                      {t.yourInterests}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {profile.interests?.map((interest, i) => (
+                        <Badge key={i} variant="secondary" className="text-xs">
+                          {interests.find((io) => io.label === interest)?.emoji} {interest}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Goals Summary */}
+                {(profile.goals?.length || 0) > 0 && (
+                  <div className="p-4 rounded-xl border">
+                    <div className="flex items-center gap-2 mb-2 text-sm font-medium">
+                      <Target className="h-4 w-4" />
+                      {t.yourGoals}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {profile.goals?.map((goal, i) => (
+                        <Badge key={i} variant="secondary" className="text-xs">
+                          {goals.find((go) => go.label === goal)?.emoji} {goal}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Appearance Summary */}
                 <div className="p-4 rounded-xl border">
@@ -534,7 +805,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
                     <Key className="h-4 w-4" />
                     {t.apiStatus}
                   </div>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-1.5 text-sm">
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">OpenRouter:</span>
                       <span className={cn(
@@ -580,7 +851,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
             )}
           </div>
           <div className="flex items-center gap-2">
-            {currentStep === 2 && (
+            {(currentStep === 1 || currentStep === 3) && (
               <Button variant="ghost" onClick={handleNext} className="text-muted-foreground">
                 {t.skip}
               </Button>
