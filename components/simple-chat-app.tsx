@@ -390,11 +390,15 @@ export function SimpleChatApp() {
         )}
 
         {/* Sidebar - Chat History */}
-        <div
+        {/* Mobile: fixed overlay, Desktop: flex sidebar */}
+        <aside
           className={cn(
+            // Base mobile styles - fixed overlay
             "fixed inset-y-0 left-0 z-50 w-72 bg-background/95 backdrop-blur-xl border-r border-border/50 transition-transform duration-300 ease-out",
-            "md:relative md:inset-auto md:z-auto",
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+            // Desktop: normal flex item
+            "md:static md:z-0 md:translate-x-0 md:shrink-0",
+            // Mobile slide behavior
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
           <div className="flex flex-col h-full">
@@ -499,10 +503,10 @@ export function SimpleChatApp() {
               </Button>
             </div>
           </div>
-        </div>
+        </aside>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0 w-0 overflow-hidden">
+        <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Header */}
           <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/50 bg-background/80 backdrop-blur-sm">
             <div className="flex items-center gap-3">
@@ -579,10 +583,10 @@ export function SimpleChatApp() {
           {/* Chat Area */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {isEmpty ? (
-              /* Welcome Screen - Uses full width on desktop */
-              <div className="flex-1 flex flex-col overflow-y-auto w-full">
-                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 text-center min-h-0 w-full">
-                  <div className="w-full max-w-[90%] sm:max-w-xl lg:max-w-2xl space-y-4 sm:space-y-6 mx-auto">
+              /* Welcome Screen */
+              <div className="flex-1 flex flex-col overflow-y-auto">
+                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 text-center">
+                  <div className="w-full max-w-lg space-y-4 sm:space-y-6">
                     {/* Greeting - Compact */}
                     <div className="space-y-2">
                       <div className="flex justify-center mb-2 sm:mb-4">
@@ -631,30 +635,26 @@ export function SimpleChatApp() {
                   </div>
                 </div>
 
-                {/* Input at bottom - always visible */}
-                <div className="flex-shrink-0 w-full">
-                  <SimpleChatInput
-                    selectedPersona={selectedPersona || undefined}
-                    profileContext={profileContext}
-                  />
-                </div>
+                {/* Input at bottom */}
+                <SimpleChatInput
+                  selectedPersona={selectedPersona || undefined}
+                  profileContext={profileContext}
+                />
               </div>
             ) : (
               /* Chat View */
               <>
-                <div className="flex-1 overflow-hidden px-2 md:px-4 w-full">
+                <div className="flex-1 overflow-hidden">
                   <ChatMessages currentPersona={selectedPersona || undefined} />
                 </div>
-                <div className="flex-shrink-0 w-full">
-                  <SimpleChatInput
-                    selectedPersona={selectedPersona || undefined}
-                    profileContext={profileContext}
-                  />
-                </div>
+                <SimpleChatInput
+                  selectedPersona={selectedPersona || undefined}
+                  profileContext={profileContext}
+                />
               </>
             )}
           </div>
-        </div>
+        </main>
       </div>
 
       {/* Dialogs */}

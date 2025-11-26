@@ -61,18 +61,7 @@ export function ChameleonLogo({
         d="M 50 110 Q 35 95 35 80 Q 35 50 62 42 Q 90 37 120 48 Q 142 55 148 80 Q 151 95 141 115 Q 133 130 120 137 L 90 144 Q 68 144 50 130 Z"
         fill={animated ? "url(#chameleonGradient)" : "#22c55e"}
         opacity="0.9"
-      >
-        {animated && (
-          <animate
-            attributeName="d"
-            values="M 50 110 Q 35 95 35 80 Q 35 50 62 42 Q 90 37 120 48 Q 142 55 148 80 Q 151 95 141 115 Q 133 130 120 137 L 90 144 Q 68 144 50 130 Z;
-                    M 50 110 Q 35 97 35 80 Q 35 47 62 39 Q 90 34 123 46 Q 145 53 151 80 Q 154 97 144 118 Q 136 133 123 140 L 90 148 Q 68 148 50 133 Z;
-                    M 50 110 Q 35 95 35 80 Q 35 50 62 42 Q 90 37 120 48 Q 142 55 148 80 Q 151 95 141 115 Q 133 130 120 137 L 90 144 Q 68 144 50 130 Z"
-            dur="3s"
-            repeatCount="indefinite"
-          />
-        )}
-      </path>
+      />
 
       {/* Chameleon head - scaled up */}
       <ellipse
@@ -88,24 +77,7 @@ export function ChameleonLogo({
       <circle cx="70" cy="58" r="11" fill="white" />
 
       {/* Eye pupil - scaled up */}
-      <circle cx="73" cy="58" r="5.5" fill="#1e293b">
-        {animated && (
-          <>
-            <animate
-              attributeName="cx"
-              values="73; 76; 73; 70; 73"
-              dur="4s"
-              repeatCount="indefinite"
-            />
-            <animate
-              attributeName="cy"
-              values="58; 55; 58; 61; 58"
-              dur="5s"
-              repeatCount="indefinite"
-            />
-          </>
-        )}
-      </circle>
+      <circle cx="73" cy="58" r="5.5" fill="#1e293b" />
 
       {/* Chameleon crest/head ridge - scaled up */}
       <path
@@ -121,21 +93,7 @@ export function ChameleonLogo({
         stroke={animated ? "url(#chameleonGradient)" : "#15803d"}
         strokeWidth="3"
         opacity="0.85"
-      >
-        {animated && (
-          <animateTransform
-            attributeName="transform"
-            attributeType="XML"
-            type="rotate"
-            from="0 120 137"
-            to="10 120 137"
-            dur="2s"
-            repeatCount="indefinite"
-            additive="sum"
-            values="0 120 137; 10 120 137; 0 120 137; -5 120 137; 0 120 137"
-          />
-        )}
-      </path>
+      />
 
       {/* Chameleon legs - scaled up */}
       <path
@@ -158,33 +116,12 @@ export function ChameleonLogo({
       <circle cx="112" cy="102" r="4" fill="#15803d" opacity="0.6" />
       <circle cx="101" cy="115" r="3.5" fill="#15803d" opacity="0.6" />
 
-      {/* AI sparkles around chameleon */}
+      {/* AI sparkles around chameleon - static */}
       {animated && (
         <>
-          <circle cx="25" cy="65" r="3" fill="#fbbf24" opacity="0.8">
-            <animate
-              attributeName="opacity"
-              values="0.3; 1; 0.3"
-              dur="2s"
-              repeatCount="indefinite"
-            />
-          </circle>
-          <circle cx="175" cy="95" r="3" fill="#fbbf24" opacity="0.8">
-            <animate
-              attributeName="opacity"
-              values="1; 0.3; 1"
-              dur="2.5s"
-              repeatCount="indefinite"
-            />
-          </circle>
-          <circle cx="100" cy="30" r="3" fill="#fbbf24" opacity="0.8">
-            <animate
-              attributeName="opacity"
-              values="0.5; 1; 0.5"
-              dur="3s"
-              repeatCount="indefinite"
-            />
-          </circle>
+          <circle cx="25" cy="65" r="3" fill="#fbbf24" opacity="0.7" />
+          <circle cx="175" cy="95" r="3" fill="#fbbf24" opacity="0.5" />
+          <circle cx="100" cy="30" r="3" fill="#fbbf24" opacity="0.6" />
         </>
       )}
     </svg>
@@ -215,16 +152,7 @@ export function ChameleonLogoSimple({
 
       {/* Eye */}
       <circle cx="42" cy="42" r="4" fill="white" />
-      <circle cx="43" cy="42" r="2" fill="#1e293b">
-        {animated && (
-          <animate
-            attributeName="r"
-            values="2; 1.5; 2"
-            dur="3s"
-            repeatCount="indefinite"
-          />
-        )}
-      </circle>
+      <circle cx="43" cy="42" r="2" fill="#1e293b" />
 
       {/* Curled tail */}
       <path

@@ -642,11 +642,10 @@
   .modern-shell {
     position: relative;
     min-height: 100vh;
+    /* Simplified background for better performance */
     background:
-      radial-gradient(1200px circle at 18% 12%, color-mix(in oklch, var(--primary) 32%, transparent) 0%, transparent 38%),
-      radial-gradient(900px circle at 82% 8%, color-mix(in oklch, var(--accent) 34%, transparent) 0%, transparent 32%),
-      radial-gradient(1100px circle at 72% 82%, color-mix(in oklch, var(--primary) 24%, transparent) 0%, transparent 36%),
-      linear-gradient(135deg, color-mix(in oklch, var(--muted) 80%, transparent) 0%, color-mix(in oklch, var(--background) 75%, transparent) 100%),
+      radial-gradient(800px circle at 20% 15%, color-mix(in oklch, var(--primary) 20%, transparent) 0%, transparent 50%),
+      radial-gradient(600px circle at 80% 10%, color-mix(in oklch, var(--accent) 20%, transparent) 0%, transparent 50%),
       var(--background);
     isolation: isolate;
   }
@@ -665,8 +664,11 @@
       radial-gradient(900px circle at 25% 20%, color-mix(in oklch, var(--primary) 22%, transparent) 0%, transparent 40%),
       radial-gradient(800px circle at 70% 12%, color-mix(in oklch, var(--accent) 18%, transparent) 0%, transparent 42%),
       radial-gradient(1100px circle at 85% 70%, color-mix(in oklch, var(--primary) 18%, transparent) 0%, transparent 42%);
-    filter: blur(20px);
-    opacity: 0.62;
+    /* Reduced blur and added GPU compositing hint */
+    filter: blur(8px);
+    opacity: 0.5;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .grid-layer {
@@ -1479,7 +1481,6 @@
 
   .chameleon-color-shift {
     animation: chameleon-hue-shift 18s linear infinite;
-    will-change: filter;
   }
 
   /* Reduce motion for users who prefer it */
