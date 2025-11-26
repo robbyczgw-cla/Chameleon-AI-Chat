@@ -27,6 +27,7 @@ import { personaMemoryService } from "@/lib/persona-memory-service"
 import { personaContextAwareness } from "@/lib/persona-context-awareness"
 import { personaPreferencesService } from "@/lib/persona-preferences-service"
 import { TokenCounterPreview } from "@/components/token-counter-preview"
+import { ContextWindowMeter } from "@/components/context-window-meter"
 import { parseSlashCommand, getCommandSuggestions, buildCommandPrompt, SLASH_COMMANDS } from "@/lib/slash-commands"
 import { QuickModelPicker } from "@/components/quick-model-picker"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
@@ -994,8 +995,9 @@ export function ChatInput() {
             {isLoading ? <Square className="h-5 w-5" /> : <Send className="h-5 w-5" />}
           </Button>
         </div>
-        <div className="mt-1 hidden sm:block">
+        <div className="mt-1 hidden sm:flex sm:items-center sm:justify-between sm:gap-4">
           <TokenCounterPreview input={input} />
+          <ContextWindowMeter compact />
         </div>
       </form>
     </div>

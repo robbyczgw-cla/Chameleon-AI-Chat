@@ -23,6 +23,7 @@ import type { Persona } from "@/lib/personas"
 import { getRAGContext } from "@/lib/rag-service"
 import { parseSlashCommand, getCommandSuggestions, buildCommandPrompt, type SlashCommand } from "@/lib/slash-commands"
 import { memoryService } from "@/lib/memory-service"
+import { ContextWindowMeter } from "@/components/context-window-meter"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
@@ -750,6 +751,10 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
           >
             {isChatLoading ? <Square className="h-5 w-5" /> : <Send className="h-5 w-5" />}
           </Button>
+        </div>
+        {/* Context Window Meter */}
+        <div className="mt-2 flex justify-end">
+          <ContextWindowMeter compact />
         </div>
       </form>
     </div>

@@ -22,32 +22,85 @@ export interface CostStats {
   avgCostPerMessage: number
 }
 
-// Model pricing (per 1M tokens) - OpenRouter standard format
-const MODEL_PRICING: Record<string, { input: number; output: number }> = {
+// Model pricing (per 1M tokens) - OpenRouter prices as of November 2025
+// Source: https://openrouter.ai/models - Updated 2025-11
+export const MODEL_PRICING: Record<string, { input: number; output: number }> = {
+  // OpenAI Models
+  "openai/gpt-5-2025-08-07": { input: 10.0, output: 30.0 },
+  "openai/gpt-5-mini-2025-08-07": { input: 0.30, output: 1.20 },
+  "openai/gpt-4o": { input: 2.50, output: 10.0 },
+  "openai/gpt-4o-mini": { input: 0.15, output: 0.60 },
+  "openai/gpt-4-turbo": { input: 10.0, output: 30.0 },
+  "openai/gpt-4": { input: 30.0, output: 60.0 },
+  "openai/gpt-3.5-turbo": { input: 0.50, output: 1.50 },
+  "openai/o1": { input: 15.0, output: 60.0 },
+  "openai/o1-mini": { input: 3.0, output: 12.0 },
+  "openai/o1-preview": { input: 15.0, output: 60.0 },
+
+  // Anthropic Models
+  "anthropic/claude-4.5-sonnet-20250929": { input: 3.0, output: 15.0 },
+  "anthropic/claude-opus-4.1": { input: 15.0, output: 75.0 },
+  "anthropic/claude-3.5-sonnet": { input: 3.0, output: 15.0 },
+  "anthropic/claude-3-opus": { input: 15.0, output: 75.0 },
+  "anthropic/claude-3-sonnet": { input: 3.0, output: 15.0 },
+  "anthropic/claude-3-haiku": { input: 0.25, output: 1.25 },
+  "anthropic/claude-haiku-4.5": { input: 0.80, output: 4.0 },
+  "anthropic/claude-3.5-haiku": { input: 1.0, output: 5.0 },
+
+  // Google Models
+  "google/gemini-2.5-pro": { input: 1.25, output: 5.0 },
+  "google/gemini-2.5-flash": { input: 0.075, output: 0.30 },
+  "google/gemini-2.5-flash-lite": { input: 0.02, output: 0.08 },
+  "google/gemini-2.0-flash-exp": { input: 0.0, output: 0.0 }, // Free experimental
+  "google/gemini-pro-1.5": { input: 1.25, output: 5.0 },
+  "google/gemini-pro": { input: 0.50, output: 1.50 },
+
+  // xAI Grok Models - Updated November 2025
   "x-ai/grok-4.1-fast": { input: 0.60, output: 2.0 },
   "x-ai/grok-4-fast": { input: 0.60, output: 2.0 },
   "x-ai/grok-4": { input: 3.0, output: 15.0 },
   "x-ai/grok-2": { input: 2.0, output: 10.0 },
-  "anthropic/claude-4.5-sonnet-20250929": { input: 3.0, output: 15.0 },
-  "anthropic/claude-3.5-sonnet": { input: 3.0, output: 15.0 },
-  "anthropic/claude-haiku-4.5": { input: 0.80, output: 4.0 },
-  "anthropic/claude-3.5-haiku": { input: 1.0, output: 5.0 },
-  "openai/gpt-4o": { input: 2.50, output: 10.0 },
-  "openai/gpt-4o-mini": { input: 0.15, output: 0.60 },
-  "google/gemini-2.5-pro": { input: 1.25, output: 5.0 },
-  "google/gemini-2.5-flash": { input: 0.075, output: 0.30 },
-  "google/gemini-2.0-flash-exp": { input: 0.10, output: 0.70 },
-  "deepseek/deepseek-chat": { input: 0.27, output: 1.10 },
-  "deepseek/deepseek-chat-v3.2-experimental": { input: 0.27, output: 1.10 },
+  "x-ai/grok-beta": { input: 5.0, output: 15.0 },
+  "x-ai/grok-code-fast-1": { input: 0.20, output: 0.80 },
+  "xai/grok-4": { input: 3.0, output: 15.0 },
+  "xai/grok-4-fast": { input: 0.60, output: 2.0 },
+
+  // DeepSeek Models - Very affordable
+  "deepseek/deepseek-chat": { input: 0.14, output: 0.28 },
+  "deepseek/deepseek-chat-v3.2-experimental": { input: 0.14, output: 0.28 },
+  "deepseek/deepseek-chat-v3-0324:free": { input: 0.0, output: 0.0 },
   "deepseek/deepseek-r1": { input: 0.55, output: 2.19 },
+  "deepseek/deepseek-coder-v3": { input: 0.14, output: 0.28 },
+
+  // Meta Llama Models
+  "meta-llama/llama-4-maverick:free": { input: 0.0, output: 0.0 },
+  "meta-llama/llama-4-scout:free": { input: 0.0, output: 0.0 },
+  "meta-llama/llama-3.1-405b-instruct": { input: 2.70, output: 2.70 },
+  "meta-llama/llama-3.1-70b-instruct": { input: 0.52, output: 0.75 },
+  "meta-llama/llama-3.1-8b-instruct": { input: 0.055, output: 0.055 },
+
+  // Qwen Models
+  "qwen/qwen3-max": { input: 0.16, output: 0.64 },
   "qwen/qwen3-235b-a22b-thinking-2507": { input: 1.0, output: 3.0 },
-  // Add more models as needed
+  "qwen/qwen3-coder": { input: 0.50, output: 1.50 },
+  "qwen/qwen3-coder-30b-a3b-instruct": { input: 0.14, output: 0.14 },
+
+  // Mistral Models
+  "mistralai/mistral-large": { input: 2.0, output: 6.0 },
+  "mistralai/mistral-medium": { input: 2.70, output: 8.10 },
+  "mistralai/codestral-2025": { input: 0.30, output: 0.90 },
+
+  // Other models
+  "zhipu/glm-4.6": { input: 0.10, output: 0.10 },
+  "minimax/m2": { input: 0.15, output: 0.45 },
 }
 
 // Search API pricing (per search)
-const SEARCH_PRICING = {
-  tavily: 0.001, // $1 per 1000 searches
-  serper: 0.0002, // $2 per 10,000 searches (10x cheaper!)
+const SEARCH_PRICING: Record<string, number> = {
+  tavily: 0.001,    // $1 per 1000 searches
+  serper: 0.0002,   // $2 per 10,000 searches
+  exa: 0.0005,      // $5 per 10,000 searches (2x cheaper than Tavily)
+  youcom: 0.0,      // Free tier available
 }
 
 export class CostTracker {

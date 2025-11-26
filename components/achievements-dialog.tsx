@@ -11,6 +11,7 @@ import {
   gamificationService,
   type Achievement,
   type GamificationSettings,
+  type PetDisplayMode,
 } from "@/lib/simple-mode-features"
 import { cn } from "@/lib/utils"
 import { Trophy, Lock, Check, Sparkles } from "lucide-react"
@@ -22,7 +23,13 @@ const translations = {
     locked: "Locked",
     progress: "Progress",
     enableAchievements: "Enable Achievements",
-    enablePet: "Enable Pet Companion",
+    petMode: "Pet Companion Mode",
+    petModeOff: "Off",
+    petModeMinimal: "Minimal",
+    petModeFull: "Full Tamagotchi",
+    petModeOffDesc: "Hide pet completely",
+    petModeMinimalDesc: "Small widget with reactions",
+    petModeFullDesc: "Full care & interactions",
     enableNotifications: "Show Notifications",
     disableAll: "Disable All",
     secret: "Secret Achievement",
@@ -36,7 +43,13 @@ const translations = {
     locked: "Gesperrt",
     progress: "Fortschritt",
     enableAchievements: "Erfolge aktivieren",
-    enablePet: "Haustier aktivieren",
+    petMode: "Haustier-Modus",
+    petModeOff: "Aus",
+    petModeMinimal: "Minimal",
+    petModeFull: "Voll-Tamagotchi",
+    petModeOffDesc: "Haustier ausblenden",
+    petModeMinimalDesc: "Kleines Widget mit Reaktionen",
+    petModeFullDesc: "Volle Pflege & Interaktion",
     enableNotifications: "Benachrichtigungen anzeigen",
     disableAll: "Alle deaktivieren",
     secret: "Geheimer Erfolg",
@@ -77,6 +90,7 @@ export function AchievementsDialog({ open, onOpenChange, lang }: AchievementsDia
       achievementsEnabled: false,
       streaksEnabled: false,
       petEnabled: false,
+      petMode: "off" as PetDisplayMode,
       notificationsEnabled: false,
     }
     setSettings(newSettings)
@@ -180,16 +194,48 @@ export function AchievementsDialog({ open, onOpenChange, lang }: AchievementsDia
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="pet-toggle" className="flex items-center gap-2">
+                  <div className="space-y-3">
+                    <Label className="flex items-center gap-2">
                       <span className="text-base">🐾</span>
-                      {t.enablePet}
+                      {t.petMode}
                     </Label>
-                    <Switch
-                      id="pet-toggle"
-                      checked={settings.petEnabled}
-                      onCheckedChange={(v) => handleSettingChange("petEnabled", v)}
-                    />
+                    <div className="grid grid-cols-3 gap-2">
+                      {(["off", "minimal", "full"] as PetDisplayMode[]).map((mode) => {
+                        const isSelected = settings.petMode === mode ||
+                          (mode === "full" && !settings.petMode && settings.petEnabled) ||
+                          (mode === "off" && !settings.petMode && !settings.petEnabled)
+                        return (
+                          <button
+                            key={mode}
+                            onClick={() => {
+                              const newSettings = {
+                                ...settings,
+                                petMode: mode,
+                                petEnabled: mode !== "off"
+                              }
+                              setSettings(newSettings)
+                              gamificationService.saveSettings(newSettings)
+                            }}
+                            className={cn(
+                              "flex flex-col items-center gap-1 p-2 rounded-lg border transition-all text-xs",
+                              isSelected
+                                ? "border-primary bg-primary/10 text-primary"
+                                : "border-border hover:border-primary/50"
+                            )}
+                          >
+                            <span className="text-lg">
+                              {mode === "off" ? "🚫" : mode === "minimal" ? "🐾" : "🎮"}
+                            </span>
+                            <span className="font-medium">
+                              {mode === "off" ? t.petModeOff : mode === "minimal" ? t.petModeMinimal : t.petModeFull}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground text-center leading-tight">
+                              {mode === "off" ? t.petModeOffDesc : mode === "minimal" ? t.petModeMinimalDesc : t.petModeFullDesc}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-between">
