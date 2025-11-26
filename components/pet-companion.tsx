@@ -118,9 +118,8 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-hidden p-0">
-        <div className="flex flex-col h-full max-h-[90vh] p-6">
-          <DialogHeader className="flex-shrink-0">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-violet-500" />
               {t.adoptPet}
@@ -128,7 +127,7 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
             <DialogDescription>{t.adoptDesc}</DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2 flex-1 overflow-y-auto min-h-0">
+          <div className="space-y-4">
           {/* Pet Type Selection */}
           <div className="space-y-2">
             <Label>{t.choosePet}</Label>
@@ -196,7 +195,7 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
           </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 flex-shrink-0">
+          <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               {t.cancel}
             </Button>
@@ -208,7 +207,6 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
               {t.adopt}
             </Button>
           </div>
-        </div>
       </DialogContent>
     </Dialog>
   )
