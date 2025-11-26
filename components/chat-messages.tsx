@@ -23,7 +23,7 @@ import { FilePreviewInline } from "@/components/file-preview-inline"
 import { ResponseAnalysisPanel } from "@/components/response-analysis-panel"
 import { ResponseAnalyzer } from "@/lib/response-analyzer"
 import type { FileAttachment } from "@/lib/file-handler"
-import type { Persona } from "@/lib/personas"
+import { type Persona, getPersonaExamplePrompts } from "@/lib/personas"
 import type { MessageContent } from "@/types"
 import { contentToText } from "@/lib/multimodal-utils"
 
@@ -278,10 +278,66 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
   }
 
   if (currentChat.messages.length === 0) {
+    // Get language from settings
+    const lang = (settings.language || "en") as "en" | "de"
+
+    // Get persona-specific prompts (6 prompts)
+    const personaId = currentPersona?.id || "default"
+    const starterPrompts = getPersonaExamplePrompts(personaId, lang)
+
+    const handleStarterClick = (prompt: string) => {
+      window.dispatchEvent(new CustomEvent("insertPrompt", { detail: prompt }))
+    }
+
     return (
       <div className="flex h-full items-center justify-center p-4">
-        <div className="text-center text-muted-foreground">
-          <p className="text-sm">Start typing to begin...</p>
+        <div className="w-full max-w-2xl mx-auto">
+          {/* Persona greeting */}
+          <div className="text-center mb-6">
+            {currentPersona ? (
+              <div className="flex flex-col items-center gap-3">
+                <div className="text-5xl">{currentPersona.emoji}</div>
+                <div>
+                  <h3 className="text-lg font-semibold">{currentPersona.name}</h3>
+                  <p className="text-sm text-muted-foreground">{currentPersona.description}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-3">
+                <div className="text-5xl">💬</div>
+                <p className="text-sm text-muted-foreground">
+                  {lang === "de" ? "Probiere eine dieser Fragen:" : "Try asking one of these:"}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Persona starter prompts grid - 6 prompts */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+            {starterPrompts.slice(0, 6).map((prompt, index) => (
+              <button
+                key={index}
+                onClick={() => handleStarterClick(prompt)}
+                className={cn(
+                  "flex items-center justify-center text-center p-3 sm:p-4 rounded-xl",
+                  "border border-border/60 bg-card/50 hover:bg-primary/5",
+                  "hover:border-primary/40 transition-all duration-200",
+                  "text-sm font-medium text-foreground/80 hover:text-foreground",
+                  "min-h-[60px] sm:min-h-[72px]"
+                )}
+              >
+                <span className="line-clamp-2">{prompt}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Tip text */}
+          <p className="text-center text-xs text-muted-foreground mt-4">
+            {lang === "de"
+              ? "Klicke auf eine Frage oder tippe deine eigene Nachricht"
+              : "Click a prompt or type your own message"
+            }
+          </p>
         </div>
       </div>
     )
