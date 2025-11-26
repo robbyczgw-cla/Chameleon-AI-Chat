@@ -129,6 +129,27 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     }
   }, [])
 
+  // Listen for quick message from welcome screen question buttons
+  useEffect(() => {
+    const handleSendQuickMessage = (e: CustomEvent) => {
+      const prompt = e.detail
+      if (prompt && !isChatLoading) {
+        setInput(prompt)
+        // Submit after a short delay to ensure state is updated
+        setTimeout(() => {
+          const form = document.querySelector('form[class*="max-w-3xl"]') as HTMLFormElement
+          if (form) {
+            form.requestSubmit()
+          }
+        }, 50)
+      }
+    }
+    window.addEventListener("sendQuickMessage" as any, handleSendQuickMessage)
+    return () => {
+      window.removeEventListener("sendQuickMessage" as any, handleSendQuickMessage)
+    }
+  }, [isChatLoading])
+
   const stopGeneration = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
