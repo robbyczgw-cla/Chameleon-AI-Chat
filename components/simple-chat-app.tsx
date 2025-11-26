@@ -13,6 +13,10 @@ import { ChameleonLogo } from "@/components/chameleon-logo"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { userProfileService } from "@/lib/user-profile"
+import { streakService, gamificationService, type Pet, type Achievement } from "@/lib/simple-mode-features"
+import { PetWidget, PetAdoptDialog } from "@/components/pet-companion"
+import { AchievementsDialog, AchievementToast, StreakWidget } from "@/components/achievements-dialog"
+import { ConversationStartersGrid, StartersDialog, CreativeCornerDialog, CreativeCornerButton } from "@/components/conversation-starters"
 import {
   MessageSquarePlus,
   Users,
@@ -24,6 +28,8 @@ import {
   Trash2,
   MoreVertical,
   ImagePlus,
+  Trophy,
+  Sparkles,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -91,6 +97,13 @@ export function SimpleChatApp() {
   const [profileContext, setProfileContext] = useState("")
   const [imageMode, setImageMode] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  // Simple Mode features state
+  const [isPetAdoptOpen, setIsPetAdoptOpen] = useState(false)
+  const [isAchievementsOpen, setIsAchievementsOpen] = useState(false)
+  const [isStartersOpen, setIsStartersOpen] = useState(false)
+  const [isCreativeOpen, setIsCreativeOpen] = useState(false)
+  const [newAchievement, setNewAchievement] = useState<Achievement | null>(null)
+  const [pet, setPet] = useState<Pet | null>(null)
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
@@ -99,6 +112,14 @@ export function SimpleChatApp() {
   useEffect(() => {
     const profile = userProfileService.getProfile()
     setProfileContext(userProfileService.getProfileContext(profile))
+  }, [])
+
+  // Record streak on app load and load gamification settings
+  useEffect(() => {
+    const gamificationSettings = gamificationService.getSettings()
+    if (gamificationSettings.streaksEnabled) {
+      streakService.recordActivity()
+    }
   }, [])
 
   // Check if onboarding should be shown (first time Simple Mode user)
@@ -156,6 +177,23 @@ export function SimpleChatApp() {
     // Refresh profile context after onboarding
     const profile = userProfileService.getProfile()
     setProfileContext(userProfileService.getProfileContext(profile))
+  }
+
+  // Handle conversation starter or creative prompt
+  const handleQuickPrompt = (prompt: string) => {
+    // Create a new chat if needed and send the prompt
+    if (!currentChat || currentChat.messages.length > 0) {
+      createChat(settings.selectedModel)
+    }
+    // Dispatch event to send the message
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("sendQuickMessage", { detail: prompt }))
+    }, 100)
+  }
+
+  // Handle pet adoption
+  const handlePetAdopted = (newPet: Pet) => {
+    setPet(newPet)
   }
 
   const selectedPersona = settings.selectedPersona
@@ -381,7 +419,24 @@ export function SimpleChatApp() {
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
+              {/* Pet Widget */}
+              <PetWidget onOpenAdopt={() => setIsPetAdoptOpen(true)} lang={lang} />
+
+              {/* Streak Widget */}
+              <StreakWidget onClick={() => setIsAchievementsOpen(true)} />
+
+              {/* Achievements Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsAchievementsOpen(true)}
+                className="relative"
+                title="Achievements"
+              >
+                <Trophy className="h-5 w-5 text-amber-500" />
+              </Button>
+
               <Button
                 variant={imageMode ? "default" : "ghost"}
                 size="icon"
@@ -456,6 +511,28 @@ export function SimpleChatApp() {
                       {t.setUpProfileBtn}
                     </Button>
                   )}
+
+                  {/* Conversation Starters */}
+                  <div className="space-y-3 pt-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Sparkles className="h-4 w-4" />
+                        {lang === "de" ? "Schnellstart" : "Quick Start"}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsStartersOpen(true)}
+                          className="text-xs"
+                        >
+                          {lang === "de" ? "Mehr" : "More"}
+                        </Button>
+                        <CreativeCornerButton onClick={() => setIsCreativeOpen(true)} lang={lang} />
+                      </div>
+                    </div>
+                    <ConversationStartersGrid onSelectPrompt={handleQuickPrompt} lang={lang} />
+                  </div>
                 </div>
 
                 {/* Input at bottom of welcome screen */}
@@ -498,6 +575,46 @@ export function SimpleChatApp() {
         open={showOnboarding}
         onComplete={handleOnboardingComplete}
       />
+
+      {/* Pet Adopt Dialog */}
+      <PetAdoptDialog
+        open={isPetAdoptOpen}
+        onOpenChange={setIsPetAdoptOpen}
+        onAdopt={handlePetAdopted}
+        lang={lang}
+      />
+
+      {/* Achievements Dialog */}
+      <AchievementsDialog
+        open={isAchievementsOpen}
+        onOpenChange={setIsAchievementsOpen}
+        lang={lang}
+      />
+
+      {/* Conversation Starters Dialog */}
+      <StartersDialog
+        open={isStartersOpen}
+        onOpenChange={setIsStartersOpen}
+        onSelectPrompt={handleQuickPrompt}
+        lang={lang}
+      />
+
+      {/* Creative Corner Dialog */}
+      <CreativeCornerDialog
+        open={isCreativeOpen}
+        onOpenChange={setIsCreativeOpen}
+        onGenerate={handleQuickPrompt}
+        lang={lang}
+      />
+
+      {/* Achievement Toast */}
+      {newAchievement && (
+        <AchievementToast
+          achievement={newAchievement}
+          lang={lang}
+          onClose={() => setNewAchievement(null)}
+        />
+      )}
     </div>
   )
 }
