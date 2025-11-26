@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 import { FileUpload } from "@/components/file-upload"
 import { extractTextFromAttachments, type FileAttachment, getFileCategory } from "@/lib/file-handler"
 import { voiceService } from "@/lib/voice"
-import { buildMultimodalContent, hasImages, getImageCount } from "@/lib/multimodal-utils"
+import { buildMultimodalContent, hasImages, getImageCount, stripImageDataFromContent } from "@/lib/multimodal-utils"
 import { supportsVision, getRecommendedVisionModel, validateImageForModel } from "@/lib/vision-models"
 import { compressImages, getImageSizeKB } from "@/lib/image-utils"
 import { haptics } from "@/lib/haptics"
@@ -477,11 +477,13 @@ export function ChatInput() {
 
     const messages = [
       { role: "system" as const, content: systemPrompt },
+      // CRITICAL: Strip image data from historical messages to prevent PWA crashes
+      // Vision models only look at images in the current message anyway
       ...(currentChat?.messages || []).map((m) => ({
         role: m.role,
-        content: m.content, // Preserves multimodal content from history
+        content: stripImageDataFromContent(m.content), // Remove old image data for memory efficiency
       })),
-      { role: "user" as const, content: multimodalContent }, // Use multimodal content for new message
+      { role: "user" as const, content: multimodalContent }, // Current message keeps full image data
     ]
 
     try {
