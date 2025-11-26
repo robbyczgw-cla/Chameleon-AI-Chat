@@ -876,7 +876,7 @@ export function ChatInput() {
 
   return (
     <div className={cn(
-      "glass-subtle backdrop-blur-xl p-2 sm:p-4 md:p-5 border-t-2 border-border/50 smooth-transition",
+      "bg-background p-2 sm:p-4 md:p-5 border-t-2 border-border/50 smooth-transition",
       isEmpty ? "shadow-2xl rounded-2xl border-2 border-border/40 glass-strong" : "shadow-xl"
     )}>
       {attachedCollectionId && (
@@ -898,7 +898,7 @@ export function ChatInput() {
           <div className="flex-1 relative">
             {/* Slash Command Autocomplete Menu */}
             {showCommandMenu && commandSuggestions.length > 0 && (
-              <div className="absolute bottom-full left-0 right-0 mb-3 md:mb-4 glass-strong backdrop-blur-xl border-2 border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[300px] md:max-h-[350px] overflow-y-auto animate-slide-in-down">
+              <div className="absolute bottom-full left-0 right-0 mb-3 md:mb-4 bg-background border-2 border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[300px] md:max-h-[350px] overflow-y-auto animate-slide-in-down">
                 <div className="p-3 md:p-3.5 border-b border-border/40 gradient-glass">
                   <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground font-semibold">
                     <Zap className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary glow-subtle" />

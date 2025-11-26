@@ -160,7 +160,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 hover-scale smooth-transition rounded-lg glass-subtle backdrop-blur-md"
+                className="h-7 w-7 hover-scale smooth-transition rounded-lg"
                 onClick={(e) => handleTogglePin(chat.id, e)}
                 title={chat.pinned ? "Unpin" : "Pin"}
               >
@@ -169,7 +169,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/15 hover-scale smooth-transition rounded-lg glass-subtle backdrop-blur-md"
+                className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/15 hover-scale smooth-transition rounded-lg"
                 onClick={(e) => handleDeleteChat(chat.id, e)}
                 title="Delete chat"
               >
@@ -177,7 +177,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 hover-scale smooth-transition rounded-lg glass-subtle backdrop-blur-md">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 hover-scale smooth-transition rounded-lg">
                     <MoreVertical className="h-3.5 w-3.5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -201,9 +201,9 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
   }
 
   return (
-    <div className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[280px] sm:w-80 md:w-64 flex-col overflow-hidden rounded-none md:rounded-none border border-border/60 panel-elevated glass-subtle backdrop-blur-xl shadow-2xl md:shadow-lg smooth-transition bg-gradient-to-b from-card/90 via-card/85 to-card/80 sidebar-halo">
+    <div className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[280px] sm:w-80 md:w-64 flex-col overflow-hidden rounded-none md:rounded-none border border-border/60 panel-elevated shadow-2xl md:shadow-lg smooth-transition bg-card sidebar-halo">
       <div className="sidebar-bridge hidden md:block" aria-hidden="true" />
-      <div className="flex items-center gap-3 border-b border-border/30 p-4 md:p-5 gradient-glass backdrop-blur-md">
+      <div className="flex items-center gap-3 border-b border-border/30 p-4 md:p-5 bg-card">
         {onClose && (
           <Button variant="ghost" size="icon" className="md:hidden h-10 w-10 hover-scale smooth-transition rounded-xl shrink-0 hover:bg-primary/10" onClick={onClose} title="Close">
             <X className="h-5 w-5" />
@@ -227,7 +227,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         </Button>
         <Dialog open={isNewFolderOpen} onOpenChange={setIsNewFolderOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="icon" className="h-10 w-10 md:h-11 md:w-11 shadow-md hover:shadow-xl hover-scale smooth-transition rounded-xl border-border/40 glass-subtle backdrop-blur-md">
+            <Button variant="outline" size="icon" className="h-10 w-10 md:h-11 md:w-11 shadow-md hover:shadow-xl hover-scale smooth-transition rounded-xl border-border/40">
               <FolderPlus className="h-4 w-4" />
             </Button>
           </DialogTrigger>
@@ -257,7 +257,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         <Button
           variant="outline"
           size="icon"
-          className="h-10 w-10 md:h-11 md:w-11 shadow-md hover:shadow-xl text-destructive hover:text-destructive hover:bg-destructive/15 hover-scale smooth-transition rounded-xl border-border/40 glass-subtle backdrop-blur-md"
+          className="h-10 w-10 md:h-11 md:w-11 shadow-md hover:shadow-xl text-destructive hover:text-destructive hover:bg-destructive/15 hover-scale smooth-transition rounded-xl border-border/40"
           onClick={() => setIsDeleteAllOpen(true)}
           title="Delete All Chats"
           disabled={chats.length === 0}
@@ -273,7 +273,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             placeholder="Search chats..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 shadow-md rounded-xl border-border/40 glass-subtle backdrop-blur-md hover-lift smooth-transition"
+            className="pl-9 shadow-md rounded-xl border-border/40 hover-lift smooth-transition"
           />
         </div>
       </div>

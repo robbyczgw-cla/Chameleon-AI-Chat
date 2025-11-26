@@ -292,7 +292,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                   "text-sm sm:text-base smooth-transition relative overflow-hidden",
                   message.role === "user"
                     ? "rounded-2xl rounded-br-md px-5 py-4 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-md w-fit"
-                    : "rounded-2xl rounded-bl-md px-5 py-4 bg-card/40 backdrop-blur-md border border-border/30 shadow-sm max-w-full hover:bg-card/50 transition-colors",
+                    : "rounded-2xl rounded-bl-md px-5 py-4 bg-card border border-border/30 shadow-sm max-w-full hover:bg-card/80 transition-colors",
                 )}
               >
                 {/* Glass shine effect for user messages */}
@@ -617,7 +617,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
               )}
             </Avatar>
             <div className="flex flex-col gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]">
-              <div className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4 glass-strong backdrop-blur-xl border border-primary/20 shadow-lg ai-thinking-container">
+              <div className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4 bg-card border border-primary/20 shadow-lg ai-thinking-container">
                 {/* Thinking indicator with wave dots */}
                 <div className="flex items-center gap-3 mb-3">
                   <div className="flex gap-1 items-end h-4">

@@ -227,7 +227,7 @@ export function ChatHeader() {
 
   return (
     <>
-      <header className="flex h-14 md:h-16 items-center justify-between border-b border-border/60 bg-gradient-to-r from-background/98 to-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 px-2 sm:px-4 md:px-5 shadow-md">
+      <header className="flex h-14 md:h-16 items-center justify-between border-b border-border/60 bg-background px-2 sm:px-4 md:px-5 shadow-md">
         {/* Mobile: Title + toggles */}
         <div className="flex md:hidden items-center gap-2 min-w-0 flex-1">
           <div className="flex items-center gap-2 min-w-0 flex-1">

@@ -639,7 +639,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
   }
 
   return (
-    <div className="border-t border-border bg-background/80 backdrop-blur-sm p-3 sm:p-4 w-full">
+    <div className="border-t border-border bg-background p-3 sm:p-4 w-full">
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
         <div className="flex items-end gap-2 sm:gap-3">
           <div className="flex-1 relative">
