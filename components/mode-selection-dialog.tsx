@@ -86,10 +86,33 @@ export function ModeSelectionDialog({ open, onSelectMode }: ModeSelectionDialogP
 
   if (!open) return null
 
-  // Full-page component instead of Dialog (renders more reliably)
+  // Full-page component with inline styles for reliable rendering
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-      <div className="w-full max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col bg-background border rounded-lg shadow-lg">
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+      }}
+      className="bg-background"
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '42rem',
+          maxHeight: '90vh',
+          margin: '0 1rem',
+        }}
+        className="overflow-hidden flex flex-col bg-background border rounded-lg shadow-lg"
+      >
         {/* Header */}
         <div className="p-6 pb-4 text-center border-b bg-gradient-to-br from-violet-500/10 to-purple-500/10">
           <div className="flex justify-center mb-4">
