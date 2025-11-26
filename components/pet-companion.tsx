@@ -118,7 +118,7 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[min(96vw,960px)] max-w-4xl max-h-[85vh] overflow-y-auto p-6 sm:p-8">
+      <DialogContent className="w-[min(96vw,900px)] sm:max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader className="space-y-2">
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-violet-500" />
@@ -127,90 +127,67 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
           <DialogDescription>{t.adoptDesc}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-[1.05fr_1fr]">
-            <div className="space-y-4">
-              {/* Pet Type Selection */}
-              <div className="space-y-3">
-                <Label>{t.choosePet}</Label>
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                  {petTypes.map((pet) => (
-                    <button
-                      key={pet.type}
-                      onClick={() => setSelectedType(pet.type)}
-                      className={cn(
-                        "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
-                        selectedType === pet.type
-                          ? "border-violet-500 bg-violet-500/10"
-                          : "border-border hover:border-violet-300"
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br text-2xl",
-                          pet.gradient
-                        )}
-                      >
-                        {pet.emoji}
-                      </div>
-                      <span className="text-sm font-medium">{t[pet.type as keyof typeof t]}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Pet Name */}
-              <div className="space-y-2">
-                <Label htmlFor="pet-name">{t.petName}</Label>
-                <Input
-                  id="pet-name"
-                  placeholder={t.namePlaceholder}
-                  value={petName}
-                  onChange={(e) => {
-                    setPetName(e.target.value)
-                    if (e.target.value.trim()) setError(false)
-                  }}
-                  className={cn("h-11", error && "border-red-500")}
-                />
-                {error && <p className="text-sm text-red-500">{t.nameRequired}</p>}
-              </div>
-            </div>
-
-            {/* Personality Selection */}
-            <div className="space-y-3">
-              <Label>{t.personality}</Label>
-              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
-                {personalities.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setSelectedPersonality(p.id)}
-                    className={cn(
-                      "flex flex-col items-start rounded-xl border-2 p-4 text-left transition-all",
-                      selectedPersonality === p.id
-                        ? "border-violet-500 bg-violet-500/10"
-                        : "border-border hover:border-violet-300"
-                    )}
-                  >
-                    <span className="text-sm font-medium">{t[p.id as keyof typeof t]}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {t[`${p.id}Desc` as keyof typeof t]}
-                    </span>
-                  </button>
-                ))}
-              </div>
+        <div className="space-y-5">
+          {/* Pet Type Selection */}
+          <div className="space-y-2">
+            <Label>{t.choosePet}</Label>
+            <div className="grid grid-cols-3 gap-3">
+              {petTypes.map((pet) => (
+                <button
+                  key={pet.type}
+                  onClick={() => setSelectedType(pet.type)}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
+                    selectedType === pet.type
+                      ? "border-violet-500 bg-violet-500/10"
+                      : "border-border hover:border-violet-300"
+                  )}
+                >
+                  <div className={cn("h-12 w-12 rounded-full bg-gradient-to-br flex items-center justify-center text-2xl", pet.gradient)}>
+                    {pet.emoji}
+                  </div>
+                  <span className="text-sm font-medium">{t[pet.type as keyof typeof t]}</span>
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 rounded-xl border bg-muted/40 p-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2 font-medium text-foreground">
-              <Sparkles className="h-4 w-4 text-violet-500" />
-              {t.petAdopted}
+          {/* Pet Name */}
+          <div className="space-y-2">
+            <Label htmlFor="pet-name">{t.petName}</Label>
+            <Input
+              id="pet-name"
+              placeholder={t.namePlaceholder}
+              value={petName}
+              onChange={(e) => {
+                setPetName(e.target.value)
+                if (e.target.value.trim()) setError(false)
+              }}
+              className={cn("h-11", error && "border-red-500")}
+            />
+            {error && <p className="text-sm text-red-500">{t.nameRequired}</p>}
+          </div>
+
+          {/* Personality Selection */}
+          <div className="space-y-2">
+            <Label>{t.personality}</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {personalities.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setSelectedPersonality(p.id)}
+                  className={cn(
+                    "flex flex-col items-start p-3 rounded-xl border-2 transition-all text-left",
+                    selectedPersonality === p.id
+                      ? "border-violet-500 bg-violet-500/10"
+                      : "border-border hover:border-violet-300"
+                  )}
+                >
+                  <span className="font-medium text-sm">{t[p.id as keyof typeof t]}</span>
+                  <span className="text-xs text-muted-foreground">{t[`${p.id}Desc` as keyof typeof t]}</span>
+                </button>
+              ))}
             </div>
-            <p>
-              {lang === "de"
-                ? "Tippe oder klicke auf deinen Begleiter im Chat, um ihn zu streicheln, spielen zu lassen oder zu entlassen."
-                : "Tap or click your companion in chat to pet, play, or release them. You can always adopt a new friend later."}
-            </p>
           </div>
         </div>
 
