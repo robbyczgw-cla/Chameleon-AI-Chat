@@ -209,7 +209,7 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg md:max-w-xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="w-[min(95vw,680px)] sm:max-w-lg md:max-w-xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-violet-500" />
