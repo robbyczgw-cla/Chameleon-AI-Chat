@@ -10,7 +10,7 @@ interface ModeWrapperProps {
 }
 
 export function ModeWrapper({ children }: ModeWrapperProps) {
-  const { settings, updateSettings, isLoading } = useApp()
+  const { settings, updateSettings, isLoading, chats, user } = useApp()
   const [showModeSelection, setShowModeSelection] = useState(false)
   const [hasCheckedModeSelection, setHasCheckedModeSelection] = useState(false)
 
@@ -25,9 +25,13 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
         return
       }
 
-      // Check if this is an existing user (has any saved data)
-      // Existing users should NOT see the mode selection - they keep their current mode
+      // Check if this is an existing user using MULTIPLE methods:
+      // 1. User is authenticated (has Supabase session)
+      // 2. User has chats in context (from Supabase sync)
+      // 3. User has any localStorage data
       const hasExistingData =
+        user !== null ||
+        chats.length > 0 ||
         localStorage.getItem("chameleon-chats") ||
         localStorage.getItem("chameleon-settings") ||
         localStorage.getItem("chameleon-folders") ||
@@ -44,7 +48,7 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
       setShowModeSelection(true)
       setHasCheckedModeSelection(true)
     }
-  }, [isLoading])
+  }, [isLoading, user, chats.length])
 
   // Handle mode selection
   const handleModeSelection = (simpleMode: boolean) => {
