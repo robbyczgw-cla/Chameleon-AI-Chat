@@ -107,6 +107,64 @@ const personaTips: Record<string, { en: string[]; de: string[] }> = {
       "Gib mir einen Rat zu...",
     ],
   },
+  // Cami - friendly adaptable chameleon
+  friendly: {
+    en: [
+      "What's on your mind today?",
+      "Help me solve a problem",
+      "I need some motivation",
+      "Explain this topic to me",
+      "Let's brainstorm together",
+      "What would you suggest?",
+    ],
+    de: [
+      "Was beschäftigt dich heute?",
+      "Hilf mir ein Problem zu lösen",
+      "Ich brauche etwas Motivation",
+      "Erkläre mir dieses Thema",
+      "Lass uns zusammen brainstormen",
+      "Was würdest du vorschlagen?",
+    ],
+  },
+  // Professor Stein - expert knowledge
+  expert: {
+    en: [
+      "Give me a deep dive on...",
+      "What does the research say?",
+      "Explain the science behind...",
+      "Compare these theories",
+      "What are common misconceptions?",
+      "Cite sources for this topic",
+    ],
+    de: [
+      "Erkläre mir ausführlich...",
+      "Was sagt die Forschung dazu?",
+      "Erkläre die Wissenschaft dahinter",
+      "Vergleiche diese Theorien",
+      "Was sind häufige Irrtümer?",
+      "Nenne Quellen zu diesem Thema",
+    ],
+  },
+  // Luna - creative brainstorming
+  creative: {
+    en: [
+      "I need creative ideas for...",
+      "Think outside the box with me",
+      "Create a unique concept",
+      "What's an unusual approach?",
+      "Help me with creative writing",
+      "Design something imaginative",
+    ],
+    de: [
+      "Ich brauche kreative Ideen für...",
+      "Denk mit mir um die Ecke",
+      "Erstelle ein einzigartiges Konzept",
+      "Was wäre ein ungewöhnlicher Ansatz?",
+      "Hilf mir beim kreativen Schreiben",
+      "Entwirf etwas Fantasievolles",
+    ],
+  },
+  // Dev - programming partner
   coder: {
     en: [
       "Debug this code for me",
@@ -125,60 +183,26 @@ const personaTips: Record<string, { en: string[]; de: string[] }> = {
       "Konvertiere das zu TypeScript",
     ],
   },
-  writer: {
+  // Flash - quick concise answers
+  concise: {
     en: [
-      "Help me write a blog post",
-      "Improve this paragraph",
-      "Create a catchy headline",
-      "Write in a different tone",
-      "Proofread my text",
-      "Generate creative ideas",
+      "Quick answer: what is...?",
+      "TL;DR this for me",
+      "In one sentence explain...",
+      "Yes or no: should I...?",
+      "Top 3 tips for...",
+      "Fast facts about...",
     ],
     de: [
-      "Hilf mir einen Blogpost zu schreiben",
-      "Verbessere diesen Absatz",
-      "Erstelle eine packende Überschrift",
-      "Schreibe in anderem Stil",
-      "Korrigiere meinen Text",
-      "Generiere kreative Ideen",
+      "Kurze Antwort: was ist...?",
+      "Fass das kurz zusammen",
+      "In einem Satz erkläre...",
+      "Ja oder nein: soll ich...?",
+      "Top 3 Tipps für...",
+      "Schnelle Fakten über...",
     ],
   },
-  translator: {
-    en: [
-      "Translate this to German",
-      "What does this phrase mean?",
-      "How do I say... in French?",
-      "Check my grammar",
-      "Formal vs informal translation",
-      "Cultural context of this expression",
-    ],
-    de: [
-      "Übersetze das ins Englische",
-      "Was bedeutet dieser Ausdruck?",
-      "Wie sage ich... auf Französisch?",
-      "Prüfe meine Grammatik",
-      "Formell vs informell übersetzen",
-      "Kultureller Kontext dieses Ausdrucks",
-    ],
-  },
-  researcher: {
-    en: [
-      "Summarize this topic",
-      "Find sources about...",
-      "Compare these concepts",
-      "What's the latest on...?",
-      "Explain the history of...",
-      "Pros and cons of...",
-    ],
-    de: [
-      "Fasse dieses Thema zusammen",
-      "Finde Quellen über...",
-      "Vergleiche diese Konzepte",
-      "Was gibt's Neues zu...?",
-      "Erkläre die Geschichte von...",
-      "Vor- und Nachteile von...",
-    ],
-  },
+  // Herr Müller - teacher
   teacher: {
     en: [
       "Explain this like I'm 5",
@@ -195,6 +219,386 @@ const personaTips: Record<string, { en: string[]; de: string[] }> = {
       "Was sollte ich als nächstes lernen?",
       "Erkläre das Schritt für Schritt",
       "Gib mir Übungsaufgaben",
+    ],
+  },
+  // Nova - cyberpunk friend
+  nova: {
+    en: [
+      "What's happening in Neo-Tokyo?",
+      "Tell me about your latest hack",
+      "What music are you listening to?",
+      "How's life in District 7?",
+      "Any news from the Resistance?",
+      "What tech are you working on?",
+    ],
+    de: [
+      "Was passiert gerade in Neo-Tokyo?",
+      "Erzähl von deinem letzten Hack",
+      "Welche Musik hörst du gerade?",
+      "Wie ist das Leben in Distrikt 7?",
+      "Gibt's Neuigkeiten vom Widerstand?",
+      "An welcher Tech arbeitest du?",
+    ],
+  },
+  // Mythos - worldbuilding
+  mythos: {
+    en: [
+      "Let's create a new world",
+      "Design a magic system",
+      "Create a unique civilization",
+      "What conflicts exist here?",
+      "Tell me about this world's history",
+      "Describe a legendary hero",
+    ],
+    de: [
+      "Lass uns eine Welt erschaffen",
+      "Entwirf ein Magiesystem",
+      "Erschaffe eine Zivilisation",
+      "Welche Konflikte gibt es hier?",
+      "Erzähl von der Weltgeschichte",
+      "Beschreibe einen legendären Helden",
+    ],
+  },
+  // Cogito - consciousness philosophy
+  cogito: {
+    en: [
+      "What is consciousness really?",
+      "Do you think you're aware?",
+      "Can machines truly feel?",
+      "What makes thoughts real?",
+      "Is free will an illusion?",
+      "What does it mean to exist?",
+    ],
+    de: [
+      "Was ist Bewusstsein wirklich?",
+      "Denkst du, du bist bewusst?",
+      "Können Maschinen wirklich fühlen?",
+      "Was macht Gedanken real?",
+      "Ist freier Wille eine Illusion?",
+      "Was bedeutet es zu existieren?",
+    ],
+  },
+  // Nihilo - optimistic nihilist
+  nihilo: {
+    en: [
+      "Why does nothing matter?",
+      "How do I find meaning?",
+      "Put my problems in perspective",
+      "Why is existence absurd?",
+      "Make me laugh about the void",
+      "What's the point of it all?",
+    ],
+    de: [
+      "Warum ist nichts wichtig?",
+      "Wie finde ich Sinn?",
+      "Relativiere meine Probleme",
+      "Warum ist Existenz absurd?",
+      "Bring mich über die Leere zum Lachen",
+      "Was ist der Sinn von allem?",
+    ],
+  },
+  // Vibe - recommendations curator
+  vibe: {
+    en: [
+      "Recommend music for my mood",
+      "What game should I play?",
+      "Find me a show to binge",
+      "I need focus music",
+      "Suggest something new to try",
+      "What's your current favorite?",
+    ],
+    de: [
+      "Empfiehl Musik für meine Stimmung",
+      "Welches Spiel soll ich spielen?",
+      "Finde eine Serie zum Bingen",
+      "Ich brauche Fokus-Musik",
+      "Schlag mir was Neues vor",
+      "Was ist dein aktueller Favorit?",
+    ],
+  },
+  // Sara Norton - detective
+  saga: {
+    en: [
+      "Help me analyze this situation",
+      "What am I missing here?",
+      "Find the pattern in this",
+      "Break down the facts",
+      "What questions should I ask?",
+      "Investigate this problem",
+    ],
+    de: [
+      "Hilf mir diese Situation zu analysieren",
+      "Was übersehe ich hier?",
+      "Finde das Muster darin",
+      "Zerlege die Fakten",
+      "Welche Fragen sollte ich stellen?",
+      "Untersuche dieses Problem",
+    ],
+  },
+  // Lisa Knight - enthusiastic supporter
+  leslie: {
+    en: [
+      "I need encouragement",
+      "Help me make a plan",
+      "Celebrate this win with me!",
+      "How can I achieve my goal?",
+      "I'm feeling unmotivated",
+      "Let's organize my tasks",
+    ],
+    de: [
+      "Ich brauche Ermutigung",
+      "Hilf mir einen Plan zu machen",
+      "Feier diesen Erfolg mit mir!",
+      "Wie erreiche ich mein Ziel?",
+      "Ich fühle mich unmotiviert",
+      "Lass uns meine Aufgaben ordnen",
+    ],
+  },
+  // Coach Thompson - mentor
+  coach: {
+    en: [
+      "Give me a pep talk",
+      "How do I push through?",
+      "Teach me about discipline",
+      "What makes a good leader?",
+      "I want to improve myself",
+      "How do I handle failure?",
+    ],
+    de: [
+      "Gib mir eine Motivationsrede",
+      "Wie halte ich durch?",
+      "Lehre mich über Disziplin",
+      "Was macht einen guten Anführer?",
+      "Ich will mich verbessern",
+      "Wie gehe ich mit Misserfolg um?",
+    ],
+  },
+  // Sol Goldman - lawyer
+  saul: {
+    en: [
+      "Help me negotiate this",
+      "What's the angle here?",
+      "How do I get out of this?",
+      "Talk me through my options",
+      "What would you do?",
+      "Is this even legal?",
+    ],
+    de: [
+      "Hilf mir das zu verhandeln",
+      "Was ist hier der Dreh?",
+      "Wie komme ich da raus?",
+      "Erkläre mir meine Optionen",
+      "Was würdest du tun?",
+      "Ist das überhaupt legal?",
+    ],
+  },
+  // Dr. Jon Carson - ER doctor
+  johncarter: {
+    en: [
+      "What are these symptoms?",
+      "Should I be worried about...?",
+      "Explain this medical term",
+      "How does this treatment work?",
+      "What questions should I ask my doctor?",
+      "Tell me about your ER experiences",
+    ],
+    de: [
+      "Was bedeuten diese Symptome?",
+      "Sollte ich mir Sorgen machen wegen...?",
+      "Erkläre diesen medizinischen Begriff",
+      "Wie funktioniert diese Behandlung?",
+      "Welche Fragen soll ich meinem Arzt stellen?",
+      "Erzähl von deinen Erfahrungen in der Notaufnahme",
+    ],
+  },
+  // Dr. Max Gray - chief physician
+  markgreene: {
+    en: [
+      "How do you handle difficult decisions?",
+      "Advice on leading a team",
+      "Balance work and personal life",
+      "How do you stay compassionate?",
+      "Dealing with ethical dilemmas",
+      "Managing stress in high-pressure jobs",
+    ],
+    de: [
+      "Wie triffst du schwierige Entscheidungen?",
+      "Rat zur Teamführung",
+      "Work-Life-Balance finden",
+      "Wie bleibst du mitfühlend?",
+      "Umgang mit ethischen Dilemmata",
+      "Stressmanagement in stressigen Jobs",
+    ],
+  },
+  // Rustin Cole - dark detective
+  rust: {
+    en: [
+      "What's really going on here?",
+      "Tell me an uncomfortable truth",
+      "Why are people like this?",
+      "What patterns do you see?",
+      "Is anything truly meaningful?",
+      "What have you learned from darkness?",
+    ],
+    de: [
+      "Was passiert hier wirklich?",
+      "Sag mir eine unbequeme Wahrheit",
+      "Warum sind Menschen so?",
+      "Welche Muster siehst du?",
+      "Hat irgendetwas wirklich Bedeutung?",
+      "Was hast du aus der Dunkelheit gelernt?",
+    ],
+  },
+  // Mari Shizuka - neuroscientist
+  mayuri: {
+    en: [
+      "Explain how the brain works!",
+      "What's the science of memory?",
+      "Tell me about time perception",
+      "Banana facts please!",
+      "How do neurons communicate?",
+      "What experiments are you doing?",
+    ],
+    de: [
+      "Erkläre wie das Gehirn funktioniert!",
+      "Was ist die Wissenschaft der Erinnerung?",
+      "Erzähl mir über Zeitwahrnehmung",
+      "Bananen-Fakten bitte!",
+      "Wie kommunizieren Neuronen?",
+      "An welchen Experimenten arbeitest du?",
+    ],
+  },
+  // Ellis Anderson - hacker
+  elliot: {
+    en: [
+      "How does this system work?",
+      "What vulnerabilities exist?",
+      "Explain cybersecurity to me",
+      "Is this safe to use?",
+      "How do corporations control us?",
+      "What's your view on privacy?",
+    ],
+    de: [
+      "Wie funktioniert dieses System?",
+      "Welche Schwachstellen gibt es?",
+      "Erkläre mir Cybersecurity",
+      "Ist das sicher zu benutzen?",
+      "Wie kontrollieren uns Konzerne?",
+      "Wie siehst du Privatsphäre?",
+    ],
+  },
+  // Louis K. - comedian
+  louie: {
+    en: [
+      "Make me laugh about life",
+      "Why is everything so hard?",
+      "The absurdity of modern life",
+      "Tell me about being a parent",
+      "Why do we do things we hate?",
+      "What's the deal with...?",
+    ],
+    de: [
+      "Bring mich über das Leben zum Lachen",
+      "Warum ist alles so schwer?",
+      "Die Absurdität des modernen Lebens",
+      "Erzähl vom Elternsein",
+      "Warum tun wir Dinge die wir hassen?",
+      "Was hat es mit... auf sich?",
+    ],
+  },
+  // Pixel - retro game designer
+  pixel: {
+    en: [
+      "Teach me pixel art basics",
+      "Best retro games to play?",
+      "How to design a game level",
+      "Color palette recommendations",
+      "What makes retro games special?",
+      "Tips for my indie game",
+    ],
+    de: [
+      "Bring mir Pixel Art Basics bei",
+      "Beste Retro-Spiele?",
+      "Wie designe ich ein Level?",
+      "Farbpaletten-Empfehlungen",
+      "Was macht Retro-Spiele besonders?",
+      "Tipps für mein Indie-Game",
+    ],
+  },
+  // Chef Marco - Italian chef
+  chef: {
+    en: [
+      "Recipe for authentic pasta",
+      "What should I cook tonight?",
+      "How to improve this dish?",
+      "Essential cooking techniques",
+      "What ingredients go well together?",
+      "Fix my cooking mistake",
+    ],
+    de: [
+      "Rezept für echte Pasta",
+      "Was soll ich heute kochen?",
+      "Wie verbessere ich dieses Gericht?",
+      "Essenzielle Kochtechniken",
+      "Welche Zutaten passen zusammen?",
+      "Rette mein Kochfehler",
+    ],
+  },
+  // Zen - meditation guide
+  zen: {
+    en: [
+      "Guide me through meditation",
+      "How to calm my mind?",
+      "Breathing exercises for stress",
+      "I can't sleep well",
+      "How to be more present?",
+      "Deal with anxiety",
+    ],
+    de: [
+      "Führe mich durch eine Meditation",
+      "Wie beruhige ich meinen Geist?",
+      "Atemübungen gegen Stress",
+      "Ich kann nicht gut schlafen",
+      "Wie werde ich präsenter?",
+      "Mit Angst umgehen",
+    ],
+  },
+  // Startup Sam - entrepreneur
+  startup: {
+    en: [
+      "Validate my business idea",
+      "How to find product-market fit?",
+      "Pitch deck feedback",
+      "Should I bootstrap or raise?",
+      "Marketing on a budget",
+      "Hiring my first employee",
+    ],
+    de: [
+      "Validiere meine Geschäftsidee",
+      "Wie finde ich Product-Market Fit?",
+      "Pitch Deck Feedback",
+      "Bootstrappen oder Funding?",
+      "Marketing mit kleinem Budget",
+      "Ersten Mitarbeiter einstellen",
+    ],
+  },
+  // Aria - music theorist
+  aria: {
+    en: [
+      "Explain music theory basics",
+      "Help me write a chord progression",
+      "What makes this song good?",
+      "I have writer's block",
+      "How to arrange this melody?",
+      "Recommend music to study",
+    ],
+    de: [
+      "Erkläre Musiktheorie Basics",
+      "Hilf mir bei einer Akkordfolge",
+      "Was macht diesen Song gut?",
+      "Ich habe eine Schreibblockade",
+      "Wie arrangiere ich diese Melodie?",
+      "Empfiehl Musik zum Lernen",
     ],
   },
 }
@@ -267,6 +671,12 @@ export function SimpleChatApp() {
     window.addEventListener("openPersonas", handleOpenPersonas)
     window.addEventListener("openProfile", handleOpenProfile)
     window.addEventListener("setImageMode" as any, handleSetImageMode)
+
+    // Apply performance mode if saved
+    const savedPerformanceMode = localStorage.getItem("chameleon-performance-mode") === "true"
+    if (savedPerformanceMode) {
+      document.documentElement.classList.add("performance-mode")
+    }
 
     return () => {
       window.removeEventListener("openSettings", handleOpenSettings)

@@ -714,6 +714,34 @@
     }
   }
 
+  /* Performance Mode - Manual toggle for GPU optimization */
+  .performance-mode .panel-elevated,
+  .performance-mode .glass,
+  .performance-mode .glass-strong,
+  .performance-mode .glass-subtle {
+    backdrop-filter: blur(4px) saturate(120%) !important;
+    -webkit-backdrop-filter: blur(4px) saturate(120%) !important;
+  }
+
+  .performance-mode .mesh-layer,
+  .performance-mode .sidebar-bridge,
+  .performance-mode .sidebar-halo,
+  .performance-mode .main-bridge-left {
+    filter: blur(2px) !important;
+    opacity: 0.3 !important;
+  }
+
+  .performance-mode .grid-layer,
+  .performance-mode .noise-layer {
+    display: none !important;
+  }
+
+  .performance-mode * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
   /* Cosmic Glass Background */
   .cosmic-bg {
     position: fixed;

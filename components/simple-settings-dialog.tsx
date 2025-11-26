@@ -38,6 +38,8 @@ const translations = {
     small: "Small",
     medium: "Medium",
     large: "Large",
+    performanceMode: "Performance Mode",
+    performanceModeDesc: "Reduce GPU usage (less blur effects)",
     webSearchInfo: "Web search lets the AI find current information from the internet.",
     serperApiKey: "Serper API Key (Google Search)",
     enterSerperKey: "Enter your Serper API key...",
@@ -91,6 +93,8 @@ const translations = {
     small: "Klein",
     medium: "Mittel",
     large: "Groß",
+    performanceMode: "Performance-Modus",
+    performanceModeDesc: "GPU-Last reduzieren (weniger Blur-Effekte)",
     webSearchInfo: "Die Websuche ermöglicht der KI, aktuelle Informationen aus dem Internet zu finden.",
     serperApiKey: "Serper API Key (Google Suche)",
     enterSerperKey: "Serper API Key eingeben...",
@@ -135,6 +139,7 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
   const [localSettings, setLocalSettings] = useState(settings)
   const [profile, setProfile] = useState<UserProfile>({})
   const [currentTheme, setCurrentTheme] = useState<string>("light")
+  const [performanceMode, setPerformanceMode] = useState<boolean>(false)
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
   const { toast } = useToast()
 
@@ -148,6 +153,10 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
       setProfile(userProfileService.getProfile())
       const savedTheme = localStorage.getItem("chameleon-theme") || "light"
       setCurrentTheme(savedTheme)
+
+      // Load performance mode setting
+      const savedPerformanceMode = localStorage.getItem("chameleon-performance-mode") === "true"
+      setPerformanceMode(savedPerformanceMode)
 
       // Load voices
       if (voiceService.isSupported()) {
@@ -173,6 +182,17 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
       html.classList.add(theme)
     }
     localStorage.setItem("chameleon-theme", theme)
+  }
+
+  const handlePerformanceModeChange = (enabled: boolean) => {
+    setPerformanceMode(enabled)
+    const html = document.documentElement
+    if (enabled) {
+      html.classList.add("performance-mode")
+    } else {
+      html.classList.remove("performance-mode")
+    }
+    localStorage.setItem("chameleon-performance-mode", String(enabled))
   }
 
   const handleThemeChange = (theme: string) => {
@@ -349,6 +369,17 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
                   <option value="medium">{t.medium}</option>
                   <option value="large">{t.large}</option>
                 </select>
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <div>
+                  <Label className="text-sm">{t.performanceMode}</Label>
+                  <p className="text-xs text-muted-foreground">{t.performanceModeDesc}</p>
+                </div>
+                <Switch
+                  checked={performanceMode}
+                  onCheckedChange={handlePerformanceModeChange}
+                />
               </div>
             </TabsContent>
 
