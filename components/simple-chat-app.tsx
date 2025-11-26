@@ -384,7 +384,7 @@ export function SimpleChatApp() {
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+            className="fixed inset-0 bg-black/60 z-40 md:hidden"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
@@ -394,7 +394,7 @@ export function SimpleChatApp() {
         <aside
           className={cn(
             // Base mobile styles - fixed overlay
-            "fixed inset-y-0 left-0 z-50 w-72 bg-background/95 backdrop-blur-xl border-r border-border/50 transition-transform duration-300 ease-out",
+            "fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border/50 transition-transform duration-300 ease-out",
             // Desktop: normal flex item
             "md:static md:z-0 md:translate-x-0 md:shrink-0",
             // Mobile slide behavior
@@ -508,7 +508,7 @@ export function SimpleChatApp() {
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Header */}
-          <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/50 bg-background/80 backdrop-blur-sm">
+          <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/50 bg-background">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
@@ -581,12 +581,12 @@ export function SimpleChatApp() {
           </header>
 
           {/* Chat Area */}
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden w-full">
             {isEmpty ? (
               /* Welcome Screen */
-              <div className="flex-1 flex flex-col overflow-y-auto">
-                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 text-center">
-                  <div className="w-full max-w-lg space-y-4 sm:space-y-6">
+              <div className="flex-1 flex flex-col overflow-y-auto w-full">
+                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 text-center w-full">
+                  <div className="w-full max-w-lg mx-auto space-y-4 sm:space-y-6">
                     {/* Greeting - Compact */}
                     <div className="space-y-2">
                       <div className="flex justify-center mb-2 sm:mb-4">

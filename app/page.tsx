@@ -162,7 +162,7 @@ function ChatApp() {
         <PersonaLevelUpNotifier />
         {isMobileSidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 md:hidden smooth-transition animate-fade-in"
+            className="fixed inset-0 bg-black/60 z-40 md:hidden smooth-transition animate-fade-in"
             onClick={() => setIsMobileSidebarOpen(false)}
           />
         )}
@@ -242,8 +242,8 @@ function LoadingWrapper() {
         <div className="noise-layer" />
         <div className="relative z-10 flex h-screen items-center justify-center animate-fade-in px-4">
           <div className="flex flex-col items-center gap-6 animate-scale-in">
-            <div className="flex h-32 w-32 md:h-40 md:w-40 items-center justify-center rounded-3xl glass-strong backdrop-blur-xl shadow-2xl border border-primary/20 hover-glow animate-pulse-glow">
-              <ChameleonLogo size={120} animated colorShift />
+            <div className="flex h-32 w-32 md:h-40 md:w-40 items-center justify-center rounded-3xl bg-background/80 shadow-2xl border border-primary/20">
+              <ChameleonLogo size={120} />
             </div>
             <div className="text-center space-y-2 animate-slide-in-up">
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary/80 bg-clip-text text-transparent">

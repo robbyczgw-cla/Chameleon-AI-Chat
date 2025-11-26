@@ -51,7 +51,7 @@ export function MobileBottomNav({
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)] gpu-layer">
-      <div className="flex items-center justify-between px-3 py-1.5 shadow-lg border-t border-border/50 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/40">
+      <div className="flex items-center justify-between px-3 py-1.5 shadow-lg border-t border-border/50 bg-background">
         {/* Chats */}
         <button
           onClick={() => handleNavigation(onMenuClick)}
