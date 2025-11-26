@@ -1,22 +1,11 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo } from "react"
 import { useApp } from "@/contexts/app-context"
 import { contextWindowService, type ContextUsage } from "@/lib/context-window-service"
 import { cn } from "@/lib/utils"
 import { Gauge, AlertTriangle, Zap, Shrink, ChevronDown, ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 
 interface ContextWindowMeterProps {
   onCompress?: () => void
@@ -63,107 +52,87 @@ export function ContextWindowMeter({ onCompress, compact = false, className }: C
   // Compact version for chat input area
   if (compact) {
     return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className={cn("flex items-center gap-1.5 text-xs", className)}>
-              <Gauge className={cn("h-3.5 w-3.5", contextWindowService.getStatusColor(usage.status))} />
-              <div className="flex items-center gap-1">
-                <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-300", getGradientColors())}
-                    style={{ width: `${Math.min(usage.percentage * 100, 100)}%` }}
-                  />
-                </div>
-                <span className={cn("text-[10px] font-medium", contextWindowService.getStatusColor(usage.status))}>
-                  {percentageDisplay}%
-                </span>
-              </div>
-              {usage.status === "critical" && (
-                <AlertTriangle className="h-3 w-3 text-red-500 animate-pulse" />
-              )}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-xs">
-            <div className="space-y-1 text-xs">
-              <p className="font-medium">Context Window Usage</p>
-              <p>{usage.usedTokens.toLocaleString()} / {usage.maxTokens.toLocaleString()} tokens</p>
-              <p className="text-muted-foreground">
-                Model: {model.split("/").pop()} ({formattedContextWindow} context)
-              </p>
-              {usage.status !== "safe" && (
-                <p className="text-amber-500 mt-1">
-                  {usage.status === "critical"
-                    ? "⚠️ Context nearly full! Consider compressing."
-                    : usage.status === "danger"
-                    ? "⚠️ Running low on context space."
-                    : "Context usage is moderate."}
-                </p>
-              )}
-            </div>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div
+        className={cn("flex items-center gap-1.5 text-xs cursor-help", className)}
+        title={`Context: ${usage.usedTokens.toLocaleString()} / ${usage.maxTokens.toLocaleString()} tokens (${formattedContextWindow} max)`}
+      >
+        <Gauge className={cn("h-3.5 w-3.5", contextWindowService.getStatusColor(usage.status))} />
+        <div className="flex items-center gap-1">
+          <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+            <div
+              className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-300", getGradientColors())}
+              style={{ width: `${Math.min(usage.percentage * 100, 100)}%` }}
+            />
+          </div>
+          <span className={cn("text-[10px] font-medium", contextWindowService.getStatusColor(usage.status))}>
+            {percentageDisplay}%
+          </span>
+        </div>
+        {usage.status === "critical" && (
+          <AlertTriangle className="h-3 w-3 text-red-500 animate-pulse" />
+        )}
+      </div>
     )
   }
 
   // Full version
   return (
-    <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-      <div className={cn(
-        "rounded-lg border bg-card p-3 space-y-2",
-        usage.status === "critical" && "border-red-500/50 bg-red-500/5",
-        usage.status === "danger" && "border-orange-500/50 bg-orange-500/5",
-        className
-      )}>
-        {/* Header */}
-        <CollapsibleTrigger asChild>
-          <button className="flex items-center justify-between w-full text-left">
-            <div className="flex items-center gap-2">
-              <Gauge className={cn("h-4 w-4", contextWindowService.getStatusColor(usage.status))} />
-              <span className="text-sm font-medium">Context Window</span>
-              {usage.status !== "safe" && (
-                <AlertTriangle className={cn(
-                  "h-3.5 w-3.5",
-                  usage.status === "critical" ? "text-red-500 animate-pulse" : "text-orange-500"
-                )} />
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <span className={cn(
-                "text-sm font-bold",
-                contextWindowService.getStatusColor(usage.status)
-              )}>
-                {percentageDisplay}%
-              </span>
-              {isExpanded ? (
-                <ChevronUp className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              )}
-            </div>
-          </button>
-        </CollapsibleTrigger>
-
-        {/* Progress Bar */}
-        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className={cn(
-              "h-full rounded-full bg-gradient-to-r transition-all duration-500 ease-out",
-              getGradientColors()
-            )}
-            style={{ width: `${Math.min(usage.percentage * 100, 100)}%` }}
-          />
+    <div className={cn(
+      "rounded-lg border bg-card p-3 space-y-2",
+      usage.status === "critical" && "border-red-500/50 bg-red-500/5",
+      usage.status === "danger" && "border-orange-500/50 bg-orange-500/5",
+      className
+    )}>
+      {/* Header */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center justify-between w-full text-left"
+      >
+        <div className="flex items-center gap-2">
+          <Gauge className={cn("h-4 w-4", contextWindowService.getStatusColor(usage.status))} />
+          <span className="text-sm font-medium">Context Window</span>
+          {usage.status !== "safe" && (
+            <AlertTriangle className={cn(
+              "h-3.5 w-3.5",
+              usage.status === "critical" ? "text-red-500 animate-pulse" : "text-orange-500"
+            )} />
+          )}
         </div>
-
-        {/* Quick Stats */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{usage.usedTokens.toLocaleString()} used</span>
-          <span>{usage.remainingTokens.toLocaleString()} remaining</span>
+        <div className="flex items-center gap-2">
+          <span className={cn(
+            "text-sm font-bold",
+            contextWindowService.getStatusColor(usage.status)
+          )}>
+            {percentageDisplay}%
+          </span>
+          {isExpanded ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
         </div>
+      </button>
 
-        {/* Expanded Details */}
-        <CollapsibleContent className="space-y-3 pt-2">
+      {/* Progress Bar */}
+      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+        <div
+          className={cn(
+            "h-full rounded-full bg-gradient-to-r transition-all duration-500 ease-out",
+            getGradientColors()
+          )}
+          style={{ width: `${Math.min(usage.percentage * 100, 100)}%` }}
+        />
+      </div>
+
+      {/* Quick Stats */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <span>{usage.usedTokens.toLocaleString()} used</span>
+        <span>{usage.remainingTokens.toLocaleString()} remaining</span>
+      </div>
+
+      {/* Expanded Details */}
+      {isExpanded && (
+        <div className="space-y-3 pt-2 border-t">
           {/* Detailed Stats */}
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-2 bg-muted/50 rounded-md">
@@ -228,9 +197,9 @@ export function ContextWindowMeter({ onCompress, compact = false, className }: C
               <>🚨 Context nearly full! Compress now to continue the conversation.</>
             )}
           </div>
-        </CollapsibleContent>
-      </div>
-    </Collapsible>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -253,25 +222,19 @@ export function ContextWindowMini({ className }: { className?: string }) {
   const percentageDisplay = Math.round(usage.percentage * 100)
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className={cn(
-            "flex items-center gap-1 px-2 py-1 rounded-md text-xs cursor-default",
-            usage.status === "safe" && "bg-green-500/10 text-green-600",
-            usage.status === "warning" && "bg-yellow-500/10 text-yellow-600",
-            usage.status === "danger" && "bg-orange-500/10 text-orange-600",
-            usage.status === "critical" && "bg-red-500/10 text-red-600 animate-pulse",
-            className
-          )}>
-            <Zap className="h-3 w-3" />
-            <span className="font-medium">{percentageDisplay}%</span>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{usage.usedTokens.toLocaleString()} / {usage.maxTokens.toLocaleString()} tokens</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <div
+      className={cn(
+        "flex items-center gap-1 px-2 py-1 rounded-md text-xs cursor-help",
+        usage.status === "safe" && "bg-green-500/10 text-green-600",
+        usage.status === "warning" && "bg-yellow-500/10 text-yellow-600",
+        usage.status === "danger" && "bg-orange-500/10 text-orange-600",
+        usage.status === "critical" && "bg-red-500/10 text-red-600 animate-pulse",
+        className
+      )}
+      title={`${usage.usedTokens.toLocaleString()} / ${usage.maxTokens.toLocaleString()} tokens`}
+    >
+      <Zap className="h-3 w-3" />
+      <span className="font-medium">{percentageDisplay}%</span>
+    </div>
   )
 }
