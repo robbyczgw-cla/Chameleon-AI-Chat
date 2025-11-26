@@ -120,7 +120,7 @@ export function MobileBottomNav({
             haptics.trigger('medium')
             navigateWithTransition(onNewChatClick)
           }}
-          className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-accent shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 glow-subtle"
+          className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-accent shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 animate-pulse-glow gpu-layer"
         >
           <Plus className="h-5 w-5 text-white" strokeWidth={2.5} />
         </button>
