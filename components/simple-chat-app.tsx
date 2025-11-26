@@ -7,6 +7,7 @@ import { SimpleChatInput } from "@/components/simple-chat-input"
 import { SimpleSettingsDialog } from "@/components/simple-settings-dialog"
 import { PersonasDialog } from "@/components/personas-dialog"
 import { UserProfileDialog } from "@/components/user-profile-dialog"
+import { SimpleModeOnboarding } from "@/components/simple-mode-onboarding"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { Button } from "@/components/ui/button"
@@ -89,6 +90,7 @@ export function SimpleChatApp() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [profileContext, setProfileContext] = useState("")
   const [imageMode, setImageMode] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
@@ -97,6 +99,19 @@ export function SimpleChatApp() {
   useEffect(() => {
     const profile = userProfileService.getProfile()
     setProfileContext(userProfileService.getProfileContext(profile))
+  }, [])
+
+  // Check if onboarding should be shown (first time Simple Mode user)
+  useEffect(() => {
+    const onboardingComplete = localStorage.getItem("simple-mode-onboarding-complete")
+    const profile = userProfileService.getProfile()
+
+    // Show onboarding if:
+    // 1. Onboarding has never been completed
+    // 2. User has no profile name set (indicating first-time setup)
+    if (!onboardingComplete && !profile.name) {
+      setShowOnboarding(true)
+    }
   }, [])
 
   // Handle events from other components
@@ -132,6 +147,13 @@ export function SimpleChatApp() {
   }
 
   const handleProfileUpdate = () => {
+    const profile = userProfileService.getProfile()
+    setProfileContext(userProfileService.getProfileContext(profile))
+  }
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false)
+    // Refresh profile context after onboarding
     const profile = userProfileService.getProfile()
     setProfileContext(userProfileService.getProfileContext(profile))
   }
@@ -469,6 +491,12 @@ export function SimpleChatApp() {
         open={isProfileOpen}
         onOpenChange={setIsProfileOpen}
         onProfileUpdate={handleProfileUpdate}
+      />
+
+      {/* Onboarding for first-time Simple Mode users */}
+      <SimpleModeOnboarding
+        open={showOnboarding}
+        onComplete={handleOnboardingComplete}
       />
     </div>
   )
