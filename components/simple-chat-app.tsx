@@ -13,10 +13,9 @@ import { ChameleonLogo } from "@/components/chameleon-logo"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { userProfileService } from "@/lib/user-profile"
-import { streakService, gamificationService, type Pet, type Achievement } from "@/lib/simple-mode-features"
+import { gamificationService, type Pet, type Achievement } from "@/lib/simple-mode-features"
 import { PetWidget, PetAdoptDialog } from "@/components/pet-companion"
-import { AchievementsDialog, AchievementToast, StreakWidget } from "@/components/achievements-dialog"
-import { ConversationStartersGrid, StartersDialog, CreativeCornerDialog, CreativeCornerButton } from "@/components/conversation-starters"
+import { AchievementsDialog, AchievementToast } from "@/components/achievements-dialog"
 import {
   MessageSquarePlus,
   Users,
@@ -28,8 +27,7 @@ import {
   Trash2,
   MoreVertical,
   ImagePlus,
-  Trophy,
-  Sparkles,
+  Lightbulb,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -63,6 +61,7 @@ const translations = {
     imageModeOn: "Image mode enabled",
     imageModeOff: "Image mode disabled",
     imageModeDesc: "Your next message will generate an image",
+    tryAsking: "Try asking:",
   },
   de: {
     newChat: "Neuer Chat",
@@ -84,6 +83,119 @@ const translations = {
     imageModeOn: "Bildmodus aktiviert",
     imageModeOff: "Bildmodus deaktiviert",
     imageModeDesc: "Deine nächste Nachricht wird ein Bild generieren",
+    tryAsking: "Frag zum Beispiel:",
+  },
+}
+
+// Persona-specific question suggestions
+const personaTips: Record<string, { en: string[]; de: string[] }> = {
+  default: {
+    en: [
+      "What can you help me with?",
+      "Tell me something interesting",
+      "Help me brainstorm ideas",
+      "Explain something complex simply",
+      "Write a short story",
+      "Give me advice on...",
+    ],
+    de: [
+      "Wobei kannst du mir helfen?",
+      "Erzähl mir etwas Interessantes",
+      "Hilf mir beim Brainstorming",
+      "Erkläre mir etwas Komplexes einfach",
+      "Schreibe eine kurze Geschichte",
+      "Gib mir einen Rat zu...",
+    ],
+  },
+  coder: {
+    en: [
+      "Debug this code for me",
+      "How do I implement...?",
+      "Explain this algorithm",
+      "Review my code",
+      "Best practices for...",
+      "Convert this to TypeScript",
+    ],
+    de: [
+      "Finde den Fehler in diesem Code",
+      "Wie implementiere ich...?",
+      "Erkläre diesen Algorithmus",
+      "Überprüfe meinen Code",
+      "Best Practices für...",
+      "Konvertiere das zu TypeScript",
+    ],
+  },
+  writer: {
+    en: [
+      "Help me write a blog post",
+      "Improve this paragraph",
+      "Create a catchy headline",
+      "Write in a different tone",
+      "Proofread my text",
+      "Generate creative ideas",
+    ],
+    de: [
+      "Hilf mir einen Blogpost zu schreiben",
+      "Verbessere diesen Absatz",
+      "Erstelle eine packende Überschrift",
+      "Schreibe in anderem Stil",
+      "Korrigiere meinen Text",
+      "Generiere kreative Ideen",
+    ],
+  },
+  translator: {
+    en: [
+      "Translate this to German",
+      "What does this phrase mean?",
+      "How do I say... in French?",
+      "Check my grammar",
+      "Formal vs informal translation",
+      "Cultural context of this expression",
+    ],
+    de: [
+      "Übersetze das ins Englische",
+      "Was bedeutet dieser Ausdruck?",
+      "Wie sage ich... auf Französisch?",
+      "Prüfe meine Grammatik",
+      "Formell vs informell übersetzen",
+      "Kultureller Kontext dieses Ausdrucks",
+    ],
+  },
+  researcher: {
+    en: [
+      "Summarize this topic",
+      "Find sources about...",
+      "Compare these concepts",
+      "What's the latest on...?",
+      "Explain the history of...",
+      "Pros and cons of...",
+    ],
+    de: [
+      "Fasse dieses Thema zusammen",
+      "Finde Quellen über...",
+      "Vergleiche diese Konzepte",
+      "Was gibt's Neues zu...?",
+      "Erkläre die Geschichte von...",
+      "Vor- und Nachteile von...",
+    ],
+  },
+  teacher: {
+    en: [
+      "Explain this like I'm 5",
+      "Quiz me on this topic",
+      "Create a study plan",
+      "What should I learn next?",
+      "Break this down step by step",
+      "Give me practice exercises",
+    ],
+    de: [
+      "Erkläre es mir wie einem Kind",
+      "Teste mich zu diesem Thema",
+      "Erstelle einen Lernplan",
+      "Was sollte ich als nächstes lernen?",
+      "Erkläre das Schritt für Schritt",
+      "Gib mir Übungsaufgaben",
+    ],
   },
 }
 
@@ -100,8 +212,6 @@ export function SimpleChatApp() {
   // Simple Mode features state
   const [isPetAdoptOpen, setIsPetAdoptOpen] = useState(false)
   const [isAchievementsOpen, setIsAchievementsOpen] = useState(false)
-  const [isStartersOpen, setIsStartersOpen] = useState(false)
-  const [isCreativeOpen, setIsCreativeOpen] = useState(false)
   const [newAchievement, setNewAchievement] = useState<Achievement | null>(null)
   const [pet, setPet] = useState<Pet | null>(null)
 
@@ -114,13 +224,6 @@ export function SimpleChatApp() {
     setProfileContext(userProfileService.getProfileContext(profile))
   }, [])
 
-  // Record streak on app load and load gamification settings
-  useEffect(() => {
-    const gamificationSettings = gamificationService.getSettings()
-    if (gamificationSettings.streaksEnabled) {
-      streakService.recordActivity()
-    }
-  }, [])
 
   // Check if onboarding should be shown (first time Simple Mode user)
   useEffect(() => {
@@ -438,26 +541,8 @@ export function SimpleChatApp() {
             </div>
 
             <div className="flex items-center gap-1">
-              {/* Pet Widget - hidden on mobile */}
-              <div className="hidden sm:block">
-                <PetWidget onOpenAdopt={() => setIsPetAdoptOpen(true)} lang={lang} />
-              </div>
-
-              {/* Streak Widget - hidden on mobile */}
-              <div className="hidden sm:block">
-                <StreakWidget onClick={() => setIsAchievementsOpen(true)} />
-              </div>
-
-              {/* Achievements Button - hidden on mobile */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsAchievementsOpen(true)}
-                className="relative hidden sm:flex h-8 w-8"
-                title="Achievements"
-              >
-                <Trophy className="h-4 w-4 text-amber-500" />
-              </Button>
+              {/* Pet Widget - visible on all screens */}
+              <PetWidget onOpenAdopt={() => setIsPetAdoptOpen(true)} lang={lang} />
 
               <Button
                 variant={imageMode ? "default" : "ghost"}
@@ -493,10 +578,10 @@ export function SimpleChatApp() {
           {/* Chat Area */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {isEmpty ? (
-              /* Welcome Screen - Compact layout */
+              /* Welcome Screen - Uses full width on desktop */
               <div className="flex-1 flex flex-col overflow-y-auto">
-                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 text-center min-h-0">
-                  <div className="w-full max-w-md space-y-4 sm:space-y-6">
+                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 text-center min-h-0">
+                  <div className="w-full max-w-md sm:max-w-xl lg:max-w-2xl space-y-4 sm:space-y-6">
                     {/* Greeting - Compact */}
                     <div className="space-y-2">
                       <div className="flex justify-center mb-2 sm:mb-4">
@@ -518,34 +603,29 @@ export function SimpleChatApp() {
                       </p>
                     </div>
 
-                    {/* Quick Persona Selection - Hidden on very small screens */}
-                    <div className="space-y-2 hidden sm:block">
+                    {/* Quick Persona Selection - Always visible */}
+                    <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">{t.choosePersona}</p>
                       <QuickPersonaPicker />
                     </div>
 
-                    {/* Conversation Starters - Compact */}
+                    {/* Persona-based Tips */}
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
-                          <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
-                          {lang === "de" ? "Schnellstart" : "Quick Start"}
-                        </p>
-                        <div className="flex gap-1 sm:gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsStartersOpen(true)}
-                            className="text-xs h-7 px-2"
+                      <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+                        <Lightbulb className="h-3 w-3 sm:h-4 sm:w-4" />
+                        {t.tryAsking}
+                      </p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
+                        {(personaTips[selectedPersona?.id || "default"] || personaTips.default)[lang].map((tip, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleQuickPrompt(tip)}
+                            className="text-left p-2 sm:p-3 rounded-lg border border-border hover:border-violet-300 hover:bg-violet-500/5 transition-all"
                           >
-                            {lang === "de" ? "Mehr" : "More"}
-                          </Button>
-                          <div className="hidden sm:block">
-                            <CreativeCornerButton onClick={() => setIsCreativeOpen(true)} lang={lang} />
-                          </div>
-                        </div>
+                            <span className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{tip}</span>
+                          </button>
+                        ))}
                       </div>
-                      <ConversationStartersGrid onSelectPrompt={handleQuickPrompt} lang={lang} />
                     </div>
                   </div>
                 </div>
@@ -579,7 +659,11 @@ export function SimpleChatApp() {
       </div>
 
       {/* Dialogs */}
-      <SimpleSettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
+      <SimpleSettingsDialog
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
+        onOpenAchievements={() => setIsAchievementsOpen(true)}
+      />
       <PersonasDialog open={isPersonasOpen} onOpenChange={setIsPersonasOpen} />
       <UserProfileDialog
         open={isProfileOpen}
@@ -605,22 +689,6 @@ export function SimpleChatApp() {
       <AchievementsDialog
         open={isAchievementsOpen}
         onOpenChange={setIsAchievementsOpen}
-        lang={lang}
-      />
-
-      {/* Conversation Starters Dialog */}
-      <StartersDialog
-        open={isStartersOpen}
-        onOpenChange={setIsStartersOpen}
-        onSelectPrompt={handleQuickPrompt}
-        lang={lang}
-      />
-
-      {/* Creative Corner Dialog */}
-      <CreativeCornerDialog
-        open={isCreativeOpen}
-        onOpenChange={setIsCreativeOpen}
-        onGenerate={handleQuickPrompt}
         lang={lang}
       />
 

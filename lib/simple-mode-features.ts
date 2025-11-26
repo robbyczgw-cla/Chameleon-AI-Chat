@@ -233,10 +233,6 @@ export const streakService = {
 export type AchievementId =
   | "first_message"
   | "first_image"
-  | "streak_3"
-  | "streak_7"
-  | "streak_30"
-  | "streak_100"
   | "messages_10"
   | "messages_100"
   | "messages_1000"
@@ -273,34 +269,6 @@ export const defaultAchievements: Achievement[] = [
     name: { en: "Artist", de: "Künstler" },
     description: { en: "Create your first image", de: "Erstelle dein erstes Bild" },
     emoji: "🎨",
-  },
-  {
-    id: "streak_3",
-    name: { en: "Getting Started", de: "Gut angefangen" },
-    description: { en: "Maintain a 3-day streak", de: "Halte eine 3-Tage-Serie" },
-    emoji: "✨",
-    maxProgress: 3,
-  },
-  {
-    id: "streak_7",
-    name: { en: "Week Warrior", de: "Wochen-Krieger" },
-    description: { en: "Maintain a 7-day streak", de: "Halte eine 7-Tage-Serie" },
-    emoji: "🔥",
-    maxProgress: 7,
-  },
-  {
-    id: "streak_30",
-    name: { en: "Monthly Master", de: "Monats-Meister" },
-    description: { en: "Maintain a 30-day streak", de: "Halte eine 30-Tage-Serie" },
-    emoji: "🌟",
-    maxProgress: 30,
-  },
-  {
-    id: "streak_100",
-    name: { en: "Legendary", de: "Legendär" },
-    description: { en: "Maintain a 100-day streak", de: "Halte eine 100-Tage-Serie" },
-    emoji: "💎",
-    maxProgress: 100,
   },
   {
     id: "messages_10",
