@@ -608,13 +608,14 @@
     }
   }
 
-  /* Enhanced table styling */
+  /* Enhanced table styling with glassmorphism effects */
   .prose table {
     display: block;
     max-width: fit-content;
     overflow-x: auto;
     white-space: nowrap;
     background: var(--muted);
+    backdrop-filter: blur(8px);
     border-radius: var(--radius-md);
   }
 
@@ -660,11 +661,14 @@
 
   .mesh-layer {
     background:
-      radial-gradient(900px circle at 25% 20%, color-mix(in oklch, var(--primary) 18%, transparent) 0%, transparent 40%),
-      radial-gradient(800px circle at 70% 12%, color-mix(in oklch, var(--accent) 14%, transparent) 0%, transparent 42%),
-      radial-gradient(1100px circle at 85% 70%, color-mix(in oklch, var(--primary) 14%, transparent) 0%, transparent 42%);
-    /* filter blur removed for GPU performance - opacity adjusted for visual balance */
-    opacity: 0.65;
+      radial-gradient(900px circle at 25% 20%, color-mix(in oklch, var(--primary) 22%, transparent) 0%, transparent 40%),
+      radial-gradient(800px circle at 70% 12%, color-mix(in oklch, var(--accent) 18%, transparent) 0%, transparent 42%),
+      radial-gradient(1100px circle at 85% 70%, color-mix(in oklch, var(--primary) 18%, transparent) 0%, transparent 42%);
+    /* Reduced blur and added GPU compositing hint */
+    filter: blur(8px);
+    opacity: 0.5;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .grid-layer {
@@ -672,16 +676,16 @@
       linear-gradient(to right, color-mix(in oklch, var(--border) 45%, transparent) 1px, transparent 1px),
       linear-gradient(to bottom, color-mix(in oklch, var(--border) 45%, transparent) 1px, transparent 1px);
     background-size: 52px 52px;
-    opacity: 0.2;
+    opacity: 0.28;
     mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.55), transparent 70%);
     -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.55), transparent 70%);
-    /* mix-blend-mode removed for GPU performance */
+    mix-blend-mode: soft-light;
   }
 
   .noise-layer {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
-    /* mix-blend-mode removed for GPU performance */
-    opacity: 0.35;
+    mix-blend-mode: soft-light;
+    opacity: 0.5;
   }
 
   /* Cosmic Glass Background */
@@ -770,16 +774,17 @@
     position: absolute;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.74' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
-    /* mix-blend-mode removed for GPU performance */
-    opacity: 0.22;
+    mix-blend-mode: soft-light;
+    opacity: 0.28;
     z-index: 0;
   }
 
   .panel-elevated {
-    background: color-mix(in oklch, var(--card) 97%, var(--primary) 3%);
+    background: color-mix(in oklch, var(--card) 92%, var(--primary) 8%);
     border: 1px solid color-mix(in oklch, var(--border) 75%, var(--primary) 25%);
     box-shadow: 0 20px 60px -28px rgba(0, 0, 0, 0.25), 0 10px 30px -20px rgba(0, 0, 0, 0.18);
-    /* backdrop-filter removed for GPU performance */
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
   }
 
   .pill-nav {
@@ -796,7 +801,7 @@
     width: 52px;
     background: linear-gradient(90deg, color-mix(in oklch, var(--card) 82%, var(--primary) 18%) 0%, transparent 70%);
     box-shadow: 16px 0 42px -24px rgba(0, 0, 0, 0.35);
-    /* filter blur removed for GPU performance */
+    filter: blur(16px);
     opacity: 0.82;
     z-index: 2;
   }
@@ -813,7 +818,7 @@
     bottom: 10px;
     pointer-events: none;
     opacity: 0.65;
-    /* filter blur removed for GPU performance */
+    filter: blur(14px);
     z-index: 1;
   }
 
@@ -841,40 +846,45 @@
     bottom: 14px;
     width: 58px;
     background: linear-gradient(90deg, color-mix(in oklch, var(--card) 78%, var(--primary) 22%) 0%, transparent 75%);
-    /* filter blur removed for GPU performance */
+    filter: blur(18px);
     opacity: 0.7;
     pointer-events: none;
     z-index: 1;
   }
 
-  /* Enhanced glass effects - backdrop-filter removed for GPU performance */
+  /* Enhanced glass effects with multiple variants */
   .glass {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
   }
 
   .dark .glass {
-    background: rgba(25, 25, 28, 0.85);
+    background: rgba(25, 25, 28, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   }
 
   .glass-strong {
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.15);
   }
 
   .dark .glass-strong {
-    background: rgba(25, 25, 28, 0.92);
+    background: rgba(25, 25, 28, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.4);
   }
 
   .glass-subtle {
-    background: rgba(255, 255, 255, 0.7);
-    /* backdrop-filter removed for GPU performance */
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05);
   }
