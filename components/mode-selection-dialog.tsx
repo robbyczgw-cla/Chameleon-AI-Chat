@@ -1,10 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { ChameleonLogo } from "@/components/chameleon-logo"
-import { useApp } from "@/contexts/app-context"
 import {
   Sparkles,
   Zap,
@@ -67,7 +64,6 @@ interface ModeSelectionDialogProps {
 }
 
 export function ModeSelectionDialog({ open, onSelectMode }: ModeSelectionDialogProps) {
-  const { settings } = useApp()
   const [selectedMode, setSelectedMode] = useState<"simple" | "advanced" | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
@@ -88,15 +84,12 @@ export function ModeSelectionDialog({ open, onSelectMode }: ModeSelectionDialogP
     }, 300)
   }
 
+  if (!open) return null
+
+  // Full-page component instead of Dialog (renders more reliably)
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent
-        className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
-      >
-        <DialogTitle className="sr-only">{t.welcome}</DialogTitle>
-        <DialogDescription className="sr-only">{t.subtitle}</DialogDescription>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+      <div className="w-full max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col bg-background border rounded-lg shadow-lg">
         {/* Header */}
         <div className="p-6 pb-4 text-center border-b bg-gradient-to-br from-violet-500/10 to-purple-500/10">
           <div className="flex justify-center mb-4">
@@ -248,7 +241,7 @@ export function ModeSelectionDialog({ open, onSelectMode }: ModeSelectionDialogP
         <div className="p-4 border-t text-center">
           <p className="text-xs text-muted-foreground">{t.canSwitchLater}</p>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   )
 }
