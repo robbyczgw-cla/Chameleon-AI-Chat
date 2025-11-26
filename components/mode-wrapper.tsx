@@ -18,9 +18,30 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
   useEffect(() => {
     if (!isLoading) {
       const modeSelected = localStorage.getItem("chameleon-mode-selected")
-      if (!modeSelected) {
-        setShowModeSelection(true)
+
+      // If mode was already selected, skip
+      if (modeSelected) {
+        setHasCheckedModeSelection(true)
+        return
       }
+
+      // Check if this is an existing user (has any saved data)
+      // Existing users should NOT see the mode selection - they keep their current mode
+      const hasExistingData =
+        localStorage.getItem("chameleon-chats") ||
+        localStorage.getItem("chameleon-settings") ||
+        localStorage.getItem("chameleon-folders") ||
+        localStorage.getItem("chameleon-api-keys")
+
+      if (hasExistingData) {
+        // Existing user - mark mode as selected and skip dialog
+        localStorage.setItem("chameleon-mode-selected", "true")
+        setHasCheckedModeSelection(true)
+        return
+      }
+
+      // New user - show mode selection
+      setShowModeSelection(true)
       setHasCheckedModeSelection(true)
     }
   }, [isLoading])
@@ -44,12 +65,10 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
   // Show mode selection dialog for first-time users
   if (showModeSelection) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <ModeSelectionDialog
-          open={showModeSelection}
-          onSelectMode={handleModeSelection}
-        />
-      </div>
+      <ModeSelectionDialog
+        open={showModeSelection}
+        onSelectMode={handleModeSelection}
+      />
     )
   }
 
