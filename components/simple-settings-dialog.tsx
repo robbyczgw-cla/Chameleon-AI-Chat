@@ -209,17 +209,16 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-[95vw] sm:max-w-lg max-h-[90vh] overflow-hidden p-0">
-        <div className="flex flex-col h-full max-h-[90vh] p-6">
-          <DialogHeader className="flex-shrink-0 pb-2">
+      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-violet-500" />
               {t.settings}
             </DialogTitle>
           </DialogHeader>
 
-          <Tabs defaultValue="profile" className="w-full flex-1 flex flex-col min-h-0 overflow-hidden">
-          <TabsList className="grid grid-cols-5 gap-1 flex-shrink-0">
+          <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="grid grid-cols-5 gap-1">
             <TabsTrigger value="profile" className="text-xs gap-1 px-2">
               <User className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.profile}</span>
@@ -242,9 +241,9 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1 overflow-y-auto mt-4 pr-1 min-h-0">
+          <div className="mt-4">
             {/* Profile Tab */}
-            <TabsContent value="profile" className="space-y-4 mt-0 h-full">
+            <TabsContent value="profile" className="space-y-4 mt-0">
               <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-lg font-bold">
@@ -566,7 +565,7 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
             {t.switchToAdvanced}
           </Button>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               {t.cancel}
             </Button>
@@ -574,7 +573,6 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
               {t.save}
             </Button>
           </div>
-        </div>
         </div>
       </DialogContent>
     </Dialog>
