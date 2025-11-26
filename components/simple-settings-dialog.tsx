@@ -209,15 +209,16 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] sm:max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="flex-shrink-0 pb-2">
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-violet-500" />
-            {t.settings}
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="w-full max-w-[95vw] sm:max-w-lg max-h-[90vh] overflow-hidden p-0">
+        <div className="flex flex-col h-full max-h-[90vh] p-6">
+          <DialogHeader className="flex-shrink-0 pb-2">
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-violet-500" />
+              {t.settings}
+            </DialogTitle>
+          </DialogHeader>
 
-        <Tabs defaultValue="profile" className="w-full flex-1 flex flex-col min-h-0 overflow-hidden">
+          <Tabs defaultValue="profile" className="w-full flex-1 flex flex-col min-h-0 overflow-hidden">
           <TabsList className="grid grid-cols-5 gap-1 flex-shrink-0">
             <TabsTrigger value="profile" className="text-xs gap-1 px-2">
               <User className="h-3.5 w-3.5" />
@@ -573,6 +574,7 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
               {t.save}
             </Button>
           </div>
+        </div>
         </div>
       </DialogContent>
     </Dialog>
