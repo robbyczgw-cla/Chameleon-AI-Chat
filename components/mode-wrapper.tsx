@@ -15,39 +15,42 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
   const [hasCheckedModeSelection, setHasCheckedModeSelection] = useState(false)
 
   // Check if user needs to select a mode (first-time user)
+  // This effect re-runs when user/chats change, so if we detect an existing user later, we hide the dialog
   useEffect(() => {
-    if (!isLoading) {
-      const modeSelected = localStorage.getItem("chameleon-mode-selected")
+    if (isLoading) return
 
-      // If mode was already selected, skip
-      if (modeSelected) {
-        setHasCheckedModeSelection(true)
-        return
-      }
+    const modeSelected = localStorage.getItem("chameleon-mode-selected")
 
-      // Check if this is an existing user using MULTIPLE methods:
-      // 1. User is authenticated (has Supabase session)
-      // 2. User has chats in context (from Supabase sync)
-      // 3. User has any localStorage data
-      const hasExistingData =
-        user !== null ||
-        chats.length > 0 ||
-        localStorage.getItem("chameleon-chats") ||
-        localStorage.getItem("chameleon-settings") ||
-        localStorage.getItem("chameleon-folders") ||
-        localStorage.getItem("chameleon-api-keys")
-
-      if (hasExistingData) {
-        // Existing user - mark mode as selected and skip dialog
-        localStorage.setItem("chameleon-mode-selected", "true")
-        setHasCheckedModeSelection(true)
-        return
-      }
-
-      // New user - show mode selection
-      setShowModeSelection(true)
+    // Already selected - never show dialog
+    if (modeSelected) {
+      setShowModeSelection(false)
       setHasCheckedModeSelection(true)
+      return
     }
+
+    // Check if this is an existing user using MULTIPLE methods:
+    // 1. User is authenticated (has Supabase session)
+    // 2. User has chats in context (from Supabase sync)
+    // 3. User has any localStorage data
+    const isExistingUser =
+      user !== null ||
+      chats.length > 0 ||
+      localStorage.getItem("chameleon-chats") ||
+      localStorage.getItem("chameleon-settings") ||
+      localStorage.getItem("chameleon-folders") ||
+      localStorage.getItem("chameleon-api-keys")
+
+    if (isExistingUser) {
+      // Existing user - mark mode as selected and HIDE dialog (even if it was shown)
+      localStorage.setItem("chameleon-mode-selected", "true")
+      setShowModeSelection(false)
+      setHasCheckedModeSelection(true)
+      return
+    }
+
+    // Truly new user - show mode selection
+    setShowModeSelection(true)
+    setHasCheckedModeSelection(true)
   }, [isLoading, user, chats.length])
 
   // Handle mode selection
