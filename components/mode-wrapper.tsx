@@ -44,10 +44,12 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
   // Show mode selection dialog for first-time users
   if (showModeSelection) {
     return (
-      <ModeSelectionDialog
-        open={showModeSelection}
-        onSelectMode={handleModeSelection}
-      />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <ModeSelectionDialog
+          open={showModeSelection}
+          onSelectMode={handleModeSelection}
+        />
+      </div>
     )
   }
 
