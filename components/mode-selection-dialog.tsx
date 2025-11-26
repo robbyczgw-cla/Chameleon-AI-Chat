@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { useApp } from "@/contexts/app-context"
@@ -95,6 +95,8 @@ export function ModeSelectionDialog({ open, onSelectMode }: ModeSelectionDialogP
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
+        <DialogTitle className="sr-only">{t.welcome}</DialogTitle>
+        <DialogDescription className="sr-only">{t.subtitle}</DialogDescription>
         {/* Header */}
         <div className="p-6 pb-4 text-center border-b bg-gradient-to-br from-violet-500/10 to-purple-500/10">
           <div className="flex justify-center mb-4">
