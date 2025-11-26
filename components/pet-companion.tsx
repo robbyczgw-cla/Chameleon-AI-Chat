@@ -117,11 +117,11 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-violet-500" />
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="w-[min(96vw,720px)] sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-violet-500" />
               {t.adoptPet}
             </DialogTitle>
             <DialogDescription>{t.adoptDesc}</DialogDescription>
