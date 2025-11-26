@@ -688,6 +688,32 @@
     opacity: 0.5;
   }
 
+  /* Lighter visual effects for users who prefer reduced motion/transparency */
+  @media (prefers-reduced-motion: reduce) {
+    .panel-elevated,
+    .glass,
+    .glass-strong,
+    .glass-subtle {
+      backdrop-filter: blur(8px) saturate(140%);
+      -webkit-backdrop-filter: blur(8px) saturate(140%);
+    }
+
+    .mesh-layer,
+    .sidebar-bridge,
+    .sidebar-halo,
+    .main-bridge-left {
+      filter: blur(4px);
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
+
+    .grid-layer,
+    .noise-layer {
+      mix-blend-mode: normal;
+      opacity: 0.35;
+    }
+  }
+
   /* Cosmic Glass Background */
   .cosmic-bg {
     position: fixed;
