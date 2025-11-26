@@ -79,13 +79,18 @@ function ChatApp() {
     setShowStatsPanel((prev) => !prev)
   }
 
-  // Apply saved theme on mount
+  // Apply saved theme and performance mode on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem("chameleon-theme") || "light"
     const html = document.documentElement
     html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "paper-mint")
     if (savedTheme !== "light") {
       html.classList.add(savedTheme)
+    }
+    // Apply performance mode if saved
+    const savedPerformanceMode = localStorage.getItem("chameleon-performance-mode") === "true"
+    if (savedPerformanceMode) {
+      html.classList.add("performance-mode")
     }
   }, [])
 

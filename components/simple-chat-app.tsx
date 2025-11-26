@@ -672,6 +672,12 @@ export function SimpleChatApp() {
     window.addEventListener("openProfile", handleOpenProfile)
     window.addEventListener("setImageMode" as any, handleSetImageMode)
 
+    // Apply performance mode if saved
+    const savedPerformanceMode = localStorage.getItem("chameleon-performance-mode") === "true"
+    if (savedPerformanceMode) {
+      document.documentElement.classList.add("performance-mode")
+    }
+
     return () => {
       window.removeEventListener("openSettings", handleOpenSettings)
       window.removeEventListener("openPersonas", handleOpenPersonas)
