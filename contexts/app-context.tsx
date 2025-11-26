@@ -809,9 +809,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       prev.map((chat) => {
         if (chat.id === chatId) {
           const updatedMessages = [...chat.messages, message]
+
+          // Extract text content from message (handles both string and multimodal content)
+          let textContent = ""
+          if (typeof message.content === "string") {
+            textContent = message.content
+          } else if (Array.isArray(message.content)) {
+            // Find text parts in multimodal content
+            const textPart = message.content.find((part: any) => part.type === "text")
+            textContent = textPart?.text || "Image conversation"
+          }
+
           const title =
             chat.messages.length === 0 && message.role === "user"
-              ? message.content.slice(0, 50) + (message.content.length > 50 ? "..." : "")
+              ? textContent.slice(0, 50) + (textContent.length > 50 ? "..." : "")
               : chat.title
 
           if (user) {
