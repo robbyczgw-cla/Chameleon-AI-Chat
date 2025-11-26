@@ -38,6 +38,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
   const [language, setLanguage] = useState(languageService.getLanguage())
   const [commandSuggestions, setCommandSuggestions] = useState<SlashCommand[]>([])
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0)
+  const [imageMode, setImageMode] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
   const { toast } = useToast()
 
@@ -117,6 +118,17 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     }
   }, [])
 
+  // Listen for image mode toggle from header
+  useEffect(() => {
+    const handleSetImageMode = (e: CustomEvent) => {
+      setImageMode(e.detail)
+    }
+    window.addEventListener("setImageMode" as any, handleSetImageMode)
+    return () => {
+      window.removeEventListener("setImageMode" as any, handleSetImageMode)
+    }
+  }, [])
+
   const stopGeneration = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
@@ -177,6 +189,78 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     setInput("")
     setAttachedFiles([])
     setIsChatLoading(true)
+
+    // Handle image generation mode
+    if (imageMode) {
+      try {
+        const imageModel = settings.selectedModel || "openai/dall-e-3"
+        const isDallE = imageModel === 'openai/dall-e-2' || imageModel === 'openai/dall-e-3'
+        const apiKey = isDallE
+          ? settings.apiKeys.openAI
+          : settings.apiKeys.openRouter
+
+        if (!apiKey) {
+          throw new Error(
+            isDallE
+              ? 'OpenAI API key required for DALL-E. Add it in Settings → API'
+              : 'OpenRouter API key required. Add it in Settings → API'
+          )
+        }
+
+        toast({
+          title: settings.language === "de" ? "🎨 Generiere Bild..." : "🎨 Generating image...",
+          description: `${settings.language === "de" ? "Verwende" : "Using"} ${imageModel}`,
+        })
+
+        const response = await fetch('/api/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: messageContent,
+            model: imageModel,
+            apiKey,
+          }),
+        })
+
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Failed to generate image')
+        }
+
+        const data = await response.json()
+
+        const imageMessage: Message = {
+          id: generateUUID(),
+          role: "assistant",
+          content: `${settings.language === "de" ? "Generiertes Bild" : "Generated image"}: ${messageContent}`,
+          imageUrl: data.url,
+          timestamp: Date.now(),
+          stats: {
+            model: data.model,
+            responseTime: 0,
+          },
+        }
+
+        addMessage(chatId, imageMessage)
+        toast({
+          title: settings.language === "de" ? "🎨 Bild generiert!" : "🎨 Image generated!",
+          description: settings.language === "de" ? "Das Bild wurde erfolgreich erstellt" : "Image created successfully",
+        })
+      } catch (error) {
+        console.error('[Simple Chat] Image generation error:', error)
+        toast({
+          title: settings.language === "de" ? "Fehler bei Bildgenerierung" : "Image generation failed",
+          description: error instanceof Error ? error.message : 'Unknown error',
+          variant: "destructive",
+        })
+      } finally {
+        setIsChatLoading(false)
+        setImageMode(false)
+        // Dispatch event to reset header button
+        window.dispatchEvent(new CustomEvent("setImageMode", { detail: false }))
+      }
+      return
+    }
 
     const currentChat = chats.find((c) => c.id === chatId)
 

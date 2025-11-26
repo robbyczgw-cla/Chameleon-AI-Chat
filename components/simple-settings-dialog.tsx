@@ -14,6 +14,112 @@ import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { useToast } from "@/hooks/use-toast"
 
+// Translations for Simple Settings
+const translations = {
+  en: {
+    settings: "Settings",
+    profile: "Profile",
+    look: "Look",
+    search: "Search",
+    voice: "Voice",
+    api: "API",
+    welcomeBack: "Welcome back",
+    setYourName: "Set your name below",
+    yourName: "Your Name",
+    whatShouldICall: "What should I call you?",
+    whatDoYouDo: "What do you do?",
+    occupationPlaceholder: "e.g., Student, Developer, Designer",
+    interests: "Interests",
+    editProfileToAdd: "Edit profile to add interests",
+    editFullProfile: "Edit Full Profile",
+    language: "Language",
+    theme: "Theme",
+    textSize: "Text Size",
+    small: "Small",
+    medium: "Medium",
+    large: "Large",
+    webSearchInfo: "Web search lets the AI find current information from the internet.",
+    serperApiKey: "Serper API Key (Google Search)",
+    enterSerperKey: "Enter your Serper API key...",
+    getFreeKey: "Get free key from",
+    freeSearches: "(2,500 free searches)",
+    includeImages: "Include Images",
+    showImagesInSearch: "Show images in search results",
+    webSearchReady: "Web search is ready! Use the globe icon in chat to search.",
+    enableVoice: "Enable Voice",
+    readMessagesAloud: "Read messages aloud",
+    voiceType: "Voice Type",
+    browserVoice: "Browser Voice (Free)",
+    openaiVoice: "OpenAI Voice (Premium)",
+    requiresOpenAI: "Requires OpenAI API key",
+    browserVoiceLabel: "Browser Voice",
+    systemDefault: "System Default",
+    apiKeysInfo: "API keys are needed for AI chat and voice features.",
+    openRouterKey: "OpenRouter API Key",
+    getFrom: "Get from",
+    openAIKeyOptional: "OpenAI API Key (Optional)",
+    forVoiceInput: "For voice input & premium TTS",
+    switchToAdvanced: "Switch to Advanced Mode",
+    advancedMode: "Advanced Mode",
+    canSwitchBack: "You can switch back to Simple Mode in Settings.",
+    cancel: "Cancel",
+    save: "Save",
+    settingsSaved: "Settings saved!",
+    preferencesUpdated: "Your preferences have been updated.",
+  },
+  de: {
+    settings: "Einstellungen",
+    profile: "Profil",
+    look: "Aussehen",
+    search: "Suche",
+    voice: "Stimme",
+    api: "API",
+    welcomeBack: "Willkommen zurück",
+    setYourName: "Gib deinen Namen unten ein",
+    yourName: "Dein Name",
+    whatShouldICall: "Wie soll ich dich nennen?",
+    whatDoYouDo: "Was machst du?",
+    occupationPlaceholder: "z.B. Student, Entwickler, Designer",
+    interests: "Interessen",
+    editProfileToAdd: "Profil bearbeiten um Interessen hinzuzufügen",
+    editFullProfile: "Vollständiges Profil bearbeiten",
+    language: "Sprache",
+    theme: "Design",
+    textSize: "Textgröße",
+    small: "Klein",
+    medium: "Mittel",
+    large: "Groß",
+    webSearchInfo: "Die Websuche ermöglicht der KI, aktuelle Informationen aus dem Internet zu finden.",
+    serperApiKey: "Serper API Key (Google Suche)",
+    enterSerperKey: "Serper API Key eingeben...",
+    getFreeKey: "Kostenlosen Key holen von",
+    freeSearches: "(2.500 kostenlose Suchen)",
+    includeImages: "Bilder einschließen",
+    showImagesInSearch: "Bilder in Suchergebnissen anzeigen",
+    webSearchReady: "Websuche bereit! Nutze das Globus-Symbol im Chat zum Suchen.",
+    enableVoice: "Sprache aktivieren",
+    readMessagesAloud: "Nachrichten vorlesen",
+    voiceType: "Stimmtyp",
+    browserVoice: "Browser-Stimme (Kostenlos)",
+    openaiVoice: "OpenAI Stimme (Premium)",
+    requiresOpenAI: "Benötigt OpenAI API Key",
+    browserVoiceLabel: "Browser-Stimme",
+    systemDefault: "Systemstandard",
+    apiKeysInfo: "API Keys werden für KI-Chat und Sprachfunktionen benötigt.",
+    openRouterKey: "OpenRouter API Key",
+    getFrom: "Holen von",
+    openAIKeyOptional: "OpenAI API Key (Optional)",
+    forVoiceInput: "Für Spracheingabe & Premium TTS",
+    switchToAdvanced: "Zum erweiterten Modus wechseln",
+    advancedMode: "Erweiterter Modus",
+    canSwitchBack: "Du kannst in den Einstellungen zurück zum einfachen Modus wechseln.",
+    cancel: "Abbrechen",
+    save: "Speichern",
+    settingsSaved: "Einstellungen gespeichert!",
+    preferencesUpdated: "Deine Einstellungen wurden aktualisiert.",
+  },
+}
+
 interface SimpleSettingsDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -26,6 +132,10 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
   const [currentTheme, setCurrentTheme] = useState<string>("light")
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
   const { toast } = useToast()
+
+  // Get translations based on language
+  const lang = settings.language === "de" ? "de" : "en"
+  const t = translations[lang]
 
   useEffect(() => {
     if (open) {
@@ -77,8 +187,8 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
     updateSettings(localSettings)
 
     toast({
-      title: "Settings saved!",
-      description: "Your preferences have been updated.",
+      title: t.settingsSaved,
+      description: t.preferencesUpdated,
     })
     onOpenChange(false)
   }
@@ -87,8 +197,8 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
     updateSettings({ simpleMode: false })
     onOpenChange(false)
     toast({
-      title: "Advanced Mode",
-      description: "You can switch back to Simple Mode in Settings.",
+      title: t.advancedMode,
+      description: t.canSwitchBack,
     })
   }
 
@@ -98,7 +208,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-violet-500" />
-            Settings
+            {t.settings}
           </DialogTitle>
         </DialogHeader>
 
@@ -106,23 +216,23 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
           <TabsList className="grid grid-cols-5 gap-1">
             <TabsTrigger value="profile" className="text-xs gap-1 px-2">
               <User className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Profile</span>
+              <span className="hidden sm:inline">{t.profile}</span>
             </TabsTrigger>
             <TabsTrigger value="appearance" className="text-xs gap-1 px-2">
               <Palette className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Look</span>
+              <span className="hidden sm:inline">{t.look}</span>
             </TabsTrigger>
             <TabsTrigger value="search" className="text-xs gap-1 px-2">
               <Search className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Search</span>
+              <span className="hidden sm:inline">{t.search}</span>
             </TabsTrigger>
             <TabsTrigger value="voice" className="text-xs gap-1 px-2">
               <Volume2 className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Voice</span>
+              <span className="hidden sm:inline">{t.voice}</span>
             </TabsTrigger>
             <TabsTrigger value="api" className="text-xs gap-1 px-2">
               <Key className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">API</span>
+              <span className="hidden sm:inline">{t.api}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -135,17 +245,17 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                     {profile.name?.[0]?.toUpperCase() || "?"}
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Welcome back</p>
-                    <p className="font-semibold">{profile.name || "Set your name below"}</p>
+                    <p className="text-sm text-muted-foreground">{t.welcomeBack}</p>
+                    <p className="font-semibold">{profile.name || t.setYourName}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <div className="space-y-1.5">
-                    <Label htmlFor="name" className="text-sm">Your Name</Label>
+                    <Label htmlFor="name" className="text-sm">{t.yourName}</Label>
                     <Input
                       id="name"
-                      placeholder="What should I call you?"
+                      placeholder={t.whatShouldICall}
                       value={profile.name || ""}
                       onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                       className="h-10"
@@ -153,10 +263,10 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="occupation" className="text-sm">What do you do?</Label>
+                    <Label htmlFor="occupation" className="text-sm">{t.whatDoYouDo}</Label>
                     <Input
                       id="occupation"
-                      placeholder="e.g., Student, Developer, Designer"
+                      placeholder={t.occupationPlaceholder}
                       value={profile.occupation || ""}
                       onChange={(e) => setProfile({ ...profile, occupation: e.target.value })}
                       className="h-10"
@@ -164,7 +274,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-sm">Interests</Label>
+                    <Label className="text-sm">{t.interests}</Label>
                     <div className="flex flex-wrap gap-1.5">
                       {(profile.interests || []).map((interest, i) => (
                         <Badge key={i} variant="secondary" className="text-xs">
@@ -172,7 +282,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                         </Badge>
                       ))}
                       {(!profile.interests || profile.interests.length === 0) && (
-                        <p className="text-xs text-muted-foreground">Edit profile to add interests</p>
+                        <p className="text-xs text-muted-foreground">{t.editProfileToAdd}</p>
                       )}
                     </div>
                   </div>
@@ -184,7 +294,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 className="w-full justify-between"
                 onClick={() => window.dispatchEvent(new Event("openProfile"))}
               >
-                <span>Edit Full Profile</span>
+                <span>{t.editFullProfile}</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </TabsContent>
@@ -192,7 +302,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
             {/* Appearance Tab */}
             <TabsContent value="appearance" className="space-y-4 mt-0">
               <div className="space-y-2">
-                <Label className="text-sm">Language</Label>
+                <Label className="text-sm">{t.language}</Label>
                 <select
                   value={localSettings.language || "en"}
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
@@ -206,7 +316,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm">Theme</Label>
+                <Label className="text-sm">{t.theme}</Label>
                 <select
                   value={currentTheme}
                   onChange={(e: ChangeEvent<HTMLSelectElement>) => handleThemeChange(e.target.value)}
@@ -222,7 +332,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm">Text Size</Label>
+                <Label className="text-sm">{t.textSize}</Label>
                 <select
                   value={localSettings.fontSize || "medium"}
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
@@ -230,9 +340,9 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   }
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[44px]"
                 >
-                  <option value="small">Small</option>
-                  <option value="medium">Medium</option>
-                  <option value="large">Large</option>
+                  <option value="small">{t.small}</option>
+                  <option value="medium">{t.medium}</option>
+                  <option value="large">{t.large}</option>
                 </select>
               </div>
             </TabsContent>
@@ -241,16 +351,16 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
             <TabsContent value="search" className="space-y-4 mt-0">
               <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
                 <p className="text-sm text-blue-600 dark:text-blue-400">
-                  Web search lets the AI find current information from the internet.
+                  {t.webSearchInfo}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="serper-key" className="text-sm">Serper API Key (Google Search)</Label>
+                <Label htmlFor="serper-key" className="text-sm">{t.serperApiKey}</Label>
                 <Input
                   id="serper-key"
                   type="password"
-                  placeholder="Enter your Serper API key..."
+                  placeholder={t.enterSerperKey}
                   value={localSettings.apiKeys?.serper || ""}
                   onChange={(e) =>
                     setLocalSettings({
@@ -262,14 +372,14 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   className="h-10"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Get free key from <a href="https://serper.dev" target="_blank" rel="noopener noreferrer" className="underline">serper.dev</a> (2,500 free searches)
+                  {t.getFreeKey} <a href="https://serper.dev" target="_blank" rel="noopener noreferrer" className="underline">serper.dev</a> {t.freeSearches}
                 </p>
               </div>
 
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <Label className="text-sm">Include Images</Label>
-                  <p className="text-xs text-muted-foreground">Show images in search results</p>
+                  <Label className="text-sm">{t.includeImages}</Label>
+                  <p className="text-xs text-muted-foreground">{t.showImagesInSearch}</p>
                 </div>
                 <Switch
                   checked={localSettings.serperSettings?.includeImages || false}
@@ -285,7 +395,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               {localSettings.apiKeys?.serper && (
                 <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
                   <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
-                    <span>✓</span> Web search is ready! Use the globe icon in chat to search.
+                    <span>✓</span> {t.webSearchReady}
                   </p>
                 </div>
               )}
@@ -295,8 +405,8 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
             <TabsContent value="voice" className="space-y-4 mt-0">
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <Label className="text-sm">Enable Voice</Label>
-                  <p className="text-xs text-muted-foreground">Read messages aloud</p>
+                  <Label className="text-sm">{t.enableVoice}</Label>
+                  <p className="text-xs text-muted-foreground">{t.readMessagesAloud}</p>
                 </div>
                 <Switch
                   checked={localSettings.voiceSettings?.enabled !== false}
@@ -312,7 +422,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               {localSettings.voiceSettings?.enabled !== false && (
                 <>
                   <div className="space-y-2">
-                    <Label className="text-sm">Voice Type</Label>
+                    <Label className="text-sm">{t.voiceType}</Label>
                     <select
                       value={localSettings.voiceSettings?.ttsProvider || "browser"}
                       onChange={(e) =>
@@ -323,14 +433,14 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                       }
                       className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[44px]"
                     >
-                      <option value="browser">Browser Voice (Free)</option>
-                      <option value="openai">OpenAI Voice (Premium)</option>
+                      <option value="browser">{t.browserVoice}</option>
+                      <option value="openai">{t.openaiVoice}</option>
                     </select>
                   </div>
 
                   {localSettings.voiceSettings?.ttsProvider === "openai" ? (
                     <div className="space-y-2">
-                      <Label className="text-sm">OpenAI Voice</Label>
+                      <Label className="text-sm">{t.openaiVoice}</Label>
                       <select
                         value={localSettings.voiceSettings?.openaiVoice || "nova"}
                         onChange={(e) =>
@@ -347,11 +457,11 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                           </option>
                         ))}
                       </select>
-                      <p className="text-xs text-muted-foreground">Requires OpenAI API key</p>
+                      <p className="text-xs text-muted-foreground">{t.requiresOpenAI}</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <Label className="text-sm">Browser Voice</Label>
+                      <Label className="text-sm">{t.browserVoiceLabel}</Label>
                       <select
                         value={localSettings.voiceSettings?.voice || ""}
                         onChange={(e) =>
@@ -362,7 +472,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                         }
                         className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[44px]"
                       >
-                        <option value="">System Default</option>
+                        <option value="">{t.systemDefault}</option>
                         {voices.slice(0, 15).map((voice) => (
                           <option key={voice.name} value={voice.name}>
                             {voice.name} ({voice.lang})
@@ -379,12 +489,12 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
             <TabsContent value="api" className="space-y-4 mt-0">
               <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
                 <p className="text-sm text-amber-600 dark:text-amber-400">
-                  API keys are needed for AI chat and voice features.
+                  {t.apiKeysInfo}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="openrouter-key" className="text-sm">OpenRouter API Key</Label>
+                <Label htmlFor="openrouter-key" className="text-sm">{t.openRouterKey}</Label>
                 <Input
                   id="openrouter-key"
                   type="password"
@@ -399,12 +509,12 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   className="h-10"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Get from <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="underline">openrouter.ai/keys</a>
+                  {t.getFrom} <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="underline">openrouter.ai/keys</a>
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="openai-key" className="text-sm">OpenAI API Key (Optional)</Label>
+                <Label htmlFor="openai-key" className="text-sm">{t.openAIKeyOptional}</Label>
                 <Input
                   id="openai-key"
                   type="password"
@@ -418,7 +528,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   }
                   className="h-10"
                 />
-                <p className="text-xs text-muted-foreground">For voice input & premium TTS</p>
+                <p className="text-xs text-muted-foreground">{t.forVoiceInput}</p>
               </div>
             </TabsContent>
           </div>
@@ -433,15 +543,15 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
             onClick={switchToAdvancedMode}
           >
             <Settings2 className="h-4 w-4 mr-2" />
-            Switch to Advanced Mode
+            {t.switchToAdvanced}
           </Button>
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t.cancel}
             </Button>
             <Button onClick={handleSave} className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700">
-              Save
+              {t.save}
             </Button>
           </div>
         </div>

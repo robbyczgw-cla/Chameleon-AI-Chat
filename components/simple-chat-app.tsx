@@ -21,16 +21,74 @@ import {
   X,
   ChevronLeft,
   Trash2,
+  MoreVertical,
+  ImagePlus,
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useToast } from "@/hooks/use-toast"
 import type { Persona } from "@/lib/personas"
 
+// Translations for Simple Mode
+const translations = {
+  en: {
+    newChat: "New Chat",
+    noChats: "No chats yet. Start a new conversation!",
+    setUpProfile: "Set up profile",
+    chameleonAI: "Chameleon AI",
+    goodMorning: "Good morning",
+    goodAfternoon: "Good afternoon",
+    goodEvening: "Good evening",
+    imYourAssistant: "I'm your AI assistant, ready to help with anything.",
+    choosePersona: "Choose a persona to get started:",
+    setUpProfileBtn: "Set up your profile for personalized responses",
+    deleteChat: "Delete chat",
+    deleteAllChats: "Delete all chats",
+    confirmDeleteAll: "Are you sure you want to delete all chats?",
+    chatsDeleted: "All chats deleted",
+    chatDeleted: "Chat deleted",
+    createImage: "Create Image",
+    imageModeOn: "Image mode enabled",
+    imageModeOff: "Image mode disabled",
+    imageModeDesc: "Your next message will generate an image",
+  },
+  de: {
+    newChat: "Neuer Chat",
+    noChats: "Noch keine Chats. Starte eine neue Unterhaltung!",
+    setUpProfile: "Profil einrichten",
+    chameleonAI: "Chameleon AI",
+    goodMorning: "Guten Morgen",
+    goodAfternoon: "Guten Tag",
+    goodEvening: "Guten Abend",
+    imYourAssistant: "Ich bin dein KI-Assistent, bereit dir bei allem zu helfen.",
+    choosePersona: "Wähle eine Persona um zu starten:",
+    setUpProfileBtn: "Richte dein Profil ein für personalisierte Antworten",
+    deleteChat: "Chat löschen",
+    deleteAllChats: "Alle Chats löschen",
+    confirmDeleteAll: "Möchtest du wirklich alle Chats löschen?",
+    chatsDeleted: "Alle Chats gelöscht",
+    chatDeleted: "Chat gelöscht",
+    createImage: "Bild erstellen",
+    imageModeOn: "Bildmodus aktiviert",
+    imageModeOff: "Bildmodus deaktiviert",
+    imageModeDesc: "Deine nächste Nachricht wird ein Bild generieren",
+  },
+}
+
 export function SimpleChatApp() {
-  const { chats, currentChatId, createChat, deleteChat, setCurrentChat, settings, updateSettings } = useApp()
+  const { chats, currentChatId, createChat, deleteChat, setCurrentChat, settings, updateSettings, setChats } = useApp()
+  const { toast } = useToast()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isPersonasOpen, setIsPersonasOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [profileContext, setProfileContext] = useState("")
+  const [imageMode, setImageMode] = useState(false)
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
@@ -46,15 +104,18 @@ export function SimpleChatApp() {
     const handleOpenSettings = () => setIsSettingsOpen(true)
     const handleOpenPersonas = () => setIsPersonasOpen(true)
     const handleOpenProfile = () => setIsProfileOpen(true)
+    const handleSetImageMode = (e: CustomEvent) => setImageMode(e.detail)
 
     window.addEventListener("openSettings", handleOpenSettings)
     window.addEventListener("openPersonas", handleOpenPersonas)
     window.addEventListener("openProfile", handleOpenProfile)
+    window.addEventListener("setImageMode" as any, handleSetImageMode)
 
     return () => {
       window.removeEventListener("openSettings", handleOpenSettings)
       window.removeEventListener("openPersonas", handleOpenPersonas)
       window.removeEventListener("openProfile", handleOpenProfile)
+      window.removeEventListener("setImageMode" as any, handleSetImageMode)
     }
   }, [])
 
@@ -77,12 +138,48 @@ export function SimpleChatApp() {
 
   const selectedPersona = settings.selectedPersona
 
+  // Get current language translations
+  const lang = settings.language === "de" ? "de" : "en"
+  const t = translations[lang]
+
   // Get greeting based on time of day
   const getGreeting = () => {
     const hour = new Date().getHours()
-    if (hour < 12) return "Good morning"
-    if (hour < 18) return "Good afternoon"
-    return "Good evening"
+    if (hour < 12) return t.goodMorning
+    if (hour < 18) return t.goodAfternoon
+    return t.goodEvening
+  }
+
+  // Delete all chats
+  const handleDeleteAllChats = () => {
+    if (window.confirm(t.confirmDeleteAll)) {
+      setChats([])
+      setCurrentChat(null)
+      toast({
+        title: t.chatsDeleted,
+      })
+    }
+  }
+
+  // Delete single chat
+  const handleDeleteChat = (chatId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    deleteChat(chatId)
+    toast({
+      title: t.chatDeleted,
+    })
+  }
+
+  // Toggle image mode
+  const toggleImageMode = () => {
+    const newMode = !imageMode
+    setImageMode(newMode)
+    toast({
+      title: newMode ? t.imageModeOn : t.imageModeOff,
+      description: newMode ? t.imageModeDesc : undefined,
+    })
+    // Dispatch event for SimpleChatInput to pick up
+    window.dispatchEvent(new CustomEvent("setImageMode", { detail: newMode }))
   }
 
   const profile = userProfileService.getProfile()
@@ -139,22 +236,39 @@ export function SimpleChatApp() {
               </div>
             </div>
 
-            {/* New Chat Button */}
-            <div className="p-3">
+            {/* New Chat Button + Menu */}
+            <div className="p-3 flex gap-2">
               <Button
                 onClick={handleNewChat}
-                className="w-full gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+                className="flex-1 gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
               >
                 <MessageSquarePlus className="h-4 w-4" />
-                New Chat
+                {t.newChat}
               </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="shrink-0">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={handleDeleteAllChats}
+                    className="text-destructive focus:text-destructive"
+                    disabled={chats.length === 0}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {t.deleteAllChats}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Chat List */}
             <div className="flex-1 overflow-y-auto p-2">
               {chats.length === 0 ? (
                 <div className="text-center text-muted-foreground text-sm py-8">
-                  No chats yet. Start a new conversation!
+                  {t.noChats}
                 </div>
               ) : (
                 <div className="space-y-1">
@@ -177,10 +291,8 @@ export function SimpleChatApp() {
                         variant="ghost"
                         size="icon"
                         className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          deleteChat(chat.id)
-                        }}
+                        onClick={(e) => handleDeleteChat(chat.id, e)}
+                        title={t.deleteChat}
                       >
                         <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
                       </Button>
@@ -201,7 +313,7 @@ export function SimpleChatApp() {
                 }}
               >
                 <User className="h-4 w-4" />
-                {profile.name || "Set up profile"}
+                {profile.name || t.setUpProfile}
               </Button>
             </div>
           </div>
@@ -242,12 +354,24 @@ export function SimpleChatApp() {
                     </div>
                   </div>
                 ) : (
-                  <p className="font-medium">Chameleon AI</p>
+                  <p className="font-medium">{t.chameleonAI}</p>
                 )}
               </div>
             </div>
 
             <div className="flex items-center gap-1">
+              <Button
+                variant={imageMode ? "default" : "ghost"}
+                size="icon"
+                onClick={toggleImageMode}
+                className={cn(
+                  "relative",
+                  imageMode && "bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600"
+                )}
+                title={t.createImage}
+              >
+                <ImagePlus className="h-5 w-5" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -288,14 +412,14 @@ export function SimpleChatApp() {
                     </h1>
                     <p className="text-muted-foreground">
                       {selectedPersona
-                        ? `I'm ${selectedPersona.name}. ${selectedPersona.description}`
-                        : "I'm your AI assistant, ready to help with anything."}
+                        ? `${lang === "de" ? "Ich bin" : "I'm"} ${selectedPersona.name}. ${selectedPersona.description}`
+                        : t.imYourAssistant}
                     </p>
                   </div>
 
                   {/* Quick Persona Selection */}
                   <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">Choose a persona to get started:</p>
+                    <p className="text-sm text-muted-foreground">{t.choosePersona}</p>
                     <QuickPersonaPicker />
                   </div>
 
@@ -307,7 +431,7 @@ export function SimpleChatApp() {
                       onClick={() => setIsProfileOpen(true)}
                     >
                       <User className="h-4 w-4" />
-                      Set up your profile for personalized responses
+                      {t.setUpProfileBtn}
                     </Button>
                   )}
                 </div>
