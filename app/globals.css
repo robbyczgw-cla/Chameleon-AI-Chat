@@ -1520,11 +1520,82 @@
   }
 
   .animate-wiggle {
-    animation: wiggle 0.5s ease-in-out;
+    animation: wiggle 0.5s ease-in-out infinite;
   }
 
   .animate-shake {
-    animation: shake 0.5s ease-in-out;
+    animation: shake 0.5s ease-in-out infinite;
+  }
+
+  /* Additional Tamagotchi Pet Animations */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes dance {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    25% { transform: translateX(-4px) rotate(-5deg); }
+    75% { transform: translateX(4px) rotate(5deg); }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes jump {
+    0%, 100% { transform: translateY(0) scale(1); }
+    30% { transform: translateY(-15px) scale(1.1); }
+    50% { transform: translateY(-20px) scale(1.05); }
+    70% { transform: translateY(-15px) scale(1.1); }
+  }
+
+  @keyframes pet-happy {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(-3deg); }
+    50% { transform: scale(1) rotate(0deg); }
+    75% { transform: scale(1.1) rotate(3deg); }
+  }
+
+  @keyframes pet-sleep {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(0.98); }
+  }
+
+  @keyframes pet-eat {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-3px); }
+    50% { transform: translateY(0); }
+    75% { transform: translateY(-3px); }
+  }
+
+  .animate-float {
+    animation: float 2s ease-in-out infinite;
+  }
+
+  .animate-dance {
+    animation: dance 0.6s ease-in-out infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+
+  .animate-jump {
+    animation: jump 0.8s ease-in-out infinite;
+  }
+
+  .animate-pet-happy {
+    animation: pet-happy 1s ease-in-out infinite;
+  }
+
+  .animate-pet-sleep {
+    animation: pet-sleep 2s ease-in-out infinite;
+  }
+
+  .animate-pet-eat {
+    animation: pet-eat 0.3s ease-in-out 4;
   }
 
   /* GPU-accelerated color shift for chameleon logo */
