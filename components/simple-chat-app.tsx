@@ -380,7 +380,7 @@ export function SimpleChatApp() {
         </>
       )}
 
-      <div className="relative z-10 flex h-[100dvh] overflow-hidden">
+      <div className="relative z-10 flex h-[100dvh] overflow-hidden gap-0">
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
@@ -389,19 +389,15 @@ export function SimpleChatApp() {
           />
         )}
 
-        {/* Sidebar - Chat History */}
-        {/* Mobile: fixed overlay, Desktop: flex sidebar */}
-        <aside
+        {/* Sidebar Wrapper - matches Advanced mode pattern */}
+        <div
           className={cn(
-            // Base mobile styles - fixed overlay
-            "fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border/50 transition-transform duration-300 ease-out",
-            // Desktop: normal flex item
-            "md:static md:z-0 md:translate-x-0 md:shrink-0",
-            // Mobile slide behavior
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            "fixed inset-y-0 left-0 z-50 md:relative md:z-0 transition-transform duration-300 ease-out",
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           )}
         >
-          <div className="flex flex-col h-full">
+          {/* Sidebar - Chat History */}
+          <aside className="w-72 h-full bg-background border-r border-border/50 flex flex-col">
             {/* Sidebar Header */}
             <div className="p-4 border-b border-border/50">
               <div className="flex items-center justify-between">
@@ -502,8 +498,8 @@ export function SimpleChatApp() {
                 {profile.name || t.setUpProfile}
               </Button>
             </div>
-          </div>
-        </aside>
+          </aside>
+        </div>
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
