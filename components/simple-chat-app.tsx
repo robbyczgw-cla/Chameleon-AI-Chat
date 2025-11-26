@@ -88,7 +88,7 @@ const translations = {
 }
 
 export function SimpleChatApp() {
-  const { chats, currentChatId, createChat, deleteChat, setCurrentChat, settings, updateSettings, setChats } = useApp()
+  const { chats, currentChatId, createChat, deleteChat, setCurrentChat, settings, updateSettings, setChats, user } = useApp()
   const { toast } = useToast()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isPersonasOpen, setIsPersonasOpen] = useState(false)
@@ -125,15 +125,33 @@ export function SimpleChatApp() {
   // Check if onboarding should be shown (first time Simple Mode user)
   useEffect(() => {
     const onboardingComplete = localStorage.getItem("simple-mode-onboarding-complete")
-    const profile = userProfileService.getProfile()
 
-    // Show onboarding if:
-    // 1. Onboarding has never been completed
-    // 2. User has no profile name set (indicating first-time setup)
-    if (!onboardingComplete && !profile.name) {
+    // Already completed - skip
+    if (onboardingComplete) {
+      return
+    }
+
+    // Check if this is an existing user switching to Simple Mode
+    // Existing users should NOT see onboarding - their settings sync between modes
+    const isExistingUser =
+      user !== null ||
+      chats.length > 0 ||
+      localStorage.getItem("chameleon-mode-selected") ||
+      localStorage.getItem("chameleon-chats") ||
+      localStorage.getItem("chameleon-settings")
+
+    if (isExistingUser) {
+      // Mark onboarding as complete for existing users
+      localStorage.setItem("simple-mode-onboarding-complete", "true")
+      return
+    }
+
+    // Truly new user - show onboarding
+    const profile = userProfileService.getProfile()
+    if (!profile.name) {
       setShowOnboarding(true)
     }
-  }, [])
+  }, [user, chats.length])
 
   // Handle events from other components
   useEffect(() => {
