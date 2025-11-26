@@ -24,6 +24,7 @@ import { getRAGContext } from "@/lib/rag-service"
 import { parseSlashCommand, getCommandSuggestions, buildCommandPrompt, type SlashCommand } from "@/lib/slash-commands"
 import { memoryService } from "@/lib/memory-service"
 import { ContextWindowMeter } from "@/components/context-window-meter"
+import { useDraft } from "@/hooks/use-draft"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
@@ -34,7 +35,17 @@ interface SimpleChatInputProps {
 
 export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
   const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading } = useApp()
+
+  // Draft auto-save system
+  const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
   const [input, setInput] = useState("")
+
+  // Restore draft when hook is ready
+  useEffect(() => {
+    if (isRestored && draft && !input) {
+      setInput(draft)
+    }
+  }, [isRestored, draft])
   const [attachedFiles, setAttachedFiles] = useState<FileAttachment[]>([])
   const [language, setLanguage] = useState(languageService.getLanguage())
   const [commandSuggestions, setCommandSuggestions] = useState<SlashCommand[]>([])
@@ -209,6 +220,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     addMessage(chatId, userMessage)
     console.log("[Simple Chat] Added user message")
     setInput("")
+    clearDraft() // Clear saved draft after successful send
     setAttachedFiles([])
     setIsChatLoading(true)
 
@@ -670,7 +682,10 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
               name="message"
               autoComplete="off"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value)
+                saveDraft(e.target.value) // Auto-save draft
+              }}
               onKeyDown={handleKeyDown}
               placeholder={getTranslation("inputPlaceholder", language)}
               className="min-h-[60px] max-h-[200px] resize-none pr-20 text-base rounded-2xl"
