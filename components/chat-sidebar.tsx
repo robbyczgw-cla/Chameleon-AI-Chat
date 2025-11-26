@@ -3,7 +3,7 @@
 import type React from "react"
 import { X, LogOut, User } from "lucide-react"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
 import { useApp } from "@/contexts/app-context"
 import { searchService } from "@/lib/search-service"
 import { Button } from "@/components/ui/button"
@@ -52,6 +52,31 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false)
   const [newFolderName, setNewFolderName] = useState("")
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false)
+  const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
+
+  // Track AI-generated titles for animation
+  useEffect(() => {
+    const now = Date.now()
+    const newAnimatedIds = new Set<string>()
+
+    chats.forEach((chat) => {
+      // Animate titles generated in the last 3 seconds
+      if (chat.titleGeneratedAt && now - chat.titleGeneratedAt < 3000) {
+        newAnimatedIds.add(chat.id)
+      }
+    })
+
+    if (newAnimatedIds.size > 0) {
+      setAnimatedTitleIds(newAnimatedIds)
+
+      // Remove animation class after animation completes (1.5s)
+      const timer = setTimeout(() => {
+        setAnimatedTitleIds(new Set())
+      }, 1500)
+
+      return () => clearTimeout(timer)
+    }
+  }, [chats])
 
   // Build search index when chats change
   useEffect(() => {
@@ -181,7 +206,10 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
           <>
             {/* Title Row with Timestamp */}
             <div className="flex items-center justify-between gap-2">
-              <span className="flex-1 truncate font-semibold text-sm">{chat.title}</span>
+              <span className={cn(
+                "flex-1 truncate font-semibold text-sm",
+                animatedTitleIds.has(chat.id) && "animate-title-appear"
+              )}>{chat.title}</span>
               <span className={cn("text-xs shrink-0", isActive ? "text-foreground/70" : "text-muted-foreground/80")}>{timestamp}</span>
             </div>
 

@@ -51,6 +51,70 @@ export async function readFileAsDataURL(file: File): Promise<string> {
 }
 
 /**
+ * Compress and resize an image to reduce memory usage
+ * Critical for PWA mode which has stricter memory limits
+ */
+export async function compressImage(file: File, maxWidth = 1920, maxHeight = 1080, quality = 0.8): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const canvas = document.createElement("canvas")
+    const ctx = canvas.getContext("2d")
+
+    if (!ctx) {
+      reject(new Error("Could not get canvas context"))
+      return
+    }
+
+    img.onload = () => {
+      // Calculate new dimensions while maintaining aspect ratio
+      let { width, height } = img
+
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width
+        width = maxWidth
+      }
+
+      if (height > maxHeight) {
+        width = (width * maxHeight) / height
+        height = maxHeight
+      }
+
+      canvas.width = width
+      canvas.height = height
+
+      // Draw and compress
+      ctx.drawImage(img, 0, 0, width, height)
+
+      // Use webp for better compression, fallback to jpeg
+      let dataUrl: string
+      try {
+        dataUrl = canvas.toDataURL("image/webp", quality)
+        // If webp not supported, result will be png - check and use jpeg instead
+        if (dataUrl.startsWith("data:image/png")) {
+          dataUrl = canvas.toDataURL("image/jpeg", quality)
+        }
+      } catch {
+        dataUrl = canvas.toDataURL("image/jpeg", quality)
+      }
+
+      // Clean up
+      URL.revokeObjectURL(img.src)
+
+      console.log(`[Image] Compressed from ${(file.size / 1024).toFixed(0)}KB to ${(dataUrl.length * 0.75 / 1024).toFixed(0)}KB`)
+      resolve(dataUrl)
+    }
+
+    img.onerror = () => {
+      URL.revokeObjectURL(img.src)
+      reject(new Error("Failed to load image for compression"))
+    }
+
+    // Use object URL instead of data URL for initial load (more memory efficient)
+    img.src = URL.createObjectURL(file)
+  })
+}
+
+/**
  * Extract text from PDF file using PDF.js
  * Runs entirely in the browser - PDF never leaves the client
  * Uses dynamic import to avoid SSR issues
@@ -109,7 +173,21 @@ export async function processFile(file: File): Promise<FileAttachment> {
   if (category === "text") {
     content = await readFileAsText(file)
   } else if (category === "image") {
-    dataUrl = await readFileAsDataURL(file)
+    // Compress images to reduce memory usage (critical for PWA stability)
+    // Skip compression for small images (<100KB) and SVGs
+    const isSvg = file.name.toLowerCase().endsWith(".svg")
+    const isSmall = file.size < 100 * 1024
+
+    if (isSvg || isSmall) {
+      dataUrl = await readFileAsDataURL(file)
+    } else {
+      try {
+        dataUrl = await compressImage(file)
+      } catch (error) {
+        console.warn("[processFile] Image compression failed, using original:", error)
+        dataUrl = await readFileAsDataURL(file)
+      }
+    }
     content = `[Image: ${file.name}]`
   } else if (category === "document") {
     // Extract text from PDF client-side

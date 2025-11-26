@@ -67,6 +67,7 @@ export interface Chat {
   pinned?: boolean
   currentBranchPath?: string[] // Array of branch IDs representing the current branch path
   insights?: ConversationInsight // AI-generated conversation insights
+  titleGeneratedAt?: number // Timestamp when AI generated the title (for animation)
 }
 
 export interface ChatFolder {

@@ -9,6 +9,7 @@ import { supabaseSync } from "@/lib/supabase/sync"
 import { generateUUID } from "@/lib/utils"
 import { getUserSelectedModels } from "@/lib/model-preferences"
 import { sanitizeChatsForStorage, safeSetLocalStorage, getLocalStorageUsage, forceCleanupLocalStorage } from "@/lib/storage-utils"
+import { generateChatTitle } from "@/lib/title-generator"
 
 interface AppContextType {
   chats: Chat[]
@@ -805,14 +806,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   const addMessage = (chatId: string, message: Message) => {
+    // Extract text content from message (handles both string and multimodal content)
+    let textContent = ""
+    if (typeof message.content === "string") {
+      textContent = message.content
+    } else if (Array.isArray(message.content)) {
+      // Find text parts in multimodal content
+      const textPart = message.content.find((part: any) => part.type === "text")
+      textContent = textPart?.text || "Image conversation"
+    }
+
     setChats((prev) =>
       prev.map((chat) => {
         if (chat.id === chatId) {
           const updatedMessages = [...chat.messages, message]
-          const title =
-            chat.messages.length === 0 && message.role === "user"
-              ? message.content.slice(0, 50) + (message.content.length > 50 ? "..." : "")
-              : chat.title
+          const isFirstUserMessage = chat.messages.length === 0 && message.role === "user"
+
+          // Use temporary title first (will be updated by AI)
+          const tempTitle = isFirstUserMessage
+            ? textContent.slice(0, 50) + (textContent.length > 50 ? "..." : "")
+            : chat.title
 
           if (user) {
             console.log("[v0] Saving message to Supabase:", message.id)
@@ -826,7 +839,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 console.error("[v0] Error:", error)
               })
 
-            supabaseSync.updateChat(user.id, { ...chat, title, messages: updatedMessages }).catch((error) => {
+            supabaseSync.updateChat(user.id, { ...chat, title: tempTitle, messages: updatedMessages }).catch((error) => {
               console.error("[v0] Failed to update chat in Supabase, using localStorage backup:", error)
             })
           } else {
@@ -836,13 +849,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
           return {
             ...chat,
             messages: updatedMessages,
-            title,
+            title: tempTitle,
             updatedAt: Date.now(),
           }
         }
         return chat
       }),
     )
+
+    // Generate AI title asynchronously for first user message
+    const currentChat = chats.find((c) => c.id === chatId)
+    const isFirstUserMessage = currentChat && currentChat.messages.length === 0 && message.role === "user"
+
+    if (isFirstUserMessage && settings.apiKeys.openRouter && textContent.length >= 10) {
+      // Generate title in background (don't block UI)
+      generateChatTitle(textContent, settings.apiKeys.openRouter)
+        .then(({ title: aiTitle, success }) => {
+          if (success) {
+            // Update chat with AI-generated title and timestamp for animation
+            setChats((prev) =>
+              prev.map((chat) =>
+                chat.id === chatId ? { ...chat, title: aiTitle, titleGeneratedAt: Date.now() } : chat
+              )
+            )
+
+            // Sync to Supabase if logged in
+            if (user) {
+              const chat = chats.find((c) => c.id === chatId)
+              if (chat) {
+                supabaseSync.updateChat(user.id, { ...chat, title: aiTitle }).catch(console.error)
+              }
+            }
+
+            console.log(`[v0] AI title generated: "${aiTitle}"`)
+          }
+        })
+        .catch((error) => {
+          console.warn("[v0] AI title generation failed:", error)
+        })
+    }
   }
 
   const updateSettings = (updates: Partial<AppSettings>) => {

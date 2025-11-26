@@ -1615,4 +1615,38 @@
     }
   }
 
+  /* =========================================================================
+     AI Title Generation Animation (Lightweight, GPU-friendly)
+     ========================================================================= */
+
+  @keyframes title-appear {
+    0% {
+      opacity: 0.6;
+      transform: translateX(-4px);
+      color: var(--primary);
+    }
+    40% {
+      opacity: 1;
+      transform: translateX(0);
+      color: var(--primary);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+      color: inherit;
+    }
+  }
+
+  .animate-title-appear {
+    animation: title-appear 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    will-change: opacity, transform, color;
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-title-appear {
+      animation: none;
+    }
+  }
+
 }
