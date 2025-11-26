@@ -68,18 +68,18 @@ export function ConversationStartersGrid({ onSelectPrompt, lang }: ConversationS
   const quickStarters = conversationStarters.slice(0, 6)
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+    <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
       {quickStarters.map((starter) => (
         <button
           key={starter.id}
           onClick={() => onSelectPrompt(starter.prompt[lang])}
           className={cn(
-            "flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-border",
+            "flex flex-col items-center gap-1 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border",
             "hover:border-violet-300 hover:bg-violet-500/5 transition-all text-center"
           )}
         >
-          <span className="text-2xl">{starter.emoji}</span>
-          <span className="text-xs font-medium leading-tight">{starter.label[lang]}</span>
+          <span className="text-lg sm:text-2xl">{starter.emoji}</span>
+          <span className="text-[10px] sm:text-xs font-medium leading-tight line-clamp-2">{starter.label[lang]}</span>
         </button>
       ))}
     </div>
@@ -304,10 +304,11 @@ export function CreativeCornerButton({ onClick, lang }: CreativeCornerButtonProp
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-violet-500/10 hover:from-purple-500/20 hover:to-violet-500/20 border border-purple-500/20 transition-all"
+      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-gradient-to-r from-purple-500/10 to-violet-500/10 hover:from-purple-500/20 hover:to-violet-500/20 border border-purple-500/20 transition-all"
+      title={t.creative}
     >
-      <Palette className="h-4 w-4 text-purple-500" />
-      <span className="text-sm font-medium">{t.creative}</span>
+      <Palette className="h-3.5 w-3.5 text-purple-500" />
+      <span className="text-xs font-medium">{t.creative}</span>
     </button>
   )
 }

@@ -437,22 +437,26 @@ export function SimpleChatApp() {
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5">
-              {/* Pet Widget */}
-              <PetWidget onOpenAdopt={() => setIsPetAdoptOpen(true)} lang={lang} />
+            <div className="flex items-center gap-1">
+              {/* Pet Widget - hidden on mobile */}
+              <div className="hidden sm:block">
+                <PetWidget onOpenAdopt={() => setIsPetAdoptOpen(true)} lang={lang} />
+              </div>
 
-              {/* Streak Widget */}
-              <StreakWidget onClick={() => setIsAchievementsOpen(true)} />
+              {/* Streak Widget - hidden on mobile */}
+              <div className="hidden sm:block">
+                <StreakWidget onClick={() => setIsAchievementsOpen(true)} />
+              </div>
 
-              {/* Achievements Button */}
+              {/* Achievements Button - hidden on mobile */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsAchievementsOpen(true)}
-                className="relative"
+                className="relative hidden sm:flex h-8 w-8"
                 title="Achievements"
               >
-                <Trophy className="h-5 w-5 text-amber-500" />
+                <Trophy className="h-4 w-4 text-amber-500" />
               </Button>
 
               <Button
@@ -460,27 +464,28 @@ export function SimpleChatApp() {
                 size="icon"
                 onClick={toggleImageMode}
                 className={cn(
-                  "relative",
+                  "relative h-8 w-8",
                   imageMode && "bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600"
                 )}
                 title={t.createImage}
               >
-                <ImagePlus className="h-5 w-5" />
+                <ImagePlus className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsPersonasOpen(true)}
-                className="relative"
+                className="relative h-8 w-8"
               >
-                <Users className="h-5 w-5" />
+                <Users className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSettingsOpen(true)}
+                className="h-8 w-8"
               >
-                <Settings className="h-5 w-5" />
+                <Settings className="h-4 w-4" />
               </Button>
             </div>
           </header>
@@ -488,77 +493,71 @@ export function SimpleChatApp() {
           {/* Chat Area */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {isEmpty ? (
-              /* Welcome Screen */
-              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-                <div className="max-w-md space-y-6">
-                  {/* Greeting */}
-                  <div className="space-y-2">
-                    <div className="flex justify-center mb-4">
-                      <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center">
-                        {selectedPersona ? (
-                          <span className="text-4xl">{selectedPersona.emoji}</span>
-                        ) : (
-                          <ChameleonLogo size={48} animated colorShift />
-                        )}
+              /* Welcome Screen - Compact layout */
+              <div className="flex-1 flex flex-col overflow-y-auto">
+                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 text-center min-h-0">
+                  <div className="w-full max-w-md space-y-4 sm:space-y-6">
+                    {/* Greeting - Compact */}
+                    <div className="space-y-2">
+                      <div className="flex justify-center mb-2 sm:mb-4">
+                        <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center">
+                          {selectedPersona ? (
+                            <span className="text-2xl sm:text-4xl">{selectedPersona.emoji}</span>
+                          ) : (
+                            <ChameleonLogo size={32} animated colorShift />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <h1 className="text-2xl font-bold">
-                      {getGreeting()}{profile.name ? `, ${profile.name}` : ""}!
-                    </h1>
-                    <p className="text-muted-foreground">
-                      {selectedPersona
-                        ? `${lang === "de" ? "Ich bin" : "I'm"} ${selectedPersona.name}. ${selectedPersona.description}`
-                        : t.imYourAssistant}
-                    </p>
-                  </div>
-
-                  {/* Quick Persona Selection */}
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">{t.choosePersona}</p>
-                    <QuickPersonaPicker />
-                  </div>
-
-                  {/* Profile Prompt */}
-                  {!profile.name && (
-                    <Button
-                      variant="outline"
-                      className="gap-2"
-                      onClick={() => setIsProfileOpen(true)}
-                    >
-                      <User className="h-4 w-4" />
-                      {t.setUpProfileBtn}
-                    </Button>
-                  )}
-
-                  {/* Conversation Starters */}
-                  <div className="space-y-3 pt-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Sparkles className="h-4 w-4" />
-                        {lang === "de" ? "Schnellstart" : "Quick Start"}
+                      <h1 className="text-xl sm:text-2xl font-bold">
+                        {getGreeting()}{profile.name ? `, ${profile.name}` : ""}!
+                      </h1>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {selectedPersona
+                          ? `${lang === "de" ? "Ich bin" : "I'm"} ${selectedPersona.name}.`
+                          : t.imYourAssistant}
                       </p>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setIsStartersOpen(true)}
-                          className="text-xs"
-                        >
-                          {lang === "de" ? "Mehr" : "More"}
-                        </Button>
-                        <CreativeCornerButton onClick={() => setIsCreativeOpen(true)} lang={lang} />
-                      </div>
                     </div>
-                    <ConversationStartersGrid onSelectPrompt={handleQuickPrompt} lang={lang} />
+
+                    {/* Quick Persona Selection - Hidden on very small screens */}
+                    <div className="space-y-2 hidden sm:block">
+                      <p className="text-sm text-muted-foreground">{t.choosePersona}</p>
+                      <QuickPersonaPicker />
+                    </div>
+
+                    {/* Conversation Starters - Compact */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+                          <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
+                          {lang === "de" ? "Schnellstart" : "Quick Start"}
+                        </p>
+                        <div className="flex gap-1 sm:gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsStartersOpen(true)}
+                            className="text-xs h-7 px-2"
+                          >
+                            {lang === "de" ? "Mehr" : "More"}
+                          </Button>
+                          <div className="hidden sm:block">
+                            <CreativeCornerButton onClick={() => setIsCreativeOpen(true)} lang={lang} />
+                          </div>
+                        </div>
+                      </div>
+                      <ConversationStartersGrid onSelectPrompt={handleQuickPrompt} lang={lang} />
+                    </div>
                   </div>
                 </div>
 
-                {/* Input at bottom of welcome screen */}
-                <div className="w-full max-w-2xl mt-8">
-                  <SimpleChatInput
-                    selectedPersona={selectedPersona || undefined}
-                    profileContext={profileContext}
-                  />
+                {/* Input at bottom - always visible */}
+                <div className="flex-shrink-0 p-3 sm:p-4 border-t bg-background/80">
+                  <div className="max-w-2xl mx-auto">
+                    <SimpleChatInput
+                      selectedPersona={selectedPersona || undefined}
+                      profileContext={profileContext}
+                    />
+                  </div>
                 </div>
               </div>
             ) : (

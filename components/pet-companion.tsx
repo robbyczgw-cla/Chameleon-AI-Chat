@@ -265,10 +265,10 @@ export function PetWidget({ onOpenAdopt, lang }: PetWidgetProps) {
     return (
       <button
         onClick={onOpenAdopt}
-        className="flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 border border-violet-500/20 transition-all"
+        className="flex items-center gap-1.5 px-2 py-1.5 rounded-full bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 border border-violet-500/20 transition-all"
+        title={t.adoptPet}
       >
-        <span className="text-lg">🐾</span>
-        <span className="text-sm font-medium">{t.adoptPet}</span>
+        <span className="text-base">🐾</span>
       </button>
     )
   }
@@ -285,15 +285,16 @@ export function PetWidget({ onOpenAdopt, lang }: PetWidgetProps) {
           setShowReleaseConfirm(true)
         }}
         className={cn(
-          "flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 border border-violet-500/20 transition-all",
+          "flex items-center gap-1.5 px-2 py-1.5 rounded-full bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 border border-violet-500/20 transition-all",
           message?.animation === "bounce" && "animate-bounce",
           message?.animation === "pulse" && "animate-pulse",
           message?.animation === "wiggle" && "animate-wiggle",
           message?.animation === "shake" && "animate-shake"
         )}
+        title={pet.name}
       >
-        <span className="text-xl">{petEmoji}</span>
-        <span className="text-sm font-medium">{pet.name}</span>
+        <span className="text-base">{petEmoji}</span>
+        <span className="text-xs font-medium max-w-[60px] truncate">{pet.name}</span>
       </button>
 
       {/* Speech Bubble */}
