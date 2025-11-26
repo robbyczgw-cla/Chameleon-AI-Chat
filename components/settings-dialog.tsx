@@ -31,7 +31,7 @@ function TabLoadingFallback() {
     </div>
   )
 }
-import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle } from "lucide-react"
+import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, Puzzle, PieChart } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
 
@@ -219,6 +219,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
           <div className="overflow-x-auto flex-shrink-0 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-thin">
             <TabsList className="inline-flex w-auto min-w-full h-auto gap-1 justify-start">
               <TabsTrigger value="general" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
+                <Settings className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 {translations.settings.general}
               </TabsTrigger>
               <TabsTrigger value="memory" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
@@ -232,22 +233,27 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
               {/* Prompts tab removed - now use Personas Manager instead */}
               {/* AI Debate moved to top bar */}
               <TabsTrigger value="api" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
+                <Key className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 {translations.settings.apiKeys}
               </TabsTrigger>
               <TabsTrigger value="search" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
+                <Search className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 Web Search
               </TabsTrigger>
               {!hideOptions.includes("voice") && (
                 <TabsTrigger value="voice" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
+                  <Volume2 className="h-3.5 w-3.5 mr-1.5 inline-block" />
                   Voice
                 </TabsTrigger>
               )}
               {!hideOptions.includes("mcp") && (
                 <TabsTrigger value="mcp" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
+                  <Puzzle className="h-3.5 w-3.5 mr-1.5 inline-block" />
                   MCP
                 </TabsTrigger>
               )}
               <TabsTrigger value="statistics" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
+                <PieChart className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 Statistics
               </TabsTrigger>
               <TabsTrigger value="experimental" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
