@@ -623,8 +623,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                 return <ResponseAnalysisPanel analysis={analysis} className="mt-3" />
               })()}
 
-              {/* Message action buttons - always visible on mobile, hover on desktop */}
-              <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+              {/* Message action buttons - visible on touch devices, hover on pointer devices */}
+              <div className="flex gap-1 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity">
                 <Button
                   variant="ghost"
                   size="icon"
