@@ -392,7 +392,7 @@ export function SimpleChatApp() {
         {/* Sidebar Wrapper - matches Advanced mode pattern */}
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-50 w-72 md:relative md:z-0 transition-transform duration-300 ease-out",
+            "fixed inset-y-0 left-0 z-50 w-72 md:relative md:inset-auto md:z-0 md:h-full md:shrink-0 transition-transform duration-300 ease-out",
             isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           )}
         >
