@@ -1,10 +1,10 @@
 /**
  * AI-powered chat title generation
- * Uses a small, cheap model to generate concise titles from user messages
+ * Uses a small, cheap open-source model to generate concise titles from user messages
  */
 
-// Use a free/cheap model for title generation
-const TITLE_MODEL = "google/gemma-2-9b-it:free"
+// Use open-source model for privacy (no data sent to Google/Anthropic/OpenAI proprietary systems)
+const TITLE_MODEL = "openai/gpt-4.1-nano"
 
 interface TitleGenerationResult {
   title: string
