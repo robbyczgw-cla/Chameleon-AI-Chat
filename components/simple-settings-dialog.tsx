@@ -208,17 +208,17 @@ export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }:
   }
 
   return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[min(95vw,680px)] sm:max-w-lg max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-violet-500" />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="w-[min(95vw,680px)] sm:max-w-lg md:max-w-xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-violet-500" />
               {t.settings}
             </DialogTitle>
           </DialogHeader>
 
-          <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid grid-cols-5 gap-1">
+          <Tabs defaultValue="profile" className="w-full min-w-0">
+          <TabsList className="grid grid-cols-5 gap-1 w-full">
             <TabsTrigger value="profile" className="text-xs gap-1 px-2">
               <User className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.profile}</span>

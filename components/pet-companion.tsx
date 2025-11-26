@@ -117,36 +117,36 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
   }
 
   return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[min(95vw,520px)] sm:max-w-md max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-violet-500" />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="w-[min(95vw,560px)] sm:max-w-lg md:max-w-xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-violet-500" />
               {t.adoptPet}
             </DialogTitle>
             <DialogDescription>{t.adoptDesc}</DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-5">
           {/* Pet Type Selection */}
           <div className="space-y-2">
             <Label>{t.choosePet}</Label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-3">
               {petTypes.map((pet) => (
                 <button
                   key={pet.type}
                   onClick={() => setSelectedType(pet.type)}
                   className={cn(
-                    "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
+                    "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all min-w-0",
                     selectedType === pet.type
                       ? "border-violet-500 bg-violet-500/10"
                       : "border-border hover:border-violet-300"
                   )}
                 >
-                  <div className={cn("h-12 w-12 rounded-full bg-gradient-to-br flex items-center justify-center text-2xl", pet.gradient)}>
+                  <div className={cn("h-14 w-14 rounded-full bg-gradient-to-br flex items-center justify-center text-2xl shrink-0", pet.gradient)}>
                     {pet.emoji}
                   </div>
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium truncate w-full text-center">
                     {t[pet.type as keyof typeof t]}
                   </span>
                 </button>
@@ -165,7 +165,7 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
                 setPetName(e.target.value)
                 if (e.target.value.trim()) setError(false)
               }}
-              className={cn("h-11", error && "border-red-500")}
+              className={cn("h-11 w-full", error && "border-red-500")}
             />
             {error && <p className="text-sm text-red-500">{t.nameRequired}</p>}
           </div>
@@ -173,20 +173,20 @@ export function PetAdoptDialog({ open, onOpenChange, onAdopt, lang }: PetAdoptDi
           {/* Personality Selection */}
           <div className="space-y-2">
             <Label>{t.personality}</Label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {personalities.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => setSelectedPersonality(p.id)}
                   className={cn(
-                    "flex flex-col items-start p-3 rounded-xl border-2 transition-all text-left",
+                    "flex flex-col items-start p-3 rounded-xl border-2 transition-all text-left min-w-0",
                     selectedPersonality === p.id
                       ? "border-violet-500 bg-violet-500/10"
                       : "border-border hover:border-violet-300"
                   )}
                 >
-                  <span className="font-medium text-sm">{t[p.id as keyof typeof t]}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="font-medium text-sm truncate w-full">{t[p.id as keyof typeof t]}</span>
+                  <span className="text-xs text-muted-foreground truncate w-full">
                     {t[`${p.id}Desc` as keyof typeof t]}
                   </span>
                 </button>
