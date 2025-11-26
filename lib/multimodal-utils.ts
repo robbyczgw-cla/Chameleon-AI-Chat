@@ -157,3 +157,48 @@ export function validateContentForModel(
 
   return { valid: true }
 }
+
+/**
+ * Strip image data from message content for memory efficiency
+ * Replaces actual image data URLs with a placeholder text
+ * CRITICAL for PWA stability - prevents accumulating large image data in memory
+ *
+ * When building API requests, historical images should be stripped because:
+ * 1. Vision models typically only look at images in the current message anyway
+ * 2. Keeping all historical images in memory causes PWA crashes
+ * 3. The context from previous image discussions is preserved as text
+ */
+export function stripImageDataFromContent(content: MessageContent): MessageContent {
+  // If it's a string, nothing to strip
+  if (typeof content === "string") {
+    return content
+  }
+
+  // If not an array, return as-is
+  if (!Array.isArray(content)) {
+    return content
+  }
+
+  // Map over content parts and replace image data with placeholder text
+  const strippedParts = content.map(part => {
+    if (part.type === "image_url" && part.image_url?.url) {
+      // Check if it's a data URL (base64 image)
+      if (part.image_url.url.startsWith("data:")) {
+        // Replace with text part instead of keeping image structure
+        return {
+          type: "text" as const,
+          text: "[Previous image was shared here]",
+        }
+      }
+    }
+    return part
+  })
+
+  // If only text parts remain after stripping, merge them
+  const allText = strippedParts.every(p => p.type === "text")
+  if (allText) {
+    return strippedParts.map(p => p.type === "text" ? p.text : "").join("\n")
+  }
+
+  return strippedParts
+}
