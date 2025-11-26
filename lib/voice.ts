@@ -303,6 +303,10 @@ export class VoiceService {
     // Stop any current playback
     this.stopSpeaking()
 
+    // Client-side timeout (30 seconds)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000)
+
     try {
       const response = await fetch('/api/tts', {
         method: 'POST',
@@ -313,7 +317,10 @@ export class VoiceService {
           speed: options?.speed || 1.0,
           apiKey,
         }),
+        signal: controller.signal,
       })
+
+      clearTimeout(timeoutId)
 
       // Check content type - if JSON, it's an error response
       const contentType = response.headers.get('content-type') || ''
@@ -357,7 +364,15 @@ export class VoiceService {
 
       await this.currentAudio.play()
     } catch (error) {
+      clearTimeout(timeoutId)
       console.error('[Voice] OpenAI TTS error:', error)
+
+      // Handle timeout/abort specifically
+      if (error instanceof Error && error.name === 'AbortError') {
+        onError?.('TTS timed out. Try shorter text or check your connection.')
+        return
+      }
+
       onError?.(error instanceof Error ? error.message : 'TTS failed')
     }
   }

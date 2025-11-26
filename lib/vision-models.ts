@@ -12,26 +12,74 @@ export interface VisionModelConfig {
 }
 
 /**
- * List of models that support vision/image understanding
+ * Vision model prefixes - models starting with these support vision
+ * This is more maintainable than listing every model version
+ */
+const VISION_MODEL_PREFIXES = [
+  // OpenAI
+  "openai/gpt-4",
+  "openai/gpt-5",
+  // Anthropic Claude
+  "anthropic/claude-3",
+  "anthropic/claude-4",
+  // Google Gemini
+  "google/gemini-1.5",
+  "google/gemini-2",
+  // xAI Grok (all vision-capable)
+  "x-ai/grok-2",
+  "x-ai/grok-3",
+  "x-ai/grok-4",
+  // Meta Llama vision models
+  "meta-llama/llama-3.2-11b-vision",
+  "meta-llama/llama-3.2-90b-vision",
+  // Qwen vision models
+  "qwen/qwen-2-vl",
+  "qwen/qwen-2.5-vl",
+  "qwen/qwen3",
+]
+
+/**
+ * Specific model IDs that support vision (for exact matches)
  */
 export const VISION_CAPABLE_MODELS = new Set([
-  // OpenAI GPT-5
+  // OpenAI GPT-4 Vision
+  "openai/gpt-4-vision-preview",
+  "openai/gpt-4-turbo",
+  "openai/gpt-4o",
+  "openai/gpt-4o-mini",
   "openai/gpt-5-2025-08-07",
   "openai/gpt-5-mini-2025-08-07",
 
   // Anthropic Claude
+  "anthropic/claude-3-opus",
+  "anthropic/claude-3-sonnet",
+  "anthropic/claude-3-haiku",
+  "anthropic/claude-3.5-sonnet",
+  "anthropic/claude-3.5-haiku",
+  "anthropic/claude-4-sonnet",
+  "anthropic/claude-4.5-sonnet",
   "anthropic/claude-4.5-sonnet-20250929",
+  "anthropic/claude-opus-4",
   "anthropic/claude-opus-4.1",
   "anthropic/claude-haiku-4.5",
 
   // Google Gemini
+  "google/gemini-1.5-pro",
+  "google/gemini-1.5-flash",
+  "google/gemini-2.0-flash",
   "google/gemini-2.5-pro",
   "google/gemini-2.5-flash",
   "google/gemini-2.5-flash-lite",
 
-  // xAI Grok
+  // xAI Grok - all support vision
+  "x-ai/grok-2-vision",
+  "x-ai/grok-2-vision-1212",
+  "x-ai/grok-3",
+  "x-ai/grok-3-fast",
   "x-ai/grok-4",
   "x-ai/grok-4-fast",
+  "x-ai/grok-4.1",
+  "x-ai/grok-4.1-fast",
 
   // Qwen
   "qwen/qwen3-max",
@@ -40,9 +88,16 @@ export const VISION_CAPABLE_MODELS = new Set([
 
 /**
  * Check if a model supports vision/multimodal inputs
+ * Uses both exact match and prefix matching for better coverage
  */
 export function supportsVision(modelId: string): boolean {
-  return VISION_CAPABLE_MODELS.has(modelId)
+  // First check exact match
+  if (VISION_CAPABLE_MODELS.has(modelId)) {
+    return true
+  }
+
+  // Then check prefix match (catches new versions automatically)
+  return VISION_MODEL_PREFIXES.some(prefix => modelId.startsWith(prefix))
 }
 
 /**

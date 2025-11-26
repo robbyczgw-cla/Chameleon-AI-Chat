@@ -259,6 +259,24 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
 
           <div className="flex-1 overflow-y-auto mt-4">
             <TabsContent value="general" className="space-y-4 mt-0">
+              {/* Simple Mode Toggle */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-lg border bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30">
+                <div className="space-y-0.5 flex-1">
+                  <Label htmlFor="simple-mode" className="text-sm sm:text-base font-medium">Simple Mode</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Clean, persona-focused interface. Perfect for everyday conversations.
+                  </p>
+                </div>
+                <Switch
+                  id="simple-mode"
+                  checked={localSettings.simpleMode ?? false}
+                  onCheckedChange={(checked) =>
+                    setLocalSettings({ ...localSettings, simpleMode: checked })
+                  }
+                  className="flex-shrink-0"
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="system-prompt" className="text-sm sm:text-base">
                   {translations.settings.systemPrompt}
