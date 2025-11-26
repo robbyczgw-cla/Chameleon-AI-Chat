@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { User, Palette, Key, Volume2, Sparkles, Settings2, ChevronRight, Search } from "lucide-react"
+import { User, Palette, Key, Volume2, Sparkles, Settings2, ChevronRight, Search, Trophy } from "lucide-react"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { useToast } from "@/hooks/use-toast"
@@ -62,6 +62,8 @@ const translations = {
     switchToAdvanced: "Switch to Advanced Mode",
     advancedMode: "Advanced Mode",
     canSwitchBack: "You can switch back to Simple Mode in Settings.",
+    achievements: "Achievements & Pet",
+    viewAchievements: "View your achievements and manage pet",
     cancel: "Cancel",
     save: "Save",
     settingsSaved: "Settings saved!",
@@ -113,6 +115,8 @@ const translations = {
     switchToAdvanced: "Zum erweiterten Modus wechseln",
     advancedMode: "Erweiterter Modus",
     canSwitchBack: "Du kannst in den Einstellungen zurück zum einfachen Modus wechseln.",
+    achievements: "Erfolge & Haustier",
+    viewAchievements: "Deine Erfolge ansehen und Haustier verwalten",
     cancel: "Abbrechen",
     save: "Speichern",
     settingsSaved: "Einstellungen gespeichert!",
@@ -123,9 +127,10 @@ const translations = {
 interface SimpleSettingsDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onOpenAchievements?: () => void
 }
 
-export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialogProps) {
+export function SimpleSettingsDialog({ open, onOpenChange, onOpenAchievements }: SimpleSettingsDialogProps) {
   const { settings, updateSettings, user } = useApp()
   const [localSettings, setLocalSettings] = useState(settings)
   const [profile, setProfile] = useState<UserProfile>({})
@@ -536,6 +541,20 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
 
         {/* Footer */}
         <div className="flex flex-col gap-3 pt-4 border-t flex-shrink-0">
+          {onOpenAchievements && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="justify-start text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                onOpenChange(false)
+                onOpenAchievements()
+              }}
+            >
+              <Trophy className="h-4 w-4 mr-2 text-amber-500" />
+              {t.achievements}
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"

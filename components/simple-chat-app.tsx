@@ -13,9 +13,9 @@ import { ChameleonLogo } from "@/components/chameleon-logo"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { userProfileService } from "@/lib/user-profile"
-import { streakService, gamificationService, type Pet, type Achievement } from "@/lib/simple-mode-features"
+import { gamificationService, type Pet, type Achievement } from "@/lib/simple-mode-features"
 import { PetWidget, PetAdoptDialog } from "@/components/pet-companion"
-import { AchievementsDialog, AchievementToast, StreakWidget } from "@/components/achievements-dialog"
+import { AchievementsDialog, AchievementToast } from "@/components/achievements-dialog"
 import { ConversationStartersGrid, StartersDialog, CreativeCornerDialog, CreativeCornerButton } from "@/components/conversation-starters"
 import {
   MessageSquarePlus,
@@ -28,7 +28,6 @@ import {
   Trash2,
   MoreVertical,
   ImagePlus,
-  Trophy,
   Sparkles,
 } from "lucide-react"
 import {
@@ -114,13 +113,6 @@ export function SimpleChatApp() {
     setProfileContext(userProfileService.getProfileContext(profile))
   }, [])
 
-  // Record streak on app load and load gamification settings
-  useEffect(() => {
-    const gamificationSettings = gamificationService.getSettings()
-    if (gamificationSettings.streaksEnabled) {
-      streakService.recordActivity()
-    }
-  }, [])
 
   // Check if onboarding should be shown (first time Simple Mode user)
   useEffect(() => {
@@ -438,26 +430,8 @@ export function SimpleChatApp() {
             </div>
 
             <div className="flex items-center gap-1">
-              {/* Pet Widget - hidden on mobile */}
-              <div className="hidden sm:block">
-                <PetWidget onOpenAdopt={() => setIsPetAdoptOpen(true)} lang={lang} />
-              </div>
-
-              {/* Streak Widget - hidden on mobile */}
-              <div className="hidden sm:block">
-                <StreakWidget onClick={() => setIsAchievementsOpen(true)} />
-              </div>
-
-              {/* Achievements Button - hidden on mobile */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsAchievementsOpen(true)}
-                className="relative hidden sm:flex h-8 w-8"
-                title="Achievements"
-              >
-                <Trophy className="h-4 w-4 text-amber-500" />
-              </Button>
+              {/* Pet Widget - visible on all screens */}
+              <PetWidget onOpenAdopt={() => setIsPetAdoptOpen(true)} lang={lang} />
 
               <Button
                 variant={imageMode ? "default" : "ghost"}
@@ -493,10 +467,10 @@ export function SimpleChatApp() {
           {/* Chat Area */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {isEmpty ? (
-              /* Welcome Screen - Compact layout */
+              /* Welcome Screen - Uses full width on desktop */
               <div className="flex-1 flex flex-col overflow-y-auto">
-                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 text-center min-h-0">
-                  <div className="w-full max-w-md space-y-4 sm:space-y-6">
+                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 text-center min-h-0">
+                  <div className="w-full max-w-md sm:max-w-xl lg:max-w-2xl space-y-4 sm:space-y-6">
                     {/* Greeting - Compact */}
                     <div className="space-y-2">
                       <div className="flex justify-center mb-2 sm:mb-4">
@@ -579,7 +553,11 @@ export function SimpleChatApp() {
       </div>
 
       {/* Dialogs */}
-      <SimpleSettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
+      <SimpleSettingsDialog
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
+        onOpenAchievements={() => setIsAchievementsOpen(true)}
+      />
       <PersonasDialog open={isPersonasOpen} onOpenChange={setIsPersonasOpen} />
       <UserProfileDialog
         open={isProfileOpen}

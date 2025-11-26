@@ -68,18 +68,18 @@ export function ConversationStartersGrid({ onSelectPrompt, lang }: ConversationS
   const quickStarters = conversationStarters.slice(0, 6)
 
   return (
-    <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
       {quickStarters.map((starter) => (
         <button
           key={starter.id}
           onClick={() => onSelectPrompt(starter.prompt[lang])}
           className={cn(
-            "flex flex-col items-center gap-1 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border",
+            "flex flex-col items-center gap-1.5 p-2.5 sm:p-4 rounded-xl border border-border",
             "hover:border-violet-300 hover:bg-violet-500/5 transition-all text-center"
           )}
         >
-          <span className="text-lg sm:text-2xl">{starter.emoji}</span>
-          <span className="text-[10px] sm:text-xs font-medium leading-tight line-clamp-2">{starter.label[lang]}</span>
+          <span className="text-xl sm:text-3xl">{starter.emoji}</span>
+          <span className="text-[10px] sm:text-sm font-medium leading-tight line-clamp-2">{starter.label[lang]}</span>
         </button>
       ))}
     </div>
