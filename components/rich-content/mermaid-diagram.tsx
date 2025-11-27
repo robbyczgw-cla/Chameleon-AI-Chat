@@ -28,23 +28,52 @@ export function MermaidDiagram({ chart, className }: MermaidDiagramProps) {
         theme: document.documentElement.classList.contains("dark") ? "dark" : "default",
         securityLevel: "loose",
         fontFamily: "var(--font-sans)",
+        suppressErrors: true, // Suppress error rendering
+        logLevel: "error",
       })
       mermaidInitialized = true
     }
 
     const renderDiagram = async () => {
       try {
+        // Clean and validate chart syntax
+        const cleanChart = chart.trim()
+
+        // Check if it's a valid mermaid diagram
+        if (!cleanChart || cleanChart.length < 5) {
+          setError("Invalid diagram syntax")
+          return
+        }
+
         const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`
-        const { svg: renderedSvg } = await mermaid.render(id, chart)
+        const { svg: renderedSvg } = await mermaid.render(id, cleanChart)
         setSvg(renderedSvg)
         setError("")
-      } catch (err) {
+      } catch (err: any) {
         console.error("Mermaid rendering error:", err)
-        setError("Failed to render diagram")
+        setError(err?.message || "Failed to render diagram")
+
+        // Remove any error elements that Mermaid might have created
+        const errorDivs = document.querySelectorAll('[id^="d"]')
+        errorDivs.forEach(div => {
+          if (div.innerHTML.includes('Syntax error')) {
+            div.remove()
+          }
+        })
       }
     }
 
     renderDiagram()
+
+    // Cleanup function to remove any stray error divs
+    return () => {
+      const errorDivs = document.querySelectorAll('[id^="d"]')
+      errorDivs.forEach(div => {
+        if (div.innerHTML.includes('Syntax error') || div.innerHTML.includes('mermaid')) {
+          div.remove()
+        }
+      })
+    }
   }, [chart])
 
   const handleDownload = () => {
