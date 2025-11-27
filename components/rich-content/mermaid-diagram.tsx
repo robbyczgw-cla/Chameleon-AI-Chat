@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useMemo } from "react"
+import { useEffect, useRef, useState, useMemo, memo } from "react"
 import mermaid from "mermaid"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -61,7 +61,7 @@ function isDiagramComplete(chart: string): boolean {
   return true
 }
 
-export function MermaidDiagram({ chart, className }: MermaidDiagramProps) {
+export const MermaidDiagram = memo(function MermaidDiagram({ chart, className }: MermaidDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [svg, setSvg] = useState<string>("")
   const [error, setError] = useState<string>("")
@@ -222,4 +222,4 @@ export function MermaidDiagram({ chart, className }: MermaidDiagramProps) {
       />
     </Card>
   )
-}
+})

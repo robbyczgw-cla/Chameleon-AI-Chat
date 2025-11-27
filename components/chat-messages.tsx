@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX, ChevronDown, ChevronRight, Lightbulb, Pencil, X, Save } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useState, useEffect, memo, useCallback } from "react"
+import { useState, useEffect, memo, useCallback, useRef } from "react"
 import { useToast } from "@/hooks/use-toast"
 import ReactMarkdown from "react-markdown"
 import { voiceService } from "@/lib/voice"
@@ -67,6 +67,88 @@ const RenderMessageContent = memo(function RenderMessageContent({ content }: { c
         return null
       })}
     </>
+  )
+})
+
+/**
+ * Memoized code block component to prevent re-rendering SyntaxHighlighter
+ * when parent component updates
+ */
+interface CodeBlockProps {
+  language: string
+  code: string
+  onCopy: (code: string) => void
+}
+
+const CodeBlock = memo(function CodeBlock({ language, code, onCopy }: CodeBlockProps) {
+  return (
+    <div className="relative group/code my-4 rounded-lg w-full max-w-full overflow-hidden">
+      <div className="flex items-center justify-between bg-zinc-800 px-4 py-2 rounded-t-lg w-full">
+        <span className="text-xs text-zinc-400 font-mono">{language}</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 text-xs opacity-0 group-hover/code:opacity-100 transition-opacity"
+          onClick={() => onCopy(code)}
+        >
+          <Copy className="h-3 w-3 mr-1" />
+          Copy
+        </Button>
+      </div>
+      <SyntaxHighlighter
+        style={vscDarkPlus}
+        language={language}
+        PreTag="div"
+        wrapLines
+        wrapLongLines
+        customStyle={{
+          margin: 0,
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+          borderBottomLeftRadius: "0.5rem",
+          borderBottomRightRadius: "0.5rem",
+          width: "100%",
+          maxWidth: "100%",
+          overflow: "auto",
+        }}
+        codeTagProps={{
+          style: {
+            fontSize: "0.875rem",
+            lineHeight: "1.5",
+          },
+        }}
+      >
+        {code}
+      </SyntaxHighlighter>
+    </div>
+  )
+})
+
+/**
+ * Message wrapper component that handles animation cleanup
+ * Removes animation class after animation completes to free GPU compositor
+ */
+interface MessageWrapperProps {
+  children: React.ReactNode
+  className: string
+  messageId: string
+}
+
+const MessageWrapper = memo(function MessageWrapper({ children, className, messageId }: MessageWrapperProps) {
+  const [hasAnimated, setHasAnimated] = useState(false)
+
+  const handleAnimationEnd = useCallback(() => {
+    setHasAnimated(true)
+  }, [])
+
+  return (
+    <div
+      key={messageId}
+      className={hasAnimated ? className.replace('animate-slide-in-up', '') : className}
+      onAnimationEnd={handleAnimationEnd}
+    >
+      {children}
+    </div>
   )
 })
 
@@ -351,8 +433,9 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
     <ScrollArea className="h-full w-full native-scroll">
       <div className="w-full max-w-5xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-8 gpu-layer">
         {currentChat.messages.map((message, index) => (
-          <div
+          <MessageWrapper
             key={message.id}
+            messageId={message.id}
             className={cn("flex gap-2 sm:gap-6 group w-full animate-slide-in-up", message.role === "user" ? "justify-end" : "justify-start")}
           >
             {message.role === "assistant" && (
@@ -584,52 +667,18 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                           const language = match ? match[1] : ""
                           const codeString = String(children).replace(/\n$/, "")
 
-                          // Render Mermaid diagrams
+                          // Render Mermaid diagrams (already memoized)
                           if (!inline && language === "mermaid") {
                             return <MermaidDiagram chart={codeString} />
                           }
 
+                          // Use memoized CodeBlock for syntax highlighting
                           return !inline && match ? (
-                            <div className="relative group/code my-4 rounded-lg w-full max-w-full overflow-hidden">
-                              <div className="flex items-center justify-between bg-zinc-800 px-4 py-2 rounded-t-lg w-full">
-                                <span className="text-xs text-zinc-400 font-mono">{language}</span>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-7 text-xs opacity-0 group-hover/code:opacity-100 transition-opacity"
-                                  onClick={() => handleCopyCode(codeString)}
-                                >
-                                  <Copy className="h-3 w-3 mr-1" />
-                                  Copy
-                                </Button>
-                              </div>
-                              <SyntaxHighlighter
-                                style={vscDarkPlus}
-                                language={language}
-                                PreTag="div"
-                                wrapLines
-                                wrapLongLines
-                                customStyle={{
-                                  margin: 0,
-                                  borderTopLeftRadius: 0,
-                                  borderTopRightRadius: 0,
-                                  borderBottomLeftRadius: "0.5rem",
-                                  borderBottomRightRadius: "0.5rem",
-                                  width: "100%",
-                                  maxWidth: "100%",
-                                  overflow: "auto",
-                                }}
-                                codeTagProps={{
-                                  style: {
-                                    fontSize: "0.875rem",
-                                    lineHeight: "1.5",
-                                  },
-                                }}
-                                {...props}
-                              >
-                                {codeString}
-                              </SyntaxHighlighter>
-                            </div>
+                            <CodeBlock
+                              language={language}
+                              code={codeString}
+                              onCopy={handleCopyCode}
+                            />
                           ) : (
                             <code
                               className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono border border-border break-all inline-block max-w-full"
@@ -775,7 +824,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                 </AvatarFallback>
               </Avatar>
             )}
-          </div>
+          </MessageWrapper>
         ))}
 
         {/* Modern AI Loading Indicator */}

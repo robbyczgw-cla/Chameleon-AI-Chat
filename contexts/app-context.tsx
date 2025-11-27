@@ -10,6 +10,7 @@ import { generateUUID } from "@/lib/utils"
 import { getUserSelectedModels } from "@/lib/model-preferences"
 import { sanitizeChatsForStorage, safeSetLocalStorage, getLocalStorageUsage, forceCleanupLocalStorage } from "@/lib/storage-utils"
 import { generateChatTitle } from "@/lib/title-generator"
+import { stripImageDataFromContent } from "@/lib/multimodal-utils"
 
 interface AppContextType {
   chats: Chat[]
