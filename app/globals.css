@@ -1921,10 +1921,11 @@ html {
   backface-visibility: hidden;
 }
 
-/* Darker overlay for better contrast */
+/* Lighter overlay - removed blur to prevent screen going too dark */
 [data-slot="dialog-overlay"] {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  /* backdrop-filter disabled - was making screen too black */
+  /* backdrop-filter: blur(4px); */
+  /* -webkit-backdrop-filter: blur(4px); */
 }
 
 /* Prevent flicker during dialog open */

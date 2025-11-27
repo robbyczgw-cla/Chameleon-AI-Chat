@@ -183,7 +183,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         key={chat.id}
         onClick={() => setCurrentChat(chat.id)}
         className={cn(
-          "group relative flex flex-col gap-1.5 rounded-xl px-3 py-3 md:py-3.5 text-sm cursor-pointer smooth-transition mb-2",
+          "group relative flex flex-col gap-1 rounded-lg px-2.5 py-2 text-sm cursor-pointer smooth-transition mb-1.5",
           currentChatId === chat.id
             ? "bg-primary/10 border-l-[3px] border-l-primary border-y border-r border-border/30 shadow-sm"
             : "border border-border/40 hover:border-border/60 glass-subtle hover:shadow-sm hover-lift",
@@ -219,7 +219,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             </p>
 
             {/* Action Buttons - Show on hover */}
-            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 smooth-transition animate-fade-in absolute top-2 right-2">
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 smooth-transition animate-fade-in absolute top-1 right-1">
               <Button
                 variant="ghost"
                 size="icon"
