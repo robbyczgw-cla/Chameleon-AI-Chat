@@ -748,6 +748,48 @@
     transition-duration: 0.01ms !important;
   }
 
+  /* Ultra Performance Mode - Disable GPU-intensive effects for maximum performance */
+  .ultra-performance-mode .chameleon-color-shift {
+    animation: none !important;
+    filter: none !important;
+  }
+
+  .ultra-performance-mode .persona-avatar-glow,
+  .ultra-performance-mode .persona-avatar-glow:hover {
+    animation: none !important;
+    box-shadow: none !important;
+  }
+
+  .ultra-performance-mode .message-bubble-ai:hover,
+  .ultra-performance-mode .message-bubble-user:hover {
+    animation: none !important;
+  }
+
+  .ultra-performance-mode .animate-pulse-glow,
+  .ultra-performance-mode .animate-pulse-glow:hover {
+    animation: none !important;
+  }
+
+  .ultra-performance-mode .mesh-layer,
+  .ultra-performance-mode .grid-layer,
+  .ultra-performance-mode .noise-layer {
+    opacity: 0.05 !important;
+    filter: none !important;
+  }
+
+  .ultra-performance-mode .sidebar-bridge,
+  .ultra-performance-mode .sidebar-halo::before,
+  .ultra-performance-mode .sidebar-halo::after,
+  .ultra-performance-mode .main-bridge-left::before {
+    filter: none !important;
+    opacity: 0.3 !important;
+  }
+
+  .ultra-performance-mode .paper-mint-grid,
+  .ultra-performance-mode .paper-mint-noise {
+    opacity: 0.05 !important;
+  }
+
   /* Cosmic Glass Background */
   .cosmic-bg {
     position: fixed;
@@ -1921,10 +1963,11 @@ html {
   backface-visibility: hidden;
 }
 
-/* Darker overlay for better contrast */
+/* Lighter overlay - removed blur to prevent screen going too dark */
 [data-slot="dialog-overlay"] {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  /* backdrop-filter disabled - was making screen too black */
+  /* backdrop-filter: blur(4px); */
+  /* -webkit-backdrop-filter: blur(4px); */
 }
 
 /* Prevent flicker during dialog open */

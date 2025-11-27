@@ -867,7 +867,7 @@ export function SimpleChatApp() {
                           {selectedPersona ? (
                             <span className="text-2xl sm:text-4xl">{selectedPersona.emoji}</span>
                           ) : (
-                            <ChameleonLogo size={32} animated colorShift />
+                            <ChameleonLogo size={32} animated colorShift={!settings.experimental?.performanceMode} />
                           )}
                         </div>
                       </div>

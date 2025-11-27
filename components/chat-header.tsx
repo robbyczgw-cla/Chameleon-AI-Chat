@@ -361,7 +361,10 @@ export function ChatHeader() {
           >
             <Brain className="h-4 w-4 md:h-4.5 md:w-4.5" />
             {settings.memorySettings?.enabled && (
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-purple-500 rounded-full animate-pulse shadow-sm shadow-purple-500/50" />
+              <span className={cn(
+                "absolute top-1.5 right-1.5 h-2 w-2 bg-purple-500 rounded-full shadow-sm shadow-purple-500/50",
+                !settings.experimental?.performanceMode && "animate-pulse"
+              )} />
             )}
           </Button>
           <Button

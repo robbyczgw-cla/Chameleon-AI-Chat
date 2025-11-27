@@ -206,6 +206,8 @@ export interface UsageStats {
 export interface ExperimentalSettings {
   // Response Analysis
   enableResponseAnalysis?: boolean
+  // Performance Mode: Disable GPU-intensive effects (chameleon color-shift, memory blink, etc.)
+  performanceMode?: boolean
 }
 
 export interface AppSettings {
