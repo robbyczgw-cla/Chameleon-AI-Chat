@@ -184,7 +184,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         key={chat.id}
         onClick={() => setCurrentChat(chat.id)}
         className={cn(
-          "group relative flex flex-col gap-1 rounded-lg px-2.5 py-2 text-sm cursor-pointer smooth-transition mb-1.5",
+          "group relative flex flex-col gap-1 rounded-lg px-2 py-2 text-sm cursor-pointer smooth-transition mb-1.5",
           currentChatId === chat.id
             ? "bg-primary/10 border-l-[3px] border-l-primary border-y border-r border-border/30 shadow-sm"
             : "border border-border/40 hover:border-border/60 glass-subtle hover:shadow-sm hover-lift",
@@ -206,7 +206,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         ) : (
           <>
             {/* Title Row with Timestamp */}
-            <div className="flex items-center justify-between gap-2 overflow-hidden">
+            <div className="flex items-center justify-between gap-1.5 overflow-hidden">
               <span className={cn(
                 "flex-1 min-w-0 truncate font-semibold text-sm",
                 animatedTitleIds.has(chat.id) && "animate-title-appear"
