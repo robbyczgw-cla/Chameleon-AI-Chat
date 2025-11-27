@@ -45,6 +45,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
     createFolder,
     user,
     signOut,
+    settings,
   } = useApp()
   const [searchQuery, setSearchQuery] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -273,7 +274,12 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
           </Button>
         )}
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-xl border border-primary/10 shrink-0 hover-glow smooth-transition">
-          <ChameleonLogo className="text-green-600" size={28} animated />
+          <ChameleonLogo
+            className="text-green-600"
+            size={28}
+            animated={!settings.experimental?.performanceMode}
+            colorShift={!settings.experimental?.performanceMode}
+          />
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="text-lg font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
