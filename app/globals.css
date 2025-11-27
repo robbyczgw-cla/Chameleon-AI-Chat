@@ -572,11 +572,12 @@
     transition: transform 0.08s ease-out;
   }
 
-  /* GPU-accelerated layer hints */
+  /* GPU layer hints - DISABLED: constant will-change causes high GPU usage */
   .gpu-layer {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    will-change: transform;
+    /* These properties force constant GPU compositing which wastes resources */
+    /* transform: translateZ(0); */
+    /* backface-visibility: hidden; */
+    /* will-change: transform; */
   }
 
   /* Smooth native-like scrolling */
@@ -670,9 +671,9 @@
     /* Simplified to single gradient, no blur filter */
     background: radial-gradient(ellipse at 30% 20%, color-mix(in oklch, var(--primary) 8%, transparent) 0%, transparent 50%);
     opacity: 0.15;
-    /* GPU hints */
-    transform: translateZ(0);
-    backface-visibility: hidden;
+    /* DISABLED: GPU hints cause constant GPU usage */
+    /* transform: translateZ(0); */
+    /* backface-visibility: hidden; */
     /* DISABLED: blur filter is very GPU intensive */
     /* filter: blur(4px); */
   }
@@ -706,13 +707,14 @@
       -webkit-backdrop-filter: blur(8px) saturate(140%);
     }
 
+    /* DISABLED: GPU-forcing properties removed */
     .mesh-layer,
     .sidebar-bridge,
     .sidebar-halo,
     .main-bridge-left {
-      filter: blur(4px);
-      transform: translateZ(0);
-      backface-visibility: hidden;
+      /* filter: blur(4px); */
+      /* transform: translateZ(0); */
+      /* backface-visibility: hidden; */
     }
 
     .grid-layer,
@@ -1203,36 +1205,27 @@
     }
   }
 
+  /* DISABLED: Infinite animations cause constant GPU usage */
   .ai-loading-skeleton {
-    background: linear-gradient(90deg,
-        hsl(var(--muted)) 0%,
-        hsl(var(--primary) / 0.15) 20%,
-        hsl(var(--muted)) 40%,
-        hsl(var(--primary) / 0.15) 60%,
-        hsl(var(--muted)) 80%,
-        hsl(var(--primary) / 0.15) 100%);
-    background-size: 200% 100%;
-    animation: skeleton-shimmer 2s ease-in-out infinite;
+    background: hsl(var(--muted));
     border-radius: 4px;
+    /* animation: skeleton-shimmer 2s ease-in-out infinite; */
   }
 
   .ai-loading-bar {
     height: 12px;
     border-radius: 6px;
-    background: linear-gradient(90deg,
-        hsl(var(--muted)) 0%,
-        hsl(var(--primary) / 0.2) 50%,
-        hsl(var(--muted)) 100%);
-    background-size: 200% 100%;
-    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    background: hsl(var(--muted));
+    /* animation: skeleton-shimmer 1.5s ease-in-out infinite; */
   }
 
   .ai-thinking-dot {
-    animation: typing-wave 1.4s ease-in-out infinite;
+    /* animation: typing-wave 1.4s ease-in-out infinite; */
+    opacity: 0.7;
   }
 
   .ai-thinking-container {
-    animation: thinking-pulse 2s ease-in-out infinite;
+    /* animation: thinking-pulse 2s ease-in-out infinite; */
   }
 
   /* Gradient border animation - disabled for GPU performance */
@@ -1328,8 +1321,9 @@
     animation-delay: 4s;
   }
 
+  /* DISABLED: Infinite animation causes GPU usage */
   .animate-float {
-    animation: float 3s ease-in-out infinite;
+    /* animation: float 3s ease-in-out infinite; */
   }
 
   /* Simple mobile text wrapping - no aggressive breaking */
@@ -1558,12 +1552,13 @@
     20%, 40%, 60%, 80% { transform: translateX(2px); }
   }
 
+  /* DISABLED: Infinite animations cause constant GPU usage */
   .animate-wiggle {
-    animation: wiggle 0.5s ease-in-out infinite;
+    /* animation: wiggle 0.5s ease-in-out infinite; */
   }
 
   .animate-shake {
-    animation: shake 0.5s ease-in-out infinite;
+    /* animation: shake 0.5s ease-in-out infinite; */
   }
 
   /* Additional Tamagotchi Pet Animations */
@@ -1609,28 +1604,29 @@
     75% { transform: translateY(-3px); }
   }
 
+  /* DISABLED: All pet infinite animations cause constant GPU usage */
   .animate-float {
-    animation: float 2s ease-in-out infinite;
+    /* animation: float 2s ease-in-out infinite; */
   }
 
   .animate-dance {
-    animation: dance 0.6s ease-in-out infinite;
+    /* animation: dance 0.6s ease-in-out infinite; */
   }
 
   .animate-spin-slow {
-    animation: spin 3s linear infinite;
+    /* animation: spin 3s linear infinite; */
   }
 
   .animate-jump {
-    animation: jump 0.8s ease-in-out infinite;
+    /* animation: jump 0.8s ease-in-out infinite; */
   }
 
   .animate-pet-happy {
-    animation: pet-happy 1s ease-in-out infinite;
+    /* animation: pet-happy 1s ease-in-out infinite; */
   }
 
   .animate-pet-sleep {
-    animation: pet-sleep 2s ease-in-out infinite;
+    /* animation: pet-sleep 2s ease-in-out infinite; */
   }
 
   .animate-pet-eat {
@@ -1831,17 +1827,19 @@ pre,
   }
 }
 
+/* DISABLED: Infinite animations cause constant GPU usage */
 .typing-dot {
-  animation: typing-bounce 1.4s ease-in-out infinite;
+  /* animation: typing-bounce 1.4s ease-in-out infinite; */
+  opacity: 0.7;
 }
 
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
-.typing-dot:nth-child(4) { animation-delay: 0.6s; }
+/* .typing-dot:nth-child(2) { animation-delay: 0.2s; } */
+/* .typing-dot:nth-child(3) { animation-delay: 0.4s; } */
+/* .typing-dot:nth-child(4) { animation-delay: 0.6s; } */
 
-/* Thinking Container Pulse */
+/* Thinking Container Pulse - DISABLED for GPU performance */
 .thinking-container {
-  animation: thinking-pulse 2s ease-in-out infinite;
+  /* animation: thinking-pulse 2s ease-in-out infinite; */
 }
 
 /* Persona Avatar Glow - reduced animation frequency */
@@ -1923,8 +1921,9 @@ html {
   background-color: #ffffff !important;
   background-image: none !important;
   opacity: 1 !important;
-  transform: translateZ(0);
-  backface-visibility: hidden;
+  /* DISABLED: GPU-forcing properties */
+  /* transform: translateZ(0); */
+  /* backface-visibility: hidden; */
 }
 
 /* Dark mode dialogs */
@@ -2083,11 +2082,8 @@ html {
   100% { background-position: 200% 0; }
 }
 
+/* DISABLED: Infinite animation causes GPU usage */
 .skeleton-shimmer {
-  background: linear-gradient(90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0) 100%);
-  background-size: 200% 100%;
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.05);
+  /* animation: skeleton-pulse 1.5s ease-in-out infinite; */
 }
