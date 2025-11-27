@@ -1,7 +1,0 @@
-# PNPM Workspace Configuration
-# This allows sharing code between web (Next.js) and mobile (React Native)
-
-packages:
-  - '.'           # Root (web app)
-  - 'mobile'      # React Native mobile app
-  - 'shared'      # Shared code between web and mobile
