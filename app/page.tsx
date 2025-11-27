@@ -14,6 +14,7 @@ import { keyboardShortcutService } from "@/lib/keyboard-shortcuts"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { MobileBottomNav } from "@/components/mobile-bottom-nav"
 import { PersonaLevelUpNotifier } from "@/components/persona-level-up-notifier"
+import { FontApplier } from "@/components/font-applier"
 import { cn } from "@/lib/utils"
 
 function ChatApp() {
@@ -156,6 +157,7 @@ function ChatApp() {
 
   return (
     <div className={cn("modern-shell", settings.theme === "paper-mint" && "paper-mint-bg")}>
+      <FontApplier />
       {settings.theme === "paper-mint" ? (
         <>
           <div className="paper-mint-grid" />

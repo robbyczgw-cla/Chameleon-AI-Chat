@@ -12,8 +12,10 @@ import { useToast } from "@/hooks/use-toast"
 import ReactMarkdown from "react-markdown"
 import { voiceService } from "@/lib/voice"
 import remarkGfm from "remark-gfm"
+import remarkMath from "remark-math"
 import rehypeSanitize from "rehype-sanitize"
-/* Removed remark-math and rehype-katex to fix module loading error */
+import rehypeKatex from "rehype-katex"
+import "katex/dist/katex.min.css"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism"
 import { FollowUpSuggestions } from "@/components/follow-up-suggestions"
@@ -26,6 +28,8 @@ import type { FileAttachment } from "@/lib/file-handler"
 import { type Persona, getPersonaExamplePrompts } from "@/lib/personas"
 import type { MessageContent } from "@/types"
 import { contentToText } from "@/lib/multimodal-utils"
+import { RichContentParser } from "@/lib/rich-content-parser"
+import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
 
 interface ChatMessagesProps {
   currentPersona?: Persona
@@ -291,7 +295,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
     return (
       <div className="flex h-full items-center justify-center p-4">
-        <div className="w-full max-w-2xl mx-auto">
+        <div className="w-full max-w-4xl mx-auto">
           {/* Persona greeting */}
           <div className="text-center mb-6">
             {currentPersona ? (
@@ -313,20 +317,20 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
           </div>
 
           {/* Persona starter prompts grid - 6 prompts */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {starterPrompts.slice(0, 6).map((prompt, index) => (
               <button
                 key={index}
                 onClick={() => handleStarterClick(prompt)}
                 className={cn(
-                  "flex items-center justify-center text-center p-3 sm:p-4 rounded-xl",
+                  "flex items-center justify-center text-center p-4 sm:p-5 rounded-xl",
                   "border border-border/60 bg-card/50 hover:bg-primary/5",
                   "hover:border-primary/40 transition-all duration-200",
-                  "text-sm font-medium text-foreground/80 hover:text-foreground",
-                  "min-h-[60px] sm:min-h-[72px]"
+                  "text-sm sm:text-base font-medium text-foreground/80 hover:text-foreground",
+                  "min-h-[80px] sm:min-h-[100px]"
                 )}
               >
-                <span className="line-clamp-2">{prompt}</span>
+                <span className="line-clamp-4 leading-relaxed">{prompt}</span>
               </button>
             ))}
           </div>
@@ -345,7 +349,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
   return (
     <ScrollArea className="h-full w-full native-scroll">
-      <div className="w-full max-w-3xl mx-auto space-y-8 px-4 sm:px-6 py-8 gpu-layer">
+      <div className="w-full max-w-5xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-8 gpu-layer">
         {currentChat.messages.map((message, index) => (
           <div
             key={message.id}
@@ -477,11 +481,35 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                         )}
                       </div>
                     )}
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      rehypePlugins={[rehypeSanitize]}
-                      components={{
-                        p: ({ children }) => <p className="mb-4 last:mb-0 leading-7">{children}</p>,
+                    {(() => {
+                      const raw = typeof message.content === "string" ? message.content : contentToText(message.content)
+                      const followUpsParsed = parseFollowUps(raw)
+                      const richContentParsed = RichContentParser.parseAll(followUpsParsed.content)
+
+                      return (
+                        <>
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm, remarkMath]}
+                            rehypePlugins={[rehypeSanitize, rehypeKatex]}
+                            components={{
+                              p: ({ children }) => {
+                                // Check if paragraph contains placeholders
+                                const text = String(children)
+                                if (text.match(/__\w+_[\w-]+__/)) {
+                                  const parts = text.split(/(__\w+_[\w-]+__)/g)
+                                  return (
+                                    <div className="my-4">
+                                      {parts.map((part, idx) => {
+                                        if (part.startsWith("__") && part.endsWith("__")) {
+                                          return RichContentParser.renderComponent(part, richContentParsed.richContent)
+                                        }
+                                        return part
+                                      })}
+                                    </div>
+                                  )
+                                }
+                                return <p className="mb-4 last:mb-0 leading-7">{children}</p>
+                              },
                         h1: ({ children }) => (
                           <h1 className="text-2xl font-bold mt-6 mb-4 first:mt-0 scroll-m-20">{children}</h1>
                         ),
@@ -556,6 +584,11 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                           const language = match ? match[1] : ""
                           const codeString = String(children).replace(/\n$/, "")
 
+                          // Render Mermaid diagrams
+                          if (!inline && language === "mermaid") {
+                            return <MermaidDiagram chart={codeString} />
+                          }
+
                           return !inline && match ? (
                             <div className="relative group/code my-4 rounded-lg w-full max-w-full overflow-hidden">
                               <div className="flex items-center justify-between bg-zinc-800 px-4 py-2 rounded-t-lg w-full">
@@ -614,13 +647,13 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                             loading="lazy"
                           />
                         ),
-                      }}
-                    >
-                      {(() => {
-                        const raw = typeof message.content === "string" ? message.content : contentToText(message.content)
-                        return parseFollowUps(raw).content
+                              }}
+                            >
+                              {richContentParsed.content}
+                            </ReactMarkdown>
+                          </>
+                        )
                       })()}
-                    </ReactMarkdown>
                   </div>
                 ) : (
                   <div className="text-sm leading-relaxed whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
