@@ -247,7 +247,7 @@ export function ChatHeader() {
         <div className="flex md:hidden items-center gap-2 min-w-0 flex-1">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-md border border-primary/10 flex-shrink-0">
-              <ChameleonLogoSimple className="text-green-600" size={16} animated />
+              <ChameleonLogoSimple className="text-green-600" size={16} />
             </div>
             <h1 className={cn(
               "text-xs font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate",
@@ -315,7 +315,7 @@ export function ChatHeader() {
 
           <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
             <div className="flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-lg border border-primary/10 flex-shrink-0">
-              <ChameleonLogoSimple className="text-green-600" size={20} animated />
+              <ChameleonLogoSimple className="text-green-600" size={20} />
             </div>
             <h1 className={cn(
               "text-sm sm:text-base lg:text-lg font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate",

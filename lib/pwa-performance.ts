@@ -363,15 +363,46 @@ export function initPWAPerformance(): void {
     enableFastTapAll()
   }
 
-  // Re-apply fast tap when new elements are added
+  // Re-apply fast tap when new elements are added (debounced to avoid performance issues)
+  let pendingElements: HTMLElement[] = []
+  let debounceTimeout: NodeJS.Timeout | null = null
+
+  const processPendingElements = () => {
+    if (pendingElements.length === 0) return
+    // Process in batches to avoid blocking
+    const batch = pendingElements.splice(0, 50)
+    batch.forEach(el => enableFastTap(el))
+    if (pendingElements.length > 0) {
+      // Schedule next batch
+      requestAnimationFrame(() => processPendingElements())
+    }
+  }
+
   const observer = new MutationObserver((mutations) => {
+    // Collect elements but don't process immediately
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
         if (node instanceof HTMLElement) {
-          enableFastTapAll(node)
+          // Only collect interactive elements, not all elements
+          const interactive = node.querySelectorAll(
+            'button, a, [role="button"], input, textarea, select'
+          )
+          interactive.forEach((el) => {
+            pendingElements.push(el as HTMLElement)
+          })
+          // Also check if the node itself is interactive
+          if (node.matches?.('button, a, [role="button"], input, textarea, select')) {
+            pendingElements.push(node)
+          }
         }
       })
     })
+
+    // Debounce processing
+    if (debounceTimeout) clearTimeout(debounceTimeout)
+    debounceTimeout = setTimeout(() => {
+      processPendingElements()
+    }, 100) // 100ms debounce
   })
 
   observer.observe(document.body, {
