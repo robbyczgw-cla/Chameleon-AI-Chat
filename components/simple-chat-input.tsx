@@ -74,30 +74,17 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     return saved === "true"
   })
 
-  // Save web search state to localStorage whenever it changes
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("chameleon-web-search-enabled", String(webSearchEnabled))
-      console.log("[SimpleChatInput] Web search state saved:", webSearchEnabled)
-    }
-  }, [webSearchEnabled])
-
-  // Save reasoning state to localStorage whenever it changes
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("chameleon-reasoning-enabled", String(reasoningEnabled))
-      console.log("[SimpleChatInput] Reasoning state saved:", reasoningEnabled)
-    }
-  }, [reasoningEnabled])
-
   // Check if current model supports reasoning
   const model = overrideModel || settings.selectedModel || "x-ai/grok-4.1-fast"
   const modelSupportsReasoning = REASONING_MODELS.has(model)
 
-  // Debug: Log model and reasoning support
+  // OPTIMIZED: Combined localStorage saves to reduce useEffect count
   useEffect(() => {
-    console.log("[SimpleChatInput] Model:", model, "| Supports reasoning:", modelSupportsReasoning, "| REASONING_MODELS has:", REASONING_MODELS.has(model))
-  }, [model, modelSupportsReasoning])
+    if (typeof window !== "undefined") {
+      localStorage.setItem("chameleon-web-search-enabled", String(webSearchEnabled))
+      localStorage.setItem("chameleon-reasoning-enabled", String(reasoningEnabled))
+    }
+  }, [webSearchEnabled, reasoningEnabled])
 
   useEffect(() => {
     const mode = localStorage.getItem("app-mode")
@@ -120,29 +107,16 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     }
   }, [input, isAdvancedMode])
 
+  // OPTIMIZED: Combined all window event listeners into single useEffect
   useEffect(() => {
     const handleInsertPrompt = (e: CustomEvent) => {
       setInput(e.detail)
     }
-    window.addEventListener("insertPrompt" as any, handleInsertPrompt)
-    return () => {
-      window.removeEventListener("insertPrompt" as any, handleInsertPrompt)
-    }
-  }, [])
 
-  // Listen for image mode toggle from header
-  useEffect(() => {
     const handleSetImageMode = (e: CustomEvent) => {
       setImageMode(e.detail)
     }
-    window.addEventListener("setImageMode" as any, handleSetImageMode)
-    return () => {
-      window.removeEventListener("setImageMode" as any, handleSetImageMode)
-    }
-  }, [])
 
-  // Listen for quick message from welcome screen question buttons
-  useEffect(() => {
     const handleSendQuickMessage = (e: CustomEvent) => {
       const prompt = e.detail
       if (prompt && !isChatLoading) {
@@ -156,8 +130,14 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         }, 50)
       }
     }
+
+    window.addEventListener("insertPrompt" as any, handleInsertPrompt)
+    window.addEventListener("setImageMode" as any, handleSetImageMode)
     window.addEventListener("sendQuickMessage" as any, handleSendQuickMessage)
+
     return () => {
+      window.removeEventListener("insertPrompt" as any, handleInsertPrompt)
+      window.removeEventListener("setImageMode" as any, handleSetImageMode)
       window.removeEventListener("sendQuickMessage" as any, handleSendQuickMessage)
     }
   }, [isChatLoading])
