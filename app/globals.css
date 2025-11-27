@@ -1955,19 +1955,65 @@ html {
    Dialog/Modal Fixes - Ensure proper loading and visibility
    ========================================================================= */
 
-/* Force solid background on dialogs - prevents transparency issues */
+/* Force 100% solid background on dialogs - prevents ALL transparency issues */
+/* This overrides theme variables that use rgba with alpha < 1 */
 [data-slot="dialog-content"] {
-  background-color: hsl(var(--background)) !important;
+  background-color: #ffffff !important;
   background-image: none !important;
   opacity: 1 !important;
   transform: translateZ(0);
   backface-visibility: hidden;
 }
 
+/* Dark mode dialogs */
+.dark [data-slot="dialog-content"] {
+  background-color: #1a1a1e !important;
+}
+
+/* Theme-specific solid backgrounds for dialogs */
+.cyberpunk [data-slot="dialog-content"] {
+  background-color: #1a1a2e !important;
+}
+
+.girly-violet [data-slot="dialog-content"] {
+  background-color: #fdf5ff !important;
+}
+
+.ocean-breeze [data-slot="dialog-content"] {
+  background-color: #f5fcff !important;
+}
+
+.paper-mint [data-slot="dialog-content"] {
+  background-color: #ffffff !important;
+}
+
+.retro-wave [data-slot="dialog-content"] {
+  background-color: #1a1028 !important;
+}
+
+.chameleon [data-slot="dialog-content"] {
+  background-color: #0f1a14 !important;
+}
+
+.midnight-hologram [data-slot="dialog-content"] {
+  background-color: #0a0a12 !important;
+}
+
+.clean-slate [data-slot="dialog-content"] {
+  background-color: #ffffff !important;
+}
+
+.cosmic-glass [data-slot="dialog-content"] {
+  background-color: #0d121e !important;
+}
+
+.modern-light [data-slot="dialog-content"] {
+  background-color: #ffffff !important;
+}
+
 /* Force opaque background in all states */
 [data-slot="dialog-content"][data-state="open"],
 [data-slot="dialog-content"][data-state="closed"] {
-  background-color: hsl(var(--background)) !important;
   opacity: 1 !important;
 }
 
@@ -1978,16 +2024,90 @@ html {
   -webkit-backdrop-filter: none !important;
 }
 
-/* Lighter overlay - removed blur to prevent screen going too dark */
+/* Lighter overlay - just a semi-transparent dark overlay */
 [data-slot="dialog-overlay"] {
-  /* backdrop-filter disabled - was making screen too black */
-  /* backdrop-filter: blur(4px); */
-  /* -webkit-backdrop-filter: blur(4px); */
+  background-color: rgba(0, 0, 0, 0.4) !important;
 }
 
 /* Prevent flicker during dialog open */
 [data-slot="dialog-portal"] {
   isolation: isolate;
+}
+
+/* =========================================================================
+   AlertDialog Fixes - Same solid background treatment
+   ========================================================================= */
+
+/* Force 100% solid background on alert dialogs */
+[data-slot="alert-dialog-content"] {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  opacity: 1 !important;
+}
+
+.dark [data-slot="alert-dialog-content"] {
+  background-color: #1a1a1e !important;
+}
+
+.cyberpunk [data-slot="alert-dialog-content"] {
+  background-color: #1a1a2e !important;
+}
+
+.girly-violet [data-slot="alert-dialog-content"] {
+  background-color: #fdf5ff !important;
+}
+
+.ocean-breeze [data-slot="alert-dialog-content"] {
+  background-color: #f5fcff !important;
+}
+
+.paper-mint [data-slot="alert-dialog-content"] {
+  background-color: #ffffff !important;
+}
+
+.retro-wave [data-slot="alert-dialog-content"] {
+  background-color: #1a1028 !important;
+}
+
+.chameleon [data-slot="alert-dialog-content"] {
+  background-color: #0f1a14 !important;
+}
+
+.midnight-hologram [data-slot="alert-dialog-content"] {
+  background-color: #0a0a12 !important;
+}
+
+.clean-slate [data-slot="alert-dialog-content"] {
+  background-color: #ffffff !important;
+}
+
+.cosmic-glass [data-slot="alert-dialog-content"] {
+  background-color: #0d121e !important;
+}
+
+.modern-light [data-slot="alert-dialog-content"] {
+  background-color: #ffffff !important;
+}
+
+[data-slot="alert-dialog-content"],
+[data-slot="alert-dialog-content"] * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-slot="alert-dialog-overlay"] {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* =========================================================================
+   Sidebar Chat Bubble Fixes
+   ========================================================================= */
+
+/* Ensure sidebar chat items don't get cut off */
+.sidebar-halo .glass-subtle {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: color-mix(in srgb, var(--card) 95%, transparent) !important;
 }
 
 /* Loading state for lazy-loaded components in dialogs */

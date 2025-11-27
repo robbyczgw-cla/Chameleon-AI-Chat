@@ -168,8 +168,8 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
     const lastMessage = chat.messages?.[chat.messages.length - 1]
     const messagePreview = lastMessage
       ? typeof lastMessage.content === "string"
-        ? lastMessage.content.substring(0, 60)
-        : lastMessage.content?.[0]?.text?.substring(0, 60) || "..."
+        ? lastMessage.content.substring(0, 50)
+        : lastMessage.content?.[0]?.text?.substring(0, 50) || "..."
       : "No messages yet"
 
     // Format timestamp
@@ -184,10 +184,10 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         key={chat.id}
         onClick={() => setCurrentChat(chat.id)}
         className={cn(
-          "group relative flex flex-col gap-1 rounded-lg px-2 py-2 text-sm cursor-pointer smooth-transition mb-1.5",
+          "group relative flex flex-col gap-0.5 rounded-lg px-3 py-2 text-sm cursor-pointer smooth-transition mb-1.5 overflow-hidden",
           currentChatId === chat.id
             ? "bg-primary/10 border-l-[3px] border-l-primary border-y border-r border-border/30 shadow-sm"
-            : "border border-border/40 hover:border-border/60 glass-subtle hover:shadow-sm hover-lift",
+            : "border border-border/40 hover:border-border/60 bg-card/80 hover:shadow-sm hover-lift",
         )}
       >
         {editingId === chat.id ? (
@@ -206,43 +206,43 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         ) : (
           <>
             {/* Title Row with Timestamp */}
-            <div className="flex items-center justify-between gap-1.5 overflow-hidden">
+            <div className="flex items-center justify-between gap-1 pr-16 group-hover:pr-20">
               <span className={cn(
-                "flex-1 min-w-0 truncate font-semibold text-sm",
+                "flex-1 min-w-0 truncate font-semibold text-sm leading-tight",
                 animatedTitleIds.has(chat.id) && "animate-title-appear"
               )}>{chat.title}</span>
               <span className={cn("text-xs shrink-0", isActive ? "text-foreground/70" : "text-muted-foreground/80")}>{timestamp}</span>
             </div>
 
             {/* Message Preview */}
-            <p className={cn("text-xs line-clamp-1 overflow-hidden", isActive ? "text-foreground/80 drop-shadow-sm" : "text-muted-foreground/90")}>
+            <p className={cn("text-xs truncate leading-tight", isActive ? "text-foreground/70" : "text-muted-foreground/80")}>
               {messagePreview}
             </p>
 
             {/* Action Buttons - Show on hover */}
-            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 smooth-transition animate-fade-in absolute top-1 right-1">
+            <div className="flex items-center gap-0 opacity-0 group-hover:opacity-100 smooth-transition absolute top-1.5 right-1 bg-card/90 rounded-md">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 hover-scale smooth-transition rounded-lg"
+                className="h-6 w-6 hover-scale smooth-transition rounded-md"
                 onClick={(e) => handleTogglePin(chat.id, e)}
                 title={chat.pinned ? "Unpin" : "Pin"}
               >
-                <Pin className={cn("h-3.5 w-3.5", chat.pinned && "fill-current text-primary glow-subtle")} />
+                <Pin className={cn("h-3 w-3", chat.pinned && "fill-current text-primary glow-subtle")} />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/15 hover-scale smooth-transition rounded-lg"
+                className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/15 hover-scale smooth-transition rounded-md"
                 onClick={(e) => handleDeleteChat(chat.id, e)}
                 title="Delete chat"
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="h-3 w-3" />
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 hover-scale smooth-transition rounded-lg">
-                    <MoreVertical className="h-3.5 w-3.5" />
+                  <Button variant="ghost" size="icon" className="h-6 w-6 hover-scale smooth-transition rounded-md">
+                    <MoreVertical className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
