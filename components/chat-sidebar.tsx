@@ -184,10 +184,10 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         key={chat.id}
         onClick={() => setCurrentChat(chat.id)}
         className={cn(
-          "group relative flex flex-col gap-0.5 rounded-lg px-3 py-2 text-sm cursor-pointer smooth-transition mb-1.5 overflow-hidden",
+          "group relative flex flex-col gap-1 rounded-lg px-3 py-2.5 text-sm cursor-pointer mb-1.5",
           currentChatId === chat.id
             ? "bg-primary/10 border-l-[3px] border-l-primary border-y border-r border-border/30 shadow-sm"
-            : "border border-border/40 hover:border-border/60 bg-card/80 hover:shadow-sm hover-lift",
+            : "border border-border/40 hover:border-border/60 hover:bg-muted/50",
         )}
       >
         {editingId === chat.id ? (
@@ -205,35 +205,35 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
           />
         ) : (
           <>
-            {/* Title Row with Timestamp */}
-            <div className="flex items-center justify-between gap-1 pr-16 group-hover:pr-20">
+            {/* Title Row */}
+            <div className="flex items-center gap-2">
               <span className={cn(
-                "flex-1 min-w-0 truncate font-semibold text-sm leading-tight",
+                "flex-1 min-w-0 truncate font-medium text-sm",
                 animatedTitleIds.has(chat.id) && "animate-title-appear"
               )}>{chat.title}</span>
-              <span className={cn("text-xs shrink-0", isActive ? "text-foreground/70" : "text-muted-foreground/80")}>{timestamp}</span>
+              <span className={cn("text-[10px] shrink-0", isActive ? "text-foreground/60" : "text-muted-foreground")}>{timestamp}</span>
             </div>
 
             {/* Message Preview */}
-            <p className={cn("text-xs truncate leading-tight", isActive ? "text-foreground/70" : "text-muted-foreground/80")}>
+            <p className={cn("text-xs truncate pr-14", isActive ? "text-foreground/60" : "text-muted-foreground")}>
               {messagePreview}
             </p>
 
             {/* Action Buttons - Show on hover */}
-            <div className="flex items-center gap-0 opacity-0 group-hover:opacity-100 smooth-transition absolute top-1.5 right-1 bg-card/90 rounded-md">
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-2 right-2 bg-background/95 border border-border/50 rounded-md shadow-sm">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 hover-scale smooth-transition rounded-md"
+                className="h-6 w-6 rounded-sm"
                 onClick={(e) => handleTogglePin(chat.id, e)}
                 title={chat.pinned ? "Unpin" : "Pin"}
               >
-                <Pin className={cn("h-3 w-3", chat.pinned && "fill-current text-primary glow-subtle")} />
+                <Pin className={cn("h-3 w-3", chat.pinned && "fill-current text-primary")} />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/15 hover-scale smooth-transition rounded-md"
+                className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-sm"
                 onClick={(e) => handleDeleteChat(chat.id, e)}
                 title="Delete chat"
               >
@@ -241,7 +241,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 hover-scale smooth-transition rounded-md">
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm">
                     <MoreVertical className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -265,8 +265,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
   }
 
   return (
-    <div className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[280px] sm:w-80 md:w-64 flex-col overflow-hidden rounded-none md:rounded-none border border-border/60 panel-elevated shadow-2xl md:shadow-lg smooth-transition bg-card sidebar-halo">
-      <div className="sidebar-bridge hidden md:block" aria-hidden="true" />
+    <div className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[280px] sm:w-80 md:w-72 flex-col rounded-none md:rounded-none border border-border/60 shadow-xl md:shadow-lg bg-card overflow-y-auto overflow-x-hidden">
       <div className="flex items-center gap-3 border-b border-border/30 p-4 md:p-5 bg-card">
         {onClose && (
           <Button variant="ghost" size="icon" className="md:hidden h-10 w-10 hover-scale smooth-transition rounded-xl shrink-0 hover:bg-primary/10" onClick={onClose} title="Close">
@@ -352,8 +351,8 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 min-h-0 px-3">
-        <div className="space-y-0">
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="px-2 pb-2">
           {pinnedChats.length > 0 && (
             <>
               <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">Pinned</div>
