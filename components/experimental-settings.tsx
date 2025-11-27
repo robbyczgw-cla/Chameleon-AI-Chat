@@ -3,7 +3,7 @@
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useApp } from "@/contexts/app-context"
-import { FlaskRound, AlertTriangle } from "lucide-react"
+import { FlaskRound, AlertTriangle, Zap } from "lucide-react"
 
 export function ExperimentalSettings() {
   const { settings, updateSettings } = useApp()
@@ -60,6 +60,40 @@ export function ExperimentalSettings() {
               <p className="text-xs text-blue-800 dark:text-blue-200">
                 <strong>Note:</strong> Response analysis shows sentiment, confidence level, hedging phrases,
                 complexity, reading time, and tone for each AI response.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Performance Mode Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Zap className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">Performance Mode</h3>
+        </div>
+
+        <div className="space-y-4 pl-7">
+          {/* Enable Performance Mode */}
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="space-y-1">
+              <Label className="text-sm font-medium">Ultra Performance Mode</Label>
+              <p className="text-xs text-muted-foreground">
+                Disable GPU-intensive visual effects for maximum performance
+              </p>
+            </div>
+            <Switch
+              checked={experimental.performanceMode || false}
+              onCheckedChange={(checked) => handleExperimentalChange({ performanceMode: checked })}
+            />
+          </div>
+
+          {/* Info Box */}
+          {experimental.performanceMode && (
+            <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <p className="text-xs text-green-800 dark:text-green-200">
+                <strong>Disabled effects:</strong> Chameleon logo color-shift, memory icon pulse, avatar glows,
+                background animations, and other GPU-intensive visual effects. GPU usage should be minimal.
               </p>
             </div>
           )}

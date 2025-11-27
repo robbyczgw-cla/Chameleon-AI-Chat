@@ -156,7 +156,11 @@ function ChatApp() {
   }, [])
 
   return (
-    <div className={cn("modern-shell", settings.theme === "paper-mint" && "paper-mint-bg")}>
+    <div className={cn(
+      "modern-shell",
+      settings.theme === "paper-mint" && "paper-mint-bg",
+      settings.experimental?.performanceMode && "ultra-performance-mode"
+    )}>
       <FontApplier />
       {settings.theme === "paper-mint" ? (
         <>
