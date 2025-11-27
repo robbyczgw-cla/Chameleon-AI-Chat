@@ -356,7 +356,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
             className={cn("flex gap-2 sm:gap-6 group w-full animate-slide-in-up", message.role === "user" ? "justify-end" : "justify-start")}
           >
             {message.role === "assistant" && (
-              <Avatar className="h-6 w-6 sm:h-8 sm:w-8 border-2 border-primary/20 shrink-0 glow-subtle hover-glow smooth-transition">
+              <Avatar className="h-6 w-6 sm:h-8 sm:w-8 border-2 border-primary/20 shrink-0 persona-avatar-glow smooth-transition">
                 {currentPersona?.avatarUrl ? (
                   <>
                     <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
@@ -399,8 +399,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                 className={cn(
                   "text-sm sm:text-base smooth-transition relative overflow-hidden",
                   message.role === "user"
-                    ? "rounded-2xl rounded-br-md px-5 py-4 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-md w-fit"
-                    : "rounded-2xl rounded-bl-md px-5 py-4 bg-card border border-border/30 shadow-sm max-w-full hover:bg-card/80 transition-colors",
+                    ? "message-bubble-user rounded-2xl rounded-br-md px-5 py-4 text-primary-foreground shadow-md w-fit"
+                    : "message-bubble-ai rounded-2xl rounded-bl-md px-5 py-4 bg-card border border-border/30 shadow-sm max-w-full",
                 )}
               >
                 {/* Glass shine effect for user messages */}
@@ -781,7 +781,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
         {/* Modern AI Loading Indicator */}
         {isChatLoading && (
           <div className="flex gap-2 sm:gap-4 animate-slide-in-up">
-            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border-2 border-primary/30 shrink-0 relative">
+            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border-2 border-primary/30 shrink-0 relative persona-avatar-glow">
               <div className="absolute inset-0 rounded-full gradient-border-animated opacity-60" />
               {currentPersona?.avatarUrl ? (
                 <>
@@ -801,14 +801,14 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
               )}
             </Avatar>
             <div className="flex flex-col gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]">
-              <div className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4 bg-card border border-primary/20 shadow-lg ai-thinking-container">
+              <div className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4 bg-card border border-primary/20 shadow-lg thinking-container">
                 {/* Thinking indicator with wave dots */}
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="flex gap-1 items-end h-4">
-                    <div className="w-1.5 h-3 bg-primary/80 rounded-full ai-thinking-dot" style={{ animationDelay: "0ms" }} />
-                    <div className="w-1.5 h-3 bg-primary/80 rounded-full ai-thinking-dot" style={{ animationDelay: "100ms" }} />
-                    <div className="w-1.5 h-3 bg-primary/80 rounded-full ai-thinking-dot" style={{ animationDelay: "200ms" }} />
-                    <div className="w-1.5 h-3 bg-primary/80 rounded-full ai-thinking-dot" style={{ animationDelay: "300ms" }} />
+                  <div className="flex gap-1.5 items-end h-5">
+                    <div className="w-2 h-2 bg-primary rounded-full typing-dot" />
+                    <div className="w-2 h-2 bg-primary rounded-full typing-dot" />
+                    <div className="w-2 h-2 bg-primary rounded-full typing-dot" />
+                    <div className="w-2 h-2 bg-primary rounded-full typing-dot" />
                   </div>
                   <span className="text-xs text-muted-foreground/70 font-medium">Thinking...</span>
                 </div>
