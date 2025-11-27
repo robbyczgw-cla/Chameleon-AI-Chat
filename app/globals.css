@@ -665,33 +665,35 @@
     z-index: 0;
   }
 
+  /* GPU-OPTIMIZED: Simplified decorative layers - removed expensive effects */
   .mesh-layer {
-    background:
-      radial-gradient(900px circle at 25% 20%, color-mix(in oklch, var(--primary) 18%, transparent) 0%, transparent 45%),
-      radial-gradient(800px circle at 70% 12%, color-mix(in oklch, var(--accent) 15%, transparent) 0%, transparent 48%),
-      radial-gradient(1100px circle at 85% 70%, color-mix(in oklch, var(--primary) 15%, transparent) 0%, transparent 48%);
-    /* HIGHLY optimized for GPU - minimal blur, reduced gradients */
-    filter: blur(4px);
-    opacity: 0.25;
+    /* Simplified to single gradient, no blur filter */
+    background: radial-gradient(ellipse at 30% 20%, color-mix(in oklch, var(--primary) 8%, transparent) 0%, transparent 50%);
+    opacity: 0.15;
+    /* GPU hints */
     transform: translateZ(0);
     backface-visibility: hidden;
+    /* DISABLED: blur filter is very GPU intensive */
+    /* filter: blur(4px); */
   }
 
   .grid-layer {
     background-image:
-      linear-gradient(to right, color-mix(in oklch, var(--border) 40%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in oklch, var(--border) 40%, transparent) 1px, transparent 1px);
+      linear-gradient(to right, color-mix(in oklch, var(--border) 30%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklch, var(--border) 30%, transparent) 1px, transparent 1px);
     background-size: 52px 52px;
-    opacity: 0.12;
-    mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.55), transparent 70%);
-    -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.55), transparent 70%);
-    mix-blend-mode: soft-light;
+    opacity: 0.08;
+    /* DISABLED: mask-image and mix-blend-mode are GPU intensive */
+    /* mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.55), transparent 70%); */
+    /* mix-blend-mode: soft-light; */
   }
 
   .noise-layer {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
-    mix-blend-mode: soft-light;
-    opacity: 0.2;
+    /* DISABLED: feTurbulence SVG filter is EXTREMELY GPU intensive */
+    /* This single element can cause 50%+ GPU usage! */
+    display: none;
+    /* background-image: url("data:image/svg+xml,..."); */
+    /* mix-blend-mode: soft-light; */
   }
 
   /* Lighter visual effects for users who prefer reduced motion/transparency */
@@ -891,11 +893,11 @@
   }
 
   .panel-elevated {
-    background: color-mix(in oklch, var(--card) 92%, var(--primary) 8%);
+    background: color-mix(in oklch, var(--card) 95%, var(--primary) 5%);
     border: 1px solid color-mix(in oklch, var(--border) 75%, var(--primary) 25%);
-    box-shadow: 0 20px 60px -28px rgba(0, 0, 0, 0.25), 0 10px 30px -20px rgba(0, 0, 0, 0.18);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.15);
+    /* DISABLED: backdrop-filter is GPU intensive */
+    /* backdrop-filter: blur(6px); */
   }
 
   .pill-nav {
@@ -904,21 +906,10 @@
     box-shadow: 0 18px 28px -18px rgba(0, 0, 0, 0.35);
   }
 
+  /* GPU-OPTIMIZED: Disabled expensive blur effects on decorative elements */
   .sidebar-bridge {
-    position: absolute;
-    right: -16px;
-    top: 0;
-    bottom: 0;
-    width: 80px;
-    background: linear-gradient(90deg,
-      hsl(var(--card)) 0%,
-      hsl(var(--card) / 0.8) 30%,
-      transparent 100%);
-    box-shadow: 8px 0 24px -12px rgba(0, 0, 0, 0.2);
-    filter: blur(8px);
-    opacity: 0.9;
-    z-index: 2;
-    pointer-events: none;
+    /* DISABLED: blur filter on large elements is very GPU intensive */
+    display: none;
   }
 
   .sidebar-halo {
@@ -927,26 +918,8 @@
 
   .sidebar-halo::before,
   .sidebar-halo::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    pointer-events: none;
-    opacity: 0.6;
-    filter: blur(8px);
-    z-index: 1;
-  }
-
-  .sidebar-halo::before {
-    left: -16px;
-    width: 32px;
-    background: linear-gradient(90deg, hsl(var(--card)) 0%, transparent 100%);
-  }
-
-  .sidebar-halo::after {
-    right: -16px;
-    width: 32px;
-    background: linear-gradient(90deg, transparent 0%, hsl(var(--card)) 100%);
+    /* DISABLED: blur filter pseudo-elements are GPU intensive */
+    display: none;
   }
 
   .main-bridge-left {
@@ -954,61 +927,49 @@
   }
 
   .main-bridge-left::before {
-    content: "";
-    position: absolute;
-    left: -24px;
-    top: 0;
-    bottom: 0;
-    width: 80px;
-    background: linear-gradient(90deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--background) / 0.8) 40%,
-      transparent 100%);
-    filter: blur(12px);
-    opacity: 0.8;
-    pointer-events: none;
-    z-index: 1;
+    /* DISABLED: blur filter on large elements is GPU intensive */
+    display: none;
   }
 
-  /* Enhanced glass effects with multiple variants - OPTIMIZED for GPU performance */
+  /* GPU-OPTIMIZED: Glass effects without backdrop-filter (very GPU intensive) */
   .glass {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(6px) saturate(150%);
-    -webkit-backdrop-filter: blur(6px) saturate(150%);
+    background: rgba(255, 255, 255, 0.92);
+    /* DISABLED: backdrop-filter is GPU intensive */
+    /* backdrop-filter: blur(6px) saturate(150%); */
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
   }
 
   .dark .glass {
-    background: rgba(25, 25, 28, 0.75);
+    background: rgba(25, 25, 28, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   }
 
   .glass-strong {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(8px) saturate(160%);
-    -webkit-backdrop-filter: blur(8px) saturate(160%);
+    background: rgba(255, 255, 255, 0.95);
+    /* DISABLED: backdrop-filter is GPU intensive */
+    /* backdrop-filter: blur(8px) saturate(160%); */
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.15);
   }
 
   .dark .glass-strong {
-    background: rgba(25, 25, 28, 0.85);
+    background: rgba(25, 25, 28, 0.97);
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.4);
   }
 
   .glass-subtle {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(4px) saturate(130%);
-    -webkit-backdrop-filter: blur(4px) saturate(130%);
+    background: rgba(255, 255, 255, 0.88);
+    /* DISABLED: backdrop-filter is GPU intensive */
+    /* backdrop-filter: blur(4px) saturate(130%); */
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05);
   }
 
   .dark .glass-subtle {
-    background: rgba(25, 25, 28, 0.6);
+    background: rgba(25, 25, 28, 0.92);
     border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
   }
@@ -1355,7 +1316,8 @@
   }
 
   .animate-blob {
-    animation: blob 7s infinite;
+    /* DISABLED: Infinite blob animation is GPU intensive */
+    /* animation: blob 7s infinite; */
   }
 
   .animation-delay-2000 {
