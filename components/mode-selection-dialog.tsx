@@ -117,7 +117,7 @@ export function ModeSelectionDialog({ open, onSelectMode }: ModeSelectionDialogP
         <div className="p-6 pb-4 text-center border-b bg-gradient-to-br from-violet-500/10 to-purple-500/10">
           <div className="flex justify-center mb-4">
             <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-              <ChameleonLogo size={40} animated colorShift />
+              <ChameleonLogo size={40} />
             </div>
           </div>
           <h2 className="text-2xl font-bold mb-2">{t.welcome}</h2>

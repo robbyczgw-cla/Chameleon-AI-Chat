@@ -360,7 +360,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
         <div className="p-6 pb-4 border-b bg-gradient-to-br from-violet-500/10 to-purple-500/10">
           <div className="flex items-center gap-3 mb-4">
             <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-              <ChameleonLogo size={28} animated />
+              <ChameleonLogo size={28} />
             </div>
             <div>
               <h2 className="font-semibold text-lg">{t.welcome}</h2>

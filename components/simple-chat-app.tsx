@@ -679,7 +679,7 @@ export function SimpleChatApp() {
             <div className="p-4 border-b border-border/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ChameleonLogo size={32} animated />
+                  <ChameleonLogo size={32} />
                   <span className="font-semibold bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">
                     Chameleon
                   </span>
@@ -867,7 +867,7 @@ export function SimpleChatApp() {
                           {selectedPersona ? (
                             <span className="text-2xl sm:text-4xl">{selectedPersona.emoji}</span>
                           ) : (
-                            <ChameleonLogo size={32} animated colorShift={!settings.experimental?.performanceMode} />
+                            <ChameleonLogo size={32} />
                           )}
                         </div>
                       </div>
