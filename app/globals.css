@@ -1756,12 +1756,18 @@ pre,
 }
 
 .message-bubble-user {
-  background: linear-gradient(135deg, 
-    hsl(var(--primary)) 0%, 
-    hsl(var(--primary) / 0.9) 50%, 
+  background: linear-gradient(135deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--primary) / 0.9) 50%,
     hsl(var(--primary)) 100%);
   background-size: 200% 100%;
+  color: hsl(var(--primary-foreground)) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure all text inside user bubbles has correct color */
+.message-bubble-user * {
+  color: hsl(var(--primary-foreground)) !important;
 }
 
 .message-bubble-user:hover {
@@ -1861,6 +1867,34 @@ pre,
 /* Smooth Scroll */
 html {
   scroll-behavior: smooth;
+}
+
+/* =========================================================================
+   Dialog/Modal Fixes - Ensure proper loading and visibility
+   ========================================================================= */
+
+/* Force solid background on dialogs - prevents transparency issues */
+[data-slot="dialog-content"] {
+  background-color: hsl(var(--background)) !important;
+  opacity: 1 !important;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Darker overlay for better contrast */
+[data-slot="dialog-overlay"] {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Prevent flicker during dialog open */
+[data-slot="dialog-portal"] {
+  isolation: isolate;
+}
+
+/* Loading state for lazy-loaded components in dialogs */
+[data-slot="dialog-content"] .animate-spin {
+  will-change: transform;
 }
 
 /* Loading Skeleton Shimmer */
