@@ -398,21 +398,21 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
             )}
           </div>
 
-          {/* Persona starter prompts grid - 6 prompts */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {/* Persona starter prompts grid - 6 prompts in 3x2 on mobile, 2x3 on tablet, 3x2 on desktop */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {starterPrompts.slice(0, 6).map((prompt, index) => (
               <button
                 key={index}
                 onClick={() => handleStarterClick(prompt)}
                 className={cn(
-                  "flex items-center justify-center text-center p-4 sm:p-5 rounded-xl",
+                  "flex items-center justify-center text-center p-3 sm:p-4 rounded-xl",
                   "border border-border/60 bg-card/50 hover:bg-primary/5",
                   "hover:border-primary/40 transition-all duration-200",
-                  "text-sm sm:text-base font-medium text-foreground/80 hover:text-foreground",
-                  "min-h-[80px] sm:min-h-[100px]"
+                  "text-xs sm:text-sm font-medium text-foreground/80 hover:text-foreground",
+                  "min-h-[70px] sm:min-h-[90px]"
                 )}
               >
-                <span className="line-clamp-4 leading-relaxed">{prompt}</span>
+                <span className="line-clamp-3 leading-snug">{prompt}</span>
               </button>
             ))}
           </div>
