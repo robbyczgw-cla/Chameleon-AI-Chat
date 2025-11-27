@@ -66,6 +66,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   },
   showDetailedStats: false,
   fontSize: "medium",
+  fontFamily: "inter",
   messageDensity: "comfortable",
 }
 

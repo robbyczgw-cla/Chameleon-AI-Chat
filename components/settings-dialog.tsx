@@ -330,6 +330,30 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
               </div>
 
               <div className="space-y-2">
+                <Label className="text-sm sm:text-base">Font Family</Label>
+                <select
+                  value={localSettings.fontFamily || "inter"}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                    setLocalSettings({
+                      ...localSettings,
+                      fontFamily: e.target.value as "inter" | "roboto" | "atkinson" | "opendyslexic" | "jetbrains" | "system",
+                    })
+                  }
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
+                >
+                  <option value="inter">Inter (Default)</option>
+                  <option value="roboto">Roboto</option>
+                  <option value="atkinson">Atkinson Hyperlegible (Dyslexia-friendly)</option>
+                  <option value="opendyslexic">OpenDyslexic</option>
+                  <option value="jetbrains">JetBrains Mono</option>
+                  <option value="system">System Font</option>
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  Choose a font that's comfortable for reading. Atkinson and OpenDyslexic are designed for accessibility.
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <Label className="text-sm sm:text-base">Message Spacing</Label>
                 <select
                   value={localSettings.messageDensity || "comfortable"}

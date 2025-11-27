@@ -12,6 +12,7 @@ Like a chameleon adapting to its environment, this AI chat platform transforms t
 ## 🎯 What Makes This Special
 
 **For Power Users:**
+- 🎯 **Intelligent Follow-Ups** - Categorized 3-tier suggestions (⚡ Quick / 🧠 Deep / 🔗 Related) - guide conversations naturally
 - 💸 **Cost Tracker** - Track LLM spending, project monthly costs, analyze by model
 - 💾 **Training Data Export** - Export conversations in JSONL/HTML/Markdown for fine-tuning
 - 📊 **Unified Analytics** - Visual stats with charts, model distribution, and AI insights
@@ -113,6 +114,47 @@ NEXT_PUBLIC_SERPER_API_KEY=your_serper_key  # 10x cheaper!
 - Responsive message bubbles (55%/65% mobile → 85%/90% desktop)
 - Compact padding and spacing on mobile
 - No horizontal scroll, ever
+
+### 🎯 Intelligent Categorized Follow-Ups
+
+**The most sophisticated conversation guidance system in any AI chat app:**
+
+**3-Tier Smart Suggestions:**
+- ⚡ **Quick** - Fast, surface-level follow-ups (clarifications, yes/no, simple next steps)
+- 🧠 **Deep** - In-depth exploration (detailed analysis, technical dives, complex questions)
+- 🔗 **Related** - Connected topics (tangential ideas, alternative perspectives, broader context)
+
+**How It Works:**
+1. AI analyzes your conversation and generates contextually relevant follow-ups
+2. Suggestions appear as clickable chips below AI responses
+3. Click any suggestion → instantly continue the conversation in that direction
+4. Up to 9 suggestions (3 per category) for maximum flexibility
+
+**Visual Design:**
+- Categorized rows with icons and labels (⚡ Schnell / 🧠 Tiefer / 🔗 Verwandt)
+- Animated slide-in with staggered timing for polish
+- Hover effects with subtle arrow indicators
+- Mobile-optimized for easy tap targets
+
+**Technical Implementation:**
+```json
+[FOLLOWUP]{
+  "quick": ["What's the TL;DR?", "Can you simplify this?"],
+  "deep": ["Explain the technical details", "What are edge cases?"],
+  "related": ["How does this compare to X?", "What about Y approach?"]
+}[/FOLLOWUP]
+```
+
+**Why It's Better Than Standard "Smart Reply":**
+- **Semantic categorization** - Not just random suggestions
+- **Context-aware** - Persona-specific and topic-relevant
+- **Multi-dimensional** - Explore conversations in different depths
+- **Backwards compatible** - Falls back to simple format if needed
+- **Parser-based** - Clean separation of suggestions from content
+
+This feature alone transforms how you interact with AI - guiding you to ask better questions and explore topics more thoroughly.
+
+---
 
 ### 🎭 AI Personas
 

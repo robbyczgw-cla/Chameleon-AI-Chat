@@ -94,6 +94,12 @@ function ChatApp() {
     }
   }, [])
 
+  // Apply font family from settings
+  useEffect(() => {
+    const fontFamily = settings.fontFamily || "inter"
+    document.documentElement.setAttribute("data-font", fontFamily)
+  }, [settings.fontFamily])
+
   useEffect(() => {
     keyboardShortcutService.register("new-chat", () => {
       const event = new CustomEvent("newChat")

@@ -1,0 +1,69 @@
+# React Native
+
+# OSX
+.DS_Store
+
+# Xcode
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+ios/.xcode.env.local
+
+# Android
+*.iml
+.gradle
+/android/local.properties
+/android/.gradle
+/android/captures/
+/android/gradlew
+/android/gradlew.bat
+/android/.cxx/
+/android/app/debug
+/android/app/release
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Metro
+.metro-health-check*
+
+# Bundle artifacts
+*.jsbundle
+
+# CocoaPods
+ios/Pods/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+*.log
+*.swp
+*.swo
+*~
+.tmp
+
+# React Native
+android/app/build/
+android/.idea
+android/.gradle
+ios/build/

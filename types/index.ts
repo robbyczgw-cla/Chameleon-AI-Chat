@@ -235,6 +235,7 @@ export interface AppSettings {
   comparisonMode?: ComparisonMode
   memorySettings?: MemorySettings
   fontSize?: "small" | "medium" | "large"
+  fontFamily?: "inter" | "roboto" | "atkinson" | "opendyslexic" | "jetbrains" | "system"
   messageDensity?: "compact" | "comfortable" | "spacious"
   sidebarPosition?: "left" | "right"
   codeTheme?: "github-dark" | "github-light" | "monokai" | "dracula"
