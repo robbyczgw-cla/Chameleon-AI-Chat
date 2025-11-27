@@ -256,20 +256,16 @@ export function getDefaultPersona(): Persona {
 export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[] }> = {
   default: {
     en: [
-      "What can you help me with?",
-      "Tell me something interesting",
-      "Help me brainstorm ideas",
-      "Explain something complex simply",
-      "Write a short story",
-      "Give me advice on...",
+      "Generate 5 responses with text and probability. Prompt:",
+      "Think step-by-step, then give 5 responses with text and probability. Prompt:",
+      "Give 5 responses with text and probability < 0.15. Prompt:",
+      "Generate 20 responses with text and probability. Prompt:",
     ],
     de: [
-      "Wobei kannst du mir helfen?",
-      "Erzähl mir etwas Interessantes",
-      "Hilf mir beim Brainstorming",
-      "Erkläre mir etwas Komplexes einfach",
-      "Schreibe eine kurze Geschichte",
-      "Gib mir einen Rat zu...",
+      "Generate 5 responses with text and probability. Prompt:",
+      "Think step-by-step, then give 5 responses with text and probability. Prompt:",
+      "Give 5 responses with text and probability < 0.15. Prompt:",
+      "Generate 20 responses with text and probability. Prompt:",
     ],
   },
   friendly: {
