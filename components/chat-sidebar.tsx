@@ -205,16 +205,16 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         ) : (
           <>
             {/* Title Row with Timestamp */}
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-2 overflow-hidden">
               <span className={cn(
-                "flex-1 truncate font-semibold text-sm",
+                "flex-1 min-w-0 truncate font-semibold text-sm",
                 animatedTitleIds.has(chat.id) && "animate-title-appear"
               )}>{chat.title}</span>
               <span className={cn("text-xs shrink-0", isActive ? "text-foreground/70" : "text-muted-foreground/80")}>{timestamp}</span>
             </div>
 
             {/* Message Preview */}
-            <p className={cn("text-xs line-clamp-1 truncate", isActive ? "text-foreground/80 drop-shadow-sm" : "text-muted-foreground/90")}>
+            <p className={cn("text-xs line-clamp-1 overflow-hidden", isActive ? "text-foreground/80 drop-shadow-sm" : "text-muted-foreground/90")}>
               {messagePreview}
             </p>
 
