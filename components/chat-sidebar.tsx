@@ -184,10 +184,10 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         key={chat.id}
         onClick={() => setCurrentChat(chat.id)}
         className={cn(
-          "group relative flex flex-col gap-1 rounded-lg px-3 py-2.5 text-sm cursor-pointer mb-1.5",
+          "group relative flex flex-col gap-1.5 rounded-2xl px-3 py-3 text-sm cursor-pointer mb-2 mx-1",
           currentChatId === chat.id
-            ? "bg-primary/10 border-l-[3px] border-l-primary border-y border-r border-border/30 shadow-sm"
-            : "border border-border/40 hover:border-border/60 hover:bg-muted/50",
+            ? "bg-primary/15 border-2 border-primary/40 shadow-md"
+            : "bg-card/80 border border-border/50 hover:border-primary/30 hover:bg-muted/60 hover:shadow-sm",
         )}
       >
         {editingId === chat.id ? (
@@ -206,25 +206,25 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         ) : (
           <>
             {/* Title Row */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pr-1">
               <span className={cn(
                 "flex-1 min-w-0 truncate font-medium text-sm",
                 animatedTitleIds.has(chat.id) && "animate-title-appear"
               )}>{chat.title}</span>
-              <span className={cn("text-[10px] shrink-0", isActive ? "text-foreground/60" : "text-muted-foreground")}>{timestamp}</span>
+              <span className={cn("text-[10px] shrink-0", isActive ? "text-foreground/70" : "text-muted-foreground")}>{timestamp}</span>
             </div>
 
             {/* Message Preview */}
-            <p className={cn("text-xs truncate pr-14", isActive ? "text-foreground/60" : "text-muted-foreground")}>
+            <p className={cn("text-xs truncate", isActive ? "text-foreground/60" : "text-muted-foreground")}>
               {messagePreview}
             </p>
 
-            {/* Action Buttons - Show on hover */}
-            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-2 right-2 bg-background/95 border border-border/50 rounded-md shadow-sm">
+            {/* Action Buttons - Show on hover, positioned at top right */}
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity absolute top-1.5 right-1.5 bg-background/95 border border-border/50 rounded-lg shadow-sm p-0.5">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 rounded-sm"
+                className="h-5 w-5 rounded-sm"
                 onClick={(e) => handleTogglePin(chat.id, e)}
                 title={chat.pinned ? "Unpin" : "Pin"}
               >
@@ -233,7 +233,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-sm"
+                className="h-5 w-5 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-sm"
                 onClick={(e) => handleDeleteChat(chat.id, e)}
                 title="Delete chat"
               >
@@ -241,7 +241,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm">
+                  <Button variant="ghost" size="icon" className="h-5 w-5 rounded-sm">
                     <MoreVertical className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
