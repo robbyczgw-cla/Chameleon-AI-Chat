@@ -256,16 +256,16 @@ export function getDefaultPersona(): Persona {
 export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[] }> = {
   default: {
     en: [
-      "Generate 5 responses with <text> and <probability>. Prompt:",
-      "Think step-by-step, then give 5 responses with <text> and <probability>. Prompt:",
-      "Give 5 responses with <text> and <probability> < 0.15. Prompt:",
-      "Generate 20 responses with <text> and <probability>.",
+      "Generate 5 responses with text and probability. Prompt:",
+      "Think step-by-step, then give 5 responses with text and probability. Prompt:",
+      "Give 5 responses with text and probability < 0.15. Prompt:",
+      "Generate 20 responses with text and probability. Prompt:",
     ],
     de: [
-      "Generate 5 responses with <text> and <probability>. Prompt:",
-      "Think step-by-step, then give 5 responses with <text> and <probability>. Prompt:",
-      "Give 5 responses with <text> and <probability> < 0.15. Prompt:",
-      "Generate 20 responses with <text> and <probability>.",
+      "Generate 5 responses with text and probability. Prompt:",
+      "Think step-by-step, then give 5 responses with text and probability. Prompt:",
+      "Give 5 responses with text and probability < 0.15. Prompt:",
+      "Generate 20 responses with text and probability. Prompt:",
     ],
   },
   friendly: {

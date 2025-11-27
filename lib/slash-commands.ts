@@ -120,6 +120,32 @@ export const SLASH_COMMANDS: SlashCommand[] = [
     prompt: "Please expand on your previous response with more detail and examples.",
     category: "utility"
   },
+
+  // Verbalized Sampling (VS) Commands - for diverse outputs
+  {
+    command: "/1",
+    description: "VS: 5 responses with probabilities",
+    prompt: "Generate 5 responses with text and probability. Prompt: ",
+    category: "utility"
+  },
+  {
+    command: "/2",
+    description: "VS: Step-by-step + 5 responses",
+    prompt: "Think step-by-step, then give 5 responses with text and probability. Prompt: ",
+    category: "utility"
+  },
+  {
+    command: "/3",
+    description: "VS: 5 unusual responses (p<0.15)",
+    prompt: "Give 5 responses with text and probability < 0.15. Prompt: ",
+    category: "utility"
+  },
+  {
+    command: "/4",
+    description: "VS: 20 diverse responses",
+    prompt: "Generate 20 responses with text and probability. Prompt: ",
+    category: "utility"
+  },
 ]
 
 /**
