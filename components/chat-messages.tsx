@@ -462,8 +462,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
             <div className={cn(
               "flex flex-col gap-2",
               message.role === "user"
-                ? "w-fit max-w-[70%] sm:max-w-[65%] md:max-w-[60%]"
-                : "min-w-0 w-full max-w-[85%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]"
+                ? "w-fit max-w-[85%] sm:max-w-[70%] md:max-w-[60%]"
+                : "min-w-0 w-full max-w-[95%] sm:max-w-[90%] md:max-w-[90%] lg:max-w-[85%]"
             )}>
               {message.attachments && message.attachments.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
@@ -480,10 +480,10 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
               <div
                 className={cn(
-                  "text-sm sm:text-base smooth-transition relative overflow-hidden",
+                  "text-sm sm:text-base smooth-transition relative",
                   message.role === "user"
-                    ? "message-bubble-user rounded-2xl rounded-br-md px-5 py-4 text-primary-foreground shadow-md w-fit"
-                    : "message-bubble-ai rounded-2xl rounded-bl-md px-5 py-4 bg-card border border-border/30 shadow-sm max-w-full",
+                    ? "message-bubble-user rounded-2xl rounded-br-md px-4 py-3 sm:px-5 sm:py-4 text-primary-foreground shadow-md w-fit"
+                    : "message-bubble-ai rounded-2xl rounded-bl-md px-4 py-3 sm:px-5 sm:py-4 bg-card border border-border/30 shadow-sm w-full",
                 )}
               >
                 {/* Glass shine effect for user messages */}

@@ -9,6 +9,7 @@ import type { Memory, MemorySettings } from "@/types"
 import { generateUUID } from "@/lib/utils"
 
 const MEMORY_STORAGE_KEY = "chat_memories"
+const EXTRACTION_MODEL = "openai/gpt-oss-20b" // Cheap, fast model for extraction
 const DEFAULT_SETTINGS: MemorySettings = {
   enabled: false,
   autoExtract: true,
@@ -335,6 +336,138 @@ class MemoryService {
    */
   getSettings(): MemorySettings {
     return { ...this.settings }
+  }
+
+  /**
+   * Extract memories using LLM (like Claude/ChatGPT do)
+   * Uses a cheap model to analyze conversation and extract key facts
+   */
+  async extractMemoriesWithLLM(
+    userMessage: string,
+    assistantMessage: string,
+    apiKey?: string
+  ): Promise<Memory[]> {
+    if (!apiKey) {
+      console.log("[Memory] No API key, skipping LLM extraction")
+      return []
+    }
+
+    // Get existing memories to avoid duplicates
+    const existingMemories = this.getAllMemories()
+    const existingContent = existingMemories.map(m => m.content.toLowerCase()).join("; ")
+
+    const extractionPrompt = `Analyze this conversation and extract key facts about the user that should be remembered long-term.
+
+EXISTING MEMORIES (do NOT duplicate these):
+${existingContent || "None yet"}
+
+CONVERSATION:
+User: "${userMessage}"
+Assistant: "${assistantMessage}"
+
+RULES:
+1. Only extract NEW information not already in existing memories
+2. Only include truly important, long-term relevant facts
+3. Focus on: preferences, personal facts, goals, skills, work context
+4. Ignore: temporary questions, greetings, one-time requests
+5. Be concise - each memory should be 5-15 words
+6. Return empty array [] if nothing worth remembering
+
+Return ONLY a valid JSON array (no markdown, no explanation):
+[{"type": "preference|fact|goal|skill|context", "content": "...", "importance": 1|2|3}]
+
+importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-openrouter-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: extractionPrompt }],
+          model: EXTRACTION_MODEL,
+          temperature: 0.3, // Low temp for consistent extraction
+          maxTokens: 500,
+          stream: false,
+        }),
+      })
+
+      if (!response.ok) {
+        console.error("[Memory] Extraction API error:", response.status)
+        return []
+      }
+
+      const data = await response.json()
+      const content = data.choices?.[0]?.message?.content || ""
+
+      // Parse JSON from response
+      const jsonMatch = content.match(/\[[\s\S]*\]/)
+      if (!jsonMatch) {
+        console.log("[Memory] No valid JSON in extraction response")
+        return []
+      }
+
+      const extracted = JSON.parse(jsonMatch[0])
+
+      if (!Array.isArray(extracted) || extracted.length === 0) {
+        console.log("[Memory] No memories extracted")
+        return []
+      }
+
+      // Convert to Memory objects and deduplicate
+      const newMemories: Memory[] = []
+
+      for (const item of extracted) {
+        // Skip if too similar to existing memory
+        const contentLower = item.content?.toLowerCase() || ""
+        if (existingContent.includes(contentLower.substring(0, 30))) {
+          console.log("[Memory] Skipping duplicate:", item.content?.substring(0, 40))
+          continue
+        }
+
+        // Validate structure
+        if (!item.type || !item.content || !item.importance) continue
+        if (!["preference", "fact", "goal", "skill", "context"].includes(item.type)) continue
+        if (![1, 2, 3].includes(item.importance)) item.importance = 2
+
+        const memory: Memory = {
+          id: generateUUID(),
+          type: item.type,
+          content: item.content,
+          importance: item.importance,
+          createdAt: Date.now(),
+          lastAccessedAt: Date.now(),
+          accessCount: 0,
+        }
+
+        newMemories.push(memory)
+      }
+
+      // Auto-save the new memories
+      for (const memory of newMemories) {
+        this.memories.push(memory)
+        console.log("[Memory] Auto-saved:", memory.type, "-", memory.content)
+      }
+
+      if (newMemories.length > 0) {
+        this.saveMemories()
+      }
+
+      return newMemories
+    } catch (error) {
+      console.error("[Memory] LLM extraction error:", error)
+      return []
+    }
+  }
+
+  /**
+   * Check if conversation qualifies for memory extraction
+   * Requires 4+ messages (2 user + 2 assistant minimum)
+   */
+  shouldExtractMemories(messageCount: number): boolean {
+    return this.settings.enabled && this.settings.autoExtract && messageCount >= 4
   }
 }
 

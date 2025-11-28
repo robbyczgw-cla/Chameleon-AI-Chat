@@ -521,6 +521,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         signal: abortControllerRef.current?.signal,
         reasoning: reasoningEnabled && modelSupportsReasoning,
         onReasoning,
+        lmStudioEndpoint: settings.lmStudio?.endpoint, // For local models
       })
 
       console.log("[Simple Chat] Stream complete, final content length:", assistantContent.length)
@@ -585,6 +586,26 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
             return { ...chat, messages: updatedMessages }
           })
         })
+
+        // Auto-extract memories using LLM (background, silent)
+        // Only for conversations with 4+ messages to avoid test/short chats
+        const currentChatForMemory = chats.find((c) => c.id === chatId)
+        const messageCount = (currentChatForMemory?.messages.length || 0) + 2 // +2 for current exchange
+
+        if (memoryService.shouldExtractMemories(messageCount)) {
+          console.log("[Simple Chat] 🧠 Running automatic memory extraction...")
+          memoryService.extractMemoriesWithLLM(
+            messageContent,
+            assistantContent,
+            settings.apiKeys?.openRouter
+          ).then((memories) => {
+            if (memories.length > 0) {
+              console.log("[Simple Chat] 💾 Auto-saved", memories.length, "new memories")
+            }
+          }).catch((err) => {
+            console.error("[Simple Chat] Memory extraction failed:", err)
+          })
+        }
       }
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {

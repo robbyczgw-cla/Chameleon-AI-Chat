@@ -23,7 +23,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Brain, Plus, Trash2, Edit2, Search, TrendingUp, Zap, Target, Info } from "lucide-react"
+import { Brain, Plus, Trash2, Edit2, Search, TrendingUp, Zap, Target, Info, Download, Upload } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 
@@ -135,6 +135,88 @@ export function MemoryManager() {
     }
   }
 
+  const handleExport = () => {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      memories: memories,
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `chameleon-memories-${new Date().toISOString().split("T")[0]}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    toast({
+      title: "Memories exported",
+      description: `Exported ${memories.length} memories to JSON file`,
+    })
+  }
+
+  const handleImport = () => {
+    const input = document.createElement("input")
+    input.type = "file"
+    input.accept = ".json"
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+
+      try {
+        const text = await file.text()
+        const data = JSON.parse(text)
+
+        // Validate structure
+        if (!data.memories || !Array.isArray(data.memories)) {
+          throw new Error("Invalid file format")
+        }
+
+        let imported = 0
+        let skipped = 0
+
+        for (const memory of data.memories) {
+          // Validate each memory
+          if (!memory.type || !memory.content || !memory.importance) {
+            skipped++
+            continue
+          }
+
+          // Check for duplicates
+          const existingContent = memories.map(m => m.content.toLowerCase())
+          if (existingContent.includes(memory.content.toLowerCase())) {
+            skipped++
+            continue
+          }
+
+          memoryService.addMemory({
+            type: memory.type,
+            content: memory.content,
+            importance: memory.importance,
+            category: memory.category,
+          })
+          imported++
+        }
+
+        loadMemories()
+
+        toast({
+          title: "Import complete",
+          description: `Imported ${imported} memories${skipped > 0 ? `, skipped ${skipped} duplicates` : ""}`,
+        })
+      } catch (error) {
+        toast({
+          title: "Import failed",
+          description: "Could not parse the file. Make sure it's a valid JSON export.",
+          variant: "destructive",
+        })
+      }
+    }
+    input.click()
+  }
+
   const stats = memoryService.getStats()
 
   const getTypeIcon = (type: Memory["type"]) => {
@@ -195,13 +277,21 @@ export function MemoryManager() {
             Long-term context across conversations
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={() => setShowAddDialog(true)}>
             <Plus className="h-4 w-4 mr-1" />
-            Add Memory
+            Add
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExport} disabled={memories.length === 0}>
+            <Download className="h-4 w-4 mr-1" />
+            Export
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleImport}>
+            <Upload className="h-4 w-4 mr-1" />
+            Import
           </Button>
           <Button variant="outline" size="sm" onClick={handleClearAll} className="text-destructive">
-            Clear All
+            Clear
           </Button>
         </div>
       </div>

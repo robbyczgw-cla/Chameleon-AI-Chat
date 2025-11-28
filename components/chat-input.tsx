@@ -750,6 +750,7 @@ export function ChatInput() {
         signal: abortControllerRef.current?.signal,
         reasoning: reasoningEnabled && modelSupportsReasoning,
         onReasoning,
+        lmStudioEndpoint: settings.lmStudio?.endpoint, // For local models
       })
 
       console.log("[v0] Stream complete, final content length:", assistantContent.length)
@@ -852,6 +853,27 @@ export function ChatInput() {
           )
 
           console.log("[ChatInput] 🎓 Interaction recorded and preferences extracted for", settings.selectedPersona.name)
+        }
+
+        // Auto-extract memories using LLM (background, silent)
+        // Only for conversations with 4+ messages to avoid test/short chats
+        const currentChatForMemory = chats.find((c) => c.id === chatId)
+        const messageCount = (currentChatForMemory?.messages.length || 0) + 2 // +2 for current exchange
+
+        if (memoryService.shouldExtractMemories(messageCount)) {
+          console.log("[ChatInput] 🧠 Running automatic memory extraction...")
+          // Run in background - don't await, don't block UI
+          memoryService.extractMemoriesWithLLM(
+            messageContent,
+            assistantContent,
+            settings.apiKeys?.openRouter
+          ).then((memories) => {
+            if (memories.length > 0) {
+              console.log("[ChatInput] 💾 Auto-saved", memories.length, "new memories")
+            }
+          }).catch((err) => {
+            console.error("[ChatInput] Memory extraction failed:", err)
+          })
         }
       }
     } catch (error) {

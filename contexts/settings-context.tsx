@@ -22,6 +22,11 @@ export const DEFAULT_SETTINGS: AppSettings = {
     serper: "",
     exa: "",
   },
+  lmStudio: {
+    enabled: false,
+    endpoint: "http://localhost:1234/v1",
+    models: [],
+  },
   selectedModel: "x-ai/grok-4.1-fast",
   selectedModels: ["x-ai/grok-4.1-fast"],
   searchProvider: "tavily",
@@ -119,6 +124,10 @@ export function deepMergeSettings(defaults: AppSettings, parsed: Partial<AppSett
     experimental: {
       ...defaults.experimental,
       ...(parsed.experimental || {}),
+    },
+    lmStudio: {
+      ...defaults.lmStudio,
+      ...(parsed.lmStudio || {}),
     },
   }
 }
