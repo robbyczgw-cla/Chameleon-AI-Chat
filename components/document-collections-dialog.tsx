@@ -110,7 +110,7 @@ export function DocumentCollectionsDialog({ open, onOpenChange, onSelectCollecti
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden z-[100]">
+      <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FolderOpen className="h-5 w-5" />
