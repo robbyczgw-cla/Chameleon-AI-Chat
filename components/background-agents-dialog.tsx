@@ -153,7 +153,7 @@ export function BackgroundAgentsDialog({ open, onOpenChange }: BackgroundAgentsD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh]">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bot className="h-5 w-5" />
@@ -164,116 +164,120 @@ export function BackgroundAgentsDialog({ open, onOpenChange }: BackgroundAgentsD
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
           {/* Agents List */}
-          <div className="space-y-3">
+          <div className="space-y-3 border-r border-border/50 pr-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold">Your Agents</h3>
-              <Button size="sm" variant="outline" onClick={loadAgents}>
+              <Button size="sm" variant="ghost" onClick={loadAgents}>
                 <RefreshCw className="h-3 w-3" />
               </Button>
             </div>
 
-            <ScrollArea className="h-[400px]">
-              <div className="space-y-2">
-                {agents.length === 0 && (
-                  <Card className="p-6 text-center text-muted-foreground">
-                    <Bot className="h-12 w-12 mx-auto mb-3 opacity-50" />
+            <ScrollArea className="h-[200px]">
+              <div className="space-y-2 pr-2">
+                {agents.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                    <Bot className="h-10 w-10 mb-2 opacity-50" />
                     <p className="text-sm">No agents yet</p>
-                    <p className="text-xs mt-1">Create one from the templates →</p>
-                  </Card>
-                )}
-
-                {agents.map((agent) => (
-                  <Card
-                    key={agent.id}
-                    className={cn(
-                      "p-3 cursor-pointer transition-colors hover:bg-accent",
-                      selectedAgent?.id === agent.id && "border-primary"
-                    )}
-                    onClick={() => setSelectedAgent(agent)}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-2 flex-1">
-                        <div className="text-2xl">{agent.emoji}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">{agent.name}</div>
-                          <div className="text-xs text-muted-foreground mt-0.5">
-                            {getFrequencyLabel(agent.frequency)}
-                          </div>
-                          {agent.lastRun && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              Last: {formatTimestamp(agent.lastRun)}
+                    <p className="text-xs mt-1">Create one from the templates below</p>
+                  </div>
+                ) : (
+                  agents.map((agent) => (
+                    <Card
+                      key={agent.id}
+                      className={cn(
+                        "p-3 cursor-pointer transition-colors hover:bg-accent",
+                        selectedAgent?.id === agent.id && "border-primary"
+                      )}
+                      onClick={() => setSelectedAgent(agent)}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-2 flex-1 min-w-0">
+                          <div className="text-xl shrink-0">{agent.emoji}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm truncate">{agent.name}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">
+                              {getFrequencyLabel(agent.frequency)}
                             </div>
-                          )}
+                            {agent.lastRun && (
+                              <div className="text-xs text-muted-foreground mt-0.5">
+                                Last: {formatTimestamp(agent.lastRun)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className={cn("text-xs font-medium", getStatusColor(agent.status))}>
+                            {agent.status === "active" && <CheckCircle className="h-3 w-3" />}
+                            {agent.status === "paused" && <Pause className="h-3 w-3" />}
+                            {agent.status === "error" && <XCircle className="h-3 w-3" />}
+                          </div>
+                          <Switch
+                            checked={agent.status === "active"}
+                            onCheckedChange={() => toggleAgent(agent)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className={cn("text-xs font-medium", getStatusColor(agent.status))}>
-                          {agent.status === "active" && <CheckCircle className="h-3 w-3" />}
-                          {agent.status === "paused" && <Pause className="h-3 w-3" />}
-                          {agent.status === "error" && <XCircle className="h-3 w-3" />}
-                        </div>
-                        <Switch
-                          checked={agent.status === "active"}
-                          onCheckedChange={() => toggleAgent(agent)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  ))
+                )}
               </div>
             </ScrollArea>
 
             {/* Agent Templates */}
-            <div className="mt-4">
+            <div className="pt-3 border-t border-border/50">
               <h3 className="text-sm font-semibold mb-2">Templates</h3>
-              <div className="space-y-2">
-                {AGENT_TEMPLATES.map((template, i) => (
-                  <Card key={i} className="p-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-2 flex-1">
-                        <div className="text-xl">{template.emoji}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm">{template.name}</div>
-                          <div className="text-xs text-muted-foreground mt-0.5">
-                            {template.description}
+              <ScrollArea className="h-[180px]">
+                <div className="space-y-2 pr-2">
+                  {AGENT_TEMPLATES.map((template, i) => (
+                    <Card key={i} className="p-2.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-2 flex-1 min-w-0">
+                          <div className="text-lg shrink-0">{template.emoji}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm truncate">{template.name}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                              {template.description}
+                            </div>
                           </div>
                         </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 w-7 shrink-0"
+                          onClick={() => createAgent(template)}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => createAgent(template)}
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
             </div>
           </div>
 
           {/* Agent Details */}
           <div>
             {selectedAgent ? (
-              <Card className="p-4">
+              <Card className="p-4 h-full">
                 <div className="space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">{selectedAgent.emoji}</span>
-                        <h3 className="font-semibold">{selectedAgent.name}</h3>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2 min-w-0 flex-1">
+                      <span className="text-2xl shrink-0">{selectedAgent.emoji}</span>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold truncate">{selectedAgent.name}</h3>
+                        <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">
+                          {selectedAgent.description}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {selectedAgent.description}
-                      </p>
                     </div>
                     <Button
                       size="sm"
                       variant="ghost"
+                      className="shrink-0"
                       onClick={() => deleteAgent(selectedAgent.id)}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -319,7 +323,7 @@ export function BackgroundAgentsDialog({ open, onOpenChange }: BackgroundAgentsD
                     </Button>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 py-2 border-y border-border/50">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Status</span>
                       <Badge variant={selectedAgent.status === "active" ? "default" : "secondary"}>
@@ -340,10 +344,10 @@ export function BackgroundAgentsDialog({ open, onOpenChange }: BackgroundAgentsD
 
                   {/* Recent Results */}
                   {selectedAgent.results && selectedAgent.results.length > 0 && (
-                    <div className="mt-4">
+                    <div>
                       <h4 className="text-sm font-semibold mb-2">Recent Results</h4>
-                      <ScrollArea className="h-[200px]">
-                        <div className="space-y-2">
+                      <ScrollArea className="h-[150px]">
+                        <div className="space-y-2 pr-2">
                           {selectedAgent.results.map((result) => (
                             <Card key={result.id} className="p-2">
                               <div className="flex items-start gap-2">
@@ -353,14 +357,14 @@ export function BackgroundAgentsDialog({ open, onOpenChange }: BackgroundAgentsD
                                   <XCircle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
                                 )}
                                 <div className="flex-1 min-w-0">
-                                  <div className="text-xs font-medium">
+                                  <div className="text-xs font-medium truncate">
                                     {result.summary || (result.success ? "Success" : "Failed")}
                                   </div>
                                   <div className="text-xs text-muted-foreground mt-0.5">
                                     {formatTimestamp(result.timestamp)}
                                   </div>
                                   {result.error && (
-                                    <div className="text-xs text-destructive mt-1">
+                                    <div className="text-xs text-destructive mt-1 line-clamp-2">
                                       {result.error}
                                     </div>
                                   )}
@@ -375,10 +379,11 @@ export function BackgroundAgentsDialog({ open, onOpenChange }: BackgroundAgentsD
                 </div>
               </Card>
             ) : (
-              <Card className="p-6 h-full flex items-center justify-center text-center text-muted-foreground">
+              <Card className="p-6 h-full min-h-[400px] flex items-center justify-center text-center text-muted-foreground">
                 <div>
                   <Bot className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">Select an agent to see details</p>
+                  <p className="text-sm font-medium">Select an agent</p>
+                  <p className="text-xs mt-1">to see details</p>
                 </div>
               </Card>
             )}

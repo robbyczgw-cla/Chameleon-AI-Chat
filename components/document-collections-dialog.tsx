@@ -110,22 +110,26 @@ export function DocumentCollectionsDialog({ open, onOpenChange, onSelectCollecti
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle>Document Collections</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <FolderOpen className="h-5 w-5" />
+            Document Collections
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-3 gap-4">
-          <div className="space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+          {/* Collections List */}
+          <div className="space-y-3 border-r border-border/50 pr-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Collections</h3>
+              <h3 className="text-sm font-semibold">Collections</h3>
               <Button size="sm" variant="ghost" onClick={() => setShowCreateForm(!showCreateForm)}>
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
 
             {showCreateForm && (
-              <div className="space-y-2 rounded-lg border p-3">
+              <div className="space-y-2 rounded-lg border p-3 bg-muted/30">
                 <Input
                   placeholder="Collection name"
                   value={newCollection.name}
@@ -137,54 +141,66 @@ export function DocumentCollectionsDialog({ open, onOpenChange, onSelectCollecti
                   onChange={(e) => setNewCollection({ ...newCollection, description: e.target.value })}
                   rows={2}
                 />
-                <Button size="sm" onClick={handleCreateCollection} disabled={!newCollection.name}>
+                <Button size="sm" onClick={handleCreateCollection} disabled={!newCollection.name} className="w-full">
                   Create
                 </Button>
               </div>
             )}
 
-            <ScrollArea className="h-[400px]">
-              <div className="space-y-1">
-                {collections.map((collection) => (
-                  <div
-                    key={collection.id}
-                    className={`flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-muted ${
-                      selectedCollection?.id === collection.id ? "bg-muted" : ""
-                    }`}
-                    onClick={() => setSelectedCollection(collection)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <FolderOpen className="h-4 w-4" />
-                      <div>
-                        <div className="text-sm font-medium">{collection.name}</div>
-                        <div className="text-xs text-muted-foreground">{collection.documents.length} documents</div>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeleteCollection(collection.id)
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+            <ScrollArea className="h-[350px]">
+              <div className="space-y-1 pr-2">
+                {collections.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                    <FolderOpen className="h-10 w-10 mb-2 opacity-50" />
+                    <p className="text-sm">No collections yet</p>
+                    <p className="text-xs mt-1">Click + to create one</p>
                   </div>
-                ))}
+                ) : (
+                  collections.map((collection) => (
+                    <div
+                      key={collection.id}
+                      className={`flex cursor-pointer items-center justify-between rounded-lg p-2.5 hover:bg-muted transition-colors ${
+                        selectedCollection?.id === collection.id ? "bg-muted border border-primary/30" : ""
+                      }`}
+                      onClick={() => setSelectedCollection(collection)}
+                    >
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <FolderOpen className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium truncate">{collection.name}</div>
+                          <div className="text-xs text-muted-foreground">{collection.documents.length} documents</div>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDeleteCollection(collection.id)
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  ))
+                )}
               </div>
             </ScrollArea>
           </div>
 
-          <div className="col-span-2 space-y-2">
+          {/* Documents View */}
+          <div className="col-span-1 md:col-span-2 space-y-3">
             {selectedCollection ? (
               <>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold">{selectedCollection.name}</h3>
-                    <p className="text-sm text-muted-foreground">{selectedCollection.description}</p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold truncate">{selectedCollection.name}</h3>
+                    {selectedCollection.description && (
+                      <p className="text-sm text-muted-foreground truncate">{selectedCollection.description}</p>
+                    )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     <Button
                       size="sm"
                       onClick={() => {
@@ -218,35 +234,46 @@ export function DocumentCollectionsDialog({ open, onOpenChange, onSelectCollecti
                   </div>
                 </div>
 
-                <ScrollArea className="h-[400px]">
-                  <div className="space-y-2">
-                    {selectedCollection.documents.map((doc) => (
-                      <div key={doc.id} className="flex items-start justify-between rounded-lg border p-3">
-                        <div className="flex items-start gap-2">
-                          <FileText className="mt-1 h-4 w-4" />
-                          <div>
-                            <div className="text-sm font-medium">{doc.name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {(doc.size / 1024).toFixed(1)} KB • {new Date(doc.addedAt).toLocaleDateString()}
-                            </div>
-                            <div className="mt-1 text-xs text-muted-foreground line-clamp-2">{doc.content}</div>
-                          </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleRemoveDocument(selectedCollection.id, doc.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                <ScrollArea className="h-[350px]">
+                  <div className="space-y-2 pr-2">
+                    {selectedCollection.documents.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                        <FileText className="h-10 w-10 mb-2 opacity-50" />
+                        <p className="text-sm">No documents yet</p>
+                        <p className="text-xs mt-1">Click "Add Documents" to upload files</p>
                       </div>
-                    ))}
+                    ) : (
+                      selectedCollection.documents.map((doc) => (
+                        <div key={doc.id} className="flex items-start justify-between rounded-lg border p-3 bg-card">
+                          <div className="flex items-start gap-2 min-w-0 flex-1">
+                            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                            <div className="min-w-0 flex-1">
+                              <div className="text-sm font-medium truncate">{doc.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {(doc.size / 1024).toFixed(1)} KB • {new Date(doc.addedAt).toLocaleDateString()}
+                              </div>
+                              <div className="mt-1 text-xs text-muted-foreground line-clamp-2">{doc.content}</div>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 shrink-0"
+                            onClick={() => handleRemoveDocument(selectedCollection.id, doc.id)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </ScrollArea>
               </>
             ) : (
-              <div className="flex h-[400px] items-center justify-center text-muted-foreground">
-                Select a collection to view documents
+              <div className="flex flex-col h-[400px] items-center justify-center text-muted-foreground">
+                <FolderOpen className="h-12 w-12 mb-3 opacity-50" />
+                <p className="text-sm font-medium">Select a collection</p>
+                <p className="text-xs mt-1">to view documents</p>
               </div>
             )}
           </div>
