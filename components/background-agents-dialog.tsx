@@ -174,10 +174,10 @@ export function BackgroundAgentsDialog({ open, onOpenChange }: BackgroundAgentsD
               </Button>
             </div>
 
-            <ScrollArea className="h-[200px]">
+            <ScrollArea className="h-[35vh] min-h-[180px] max-h-[280px]">
               <div className="space-y-2 pr-2">
                 {agents.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center py-10 text-muted-foreground/50 border-2 border-dashed rounded-lg m-2">
                     <Bot className="h-10 w-10 mb-2 opacity-50" />
                     <p className="text-sm">No agents yet</p>
                     <p className="text-xs mt-1">Create one from the templates below</p>
@@ -187,36 +187,43 @@ export function BackgroundAgentsDialog({ open, onOpenChange }: BackgroundAgentsD
                     <Card
                       key={agent.id}
                       className={cn(
-                        "p-3 cursor-pointer transition-colors hover:bg-accent",
-                        selectedAgent?.id === agent.id && "border-primary"
+                        "p-4 cursor-pointer transition-all border shadow-sm hover:shadow-md",
+                        selectedAgent?.id === agent.id ? "border-primary bg-primary/5" : "hover:bg-accent/50"
                       )}
                       onClick={() => setSelectedAgent(agent)}
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-2 flex-1 min-w-0">
-                          <div className="text-xl shrink-0">{agent.emoji}</div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm truncate">{agent.name}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5">
-                              {getFrequencyLabel(agent.frequency)}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-background border shadow-sm text-xl shrink-0">
+                            {agent.emoji}
+                          </div>
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <div className="flex items-center gap-2">
+                              <div className="font-semibold text-sm truncate">{agent.name}</div>
+                              <Badge variant="outline" className={cn("h-5 px-1.5 text-[10px] uppercase tracking-wider shrink-0",
+                                agent.status === "active" ? "text-green-600 border-green-200 bg-green-50" :
+                                agent.status === "error" ? "text-red-600 border-red-200 bg-red-50" : "text-muted-foreground"
+                              )}>
+                                {agent.status}
+                              </Badge>
                             </div>
-                            {agent.lastRun && (
-                              <div className="text-xs text-muted-foreground mt-0.5">
-                                Last: {formatTimestamp(agent.lastRun)}
-                              </div>
-                            )}
+                            <div className="text-xs text-muted-foreground flex items-center gap-2">
+                              <span>{getFrequencyLabel(agent.frequency)}</span>
+                              {agent.lastRun && (
+                                <>
+                                  <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
+                                  <span>{formatTimestamp(agent.lastRun)}</span>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <div className={cn("text-xs font-medium", getStatusColor(agent.status))}>
-                            {agent.status === "active" && <CheckCircle className="h-3 w-3" />}
-                            {agent.status === "paused" && <Pause className="h-3 w-3" />}
-                            {agent.status === "error" && <XCircle className="h-3 w-3" />}
-                          </div>
+                        <div className="flex items-center shrink-0">
                           <Switch
                             checked={agent.status === "active"}
                             onCheckedChange={() => toggleAgent(agent)}
                             onClick={(e) => e.stopPropagation()}
+                            className="data-[state=checked]:bg-green-600"
                           />
                         </div>
                       </div>
@@ -229,13 +236,15 @@ export function BackgroundAgentsDialog({ open, onOpenChange }: BackgroundAgentsD
             {/* Agent Templates */}
             <div className="pt-3 border-t border-border/50">
               <h3 className="text-sm font-semibold mb-2">Templates</h3>
-              <ScrollArea className="h-[180px]">
+              <ScrollArea className="h-[25vh] min-h-[150px] max-h-[220px]">
                 <div className="space-y-2 pr-2">
                   {AGENT_TEMPLATES.map((template, i) => (
-                    <Card key={i} className="p-2.5">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-start gap-2 flex-1 min-w-0">
-                          <div className="text-lg shrink-0">{template.emoji}</div>
+                    <Card key={i} className="p-3 hover:bg-accent/50 transition-colors">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-lg shrink-0">
+                            {template.emoji}
+                          </div>
                           <div className="flex-1 min-w-0">
                             <div className="font-medium text-sm truncate">{template.name}</div>
                             <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
@@ -246,10 +255,10 @@ export function BackgroundAgentsDialog({ open, onOpenChange }: BackgroundAgentsD
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-7 w-7 shrink-0"
+                          className="h-8 w-8 shrink-0"
                           onClick={() => createAgent(template)}
                         >
-                          <Plus className="h-3 w-3" />
+                          <Plus className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </Card>
