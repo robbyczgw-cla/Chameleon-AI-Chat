@@ -168,8 +168,8 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
     const lastMessage = chat.messages?.[chat.messages.length - 1]
     const messagePreview = lastMessage
       ? typeof lastMessage.content === "string"
-        ? lastMessage.content.substring(0, 50)
-        : lastMessage.content?.[0]?.text?.substring(0, 50) || "..."
+        ? lastMessage.content
+        : lastMessage.content?.[0]?.text || "..."
       : "No messages yet"
 
     // Format timestamp
@@ -206,7 +206,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         ) : (
           <>
             {/* Title Row - with right padding for hover buttons */}
-            <div className="flex items-center justify-between gap-2 pr-12">
+            <div className="flex items-center justify-between gap-2 pr-8">
               <span className={cn(
                 "font-medium text-sm truncate min-w-0 flex-1",
                 animatedTitleIds.has(chat.id) && "animate-title-appear"
@@ -215,7 +215,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             </div>
 
             {/* Message Preview - with right padding for hover buttons */}
-            <p className={cn("text-xs truncate min-w-0 pr-12", isActive ? "text-foreground/70" : "text-muted-foreground/70")}>
+            <p className={cn("text-xs truncate min-w-0 pr-8", isActive ? "text-foreground/70" : "text-muted-foreground/70")}>
               {messagePreview}
             </p>
 
