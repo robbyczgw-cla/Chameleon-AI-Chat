@@ -206,7 +206,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         ) : (
           <>
             {/* Title Row */}
-            <div className="flex items-center gap-2 pr-1">
+            <div className="flex items-center gap-2 pr-14 md:pr-16">
               <span className={cn(
                 "flex-1 min-w-0 truncate font-medium text-sm",
                 animatedTitleIds.has(chat.id) && "animate-title-appear"
@@ -215,7 +215,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             </div>
 
             {/* Message Preview */}
-            <p className={cn("text-xs truncate", isActive ? "text-foreground/60" : "text-muted-foreground")}>
+            <p className={cn("text-xs truncate pr-14 md:pr-16", isActive ? "text-foreground/60" : "text-muted-foreground")}>
               {messagePreview}
             </p>
 
