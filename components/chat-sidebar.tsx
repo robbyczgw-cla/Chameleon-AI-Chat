@@ -205,50 +205,52 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
           />
         ) : (
           <>
-            {/* Title Row - with right padding for hover buttons */}
-            <div className="flex items-center justify-between gap-2 pr-8">
+            {/* Title Row - buttons replace timestamp on hover */}
+            <div className="flex items-center gap-2">
               <span className={cn(
                 "font-medium text-sm truncate min-w-0 flex-1",
                 animatedTitleIds.has(chat.id) && "animate-title-appear"
               )}>{chat.title}</span>
-              <span className={cn("text-[10px] shrink-0 tabular-nums opacity-70", isActive ? "text-foreground" : "text-muted-foreground")}>{timestamp}</span>
+
+              {/* Timestamp - hidden on hover */}
+              <span className={cn("text-[10px] shrink-0 tabular-nums opacity-70 group-hover:hidden", isActive ? "text-foreground" : "text-muted-foreground")}>{timestamp}</span>
+
+              {/* Action Buttons - shown on hover, inline */}
+              <div className="hidden group-hover:flex items-center gap-0.5 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-5 w-5 rounded-sm hover:text-primary hover:bg-primary/10"
+                  onClick={(e) => handleTogglePin(chat.id, e)}
+                  title={chat.pinned ? "Unpin" : "Pin"}
+                >
+                  <Pin className={cn("h-2.5 w-2.5", chat.pinned && "fill-current text-primary")} />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon" className="h-5 w-5 rounded-sm hover:bg-muted">
+                      <MoreVertical className="h-2.5 w-2.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={(e) => handleEditStart(chat.id, chat.title, e)}>
+                      <Edit2 className="h-3 w-3 mr-2" />
+                      Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={(e) => handleDeleteChat(chat.id, e)} className="text-destructive">
+                      <Trash2 className="h-3 w-3 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
 
-            {/* Message Preview - with right padding for hover buttons */}
-            <p className={cn("text-xs truncate min-w-0 pr-8", isActive ? "text-foreground/70" : "text-muted-foreground/70")}>
+            {/* Message Preview */}
+            <p className={cn("text-xs truncate min-w-0", isActive ? "text-foreground/70" : "text-muted-foreground/70")}>
               {messagePreview}
             </p>
-
-            {/* Action Buttons - Inside the padding area */}
-            <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-background/95 backdrop-blur-sm p-0.5 rounded-md border border-border/50 shadow-sm z-10">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-5 w-5 rounded-sm hover:text-primary hover:bg-primary/10"
-                onClick={(e) => handleTogglePin(chat.id, e)}
-                title={chat.pinned ? "Unpin" : "Pin"}
-              >
-                <Pin className={cn("h-2.5 w-2.5", chat.pinned && "fill-current text-primary")} />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                  <Button variant="ghost" size="icon" className="h-5 w-5 rounded-sm hover:bg-muted">
-                    <MoreVertical className="h-2.5 w-2.5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={(e) => handleEditStart(chat.id, chat.title, e)}>
-                    <Edit2 className="h-3 w-3 mr-2" />
-                    Rename
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={(e) => handleDeleteChat(chat.id, e)} className="text-destructive">
-                    <Trash2 className="h-3 w-3 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
           </>
         )}
       </div>
