@@ -3,10 +3,13 @@
  *
  * Stores and retrieves user context, preferences, and facts to maintain
  * conversation continuity across sessions without excessive token usage.
+ *
+ * Supports optional cloud sync to Supabase for cross-device access.
  */
 
 import type { Memory, MemorySettings } from "@/types"
 import { generateUUID } from "@/lib/utils"
+import { supabaseSync } from "@/lib/supabase/sync"
 
 const MEMORY_STORAGE_KEY = "chat_memories"
 const EXTRACTION_MODEL = "openai/gpt-oss-20b" // Cheap, fast model for extraction
@@ -15,14 +18,74 @@ const DEFAULT_SETTINGS: MemorySettings = {
   autoExtract: true,
   maxMemoriesInContext: 5,
   importanceThreshold: 2,
+  syncToDatabase: false,
 }
 
 class MemoryService {
   private memories: Memory[] = []
   private settings: MemorySettings = DEFAULT_SETTINGS
+  private userId: string | null = null
+  private syncEnabled: boolean = false
 
   constructor() {
     this.loadMemories()
+  }
+
+  /**
+   * Configure database sync
+   */
+  configureDatabaseSync(userId: string | null, syncEnabled: boolean) {
+    this.userId = userId
+    this.syncEnabled = syncEnabled && !!userId
+    console.log("[Memory] Database sync configured:", { userId: userId ? "***" : null, syncEnabled: this.syncEnabled })
+  }
+
+  /**
+   * Load memories from database (for initial sync)
+   */
+  async loadFromDatabase(): Promise<void> {
+    if (!this.userId || !this.syncEnabled) {
+      console.log("[Memory] Database sync disabled, skipping load")
+      return
+    }
+
+    try {
+      console.log("[Memory] Loading memories from database...")
+      const dbMemories = await supabaseSync.syncMemories(this.userId)
+
+      // Merge with local memories (database takes priority for conflicts)
+      const localMemoryIds = new Set(this.memories.map(m => m.id))
+      const dbMemoryIds = new Set(dbMemories.map(m => m.id))
+
+      // Add DB memories that aren't local
+      for (const dbMem of dbMemories) {
+        if (!localMemoryIds.has(dbMem.id)) {
+          this.memories.push(dbMem)
+        } else {
+          // Update local with DB version (DB is source of truth)
+          const idx = this.memories.findIndex(m => m.id === dbMem.id)
+          if (idx !== -1) {
+            this.memories[idx] = dbMem
+          }
+        }
+      }
+
+      // Upload local-only memories to database
+      for (const localMem of this.memories) {
+        if (!dbMemoryIds.has(localMem.id)) {
+          try {
+            await supabaseSync.createMemory(this.userId, localMem)
+          } catch (err) {
+            console.error("[Memory] Failed to upload local memory:", err)
+          }
+        }
+      }
+
+      this.saveMemories() // Update localStorage with merged data
+      console.log("[Memory] Database sync complete. Total memories:", this.memories.length)
+    } catch (error) {
+      console.error("[Memory] Failed to load from database:", error)
+    }
   }
 
   /**
@@ -44,7 +107,7 @@ class MemoryService {
   }
 
   /**
-   * Save memories to localStorage
+   * Save memories to localStorage (and optionally to database)
    */
   private saveMemories() {
     // Skip during SSR
@@ -71,6 +134,13 @@ class MemoryService {
 
     this.memories.push(newMemory)
     this.saveMemories()
+
+    // Sync to database if enabled
+    if (this.syncEnabled && this.userId) {
+      supabaseSync.createMemory(this.userId, newMemory).catch(err => {
+        console.error("[Memory] Failed to sync new memory to database:", err)
+      })
+    }
 
     console.log("[Memory] Added:", newMemory.type, "-", newMemory.content.substring(0, 50))
     return newMemory
@@ -193,6 +263,14 @@ class MemoryService {
       ...updates,
     }
     this.saveMemories()
+
+    // Sync to database if enabled
+    if (this.syncEnabled && this.userId) {
+      supabaseSync.updateMemory(this.userId, this.memories[index]).catch(err => {
+        console.error("[Memory] Failed to sync memory update to database:", err)
+      })
+    }
+
     return true
   }
 
@@ -205,6 +283,14 @@ class MemoryService {
 
     this.memories.splice(index, 1)
     this.saveMemories()
+
+    // Sync to database if enabled
+    if (this.syncEnabled && this.userId) {
+      supabaseSync.deleteMemory(this.userId, id).catch(err => {
+        console.error("[Memory] Failed to sync memory deletion to database:", err)
+      })
+    }
+
     return true
   }
 
@@ -214,6 +300,13 @@ class MemoryService {
   clearAllMemories() {
     this.memories = []
     this.saveMemories()
+
+    // Sync to database if enabled
+    if (this.syncEnabled && this.userId) {
+      supabaseSync.deleteAllMemories(this.userId).catch(err => {
+        console.error("[Memory] Failed to sync memory clear to database:", err)
+      })
+    }
   }
 
   /**

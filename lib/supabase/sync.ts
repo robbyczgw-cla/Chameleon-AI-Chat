@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client"
-import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt } from "@/types"
+import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt, Memory } from "@/types"
 
 export class SupabaseSync {
   private supabase = createClient()
@@ -502,6 +502,117 @@ export class SupabaseSync {
     }
 
     return stats
+  }
+
+  // ===== Memories =====
+  async syncMemories(userId: string): Promise<Memory[]> {
+    const { data, error } = await this.supabase
+      .from("memories")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("[Supabase] Error syncing memories:", error)
+      throw error
+    }
+
+    console.log("[Supabase] Synced", data.length, "memories from database")
+    return data.map(this.mapMemoryFromDB)
+  }
+
+  async createMemory(userId: string, memory: Memory): Promise<void> {
+    console.log("[Supabase] Creating memory:", memory.type, "-", memory.content.substring(0, 40))
+
+    const { error } = await this.supabase.from("memories").insert({
+      id: memory.id,
+      user_id: userId,
+      type: memory.type,
+      content: memory.content,
+      category: memory.category || null,
+      importance: memory.importance,
+      source: memory.source || null,
+      metadata: memory.metadata || {},
+      access_count: memory.accessCount,
+      created_at: new Date(memory.createdAt).toISOString(),
+      last_accessed_at: new Date(memory.lastAccessedAt).toISOString(),
+    })
+
+    if (error) {
+      // Ignore duplicate key errors
+      if (error.code === "23505") {
+        console.log("[Supabase] Memory already exists, skipping:", memory.id)
+        return
+      }
+      console.error("[Supabase] Error creating memory:", error)
+      throw error
+    }
+
+    console.log("[Supabase] Memory created successfully:", memory.id)
+  }
+
+  async updateMemory(userId: string, memory: Memory): Promise<void> {
+    const { error } = await this.supabase
+      .from("memories")
+      .update({
+        content: memory.content,
+        category: memory.category || null,
+        importance: memory.importance,
+        metadata: memory.metadata || {},
+        access_count: memory.accessCount,
+        last_accessed_at: new Date(memory.lastAccessedAt).toISOString(),
+      })
+      .eq("id", memory.id)
+      .eq("user_id", userId)
+
+    if (error) {
+      console.error("[Supabase] Error updating memory:", error)
+      throw error
+    }
+  }
+
+  async deleteMemory(userId: string, memoryId: string): Promise<void> {
+    const { error } = await this.supabase
+      .from("memories")
+      .delete()
+      .eq("id", memoryId)
+      .eq("user_id", userId)
+
+    if (error) {
+      console.error("[Supabase] Error deleting memory:", error)
+      throw error
+    }
+
+    console.log("[Supabase] Memory deleted:", memoryId)
+  }
+
+  async deleteAllMemories(userId: string): Promise<void> {
+    const { error } = await this.supabase
+      .from("memories")
+      .delete()
+      .eq("user_id", userId)
+
+    if (error) {
+      console.error("[Supabase] Error deleting all memories:", error)
+      throw error
+    }
+
+    console.log("[Supabase] All memories deleted for user")
+  }
+
+  private mapMemoryFromDB(dbMemory: any): Memory {
+    return {
+      id: dbMemory.id,
+      type: dbMemory.type,
+      content: dbMemory.content,
+      category: dbMemory.category || undefined,
+      importance: dbMemory.importance,
+      source: dbMemory.source || undefined,
+      metadata: dbMemory.metadata || undefined,
+      accessCount: dbMemory.access_count || 0,
+      createdAt: new Date(dbMemory.created_at).getTime(),
+      lastAccessedAt: new Date(dbMemory.last_accessed_at).getTime(),
+    }
   }
 
   // ===== Mappers =====

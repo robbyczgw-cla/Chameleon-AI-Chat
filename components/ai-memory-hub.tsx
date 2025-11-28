@@ -25,6 +25,9 @@ import {
   Info,
   Download,
   Upload,
+  Shield,
+  Cloud,
+  AlertTriangle,
 } from "lucide-react"
 import { memoryService } from "@/lib/memory-service"
 import type { Memory } from "@/types"
@@ -39,6 +42,7 @@ export function AIMemoryHub() {
   const { toast } = useToast()
   const [memories, setMemories] = useState<Memory[]>([])
   const [isEnabled, setIsEnabled] = useState(settings.memorySettings?.enabled ?? false)
+  const [syncToDatabase, setSyncToDatabase] = useState(settings.memorySettings?.syncToDatabase ?? false)
   const [activeTab, setActiveTab] = useState<Memory["type"]>("preference")
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -57,7 +61,8 @@ export function AIMemoryHub() {
   // Sync local state with settings changes (fixes persistence bug)
   useEffect(() => {
     setIsEnabled(settings.memorySettings?.enabled ?? false)
-  }, [settings.memorySettings?.enabled])
+    setSyncToDatabase(settings.memorySettings?.syncToDatabase ?? false)
+  }, [settings.memorySettings?.enabled, settings.memorySettings?.syncToDatabase])
 
   const loadMemories = () => {
     const allMemories = memoryService.getAllMemories()
@@ -82,6 +87,32 @@ export function AIMemoryHub() {
     updateSettings({
       memorySettings: newMemorySettings,
     })
+  }
+
+  const toggleDatabaseSync = (enabled: boolean) => {
+    console.log("[AIMemoryHub] Database sync toggled:", enabled)
+    setSyncToDatabase(enabled)
+
+    updateSettings({
+      memorySettings: {
+        ...settings.memorySettings,
+        syncToDatabase: enabled,
+      },
+    })
+
+    if (enabled) {
+      toast({
+        title: "Cloud Sync Enabled",
+        description: "Memories will sync to database. Less private but more convenient.",
+        duration: 3000,
+      })
+    } else {
+      toast({
+        title: "Cloud Sync Disabled",
+        description: "Memories stored locally only. More private.",
+        duration: 3000,
+      })
+    }
   }
 
   const addMemory = () => {
@@ -252,6 +283,49 @@ export function AIMemoryHub() {
         </div>
         <Switch checked={isEnabled} onCheckedChange={toggleMemorySystem} />
       </div>
+
+      {/* Privacy Setting - Cloud Sync Toggle */}
+      {isEnabled && (
+        <div className="p-4 rounded-lg border bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className={cn(
+                "h-10 w-10 rounded-lg shadow-lg flex items-center justify-center",
+                syncToDatabase
+                  ? "bg-gradient-to-br from-blue-500 to-cyan-500"
+                  : "bg-gradient-to-br from-green-500 to-emerald-500"
+              )}>
+                {syncToDatabase ? (
+                  <Cloud className="h-5 w-5 text-white" />
+                ) : (
+                  <Shield className="h-5 w-5 text-white" />
+                )}
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-sm flex items-center gap-2">
+                  {syncToDatabase ? "Cloud Sync Enabled" : "Local Storage Only"}
+                  {syncToDatabase && (
+                    <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-600">
+                      <AlertTriangle className="h-2.5 w-2.5 mr-1" />
+                      Less Private
+                    </Badge>
+                  )}
+                </h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {syncToDatabase
+                    ? "Memories saved to database for cross-device access. Data stored on Supabase servers."
+                    : "Memories stored in your browser only. Maximum privacy, but no sync between devices."
+                  }
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={syncToDatabase}
+              onCheckedChange={toggleDatabaseSync}
+            />
+          </div>
+        </div>
+      )}
 
       {!isEnabled && (
         <Card className="p-6 text-center bg-muted/30 border-dashed">

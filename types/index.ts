@@ -306,4 +306,5 @@ export interface MemorySettings {
   autoExtract: boolean // Automatically extract memories from conversations
   maxMemoriesInContext: number // How many memories to include in prompts (default 5)
   importanceThreshold: 1 | 2 | 3 // Minimum importance to include (default 2)
+  syncToDatabase: boolean // Save memories to Supabase for cross-device sync (less private)
 }
