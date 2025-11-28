@@ -47,6 +47,7 @@ import { QuickActionsMenu } from "@/components/quick-actions-menu"
 import { PromptInspector } from "@/components/prompt-inspector"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { PromptHelperDialog } from "@/components/prompt-helper-dialog"
+import { BackgroundAgentsDialog } from "@/components/background-agents-dialog"
 
 export function ChatHeader() {
   const { settings, updateSettings, chats, currentChatId } = useApp()
@@ -63,6 +64,7 @@ export function ChatHeader() {
   const [isDebateOpen, setIsDebateOpen] = useState(false)
   const [isInspectorOpen, setIsInspectorOpen] = useState(false)
   const [isPromptHelperOpen, setIsPromptHelperOpen] = useState(false)
+  const [isAgentsOpen, setIsAgentsOpen] = useState(false)
   const { inspectorData } = usePromptInspectorStore()
 
   // Mobile toggle states
@@ -158,6 +160,7 @@ export function ChatHeader() {
     const handleOpenAdvancedSettings = () => setIsAdvancedSettingsOpen(true)
     const handleOpenDebate = () => setIsDebateOpen(true)
     const handleOpenInspector = () => setIsInspectorOpen(true)
+    const handleOpenAgents = () => setIsAgentsOpen(true)
 
     window.addEventListener("openSearch", handleOpenSearch)
     window.addEventListener("openPersonas", handleOpenPersonas)
@@ -169,6 +172,7 @@ export function ChatHeader() {
     window.addEventListener("openAdvancedSettings", handleOpenAdvancedSettings)
     window.addEventListener("openDebate", handleOpenDebate)
     window.addEventListener("openInspector", handleOpenInspector)
+    window.addEventListener("openAgents", handleOpenAgents)
 
     return () => {
       window.removeEventListener("openSearch", handleOpenSearch)
@@ -181,6 +185,7 @@ export function ChatHeader() {
       window.removeEventListener("openAdvancedSettings", handleOpenAdvancedSettings)
       window.removeEventListener("openDebate", handleOpenDebate)
       window.removeEventListener("openInspector", handleOpenInspector)
+      window.removeEventListener("openAgents", handleOpenAgents)
     }
   }, [])
 
@@ -462,6 +467,7 @@ export function ChatHeader() {
           {/* Quick Actions Menu */}
           <QuickActionsMenu
             onDocCollectionsClick={() => setIsDocCollectionsOpen(true)}
+            onAgentsClick={() => setIsAgentsOpen(true)}
             isMusicPlaying={isMusicPlaying}
             onMusicToggle={toggleMusic}
           />
@@ -536,6 +542,10 @@ export function ChatHeader() {
         open={isInspectorOpen}
         onOpenChange={setIsInspectorOpen}
         data={inspectorData}
+      />
+      <BackgroundAgentsDialog
+        open={isAgentsOpen}
+        onOpenChange={setIsAgentsOpen}
       />
     </>
   )
