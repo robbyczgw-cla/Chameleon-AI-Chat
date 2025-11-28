@@ -283,29 +283,28 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
         </DialogHeader>
 
         <Tabs defaultValue="general" className="w-full flex-1 flex flex-col overflow-hidden">
-          <div className="overflow-x-auto flex-shrink-0 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-thin">
-            <TabsList className="inline-flex w-auto min-w-full h-auto gap-1 justify-start">
+          {/* Mobile: horizontal scroll, Desktop: 2 rows grid */}
+          <div className="flex-shrink-0 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto sm:overflow-x-visible">
+            <TabsList className="inline-flex w-auto min-w-full h-auto gap-1 justify-start sm:grid sm:grid-cols-5 sm:w-full sm:gap-1.5">
               <TabsTrigger value="general" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <Settings className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 {translations.settings.general}
               </TabsTrigger>
               <TabsTrigger value="memory" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <Brain className="h-3.5 w-3.5 mr-1.5 inline-block" />
-                AI Memory
+                Memory
               </TabsTrigger>
               <TabsTrigger value="analytics" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <BarChart3 className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 Analytics
               </TabsTrigger>
-              {/* Prompts tab removed - now use Personas Manager instead */}
-              {/* AI Debate moved to top bar */}
               <TabsTrigger value="api" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <Key className="h-3.5 w-3.5 mr-1.5 inline-block" />
-                {translations.settings.apiKeys}
+                API Keys
               </TabsTrigger>
               <TabsTrigger value="search" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <Search className="h-3.5 w-3.5 mr-1.5 inline-block" />
-                Web Search
+                Search
               </TabsTrigger>
               {!hideOptions.includes("voice") && (
                 <TabsTrigger value="voice" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
@@ -321,11 +320,11 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
               )}
               <TabsTrigger value="statistics" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <PieChart className="h-3.5 w-3.5 mr-1.5 inline-block" />
-                Statistics
+                Stats
               </TabsTrigger>
               <TabsTrigger value="experimental" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <FlaskRound className="h-3.5 w-3.5 mr-1.5 inline-block" />
-                Experimental
+                Labs
               </TabsTrigger>
             </TabsList>
           </div>

@@ -9,14 +9,7 @@ import { searchService } from "@/lib/search-service"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { MessageSquarePlus, Search, MoreVertical, Trash2, Edit2, Pin, FolderPlus, Folder, Sparkles } from "lucide-react"
+import { MessageSquarePlus, Search, Trash2, Edit2, Pin, FolderPlus, Folder, Sparkles } from "lucide-react"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -237,24 +230,24 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
                   >
                     <Pin className={cn("h-3 w-3", chat.pinned && "fill-current text-primary")} />
                   </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 rounded hover:bg-muted">
-                        <MoreVertical className="h-3 w-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" side="bottom">
-                      <DropdownMenuItem onClick={(e) => handleEditStart(chat.id, chat.title, e)}>
-                        <Edit2 className="h-3 w-3 mr-2" />
-                        Rename
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={(e) => handleDeleteChat(chat.id, e)} className="text-destructive">
-                        <Trash2 className="h-3 w-3 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 rounded hover:text-blue-500 hover:bg-blue-500/10"
+                    onClick={(e) => handleEditStart(chat.id, chat.title, e)}
+                    title="Rename"
+                  >
+                    <Edit2 className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 rounded hover:text-destructive hover:bg-destructive/10"
+                    onClick={(e) => handleDeleteChat(chat.id, e)}
+                    title="Delete"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
                 </div>
               </div>
             </div>

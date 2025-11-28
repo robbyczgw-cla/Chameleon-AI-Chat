@@ -3,7 +3,18 @@
  * Autonomous agents that run periodic tasks in the background
  */
 
-export type AgentType = "tech-news" | "bitcoin-tracker" | "website-watcher" | "custom"
+export type AgentType =
+  | "tech-news"
+  | "bitcoin-tracker"
+  | "website-watcher"
+  | "weather-alert"
+  | "reddit-monitor"
+  | "github-tracker"
+  | "stock-watchlist"
+  | "habit-reminder"
+  | "quote-of-day"
+  | "language-word"
+  | "custom"
 
 export type AgentStatus = "active" | "paused" | "error"
 
@@ -72,6 +83,100 @@ export const AGENT_TEMPLATES: Omit<BackgroundAgent, "id" | "createdAt" | "lastRu
       urls: [],
       checkInterval: 24, // hours
       notifyOnChange: true,
+    },
+  },
+  {
+    name: "Weather Alert",
+    type: "weather-alert",
+    emoji: "🌦️",
+    description: "Daily weather forecast with alerts for rain, storms, or extreme temperatures",
+    frequency: "daily",
+    status: "paused",
+    config: {
+      location: "Vienna, Austria",
+      alertOnRain: true,
+      alertOnExtreme: true,
+      units: "metric",
+    },
+  },
+  {
+    name: "Reddit Monitor",
+    type: "reddit-monitor",
+    emoji: "🔥",
+    description: "Monitors subreddits for hot posts matching your interests",
+    frequency: "hourly",
+    status: "paused",
+    config: {
+      subreddits: ["programming", "webdev", "artificial"],
+      keywords: [],
+      minUpvotes: 100,
+      maxItems: 5,
+    },
+  },
+  {
+    name: "GitHub Tracker",
+    type: "github-tracker",
+    emoji: "🐙",
+    description: "Tracks stars, issues, and releases on your favorite repos",
+    frequency: "daily",
+    status: "paused",
+    config: {
+      repos: ["vercel/next.js", "facebook/react"],
+      trackStars: true,
+      trackReleases: true,
+      trackIssues: false,
+    },
+  },
+  {
+    name: "Stock Watchlist",
+    type: "stock-watchlist",
+    emoji: "📈",
+    description: "Track stock prices and get alerts on significant movements",
+    frequency: "hourly",
+    status: "paused",
+    config: {
+      symbols: ["AAPL", "GOOGL", "MSFT", "NVDA"],
+      alertThreshold: 3, // % change
+      currency: "USD",
+    },
+  },
+  {
+    name: "Habit Reminder",
+    type: "habit-reminder",
+    emoji: "✅",
+    description: "Daily reminders for habits you want to build or maintain",
+    frequency: "daily",
+    status: "paused",
+    config: {
+      habits: ["Drink 8 glasses of water", "30 min exercise", "Read 20 pages"],
+      reminderTime: "09:00",
+      trackStreak: true,
+    },
+  },
+  {
+    name: "Quote of the Day",
+    type: "quote-of-day",
+    emoji: "💭",
+    description: "Delivers an inspiring or thought-provoking quote every day",
+    frequency: "daily",
+    status: "paused",
+    config: {
+      categories: ["motivation", "wisdom", "humor", "philosophy"],
+      author: null, // null = random, or specific author name
+    },
+  },
+  {
+    name: "Language Word",
+    type: "language-word",
+    emoji: "🗣️",
+    description: "Learn a new word every day in your target language",
+    frequency: "daily",
+    status: "paused",
+    config: {
+      targetLanguage: "Spanish",
+      nativeLanguage: "English",
+      difficulty: "intermediate",
+      includeExample: true,
     },
   },
 ]
@@ -242,6 +347,41 @@ class BackgroundAgentsService {
           result.summary = `Checked ${result.data.checked} websites, ${result.data.changed} changed`
           break
 
+        case "weather-alert":
+          result.data = await this.fetchWeather(agent.config)
+          result.summary = `${result.data.condition} ${result.data.temp}°${result.data.units === 'metric' ? 'C' : 'F'} - ${result.data.alert || 'No alerts'}`
+          break
+
+        case "reddit-monitor":
+          result.data = await this.fetchRedditHot(agent.config)
+          result.summary = `Found ${result.data.length} hot posts`
+          break
+
+        case "github-tracker":
+          result.data = await this.trackGitHub(agent.config)
+          result.summary = `${result.data.repos.length} repos tracked, ${result.data.newReleases} new releases`
+          break
+
+        case "stock-watchlist":
+          result.data = await this.fetchStocks(agent.config)
+          result.summary = result.data.map((s: any) => `${s.symbol}: $${s.price.toFixed(2)}`).join(', ')
+          break
+
+        case "habit-reminder":
+          result.data = await this.getHabitReminder(agent.config)
+          result.summary = `${result.data.habits.length} habits to complete today. Streak: ${result.data.streak} days`
+          break
+
+        case "quote-of-day":
+          result.data = await this.fetchQuote(agent.config)
+          result.summary = `"${result.data.quote.substring(0, 50)}..." - ${result.data.author}`
+          break
+
+        case "language-word":
+          result.data = await this.fetchLanguageWord(agent.config)
+          result.summary = `${result.data.word} (${result.data.translation})`
+          break
+
         default:
           throw new Error(`Unknown agent type: ${agent.type}`)
       }
@@ -319,6 +459,98 @@ class BackgroundAgentsService {
       changed,
       changes: changed > 0 ? [{ url: urls[0], diff: "Content updated" }] : [],
     }
+  }
+
+  private async fetchWeather(config: any): Promise<any> {
+    await new Promise(resolve => setTimeout(resolve, 600))
+    const conditions = ["☀️ Sunny", "⛅ Partly Cloudy", "🌧️ Rainy", "❄️ Snowy", "🌤️ Clear"]
+    const temp = config.units === "metric" ? Math.floor(10 + Math.random() * 20) : Math.floor(50 + Math.random() * 40)
+    const alerts = [null, null, null, "🌧️ Rain expected this afternoon", "⚠️ High UV index"]
+
+    return {
+      location: config.location,
+      condition: conditions[Math.floor(Math.random() * conditions.length)],
+      temp,
+      units: config.units,
+      alert: alerts[Math.floor(Math.random() * alerts.length)],
+    }
+  }
+
+  private async fetchRedditHot(config: any): Promise<any[]> {
+    await new Promise(resolve => setTimeout(resolve, 700))
+    const mockPosts = [
+      { title: "TIL about an amazing programming technique", subreddit: "programming", upvotes: 2500 },
+      { title: "What's the best framework in 2024?", subreddit: "webdev", upvotes: 1800 },
+      { title: "New breakthrough in machine learning", subreddit: "artificial", upvotes: 3200 },
+      { title: "My side project hit 10k users!", subreddit: "startups", upvotes: 950 },
+    ]
+    return mockPosts.slice(0, config.maxItems || 5)
+  }
+
+  private async trackGitHub(config: any): Promise<any> {
+    await new Promise(resolve => setTimeout(resolve, 800))
+    const repos = (config.repos || []).map((repo: string) => ({
+      name: repo,
+      stars: Math.floor(50000 + Math.random() * 50000),
+      newStars: Math.floor(Math.random() * 100),
+      latestRelease: "v" + Math.floor(1 + Math.random() * 20) + ".0.0",
+    }))
+    return {
+      repos,
+      newReleases: Math.floor(Math.random() * repos.length),
+    }
+  }
+
+  private async fetchStocks(config: any): Promise<any[]> {
+    await new Promise(resolve => setTimeout(resolve, 500))
+    return (config.symbols || []).map((symbol: string) => ({
+      symbol,
+      price: 100 + Math.random() * 200,
+      change: (Math.random() - 0.5) * 10,
+    }))
+  }
+
+  private async getHabitReminder(config: any): Promise<any> {
+    await new Promise(resolve => setTimeout(resolve, 200))
+    return {
+      habits: config.habits || [],
+      streak: Math.floor(Math.random() * 30),
+      completedToday: Math.floor(Math.random() * (config.habits?.length || 3)),
+    }
+  }
+
+  private async fetchQuote(config: any): Promise<any> {
+    await new Promise(resolve => setTimeout(resolve, 400))
+    const quotes = [
+      { quote: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+      { quote: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
+      { quote: "Stay hungry, stay foolish.", author: "Steve Jobs" },
+      { quote: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+      { quote: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
+      { quote: "The only impossible journey is the one you never begin.", author: "Tony Robbins" },
+    ]
+    return quotes[Math.floor(Math.random() * quotes.length)]
+  }
+
+  private async fetchLanguageWord(config: any): Promise<any> {
+    await new Promise(resolve => setTimeout(resolve, 300))
+    const words: Record<string, any[]> = {
+      Spanish: [
+        { word: "serendipity", translation: "serendipia", example: "Fue serendipia encontrarte aquí." },
+        { word: "butterfly", translation: "mariposa", example: "La mariposa vuela en el jardín." },
+        { word: "sunrise", translation: "amanecer", example: "El amanecer es hermoso." },
+      ],
+      German: [
+        { word: "butterfly", translation: "Schmetterling", example: "Der Schmetterling ist bunt." },
+        { word: "longing", translation: "Sehnsucht", example: "Ich habe Sehnsucht nach dir." },
+      ],
+      French: [
+        { word: "butterfly", translation: "papillon", example: "Le papillon est dans le jardin." },
+        { word: "dream", translation: "rêve", example: "C'est un beau rêve." },
+      ],
+    }
+    const langWords = words[config.targetLanguage] || words.Spanish
+    return langWords[Math.floor(Math.random() * langWords.length)]
   }
 }
 
