@@ -23,16 +23,20 @@ import {
   Save,
   X,
   Info,
+  Download,
+  Upload,
 } from "lucide-react"
 import { memoryService } from "@/lib/memory-service"
 import type { Memory } from "@/types"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n"
+import { useToast } from "@/hooks/use-toast"
 
 export function AIMemoryHub() {
   const { settings, updateSettings } = useApp()
   const currentLanguage = settings.language || "en"
   const { t, translations } = useTranslation(currentLanguage)
+  const { toast } = useToast()
   const [memories, setMemories] = useState<Memory[]>([])
   const [isEnabled, setIsEnabled] = useState(settings.memorySettings?.enabled ?? false)
   const [activeTab, setActiveTab] = useState<Memory["type"]>("preference")
@@ -113,6 +117,88 @@ export function AIMemoryHub() {
   const updateMemoryImportance = (id: string, importance: 1 | 2 | 3) => {
     memoryService.updateMemory(id, { importance })
     loadMemories()
+  }
+
+  const handleExport = () => {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      memories: memories,
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `chameleon-memories-${new Date().toISOString().split("T")[0]}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    toast({
+      title: "Memories exported",
+      description: `Exported ${memories.length} memories`,
+      duration: 2000,
+    })
+  }
+
+  const handleImport = () => {
+    const input = document.createElement("input")
+    input.type = "file"
+    input.accept = ".json"
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+
+      try {
+        const text = await file.text()
+        const data = JSON.parse(text)
+
+        if (!data.memories || !Array.isArray(data.memories)) {
+          throw new Error("Invalid file format")
+        }
+
+        let imported = 0
+        let skipped = 0
+
+        for (const memory of data.memories) {
+          if (!memory.type || !memory.content || memory.importance === undefined) {
+            skipped++
+            continue
+          }
+
+          const existingContent = memories.map(m => m.content.toLowerCase())
+          if (existingContent.includes(memory.content.toLowerCase())) {
+            skipped++
+            continue
+          }
+
+          memoryService.addMemory({
+            type: memory.type,
+            content: memory.content,
+            importance: memory.importance,
+            category: memory.category,
+          })
+          imported++
+        }
+
+        loadMemories()
+
+        toast({
+          title: "Import complete",
+          description: `Imported ${imported} memories${skipped > 0 ? `, skipped ${skipped}` : ""}`,
+          duration: 2000,
+        })
+      } catch (error) {
+        toast({
+          title: "Import failed",
+          description: "Invalid JSON file",
+          variant: "destructive",
+          duration: 2000,
+        })
+      }
+    }
+    input.click()
   }
 
   const getTypeIcon = (type: Memory["type"]) => {
@@ -207,6 +293,18 @@ export function AIMemoryHub() {
               <div className="text-2xl font-bold">{stats.byType.goal}</div>
               <div className="text-xs text-muted-foreground">{translations.memory.goals}</div>
             </Card>
+          </div>
+
+          {/* Import/Export Buttons */}
+          <div className="flex gap-2 justify-end">
+            <Button onClick={handleExport} size="sm" variant="outline" disabled={memories.length === 0}>
+              <Download className="h-4 w-4 mr-1.5" />
+              Export
+            </Button>
+            <Button onClick={handleImport} size="sm" variant="outline">
+              <Upload className="h-4 w-4 mr-1.5" />
+              Import
+            </Button>
           </div>
 
           {/* Info Card */}

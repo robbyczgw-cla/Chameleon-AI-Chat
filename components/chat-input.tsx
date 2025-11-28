@@ -870,6 +870,11 @@ export function ChatInput() {
           ).then((memories) => {
             if (memories.length > 0) {
               console.log("[ChatInput] 💾 Auto-saved", memories.length, "new memories")
+              toast({
+                title: "🧠 Memory saved",
+                description: `Saved ${memories.length} new ${memories.length === 1 ? 'memory' : 'memories'}`,
+                duration: 2000,
+              })
             }
           }).catch((err) => {
             console.error("[ChatInput] Memory extraction failed:", err)

@@ -601,6 +601,11 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
           ).then((memories) => {
             if (memories.length > 0) {
               console.log("[Simple Chat] 💾 Auto-saved", memories.length, "new memories")
+              toast({
+                title: "🧠 Memory saved",
+                description: `Saved ${memories.length} new ${memories.length === 1 ? 'memory' : 'memories'}`,
+                duration: 2000,
+              })
             }
           }).catch((err) => {
             console.error("[Simple Chat] Memory extraction failed:", err)
