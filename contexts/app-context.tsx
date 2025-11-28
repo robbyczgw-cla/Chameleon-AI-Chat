@@ -11,6 +11,7 @@ import { getUserSelectedModels } from "@/lib/model-preferences"
 import { sanitizeChatsForStorage, safeSetLocalStorage, getLocalStorageUsage, forceCleanupLocalStorage } from "@/lib/storage-utils"
 import { generateChatTitle } from "@/lib/title-generator"
 import { stripImageDataFromContent } from "@/lib/multimodal-utils"
+import { memoryService } from "@/lib/memory-service"
 
 interface AppContextType {
   chats: Chat[]
@@ -311,6 +312,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+
+  // Sync memory service settings whenever app settings change
+  useEffect(() => {
+    if (settings.memorySettings) {
+      console.log("[AppContext] Syncing memory settings to memoryService:", settings.memorySettings)
+      memoryService.updateSettings(settings.memorySettings)
+    }
+  }, [settings.memorySettings])
 
   // Sync model preference changes back to app settings
   useEffect(() => {
