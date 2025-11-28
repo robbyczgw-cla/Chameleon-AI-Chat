@@ -1,0 +1,390 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Switch } from "@/components/ui/switch"
+import {
+  Bot,
+  Plus,
+  Play,
+  Pause,
+  Trash2,
+  RefreshCw,
+  Clock,
+  CheckCircle,
+  XCircle,
+  TrendingUp,
+} from "lucide-react"
+import {
+  backgroundAgentsService,
+  type BackgroundAgent,
+  type AgentResult,
+  AGENT_TEMPLATES,
+} from "@/lib/background-agents"
+import { cn } from "@/lib/utils"
+import { useToast } from "@/hooks/use-toast"
+
+interface BackgroundAgentsDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export function BackgroundAgentsDialog({ open, onOpenChange }: BackgroundAgentsDialogProps) {
+  const [agents, setAgents] = useState<BackgroundAgent[]>([])
+  const [selectedAgent, setSelectedAgent] = useState<BackgroundAgent | null>(null)
+  const [isRunning, setIsRunning] = useState(false)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    if (open) {
+      loadAgents()
+    }
+  }, [open])
+
+  const loadAgents = () => {
+    setAgents(backgroundAgentsService.getAllAgents())
+  }
+
+  const createAgent = (template: typeof AGENT_TEMPLATES[0]) => {
+    const agent = backgroundAgentsService.createAgent(template)
+    loadAgents()
+    toast({
+      title: "Agent created",
+      description: `${agent.name} is ready to go!`,
+      duration: 2000,
+    })
+  }
+
+  const toggleAgent = (agent: BackgroundAgent) => {
+    if (agent.status === "active") {
+      backgroundAgentsService.pauseAgent(agent.id)
+      toast({
+        title: "Agent paused",
+        description: `${agent.name} has been paused`,
+        duration: 2000,
+      })
+    } else {
+      backgroundAgentsService.startAgent(agent.id)
+      toast({
+        title: "Agent started",
+        description: `${agent.name} is now running in the background`,
+        duration: 2000,
+      })
+    }
+    loadAgents()
+  }
+
+  const runAgentNow = async (agent: BackgroundAgent) => {
+    setIsRunning(true)
+    try {
+      const result = await backgroundAgentsService.runAgentNow(agent.id)
+      loadAgents()
+
+      if (result.success) {
+        toast({
+          title: "Agent executed",
+          description: result.summary || "Task completed successfully",
+          duration: 3000,
+        })
+      } else {
+        toast({
+          title: "Agent failed",
+          description: result.error || "Task failed",
+          variant: "destructive",
+          duration: 3000,
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to run agent",
+        variant: "destructive",
+        duration: 3000,
+      })
+    } finally {
+      setIsRunning(false)
+    }
+  }
+
+  const deleteAgent = (agentId: string) => {
+    if (confirm("Are you sure you want to delete this agent?")) {
+      backgroundAgentsService.deleteAgent(agentId)
+      loadAgents()
+      setSelectedAgent(null)
+      toast({
+        title: "Agent deleted",
+        description: "Agent has been removed",
+        duration: 2000,
+      })
+    }
+  }
+
+  const getStatusColor = (status: BackgroundAgent["status"]) => {
+    switch (status) {
+      case "active": return "text-green-600"
+      case "paused": return "text-gray-600"
+      case "error": return "text-red-600"
+    }
+  }
+
+  const getFrequencyLabel = (frequency: BackgroundAgent["frequency"]) => {
+    switch (frequency) {
+      case "hourly": return "Every hour"
+      case "daily": return "Daily"
+      case "weekly": return "Weekly"
+      case "manual": return "Manual only"
+    }
+  }
+
+  const formatTimestamp = (ts: number) => {
+    const date = new Date(ts)
+    const now = Date.now()
+    const diff = now - ts
+
+    if (diff < 60000) return "Just now"
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
+    return date.toLocaleDateString()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[80vh]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Bot className="h-5 w-5" />
+            Background Agents
+          </DialogTitle>
+          <DialogDescription>
+            Autonomous agents that run tasks in the background
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          {/* Agents List */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Your Agents</h3>
+              <Button size="sm" variant="outline" onClick={loadAgents}>
+                <RefreshCw className="h-3 w-3" />
+              </Button>
+            </div>
+
+            <ScrollArea className="h-[400px]">
+              <div className="space-y-2">
+                {agents.length === 0 && (
+                  <Card className="p-6 text-center text-muted-foreground">
+                    <Bot className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p className="text-sm">No agents yet</p>
+                    <p className="text-xs mt-1">Create one from the templates →</p>
+                  </Card>
+                )}
+
+                {agents.map((agent) => (
+                  <Card
+                    key={agent.id}
+                    className={cn(
+                      "p-3 cursor-pointer transition-colors hover:bg-accent",
+                      selectedAgent?.id === agent.id && "border-primary"
+                    )}
+                    onClick={() => setSelectedAgent(agent)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2 flex-1">
+                        <div className="text-2xl">{agent.emoji}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm truncate">{agent.name}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {getFrequencyLabel(agent.frequency)}
+                          </div>
+                          {agent.lastRun && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Last: {formatTimestamp(agent.lastRun)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className={cn("text-xs font-medium", getStatusColor(agent.status))}>
+                          {agent.status === "active" && <CheckCircle className="h-3 w-3" />}
+                          {agent.status === "paused" && <Pause className="h-3 w-3" />}
+                          {agent.status === "error" && <XCircle className="h-3 w-3" />}
+                        </div>
+                        <Switch
+                          checked={agent.status === "active"}
+                          onCheckedChange={() => toggleAgent(agent)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+
+            {/* Agent Templates */}
+            <div className="mt-4">
+              <h3 className="text-sm font-semibold mb-2">Templates</h3>
+              <div className="space-y-2">
+                {AGENT_TEMPLATES.map((template, i) => (
+                  <Card key={i} className="p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2 flex-1">
+                        <div className="text-xl">{template.emoji}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm">{template.name}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {template.description}
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => createAgent(template)}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Agent Details */}
+          <div>
+            {selectedAgent ? (
+              <Card className="p-4">
+                <div className="space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{selectedAgent.emoji}</span>
+                        <h3 className="font-semibold">{selectedAgent.name}</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {selectedAgent.description}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => deleteAgent(selectedAgent.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => runAgentNow(selectedAgent)}
+                      disabled={isRunning}
+                      className="flex-1"
+                    >
+                      {isRunning ? (
+                        <>
+                          <RefreshCw className="h-3 w-3 mr-1.5 animate-spin" />
+                          Running...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-3 w-3 mr-1.5" />
+                          Run Now
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => toggleAgent(selectedAgent)}
+                      className="flex-1"
+                    >
+                      {selectedAgent.status === "active" ? (
+                        <>
+                          <Pause className="h-3 w-3 mr-1.5" />
+                          Pause
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-3 w-3 mr-1.5" />
+                          Start
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Status</span>
+                      <Badge variant={selectedAgent.status === "active" ? "default" : "secondary"}>
+                        {selectedAgent.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Frequency</span>
+                      <span>{getFrequencyLabel(selectedAgent.frequency)}</span>
+                    </div>
+                    {selectedAgent.lastRun && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Last Run</span>
+                        <span>{formatTimestamp(selectedAgent.lastRun)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Recent Results */}
+                  {selectedAgent.results && selectedAgent.results.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="text-sm font-semibold mb-2">Recent Results</h4>
+                      <ScrollArea className="h-[200px]">
+                        <div className="space-y-2">
+                          {selectedAgent.results.map((result) => (
+                            <Card key={result.id} className="p-2">
+                              <div className="flex items-start gap-2">
+                                {result.success ? (
+                                  <CheckCircle className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                                ) : (
+                                  <XCircle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs font-medium">
+                                    {result.summary || (result.success ? "Success" : "Failed")}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground mt-0.5">
+                                    {formatTimestamp(result.timestamp)}
+                                  </div>
+                                  {result.error && (
+                                    <div className="text-xs text-destructive mt-1">
+                                      {result.error}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ) : (
+              <Card className="p-6 h-full flex items-center justify-center text-center text-muted-foreground">
+                <div>
+                  <Bot className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">Select an agent to see details</p>
+                </div>
+              </Card>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
