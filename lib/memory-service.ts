@@ -379,6 +379,7 @@ Return ONLY a valid JSON array (no markdown, no explanation):
 importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
 
     try {
+      console.log("[Memory] Starting LLM extraction with model:", EXTRACTION_MODEL)
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -395,24 +396,27 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
       })
 
       if (!response.ok) {
-        console.error("[Memory] Extraction API error:", response.status)
+        const errorText = await response.text()
+        console.error("[Memory] Extraction API error:", response.status, errorText)
         return []
       }
 
       const data = await response.json()
       const content = data.choices?.[0]?.message?.content || ""
+      console.log("[Memory] LLM response:", content)
 
       // Parse JSON from response
       const jsonMatch = content.match(/\[[\s\S]*\]/)
       if (!jsonMatch) {
-        console.log("[Memory] No valid JSON in extraction response")
+        console.log("[Memory] No valid JSON in extraction response:", content.substring(0, 100))
         return []
       }
 
       const extracted = JSON.parse(jsonMatch[0])
+      console.log("[Memory] Parsed extraction:", extracted)
 
       if (!Array.isArray(extracted) || extracted.length === 0) {
-        console.log("[Memory] No memories extracted")
+        console.log("[Memory] No memories extracted (empty array)")
         return []
       }
 
@@ -420,17 +424,32 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
       const newMemories: Memory[] = []
 
       for (const item of extracted) {
+        console.log("[Memory] Processing item:", item)
+
         // Skip if too similar to existing memory
         const contentLower = item.content?.toLowerCase() || ""
-        if (existingContent.includes(contentLower.substring(0, 30))) {
-          console.log("[Memory] Skipping duplicate:", item.content?.substring(0, 40))
-          continue
+        if (existingContent && existingContent.length > 0 && contentLower.length >= 30) {
+          if (existingContent.includes(contentLower.substring(0, 30))) {
+            console.log("[Memory] Skipping duplicate:", item.content?.substring(0, 40))
+            continue
+          }
         }
 
         // Validate structure
-        if (!item.type || !item.content || !item.importance) continue
-        if (!["preference", "fact", "goal", "skill", "context"].includes(item.type)) continue
-        if (![1, 2, 3].includes(item.importance)) item.importance = 2
+        if (!item.type || !item.content || item.importance === undefined) {
+          console.log("[Memory] Skipping invalid item (missing fields):", item)
+          continue
+        }
+
+        if (!["preference", "fact", "goal", "skill", "context"].includes(item.type)) {
+          console.log("[Memory] Skipping invalid type:", item.type)
+          continue
+        }
+
+        if (![1, 2, 3].includes(item.importance)) {
+          console.log("[Memory] Invalid importance, defaulting to 2:", item.importance)
+          item.importance = 2
+        }
 
         const memory: Memory = {
           id: generateUUID(),
@@ -443,6 +462,7 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
         }
 
         newMemories.push(memory)
+        console.log("[Memory] Added to newMemories:", memory.type, "-", memory.content)
       }
 
       // Auto-save the new memories
@@ -467,7 +487,15 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
    * Requires 4+ messages (2 user + 2 assistant minimum)
    */
   shouldExtractMemories(messageCount: number): boolean {
-    return this.settings.enabled && this.settings.autoExtract && messageCount >= 4
+    const shouldExtract = this.settings.enabled && this.settings.autoExtract && messageCount >= 4
+    console.log("[Memory] shouldExtractMemories check:", {
+      enabled: this.settings.enabled,
+      autoExtract: this.settings.autoExtract,
+      messageCount,
+      required: 4,
+      result: shouldExtract
+    })
+    return shouldExtract
   }
 }
 
