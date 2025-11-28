@@ -750,6 +750,7 @@ export function ChatInput() {
         signal: abortControllerRef.current?.signal,
         reasoning: reasoningEnabled && modelSupportsReasoning,
         onReasoning,
+        lmStudioEndpoint: settings.lmStudio?.endpoint, // For local models
       })
 
       console.log("[v0] Stream complete, final content length:", assistantContent.length)

@@ -210,6 +210,19 @@ export interface ExperimentalSettings {
   performanceMode?: boolean
 }
 
+export interface LMStudioSettings {
+  enabled: boolean
+  endpoint: string // e.g., "http://localhost:1234/v1"
+  models?: LMStudioModel[] // Cached list of available models
+}
+
+export interface LMStudioModel {
+  id: string
+  name: string
+  type?: string
+  architecture?: string
+}
+
 export interface AppSettings {
   theme?: "light" | "dark"
   language?: "en" | "de" // UI language: English or German
@@ -221,6 +234,7 @@ export interface AppSettings {
     serper?: string
     exa?: string
   }
+  lmStudio?: LMStudioSettings // LM Studio local model support
   selectedModel: string
   selectedModels?: string[] // Array of user's selected OpenRouter models (persisted to database)
   selectedPersona?: import("@/lib/personas").Persona // Currently selected persona

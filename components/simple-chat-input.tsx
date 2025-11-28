@@ -521,6 +521,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         signal: abortControllerRef.current?.signal,
         reasoning: reasoningEnabled && modelSupportsReasoning,
         onReasoning,
+        lmStudioEndpoint: settings.lmStudio?.endpoint, // For local models
       })
 
       console.log("[Simple Chat] Stream complete, final content length:", assistantContent.length)

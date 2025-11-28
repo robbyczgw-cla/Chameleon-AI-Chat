@@ -1,3 +1,5 @@
+import { isLMStudioModel, streamLMStudioMessage } from "@/lib/lmstudio"
+
 export interface OpenRouterModel {
   id: string
   name: string
@@ -164,6 +166,7 @@ export async function streamChatMessage(
     signal?: AbortSignal
     reasoning?: boolean
     onReasoning?: (content: string) => void
+    lmStudioEndpoint?: string // For local models
   } = {},
 ): Promise<void> {
   const {
@@ -176,7 +179,26 @@ export async function streamChatMessage(
     signal,
     reasoning = false,
     onReasoning,
+    lmStudioEndpoint,
   } = options
+
+  // Handle LM Studio local models - call directly from client
+  if (isLMStudioModel(model)) {
+    console.log("[v0] Detected LM Studio model:", model)
+    return streamLMStudioMessage(
+      messages,
+      model,
+      onChunk,
+      {
+        endpoint: lmStudioEndpoint,
+        temperature,
+        maxTokens: requestedMaxTokens,
+        topP,
+        signal,
+      }
+    )
+  }
+
   const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
 
   console.log("[v0] ===== STREAM CHAT MESSAGE CALLED =====")
