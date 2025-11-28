@@ -164,13 +164,14 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
   }
 
   const renderChatItem = (chat: any) => {
-    // Get last message preview
+    // Get last message preview (limit length for performance)
     const lastMessage = chat.messages?.[chat.messages.length - 1]
-    const messagePreview = lastMessage
+    const rawPreview = lastMessage
       ? typeof lastMessage.content === "string"
         ? lastMessage.content
         : lastMessage.content?.[0]?.text || "..."
       : "No messages yet"
+    const messagePreview = rawPreview.length > 60 ? rawPreview.substring(0, 60) + "..." : rawPreview
 
     // Format timestamp
     const timestamp = new Date(chat.updatedAt).toLocaleDateString("en-US", {
@@ -184,7 +185,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         key={chat.id}
         onClick={() => setCurrentChat(chat.id)}
         className={cn(
-          "group relative flex flex-col gap-1 rounded-xl px-3 py-2.5 text-sm cursor-pointer mb-1 transition-all duration-200",
+          "group rounded-xl px-3 py-2.5 cursor-pointer mb-1 transition-all duration-200",
           isActive
             ? "bg-primary/10 border border-primary/20 shadow-sm"
             : "hover:bg-muted/80 border border-transparent hover:border-border/50",
@@ -204,54 +205,68 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
-          <>
-            {/* Title Row - buttons replace timestamp on hover */}
-            <div className="flex items-center gap-2">
-              <span className={cn(
-                "font-medium text-sm truncate min-w-0 flex-1",
+          <div className="w-full overflow-hidden">
+            {/* Row 1: Title + Timestamp/Buttons */}
+            <div className="flex items-center w-full">
+              {/* Title - takes remaining space, truncates */}
+              <div className={cn(
+                "flex-1 min-w-0 font-medium text-sm truncate",
                 animatedTitleIds.has(chat.id) && "animate-title-appear"
-              )}>{chat.title}</span>
+              )}>
+                {chat.title}
+              </div>
 
-              {/* Timestamp - hidden on hover */}
-              <span className={cn("text-[10px] shrink-0 tabular-nums opacity-70 group-hover:hidden", isActive ? "text-foreground" : "text-muted-foreground")}>{timestamp}</span>
+              {/* Right side: timestamp OR buttons on hover */}
+              <div className="flex-shrink-0 ml-2">
+                {/* Timestamp - visible by default, hidden on hover */}
+                <span className={cn(
+                  "text-[10px] tabular-nums opacity-70 group-hover:hidden",
+                  isActive ? "text-foreground" : "text-muted-foreground"
+                )}>
+                  {timestamp}
+                </span>
 
-              {/* Action Buttons - shown on hover, inline */}
-              <div className="hidden group-hover:flex items-center gap-0.5 shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-5 w-5 rounded-sm hover:text-primary hover:bg-primary/10"
-                  onClick={(e) => handleTogglePin(chat.id, e)}
-                  title={chat.pinned ? "Unpin" : "Pin"}
-                >
-                  <Pin className={cn("h-2.5 w-2.5", chat.pinned && "fill-current text-primary")} />
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="h-5 w-5 rounded-sm hover:bg-muted">
-                      <MoreVertical className="h-2.5 w-2.5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={(e) => handleEditStart(chat.id, chat.title, e)}>
-                      <Edit2 className="h-3 w-3 mr-2" />
-                      Rename
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={(e) => handleDeleteChat(chat.id, e)} className="text-destructive">
-                      <Trash2 className="h-3 w-3 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Buttons - hidden by default, visible on hover */}
+                <div className="hidden group-hover:flex items-center gap-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 rounded hover:text-primary hover:bg-primary/10"
+                    onClick={(e) => handleTogglePin(chat.id, e)}
+                    title={chat.pinned ? "Unpin" : "Pin"}
+                  >
+                    <Pin className={cn("h-3 w-3", chat.pinned && "fill-current text-primary")} />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 rounded hover:bg-muted">
+                        <MoreVertical className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" side="bottom">
+                      <DropdownMenuItem onClick={(e) => handleEditStart(chat.id, chat.title, e)}>
+                        <Edit2 className="h-3 w-3 mr-2" />
+                        Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={(e) => handleDeleteChat(chat.id, e)} className="text-destructive">
+                        <Trash2 className="h-3 w-3 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             </div>
 
-            {/* Message Preview */}
-            <p className={cn("text-xs truncate min-w-0", isActive ? "text-foreground/70" : "text-muted-foreground/70")}>
+            {/* Row 2: Message preview */}
+            <div className={cn(
+              "text-xs truncate mt-1",
+              isActive ? "text-foreground/70" : "text-muted-foreground/70"
+            )}>
               {messagePreview}
-            </p>
-          </>
+            </div>
+          </div>
         )}
       </div>
     )
