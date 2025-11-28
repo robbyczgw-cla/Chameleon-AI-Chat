@@ -412,7 +412,29 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
         return []
       }
 
-      const extracted = JSON.parse(jsonMatch[0])
+      let extracted
+      try {
+        extracted = JSON.parse(jsonMatch[0])
+      } catch (parseError) {
+        // Try to fix common JSON issues from LLMs
+        console.log("[Memory] JSON parse failed, attempting to fix...")
+        let fixedJson = jsonMatch[0]
+        // Fix missing commas between properties (e.g., "value"key" -> "value","key")
+        fixedJson = fixedJson.replace(/"(\s*)([a-zA-Z])/g, '","$2')
+        // Fix missing quotes around property names
+        fixedJson = fixedJson.replace(/,\s*([a-zA-Z_]+)\s*:/g, ',"$1":')
+        // Fix truncated strings that break JSON
+        fixedJson = fixedJson.replace(/([^\\])"([^"]*?)([a-zA-Z]+)":/g, '$1"$2","$3":')
+
+        try {
+          extracted = JSON.parse(fixedJson)
+          console.log("[Memory] Fixed JSON parsed successfully")
+        } catch (secondError) {
+          console.error("[Memory] LLM extraction error:", parseError)
+          console.log("[Memory] Could not fix malformed JSON, skipping extraction")
+          return []
+        }
+      }
       console.log("[Memory] Parsed extraction:", extracted)
 
       if (!Array.isArray(extracted) || extracted.length === 0) {
