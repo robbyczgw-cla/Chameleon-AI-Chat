@@ -318,8 +318,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (settings.memorySettings) {
       console.log("[AppContext] Syncing memory settings to memoryService:", settings.memorySettings)
       memoryService.updateSettings(settings.memorySettings)
+
+      // Configure database sync if enabled
+      const syncEnabled = settings.memorySettings.syncToDatabase ?? false
+      memoryService.configureDatabaseSync(user?.id || null, syncEnabled)
+
+      // Load from database if sync is enabled and user is logged in
+      if (syncEnabled && user?.id) {
+        memoryService.loadFromDatabase().catch(err => {
+          console.error("[AppContext] Failed to load memories from database:", err)
+        })
+      }
     }
-  }, [settings.memorySettings])
+  }, [settings.memorySettings, user?.id])
 
   // Sync model preference changes back to app settings
   useEffect(() => {
