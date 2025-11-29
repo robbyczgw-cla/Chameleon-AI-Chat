@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.0.0'
+const CACHE_VERSION = 'v2.0.1'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 
@@ -114,10 +114,19 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-// Helper function to fetch with dynamic timeout
+// Helper function to fetch with dynamic timeout and proper redirect handling
 function fetchWithTimeout(request, timeout) {
+  // Create a new request with redirect: 'follow' to handle redirects properly
+  const fetchRequest = new Request(request.url, {
+    method: request.method,
+    headers: request.headers,
+    mode: 'same-origin',
+    credentials: 'same-origin',
+    redirect: 'follow', // CRITICAL: Follow redirects instead of failing
+  })
+
   return Promise.race([
-    fetch(request),
+    fetch(fetchRequest),
     new Promise((_, reject) =>
       setTimeout(() => reject(new Error('Network timeout')), timeout)
     ),
@@ -158,7 +167,8 @@ async function handleNavigation(event) {
       // Return cached version immediately, update in background
       fetchWithTimeout(request, NETWORK_TIMEOUT_NAVIGATION)
         .then(async (freshResponse) => {
-          if (freshResponse && freshResponse.ok) {
+          // Only update cache with non-redirected, ok responses
+          if (freshResponse && freshResponse.ok && !freshResponse.redirected) {
             const cache = await caches.open(RUNTIME_CACHE)
             await cache.put(request, freshResponse.clone())
             console.log('[SW] ↻ Background updated:', pathname)
@@ -176,9 +186,14 @@ async function handleNavigation(event) {
     const networkResponse = await fetchWithTimeout(request, timeout)
 
     if (networkResponse && networkResponse.ok) {
-      // Cache the response for next time
-      const cache = await caches.open(RUNTIME_CACHE)
-      cache.put(request, networkResponse.clone()).catch(() => {})
+      // Only cache non-redirected responses
+      // Redirected responses cause "a redirected response was used" errors
+      if (!networkResponse.redirected) {
+        const cache = await caches.open(RUNTIME_CACHE)
+        cache.put(request, networkResponse.clone()).catch(() => {})
+      } else {
+        console.log('[SW] Skipping cache for redirected response:', pathname)
+      }
       return networkResponse
     }
 
@@ -359,7 +374,8 @@ async function handleAsset(event) {
     // Return cached version, update in background
     fetchWithTimeout(request, NETWORK_TIMEOUT_ASSET)
       .then(async (freshResponse) => {
-        if (freshResponse && freshResponse.ok) {
+        // Only cache non-redirected responses
+        if (freshResponse && freshResponse.ok && !freshResponse.redirected) {
           const cache = await caches.open(RUNTIME_CACHE)
           await cache.put(request, freshResponse)
         }
@@ -374,8 +390,11 @@ async function handleAsset(event) {
     const networkResponse = await fetchWithTimeout(request, NETWORK_TIMEOUT_ASSET)
 
     if (networkResponse && networkResponse.ok) {
-      const cache = await caches.open(RUNTIME_CACHE)
-      cache.put(request, networkResponse.clone()).catch(() => {})
+      // Only cache non-redirected responses
+      if (!networkResponse.redirected) {
+        const cache = await caches.open(RUNTIME_CACHE)
+        cache.put(request, networkResponse.clone()).catch(() => {})
+      }
       return networkResponse
     }
 
@@ -412,6 +431,13 @@ self.addEventListener('fetch', (event) => {
 
   // CRITICAL: Only handle GET requests
   if (event.request.method !== 'GET') {
+    return
+  }
+
+  // CRITICAL: Skip auth callback - MUST go to network for redirects
+  // This fixes "page not available" after login
+  if (url.pathname.startsWith('/auth/callback')) {
+    console.log('[SW] Skipping auth callback - letting browser handle redirect')
     return
   }
 
@@ -525,4 +551,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.0.0 loaded with aggressive precaching')
+console.log('[SW] Service Worker v2.0.1 loaded - fixed redirect handling for auth')
