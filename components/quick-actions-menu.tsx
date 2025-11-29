@@ -10,27 +10,24 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
-import { MoreVertical, FolderOpen, Music, VolumeX, Download, FileText, Share2, Globe, Bot } from "lucide-react"
+import { MoreVertical, FolderOpen, Music, VolumeX, Download, FileText, Share2, Globe } from "lucide-react"
 import { useApp } from "@/contexts/app-context"
 import { ambientMusicService } from "@/lib/ambient-music"
 import { cn } from "@/lib/utils"
 
 interface QuickActionsMenuProps {
   onDocCollectionsClick: () => void
-  onAgentsClick: () => void
   isMusicPlaying: boolean
   onMusicToggle: () => void
 }
 
 export function QuickActionsMenu({
   onDocCollectionsClick,
-  onAgentsClick,
   isMusicPlaying,
   onMusicToggle,
 }: QuickActionsMenuProps) {
-  const { chats, currentChatId, settings } = useApp()
+  const { chats, currentChatId } = useApp()
   const currentChat = chats.find((c) => c.id === currentChatId)
-  const isAdvancedMode = !settings.simpleMode
 
   const handleExportMarkdown = () => {
     if (!currentChat) return
@@ -212,13 +209,6 @@ export function QuickActionsMenu({
           <FolderOpen className="h-4 w-4 mr-2" />
           Dokumentensammlungen
         </DropdownMenuItem>
-
-        {isAdvancedMode && (
-          <DropdownMenuItem onClick={onAgentsClick}>
-            <Bot className="h-4 w-4 mr-2" />
-            Background Agents
-          </DropdownMenuItem>
-        )}
 
         <DropdownMenuItem onClick={onMusicToggle} className="md:hidden">
           {isMusicPlaying ? (

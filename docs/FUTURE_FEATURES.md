@@ -7,11 +7,10 @@
 3. [Collaborative Intelligence](#collaborative-intelligence)
 4. [Advanced Memory Systems](#advanced-memory-systems)
 5. [Multi-Modal Expansions](#multi-modal-expansions)
-6. [Agent Swarms & Automation](#agent-swarms--automation)
-7. [Accessibility & Inclusivity](#accessibility--inclusivity)
-8. [Developer Tools & Debugging](#developer-tools--debugging)
-9. [Privacy & Decentralization](#privacy--decentralization)
-10. [Wild Ideas & Moonshots](#wild-ideas--moonshots)
+6. [Accessibility & Inclusivity](#accessibility--inclusivity)
+7. [Developer Tools & Debugging](#developer-tools--debugging)
+8. [Privacy & Decentralization](#privacy--decentralization)
+9. [Wild Ideas & Moonshots](#wild-ideas--moonshots)
 
 ---
 
@@ -734,179 +733,9 @@ voiceService.speak(text, {
 
 ---
 
-## Agent Swarms & Automation
-
-### 11. Multi-Agent Problem Solving
-
-**Concept**: Deploy multiple AI personas to solve complex problems collaboratively.
-
-**Architecture**:
-```typescript
-// lib/agent-swarm.ts
-interface Agent {
-  id: string
-  persona: Persona
-  model: string
-  role: "researcher" | "critic" | "implementer" | "coordinator"
-  status: "idle" | "thinking" | "responding" | "done"
-}
-
-class AgentSwarm {
-  private agents: Agent[] = []
-
-  async solveProblem(problem: string) {
-    // Create specialized agents
-    this.agents = [
-      { id: "1", persona: personas.expert, model: "claude-3.5-sonnet", role: "researcher", status: "idle" },
-      { id: "2", persona: personas.coder, model: "gpt-4-turbo", role: "implementer", status: "idle" },
-      { id: "3", persona: personas.cogito, model: "grok-4-fast", role: "critic", status: "idle" },
-      { id: "4", persona: personas.cami, model: "claude-3.5-sonnet", role: "coordinator", status: "idle" }
-    ]
-
-    // Phase 1: Research
-    const research = await this.runAgent(this.agents[0], `Research: ${problem}`)
-
-    // Phase 2: Propose solution
-    const solution = await this.runAgent(this.agents[1], `Based on this research:\n${research}\n\nPropose a solution.`)
-
-    // Phase 3: Critique
-    const critique = await this.runAgent(this.agents[2], `Critique this solution:\n${solution}`)
-
-    // Phase 4: Synthesize
-    const final = await this.runAgent(this.agents[3], `
-      Synthesize the following into a final answer:
-
-      Research: ${research}
-      Solution: ${solution}
-      Critique: ${critique}
-    `)
-
-    return {
-      research,
-      solution,
-      critique,
-      final
-    }
-  }
-
-  private async runAgent(agent: Agent, prompt: string): Promise<string> {
-    agent.status = "thinking"
-
-    const response = await callAI({
-      model: agent.model,
-      systemPrompt: agent.persona.systemPrompt,
-      messages: [{ role: "user", content: prompt }]
-    })
-
-    agent.status = "done"
-    return response
-  }
-}
-```
-
-**UI**: Show all agents working in parallel, like a "war room":
-
-```
-┌──────────────┬──────────────┬──────────────┬──────────────┐
-│ Researcher   │ Implementer  │   Critic     │ Coordinator  │
-│ (Claude)     │ (GPT-4)      │  (Grok)      │  (Cami)      │
-├──────────────┼──────────────┼──────────────┼──────────────┤
-│ ⏳ Thinking  │ ⏸️ Waiting   │ ⏸️ Waiting   │ ⏸️ Waiting   │
-│              │              │              │              │
-│ Researching  │              │              │              │
-│ topic...     │              │              │              │
-└──────────────┴──────────────┴──────────────┴──────────────┘
-```
-
----
-
-### 12. Scheduled AI Tasks
-
-**Concept**: Automate recurring AI tasks (daily summaries, weekly reports, etc.).
-
-**Implementation**:
-```typescript
-// lib/scheduled-tasks.ts
-interface ScheduledTask {
-  id: string
-  name: string
-  prompt: string
-  schedule: string  // Cron format
-  model: string
-  enabled: boolean
-  lastRun?: number
-  nextRun?: number
-}
-
-class TaskScheduler {
-  private tasks: ScheduledTask[] = []
-
-  async scheduleTask(task: ScheduledTask) {
-    this.tasks.push(task)
-
-    // Use cron library to schedule
-    const job = cron.schedule(task.schedule, async () => {
-      await this.runTask(task)
-    })
-
-    return job
-  }
-
-  async runTask(task: ScheduledTask) {
-    const response = await callAI({
-      model: task.model,
-      messages: [{ role: "user", content: task.prompt }]
-    })
-
-    // Save to a special "Automated Insights" chat
-    await this.saveAutomatedResponse(task.name, response)
-
-    // Send notification
-    await this.notifyUser(`${task.name} completed`)
-  }
-}
-
-// Example tasks:
-const dailySummary = {
-  id: "daily-summary",
-  name: "Daily Summary",
-  prompt: "Summarize my conversations from today",
-  schedule: "0 20 * * *", // 8 PM daily
-  model: "claude-3.5-sonnet",
-  enabled: true
-}
-
-const weeklyReport = {
-  id: "weekly-report",
-  name: "Weekly Productivity Report",
-  prompt: "Analyze my conversations this week and give insights on productivity",
-  schedule: "0 18 * * 5", // Friday 6 PM
-  model: "gpt-4-turbo",
-  enabled: true
-}
-```
-
-**Database schema**:
-```sql
-CREATE TABLE public.scheduled_tasks (
-  id UUID PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id),
-  name TEXT NOT NULL,
-  prompt TEXT NOT NULL,
-  schedule TEXT NOT NULL,  -- Cron format
-  model TEXT NOT NULL,
-  enabled BOOLEAN DEFAULT TRUE,
-  last_run TIMESTAMPTZ,
-  next_run TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
----
-
 ## Accessibility & Inclusivity
 
-### 13. Multi-Language Support (Beyond EN/DE)
+### 11. Multi-Language Support (Beyond EN/DE)
 
 **Current**: English & German
 
@@ -955,7 +784,7 @@ async function translateResponse(text: string, targetLang: string): Promise<stri
 
 ---
 
-### 14. Dyslexia-Friendly Mode
+### 12. Dyslexia-Friendly Mode
 
 **Concept**: Adjust typography and layout for dyslexic users.
 
@@ -1005,7 +834,7 @@ interface AccessibilitySettings {
 
 ## Developer Tools & Debugging
 
-### 15. Prompt Diff Viewer
+### 13. Prompt Diff Viewer
 
 **Concept**: See exactly how different personas/settings affect the prompt.
 
@@ -1052,7 +881,7 @@ export function PromptDiffViewer() {
 
 ---
 
-### 16. Response A/B Testing
+### 14. Response A/B Testing
 
 **Concept**: Generate 2+ responses with different parameters, compare quality.
 
@@ -1109,7 +938,7 @@ async function runABTest(prompt: string, variants: { name: string, model: string
 
 ## Privacy & Decentralization
 
-### 17. Local-First Mode
+### 15. Local-First Mode
 
 **Concept**: Run everything locally with no cloud dependencies.
 
@@ -1156,7 +985,7 @@ const embedding = await embedder(text)
 
 ## Wild Ideas & Moonshots
 
-### 18. Emotional Intelligence
+### 16. Emotional Intelligence
 
 **Concept**: AI detects your mood and adapts responses.
 
@@ -1208,7 +1037,7 @@ function adaptResponseToEmotion(emotion: EmotionalState, response: string): stri
 
 ---
 
-### 19. Time Travel Conversations
+### 17. Time Travel Conversations
 
 **Concept**: "Show me all conversations where I discussed X in the past year"
 
@@ -1267,7 +1096,7 @@ function TimelineVisualization({ results }: { results: TimeTravelResult[] }) {
 
 ---
 
-### 20. AR/VR Integration
+### 18. AR/VR Integration
 
 **Concept**: Talk to AI personas in virtual space.
 
@@ -1343,10 +1172,9 @@ export function VRChat() {
 3. Multi-language support (10+ languages)
 
 ### Phase 3 (Q3 2025) - Advanced Features
-1. Agent swarms
-2. Scheduled AI tasks
-3. Visual canvas mode
-4. ~~Voice personas~~ ✅ DONE
+1. Visual canvas mode
+2. ~~Voice personas~~ ✅ DONE
+3. Response A/B testing
 
 ### Phase 4 (Q4 2025) - Experimental
 1. Emotional intelligence

@@ -1,6 +1,6 @@
 # 🚀 Comprehensive Features Roadmap
 
-Complete implementation guide for: Mobile Apps, Browser Extensions, Chameleon Agents, Rich Message Types, Font Choices, and Compact Mode.
+Complete implementation guide for: Mobile Apps, Browser Extensions, Rich Message Types, Font Choices, and Compact Mode.
 
 ---
 
@@ -216,210 +216,7 @@ npm run build:firefox
 
 ---
 
-## 🤖 **3. Chameleon Agents (Background Assistants)**
-
-### **Architecture:**
-
-```typescript
-// /lib/agents/agent-system.ts
-
-export interface Agent {
-  id: string
-  name: string
-  description: string
-  schedule: 'hourly' | 'daily' | 'weekly' | 'on-demand'
-  lastRun?: number
-  isActive: boolean
-  config: AgentConfig
-}
-
-export interface AgentConfig {
-  model: string
-  persona?: string
-  prompt: string // What to do
-  triggers?: string[] // Keywords, URLs, conditions
-  actions: AgentAction[]
-}
-
-export type AgentAction =
-  | { type: 'notify', message: string }
-  | { type: 'save-to-memory', category: string }
-  | { type: 'create-chat', title: string }
-  | { type: 'webhook', url: string }
-```
-
-### **Pre-Built Agent Templates:**
-
-**1. Research Agent**
-```typescript
-{
-  name: "Daily Tech News",
-  schedule: "daily",
-  config: {
-    prompt: "Search Hacker News top 5 posts, summarize in bullet points",
-    actions: [
-      { type: 'create-chat', title: `Tech News - ${date}` },
-      { type: 'notify', message: 'Your daily tech digest is ready!' }
-    ]
-  }
-}
-```
-
-**2. Price Monitor**
-```typescript
-{
-  name: "Bitcoin Tracker",
-  schedule: "hourly",
-  config: {
-    prompt: "Check BTC price via Serper. Alert if > $100k or < $80k",
-    triggers: ["price", "btc"],
-    actions: [
-      { type: 'notify', message: 'BTC Alert: {{price}}' }
-    ]
-  }
-}
-```
-
-**3. Website Watcher**
-```typescript
-{
-  name: "Competitor Monitor",
-  schedule: "daily",
-  config: {
-    prompt: "Scrape https://competitor.com/blog, summarize new posts",
-    actions: [
-      { type: 'save-to-memory', category: 'competitor-insights' },
-      { type: 'webhook', url: 'https://slack.com/webhook/...' }
-    ]
-  }
-}
-```
-
-**4. Code Review Agent**
-```typescript
-{
-  name: "PR Reviewer",
-  schedule: "on-demand",
-  config: {
-    prompt: "Review this PR for bugs, performance, security issues",
-    actions: [
-      { type: 'create-chat', title: 'PR Review: {{pr_title}}' }
-    ]
-  }
-}
-```
-
-### **Implementation:**
-
-**1. Agent Manager UI**
-```tsx
-// components/agents-manager.tsx
-export function AgentsManager() {
-  return (
-    <div>
-      <AgentList agents={agents} />
-      <Button onClick={() => setShowCreate(true)}>
-        + Create Agent
-      </Button>
-
-      {showCreate && (
-        <AgentCreator
-          templates={AGENT_TEMPLATES}
-          onSave={createAgent}
-        />
-      )}
-    </div>
-  )
-}
-```
-
-**2. Agent Executor (Background Worker)**
-```typescript
-// lib/agents/executor.ts
-
-export class AgentExecutor {
-  private worker: Worker
-
-  constructor() {
-    // Use Web Worker for background execution
-    this.worker = new Worker('/workers/agent-worker.js')
-  }
-
-  async runAgent(agent: Agent) {
-    const result = await streamChatMessage(
-      [{ role: 'user', content: agent.config.prompt }],
-      agent.config.model,
-      { apiKey: settings.apiKeys.openRouter }
-    )
-
-    // Execute actions
-    for (const action of agent.config.actions) {
-      await this.executeAction(action, result)
-    }
-  }
-
-  scheduleAgent(agent: Agent) {
-    const interval = getIntervalMs(agent.schedule)
-    setInterval(() => this.runAgent(agent), interval)
-  }
-}
-```
-
-**3. Agent Storage**
-```typescript
-// lib/agents/storage.ts
-export const agentStorage = {
-  saveAgent: (agent: Agent) => {
-    const agents = getAgents()
-    agents.push(agent)
-    localStorage.setItem('chameleon-agents', JSON.stringify(agents))
-  },
-
-  getActiveAgents: () => {
-    return getAgents().filter(a => a.isActive)
-  }
-}
-```
-
-**4. Agent Analytics**
-- Show run history
-- Success/failure rate
-- Cost per agent
-- Execution time
-
-### **UI Design:**
-
-```
-┌─────────────────────────────────────┐
-│ 🤖 Chameleon Agents                 │
-│                                     │
-│ Active Agents (3)                   │
-│                                     │
-│ ┌───────────────────────────────┐  │
-│ │ 📰 Daily Tech News       [ON] │  │
-│ │ Runs daily at 8:00 AM         │  │
-│ │ Last run: 2h ago ✅           │  │
-│ │ Cost: $0.02/day              │  │
-│ │ [View Results] [Edit]         │  │
-│ └───────────────────────────────┘  │
-│                                     │
-│ ┌───────────────────────────────┐  │
-│ │ 💰 Bitcoin Tracker      [ON]  │  │
-│ │ Runs hourly                   │  │
-│ │ Last run: 12m ago ✅          │  │
-│ │ No alerts                     │  │
-│ │ [View Results] [Edit]         │  │
-│ └───────────────────────────────┘  │
-│                                     │
-│ [+ Create New Agent]              │  │
-└─────────────────────────────────────┘
-```
-
-**Timeline:** 2-3 weeks for MVP, 1-2 months for full system
-
----
-
-## 🎨 **4. Rich Message Types - Missing Features**
+## 🎨 **3. Rich Message Types - Missing Features**
 
 ### **What to Add:**
 
@@ -602,7 +399,7 @@ Already supported by GitHub Flavored Markdown!
 
 ---
 
-## 🔤 **5. Font Choices Implementation**
+## 🔤 **4. Font Choices Implementation**
 
 ### **Fonts to Offer:**
 
@@ -753,7 +550,7 @@ useEffect(() => {
 
 ---
 
-## 📐 **6. Compact Mode for Desktop**
+## 📐 **5. Compact Mode for Desktop**
 
 ### **Current UI:**
 - Message padding: `p-4` (16px)
@@ -867,10 +664,9 @@ Based on impact and effort:
 
 1. **✅ Font Choices** (1 week, high satisfaction)
 2. **✅ Compact Mode** (3 days, power users love it)
-3. **🤖 Chameleon Agents MVP** (2-3 weeks, unique differentiator)
-4. **📊 Rich Message Types** (1-2 weeks, stagger implementation)
-5. **🔌 Browser Extension** (1-2 months, huge reach)
-6. **📱 React Native App** (2-3 months, major undertaking)
+3. **📊 Rich Message Types** (1-2 weeks, stagger implementation)
+4. **🔌 Browser Extension** (1-2 months, huge reach)
+5. **📱 React Native App** (2-3 months, major undertaking)
 
 ---
 
@@ -878,8 +674,7 @@ Based on impact and effort:
 
 **Month 1:**
 - Week 1: Font choices + Compact mode ✅
-- Week 2-3: Rich message types (polls, tables, mermaid)
-- Week 4: Chameleon Agents MVP
+- Week 2-4: Rich message types (polls, tables, mermaid)
 
 **Month 2:**
 - Week 1-2: Browser extension (Chrome)
