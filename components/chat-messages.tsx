@@ -460,7 +460,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
             )}
 
             <div className={cn(
-              "flex flex-col gap-2",
+              "flex flex-col gap-2 min-w-0",
               message.role === "user"
                 ? "w-fit max-w-[80%] sm:max-w-[70%] md:max-w-[60%]"
                 : "min-w-0 w-full max-w-[90%] sm:max-w-[85%] md:max-w-[85%] lg:max-w-[80%]"
@@ -480,7 +480,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
               <div
                 className={cn(
-                  "text-sm sm:text-base smooth-transition relative",
+                  "text-sm sm:text-base smooth-transition relative overflow-hidden",
                   message.role === "user"
                     ? "message-bubble-user rounded-[20px] rounded-br-lg px-4 py-3 sm:px-5 sm:py-3.5 text-primary-foreground shadow-lg shadow-primary/20 w-fit"
                     : "message-bubble-ai rounded-[20px] rounded-bl-lg px-4 py-3 sm:px-5 sm:py-3.5 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm w-full",
@@ -527,7 +527,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                     </p>
                   </div>
                 ) : message.role === "assistant" ? (
-                  <div className="prose prose-sm sm:prose-base dark:prose-invert w-full break-words">
+                  <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none w-full break-words overflow-hidden">
                     {/* Display generated image if present */}
                     {message.imageUrl && (
                       <div className="mb-4 rounded-lg overflow-hidden border border-border/50 shadow-md">

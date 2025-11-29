@@ -198,9 +198,9 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
-          <div className="w-full overflow-hidden">
+          <div className="w-full overflow-hidden min-w-0">
             {/* Row 1: Title + Timestamp/Buttons */}
-            <div className="flex items-center w-full">
+            <div className="flex items-center w-full min-w-0">
               {/* Title - takes remaining space, truncates */}
               <div className={cn(
                 "flex-1 min-w-0 font-medium text-sm truncate",
