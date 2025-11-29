@@ -16,6 +16,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export const DEFAULT_SETTINGS: AppSettings = {
   language: "en",
+  enableAutoSearch: false, // Disabled by default - user must enable
   apiKeys: {
     openRouter: "",
     tavily: "",

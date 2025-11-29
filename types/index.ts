@@ -227,6 +227,7 @@ export interface AppSettings {
   theme?: "light" | "dark"
   language?: "en" | "de" // UI language: English or German
   simpleMode?: boolean // Simple Mode: Clean UI focused on personas & profile
+  enableAutoSearch?: boolean // Enable automatic web search via tool calling (AI decides when to search)
   apiKeys: {
     openRouter?: string
     openAI?: string
