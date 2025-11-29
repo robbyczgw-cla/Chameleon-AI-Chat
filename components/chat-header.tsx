@@ -247,60 +247,81 @@ export function ChatHeader() {
 
   return (
     <>
-      <header className="flex h-14 md:h-16 items-center justify-between border-b border-border/60 bg-background px-2 sm:px-4 md:px-5 shadow-md">
-        {/* Mobile: Title + toggles */}
-        <div className="flex md:hidden items-center gap-2 min-w-0 flex-1">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-md border border-primary/10 flex-shrink-0">
-              <ChameleonLogoSimple className="text-green-600" size={16} />
+      <header className="flex h-14 md:h-16 items-center justify-between border-b border-border/40 bg-background/80 backdrop-blur-xl px-3 sm:px-4 md:px-5 shadow-sm mobile-header-glass">
+        {/* Mobile: Modern compact header */}
+        <div className="flex md:hidden items-center gap-3 min-w-0 flex-1">
+          {/* Logo and title */}
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 shadow-sm border border-primary/10 flex-shrink-0 transition-transform active:scale-95">
+              <ChameleonLogoSimple className="text-primary" size={18} />
             </div>
-            <h1 className={cn(
-              "text-xs font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate",
-              isTitleAnimated && "animate-title-appear"
-            )}>
-              {currentChat?.title || "Chameleon"}
-            </h1>
+            <div className="min-w-0 flex-1">
+              <h1 className={cn(
+                "text-sm font-bold text-foreground truncate leading-tight",
+                isTitleAnimated && "animate-title-appear"
+              )}>
+                {currentChat?.title || "Chameleon"}
+              </h1>
+              <p className="text-[10px] text-muted-foreground/70 truncate">
+                AI Chat Assistant
+              </p>
+            </div>
           </div>
-          {/* Mobile toggles */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+          {/* Mobile toggles - modern pill style */}
+          <div className="flex items-center gap-1 flex-shrink-0 p-1 rounded-2xl bg-muted/50">
             <Button
               type="button"
               size="icon"
-              variant={isVoiceActive ? "default" : "ghost"}
-              className="h-7 w-7 rounded-md"
+              variant="ghost"
+              className={cn(
+                "h-8 w-8 rounded-xl transition-all duration-200",
+                isVoiceActive
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
               onClick={() => {
                 setIsVoiceActive(!isVoiceActive)
                 window.dispatchEvent(new CustomEvent("toggleVoice"))
               }}
               title="Voice input"
             >
-              <Mic className="h-3.5 w-3.5" />
+              <Mic className="h-4 w-4" />
             </Button>
             <Button
               type="button"
               size="icon"
-              variant={isImageModeActive ? "default" : "ghost"}
-              className="h-7 w-7 rounded-md"
+              variant="ghost"
+              className={cn(
+                "h-8 w-8 rounded-xl transition-all duration-200",
+                isImageModeActive
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
               onClick={() => {
                 setIsImageModeActive(!isImageModeActive)
                 window.dispatchEvent(new CustomEvent("toggleImageMode"))
               }}
               title="Image mode"
             >
-              <Image className="h-3.5 w-3.5" />
+              <Image className="h-4 w-4" />
             </Button>
             <Button
               type="button"
               size="icon"
-              variant={isReasoningActive ? "default" : "ghost"}
-              className={`h-7 w-7 rounded-md ${isReasoningActive ? "bg-amber-500 text-white" : ""}`}
+              variant="ghost"
+              className={cn(
+                "h-8 w-8 rounded-xl transition-all duration-200",
+                isReasoningActive
+                  ? "bg-amber-500 text-white shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
               onClick={() => {
                 setIsReasoningActive(!isReasoningActive)
                 window.dispatchEvent(new CustomEvent("toggleReasoning"))
               }}
               title="Reasoning"
             >
-              <Lightbulb className="h-3.5 w-3.5" />
+              <Lightbulb className="h-4 w-4" />
             </Button>
           </div>
         </div>

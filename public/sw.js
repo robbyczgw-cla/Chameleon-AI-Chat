@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.0.0'
+const CACHE_VERSION = 'v2.1.1'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 
@@ -114,10 +114,19 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-// Helper function to fetch with dynamic timeout
+// Helper function to fetch with dynamic timeout and proper redirect handling
 function fetchWithTimeout(request, timeout) {
+  // Create a new request with redirect: 'follow' to handle redirects properly
+  const fetchRequest = new Request(request.url, {
+    method: request.method,
+    headers: request.headers,
+    mode: 'same-origin',
+    credentials: 'same-origin',
+    redirect: 'follow', // CRITICAL: Follow redirects instead of failing
+  })
+
   return Promise.race([
-    fetch(request),
+    fetch(fetchRequest),
     new Promise((_, reject) =>
       setTimeout(() => reject(new Error('Network timeout')), timeout)
     ),
@@ -138,72 +147,48 @@ function getNavigationTimeout() {
   return NETWORK_TIMEOUT_NAVIGATION
 }
 
-// CRITICAL: Cache-first navigation strategy for instant loading
-// This is the KEY fix for the Android "page not found" issue
+// SIMPLIFIED: Network-first navigation with cache fallback
+// Let the browser handle redirects naturally - only use cache when offline
 async function handleNavigation(event) {
   const request = event.request
   const url = new URL(request.url)
   const pathname = url.pathname
 
-  // Try cache FIRST for instant loading (especially important on resume)
-  const timeout = getNavigationTimeout()
+  console.log('[SW] Navigation request:', pathname)
 
   try {
-    // Check cache first
+    // NETWORK FIRST: Let browser handle the request normally
+    // This ensures redirects work properly
+    const networkResponse = await fetch(request)
+
+    // Cache successful non-redirect responses for offline use
+    if (networkResponse && networkResponse.ok && !networkResponse.redirected) {
+      const cache = await caches.open(RUNTIME_CACHE)
+      cache.put(request, networkResponse.clone()).catch(() => {})
+      console.log('[SW] Cached navigation response:', pathname)
+    }
+
+    return networkResponse
+
+  } catch (error) {
+    // NETWORK FAILED: Fall back to cache
+    console.log('[SW] Network failed, trying cache:', pathname, error.message)
+
+    // Try exact URL from cache
     const cachedResponse = await caches.match(request)
-
     if (cachedResponse) {
-      console.log('[SW] ⚡ Instant cache hit for:', pathname)
-
-      // Return cached version immediately, update in background
-      fetchWithTimeout(request, NETWORK_TIMEOUT_NAVIGATION)
-        .then(async (freshResponse) => {
-          if (freshResponse && freshResponse.ok) {
-            const cache = await caches.open(RUNTIME_CACHE)
-            await cache.put(request, freshResponse.clone())
-            console.log('[SW] ↻ Background updated:', pathname)
-          }
-        })
-        .catch(() => {
-          // Background update failed, that's fine - we served cached version
-        })
-
+      console.log('[SW] ⚡ Serving from cache:', pathname)
       return cachedResponse
     }
 
-    // No cache - try network with timeout
-    console.log('[SW] Cache miss, fetching:', pathname)
-    const networkResponse = await fetchWithTimeout(request, timeout)
-
-    if (networkResponse && networkResponse.ok) {
-      // Cache the response for next time
-      const cache = await caches.open(RUNTIME_CACHE)
-      cache.put(request, networkResponse.clone()).catch(() => {})
-      return networkResponse
-    }
-
-    // Network returned non-ok response, try fallbacks
-    throw new Error('Network response not ok')
-
-  } catch (error) {
-    console.log('[SW] Navigation failed:', pathname, error.message)
-
-    // Fallback chain:
-    // 1. Try exact URL from any cache
-    const exactMatch = await caches.match(request)
-    if (exactMatch) {
-      console.log('[SW] Found exact match in cache')
-      return exactMatch
-    }
-
-    // 2. Try home page as app shell fallback
+    // Try home page as fallback
     const homeResponse = await caches.match('/')
     if (homeResponse) {
-      console.log('[SW] Using cached home page as app shell')
+      console.log('[SW] Using cached home as fallback')
       return homeResponse
     }
 
-    // 3. Return embedded offline page
+    // Return offline page
     console.log('[SW] Returning offline page')
     return createOfflinePage()
   }
@@ -359,7 +344,8 @@ async function handleAsset(event) {
     // Return cached version, update in background
     fetchWithTimeout(request, NETWORK_TIMEOUT_ASSET)
       .then(async (freshResponse) => {
-        if (freshResponse && freshResponse.ok) {
+        // Only cache non-redirected responses
+        if (freshResponse && freshResponse.ok && !freshResponse.redirected) {
           const cache = await caches.open(RUNTIME_CACHE)
           await cache.put(request, freshResponse)
         }
@@ -374,8 +360,11 @@ async function handleAsset(event) {
     const networkResponse = await fetchWithTimeout(request, NETWORK_TIMEOUT_ASSET)
 
     if (networkResponse && networkResponse.ok) {
-      const cache = await caches.open(RUNTIME_CACHE)
-      cache.put(request, networkResponse.clone()).catch(() => {})
+      // Only cache non-redirected responses
+      if (!networkResponse.redirected) {
+        const cache = await caches.open(RUNTIME_CACHE)
+        cache.put(request, networkResponse.clone()).catch(() => {})
+      }
       return networkResponse
     }
 
@@ -423,13 +412,24 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Handle navigation requests (HTML pages)
+  // DON'T intercept navigation requests - let browser handle them
+  // This completely avoids all redirect issues
   if (event.request.mode === 'navigate') {
-    event.respondWith(handleNavigation(event))
+    // Only respond if we're offline and have a cached version
+    event.respondWith(
+      fetch(event.request).catch(async () => {
+        console.log('[SW] Navigation failed, trying cache')
+        const cached = await caches.match(event.request)
+        if (cached) return cached
+        const home = await caches.match('/')
+        if (home) return home
+        return createOfflinePage()
+      })
+    )
     return
   }
 
-  // Handle all other requests (assets)
+  // Handle all other requests (assets) with cache-first
   event.respondWith(handleAsset(event))
 })
 
@@ -525,4 +525,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.0.0 loaded with aggressive precaching')
+console.log('[SW] Service Worker v2.1.1 loaded - navigation passthrough, cache on failure only')

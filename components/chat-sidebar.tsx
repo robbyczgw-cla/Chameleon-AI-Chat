@@ -209,44 +209,53 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
                 {chat.title}
               </div>
 
-              {/* Right side: timestamp OR buttons on hover */}
-              <div className="flex-shrink-0 ml-2">
-                {/* Timestamp - visible by default, hidden on hover */}
+              {/* Right side: timestamp and action buttons */}
+              <div className="flex-shrink-0 ml-2 flex items-center gap-1">
+                {/* Timestamp - always visible on desktop, hidden when active on mobile */}
                 <span className={cn(
-                  "text-[10px] tabular-nums opacity-70 group-hover:hidden",
+                  "text-[10px] tabular-nums opacity-70 mr-1",
+                  "[@media(hover:hover)]:group-hover:hidden",
                   isActive ? "text-foreground" : "text-muted-foreground"
                 )}>
                   {timestamp}
                 </span>
 
-                {/* Buttons - hidden by default, visible on hover */}
-                <div className="hidden group-hover:flex items-center gap-0.5">
+                {/* Action buttons - always visible on touch devices, hover on desktop */}
+                <div className={cn(
+                  "flex items-center gap-0.5",
+                  "[@media(hover:hover)]:hidden [@media(hover:hover)]:group-hover:flex"
+                )}>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 rounded hover:text-primary hover:bg-primary/10"
+                    className={cn(
+                      "h-7 w-7 rounded-lg",
+                      chat.pinned
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                    )}
                     onClick={(e) => handleTogglePin(chat.id, e)}
                     title={chat.pinned ? "Unpin" : "Pin"}
                   >
-                    <Pin className={cn("h-3 w-3", chat.pinned && "fill-current text-primary")} />
+                    <Pin className={cn("h-3.5 w-3.5", chat.pinned && "fill-current")} />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 rounded hover:text-blue-500 hover:bg-blue-500/10"
+                    className="h-7 w-7 rounded-lg text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10"
                     onClick={(e) => handleEditStart(chat.id, chat.title, e)}
                     title="Rename"
                   >
-                    <Edit2 className="h-3 w-3" />
+                    <Edit2 className="h-3.5 w-3.5" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 rounded hover:text-destructive hover:bg-destructive/10"
+                    className="h-7 w-7 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     onClick={(e) => handleDeleteChat(chat.id, e)}
                     title="Delete"
                   >
-                    <Trash2 className="h-3 w-3" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </div>
@@ -292,11 +301,11 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
       <div className="flex items-center gap-2 border-b border-border/30 p-4 md:p-5">
         <Button onClick={handleNewChat} className="flex-1 gap-2 shadow-md hover:shadow-xl h-10 md:h-11 font-semibold rounded-xl smooth-transition hover-scale gradient-premium glow-subtle" size="sm">
           <MessageSquarePlus className="h-4 w-4" />
-          <span className="hidden sm:inline">New Chat</span>
+          <span>New Chat</span>
         </Button>
         <Dialog open={isNewFolderOpen} onOpenChange={setIsNewFolderOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="icon" className="h-10 w-10 md:h-11 md:w-11 shadow-md hover:shadow-xl hover-scale smooth-transition rounded-xl border-border/40">
+            <Button variant="outline" size="icon" className="h-10 w-10 md:h-11 md:w-11 shadow-md hover:shadow-xl hover-scale smooth-transition rounded-xl border-border/40" title="New Folder">
               <FolderPlus className="h-4 w-4" />
             </Button>
           </DialogTrigger>
