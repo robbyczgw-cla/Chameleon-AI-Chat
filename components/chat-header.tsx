@@ -267,14 +267,14 @@ export function ChatHeader() {
               </p>
             </div>
           </div>
-          {/* Mobile toggles - compact pill style */}
-          <div className="flex items-center gap-0.5 flex-shrink-0 p-0.5 rounded-full mobile-nav-glass border border-white/10 dark:border-white/5">
+          {/* Mobile toggles - pill style */}
+          <div className="flex items-center gap-1 flex-shrink-0 p-1 rounded-2xl mobile-nav-glass border border-white/10 dark:border-white/5">
             <Button
               type="button"
               size="icon"
               variant="ghost"
               className={cn(
-                "h-6 w-6 rounded-full transition-all duration-200",
+                "h-7 w-7 rounded-xl transition-all duration-200",
                 isVoiceActive
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -285,14 +285,14 @@ export function ChatHeader() {
               }}
               title="Voice input"
             >
-              <Mic className="h-3 w-3" />
+              <Mic className="h-3.5 w-3.5" />
             </Button>
             <Button
               type="button"
               size="icon"
               variant="ghost"
               className={cn(
-                "h-6 w-6 rounded-full transition-all duration-200",
+                "h-7 w-7 rounded-xl transition-all duration-200",
                 isImageModeActive
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -303,14 +303,14 @@ export function ChatHeader() {
               }}
               title="Image mode"
             >
-              <Image className="h-3 w-3" />
+              <Image className="h-3.5 w-3.5" />
             </Button>
             <Button
               type="button"
               size="icon"
               variant="ghost"
               className={cn(
-                "h-6 w-6 rounded-full transition-all duration-200",
+                "h-7 w-7 rounded-xl transition-all duration-200",
                 isReasoningActive
                   ? "bg-amber-500 text-white shadow-sm"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -321,7 +321,7 @@ export function ChatHeader() {
               }}
               title="Reasoning"
             >
-              <Lightbulb className="h-3 w-3" />
+              <Lightbulb className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
