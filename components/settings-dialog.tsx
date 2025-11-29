@@ -819,6 +819,46 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   </p>
                 </div>
 
+                {/* Auto Search Toggle */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-lg border border-green-500/30 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🤖</span>
+                      <Label htmlFor="auto-search" className="text-sm sm:text-base font-medium">
+                        Automatic Web Search (Tool Calling)
+                      </Label>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Let AI automatically decide when to search the web. The model will search for current events, prices, news, weather, etc.
+                    </p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">GPT-4</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300">Claude 3.5+</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">Gemini</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300">DeepSeek V3</span>
+                    </div>
+                  </div>
+                  <Switch
+                    id="auto-search"
+                    checked={localSettings.enableAutoSearch ?? false}
+                    onCheckedChange={(checked) =>
+                      setLocalSettings({ ...localSettings, enableAutoSearch: checked })
+                    }
+                    className="flex-shrink-0"
+                  />
+                </div>
+
+                {localSettings.enableAutoSearch && (
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-50 dark:bg-amber-950/20 p-3 text-xs space-y-1">
+                    <p className="font-medium text-amber-700 dark:text-amber-400">Requirements:</p>
+                    <ul className="list-disc list-inside text-muted-foreground space-y-0.5 pl-1">
+                      <li>A search API key (Tavily, Serper, or Exa) must be configured in API Keys tab</li>
+                      <li>The model must support tool calling (GPT-4, Claude 3.5+, Gemini, DeepSeek V3)</li>
+                      <li>Smaller models (&lt;30B params) may not work reliably</li>
+                    </ul>
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <Label htmlFor="search-provider" className="text-sm sm:text-base">
                     Search Provider

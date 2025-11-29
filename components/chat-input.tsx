@@ -740,6 +740,23 @@ export function ChatInput() {
         reasoningContent += chunk
       }
 
+      // Determine which search API key to use based on provider
+      const autoSearchProvider = settings.searchProvider || "tavily"
+      const autoSearchApiKey =
+        autoSearchProvider === "tavily"
+          ? settings.apiKeys.tavily
+          : autoSearchProvider === "serper"
+          ? settings.apiKeys.serper
+          : settings.apiKeys.exa
+
+      // Build search settings based on provider
+      const autoSearchSettings =
+        autoSearchProvider === "tavily"
+          ? settings.tavilySettings || {}
+          : autoSearchProvider === "serper"
+          ? settings.serperSettings || {}
+          : settings.exaSettings || {}
+
       await streamChatMessage(messages, model, onChunk, {
         temperature: modelParams.temperature,
         maxTokens: modelParams.maxTokens,
@@ -751,6 +768,23 @@ export function ChatInput() {
         reasoning: reasoningEnabled && modelSupportsReasoning,
         onReasoning,
         lmStudioEndpoint: settings.lmStudio?.endpoint, // For local models
+        // Auto search (tool calling) - AI decides when to search
+        enableAutoSearch: settings.enableAutoSearch ?? false,
+        searchProvider: autoSearchProvider,
+        searchApiKey: autoSearchApiKey,
+        searchSettings: autoSearchSettings,
+        onSearchStart: (query) => {
+          toast({
+            title: "🔍 AI is searching the web...",
+            description: query ? `"${query}"` : "Searching...",
+          })
+        },
+        onSearchComplete: () => {
+          toast({
+            title: "✅ Search complete",
+            description: "Processing results...",
+          })
+        },
       })
 
       console.log("[v0] Stream complete, final content length:", assistantContent.length)

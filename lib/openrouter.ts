@@ -167,6 +167,13 @@ export async function streamChatMessage(
     reasoning?: boolean
     onReasoning?: (content: string) => void
     lmStudioEndpoint?: string // For local models
+    // Auto search options (tool calling)
+    enableAutoSearch?: boolean
+    searchProvider?: "tavily" | "serper" | "exa"
+    searchApiKey?: string
+    searchSettings?: Record<string, any>
+    onSearchStart?: (query: string) => void
+    onSearchComplete?: () => void
   } = {},
 ): Promise<void> {
   const {
@@ -180,6 +187,13 @@ export async function streamChatMessage(
     reasoning = false,
     onReasoning,
     lmStudioEndpoint,
+    // Auto search
+    enableAutoSearch = false,
+    searchProvider = "tavily",
+    searchApiKey,
+    searchSettings = {},
+    onSearchStart,
+    onSearchComplete,
   } = options
 
   // Handle LM Studio local models - call directly from client
@@ -232,6 +246,15 @@ export async function streamChatMessage(
   // Add reasoning parameter if enabled
   if (reasoning) {
     requestBody.reasoning = true
+  }
+
+  // Add auto search parameters if enabled
+  if (enableAutoSearch && searchApiKey) {
+    requestBody.enableAutoSearch = true
+    requestBody.searchProvider = searchProvider
+    requestBody.searchApiKey = searchApiKey
+    requestBody.searchSettings = searchSettings
+    console.log("[v0] Auto search enabled with provider:", searchProvider)
   }
 
   console.log("[v0] FINAL REQUEST BODY TO /api/chat:", JSON.stringify(requestBody, null, 2))
@@ -316,6 +339,24 @@ export async function streamChatMessage(
             const delta = parsed.choices?.[0]?.delta
             const content = delta?.content
             const finishReason = parsed.choices?.[0]?.finish_reason
+
+            // Handle search status events from tool calling
+            if (delta?.searching && onSearchStart) {
+              try {
+                const searchQuery = JSON.parse(delta.searchQuery || "{}")
+                console.log("[v0] 🔍 AI triggered search:", searchQuery.query)
+                onSearchStart(searchQuery.query || "")
+              } catch {
+                onSearchStart("")
+              }
+              continue
+            }
+
+            if (delta?.searchComplete && onSearchComplete) {
+              console.log("[v0] ✅ Search complete")
+              onSearchComplete()
+              continue
+            }
 
             // Extract reasoning from various possible formats
             let reasoningContent = delta?.reasoning_content || delta?.reasoning || delta?.thinking
