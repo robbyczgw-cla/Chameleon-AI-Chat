@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.1.0'
+const CACHE_VERSION = 'v2.1.1'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 
@@ -412,13 +412,24 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Handle navigation requests (HTML pages)
+  // DON'T intercept navigation requests - let browser handle them
+  // This completely avoids all redirect issues
   if (event.request.mode === 'navigate') {
-    event.respondWith(handleNavigation(event))
+    // Only respond if we're offline and have a cached version
+    event.respondWith(
+      fetch(event.request).catch(async () => {
+        console.log('[SW] Navigation failed, trying cache')
+        const cached = await caches.match(event.request)
+        if (cached) return cached
+        const home = await caches.match('/')
+        if (home) return home
+        return createOfflinePage()
+      })
+    )
     return
   }
 
-  // Handle all other requests (assets)
+  // Handle all other requests (assets) with cache-first
   event.respondWith(handleAsset(event))
 })
 
@@ -514,4 +525,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.1.0 loaded - network-first navigation, cache fallback only')
+console.log('[SW] Service Worker v2.1.1 loaded - navigation passthrough, cache on failure only')
