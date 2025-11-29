@@ -209,55 +209,40 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
                 {chat.title}
               </div>
 
-              {/* Right side: timestamp and action buttons */}
-              <div className="flex-shrink-0 ml-2 flex items-center gap-1">
-                {/* Timestamp - always visible on desktop, hidden when active on mobile */}
-                <span className={cn(
-                  "text-[10px] tabular-nums opacity-70 mr-1",
-                  "[@media(hover:hover)]:group-hover:hidden",
-                  isActive ? "text-foreground" : "text-muted-foreground"
-                )}>
-                  {timestamp}
-                </span>
-
-                {/* Action buttons - always visible on touch devices, hover on desktop */}
-                <div className={cn(
-                  "flex items-center gap-0.5",
-                  "[@media(hover:hover)]:hidden [@media(hover:hover)]:group-hover:flex"
-                )}>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "h-7 w-7 rounded-lg",
-                      chat.pinned
-                        ? "text-primary bg-primary/10"
-                        : "text-muted-foreground hover:text-primary hover:bg-primary/10"
-                    )}
-                    onClick={(e) => handleTogglePin(chat.id, e)}
-                    title={chat.pinned ? "Unpin" : "Pin"}
-                  >
-                    <Pin className={cn("h-3.5 w-3.5", chat.pinned && "fill-current")} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 rounded-lg text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10"
-                    onClick={(e) => handleEditStart(chat.id, chat.title, e)}
-                    title="Rename"
-                  >
-                    <Edit2 className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    onClick={(e) => handleDeleteChat(chat.id, e)}
-                    title="Delete"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+              {/* Right side: action buttons always visible */}
+              <div className="flex-shrink-0 ml-2 flex items-center gap-0.5">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-7 w-7 rounded-lg",
+                    chat.pinned
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                  )}
+                  onClick={(e) => handleTogglePin(chat.id, e)}
+                  title={chat.pinned ? "Unpin" : "Pin"}
+                >
+                  <Pin className={cn("h-3.5 w-3.5", chat.pinned && "fill-current")} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 rounded-lg text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10"
+                  onClick={(e) => handleEditStart(chat.id, chat.title, e)}
+                  title="Rename"
+                >
+                  <Edit2 className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  onClick={(e) => handleDeleteChat(chat.id, e)}
+                  title="Delete"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
               </div>
             </div>
 
