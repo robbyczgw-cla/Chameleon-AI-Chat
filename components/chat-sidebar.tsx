@@ -183,6 +183,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             ? "bg-primary/10 border border-primary/20 shadow-sm"
             : "hover:bg-muted/80 border border-transparent hover:border-border/50",
         )}
+        style={{ maxWidth: 'calc(300px - 16px)', width: 'calc(300px - 16px)' }}
       >
         {editingId === chat.id ? (
           <Input
@@ -260,7 +261,10 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
   }
 
   return (
-    <div className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[300px] flex-col rounded-none md:rounded-none border border-border/60 shadow-xl md:shadow-lg bg-card overflow-y-auto overflow-x-hidden">
+    <div
+      className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[300px] max-w-[300px] flex-col rounded-none md:rounded-none border border-border/60 shadow-xl md:shadow-lg bg-card overflow-y-auto overflow-x-hidden"
+      style={{ width: '300px', maxWidth: '300px' }}
+    >
       <div className="flex items-center gap-3 border-b border-border/30 p-4 md:p-5 bg-card">
         {onClose && (
           <Button variant="ghost" size="icon" className="md:hidden h-10 w-10 hover-scale smooth-transition rounded-xl shrink-0 hover:bg-primary/10" onClick={onClose} title="Close">
@@ -346,8 +350,8 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="px-2 pb-2">
+      <ScrollArea className="flex-1 min-h-0" style={{ width: '300px', maxWidth: '300px' }}>
+        <div className="px-2 pb-2" style={{ width: '300px', maxWidth: '300px' }}>
           {pinnedChats.length > 0 && (
             <>
               <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">Pinned</div>
