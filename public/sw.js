@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.0.3'
+const CACHE_VERSION = 'v2.1.0'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 
@@ -147,99 +147,48 @@ function getNavigationTimeout() {
   return NETWORK_TIMEOUT_NAVIGATION
 }
 
-// CRITICAL: Cache-first navigation strategy for instant loading
-// This is the KEY fix for the Android "page not found" issue
+// SIMPLIFIED: Network-first navigation with cache fallback
+// Let the browser handle redirects naturally - only use cache when offline
 async function handleNavigation(event) {
   const request = event.request
   const url = new URL(request.url)
   const pathname = url.pathname
 
-  // Try cache FIRST for instant loading (especially important on resume)
-  const timeout = getNavigationTimeout()
+  console.log('[SW] Navigation request:', pathname)
 
   try {
-    // Check cache first
+    // NETWORK FIRST: Let browser handle the request normally
+    // This ensures redirects work properly
+    const networkResponse = await fetch(request)
+
+    // Cache successful non-redirect responses for offline use
+    if (networkResponse && networkResponse.ok && !networkResponse.redirected) {
+      const cache = await caches.open(RUNTIME_CACHE)
+      cache.put(request, networkResponse.clone()).catch(() => {})
+      console.log('[SW] Cached navigation response:', pathname)
+    }
+
+    return networkResponse
+
+  } catch (error) {
+    // NETWORK FAILED: Fall back to cache
+    console.log('[SW] Network failed, trying cache:', pathname, error.message)
+
+    // Try exact URL from cache
     const cachedResponse = await caches.match(request)
-
     if (cachedResponse) {
-      console.log('[SW] ⚡ Instant cache hit for:', pathname)
-
-      // Return cached version immediately, update in background
-      fetch(request.url, { redirect: 'follow' })
-        .then(async (freshResponse) => {
-          // Only update cache with non-redirected, ok responses
-          if (freshResponse && freshResponse.ok && !freshResponse.redirected) {
-            const cache = await caches.open(RUNTIME_CACHE)
-            await cache.put(request, freshResponse.clone())
-            console.log('[SW] ↻ Background updated:', pathname)
-          }
-        })
-        .catch(() => {
-          // Background update failed, that's fine - we served cached version
-        })
-
+      console.log('[SW] ⚡ Serving from cache:', pathname)
       return cachedResponse
     }
 
-    // No cache - try network with timeout
-    console.log('[SW] Cache miss, fetching:', pathname)
-
-    // For navigation, use a simple fetch with redirect: 'follow'
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), timeout)
-
-    const networkResponse = await fetch(request.url, {
-      redirect: 'follow',
-      signal: controller.signal,
-    })
-
-    clearTimeout(timeoutId)
-
-    if (networkResponse && networkResponse.ok) {
-      // CRITICAL: If this was a redirect, we need to create a new Response
-      // We can't return a redirected response to a navigation request
-      // because the original request has redirect: 'manual'
-      if (networkResponse.redirected) {
-        console.log('[SW] Creating clean response for redirect:', pathname, '-> final URL:', networkResponse.url)
-        // Create a new Response from the body to strip the 'redirected' flag
-        // This allows us to return the response to the navigation request
-        const body = await networkResponse.blob()
-        const cleanResponse = new Response(body, {
-          status: networkResponse.status,
-          statusText: networkResponse.statusText,
-          headers: networkResponse.headers,
-        })
-        return cleanResponse
-      }
-
-      // Cache non-redirected responses
-      const cache = await caches.open(RUNTIME_CACHE)
-      cache.put(request, networkResponse.clone()).catch(() => {})
-      return networkResponse
-    }
-
-    // Network returned non-ok response, try fallbacks
-    throw new Error('Network response not ok')
-
-  } catch (error) {
-    console.log('[SW] Navigation failed:', pathname, error.message)
-
-    // Fallback chain:
-    // 1. Try exact URL from any cache
-    const exactMatch = await caches.match(request)
-    if (exactMatch) {
-      console.log('[SW] Found exact match in cache')
-      return exactMatch
-    }
-
-    // 2. Try home page as app shell fallback
+    // Try home page as fallback
     const homeResponse = await caches.match('/')
     if (homeResponse) {
-      console.log('[SW] Using cached home page as app shell')
+      console.log('[SW] Using cached home as fallback')
       return homeResponse
     }
 
-    // 3. Return embedded offline page
+    // Return offline page
     console.log('[SW] Returning offline page')
     return createOfflinePage()
   }
@@ -455,20 +404,6 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // CRITICAL: Skip auth routes - MUST go to network for redirects
-  // This fixes "page not available" after login
-  if (url.pathname.startsWith('/auth/')) {
-    console.log('[SW] Skipping auth route - letting browser handle:', url.pathname)
-    return
-  }
-
-  // Skip root URL if it might redirect (common for auth redirects)
-  // Let browser handle root navigation to avoid redirect issues
-  if (url.pathname === '/' && event.request.mode === 'navigate') {
-    console.log('[SW] Skipping root navigation - letting browser handle potential redirects')
-    return
-  }
-
   // Skip API calls - always use network
   if (url.pathname.startsWith('/api/') ||
       url.hostname.includes('supabase') ||
@@ -579,4 +514,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.0.3 loaded - skip root navigation to fix redirects')
+console.log('[SW] Service Worker v2.1.0 loaded - network-first navigation, cache fallback only')
