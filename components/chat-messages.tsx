@@ -431,15 +431,15 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
   return (
     <ScrollArea className="h-full w-full native-scroll">
-      <div className="w-full max-w-5xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-8 gpu-layer">
+      <div className="w-full max-w-5xl mx-auto space-y-4 sm:space-y-6 px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {currentChat.messages.map((message, index) => (
           <MessageWrapper
             key={message.id}
             messageId={message.id}
-            className={cn("flex gap-2 sm:gap-6 group w-full animate-slide-in-up", message.role === "user" ? "justify-end" : "justify-start")}
+            className={cn("flex gap-2 sm:gap-4 group w-full animate-slide-in-up", message.role === "user" ? "justify-end" : "justify-start")}
           >
             {message.role === "assistant" && (
-              <Avatar className="h-6 w-6 sm:h-8 sm:w-8 border-2 border-primary/20 shrink-0 persona-avatar-glow smooth-transition">
+              <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/20 shrink-0 shadow-md smooth-transition ring-2 ring-background">
                 {currentPersona?.avatarUrl ? (
                   <>
                     <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
@@ -453,7 +453,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                   </AvatarFallback>
                 ) : (
                   <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                    <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <Bot className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                   </AvatarFallback>
                 )}
               </Avatar>
@@ -462,8 +462,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
             <div className={cn(
               "flex flex-col gap-2",
               message.role === "user"
-                ? "w-fit max-w-[85%] sm:max-w-[70%] md:max-w-[60%]"
-                : "min-w-0 w-full max-w-[95%] sm:max-w-[90%] md:max-w-[90%] lg:max-w-[85%]"
+                ? "w-fit max-w-[80%] sm:max-w-[70%] md:max-w-[60%]"
+                : "min-w-0 w-full max-w-[90%] sm:max-w-[85%] md:max-w-[85%] lg:max-w-[80%]"
             )}>
               {message.attachments && message.attachments.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
@@ -482,13 +482,13 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                 className={cn(
                   "text-sm sm:text-base smooth-transition relative",
                   message.role === "user"
-                    ? "message-bubble-user rounded-2xl rounded-br-md px-4 py-3 sm:px-5 sm:py-4 text-primary-foreground shadow-md w-fit"
-                    : "message-bubble-ai rounded-2xl rounded-bl-md px-4 py-3 sm:px-5 sm:py-4 bg-card border border-border/30 shadow-sm w-full",
+                    ? "message-bubble-user rounded-[20px] rounded-br-lg px-4 py-3 sm:px-5 sm:py-3.5 text-primary-foreground shadow-lg shadow-primary/20 w-fit"
+                    : "message-bubble-ai rounded-[20px] rounded-bl-lg px-4 py-3 sm:px-5 sm:py-3.5 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm w-full",
                 )}
               >
                 {/* Glass shine effect for user messages */}
                 {message.role === "user" && (
-                  <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                  <div className="absolute inset-0 rounded-[20px] rounded-br-lg bg-gradient-to-tr from-white/0 via-white/15 to-white/5 pointer-events-none" />
                 )}
                 {/* Edit mode for user messages */}
                 {editingMessageId === message.id && message.role === "user" ? (
@@ -818,9 +818,9 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
             </div>
 
             {message.role === "user" && (
-              <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border border-border shrink-0 hover-scale smooth-transition">
-                <AvatarFallback className="bg-secondary text-secondary-foreground">
-                  <User className="h-4 w-4" />
+              <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/10 shrink-0 shadow-md smooth-transition ring-2 ring-background">
+                <AvatarFallback className="bg-gradient-to-br from-secondary to-muted text-secondary-foreground">
+                  <User className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                 </AvatarFallback>
               </Avatar>
             )}
@@ -830,8 +830,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
         {/* Modern AI Loading Indicator */}
         {isChatLoading && (
           <div className="flex gap-2 sm:gap-4 animate-slide-in-up">
-            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border-2 border-primary/30 shrink-0 relative persona-avatar-glow">
-              <div className="absolute inset-0 rounded-full gradient-border-animated opacity-60" />
+            <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/30 shrink-0 relative shadow-md ring-2 ring-background">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-primary animate-spin-slow opacity-30" />
               {currentPersona?.avatarUrl ? (
                 <>
                   <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
@@ -849,23 +849,22 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                 </AvatarFallback>
               )}
             </Avatar>
-            <div className="flex flex-col gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[90%] lg:max-w-[85%]">
-              <div className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4 bg-card border border-primary/20 shadow-lg thinking-container">
-                {/* Thinking indicator with wave dots */}
+            <div className="flex flex-col gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[85%] lg:max-w-[80%]">
+              <div className="rounded-[20px] rounded-bl-lg px-4 py-3 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container">
+                {/* Thinking indicator with modern wave dots */}
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="flex gap-1.5 items-end h-5">
-                    <div className="w-2 h-2 bg-primary rounded-full typing-dot" />
-                    <div className="w-2 h-2 bg-primary rounded-full typing-dot" />
-                    <div className="w-2 h-2 bg-primary rounded-full typing-dot" />
-                    <div className="w-2 h-2 bg-primary rounded-full typing-dot" />
+                  <div className="flex gap-1 items-center h-5">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <div className="w-2 h-2 bg-primary/80 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                   </div>
-                  <span className="text-xs text-muted-foreground/70 font-medium">Thinking...</span>
+                  <span className="text-xs text-muted-foreground font-medium">Thinking...</span>
                 </div>
                 {/* Skeleton content preview */}
-                <div className="space-y-2">
-                  <div className="ai-loading-bar w-full" style={{ animationDelay: "0ms" }} />
-                  <div className="ai-loading-bar w-4/5" style={{ animationDelay: "150ms" }} />
-                  <div className="ai-loading-bar w-3/5" style={{ animationDelay: "300ms" }} />
+                <div className="space-y-2.5">
+                  <div className="h-3 rounded-full bg-muted/60 w-full animate-pulse" />
+                  <div className="h-3 rounded-full bg-muted/40 w-4/5 animate-pulse" style={{ animationDelay: "150ms" }} />
+                  <div className="h-3 rounded-full bg-muted/30 w-3/5 animate-pulse" style={{ animationDelay: "300ms" }} />
                 </div>
               </div>
             </div>

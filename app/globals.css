@@ -2087,3 +2087,236 @@ html {
   background: rgba(255, 255, 255, 0.05);
   /* animation: skeleton-pulse 1.5s ease-in-out infinite; */
 }
+
+/* =========================================================================
+   Modern Mobile UI - Glassmorphism & 2024/2025 Design Trends
+   ========================================================================= */
+
+/* Mobile Navigation Glass Effect */
+.mobile-nav-glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.dark .mobile-nav-glass {
+  background: rgba(15, 15, 20, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Mobile Header Glass Effect */
+.mobile-header-glass {
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+}
+
+@media (max-width: 768px) {
+  .mobile-header-glass {
+    background: rgba(255, 255, 255, 0.85);
+  }
+
+  .dark .mobile-header-glass {
+    background: rgba(10, 10, 15, 0.9);
+  }
+}
+
+/* Modern Message Bubbles - Enhanced */
+.message-bubble-user {
+  background: linear-gradient(135deg,
+    var(--primary) 0%,
+    color-mix(in oklch, var(--primary) 85%, var(--accent)) 100%);
+  background-size: 100% 100%;
+}
+
+.message-bubble-ai {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.dark .message-bubble-ai {
+  background: rgba(30, 30, 40, 0.7);
+}
+
+/* Slow spin animation for loading avatar */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+/* Modern Touch Feedback - Micro-interactions */
+@media (max-width: 768px) {
+  /* Enhanced tap feedback for mobile */
+  button:active:not(:disabled),
+  [role="button"]:active,
+  a:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease-out;
+  }
+
+  /* Larger touch targets on mobile */
+  button, [role="button"], a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exception for inline buttons */
+  .inline-flex button,
+  button.h-6, button.h-7, button.h-8 {
+    min-height: auto;
+    min-width: auto;
+  }
+}
+
+/* Floating Action Button Enhancements */
+.fab-glow {
+  box-shadow:
+    0 4px 15px rgba(var(--primary), 0.3),
+    0 8px 30px rgba(var(--primary), 0.2);
+}
+
+.fab-glow:hover {
+  box-shadow:
+    0 6px 20px rgba(var(--primary), 0.4),
+    0 12px 40px rgba(var(--primary), 0.25);
+}
+
+/* Modern Card Styles for Mobile */
+@media (max-width: 768px) {
+  .card, [class*="rounded-lg"][class*="border"] {
+    border-radius: 20px;
+  }
+
+  /* Starter prompt cards */
+  button[class*="rounded-xl"] {
+    border-radius: 16px;
+  }
+}
+
+/* Enhanced Shadows for Depth */
+.shadow-modern {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.02),
+    0 4px 8px rgba(0, 0, 0, 0.04),
+    0 16px 32px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-modern-lg {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 8px 16px rgba(0, 0, 0, 0.06),
+    0 24px 48px rgba(0, 0, 0, 0.08);
+}
+
+/* Smooth State Transitions */
+.smooth-all {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modern Input Styling for Mobile */
+@media (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important; /* Prevents iOS zoom */
+    border-radius: 16px;
+  }
+
+  /* Chat input area */
+  [class*="textarea"] {
+    border-radius: 20px;
+  }
+}
+
+/* Bottom Safe Area Enhancement */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+  }
+}
+
+/* iOS-style Momentum Scroll Enhancement */
+@media (max-width: 768px) {
+  .native-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* Modern Badge/Pill Styles */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(var(--primary), 0.1);
+  color: var(--primary);
+}
+
+/* Gradient Text for Headings */
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Modern Focus States */
+@media (max-width: 768px) {
+  *:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+}
+
+/* Haptic Feedback Visual Hint */
+.haptic-feedback {
+  transition: transform 0.1s ease-out;
+}
+
+.haptic-feedback:active {
+  transform: scale(0.97);
+}
+
+/* Theme-specific glassmorphism adjustments */
+.cyberpunk .mobile-nav-glass {
+  background: rgba(8, 8, 20, 0.9);
+  border-color: rgba(0, 240, 255, 0.2);
+}
+
+.retro-wave .mobile-nav-glass {
+  background: rgba(16, 10, 30, 0.9);
+  border-color: rgba(255, 44, 85, 0.2);
+}
+
+.paper-mint .mobile-nav-glass {
+  background: rgba(249, 246, 239, 0.95);
+  border-color: rgba(47, 191, 159, 0.2);
+}
+
+.midnight-hologram .mobile-nav-glass {
+  background: rgba(5, 5, 10, 0.95);
+  border-color: rgba(0, 240, 255, 0.15);
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-glass,
+  .mobile-header-glass,
+  .message-bubble-user,
+  .message-bubble-ai {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .animate-spin-slow {
+    animation: none;
+  }
+}
