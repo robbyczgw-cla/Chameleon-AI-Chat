@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.0.2'
+const CACHE_VERSION = 'v2.0.3'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 
@@ -455,10 +455,17 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // CRITICAL: Skip auth callback - MUST go to network for redirects
+  // CRITICAL: Skip auth routes - MUST go to network for redirects
   // This fixes "page not available" after login
-  if (url.pathname.startsWith('/auth/callback')) {
-    console.log('[SW] Skipping auth callback - letting browser handle redirect')
+  if (url.pathname.startsWith('/auth/')) {
+    console.log('[SW] Skipping auth route - letting browser handle:', url.pathname)
+    return
+  }
+
+  // Skip root URL if it might redirect (common for auth redirects)
+  // Let browser handle root navigation to avoid redirect issues
+  if (url.pathname === '/' && event.request.mode === 'navigate') {
+    console.log('[SW] Skipping root navigation - letting browser handle potential redirects')
     return
   }
 
@@ -572,4 +579,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.0.2 loaded - fixed redirected response handling')
+console.log('[SW] Service Worker v2.0.3 loaded - skip root navigation to fix redirects')
