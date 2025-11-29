@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.0.1'
+const CACHE_VERSION = 'v2.0.2'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 
@@ -165,7 +165,7 @@ async function handleNavigation(event) {
       console.log('[SW] ⚡ Instant cache hit for:', pathname)
 
       // Return cached version immediately, update in background
-      fetchWithTimeout(request, NETWORK_TIMEOUT_NAVIGATION)
+      fetch(request.url, { redirect: 'follow' })
         .then(async (freshResponse) => {
           // Only update cache with non-redirected, ok responses
           if (freshResponse && freshResponse.ok && !freshResponse.redirected) {
@@ -183,17 +183,38 @@ async function handleNavigation(event) {
 
     // No cache - try network with timeout
     console.log('[SW] Cache miss, fetching:', pathname)
-    const networkResponse = await fetchWithTimeout(request, timeout)
+
+    // For navigation, use a simple fetch with redirect: 'follow'
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+    const networkResponse = await fetch(request.url, {
+      redirect: 'follow',
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeoutId)
 
     if (networkResponse && networkResponse.ok) {
-      // Only cache non-redirected responses
-      // Redirected responses cause "a redirected response was used" errors
-      if (!networkResponse.redirected) {
-        const cache = await caches.open(RUNTIME_CACHE)
-        cache.put(request, networkResponse.clone()).catch(() => {})
-      } else {
-        console.log('[SW] Skipping cache for redirected response:', pathname)
+      // CRITICAL: If this was a redirect, we need to create a new Response
+      // We can't return a redirected response to a navigation request
+      // because the original request has redirect: 'manual'
+      if (networkResponse.redirected) {
+        console.log('[SW] Creating clean response for redirect:', pathname, '-> final URL:', networkResponse.url)
+        // Create a new Response from the body to strip the 'redirected' flag
+        // This allows us to return the response to the navigation request
+        const body = await networkResponse.blob()
+        const cleanResponse = new Response(body, {
+          status: networkResponse.status,
+          statusText: networkResponse.statusText,
+          headers: networkResponse.headers,
+        })
+        return cleanResponse
       }
+
+      // Cache non-redirected responses
+      const cache = await caches.open(RUNTIME_CACHE)
+      cache.put(request, networkResponse.clone()).catch(() => {})
       return networkResponse
     }
 
@@ -551,4 +572,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.0.1 loaded - fixed redirect handling for auth')
+console.log('[SW] Service Worker v2.0.2 loaded - fixed redirected response handling')
