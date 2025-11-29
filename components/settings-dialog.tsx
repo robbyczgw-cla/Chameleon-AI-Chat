@@ -832,10 +832,13 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                       Let AI automatically decide when to search the web. The model will search for current events, prices, news, weather, etc.
                     </p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">GPT-4</span>
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300">Claude 3.5+</span>
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">Gemini</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">GPT-5</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300">Claude 4.5</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">Gemini 2.5</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300">Grok 4</span>
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300">DeepSeek V3</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">Llama 4</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-pink-100 dark:bg-pink-900/50 text-pink-700 dark:text-pink-300">Qwen 3</span>
                     </div>
                   </div>
                   <Switch
@@ -853,8 +856,8 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                     <p className="font-medium text-amber-700 dark:text-amber-400">Requirements:</p>
                     <ul className="list-disc list-inside text-muted-foreground space-y-0.5 pl-1">
                       <li>A search API key (Tavily, Serper, or Exa) must be configured in API Keys tab</li>
-                      <li>The model must support tool calling (GPT-4, Claude 3.5+, Gemini, DeepSeek V3)</li>
-                      <li>Smaller models (&lt;30B params) may not work reliably</li>
+                      <li>Use a model with tool calling support (GPT-5, Claude 4.5, Gemini 2.5, Grok 4, Llama 4, etc.)</li>
+                      <li>Most 2025 flagship and mid-tier models support this feature</li>
                     </ul>
                   </div>
                 )}

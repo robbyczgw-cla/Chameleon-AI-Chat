@@ -93,31 +93,32 @@ export function getAvailableTools(): ToolDefinition[] {
 
 /**
  * Check if a model supports tool calling
- * Models < 30B parameters generally don't support tool calling well
+ * Updated for November 2025 model landscape
  */
 export function modelSupportsToolCalling(modelId: string): boolean {
   const modelLower = modelId.toLowerCase()
 
-  // Models known to support tool calling well
+  // Models known to support tool calling well (November 2025)
   const supportedPatterns = [
-    // OpenAI
-    'gpt-4', 'gpt-4o', 'gpt-4-turbo',
-    // Anthropic
-    'claude-3', 'claude-3.5', 'claude-3-opus', 'claude-3-sonnet', 'claude-3.5-sonnet',
-    // Google
-    'gemini-1.5', 'gemini-2', 'gemini-pro', 'gemini-flash',
-    // DeepSeek
-    'deepseek-v3', 'deepseek-chat', 'deepseek-coder',
-    // Qwen
-    'qwen-2.5-72b', 'qwen-2.5-coder', 'qwen2.5',
-    // Mistral
-    'mixtral-8x22b', 'mistral-large', 'mistral-medium',
-    // xAI
-    'grok-2', 'grok-beta',
-    // Cohere
-    'command-r-plus', 'command-r',
-    // Meta (larger models)
-    'llama-3.1-405b', 'llama-3.1-70b', 'llama-3.2-90b',
+    // OpenAI (2025)
+    'gpt-5', 'gpt-5-mini', 'gpt-4o', 'gpt-4-turbo',
+    // Anthropic (2025)
+    'claude-4', 'claude-opus-4', 'claude-sonnet-4', 'claude-haiku-4',
+    'claude-3.5', 'claude-3-opus',
+    // Google (2025)
+    'gemini-2.5', 'gemini-2', 'gemini-pro', 'gemini-flash',
+    // xAI (2025)
+    'grok-4', 'grok-code',
+    // DeepSeek (2025)
+    'deepseek-v3', 'deepseek-chat-v3', 'deepseek-coder-v3',
+    // Meta (2025)
+    'llama-4', 'llama-4-maverick', 'llama-4-scout',
+    // Qwen (2025)
+    'qwen3', 'qwen3-max', 'qwen3-coder', 'qwen3-235b',
+    // Mistral (2025)
+    'codestral-2025', 'mistral-large', 'mixtral',
+    // Others
+    'glm-4', 'minimax-m2', 'command-r',
   ]
 
   // Check if model matches any supported pattern
