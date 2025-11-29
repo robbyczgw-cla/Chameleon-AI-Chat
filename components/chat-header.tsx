@@ -267,17 +267,17 @@ export function ChatHeader() {
               </p>
             </div>
           </div>
-          {/* Mobile toggles - modern pill style */}
-          <div className="flex items-center gap-1 flex-shrink-0 p-1 rounded-2xl bg-muted/50">
+          {/* Mobile toggles - compact pill style */}
+          <div className="flex items-center gap-0.5 flex-shrink-0 p-0.5 rounded-full mobile-nav-glass border border-white/10 dark:border-white/5">
             <Button
               type="button"
               size="icon"
               variant="ghost"
               className={cn(
-                "h-8 w-8 rounded-xl transition-all duration-200",
+                "h-6 w-6 rounded-full transition-all duration-200",
                 isVoiceActive
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
               onClick={() => {
                 setIsVoiceActive(!isVoiceActive)
@@ -285,17 +285,17 @@ export function ChatHeader() {
               }}
               title="Voice input"
             >
-              <Mic className="h-4 w-4" />
+              <Mic className="h-3 w-3" />
             </Button>
             <Button
               type="button"
               size="icon"
               variant="ghost"
               className={cn(
-                "h-8 w-8 rounded-xl transition-all duration-200",
+                "h-6 w-6 rounded-full transition-all duration-200",
                 isImageModeActive
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
               onClick={() => {
                 setIsImageModeActive(!isImageModeActive)
@@ -303,17 +303,17 @@ export function ChatHeader() {
               }}
               title="Image mode"
             >
-              <Image className="h-4 w-4" />
+              <Image className="h-3 w-3" />
             </Button>
             <Button
               type="button"
               size="icon"
               variant="ghost"
               className={cn(
-                "h-8 w-8 rounded-xl transition-all duration-200",
+                "h-6 w-6 rounded-full transition-all duration-200",
                 isReasoningActive
                   ? "bg-amber-500 text-white shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
               onClick={() => {
                 setIsReasoningActive(!isReasoningActive)
@@ -321,7 +321,7 @@ export function ChatHeader() {
               }}
               title="Reasoning"
             >
-              <Lightbulb className="h-4 w-4" />
+              <Lightbulb className="h-3 w-3" />
             </Button>
           </div>
         </div>
