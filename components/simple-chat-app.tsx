@@ -653,7 +653,7 @@ export function SimpleChatApp() {
         </>
       )}
 
-      <div className="relative z-10 flex h-[100dvh] overflow-hidden gap-0 pb-[env(safe-area-inset-bottom,12px)] md:pb-4">
+      <div className="relative z-10 h-[100dvh] overflow-hidden pb-[env(safe-area-inset-bottom,12px)] md:pb-4 md:grid md:grid-cols-[288px_1fr]">
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
@@ -663,10 +663,10 @@ export function SimpleChatApp() {
         )}
 
         {/* Sidebar - Chat History */}
-        {/* Mobile: fixed overlay, Desktop: relative flex sidebar */}
+        {/* Mobile: fixed overlay, Desktop: grid column */}
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-50 w-72 md:relative md:inset-auto md:z-0 md:w-72 md:shrink-0 transition-transform duration-300 ease-out",
+            "fixed inset-y-0 left-0 z-50 w-72 md:relative md:inset-auto md:z-0 md:w-full transition-transform duration-300 ease-out",
             isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           )}
         >
@@ -777,7 +777,7 @@ export function SimpleChatApp() {
         </div>
 
         {/* Main Content */}
-        <main className="flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
+        <main className="flex flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
           {/* Header */}
           <header className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 border-b border-border/50 bg-background">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
