@@ -11,8 +11,8 @@ import { Badge } from "@/components/ui/badge"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { useApp } from "@/contexts/app-context"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
+import { Sparkles } from "lucide-react"
 import {
-  Sparkles,
   User,
   Palette,
   Key,
