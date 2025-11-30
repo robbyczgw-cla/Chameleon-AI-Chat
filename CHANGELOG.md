@@ -31,6 +31,15 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
   - Reduced vertical padding for closer-to-bottom positioning
   - Uses `env(safe-area-inset-bottom)` for proper mobile safe areas
 
+### AI-Driven Web Search (2025-11-30)
+- **Tool Calling Auto-Search** - AI decides when to search the web
+  - Uses OpenRouter function calling with Grok 4.1 Fast and other supported models
+  - AI autonomously triggers web_search tool when it detects need for current info
+  - User toasts show when AI starts/completes search
+  - Manual web search toggle still works for explicit control
+  - Heuristics-based fallback for models without tool calling support
+  - Files: `components/simple-chat-input.tsx`, `lib/tools.ts`, `app/api/chat/route.ts`
+
 ### MCP Integration (2025-11-30)
 - **MCP Settings UI** - Full MCP server management for Advanced Mode
   - Mobile-responsive layout with WCAG touch targets (44px)
