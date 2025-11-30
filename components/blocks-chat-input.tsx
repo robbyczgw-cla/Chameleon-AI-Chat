@@ -334,12 +334,6 @@ export function BlocksChatInput({
           </div>
         )}
 
-        {/* Keyboard Hint */}
-        <div className="mt-2 text-center">
-          <span className="text-[10px] text-muted-foreground/60">
-            {language === "de" ? "Enter zum Senden • Shift+Enter für neue Zeile" : "Enter to send • Shift+Enter for new line"}
-          </span>
-        </div>
       </div>
     </div>
   )
