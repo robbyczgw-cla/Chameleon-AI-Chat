@@ -653,7 +653,7 @@ export function SimpleChatApp() {
         </>
       )}
 
-      <div className="relative z-10 flex h-[100dvh] w-full min-w-0 items-stretch overflow-hidden gap-0 pb-[env(safe-area-inset-bottom,12px)] md:pb-4">
+      <div className="relative z-10 flex h-[100dvh] overflow-hidden gap-0 pb-[env(safe-area-inset-bottom,12px)] md:pb-4">
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
@@ -663,14 +663,14 @@ export function SimpleChatApp() {
         )}
 
         {/* Sidebar - Chat History */}
-        {/* Mobile: fixed overlay, Desktop: static flex sidebar */}
-        <aside
+        {/* Mobile: fixed overlay, Desktop: relative flex sidebar */}
+        <div
           className={cn(
-            "fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border/50 transition-transform duration-300 ease-out",
-            "md:static md:z-0 md:translate-x-0 md:shrink-0",
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            "fixed inset-y-0 left-0 z-50 w-72 md:relative md:z-0 md:w-72 transition-transform duration-300 ease-out",
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           )}
         >
+          <aside className="h-full w-full bg-background border-r border-border/50">
           <div className="flex flex-col h-full">
             {/* Sidebar Header */}
             <div className="p-4 border-b border-border/50">
@@ -773,7 +773,8 @@ export function SimpleChatApp() {
               </Button>
             </div>
           </div>
-        </aside>
+          </aside>
+        </div>
 
         {/* Main Content */}
         <main className="flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
