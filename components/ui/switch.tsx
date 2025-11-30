@@ -8,11 +8,31 @@ import { toggle } from '@/lib/mobile-design-tokens'
 /**
  * Switch component using centralized design tokens
  * @see /lib/mobile-design-tokens.ts for dimension values
+ *
+ * Note: Transform values use inline styles because dynamic Tailwind classes
+ * with template literals don't get compiled at build time.
  */
 function Switch({
   className,
+  checked,
+  defaultChecked,
+  onCheckedChange,
   ...props
 }: React.ComponentProps<typeof SwitchPrimitive.Root>) {
+  // Track internal state for uncontrolled usage
+  const [internalChecked, setInternalChecked] = React.useState(defaultChecked ?? false)
+
+  // Determine if controlled or uncontrolled
+  const isControlled = checked !== undefined
+  const isChecked = isControlled ? checked : internalChecked
+
+  const handleCheckedChange = (value: boolean) => {
+    if (!isControlled) {
+      setInternalChecked(value)
+    }
+    onCheckedChange?.(value)
+  }
+
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
@@ -32,6 +52,9 @@ function Switch({
         minWidth: `${toggle.track.width}px`,
         maxWidth: `${toggle.track.width}px`,
       }}
+      checked={checked}
+      defaultChecked={defaultChecked}
+      onCheckedChange={handleCheckedChange}
       {...props}
     >
       <SwitchPrimitive.Thumb
@@ -39,12 +62,11 @@ function Switch({
         className={cn(
           'bg-white pointer-events-none block rounded-full',
           'transition-transform duration-200 ease-in-out',
-          `data-[state=checked]:translate-x-[${toggle.thumb.offsetChecked}px]`,
-          `data-[state=unchecked]:translate-x-[${toggle.thumb.offsetUnchecked}px]`,
         )}
         style={{
           height: `${toggle.thumb.size}px`,
           width: `${toggle.thumb.size}px`,
+          transform: `translateX(${isChecked ? toggle.thumb.offsetChecked : toggle.thumb.offsetUnchecked}px)`,
         }}
       />
     </SwitchPrimitive.Root>

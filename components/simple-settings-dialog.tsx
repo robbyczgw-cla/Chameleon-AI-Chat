@@ -13,6 +13,7 @@ import { User, Palette, Key, Volume2, Sparkles, Settings2, ChevronRight, Search 
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
 // Translations for Simple Settings
 const translations = {
@@ -321,52 +322,97 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
 
             {/* Appearance Tab */}
             <TabsContent value="appearance" className="space-y-4 mt-0">
+              {/* Language Pills */}
               <div className="space-y-2">
                 <Label className="text-sm">{t.language}</Label>
-                <select
-                  value={localSettings.language || "en"}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    setLocalSettings({ ...localSettings, language: e.target.value as "en" | "de" })
-                  }
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[44px]"
-                >
-                  <option value="en">English</option>
-                  <option value="de">Deutsch</option>
-                </select>
+                <div className="flex gap-2">
+                  {[
+                    { value: "en", label: "English", flag: "🇬🇧" },
+                    { value: "de", label: "Deutsch", flag: "🇩🇪" },
+                  ].map((lang) => (
+                    <button
+                      key={lang.value}
+                      type="button"
+                      onClick={() => setLocalSettings({ ...localSettings, language: lang.value as "en" | "de" })}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
+                        "border border-border/60 hover:border-violet-300",
+                        localSettings.language === lang.value
+                          ? "bg-violet-500 text-white border-violet-500"
+                          : "bg-background/50 hover:bg-violet-500/5"
+                      )}
+                    >
+                      <span>{lang.flag}</span>
+                      <span>{lang.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
+              {/* Theme Cards - Blocks Style */}
               <div className="space-y-2">
                 <Label className="text-sm">{t.theme}</Label>
-                <select
-                  value={currentTheme}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) => handleThemeChange(e.target.value)}
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[44px]"
-                >
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
-                  <option value="cosmic-glass">Cosmic Glass</option>
-                  <option value="modern-light">Modern Light</option>
-                  <option value="girly-violet">Girly Violet</option>
-                  <option value="ocean-breeze">Ocean Breeze</option>
-                </select>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {[
+                    { value: "light", label: "Light", bg: "bg-white", border: "border-gray-200" },
+                    { value: "dark", label: "Dark", bg: "bg-gray-900", border: "border-gray-700" },
+                    { value: "cosmic-glass", label: "Cosmic", bg: "bg-gradient-to-br from-indigo-900 to-purple-900", border: "border-indigo-500/50" },
+                    { value: "modern-light", label: "Modern", bg: "bg-gradient-to-br from-slate-50 to-gray-100", border: "border-slate-300" },
+                    { value: "girly-violet", label: "Violet", bg: "bg-gradient-to-br from-pink-100 to-purple-200", border: "border-pink-300" },
+                    { value: "ocean-breeze", label: "Ocean", bg: "bg-gradient-to-br from-cyan-100 to-blue-200", border: "border-cyan-300" },
+                  ].map((theme) => (
+                    <button
+                      key={theme.value}
+                      type="button"
+                      onClick={() => handleThemeChange(theme.value)}
+                      className={cn(
+                        "flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all",
+                        "border-2 hover:scale-105",
+                        currentTheme === theme.value
+                          ? "border-violet-500 ring-2 ring-violet-500/20"
+                          : "border-transparent hover:border-violet-300/50"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-10 h-10 sm:w-12 sm:h-12 rounded-lg border",
+                        theme.bg,
+                        theme.border
+                      )} />
+                      <span className="text-[10px] sm:text-xs font-medium">{theme.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
+              {/* Text Size Pills */}
               <div className="space-y-2">
                 <Label className="text-sm">{t.textSize}</Label>
-                <select
-                  value={localSettings.fontSize || "medium"}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    setLocalSettings({ ...localSettings, fontSize: e.target.value as "small" | "medium" | "large" })
-                  }
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[44px]"
-                >
-                  <option value="small">{t.small}</option>
-                  <option value="medium">{t.medium}</option>
-                  <option value="large">{t.large}</option>
-                </select>
+                <div className="flex gap-2">
+                  {[
+                    { value: "small", label: t.small, size: "text-xs" },
+                    { value: "medium", label: t.medium, size: "text-sm" },
+                    { value: "large", label: t.large, size: "text-base" },
+                  ].map((size) => (
+                    <button
+                      key={size.value}
+                      type="button"
+                      onClick={() => setLocalSettings({ ...localSettings, fontSize: size.value as "small" | "medium" | "large" })}
+                      className={cn(
+                        "flex-1 px-3 py-2 rounded-lg text-center font-medium transition-all",
+                        "border border-border/60 hover:border-violet-300",
+                        size.size,
+                        localSettings.fontSize === size.value
+                          ? "bg-violet-500 text-white border-violet-500"
+                          : "bg-background/50 hover:bg-violet-500/5"
+                      )}
+                    >
+                      {size.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="flex items-center justify-between py-2">
+              <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-muted/30 border border-border/40">
                 <div>
                   <Label className="text-sm">{t.performanceMode}</Label>
                   <p className="text-xs text-muted-foreground">{t.performanceModeDesc}</p>

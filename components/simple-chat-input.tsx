@@ -678,7 +678,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
   }
 
   return (
-    <div className="border-t border-border bg-background p-3 sm:p-4 w-full">
+    <div className="border-t border-border bg-background px-3 sm:px-4 py-2 sm:py-3 w-full">
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
         <div className="flex items-end gap-2 sm:gap-3">
           <div className="flex-1 relative">
@@ -773,7 +773,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
           </Button>
         </div>
         {/* Context Window Meter */}
-        <div className="mt-2 flex justify-end">
+        <div className="mt-1.5 flex justify-end">
           <ContextWindowMeter compact />
         </div>
       </form>

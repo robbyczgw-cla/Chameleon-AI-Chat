@@ -1,5 +1,16 @@
 "use client"
 
+/**
+ * BlocksChatInput - Modern chat input inspired by blocks.so
+ * @see https://github.com/ephraimduncan/blocks - Original inspiration by Ephraim Duncan
+ *
+ * Features:
+ * - Expandable textarea (compact → expanded on multiline)
+ * - Inline action buttons (web search, reasoning toggle)
+ * - Quick prompt pills for conversation starters
+ * - Clean, minimal design with violet accent colors
+ */
+
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
@@ -316,7 +327,7 @@ export function BlocksChatInput({
   }
 
   return (
-    <div className="w-full px-3 sm:px-4 py-3 sm:py-4">
+    <div className="w-full px-3 sm:px-4 py-2 sm:py-3">
       <div className="max-w-2xl mx-auto">
         {/* Main Input Container - Blocks Style */}
         <form ref={formRef} onSubmit={handleSubmit}>

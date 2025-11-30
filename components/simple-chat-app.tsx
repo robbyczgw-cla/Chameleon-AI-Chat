@@ -645,7 +645,7 @@ export function SimpleChatApp() {
         </>
       )}
 
-      <div className="relative z-10 flex h-[100dvh] w-full min-w-0 items-stretch overflow-hidden gap-0 pb-[44px] md:pb-6">
+      <div className="relative z-10 flex h-[100dvh] w-full min-w-0 items-stretch overflow-hidden gap-0 pb-[env(safe-area-inset-bottom,12px)] md:pb-4">
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
