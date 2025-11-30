@@ -31,8 +31,7 @@ function TabLoadingFallback() {
     </div>
   )
 }
-import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, PieChart, RefreshCw, Loader2, Server, Puzzle } from "lucide-react"
-import { fetchLMStudioModels, checkLMStudioConnection, DEFAULT_LM_STUDIO_ENDPOINT } from "@/lib/lmstudio"
+import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, PieChart, Loader2, Puzzle } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
 
@@ -47,73 +46,8 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const [currentTheme, setCurrentTheme] = useState<string>("light")
   const [isHelpOpen, setIsHelpOpen] = useState(false)
   const [micPermission, setMicPermission] = useState<'unknown' | 'granted' | 'denied' | 'prompt' | 'testing'>('unknown')
-  const [lmStudioStatus, setLmStudioStatus] = useState<'unknown' | 'checking' | 'connected' | 'disconnected'>('unknown')
-  const [lmStudioRefreshing, setLmStudioRefreshing] = useState(false)
   const { toast } = useToast()
 
-  // Test LM Studio connection and fetch models
-  const testLMStudioConnection = async () => {
-    const endpoint = localSettings.lmStudio?.endpoint || DEFAULT_LM_STUDIO_ENDPOINT
-    setLmStudioStatus('checking')
-
-    try {
-      const isConnected = await checkLMStudioConnection(endpoint)
-      if (isConnected) {
-        setLmStudioStatus('connected')
-        toast({
-          title: "LM Studio Connected",
-          description: "Successfully connected to LM Studio server.",
-        })
-      } else {
-        setLmStudioStatus('disconnected')
-        toast({
-          title: "LM Studio Not Available",
-          description: "Could not connect to LM Studio. Make sure it's running.",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      setLmStudioStatus('disconnected')
-      toast({
-        title: "Connection Failed",
-        description: "Error connecting to LM Studio. Check the endpoint URL.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  // Refresh LM Studio models
-  const refreshLMStudioModels = async () => {
-    const endpoint = localSettings.lmStudio?.endpoint || DEFAULT_LM_STUDIO_ENDPOINT
-    setLmStudioRefreshing(true)
-
-    try {
-      const models = await fetchLMStudioModels(endpoint)
-      setLocalSettings({
-        ...localSettings,
-        lmStudio: {
-          ...localSettings.lmStudio,
-          enabled: true,
-          endpoint,
-          models,
-        },
-      })
-      setLmStudioStatus('connected')
-      toast({
-        title: "Models Loaded",
-        description: `Found ${models.length} model${models.length !== 1 ? 's' : ''} in LM Studio.`,
-      })
-    } catch (error) {
-      setLmStudioStatus('disconnected')
-      toast({
-        title: "Failed to Load Models",
-        description: "Could not fetch models from LM Studio. Make sure it's running.",
-        variant: "destructive",
-      })
-    } finally {
-      setLmStudioRefreshing(false)
-    }
-  }
   const currentLanguage = settings.language || "en"
   const { t, translations } = useTranslation(currentLanguage)
 
@@ -677,132 +611,6 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   </a>{" "}
                   - Best for RAG, semantic search & research (~$0.01/search)
                 </p>
-              </div>
-
-              {/* LM Studio Local Models Section - Desktop only (not useful on mobile) */}
-              <div className="hidden md:block space-y-4 pt-4 border-t">
-                <div className="flex items-center gap-2">
-                  <Server className="h-5 w-5 text-green-600" />
-                  <h4 className="font-medium text-sm sm:text-base">LM Studio (Local Models)</h4>
-                </div>
-
-                <div className="rounded-lg border p-3 sm:p-4 bg-green-50 dark:bg-green-950/20">
-                  <div className="space-y-3">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                      <div className="space-y-0.5 flex-1">
-                        <Label htmlFor="lmstudio-enabled" className="text-sm sm:text-base font-medium">Enable LM Studio</Label>
-                        <p className="text-xs text-muted-foreground">
-                          Connect to locally running LLMs via LM Studio
-                        </p>
-                      </div>
-                      <Switch
-                        id="lmstudio-enabled"
-                        checked={localSettings.lmStudio?.enabled ?? false}
-                        onCheckedChange={(checked) =>
-                          setLocalSettings({
-                            ...localSettings,
-                            lmStudio: { ...localSettings.lmStudio, enabled: checked, endpoint: localSettings.lmStudio?.endpoint || DEFAULT_LM_STUDIO_ENDPOINT },
-                          })
-                        }
-                        className="flex-shrink-0"
-                      />
-                    </div>
-
-                    {localSettings.lmStudio?.enabled && (
-                      <>
-                        <div className="space-y-2">
-                          <Label htmlFor="lmstudio-endpoint" className="text-sm">
-                            Server Endpoint
-                          </Label>
-                          <div className="flex gap-2">
-                            <Input
-                              id="lmstudio-endpoint"
-                              type="url"
-                              placeholder="http://localhost:1234/v1"
-                              value={localSettings.lmStudio?.endpoint || DEFAULT_LM_STUDIO_ENDPOINT}
-                              onChange={(e) =>
-                                setLocalSettings({
-                                  ...localSettings,
-                                  lmStudio: { ...localSettings.lmStudio, enabled: true, endpoint: e.target.value },
-                                })
-                              }
-                              className="text-sm min-h-[44px] flex-1"
-                            />
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={testLMStudioConnection}
-                              disabled={lmStudioStatus === 'checking'}
-                              className="min-h-[44px] px-3"
-                            >
-                              {lmStudioStatus === 'checking' ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : lmStudioStatus === 'connected' ? (
-                                <CheckCircle2 className="h-4 w-4 text-green-500" />
-                              ) : lmStudioStatus === 'disconnected' ? (
-                                <XCircle className="h-4 w-4 text-red-500" />
-                              ) : (
-                                "Test"
-                              )}
-                            </Button>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            Default: http://localhost:1234/v1 (LM Studio default port)
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-2">
-                          <div className="space-y-0.5">
-                            <Label className="text-sm">Available Models</Label>
-                            <p className="text-xs text-muted-foreground">
-                              {localSettings.lmStudio?.models?.length
-                                ? `${localSettings.lmStudio.models.length} model${localSettings.lmStudio.models.length !== 1 ? 's' : ''} loaded`
-                                : "No models loaded yet"}
-                            </p>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={refreshLMStudioModels}
-                            disabled={lmStudioRefreshing}
-                            className="min-h-[40px] gap-2"
-                          >
-                            {lmStudioRefreshing ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <RefreshCw className="h-4 w-4" />
-                            )}
-                            Refresh Models
-                          </Button>
-                        </div>
-
-                        {localSettings.lmStudio?.models && localSettings.lmStudio.models.length > 0 && (
-                          <div className="rounded-md border bg-background p-2 max-h-32 overflow-y-auto">
-                            <ul className="space-y-1">
-                              {localSettings.lmStudio.models.map((model) => (
-                                <li key={model.id} className="text-xs flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-green-500" />
-                                  {model.name}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        <div className="rounded-lg bg-green-100 dark:bg-green-900/30 p-2 text-xs space-y-1">
-                          <p className="font-medium">How to use:</p>
-                          <ol className="list-decimal list-inside space-y-0.5 pl-1">
-                            <li>Download & install <a href="https://lmstudio.ai" target="_blank" rel="noopener noreferrer" className="underline">LM Studio</a></li>
-                            <li>Load a model in LM Studio</li>
-                            <li>Start the local server (default port: 1234)</li>
-                            <li>Click "Refresh Models" above</li>
-                            <li>Select local models from the model dropdown</li>
-                          </ol>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
               </div>
 
             </TabsContent>
