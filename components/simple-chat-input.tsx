@@ -148,8 +148,8 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
       abortControllerRef.current = null
       setIsChatLoading(false)
       toast({
-        title: "Gestoppt",
-        description: "Antwort wurde abgebrochen",
+        title: settings.language === "de" ? "Gestoppt" : "Stopped",
+        description: settings.language === "de" ? "Antwort wurde abgebrochen" : "Response was cancelled",
       })
     }
   }

@@ -1008,7 +1008,7 @@ export function ChatInput() {
             />
             {/* Buttons inside textarea */}
             <div className="absolute bottom-2 right-2 flex gap-0.5 md:gap-1">
-              {/* Web search */}
+              {/* Web search - visible on mobile and desktop */}
               <Button
                 type="button"
                 size="icon"
@@ -1019,9 +1019,25 @@ export function ChatInput() {
               >
                 <Globe className="h-3.5 w-3.5 md:h-4 md:w-4" />
               </Button>
-              {/* File upload - next to search */}
+              {/* Reasoning toggle - visible on mobile and desktop */}
+              {modelSupportsReasoning && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={reasoningEnabled ? "default" : "ghost"}
+                  className={cn(
+                    "h-7 w-7 md:h-8 md:w-8 rounded-lg transition-all",
+                    reasoningEnabled && "bg-amber-500 hover:bg-amber-600"
+                  )}
+                  onClick={() => setReasoningEnabled(!reasoningEnabled)}
+                  title="Reasoning"
+                >
+                  <Lightbulb className={cn("h-3.5 w-3.5 md:h-4 md:w-4", reasoningEnabled && "text-white")} />
+                </Button>
+              )}
+              {/* File upload */}
               <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-              {/* Desktop only: Voice, Image, Reasoning */}
+              {/* Desktop only: Voice, Image */}
               <div className="hidden md:flex gap-1">
                 <Button
                   type="button"
@@ -1046,18 +1062,6 @@ export function ChatInput() {
                 >
                   <Image className="h-4 w-4" />
                 </Button>
-                {modelSupportsReasoning && (
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant={reasoningEnabled ? "default" : "ghost"}
-                    className={`h-8 w-8 rounded-lg transition-all ${reasoningEnabled ? "bg-amber-500" : ""}`}
-                    onClick={() => setReasoningEnabled(!reasoningEnabled)}
-                    title="Reasoning"
-                  >
-                    <Lightbulb className={`h-4 w-4 ${reasoningEnabled ? "text-white" : ""}`} />
-                  </Button>
-                )}
               </div>
             </div>
           </div>

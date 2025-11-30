@@ -9,6 +9,10 @@
  * - Inline action buttons (web search, reasoning toggle)
  * - Quick prompt pills for conversation starters
  * - Clean, minimal design with violet accent colors
+ *
+ * Note: This component does NOT handle streaming itself. It dispatches to
+ * SimpleChatInput via the "sendQuickMessage" event to avoid component
+ * unmount issues when the UI switches from welcome to chat view.
  */
 
 import type React from "react"
@@ -16,39 +20,20 @@ import { useState, useRef, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import type { Message } from "@/types"
-import { streamChatMessage, REASONING_MODELS } from "@/lib/openrouter"
-import { searchWeb, formatSearchResults as formatTavilyResults } from "@/lib/tavily"
-import { searchWithSerper, formatSearchResults as formatSerperResults } from "@/lib/serper"
-import type { SearchResponse } from "@/lib/serper"
+import { REASONING_MODELS } from "@/lib/openrouter"
 import { useToast } from "@/hooks/use-toast"
-import { generateUUID, cn } from "@/lib/utils"
-import { supabaseSync } from "@/lib/supabase/sync"
-import { estimateTokens, calculateCost } from "@/lib/token-tracker"
-import { languageService, getTranslation } from "@/lib/languages"
-import { extractTextFromAttachments, type FileAttachment } from "@/lib/file-handler"
+import { cn } from "@/lib/utils"
+import { languageService } from "@/lib/languages"
+import type { FileAttachment } from "@/lib/file-handler"
 import type { Persona } from "@/lib/personas"
-import { getRAGContext } from "@/lib/rag-service"
-import { memoryService } from "@/lib/memory-service"
 import { useDraft } from "@/hooks/use-draft"
 import {
   Send,
   Square,
   Globe,
   Lightbulb,
-  Mic,
-  Paperclip,
-  Image,
-  Sparkles,
-  Zap,
   ArrowUp,
 } from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 interface BlocksChatInputProps {
   selectedPersona?: Persona
@@ -67,14 +52,13 @@ export function BlocksChatInput({
   quickPrompts = [],
   onQuickPrompt,
 }: BlocksChatInputProps = {}) {
-  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading } = useApp()
+  const { currentChatId, createChat, settings, isChatLoading } = useApp()
 
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
   const [input, setInput] = useState("")
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Restore draft when hook is ready
   useEffect(() => {
@@ -83,12 +67,10 @@ export function BlocksChatInput({
     }
   }, [isRestored, draft])
 
-  const [attachedFiles, setAttachedFiles] = useState<FileAttachment[]>([])
-  const [language, setLanguage] = useState(languageService.getLanguage())
-  const abortControllerRef = useRef<AbortController | null>(null)
+  const [language] = useState(languageService.getLanguage())
   const { toast } = useToast()
 
-  // Load web search state from localStorage
+  // Load web search state from localStorage (for UI toggle display)
   const [webSearchEnabled, setWebSearchEnabled] = useState(() => {
     if (typeof window === "undefined") return initialWebSearchEnabled ?? true
     const saved = localStorage.getItem("chameleon-web-search-enabled")
@@ -98,7 +80,7 @@ export function BlocksChatInput({
     return initialWebSearchEnabled ?? true
   })
 
-  // Load reasoning state from localStorage
+  // Load reasoning state from localStorage (for UI toggle display)
   const [reasoningEnabled, setReasoningEnabled] = useState(() => {
     if (typeof window === "undefined") return false
     const saved = localStorage.getItem("chameleon-reasoning-enabled")
@@ -117,7 +99,7 @@ export function BlocksChatInput({
     }
   }, [input])
 
-  // Save settings to localStorage
+  // Save settings to localStorage (SimpleChatInput will read these)
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("chameleon-web-search-enabled", String(webSearchEnabled))
@@ -128,194 +110,24 @@ export function BlocksChatInput({
   // Determine if input is expanded (multiline or long)
   const isExpanded = input.length > 80 || input.includes("\n")
 
-  const stopGeneration = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-      abortControllerRef.current = null
-      setIsChatLoading(false)
-      toast({
-        title: language === "de" ? "Generierung gestoppt" : "Generation stopped",
-        duration: 2000,
-      })
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if ((!input.trim() && attachedFiles.length === 0) || isChatLoading) return
+    if (!input.trim() || isChatLoading) return
 
     const userMessage = input.trim()
     setInput("")
     clearDraft()
-    setIsChatLoading(true)
 
-    // Create abort controller
-    abortControllerRef.current = new AbortController()
-
-    try {
-      // Get or create chat
-      let chatId = currentChatId
-      if (!chatId) {
-        chatId = createChat(model)
-      }
-
-      // Add user message
-      const userMsgId = generateUUID()
-      const userMsg: Message = {
-        id: userMsgId,
-        role: "user",
-        content: userMessage,
-        timestamp: Date.now(),
-      }
-      addMessage(chatId, userMsg)
-
-      // Build system prompt
-      let systemPrompt = settings.systemPrompt || ""
-      if (selectedPersona) {
-        systemPrompt = selectedPersona.prompt || selectedPersona.personality || systemPrompt
-      }
-      if (profileContext) {
-        systemPrompt = `${profileContext}\n\n${systemPrompt}`
-      }
-
-      // Get memory context
-      const memories = memoryService.getRelevantMemories(userMessage, 5)
-      if (memories.length > 0) {
-        const memoryContext = memories.map(m => `- ${m.content}`).join("\n")
-        systemPrompt = `${systemPrompt}\n\nUser's relevant memories:\n${memoryContext}`
-      }
-
-      // Web search if enabled
-      let searchContext = ""
-      if (webSearchEnabled && settings.apiKeys.tavily) {
-        try {
-          const results = await searchWeb(userMessage, { apiKey: settings.apiKeys.tavily })
-          if (results.results) {
-            searchContext = formatTavilyResults(results.results)
-          }
-        } catch (err) {
-          console.warn("[BlocksChatInput] Search failed:", err)
-        }
-      }
-
-      if (searchContext) {
-        systemPrompt = `${systemPrompt}\n\nRecent web search results:\n${searchContext}`
-      }
-
-      // RAG context
-      const ragContext = await getRAGContext(userMessage, 3)
-      if (ragContext) {
-        systemPrompt = `${systemPrompt}\n\nRelevant context from knowledge base:\n${ragContext}`
-      }
-
-      // Build messages array
-      const currentChat = chats.find(c => c.id === chatId)
-      const messages: Array<{ role: "user" | "assistant" | "system"; content: string }> = []
-
-      if (systemPrompt) {
-        messages.push({ role: "system", content: systemPrompt })
-      }
-
-      // Add chat history
-      if (currentChat?.messages) {
-        for (const msg of currentChat.messages) {
-          if (msg.role === "user" || msg.role === "assistant") {
-            messages.push({ role: msg.role, content: msg.content })
-          }
-        }
-      }
-
-      // Add current message
-      messages.push({ role: "user", content: userMessage })
-
-      // Create assistant message placeholder
-      const assistantMsgId = generateUUID()
-      let assistantContent = ""
-      let messageAdded = false
-
-      const onReasoning = (reasoning: string) => {
-        // Could display reasoning in UI
-        console.log("[Reasoning]", reasoning)
-      }
-
-      // Stream response
-      await streamChatMessage(
-        messages,
-        model,
-        (chunk) => {
-          assistantContent += chunk
-
-          // Use functional update to avoid stale closure
-          setChats((prevChats) => {
-            return prevChats.map((chat) => {
-              if (chat.id !== chatId) return chat
-
-              const existingMsgIndex = chat.messages.findIndex((m) => m.id === assistantMsgId)
-
-              if (existingMsgIndex >= 0) {
-                // Update existing message
-                const updatedMessages = [...chat.messages]
-                updatedMessages[existingMsgIndex] = {
-                  ...updatedMessages[existingMsgIndex],
-                  content: assistantContent,
-                }
-                return { ...chat, messages: updatedMessages, updatedAt: Date.now() }
-              } else {
-                // Add new message
-                if (!messageAdded) {
-                  messageAdded = true
-                  return {
-                    ...chat,
-                    messages: [
-                      ...chat.messages,
-                      {
-                        id: assistantMsgId,
-                        role: "assistant" as const,
-                        content: assistantContent,
-                        timestamp: Date.now(),
-                        model,
-                      },
-                    ],
-                    updatedAt: Date.now(),
-                  }
-                }
-                return chat
-              }
-            })
-          })
-        },
-        {
-          temperature: settings.modelParameters?.temperature || 0.7,
-          maxTokens: settings.modelParameters?.maxTokens || 4096,
-          topP: 0.9,
-          frequencyPenalty: 0,
-          presencePenalty: 0,
-          apiKey: settings.apiKeys.openRouter,
-          signal: abortControllerRef.current?.signal,
-          reasoning: reasoningEnabled && modelSupportsReasoning,
-          onReasoning,
-        }
-      )
-
-      // Extract memories from conversation
-      if (settings.memorySettings?.autoExtract) {
-        memoryService.extractMemoriesFromConversation(userMessage, assistantContent)
-      }
-
-    } catch (error: any) {
-      if (error.name === "AbortError") {
-        return
-      }
-      console.error("[BlocksChatInput] Error:", error)
-      toast({
-        title: language === "de" ? "Fehler" : "Error",
-        description: error.message || "Something went wrong",
-        variant: "destructive",
-      })
-    } finally {
-      setIsChatLoading(false)
-      abortControllerRef.current = null
+    // Create chat if needed, then dispatch to SimpleChatInput to handle streaming
+    // This prevents the component unmount from killing the stream
+    if (!currentChatId) {
+      createChat(model)
     }
+
+    // Small delay to let the chat be created and UI switch to SimpleChatInput
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("sendQuickMessage", { detail: userMessage }))
+    }, 100)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -330,8 +142,10 @@ export function BlocksChatInput({
     if (!files) return
     // Handle file attachments
     toast({
-      title: "Files attached",
-      description: `${files.length} file(s) ready to send`,
+      title: language === "de" ? "Dateien angehängt" : "Files attached",
+      description: language === "de"
+        ? `${files.length} Datei(en) bereit zum Senden`
+        : `${files.length} file(s) ready to send`,
     })
   }
 

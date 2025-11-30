@@ -8,6 +8,44 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 ## [0.8.0-alpha] - 2025-11-30
 
+### Simple Mode Polish (2025-11-30)
+- **Blocks-Style Chat Input** - Modern welcome screen input
+  - Inspired by [blocks.so](https://github.com/ephraimduncan/blocks) by Ephraim Duncan
+  - Expandable textarea with inline action buttons
+  - Quick prompt pills for conversation starters
+  - Delegates streaming to SimpleChatInput to avoid component unmount issues
+  - Files: `components/blocks-chat-input.tsx`
+- **Settings UI Enhancement** - Blocks-style visual selectors
+  - Theme cards with color previews (replaces dropdown)
+  - Language pills with flag icons
+  - Text size buttons with visual differentiation
+  - Performance mode toggle in styled card
+  - Files: `components/simple-settings-dialog.tsx`
+- **Switch Component Fixes** - Fixed toggle animation bugs
+  - Thumb now properly animates when toggled on
+  - Uses static Tailwind classes + inline styles for reliable sizing
+  - Removed problematic React state management
+  - 32x16px track, 10x10px thumb dimensions
+  - Files: `components/ui/switch.tsx`
+- **Chat Input Positioning** - Better mobile layout
+  - Reduced vertical padding for closer-to-bottom positioning
+  - Uses `env(safe-area-inset-bottom)` for proper mobile safe areas
+
+### MCP Integration (2025-11-30)
+- **MCP Settings UI** - Full MCP server management for Advanced Mode
+  - Mobile-responsive layout with WCAG touch targets (44px)
+  - Import/Export functionality for server configurations
+  - 22 preset MCP server templates (up from 12)
+  - Category filtering (Development, Data, Productivity, AI, Communication, Other)
+  - Serverless deployment notes in documentation
+  - Files: `components/mcp-settings.tsx`, `docs/MCP_GUIDE.md`
+
+### Removed Features
+- **LM Studio Support Removed** - Not compatible with serverless deployment
+  - Vercel/serverless environments cannot connect to local LM Studio
+  - Removed: `lib/lmstudio.ts`, LMStudio types, settings UI
+  - Use OpenRouter for model access instead
+
 ### Mobile Design System
 - **Design Tokens** - Centralized design system for consistent mobile UI
   - 8px grid-based spacing system
