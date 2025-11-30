@@ -856,27 +856,27 @@ export function SimpleChatApp() {
           </header>
 
           {/* Chat Area */}
-          <div className="flex-1 flex flex-col overflow-hidden w-full">
+          <div className="flex-1 flex flex-col overflow-hidden w-full min-h-0">
             {isEmpty ? (
               /* Welcome Screen - Blocks Style */
-              <div className="flex-1 flex flex-col overflow-y-auto w-full">
-                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 text-center w-full">
-                  <div className="w-full max-w-2xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-4">
+              <div className="flex-1 flex flex-col overflow-y-auto w-full min-h-0">
+                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 md:p-12 text-center w-full min-h-[400px] md:min-h-[500px]">
+                  <div className="w-full max-w-2xl mx-auto space-y-6 sm:space-y-8 md:space-y-10 px-2 sm:px-4">
                     {/* Greeting - Clean & Modern */}
-                    <div className="space-y-3">
-                      <div className="flex justify-center mb-3 sm:mb-4">
-                        <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center shadow-lg shadow-violet-500/10">
+                    <div className="space-y-3 md:space-y-4">
+                      <div className="flex justify-center mb-3 sm:mb-4 md:mb-6">
+                        <div className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center shadow-lg shadow-violet-500/10">
                           {selectedPersona ? (
-                            <span className="text-3xl sm:text-4xl">{selectedPersona.emoji}</span>
+                            <span className="text-3xl sm:text-4xl md:text-5xl">{selectedPersona.emoji}</span>
                           ) : (
-                            <ChameleonLogo size={36} />
+                            <ChameleonLogo size={42} />
                           )}
                         </div>
                       </div>
-                      <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                         {getGreeting()}{profile.name ? `, ${profile.name}` : ""}!
                       </h1>
-                      <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto">
+                      <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-md mx-auto">
                         {selectedPersona
                           ? `${lang === "de" ? "Ich bin" : "I'm"} ${selectedPersona.name}. ${selectedPersona.description}`
                           : t.imYourAssistant}
@@ -884,8 +884,8 @@ export function SimpleChatApp() {
                     </div>
 
                     {/* Quick Persona Selection - Clean Pills */}
-                    <div className="space-y-3">
-                      <p className="text-xs sm:text-sm text-muted-foreground font-medium">{t.choosePersona}</p>
+                    <div className="space-y-3 md:space-y-4">
+                      <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium">{t.choosePersona}</p>
                       <QuickPersonaPicker />
                     </div>
                   </div>
