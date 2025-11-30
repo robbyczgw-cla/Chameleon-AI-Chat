@@ -245,28 +245,44 @@ export function BlocksChatInput({
         (chunk) => {
           assistantContent += chunk
 
-          if (!messageAdded) {
-            const assistantMsg: Message = {
-              id: assistantMsgId,
-              role: "assistant",
-              content: assistantContent,
-              timestamp: Date.now(),
-              model,
-            }
-            addMessage(chatId!, assistantMsg)
-            messageAdded = true
-          } else {
-            // Update existing message
-            const chat = chats.find(c => c.id === chatId)
-            if (chat) {
-              const updatedMessages = chat.messages.map(m =>
-                m.id === assistantMsgId ? { ...m, content: assistantContent } : m
-              )
-              setChats(chats.map(c =>
-                c.id === chatId ? { ...c, messages: updatedMessages } : c
-              ))
-            }
-          }
+          // Use functional update to avoid stale closure
+          setChats((prevChats) => {
+            return prevChats.map((chat) => {
+              if (chat.id !== chatId) return chat
+
+              const existingMsgIndex = chat.messages.findIndex((m) => m.id === assistantMsgId)
+
+              if (existingMsgIndex >= 0) {
+                // Update existing message
+                const updatedMessages = [...chat.messages]
+                updatedMessages[existingMsgIndex] = {
+                  ...updatedMessages[existingMsgIndex],
+                  content: assistantContent,
+                }
+                return { ...chat, messages: updatedMessages, updatedAt: Date.now() }
+              } else {
+                // Add new message
+                if (!messageAdded) {
+                  messageAdded = true
+                  return {
+                    ...chat,
+                    messages: [
+                      ...chat.messages,
+                      {
+                        id: assistantMsgId,
+                        role: "assistant" as const,
+                        content: assistantContent,
+                        timestamp: Date.now(),
+                        model,
+                      },
+                    ],
+                    updatedAt: Date.now(),
+                  }
+                }
+                return chat
+              }
+            })
+          })
         },
         {
           temperature: settings.modelParameters?.temperature || 0.7,
