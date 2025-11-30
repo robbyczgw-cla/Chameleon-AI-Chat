@@ -860,26 +860,29 @@ export function SimpleChatApp() {
             {isEmpty ? (
               /* Welcome Screen - Blocks Style */
               <div className="flex-1 flex flex-col w-full min-h-0">
-                {/* Scrollable content area */}
-                <div className="flex-1 overflow-y-auto">
-                  {/* Content with vertical centering using grid */}
-                  <div className="min-h-full grid place-items-center p-4 sm:p-8 md:p-12 lg:p-16">
-                    <div className="w-full max-w-2xl mx-auto space-y-8 sm:space-y-10 md:space-y-12 px-2 sm:px-4 py-8 md:py-12 text-center">
+                {/* Scrollable content area - uses flex to center content vertically */}
+                <div className="flex-1 overflow-y-auto flex flex-col">
+                  {/* Spacer to push content to center */}
+                  <div className="flex-1 min-h-[60px]" />
+
+                  {/* Welcome content - centered horizontally with proper width */}
+                  <div className="w-full px-4 sm:px-8 md:px-12 py-8 md:py-12">
+                    <div className="w-full max-w-2xl mx-auto space-y-8 md:space-y-10 text-center">
                       {/* Greeting - Clean & Modern */}
-                      <div className="space-y-4 md:space-y-6">
-                        <div className="flex justify-center mb-4 sm:mb-6 md:mb-8">
-                          <div className="h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center shadow-lg shadow-violet-500/10">
+                      <div className="space-y-4 md:space-y-5">
+                        <div className="flex justify-center mb-4 md:mb-6">
+                          <div className="h-20 w-20 md:h-24 md:w-24 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center shadow-lg shadow-violet-500/10">
                             {selectedPersona ? (
-                              <span className="text-4xl sm:text-5xl md:text-6xl">{selectedPersona.emoji}</span>
+                              <span className="text-4xl md:text-5xl">{selectedPersona.emoji}</span>
                             ) : (
-                              <ChameleonLogo size={48} />
+                              <ChameleonLogo size={44} />
                             )}
                           </div>
                         </div>
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                           {getGreeting()}{profile.name ? `, ${profile.name}` : ""}!
                         </h1>
-                        <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                        <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
                           {selectedPersona
                             ? `${lang === "de" ? "Ich bin" : "I'm"} ${selectedPersona.name}. ${selectedPersona.description}`
                             : t.imYourAssistant}
@@ -887,15 +890,18 @@ export function SimpleChatApp() {
                       </div>
 
                       {/* Quick Persona Selection - Clean Pills */}
-                      <div className="space-y-4 md:space-y-6">
-                        <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-medium">{t.choosePersona}</p>
+                      <div className="space-y-3 md:space-y-4">
+                        <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium">{t.choosePersona}</p>
                         <QuickPersonaPicker />
                       </div>
                     </div>
                   </div>
+
+                  {/* Spacer to push content to center */}
+                  <div className="flex-1 min-h-[60px]" />
                 </div>
 
-                {/* Blocks-style Input at bottom with quick prompts - outside scroll area */}
+                {/* Blocks-style Input at bottom - outside scroll area */}
                 <BlocksChatInput
                   selectedPersona={selectedPersona || undefined}
                   profileContext={profileContext}
