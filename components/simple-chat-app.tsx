@@ -857,11 +857,11 @@ export function SimpleChatApp() {
           </header>
 
           {/* Chat Area */}
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden w-full">
             {isEmpty ? (
               /* Welcome Screen - Blocks Style */
-              <div className="flex-1 flex flex-col overflow-y-auto">
-                <div className="flex-1 flex flex-col justify-center p-4 sm:p-8 text-center">
+              <div className="flex-1 flex flex-col overflow-y-auto w-full">
+                <div className="flex-1 flex flex-col justify-center p-4 sm:p-8 text-center w-full">
                   <div className="w-full max-w-3xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-4">
                     {/* Greeting - Clean & Modern */}
                     <div className="space-y-3">
