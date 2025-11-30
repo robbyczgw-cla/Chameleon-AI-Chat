@@ -23,6 +23,8 @@ interface AppContextType {
   isLoading: boolean
   isChatLoading: boolean
   setIsChatLoading: (loading: boolean) => void
+  chatAbortControllerRef: React.MutableRefObject<AbortController | null>
+  stopChatGeneration: () => void
   createChat: (model?: string) => string
   deleteChat: (chatId: string) => void
   deleteAllChats: () => void
@@ -110,6 +112,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isChatLoading, setIsChatLoading] = useState(false)
   const [hasMigrated, setHasMigrated] = useState(false)
+
+  // Shared abort controller for chat streaming - allows stopping from any component
+  const chatAbortControllerRef = useRef<AbortController | null>(null)
+
+  const stopChatGeneration = () => {
+    if (chatAbortControllerRef.current) {
+      chatAbortControllerRef.current.abort()
+      chatAbortControllerRef.current = null
+      setIsChatLoading(false)
+      console.log("[v0] Chat generation stopped")
+    }
+  }
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false)
   const isLoadingFromSupabaseRef = useRef(false)
   const settingsSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -1077,6 +1091,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isLoading,
         isChatLoading,
         setIsChatLoading,
+        chatAbortControllerRef,
+        stopChatGeneration,
         createChat,
         deleteChat,
         deleteAllChats,

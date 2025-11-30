@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { Send, Globe, Square, Lightbulb } from "lucide-react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -36,7 +36,7 @@ interface SimpleChatInputProps {
 }
 
 export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
-  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading } = useApp()
+  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration } = useApp()
 
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
@@ -53,7 +53,6 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
   const [commandSuggestions, setCommandSuggestions] = useState<SlashCommand[]>([])
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0)
   const [imageMode, setImageMode] = useState(false)
-  const abortControllerRef = useRef<AbortController | null>(null)
   const { toast } = useToast()
 
   // Detect if we're in Advanced mode (from localStorage, not persona-based)
@@ -134,11 +133,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     }
 
     const handleStopGeneration = () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-        abortControllerRef.current = null
-        setIsChatLoading(false)
-      }
+      stopChatGeneration()
     }
 
     window.addEventListener("insertPrompt" as any, handleInsertPrompt)
@@ -155,15 +150,11 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
   }, [isChatLoading])
 
   const stopGeneration = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-      abortControllerRef.current = null
-      setIsChatLoading(false)
-      toast({
-        title: settings.language === "de" ? "Gestoppt" : "Stopped",
-        description: settings.language === "de" ? "Antwort wurde abgebrochen" : "Response was cancelled",
-      })
-    }
+    stopChatGeneration()
+    toast({
+      title: settings.language === "de" ? "Gestoppt" : "Stopped",
+      description: settings.language === "de" ? "Antwort wurde abgebrochen" : "Response was cancelled",
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -171,7 +162,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     if ((!input.trim() && attachedFiles.length === 0) || isChatLoading) return
 
     console.log("[Simple Chat] Starting chat submission")
-    abortControllerRef.current = new AbortController()
+    chatAbortControllerRef.current = new AbortController()
 
     let chatId = currentChatId
     if (!chatId) {
@@ -564,7 +555,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         frequencyPenalty: 0,
         presencePenalty: 0,
         apiKey: settings.apiKeys.openRouter,
-        signal: abortControllerRef.current?.signal,
+        signal: chatAbortControllerRef.current?.signal,
         reasoning: reasoningEnabled && modelSupportsReasoning,
         onReasoning,
         // Tool calling for AI-driven search
@@ -698,7 +689,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
       })
     } finally {
       setIsChatLoading(false)
-      abortControllerRef.current = null
+      chatAbortControllerRef.current = null
       console.log("[Simple Chat] Chat submission complete")
     }
   }
