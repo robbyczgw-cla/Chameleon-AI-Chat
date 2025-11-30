@@ -26,7 +26,6 @@ import {
   FileCode,
   Mic,
   Image,
-  Lightbulb,
 } from "lucide-react"
 import { useEffect } from "react"
 import { ModelSelector } from "@/components/model-selector"
@@ -68,10 +67,6 @@ export function ChatHeader() {
   // Mobile toggle states
   const [isVoiceActive, setIsVoiceActive] = useState(false)
   const [isImageModeActive, setIsImageModeActive] = useState(false)
-  const [isReasoningActive, setIsReasoningActive] = useState(() => {
-    if (typeof window === "undefined") return false
-    return localStorage.getItem("chameleon-reasoning-enabled") === "true"
-  })
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const [isTitleAnimated, setIsTitleAnimated] = useState(false)
@@ -299,24 +294,6 @@ export function ChatHeader() {
               title="Image mode"
             >
               <Image className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className={cn(
-                "h-7 w-7 rounded-xl transition-all duration-200",
-                isReasoningActive
-                  ? "bg-amber-500 text-white shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
-              onClick={() => {
-                setIsReasoningActive(!isReasoningActive)
-                window.dispatchEvent(new CustomEvent("toggleReasoning"))
-              }}
-              title="Reasoning"
-            >
-              <Lightbulb className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
