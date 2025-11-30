@@ -662,15 +662,16 @@ export function SimpleChatApp() {
           />
         )}
 
-        {/* Sidebar Wrapper - shrink-0 prevents flex shrinking on desktop */}
-        <div
+        {/* Sidebar - Chat History */}
+        {/* Mobile: fixed overlay, Desktop: static flex sidebar */}
+        <aside
           className={cn(
-            "fixed inset-y-0 left-0 z-50 md:relative md:z-0 md:shrink-0 transition-transform duration-300 ease-out",
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+            "fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border/50 transition-transform duration-300 ease-out",
+            "md:static md:z-0 md:translate-x-0 md:shrink-0",
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
-          {/* Sidebar - Chat History - height pattern matches ChatSidebar component */}
-          <aside className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-72 flex-col overflow-hidden bg-background border-r border-border/50">
+          <div className="flex flex-col h-full">
             {/* Sidebar Header */}
             <div className="p-4 border-b border-border/50">
               <div className="flex items-center justify-between">
@@ -771,8 +772,8 @@ export function SimpleChatApp() {
                 {profile.name || t.setUpProfile}
               </Button>
             </div>
-          </aside>
-        </div>
+          </div>
+        </aside>
 
         {/* Main Content */}
         <main className="flex flex-1 basis-full flex-col min-w-0 max-w-full overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
@@ -861,7 +862,7 @@ export function SimpleChatApp() {
               /* Welcome Screen - Blocks Style */
               <div className="flex-1 flex flex-col overflow-y-auto">
                 <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 text-center">
-                  <div className="w-full max-w-2xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-4">
+                  <div className="w-full max-w-3xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-4">
                     {/* Greeting - Clean & Modern */}
                     <div className="space-y-3">
                       <div className="flex justify-center mb-3 sm:mb-4">
