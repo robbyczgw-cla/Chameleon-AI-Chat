@@ -770,11 +770,11 @@ export function SimpleChatApp() {
         <main className="flex flex-1 basis-full flex-col min-w-0 max-w-full overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
           {/* Header */}
           <header className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 border-b border-border/50 bg-background">
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden h-10 w-10"
+                className="md:hidden h-10 w-10 shrink-0"
                 onClick={() => setIsSidebarOpen(true)}
               >
                 <Menu className="h-5 w-5" />
@@ -784,29 +784,29 @@ export function SimpleChatApp() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hidden md:flex h-9 w-9"
+                  className="hidden md:flex h-9 w-9 shrink-0"
                   onClick={() => setCurrentChat(null)}
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
               )}
 
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 overflow-hidden">
                 {selectedPersona ? (
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">{selectedPersona.emoji}</span>
-                    <div>
-                      <p className="font-medium text-sm">{selectedPersona.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{selectedPersona.description}</p>
+                    <span className="text-xl shrink-0">{selectedPersona.emoji}</span>
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{selectedPersona.name}</p>
+                      <p className="text-xs text-muted-foreground truncate max-w-[120px] sm:max-w-[200px]">{selectedPersona.description}</p>
                     </div>
                   </div>
                 ) : (
-                  <p className="font-medium">{t.chameleonAI}</p>
+                  <p className="font-medium truncate">{t.chameleonAI}</p>
                 )}
               </div>
             </div>
 
-            <div className="flex items-center gap-0.5 sm:gap-1">
+            <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
               <Button
                 variant={imageMode ? "default" : "ghost"}
                 size="icon"

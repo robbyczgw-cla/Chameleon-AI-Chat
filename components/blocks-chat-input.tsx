@@ -68,6 +68,7 @@ export function BlocksChatInput({
   }, [isRestored, draft])
 
   const [language] = useState(languageService.getLanguage())
+  const { toast } = useToast()
 
   // Load web search state from localStorage (for UI toggle display)
   const [webSearchEnabled, setWebSearchEnabled] = useState(() => {
@@ -141,8 +142,10 @@ export function BlocksChatInput({
     if (!files) return
     // Handle file attachments
     toast({
-      title: "Files attached",
-      description: `${files.length} file(s) ready to send`,
+      title: language === "de" ? "Dateien angehängt" : "Files attached",
+      description: language === "de"
+        ? `${files.length} Datei(en) bereit zum Senden`
+        : `${files.length} file(s) ready to send`,
     })
   }
 
