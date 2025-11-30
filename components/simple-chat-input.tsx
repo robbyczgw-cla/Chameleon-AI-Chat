@@ -25,6 +25,7 @@ import { parseSlashCommand, getCommandSuggestions, buildCommandPrompt, type Slas
 import { memoryService } from "@/lib/memory-service"
 import { ContextWindowMeter } from "@/components/context-window-meter"
 import { useDraft } from "@/hooks/use-draft"
+import { analyzeQueryForSearch } from "@/lib/search-heuristics"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
@@ -327,20 +328,29 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         }
       }
 
-      // Web search if enabled - server has fallback API key via env vars
-      console.log("[Simple Chat] Web Search check - Enabled:", webSearchEnabled)
+      // Web search - either manual toggle OR automatic heuristics detection
+      const searchHeuristics = analyzeQueryForSearch(input.trim())
+      const shouldAutoSearch = searchHeuristics.shouldSearch && searchHeuristics.confidence >= 0.4
+      const performSearch = webSearchEnabled || shouldAutoSearch
+
+      console.log("[Simple Chat] Web Search check - Manual:", webSearchEnabled, "Auto:", shouldAutoSearch)
+      console.log("[Simple Chat] Search Heuristics:", searchHeuristics)
       console.log("[Simple Chat] Search Provider:", settings.searchProvider || "tavily")
 
       // Track search stats
       let searchStats: { provider: string; results: number; time: number } | null = null
 
-      if (webSearchEnabled) {
+      if (performSearch) {
         try {
           const searchStartTime = performance.now()
           console.log("[Simple Chat] 🔍 Starting web search for query:", input.trim())
           toast({
-            title: "🔍 Suche im Web...",
-            description: "Sammle aktuelle Informationen",
+            title: settings.language === "de" ? "🔍 Suche im Web..." : "🔍 Searching the web...",
+            description: shouldAutoSearch && !webSearchEnabled
+              ? (settings.language === "de"
+                ? `Automatisch erkannt: ${searchHeuristics.detectedKeywords?.join(", ") || "Echtzeit-Info benötigt"}`
+                : `Auto-detected: ${searchHeuristics.detectedKeywords?.join(", ") || "real-time info needed"}`)
+              : (settings.language === "de" ? "Sammle aktuelle Informationen" : "Gathering current information"),
           })
 
           const searchQuery = input.trim()
