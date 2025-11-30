@@ -776,7 +776,7 @@ export function SimpleChatApp() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex flex-1 basis-full flex-col min-w-0 max-w-full overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
+        <main className="flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
           {/* Header */}
           <header className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 border-b border-border/50 bg-background">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
