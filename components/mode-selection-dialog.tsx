@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { ChameleonLogo } from "@/components/chameleon-logo"
+import { Sparkles } from "lucide-react"
 import {
-  Sparkles,
   Zap,
   Heart,
   Settings2,
