@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
 import { ChatMessages } from "@/components/chat-messages"
 import { SimpleChatInput } from "@/components/simple-chat-input"
+import { BlocksChatInput } from "@/components/blocks-chat-input"
 import { SimpleSettingsDialog } from "@/components/simple-settings-dialog"
 import { PersonasDialog } from "@/components/personas-dialog"
 import { UserProfileDialog } from "@/components/user-profile-dialog"
@@ -840,62 +841,45 @@ export function SimpleChatApp() {
           {/* Chat Area */}
           <div className="flex-1 flex flex-col overflow-hidden w-full">
             {isEmpty ? (
-              /* Welcome Screen */
+              /* Welcome Screen - Blocks Style */
               <div className="flex-1 flex flex-col overflow-y-auto w-full">
                 <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 text-center w-full">
-                  <div className="w-full max-w-3xl mx-auto space-y-4 sm:space-y-6 px-2 sm:px-4">
-                    {/* Greeting - Compact */}
-                    <div className="space-y-2">
-                      <div className="flex justify-center mb-2 sm:mb-4">
-                        <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center">
+                  <div className="w-full max-w-2xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-4">
+                    {/* Greeting - Clean & Modern */}
+                    <div className="space-y-3">
+                      <div className="flex justify-center mb-3 sm:mb-4">
+                        <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center shadow-lg shadow-violet-500/10">
                           {selectedPersona ? (
-                            <span className="text-2xl sm:text-4xl">{selectedPersona.emoji}</span>
+                            <span className="text-3xl sm:text-4xl">{selectedPersona.emoji}</span>
                           ) : (
-                            <ChameleonLogo size={32} />
+                            <ChameleonLogo size={36} />
                           )}
                         </div>
                       </div>
-                      <h1 className="text-xl sm:text-2xl font-bold">
+                      <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                         {getGreeting()}{profile.name ? `, ${profile.name}` : ""}!
                       </h1>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
+                      <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto">
                         {selectedPersona
-                          ? `${lang === "de" ? "Ich bin" : "I'm"} ${selectedPersona.name}.`
+                          ? `${lang === "de" ? "Ich bin" : "I'm"} ${selectedPersona.name}. ${selectedPersona.description}`
                           : t.imYourAssistant}
                       </p>
                     </div>
 
-                    {/* Quick Persona Selection - Always visible */}
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">{t.choosePersona}</p>
+                    {/* Quick Persona Selection - Clean Pills */}
+                    <div className="space-y-3">
+                      <p className="text-xs sm:text-sm text-muted-foreground font-medium">{t.choosePersona}</p>
                       <QuickPersonaPicker />
-                    </div>
-
-                    {/* Persona-based Tips */}
-                    <div className="space-y-2">
-                      <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
-                        <Lightbulb className="h-3 w-3 sm:h-4 sm:w-4" />
-                        {t.tryAsking}
-                      </p>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
-                        {getPersonaTips(selectedPersona?.id || "default", lang).map((tip, index) => (
-                          <button
-                            key={index}
-                            onClick={() => handleQuickPrompt(tip)}
-                            className="text-left p-2 sm:p-3 rounded-lg border border-border hover:border-violet-300 hover:bg-violet-500/5 transition-all"
-                          >
-                            <span className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{tip}</span>
-                          </button>
-                        ))}
-                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Input at bottom */}
-                <SimpleChatInput
+                {/* Blocks-style Input at bottom with quick prompts */}
+                <BlocksChatInput
                   selectedPersona={selectedPersona || undefined}
                   profileContext={profileContext}
+                  quickPrompts={getPersonaTips(selectedPersona?.id || "default", lang).slice(0, 3)}
+                  onQuickPrompt={handleQuickPrompt}
                 />
               </div>
             ) : (
