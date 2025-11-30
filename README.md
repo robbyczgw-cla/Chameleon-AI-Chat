@@ -22,7 +22,7 @@ Like a chameleon adapting to its environment, this AI chat platform transforms t
 **For Everyone:**
 - 🎭 **18+ AI Personas** - From Nova (cyberpunk hacker) to Sol Goldman (lawyer) to Vibe (curator)
 - 🤖 **100+ AI Models** - GPT-4, Claude, Gemini, Grok, DeepSeek via OpenRouter
-- 🔍 **Dual Web Search** - Tavily and Serper (Google Search)
+- 🔍 **AI-Powered Web Search** - Tool calling lets AI decide when to search (Tavily, Serper)
 - 📱 **Mobile-First UI** - WhatsApp-style bottom nav, optimized for narrow screens (20:9)
 - 🌍 **Multi-language** - German, English, Spanish
 - 🎨 **Dark/Light Themes** - Beautiful gradients with seamless switching
@@ -46,14 +46,20 @@ Like a chameleon adapting to its environment, this AI chat platform transforms t
 - 🖼️ **Image Optimization** - Next.js automatic WebP conversion and resizing
 - 👆 **Mobile-First Buttons** - Action buttons always visible on touch devices
 
-**Latest Features (v0.7.0-alpha):**
+**Latest Features (v0.8.0-alpha):**
+- 🤖 **AI-Driven Web Search** - AI decides when to search using tool calling (Grok 4.1 Fast)
+- 🔧 **MCP Integration** - Model Context Protocol server management in Advanced Mode
+- ✨ **Blocks-Style UI** - Modern chat input inspired by [blocks.so](https://github.com/ephraimduncan/blocks)
+- 🎛️ **Simple Mode Polish** - Cleaner settings UI with theme cards, language pills
+- 🔄 **Toggle Switch Fixes** - Properly animated pill-style toggles
+- 📱 **Mobile Header Fix** - Persona names no longer overflow settings button
+
+**v0.7.0 Features:**
 - ✏️ **Message Editing** - Edit your sent messages, AI re-responds automatically
 - 🔍 **Full-Text Search** - Lightning-fast search across all chat content (inverted index)
 - 💾 **Draft Auto-Save** - Never lose your message drafts (localStorage, 24hr expiry)
 - 🤖 **AI Chat Titles** - Auto-generated titles using `openai/gpt-oss-20b` (privacy-focused)
-- ✨ **Title Animation** - Subtle slide-in animation when AI generates titles
 - 🛡️ **PWA Stability** - Image compression + memory optimization prevents crashes
-- 📱 **Touch Device Fix** - Action buttons always visible on iPad/touch screens
 
 ---
 
