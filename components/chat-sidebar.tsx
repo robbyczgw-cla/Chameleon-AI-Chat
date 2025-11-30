@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { X, LogOut, User } from "lucide-react"
+import { Sparkles } from "lucide-react"
 
 import { useState, useMemo, useEffect, useCallback } from "react"
 import { useApp } from "@/contexts/app-context"
@@ -9,7 +10,7 @@ import { searchService } from "@/lib/search-service"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { MessageSquarePlus, Search, Trash2, Edit2, Pin, FolderPlus, Folder, Sparkles } from "lucide-react"
+import { MessageSquarePlus, Search, Trash2, Edit2, Pin, FolderPlus, Folder } from "lucide-react"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
