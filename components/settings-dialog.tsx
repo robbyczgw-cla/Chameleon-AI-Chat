@@ -30,7 +30,7 @@ function TabLoadingFallback() {
     </div>
   )
 }
-import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, PieChart, RefreshCw, Loader2 } from "lucide-react"
+import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, PieChart, RefreshCw, Loader2, Server } from "lucide-react"
 import { fetchLMStudioModels, checkLMStudioConnection, DEFAULT_LM_STUDIO_ENDPOINT } from "@/lib/lmstudio"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
