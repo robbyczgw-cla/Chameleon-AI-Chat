@@ -98,6 +98,41 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
   - Button positioning improvements
   - Delete dialog width fixes
 
+### Performance Optimization
+- **GPU Usage Reduction** - From 70% to ~20-30%
+  - Disabled expensive visual effects
+  - Optimized infinite CSS animations
+  - Mermaid diagram rendering fixes (prevented 99% GPU usage)
+  - Chat message rendering optimization
+- **Ultra Performance Mode** - Toggle in experimental settings
+  - Additional GPU optimizations for low-end devices
+- **Simple Mode Optimization** - Reduced useEffect hooks from 9 to 4
+
+### New Features (2025-11-27/28)
+- **LM Studio Support** - Local model support for desktop
+  - Connect to local LM Studio instance
+  - Privacy-focused local inference
+- **Verbalized Sampling** - VS slash commands /1 /2 /3 /4
+  - Probability-based response generation
+  - Updated persona prompts to probability templates
+- **Rich Content Support** - Enhanced content rendering
+  - Visual animations and effects
+  - Improved layout and font handling
+- **Font Family Choices** - Roboto and accessibility fonts
+  - Better readability options
+- **Memory Export/Import** - Backup and restore memories
+  - Debug logging for memory system
+  - Toast notifications for memory saves
+
+### Dialog & UI Fixes
+- **Dialog Backgrounds** - Force 100% opaque dialogs
+  - Remove all transparency issues
+  - Proper overlay darkness
+  - Z-index fixes
+- **Sidebar Transitions** - Improved visual quality
+  - Better sidebar-to-main transitions
+  - Chat title truncation fixes
+
 ### Commits (2025-11-30)
 - `dbf9bbc` fix: Add Server icon back to imports (used in LM Studio settings)
 - `e4940fa` feat: Add mobile design system and ChatInput refactoring foundation
@@ -153,6 +188,81 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 - `4169381` fix: Set consistent sidebar width of 300px (was getting narrower on md screens)
 - `a114f50` Merge pull request #113 from robbyczgw-cla/claude/fix-sidebar-text-truncation
 - `4aa4265` fix: Add proper right padding to sidebar chat items for hover buttons
+- `4f5c01c` fix: Comprehensive UI fixes for sidebar and dialogs
+- `b22027a` fix: Use sm:max-w-4xl to properly override dialog base width
+- `df426ab` fix: Use valid Tailwind classes and add z-index to dialogs
+- `7a2cfbc` Merge pull request #112 from robbyczgw-cla/claude/fix-sidebar-text-truncation
+- `1362b15` fix: Improve UI layout for sidebar, Document Collections and Background Agents dialogs
+- `5dd9205` Merge pull request #111 from robbyczgw-cla/claude/fix-mobile-bubble-cutoff
+- `a57c39d` feat: Add Background Agents button to Advanced Mode UI
+- `c917b9a` feat: Add Background Agents System for autonomous tasks
+- `7e8c237` feat: Add Chameleon Agent persona for advanced mode
+- `d0a2616` Merge pull request #110 from robbyczgw-cla/claude/fix-mobile-bubble-cutoff
+- `7a81d97` fix: Add comprehensive debug logging and import/export to memory system
+- `aa2125a` feat: Add toast notifications for memory saves and adjust sidebar padding
+- `70d335a` Merge pull request #109 from robbyczgw-cla/claude/fix-mobile-bubble-cutoff
+- `3ed1dd9` fix: Sync memory service settings with app context
+- `8c7ffd8` fix: Increase right padding on mobile chat items to prevent text cutoff
+- `1e81d04` Merge pull request #108 from robbyczgw-cla/claude/fix-ui-transparency-bubbles
+- `301565a` feat: Add memory export/import functionality
+- `a0dad6f` feat: Add automatic LLM-based memory extraction
+- `35f033a` feat: Add LM Studio local model support (desktop only)
+
+### Commits (2025-11-27)
+- `c4c8df5` fix: Mobile message cutoff - remove overflow-hidden and increase max-width
+- `2760f4a` Merge pull request #107 from robbyczgw-cla/claude/fix-ui-transparency-bubbles
+- `34d5908` feat: Add Verbalized Sampling (VS) slash commands /1 /2 /3 /4
+- `6ec3a3f` feat: Update default persona prompts to probability templates
+- `d7b56b4` Merge pull request #106 from robbyczgw-cla/claude/fix-ui-transparency-bubbles
+- `f2bb479` fix: Make sidebar chat bubbles more compact on mobile
+- `5bdd397` Merge pull request #105 from robbyczgw-cla/claude/fix-ui-transparency-bubbles
+- `ef0dcc3` fix: Sidebar chat bubbles and persona prompts mobile grid
+- `d4c08d4` Merge pull request #104 from robbyczgw-cla/claude/fix-ui-transparency-bubbles
+- `4bb7257` perf: Disable ALL remaining infinite CSS animations and GPU-forcing hints
+- `8184388` Merge pull request #103 from robbyczgw-cla/claude/fix-ui-transparency-bubbles
+- `815e0f3` perf: Optimize chat message rendering to reduce GPU usage
+- `4af6f05` perf: Disable infinite SVG animations and optimize MutationObserver
+- `acfbe2f` Merge pull request #102 from robbyczgw-cla/claude/fix-ui-transparency-bubbles
+- `97fefd2` perf: Major GPU optimization - disable expensive visual effects
+- `3ac83d4` Merge pull request #101 from robbyczgw-cla/claude/fix-ui-transparency-bubbles
+- `8410914` fix: Optimize Mermaid diagram rendering to prevent 99% GPU usage
+- `8cef5e6` fix: Simplify sidebar styling to prevent chat bubble cutoff
+- `2e17254` Merge pull request #100 from robbyczgw-cla/claude/fix-ui-transparency-bubbles
+- `df79447` fix: Ensure dialogs have solid backgrounds and fix sidebar bubble cutoff
+- `b69f004` Merge pull request #99 from robbyczgw-cla/claude/revert-react-changes
+- `15d10f6` fix: Force dialogs to be 100% opaque - remove all transparency
+- `34fa57f` fix: Reduce sidebar chat bubble padding to prevent cutoff
+- `c1367bf` Merge pull request #98 from robbyczgw-cla/claude/revert-react-changes
+- `b557fb9` fix: Fix dialog overlay darkness and sidebar chat bubble sizing
+- `73fd259` Merge pull request #97 from robbyczgw-cla/claude/revert-react-changes
+- `03a9c2f` feat: Add Ultra Performance Mode toggle in experimental settings
+- `e63bb6e` fix: Fix dialog overlay darkness and sidebar chat bubble sizing
+- `d84d60d` Merge pull request #96 from robbyczgw-cla/claude/revert-react-changes
+- `4566b39` perf: Optimize simple-chat-input - reduce useEffect hooks from 9 to 4
+- `8943781` fix: Improve sidebar-to-main transition visual quality
+- `76151ea` Merge pull request #95 from robbyczgw-cla/claude/revert-react-changes
+- `cdc923d` perf: Additional GPU optimization - disable non-essential infinite animations
+- `e56d17b` fix: Fix sidebar-to-main transition and chat title truncation
+- `f92627e` Merge pull request #94 from robbyczgw-cla/claude/revert-react-changes
+- `0c5750b` perf: Optimize GPU usage - reduce from 70% to ~20-30%
+- `29ecb55` fix: Fix user bubble text color and settings dialog loading issues
+- `d9d937f` Merge pull request #93 from robbyczgw-cla/claude/revert-react-changes
+- `7a5351c` fix: Suppress Mermaid error bombs and clean up error divs
+- `2a60267` feat: Add stunning visual animations and effects
+- `cc0dc6f` Merge pull request #92 from robbyczgw-cla/claude/revert-react-changes
+- `50975ce` chore: Update pnpm-lock.yaml for new dependencies
+- `e6356cb` feat: Add rich content support and fix layout/font issues
+- `efdf01f` Merge pull request #91 from robbyczgw-cla/claude/revert-react-changes
+- `ef86c04` chore: Remove React Native mobile app and shared package
+- `2d8edd8` Merge pull request #90 from robbyczgw-cla/claude/brainstorm-features
+- `9f2605f` docs: Add React Native Android development guide in German
+- `ae33156` chore: Add .gitignore to shared package
+- `d56b7ab` chore: Update pnpm-lock.yaml for monorepo workspaces
+- `b9401fe` feat: Add React Native mobile app foundation with monorepo structure
+- `5380827` feat: Add font family choices with Roboto and accessibility fonts
+- `081a34b` docs: Add comprehensive features roadmap
+- `ad03341` docs: Highlight intelligent categorized follow-up system as headline feature
+- `ff01547` Merge pull request #89 from robbyczgw-cla/claude/enhance-tamagotchi-features
 
 ---
 
