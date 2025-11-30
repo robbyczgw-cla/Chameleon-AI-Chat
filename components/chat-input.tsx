@@ -767,7 +767,6 @@ export function ChatInput() {
         signal: abortControllerRef.current?.signal,
         reasoning: reasoningEnabled && modelSupportsReasoning,
         onReasoning,
-        lmStudioEndpoint: settings.lmStudio?.endpoint, // For local models
         // Auto search (tool calling) - AI decides when to search
         enableAutoSearch: settings.enableAutoSearch ?? false,
         searchProvider: autoSearchProvider,

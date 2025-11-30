@@ -1,5 +1,3 @@
-import { isLMStudioModel, streamLMStudioMessage } from "@/lib/lmstudio"
-
 export interface OpenRouterModel {
   id: string
   name: string
@@ -166,7 +164,6 @@ export async function streamChatMessage(
     signal?: AbortSignal
     reasoning?: boolean
     onReasoning?: (content: string) => void
-    lmStudioEndpoint?: string // For local models
     // Auto search options (tool calling)
     enableAutoSearch?: boolean
     searchProvider?: "tavily" | "serper" | "exa"
@@ -186,7 +183,6 @@ export async function streamChatMessage(
     signal,
     reasoning = false,
     onReasoning,
-    lmStudioEndpoint,
     // Auto search
     enableAutoSearch = false,
     searchProvider = "tavily",
@@ -195,23 +191,6 @@ export async function streamChatMessage(
     onSearchStart,
     onSearchComplete,
   } = options
-
-  // Handle LM Studio local models - call directly from client
-  if (isLMStudioModel(model)) {
-    console.log("[v0] Detected LM Studio model:", model)
-    return streamLMStudioMessage(
-      messages,
-      model,
-      onChunk,
-      {
-        endpoint: lmStudioEndpoint,
-        temperature,
-        maxTokens: requestedMaxTokens,
-        topP,
-        signal,
-      }
-    )
-  }
 
   const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
 
