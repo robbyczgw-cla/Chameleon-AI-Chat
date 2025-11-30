@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { useState, useEffect, type ChangeEvent, lazy, Suspense } from "react"
+import { useState, useEffect, useRef, type ChangeEvent, lazy, Suspense } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,7 +16,6 @@ import { memoryService } from "@/lib/memory-service"
 import { ModeHelpDialog } from "@/components/mode-help-dialog"
 
 // Lazy load heavy components for better initial bundle size
-const MCPManager = lazy(() => import("@/components/mcp-manager").then(m => ({ default: m.MCPManager })))
 const SystemPromptsManager = lazy(() => import("@/components/system-prompts-manager").then(m => ({ default: m.SystemPromptsManager })))
 const UsageStatsWidget = lazy(() => import("@/components/usage-stats-widget").then(m => ({ default: m.UsageStatsWidget })))
 const AIMemoryHub = lazy(() => import("@/components/ai-memory-hub").then(m => ({ default: m.AIMemoryHub })))
@@ -31,13 +30,13 @@ function TabLoadingFallback() {
     </div>
   )
 }
-import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, Puzzle, PieChart, Server, RefreshCw, Loader2 } from "lucide-react"
+import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, PieChart, RefreshCw, Loader2, Server } from "lucide-react"
 import { fetchLMStudioModels, checkLMStudioConnection, DEFAULT_LM_STUDIO_ENDPOINT } from "@/lib/lmstudio"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
 
 interface ExtendedSettingsDialogProps extends SettingsDialogProps {
-  hideOptions?: string[] // Array of tab IDs to hide: "prompts", "voice", "mcp", "mode"
+  hideOptions?: string[] // Array of tab IDs to hide: "prompts", "voice", "mode"
 }
 
 export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: ExtendedSettingsDialogProps) {
@@ -182,25 +181,24 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
     }
   }
 
-  // CRITICAL: Sync localSettings when dialog is open and settings change
-  // This prevents stale state from overwriting memory toggle changes
-  useEffect(() => {
-    if (open) {
-      console.log("[SettingsDialog] Syncing localSettings with global settings:", {
-        globalMemoryEnabled: settings.memorySettings?.enabled,
-        localMemoryEnabled: localSettings.memorySettings?.enabled
-      })
-      setLocalSettings(settings)
-    }
-  }, [open, settings]) // Sync when dialog opens OR when settings change while dialog is open
+  // Track if user has made changes to prevent overwriting
+  const hasUserChangesRef = useRef(false)
+  const previousOpenRef = useRef(open)
 
-  // DEBUG: Log whenever localSettings changes
+  // Only sync when dialog OPENS (not while open) - prevents overwriting user changes
   useEffect(() => {
-    console.log("[SettingsDialog] localSettings changed:", {
-      memoryEnabled: localSettings.memorySettings?.enabled,
-      hasApiKeys: !!localSettings.apiKeys?.openRouter
-    })
-  }, [localSettings])
+    const justOpened = open && !previousOpenRef.current
+    previousOpenRef.current = open
+
+    if (justOpened) {
+      // Dialog just opened - sync with global settings
+      hasUserChangesRef.current = false
+      setLocalSettings(settings)
+    } else if (!open) {
+      // Dialog closed - reset change tracking
+      hasUserChangesRef.current = false
+    }
+  }, [open, settings])
 
   useEffect(() => {
     // Load voices - they load asynchronously on most browsers
@@ -310,12 +308,6 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 <TabsTrigger value="voice" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                   <Volume2 className="h-3.5 w-3.5 mr-1.5 inline-block" />
                   Voice
-                </TabsTrigger>
-              )}
-              {!hideOptions.includes("mcp") && (
-                <TabsTrigger value="mcp" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
-                  <Puzzle className="h-3.5 w-3.5 mr-1.5 inline-block" />
-                  MCP
                 </TabsTrigger>
               )}
               <TabsTrigger value="statistics" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
@@ -1649,14 +1641,6 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                     </div>
                   )}
                 </div>
-              </TabsContent>
-            )}
-
-            {!hideOptions.includes("mcp") && (
-              <TabsContent value="mcp" className="space-y-4 mt-0">
-                <Suspense fallback={<TabLoadingFallback />}>
-                  <MCPManager />
-                </Suspense>
               </TabsContent>
             )}
 
