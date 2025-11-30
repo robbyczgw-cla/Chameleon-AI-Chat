@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import type { Message } from "@/types"
 import { streamChatMessage, REASONING_MODELS } from "@/lib/openrouter"
+import { modelSupportsToolCalling } from "@/lib/tools"
 import { searchWeb, formatSearchResults as formatTavilyResults } from "@/lib/tavily"
 import { searchWithSerper, formatSearchResults as formatSerperResults } from "@/lib/serper"
 import { searchWithYoucom, formatSearchResults as formatYoucomResults } from "@/lib/youcom"
@@ -328,25 +329,38 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         }
       }
 
-      // Web search - either manual toggle OR automatic heuristics detection
+      // Web search strategy:
+      // 1. Manual toggle ON → do manual search before streaming (explicit user request)
+      // 2. Manual toggle OFF + model supports tool calling → let AI decide via tool calling
+      // 3. Manual toggle OFF + no tool calling support → use heuristics fallback
+      const supportsToolCalling = modelSupportsToolCalling(model)
       const searchHeuristics = analyzeQueryForSearch(input.trim())
-      const shouldAutoSearch = searchHeuristics.shouldSearch && searchHeuristics.confidence >= 0.4
-      const performSearch = webSearchEnabled || shouldAutoSearch
+      const shouldAutoSearchHeuristics = searchHeuristics.shouldSearch && searchHeuristics.confidence >= 0.4
 
-      console.log("[Simple Chat] Web Search check - Manual:", webSearchEnabled, "Auto:", shouldAutoSearch)
-      console.log("[Simple Chat] Search Heuristics:", searchHeuristics)
-      console.log("[Simple Chat] Search Provider:", settings.searchProvider || "tavily")
+      // Only do manual search if explicitly toggled OR (heuristics say yes AND no tool calling support)
+      const performManualSearch = webSearchEnabled || (!supportsToolCalling && shouldAutoSearchHeuristics)
+
+      // Enable AI-driven search via tool calling when not doing manual search
+      const enableToolCallingSearch = !performManualSearch && supportsToolCalling
+
+      console.log("[Simple Chat] Web Search strategy:")
+      console.log("[Simple Chat]   - Manual toggle:", webSearchEnabled)
+      console.log("[Simple Chat]   - Model supports tool calling:", supportsToolCalling)
+      console.log("[Simple Chat]   - Heuristics auto-search:", shouldAutoSearchHeuristics)
+      console.log("[Simple Chat]   - Perform manual search:", performManualSearch)
+      console.log("[Simple Chat]   - Enable tool calling search:", enableToolCallingSearch)
+      console.log("[Simple Chat]   - Search Provider:", settings.searchProvider || "tavily")
 
       // Track search stats
       let searchStats: { provider: string; results: number; time: number } | null = null
 
-      if (performSearch) {
+      if (performManualSearch) {
         try {
           const searchStartTime = performance.now()
-          console.log("[Simple Chat] 🔍 Starting web search for query:", input.trim())
+          console.log("[Simple Chat] 🔍 Starting manual web search for query:", input.trim())
           toast({
             title: settings.language === "de" ? "🔍 Suche im Web..." : "🔍 Searching the web...",
-            description: shouldAutoSearch && !webSearchEnabled
+            description: shouldAutoSearchHeuristics && !webSearchEnabled
               ? (settings.language === "de"
                 ? `Automatisch erkannt: ${searchHeuristics.detectedKeywords?.join(", ") || "Echtzeit-Info benötigt"}`
                 : `Auto-detected: ${searchHeuristics.detectedKeywords?.join(", ") || "real-time info needed"}`)
@@ -465,7 +479,11 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
           searchStats = null
         }
       } else {
-        console.log("[Simple Chat] ⏭️ Web search disabled")
+        if (enableToolCallingSearch) {
+          console.log("[Simple Chat] 🤖 Tool calling enabled - AI will decide when to search")
+        } else {
+          console.log("[Simple Chat] ⏭️ Web search disabled (no manual toggle, no tool calling)")
+        }
       }
 
       const assistantMessageId = generateUUID()
@@ -521,6 +539,14 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         reasoningContent += chunk
       }
 
+      // Get the appropriate search API key for tool calling
+      // Note: API route supports tavily, serper, exa - fallback to tavily if youcom is selected
+      const rawSearchProvider = settings.searchProvider || "tavily"
+      const searchProviderForTools = rawSearchProvider === "youcom" ? "tavily" : rawSearchProvider
+      const searchApiKeyForTools = searchProviderForTools === "serper"
+        ? settings.apiKeys.serper
+        : settings.apiKeys.tavily // exa would use tavily key as fallback
+
       await streamChatMessage(messages, model, onChunk, {
         temperature: settings.temperature || 0.7,
         maxTokens,
@@ -531,6 +557,25 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         signal: abortControllerRef.current?.signal,
         reasoning: reasoningEnabled && modelSupportsReasoning,
         onReasoning,
+        // Tool calling for AI-driven search
+        enableAutoSearch: enableToolCallingSearch,
+        searchProvider: searchProviderForTools as "tavily" | "serper" | "exa",
+        searchApiKey: searchApiKeyForTools,
+        searchSettings: searchProviderForTools === "serper" ? settings.serperSettings : settings.tavilySettings,
+        onSearchStart: (query) => {
+          console.log("[Simple Chat] 🤖 AI triggered search:", query)
+          toast({
+            title: settings.language === "de" ? "🤖 AI sucht im Web..." : "🤖 AI is searching the web...",
+            description: query || (settings.language === "de" ? "Sammle aktuelle Informationen" : "Gathering current information"),
+          })
+        },
+        onSearchComplete: () => {
+          console.log("[Simple Chat] ✅ AI search complete")
+          toast({
+            title: settings.language === "de" ? "✅ Suche abgeschlossen" : "✅ Search complete",
+            description: settings.language === "de" ? "AI hat Informationen gefunden" : "AI found relevant information",
+          })
+        },
       })
 
       console.log("[Simple Chat] Stream complete, final content length:", assistantContent.length)
