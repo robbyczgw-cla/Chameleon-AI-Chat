@@ -859,39 +859,43 @@ export function SimpleChatApp() {
           <div className="flex-1 flex flex-col overflow-hidden w-full min-h-0">
             {isEmpty ? (
               /* Welcome Screen - Blocks Style */
-              <div className="flex-1 flex flex-col overflow-y-auto w-full min-h-0">
-                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 md:p-12 text-center w-full min-h-[400px] md:min-h-[500px]">
-                  <div className="w-full max-w-2xl mx-auto space-y-6 sm:space-y-8 md:space-y-10 px-2 sm:px-4">
-                    {/* Greeting - Clean & Modern */}
-                    <div className="space-y-3 md:space-y-4">
-                      <div className="flex justify-center mb-3 sm:mb-4 md:mb-6">
-                        <div className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center shadow-lg shadow-violet-500/10">
-                          {selectedPersona ? (
-                            <span className="text-3xl sm:text-4xl md:text-5xl">{selectedPersona.emoji}</span>
-                          ) : (
-                            <ChameleonLogo size={42} />
-                          )}
+              <div className="flex-1 flex flex-col w-full min-h-0">
+                {/* Scrollable content area */}
+                <div className="flex-1 overflow-y-auto">
+                  {/* Content with vertical centering using grid */}
+                  <div className="min-h-full grid place-items-center p-4 sm:p-8 md:p-12 lg:p-16">
+                    <div className="w-full max-w-2xl mx-auto space-y-8 sm:space-y-10 md:space-y-12 px-2 sm:px-4 py-8 md:py-12 text-center">
+                      {/* Greeting - Clean & Modern */}
+                      <div className="space-y-4 md:space-y-6">
+                        <div className="flex justify-center mb-4 sm:mb-6 md:mb-8">
+                          <div className="h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center shadow-lg shadow-violet-500/10">
+                            {selectedPersona ? (
+                              <span className="text-4xl sm:text-5xl md:text-6xl">{selectedPersona.emoji}</span>
+                            ) : (
+                              <ChameleonLogo size={48} />
+                            )}
+                          </div>
                         </div>
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                          {getGreeting()}{profile.name ? `, ${profile.name}` : ""}!
+                        </h1>
+                        <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                          {selectedPersona
+                            ? `${lang === "de" ? "Ich bin" : "I'm"} ${selectedPersona.name}. ${selectedPersona.description}`
+                            : t.imYourAssistant}
+                        </p>
                       </div>
-                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                        {getGreeting()}{profile.name ? `, ${profile.name}` : ""}!
-                      </h1>
-                      <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-md mx-auto">
-                        {selectedPersona
-                          ? `${lang === "de" ? "Ich bin" : "I'm"} ${selectedPersona.name}. ${selectedPersona.description}`
-                          : t.imYourAssistant}
-                      </p>
-                    </div>
 
-                    {/* Quick Persona Selection - Clean Pills */}
-                    <div className="space-y-3 md:space-y-4">
-                      <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium">{t.choosePersona}</p>
-                      <QuickPersonaPicker />
+                      {/* Quick Persona Selection - Clean Pills */}
+                      <div className="space-y-4 md:space-y-6">
+                        <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-medium">{t.choosePersona}</p>
+                        <QuickPersonaPicker />
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Blocks-style Input at bottom with quick prompts */}
+                {/* Blocks-style Input at bottom with quick prompts - outside scroll area */}
                 <BlocksChatInput
                   selectedPersona={selectedPersona || undefined}
                   profileContext={profileContext}
