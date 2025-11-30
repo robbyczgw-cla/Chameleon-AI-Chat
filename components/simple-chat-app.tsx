@@ -13,9 +13,6 @@ import { ChameleonLogo } from "@/components/chameleon-logo"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { userProfileService } from "@/lib/user-profile"
-import { gamificationService, type Pet, type Achievement } from "@/lib/simple-mode-features"
-import { PetWidget, PetAdoptDialog } from "@/components/pet-companion"
-import { AchievementsDialog, AchievementToast } from "@/components/achievements-dialog"
 import {
   MessageSquarePlus,
   Users,
@@ -460,11 +457,6 @@ export function SimpleChatApp() {
   const [profileContext, setProfileContext] = useState("")
   const [imageMode, setImageMode] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
-  // Simple Mode features state
-  const [isPetAdoptOpen, setIsPetAdoptOpen] = useState(false)
-  const [isAchievementsOpen, setIsAchievementsOpen] = useState(false)
-  const [newAchievement, setNewAchievement] = useState<Achievement | null>(null)
-  const [pet, setPet] = useState<Pet | null>(null)
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
@@ -587,11 +579,6 @@ export function SimpleChatApp() {
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent("sendQuickMessage", { detail: prompt }))
     }, 100)
-  }
-
-  // Handle pet adoption
-  const handlePetAdopted = (newPet: Pet) => {
-    setPet(newPet)
   }
 
   const selectedPersona = settings.selectedPersona
@@ -781,12 +768,12 @@ export function SimpleChatApp() {
         {/* Main Content */}
         <main className="flex flex-1 basis-full flex-col min-w-0 max-w-full overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
           {/* Header */}
-          <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/50 bg-background">
-            <div className="flex items-center gap-3">
+          <header className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 border-b border-border/50 bg-background">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden h-10 w-10"
                 onClick={() => setIsSidebarOpen(true)}
               >
                 <Menu className="h-5 w-5" />
@@ -796,7 +783,7 @@ export function SimpleChatApp() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hidden md:flex"
+                  className="hidden md:flex h-9 w-9"
                   onClick={() => setCurrentChat(null)}
                 >
                   <ChevronLeft className="h-5 w-5" />
@@ -818,37 +805,34 @@ export function SimpleChatApp() {
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
-              {/* Pet Widget - visible on all screens */}
-              <PetWidget onOpenAdopt={() => setIsPetAdoptOpen(true)} lang={lang} />
-
+            <div className="flex items-center gap-0.5 sm:gap-1">
               <Button
                 variant={imageMode ? "default" : "ghost"}
                 size="icon"
                 onClick={toggleImageMode}
                 className={cn(
-                  "relative h-8 w-8",
+                  "relative h-10 w-10 sm:h-9 sm:w-9",
                   imageMode && "bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600"
                 )}
                 title={t.createImage}
               >
-                <ImagePlus className="h-4 w-4" />
+                <ImagePlus className="h-5 w-5 sm:h-4 sm:w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsPersonasOpen(true)}
-                className="relative h-8 w-8"
+                className="relative h-10 w-10 sm:h-9 sm:w-9"
               >
-                <Users className="h-4 w-4" />
+                <Users className="h-5 w-5 sm:h-4 sm:w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSettingsOpen(true)}
-                className="h-8 w-8"
+                className="h-10 w-10 sm:h-9 sm:w-9"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-5 w-5 sm:h-4 sm:w-4" />
               </Button>
             </div>
           </header>
@@ -934,7 +918,6 @@ export function SimpleChatApp() {
       <SimpleSettingsDialog
         open={isSettingsOpen}
         onOpenChange={setIsSettingsOpen}
-        onOpenAchievements={() => setIsAchievementsOpen(true)}
       />
       <PersonasDialog open={isPersonasOpen} onOpenChange={setIsPersonasOpen} />
       <UserProfileDialog
@@ -948,30 +931,6 @@ export function SimpleChatApp() {
         open={showOnboarding}
         onComplete={handleOnboardingComplete}
       />
-
-      {/* Pet Adopt Dialog */}
-      <PetAdoptDialog
-        open={isPetAdoptOpen}
-        onOpenChange={setIsPetAdoptOpen}
-        onAdopt={handlePetAdopted}
-        lang={lang}
-      />
-
-      {/* Achievements Dialog */}
-      <AchievementsDialog
-        open={isAchievementsOpen}
-        onOpenChange={setIsAchievementsOpen}
-        lang={lang}
-      />
-
-      {/* Achievement Toast */}
-      {newAchievement && (
-        <AchievementToast
-          achievement={newAchievement}
-          lang={lang}
-          onClose={() => setNewAchievement(null)}
-        />
-      )}
     </div>
   )
 }
