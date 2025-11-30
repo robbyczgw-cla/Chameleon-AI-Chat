@@ -26,6 +26,7 @@ import {
   MoreVertical,
   ImagePlus,
   Lightbulb,
+  Paperclip,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -60,6 +61,7 @@ const translations = {
     imageModeOff: "Image mode disabled",
     imageModeDesc: "Your next message will generate an image",
     tryAsking: "Try asking:",
+    attachFile: "Attach file",
   },
   de: {
     newChat: "Neuer Chat",
@@ -82,6 +84,7 @@ const translations = {
     imageModeOff: "Bildmodus deaktiviert",
     imageModeDesc: "Deine nächste Nachricht wird ein Bild generieren",
     tryAsking: "Frag zum Beispiel:",
+    attachFile: "Datei anhängen",
   },
 }
 
@@ -628,6 +631,11 @@ export function SimpleChatApp() {
     window.dispatchEvent(new CustomEvent("setImageMode", { detail: newMode }))
   }
 
+  // Trigger file upload in SimpleChatInput
+  const triggerFileUpload = () => {
+    window.dispatchEvent(new CustomEvent("triggerFileUpload"))
+  }
+
   const profile = userProfileService.getProfile()
 
   return (
@@ -808,6 +816,15 @@ export function SimpleChatApp() {
 
             <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
               <Button
+                variant="ghost"
+                size="icon"
+                onClick={triggerFileUpload}
+                className="relative h-10 w-10 sm:h-9 sm:w-9"
+                title={t.attachFile}
+              >
+                <Paperclip className="h-5 w-5 sm:h-4 sm:w-4" />
+              </Button>
+              <Button
                 variant={imageMode ? "default" : "ghost"}
                 size="icon"
                 onClick={toggleImageMode}
@@ -893,6 +910,15 @@ export function SimpleChatApp() {
                   profileContext={profileContext}
                 />
               </>
+            )}
+            {/* Hidden SimpleChatInput - always mounted to receive events from BlocksChatInput */}
+            {isEmpty && (
+              <div className="hidden">
+                <SimpleChatInput
+                  selectedPersona={selectedPersona || undefined}
+                  profileContext={profileContext}
+                />
+              </div>
             )}
           </div>
         </main>

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Paperclip, Upload, Loader2 } from "lucide-react"
 import { processFile, type FileAttachment } from "@/lib/file-handler"
@@ -20,6 +20,18 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
   const { toast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+
+  // Listen for external trigger to open file dialog
+  useEffect(() => {
+    const handleTriggerFileUpload = () => {
+      fileInputRef.current?.click()
+    }
+
+    window.addEventListener("triggerFileUpload" as any, handleTriggerFileUpload)
+    return () => {
+      window.removeEventListener("triggerFileUpload" as any, handleTriggerFileUpload)
+    }
+  }, [])
 
   const handleFiles = async (fileList: FileList) => {
     const selectedFiles = Array.from(fileList)
