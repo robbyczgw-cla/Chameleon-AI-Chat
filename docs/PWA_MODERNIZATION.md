@@ -10,6 +10,40 @@ Already implemented:
 - Service worker for caching
 - Safe area handling for notched phones
 - Touch-optimized button sizes (44px minimum)
+- AI-driven web search via tool calling (v0.8.0)
+- Blocks-style chat input UI
+- Mobile header overflow fix
+- Toggle switch animations
+
+---
+
+## Research Findings (2025-11-30)
+
+### PWA Best Practices 2025
+
+Based on research from [Netguru](https://www.netguru.com/blog/pwa-ux-techniques), [Equus Branding](https://equusbranding.com/progressive-web-app-pwa-2025/):
+
+1. **Gestures**: 75% of users report haptic feedback enhances satisfaction
+2. **Familiar Patterns**: Nielsen Norman Group found 50% accuracy with unfamiliar gestures
+3. **Native Feel**: Use `display: standalone`, smooth transitions, avoid browser elements
+4. **Performance**: Core Web Vitals (LCP, FID, CLS) are critical
+
+### Competitive Analysis
+
+From [Zapier](https://zapier.com/blog/claude-vs-chatgpt/), [Creator Economy](https://creatoreconomy.so/p/chatgpt-vs-claude-vs-gemini-the-best-ai-model-for-each-use-case-2025):
+
+| Feature | ChatGPT | Claude | Chameleon |
+|---------|---------|--------|-----------|
+| Memory | ✅ Advanced | ❌ None | ✅ Basic |
+| Image Gen | ✅ DALL-E | ❌ | ❌ |
+| Voice Chat | ✅ Real-time | ❌ | ⚠️ TTS only |
+| Tool Calling | ✅ | ✅ | ✅ v0.8.0 |
+| Offline | ❌ | ❌ | ❌ |
+| PWA | ❌ | ❌ | ✅ |
+
+**Our Advantages**: PWA, multiple models, cost tracking, personas, open source
+
+---
 
 ## Priority 1: Quick Wins 🚀
 
@@ -23,7 +57,7 @@ import { usePullToRefresh } from '@/hooks/use-pull-to-refresh'
 
 ### 2. Swipe Gestures
 - Swipe left on chat to delete
-- Swipe right to archive (future)
+- Swipe right to archive
 - Swipe between screens (mobile nav)
 
 ### 3. Bottom Sheet Dialogs
@@ -38,6 +72,8 @@ Show skeleton loaders instead of spinners:
 - Chat list item skeletons
 - Profile loading skeleton
 
+---
+
 ## Priority 2: Native Feel 📱
 
 ### 5. Smooth Page Transitions
@@ -51,7 +87,6 @@ Show skeleton loaders instead of spinners:
 
 ### 6. iOS Rubber-Band Effect
 ```css
-/* Already using overscroll-behavior */
 .scrollable {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
@@ -70,16 +105,18 @@ button:active {
 }
 ```
 
+---
+
 ## Priority 3: Advanced Features ⚡
 
 ### 9. Offline Support
-- Cache recent chats
+- Cache recent chats in IndexedDB
 - Queue messages when offline
 - Sync when back online
+- Show offline indicator
 
 ### 10. Background Sync
 ```js
-// Register sync event
 navigator.serviceWorker.ready.then(sw => {
   sw.sync.register('sync-chats');
 });
@@ -93,12 +130,19 @@ navigator.serviceWorker.ready.then(sw => {
 - Better share intent handling
 - Quick actions from share
 
-## Implementation Priority
+---
 
-1. **This PR**: Swipe gestures for chat deletion
-2. **Next**: Bottom sheet dialogs
-3. **Future**: Pull-to-refresh, skeleton loaders
-4. **Later**: Offline mode, push notifications
+## Implementation Roadmap
+
+| Phase | Features | Effort |
+|-------|----------|--------|
+| 1 | Swipe gestures, pull-to-refresh | 2-3 days |
+| 2 | Bottom sheets, skeletons | 2-3 days |
+| 3 | View transitions, active states | 1-2 days |
+| 4 | Offline mode, background sync | 1 week |
+| 5 | Push notifications | 3-4 days |
+
+---
 
 ## CSS Variables for Native Feel
 
@@ -121,6 +165,25 @@ navigator.serviceWorker.ready.then(sw => {
 }
 ```
 
+---
+
+## Weaknesses to Address
+
+### High Priority
+1. **No offline mode** - Users expect PWAs to work offline
+2. **No real-time voice** - ChatGPT has conversational voice
+3. **Basic memory UI** - Need to show what AI remembers
+
+### Medium Priority
+4. **No image generation** - Consider integrating DALL-E/Stable Diffusion
+5. **Limited file handling** - Better document preview/generation
+
+### Low Priority
+6. **No plugins/extensions** - Consider MCP as plugin system
+7. **No collaborative features** - Share chats, team workspaces
+
+---
+
 ## Testing Checklist
 
 - [ ] iOS Safari (iPhone 12+)
@@ -130,3 +193,15 @@ navigator.serviceWorker.ready.then(sw => {
 - [ ] With keyboard open
 - [ ] Landscape orientation
 - [ ] Different screen sizes
+- [ ] Offline behavior
+- [ ] Background/foreground transitions
+
+---
+
+## Resources
+
+- [PWA UX Techniques](https://www.netguru.com/blog/pwa-ux-techniques)
+- [PWA Best Practices 2025](https://equusbranding.com/progressive-web-app-pwa-2025/)
+- [Web.dev PWA Capabilities](https://web.dev/learn/pwa/capabilities)
+- [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/)
+- [Material Design](https://m3.material.io/)
