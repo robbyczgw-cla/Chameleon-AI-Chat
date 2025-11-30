@@ -85,15 +85,6 @@ export interface Attachment {
   content?: string
 }
 
-export interface MCPServerConfig {
-  id: string
-  name: string
-  command: string
-  args?: string[]
-  env?: Record<string, string>
-  enabled: boolean
-}
-
 export interface PromptTemplate {
   id: string
   name: string
@@ -243,7 +234,6 @@ export interface AppSettings {
   maxTokens?: number
   systemPrompt: string
   searchProvider?: "tavily" | "serper" | "exa" // Which search API to use
-  mcpServers?: MCPServerConfig[]
   modelParameters?: ModelParameters
   voiceSettings?: VoiceSettings
   tavilySettings?: TavilySettings
