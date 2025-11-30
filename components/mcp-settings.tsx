@@ -1,0 +1,567 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import { cn } from "@/lib/utils"
+import {
+  Puzzle,
+  Plus,
+  Trash2,
+  Check,
+  AlertCircle,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Zap,
+  FolderOpen,
+  Globe,
+  Database,
+  GitBranch,
+  Clock,
+  Brain,
+  Play,
+  Search,
+  FileText,
+  Image,
+  Map,
+  MessageSquare,
+  Chrome,
+} from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+
+// MCP Server configuration type
+export interface MCPServerConfig {
+  id: string
+  name: string
+  command: string
+  args?: string
+  env?: Record<string, string>
+  status?: "connected" | "disconnected" | "connecting"
+  enabled?: boolean
+  description?: string
+  category?: string
+}
+
+// Preset MCP servers for one-click add
+const PRESET_MCP_SERVERS: Omit<MCPServerConfig, "id" | "status">[] = [
+  {
+    name: "Filesystem",
+    command: "npx",
+    args: "-y @modelcontextprotocol/server-filesystem /path/to/allowed/directory",
+    description: "Secure file operations with configurable access controls",
+    category: "Core",
+    enabled: true,
+  },
+  {
+    name: "Brave Search",
+    command: "npx",
+    args: "-y @anthropic/mcp-server-brave-search",
+    env: { BRAVE_API_KEY: "your-brave-api-key" },
+    description: "Web & local search with privacy-focused Brave Search API",
+    category: "Search",
+    enabled: true,
+  },
+  {
+    name: "Git",
+    command: "npx",
+    args: "-y @modelcontextprotocol/server-git",
+    description: "Read, search, and manipulate Git repositories",
+    category: "Development",
+    enabled: true,
+  },
+  {
+    name: "Memory",
+    command: "npx",
+    args: "-y @modelcontextprotocol/server-memory",
+    description: "Knowledge graph-based persistent memory system",
+    category: "Core",
+    enabled: true,
+  },
+  {
+    name: "Fetch",
+    command: "npx",
+    args: "-y @modelcontextprotocol/server-fetch",
+    description: "Web content fetching and conversion for LLM usage",
+    category: "Web",
+    enabled: true,
+  },
+  {
+    name: "Time",
+    command: "npx",
+    args: "-y @modelcontextprotocol/server-time",
+    description: "Time and timezone conversion capabilities",
+    category: "Utilities",
+    enabled: true,
+  },
+  {
+    name: "Sequential Thinking",
+    command: "npx",
+    args: "-y @modelcontextprotocol/server-sequential-thinking",
+    description: "Dynamic problem-solving through thought sequences",
+    category: "Core",
+    enabled: true,
+  },
+  {
+    name: "Puppeteer",
+    command: "npx",
+    args: "-y @modelcontextprotocol/server-puppeteer",
+    description: "Browser automation and web scraping",
+    category: "Web",
+    enabled: true,
+  },
+  {
+    name: "Slack",
+    command: "npx",
+    args: "-y @modelcontextprotocol/server-slack",
+    env: { SLACK_TOKEN: "your-slack-token" },
+    description: "Channel management and messaging",
+    category: "Communication",
+    enabled: true,
+  },
+  {
+    name: "PostgreSQL",
+    command: "npx",
+    args: "-y @modelcontextprotocol/server-postgres postgres://user:pass@localhost/db",
+    description: "PostgreSQL database read-only access",
+    category: "Database",
+    enabled: true,
+  },
+  {
+    name: "Google Drive",
+    command: "npx",
+    args: "-y @anthropic/mcp-server-google-drive",
+    description: "Search and read from Google Drive",
+    category: "Storage",
+    enabled: true,
+  },
+  {
+    name: "GitHub",
+    command: "npx",
+    args: "-y @anthropic/mcp-server-github",
+    env: { GITHUB_TOKEN: "your-github-token" },
+    description: "GitHub repository management and search",
+    category: "Development",
+    enabled: true,
+  },
+]
+
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  Core: <Zap className="h-4 w-4" />,
+  Search: <Search className="h-4 w-4" />,
+  Development: <GitBranch className="h-4 w-4" />,
+  Web: <Globe className="h-4 w-4" />,
+  Database: <Database className="h-4 w-4" />,
+  Utilities: <Clock className="h-4 w-4" />,
+  Communication: <MessageSquare className="h-4 w-4" />,
+  Storage: <FolderOpen className="h-4 w-4" />,
+}
+
+const MCP_STORAGE_KEY = "chameleon-mcp-servers"
+
+export function MCPSettings() {
+  const [mcpServers, setMcpServers] = useState<MCPServerConfig[]>([])
+  const [showAddCustom, setShowAddCustom] = useState(false)
+  const [showPresets, setShowPresets] = useState(true)
+  const [newServerName, setNewServerName] = useState("")
+  const [newServerCommand, setNewServerCommand] = useState("")
+  const [newServerArgs, setNewServerArgs] = useState("")
+  const [mcpEnabled, setMcpEnabled] = useState(false)
+  const { toast } = useToast()
+
+  // Load MCP servers from localStorage
+  useEffect(() => {
+    const savedServers = localStorage.getItem(MCP_STORAGE_KEY)
+    if (savedServers) {
+      try {
+        const parsed = JSON.parse(savedServers)
+        setMcpServers(parsed.servers || [])
+        setMcpEnabled(parsed.enabled ?? false)
+      } catch (e) {
+        console.error("[MCP] Failed to load servers:", e)
+      }
+    }
+  }, [])
+
+  // Save MCP servers to localStorage
+  const saveMcpServers = (servers: MCPServerConfig[], enabled?: boolean) => {
+    setMcpServers(servers)
+    const enabledValue = enabled !== undefined ? enabled : mcpEnabled
+    localStorage.setItem(MCP_STORAGE_KEY, JSON.stringify({ servers, enabled: enabledValue }))
+  }
+
+  const handleAddCustomServer = () => {
+    if (!newServerName.trim() || !newServerCommand.trim()) return
+
+    const newServer: MCPServerConfig = {
+      id: `mcp-custom-${Date.now()}`,
+      name: newServerName.trim(),
+      command: newServerCommand.trim(),
+      args: newServerArgs.trim() || undefined,
+      status: "disconnected",
+      enabled: true,
+    }
+
+    saveMcpServers([...mcpServers, newServer])
+    setNewServerName("")
+    setNewServerCommand("")
+    setNewServerArgs("")
+    setShowAddCustom(false)
+
+    toast({
+      title: "Server Added",
+      description: `${newServer.name} has been added to your MCP servers.`,
+    })
+  }
+
+  const handleAddPreset = (preset: Omit<MCPServerConfig, "id" | "status">) => {
+    // Check if already added
+    const existing = mcpServers.find(s => s.name === preset.name)
+    if (existing) {
+      toast({
+        title: "Already Added",
+        description: `${preset.name} is already in your server list.`,
+        variant: "destructive",
+      })
+      return
+    }
+
+    const newServer: MCPServerConfig = {
+      ...preset,
+      id: `mcp-preset-${Date.now()}`,
+      status: "disconnected",
+    }
+
+    saveMcpServers([...mcpServers, newServer])
+
+    toast({
+      title: "Server Added",
+      description: `${preset.name} has been added. Configure any required API keys.`,
+    })
+  }
+
+  const handleRemoveServer = (serverId: string) => {
+    const server = mcpServers.find(s => s.id === serverId)
+    saveMcpServers(mcpServers.filter(s => s.id !== serverId))
+    toast({
+      title: "Server Removed",
+      description: server?.name || "Server removed",
+    })
+  }
+
+  const handleToggleServer = (serverId: string) => {
+    saveMcpServers(mcpServers.map(s =>
+      s.id === serverId ? { ...s, enabled: !s.enabled } : s
+    ))
+  }
+
+  const handleTestServer = async (serverId: string) => {
+    // Update status to connecting
+    saveMcpServers(mcpServers.map(s =>
+      s.id === serverId ? { ...s, status: "connecting" as const } : s
+    ))
+
+    // Simulate connection test (in production, this would actually spawn the process and test)
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    // For demo purposes, mark as connected
+    saveMcpServers(mcpServers.map(s =>
+      s.id === serverId ? { ...s, status: "connected" as const } : s
+    ))
+
+    const server = mcpServers.find(s => s.id === serverId)
+    toast({
+      title: "Connection Test",
+      description: `${server?.name || "Server"} connection simulated (full implementation requires backend).`,
+    })
+  }
+
+  const handleMcpToggle = (enabled: boolean) => {
+    setMcpEnabled(enabled)
+    localStorage.setItem(MCP_STORAGE_KEY, JSON.stringify({ servers: mcpServers, enabled }))
+    toast({
+      title: enabled ? "MCP Enabled" : "MCP Disabled",
+      description: enabled
+        ? "Model Context Protocol is now active."
+        : "MCP servers will not be used.",
+    })
+  }
+
+  const addedServerNames = new Set(mcpServers.map(s => s.name))
+
+  return (
+    <div className="space-y-6">
+      {/* MCP Info & Enable Toggle */}
+      <div className="p-4 rounded-xl bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Puzzle className="h-5 w-5 text-violet-500" />
+              <h3 className="font-semibold">Model Context Protocol (MCP)</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Connect AI to external tools, databases, and services. MCP servers extend Claude's capabilities.
+            </p>
+          </div>
+          <Switch
+            checked={mcpEnabled}
+            onCheckedChange={handleMcpToggle}
+          />
+        </div>
+        <div className="mt-3 flex gap-2">
+          <a
+            href="https://modelcontextprotocol.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-violet-500 hover:text-violet-600 flex items-center gap-1"
+          >
+            Learn more <ExternalLink className="h-3 w-3" />
+          </a>
+          <span className="text-xs text-muted-foreground">•</span>
+          <a
+            href="https://github.com/modelcontextprotocol/servers"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-violet-500 hover:text-violet-600 flex items-center gap-1"
+          >
+            Official Servers <ExternalLink className="h-3 w-3" />
+          </a>
+        </div>
+      </div>
+
+      {/* Active Servers */}
+      {mcpServers.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-medium">Active Servers ({mcpServers.length})</h4>
+          </div>
+          <div className="space-y-2">
+            {mcpServers.map((server) => (
+              <div
+                key={server.id}
+                className={cn(
+                  "flex items-center gap-3 p-3 rounded-xl border transition-all",
+                  server.enabled ? "bg-card" : "bg-muted/50 opacity-60"
+                )}
+              >
+                <div className={cn(
+                  "h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0",
+                  server.enabled
+                    ? "bg-gradient-to-br from-violet-500/20 to-purple-500/20"
+                    : "bg-muted"
+                )}>
+                  {CATEGORY_ICONS[server.category || "Core"] || <Puzzle className="h-5 w-5 text-violet-500" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-sm truncate">{server.name}</p>
+                    {server.category && (
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                        {server.category}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate font-mono">
+                    {server.command} {server.args}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {/* Status indicator */}
+                  <div className="flex items-center gap-1.5">
+                    {server.status === "connecting" ? (
+                      <Loader2 className="h-3.5 w-3.5 text-yellow-500 animate-spin" />
+                    ) : server.status === "connected" ? (
+                      <Check className="h-3.5 w-3.5 text-green-500" />
+                    ) : (
+                      <AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                  </div>
+                  {/* Toggle */}
+                  <Switch
+                    checked={server.enabled}
+                    onCheckedChange={() => handleToggleServer(server.id)}
+                    className="scale-75"
+                  />
+                  {/* Test button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleTestServer(server.id)}
+                    disabled={server.status === "connecting" || !server.enabled}
+                    title="Test connection"
+                  >
+                    <Play className="h-3.5 w-3.5" />
+                  </Button>
+                  {/* Remove button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    onClick={() => handleRemoveServer(server.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Add Custom Server */}
+      <div className="space-y-3">
+        <Button
+          variant="outline"
+          className="w-full justify-start gap-2"
+          onClick={() => setShowAddCustom(!showAddCustom)}
+        >
+          {showAddCustom ? <ChevronUp className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+          Add Custom Server
+        </Button>
+
+        {showAddCustom && (
+          <div className="p-4 rounded-xl border border-violet-500/30 bg-violet-500/5 space-y-3 animate-in fade-in slide-in-from-top-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="server-name" className="text-sm">Server Name</Label>
+              <Input
+                id="server-name"
+                placeholder="My Custom Server"
+                value={newServerName}
+                onChange={(e) => setNewServerName(e.target.value)}
+                className="h-10"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="server-command" className="text-sm">Command</Label>
+              <Input
+                id="server-command"
+                placeholder="npx -y @modelcontextprotocol/server-xxx"
+                value={newServerCommand}
+                onChange={(e) => setNewServerCommand(e.target.value)}
+                className="h-10 font-mono text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="server-args" className="text-sm">Arguments (optional)</Label>
+              <Input
+                id="server-args"
+                placeholder="/path/to/directory or connection-string"
+                value={newServerArgs}
+                onChange={(e) => setNewServerArgs(e.target.value)}
+                className="h-10 font-mono text-sm"
+              />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => {
+                  setShowAddCustom(false)
+                  setNewServerName("")
+                  setNewServerCommand("")
+                  setNewServerArgs("")
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                className="flex-1 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+                onClick={handleAddCustomServer}
+                disabled={!newServerName.trim() || !newServerCommand.trim()}
+              >
+                Add Server
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Preset Servers */}
+      <div className="space-y-3">
+        <Button
+          variant="outline"
+          className="w-full justify-start gap-2"
+          onClick={() => setShowPresets(!showPresets)}
+        >
+          {showPresets ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          Browse Popular Servers ({PRESET_MCP_SERVERS.length})
+        </Button>
+
+        {showPresets && (
+          <div className="grid gap-2 animate-in fade-in slide-in-from-top-2">
+            {PRESET_MCP_SERVERS.map((preset, index) => {
+              const isAdded = addedServerNames.has(preset.name)
+              return (
+                <div
+                  key={index}
+                  className={cn(
+                    "flex items-center gap-3 p-3 rounded-xl border transition-all",
+                    isAdded ? "bg-green-500/5 border-green-500/30" : "bg-card hover:border-violet-500/30"
+                  )}
+                >
+                  <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-violet-500/10 to-purple-500/10 flex items-center justify-center flex-shrink-0">
+                    {CATEGORY_ICONS[preset.category || "Core"] || <Puzzle className="h-5 w-5 text-violet-500" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm">{preset.name}</p>
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                        {preset.category}
+                      </Badge>
+                      {preset.env && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-yellow-600">
+                          API Key Required
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-1">
+                      {preset.description}
+                    </p>
+                  </div>
+                  <Button
+                    variant={isAdded ? "ghost" : "secondary"}
+                    size="sm"
+                    className={cn(
+                      "flex-shrink-0",
+                      isAdded && "text-green-600"
+                    )}
+                    onClick={() => !isAdded && handleAddPreset(preset)}
+                    disabled={isAdded}
+                  >
+                    {isAdded ? (
+                      <>
+                        <Check className="h-3.5 w-3.5 mr-1" />
+                        Added
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-3.5 w-3.5 mr-1" />
+                        Add
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Empty State */}
+      {mcpServers.length === 0 && !showPresets && (
+        <div className="text-center py-8 text-muted-foreground">
+          <Puzzle className="h-12 w-12 mx-auto mb-3 opacity-30" />
+          <p className="text-sm font-medium">No MCP servers configured</p>
+          <p className="text-xs mt-1">Add a server from the presets or create a custom one</p>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -21,6 +21,7 @@ const UsageStatsWidget = lazy(() => import("@/components/usage-stats-widget").th
 const AIMemoryHub = lazy(() => import("@/components/ai-memory-hub").then(m => ({ default: m.AIMemoryHub })))
 const ChatAnalytics = lazy(() => import("@/components/chat-analytics").then(m => ({ default: m.ChatAnalytics })))
 const ExperimentalSettings = lazy(() => import("@/components/experimental-settings").then(m => ({ default: m.ExperimentalSettings })))
+const MCPSettings = lazy(() => import("@/components/mcp-settings").then(m => ({ default: m.MCPSettings })))
 
 // Loading fallback for lazy components
 function TabLoadingFallback() {
@@ -30,7 +31,7 @@ function TabLoadingFallback() {
     </div>
   )
 }
-import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, PieChart, RefreshCw, Loader2, Server } from "lucide-react"
+import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, PieChart, RefreshCw, Loader2, Server, Puzzle } from "lucide-react"
 import { fetchLMStudioModels, checkLMStudioConnection, DEFAULT_LM_STUDIO_ENDPOINT } from "@/lib/lmstudio"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
@@ -303,6 +304,10 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
               <TabsTrigger value="search" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <Search className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 Search
+              </TabsTrigger>
+              <TabsTrigger value="mcp" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
+                <Puzzle className="h-3.5 w-3.5 mr-1.5 inline-block" />
+                MCP
               </TabsTrigger>
               {!hideOptions.includes("voice") && (
                 <TabsTrigger value="voice" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
@@ -1388,6 +1393,13 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   </div>
                 )}
               </div>
+            </TabsContent>
+
+            {/* MCP Tab */}
+            <TabsContent value="mcp" className="space-y-4 mt-0">
+              <Suspense fallback={<TabLoadingFallback />}>
+                <MCPSettings />
+              </Suspense>
             </TabsContent>
 
             {!hideOptions.includes("voice") && (
