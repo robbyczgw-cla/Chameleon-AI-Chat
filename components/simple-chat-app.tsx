@@ -8,6 +8,7 @@ import { SimpleSettingsDialog } from "@/components/simple-settings-dialog"
 import { PersonasDialog } from "@/components/personas-dialog"
 import { UserProfileDialog } from "@/components/user-profile-dialog"
 import { SimpleModeOnboarding } from "@/components/simple-mode-onboarding"
+import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -462,6 +463,7 @@ export function SimpleChatApp() {
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
+  const isEmpty = !currentChat || currentChat.messages.length === 0
 
   // Load profile context
   useEffect(() => {
@@ -859,6 +861,14 @@ export function SimpleChatApp() {
             <div className="flex-1 overflow-hidden">
               <ChatMessages currentPersona={selectedPersona || undefined} />
             </div>
+            {/* Show persona picker above input when chat is empty */}
+            {isEmpty && (
+              <div className="px-4 py-2 border-t border-border/30">
+                <div className="max-w-3xl mx-auto">
+                  <QuickPersonaPicker />
+                </div>
+              </div>
+            )}
             <SimpleChatInput
               selectedPersona={selectedPersona || undefined}
               profileContext={profileContext}
