@@ -545,6 +545,9 @@ export function MCPSettings() {
             Official Servers <ExternalLink className="h-3 w-3" />
           </a>
         </div>
+        <p className="mt-3 text-[11px] text-muted-foreground bg-muted/50 rounded px-2 py-1.5">
+          Web deployment uses remote MCP servers or proxy services. Local npx servers require self-hosted deployment.
+        </p>
       </div>
 
       {/* Import/Export Buttons */}
