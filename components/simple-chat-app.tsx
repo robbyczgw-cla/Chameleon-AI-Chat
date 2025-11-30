@@ -4,12 +4,10 @@ import { useState, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
 import { ChatMessages } from "@/components/chat-messages"
 import { SimpleChatInput } from "@/components/simple-chat-input"
-import { BlocksChatInput } from "@/components/blocks-chat-input"
 import { SimpleSettingsDialog } from "@/components/simple-settings-dialog"
 import { PersonasDialog } from "@/components/personas-dialog"
 import { UserProfileDialog } from "@/components/user-profile-dialog"
 import { SimpleModeOnboarding } from "@/components/simple-mode-onboarding"
-import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -464,7 +462,6 @@ export function SimpleChatApp() {
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
-  const isEmpty = !currentChat || currentChat.messages.length === 0
 
   // Load profile context
   useEffect(() => {
@@ -857,70 +854,15 @@ export function SimpleChatApp() {
             </div>
           </header>
 
-          {/* Chat Area */}
+          {/* Chat Area - Always use chat view structure, ChatMessages handles empty state */}
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-            {isEmpty ? (
-              /* Welcome Screen - Match chat view structure exactly */
-              <>
-                <div className="flex-1 overflow-y-auto p-4 sm:p-8">
-                  <div className="max-w-3xl mx-auto text-center space-y-6 sm:space-y-8 mt-[20vh]">
-                    {/* Greeting - Clean & Modern */}
-                    <div className="space-y-3">
-                      <div className="flex justify-center mb-3 sm:mb-4">
-                        <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center shadow-lg shadow-violet-500/10">
-                          {selectedPersona ? (
-                            <span className="text-3xl sm:text-4xl">{selectedPersona.emoji}</span>
-                          ) : (
-                            <ChameleonLogo size={36} />
-                          )}
-                        </div>
-                      </div>
-                      <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                        {getGreeting()}{profile.name ? `, ${profile.name}` : ""}!
-                      </h1>
-                      <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto">
-                        {selectedPersona
-                          ? `${lang === "de" ? "Ich bin" : "I'm"} ${selectedPersona.name}. ${selectedPersona.description}`
-                          : t.imYourAssistant}
-                      </p>
-                    </div>
-
-                    {/* Quick Persona Selection - Clean Pills */}
-                    <div className="space-y-3">
-                      <p className="text-xs sm:text-sm text-muted-foreground font-medium">{t.choosePersona}</p>
-                      <QuickPersonaPicker />
-                    </div>
-                  </div>
-                </div>
-                {/* Blocks-style Input at bottom - outside scroll area like chat view */}
-                <BlocksChatInput
-                  selectedPersona={selectedPersona || undefined}
-                  profileContext={profileContext}
-                  quickPrompts={getPersonaTips(selectedPersona?.id || "default", lang).slice(0, 3)}
-                  onQuickPrompt={handleQuickPrompt}
-                />
-              </>
-            ) : (
-              /* Chat View */
-              <>
-                <div className="flex-1 overflow-hidden">
-                  <ChatMessages currentPersona={selectedPersona || undefined} />
-                </div>
-                <SimpleChatInput
-                  selectedPersona={selectedPersona || undefined}
-                  profileContext={profileContext}
-                />
-              </>
-            )}
-            {/* Hidden SimpleChatInput - always mounted to receive events from BlocksChatInput */}
-            {isEmpty && (
-              <div className="hidden">
-                <SimpleChatInput
-                  selectedPersona={selectedPersona || undefined}
-                  profileContext={profileContext}
-                />
-              </div>
-            )}
+            <div className="flex-1 overflow-hidden">
+              <ChatMessages currentPersona={selectedPersona || undefined} />
+            </div>
+            <SimpleChatInput
+              selectedPersona={selectedPersona || undefined}
+              profileContext={profileContext}
+            />
           </div>
         </main>
       </div>
