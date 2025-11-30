@@ -172,7 +172,7 @@ export function BlocksChatInput({
       // Build system prompt
       let systemPrompt = settings.systemPrompt || ""
       if (selectedPersona) {
-        systemPrompt = selectedPersona.systemPrompt
+        systemPrompt = selectedPersona.prompt || selectedPersona.personality || systemPrompt
       }
       if (profileContext) {
         systemPrompt = `${profileContext}\n\n${systemPrompt}`
@@ -189,8 +189,10 @@ export function BlocksChatInput({
       let searchContext = ""
       if (webSearchEnabled && settings.apiKeys.tavily) {
         try {
-          const results = await searchWeb(userMessage, settings.apiKeys.tavily)
-          searchContext = formatTavilyResults(results)
+          const results = await searchWeb(userMessage, { apiKey: settings.apiKeys.tavily })
+          if (results.results) {
+            searchContext = formatTavilyResults(results.results)
+          }
         } catch (err) {
           console.warn("[BlocksChatInput] Search failed:", err)
         }
