@@ -7,19 +7,20 @@ Complete guide to getting the most out of Chameleon Chat's power user features.
 ## 🎯 Table of Contents
 
 1. [Getting Started](#getting-started)
-2. [Understanding Personas](#understanding-personas)
-3. [Message Editing & Drafts](#message-editing--drafts) ⭐ NEW
-4. [Full-Text Search](#full-text-search) ⭐ NEW
-5. [AI Chat Titles](#ai-chat-titles) ⭐ NEW
-6. [Cost Tracking & Optimization](#cost-tracking--optimization)
-7. [AI Debate Mode](#ai-debate-mode)
-8. [Training Data Export](#training-data-export)
-9. [Advanced Settings](#advanced-settings)
-10. [Web Search Integration](#web-search-integration)
-11. [User Profile System](#user-profile-system)
-12. [Chat Management](#chat-management)
-13. [PWA & Mobile Tips](#pwa--mobile-tips) ⭐ NEW
-14. [Pro Tips & Tricks](#pro-tips--tricks)
+2. [Simple Mode](#simple-mode) ⭐ NEW
+3. [Understanding Personas](#understanding-personas)
+4. [Message Editing & Drafts](#message-editing--drafts)
+5. [Full-Text Search](#full-text-search)
+6. [AI Chat Titles](#ai-chat-titles)
+7. [Cost Tracking & Optimization](#cost-tracking--optimization)
+8. [AI Debate Mode](#ai-debate-mode)
+9. [Training Data Export](#training-data-export)
+10. [Advanced Settings](#advanced-settings)
+11. [Web Search Integration](#web-search-integration) ⭐ UPDATED
+12. [User Profile System](#user-profile-system)
+13. [Chat Management](#chat-management)
+14. [PWA & Mobile Tips](#pwa--mobile-tips)
+15. [Pro Tips & Tricks](#pro-tips--tricks)
 
 ---
 
@@ -45,6 +46,86 @@ Complete guide to getting the most out of Chameleon Chat's power user features.
    - Start with **Cami** (friendly chameleon) for general use
    - Or **Dev** if you're coding
    - Each persona has a unique personality and expertise!
+
+---
+
+## 🎛️ Simple Mode
+
+### What is Simple Mode?
+
+Simple Mode is a streamlined, distraction-free chat experience designed for casual users and mobile devices.
+
+**Access Simple Mode:**
+- Toggle "Simple Mode" in Settings
+- Or add `?mode=simple` to URL
+
+### Simple Mode Features
+
+**Clean Interface:**
+- Modern blocks-style chat input (inspired by [blocks.so](https://github.com/ephraimduncan/blocks))
+- Persona selector with emoji + description
+- Theme cards for quick visual customization
+- Language pills (DE/EN) for one-tap switching
+
+**Smart Defaults:**
+- Uses Grok 4.1 Fast (fast, cheap, capable)
+- AI-driven web search via tool calling
+- Reasoning toggle for extended thinking
+- Memory system enabled by default
+
+**Mobile-Optimized:**
+- Fixed header with persona name (truncated if long)
+- Bottom chat input (thumb-friendly)
+- Swipe gestures for sidebar
+- Touch-friendly toggle switches
+
+### Simple Mode Settings
+
+Access settings via gear icon in header:
+
+**Theme Selection:**
+- Theme cards showing preview colors
+- One-tap to switch themes
+- Dark/Light mode toggle
+
+**Language:**
+- DE/EN language pills
+- Instant switch without reload
+
+**Model:**
+- Default: Grok 4.1 Fast
+- Change via Advanced Settings
+
+**Features:**
+- Web search (AI decides when to search)
+- Reasoning mode toggle in chat input
+- Memory system for persistent context
+
+### Simple vs Advanced Mode
+
+| Feature | Simple Mode | Advanced Mode |
+|---------|-------------|---------------|
+| Interface | Clean, minimal | Full-featured |
+| Model Selection | Default only | 100+ models |
+| Web Search | AI-driven (tool calling) | Manual + AI toggle |
+| Settings | Theme, language | All parameters |
+| MCP | Not available | Full configuration |
+| Personas | Quick selector | Full customization |
+| Mobile UX | Optimized | Standard |
+
+### When to Use Simple Mode
+
+**Use Simple Mode when:**
+- Quick chats on mobile
+- Casual conversations
+- New users learning the app
+- Distraction-free focus
+
+**Use Advanced Mode when:**
+- Comparing models
+- Fine-tuning parameters
+- Using MCP servers
+- Power-user features
 
 ---
 
@@ -635,7 +716,46 @@ Click Settings (⚙️) → "Advanced Settings" button
 
 ## 🔍 Web Search Integration
 
-### Two Search Providers
+### AI-Driven Search (v0.8.0) ⭐ NEW
+
+The AI now decides when to search automatically using **tool calling**!
+
+**How It Works:**
+1. You send a message
+2. AI analyzes if current info is needed
+3. If yes, AI triggers `web_search` tool automatically
+4. Search results are fetched and returned to AI
+5. AI incorporates results into its response
+
+**Toast Notifications:**
+- "🤖 AI is searching the web..." - When AI triggers search
+- "✅ Search complete" - When results are ready
+
+**Supported Models:**
+- Grok 4.x (default in simple mode)
+- GPT-4o, GPT-4 Turbo
+- Claude 3.5 Sonnet, Claude 4
+- Gemini 2.x
+- DeepSeek V3
+
+### Three Search Modes
+
+**1. AI Tool Calling (Automatic):**
+- AI decides when to search
+- No manual intervention needed
+- Works with supported models
+
+**2. Manual Toggle:**
+- Click globe icon in chat input
+- Search runs before every message
+- Results injected into context
+
+**3. Heuristics Fallback:**
+- For models without tool calling
+- Pattern matching detects search needs
+- Keywords: "latest", "price", "weather", "news"
+
+### Search Providers
 
 **Tavily:**
 - Comprehensive search
@@ -654,54 +774,46 @@ Click Settings (⚙️) → "Advanced Settings" button
 1. **Add API Key**
    - Settings → Advanced Settings
    - Paste Tavily or Serper API key
-   - Or both! Switch between them
 
 2. **Configure Search**
    - Choose provider (Tavily/Serper)
    - Set max results (1-10, default 5)
    - Toggle image inclusion
-   - (Serper) Set country (AT, DE, US, etc.)
-   - (Serper) Set language (de, en, es, etc.)
 
 3. **Use in Chat**
-   - AI automatically searches when needed
-   - Or ask explicitly: "Search for..."
+   - AI automatically searches when needed (tool calling)
+   - Or toggle manual search (globe icon)
    - Results cited in response
 
 ### When Does AI Search?
 
-Automatically for:
-- Current events ("Latest AI news")
-- Factual lookups ("Population of Vienna?")
-- Price checks ("iPhone 15 price Austria")
-- Recent releases ("New movies 2025")
+**Automatically searches for:**
+- Current events ("What happened today?")
+- Prices and availability ("iPhone 16 price")
+- Weather and live data ("Weather in Vienna")
+- Recent news and updates
+- Factual verification
 
-Does NOT search for:
-- General knowledge ("What is React?")
-- Creative tasks ("Write a poem")
-- Code help ("Debug this function")
+**Does NOT search for:**
+- General knowledge
+- Code and programming help
+- Creative writing
+- Historical facts
 - Personal advice
 
 ### Search Cost Optimization
 
-**Use Serper Instead of Tavily:**
+**Use Serper:**
 - Same quality (Google Search)
-- 5x cheaper
-- Better for frequent searches
+- 5x cheaper than Tavily
 
-**Limit Max Results:**
-- 3 results = Faster, cheaper
+**Limit Results:**
+- 3 results = Fast, cheap
 - 5 results = Balanced (default)
-- 10 results = Comprehensive, expensive
 
-**Disable Images When Not Needed:**
-- Images = Separate API call
-- Only enable for visual topics
-
-**Use Country/Language Targeting (Serper):**
-- DE = German results (better for AT/DE users)
-- US = English results (more comprehensive)
-- Focused results = Better quality
+**Use Tool Calling:**
+- AI only searches when truly needed
+- Reduces unnecessary search calls
 
 ---
 

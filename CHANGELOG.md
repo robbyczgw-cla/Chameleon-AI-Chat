@@ -181,6 +181,21 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
   - Chat title truncation fixes
 
 ### Commits (2025-11-30)
+- `cd8e799` feat(search): Enable AI-driven web search via tool calling
+- `5aa5fb4` feat(search): Add automatic web search heuristics for simple mode
+- `6abf494` fix(ui): Mobile header overflow, translations, and reasoning toggle
+- `611cbff` docs: Update CHANGELOG with simple mode polish, MCP, and LM Studio removal
+- `035ef56` fix(blocks-input): Delegate streaming to SimpleChatInput
+- `782830d` fix(blocks-input): Fix stale closure in streaming callback
+- `0f6a301` fix(blocks-input): Fix persona prompt and search API calls
+- `e091ab0` fix(switch): Use inline styles for reliable compact sizing
+- `d846fa8` fix(switch): Simplify Switch component to fix React state issues
+- `1c3aee2` fix(ui): Fix toggle switch animation, polish simple mode UI
+- `bcf7ef5` feat(simple-mode): Add blocks-style chat input for welcome screen
+- `c615fc0` docs(mcp): Update guide for serverless deployment, add UI note
+- `2a5aad0` feat(mcp): Enhanced MCP settings with mobile UI, import/export, more templates
+- `6f137dd` refactor: Remove LM Studio local model support (serverless-incompatible)
+- `a6df69a` feat: Polish simple mode and add MCP integration to advanced mode
 - `dbf9bbc` fix: Add Server icon back to imports (used in LM Studio settings)
 - `e4940fa` feat: Add mobile design system and ChatInput refactoring foundation
 - `ce0d700` fix: Remove broken MCP feature and fix settings sync race condition
@@ -810,7 +825,7 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 | Version | Date | Highlights |
 |---------|------|------------|
-| 0.8.0-alpha | 2025-11-30 | Mobile design system, toggle redesign, removed MCP/agents, ChatInput refactor |
+| 0.8.0-alpha | 2025-11-30 | AI tool calling search, MCP integration, blocks-style UI, mobile polish |
 | 0.7.0-alpha | 2025-11-26 | Message editing, full-text search, AI titles, PWA stability |
 | 0.6.0-alpha | 2025-11-24 | Context window meter, pet companion, performance mode |
 | 0.5.0-alpha | 2025-11-20 | Simple Mode, TTS, gamification, PWA enhancements |

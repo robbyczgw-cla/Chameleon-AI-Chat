@@ -737,62 +737,156 @@ function calculateCost(
 
 ### 9. Web Search Integration 🔍
 
-**Location**: `lib/tavily.ts`, `lib/serper.ts`
+**Location**: `lib/tavily.ts`, `lib/serper.ts`, `lib/tools.ts`, `app/api/chat/route.ts`
 
-#### Two Providers
+#### Three Search Strategies
+
+**1. Manual Toggle (User-Controlled):**
+- User clicks web search toggle in chat input
+- Search executes before AI response
+- Results injected into context
+
+**2. AI Tool Calling (Automatic):**
+- AI decides when to search using OpenRouter function calling
+- Supported models: Grok 4.x, GPT-4, Claude, Gemini 2.x, DeepSeek V3
+- AI triggers `web_search` tool when it detects need for current info
+- Search results returned to AI for response generation
+
+**3. Heuristics Fallback:**
+- For models without tool calling support
+- Pattern matching detects search-worthy queries
+- Keywords: "latest", "current", "price", "weather", "news"
+
+#### Tool Calling Architecture
+
+**Location**: `lib/tools.ts`
+
+```typescript
+// Tool definition for OpenRouter
+export const webSearchTool: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "web_search",
+    description: `Search the web for current information...`,
+    parameters: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description: "The search query"
+        }
+      },
+      required: ["query"]
+    }
+  }
+}
+
+// Model support check
+export function modelSupportsToolCalling(modelId: string): boolean {
+  const supportedPatterns = [
+    'gpt-5', 'gpt-4o', 'gpt-4-turbo',
+    'claude-4', 'claude-3.5',
+    'gemini-2.5', 'gemini-2',
+    'grok-4', 'grok-code',
+    'deepseek-v3', 'llama-4', 'qwen3'
+  ]
+  return supportedPatterns.some(p => modelId.toLowerCase().includes(p))
+}
+```
+
+#### Search Flow with Tool Calling
+
+```
+1. User sends message
+      ↓
+2. Check search strategy:
+   ├── Manual toggle ON? → Manual search before streaming
+   ├── Model supports tool calling? → Enable auto search
+   └── Neither? → Use heuristics fallback
+      ↓
+3. If tool calling enabled:
+   a. Pass tools array to OpenRouter
+   b. AI decides: "I need current info" → triggers web_search
+   c. API route executes search
+   d. Results returned to AI
+   e. AI incorporates results into response
+      ↓
+4. Show toast notifications:
+   - "🤖 AI is searching the web..."
+   - "✅ Search complete"
+      ↓
+5. Stream final response with search results
+```
+
+#### Search Providers
 
 **Tavily:**
 - Purpose-built for AI/LLM
 - Extracts direct answers
 - Advanced/basic depth modes
-- Domain filtering
 - $1 per 1K searches
 
 **Serper:**
 - Real Google Search API
-- Image/news/video search included
 - Country/language targeting
-- Time-range filtering
 - **$0.20 per 1K searches (5x cheaper!)**
 
-#### When Search Triggers
+---
 
-**Automatic detection:**
-```typescript
-function needsWebSearch(message: string): boolean {
-  const triggers = [
-    /latest|recent|current|today|news/i,
-    /price|cost|how much/i,
-    /weather|temperature/i,
-    /\d{4}/ && /event|happen/i, // Years + events
-  ];
-  return triggers.some(regex => regex.test(message));
-}
-```
+### 10. MCP Integration (Model Context Protocol) 🔧
 
-**Manual trigger:**
-- User says "search for..."
-- Settings toggle "Always search"
+**Location**: `components/mcp-settings.tsx`, `docs/MCP_GUIDE.md`
 
-#### Search Flow
+MCP allows extending AI capabilities with external tools and data sources.
+
+#### What is MCP?
+
+Model Context Protocol is a standard for connecting AI models to external services:
+- **Tools**: Execute actions (run code, access APIs, file operations)
+- **Resources**: Access data (databases, filesystems, APIs)
+- **Prompts**: Predefined conversation templates
+
+#### MCP Settings UI
 
 ```
-1. Detect search needed (auto or manual)
-      ↓
-2. Extract search query from message
-      ↓
-3. Call /api/search (Tavily) or /api/serper (Google)
-      ↓
-4. Parse results (title, snippet, URL, image)
-      ↓
-5. Format for LLM context (markdown)
-      ↓
-6. Inject into system prompt as additional context
-      ↓
-7. LLM generates response using search results
-      ↓
-8. Cite sources in response (markdown links)
+┌─────────────────────────────────────────────────┐
+│ MCP Server Configuration                        │
+├─────────────────────────────────────────────────┤
+│ 📦 Installed Servers                            │
+│   ├── filesystem (enabled)                      │
+│   ├── github (enabled)                          │
+│   └── postgres (disabled)                       │
+├─────────────────────────────────────────────────┤
+│ 🛒 Available Templates (22 presets)             │
+│   Categories: Development, Data, Productivity,  │
+│   AI, Communication, Other                      │
+├─────────────────────────────────────────────────┤
+│ Import/Export Configuration                     │
+└─────────────────────────────────────────────────┘
 ```
+
+#### Serverless Limitations
+
+⚠️ **Important**: MCP servers require persistent processes, which are not compatible with serverless deployment (Vercel, Netlify, etc.).
+
+**For serverless environments:**
+- MCP configuration is stored but not executed
+- Export config for use with local Claude Desktop
+- Consider self-hosted deployment for full MCP support
+
+#### Available Templates
+
+| Category | Servers |
+|----------|---------|
+| Development | filesystem, github, gitlab, brave-search |
+| Data | postgres, sqlite, redis, google-drive |
+| Productivity | google-calendar, notion, linear, slack |
+| AI | openai, anthropic, langchain |
+| Communication | email, discord, telegram |
+
+**Key Files:**
+- `components/mcp-settings.tsx` - Settings UI
+- `docs/MCP_GUIDE.md` - Comprehensive guide
 
 ---
 
