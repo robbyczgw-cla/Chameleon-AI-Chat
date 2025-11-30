@@ -860,11 +860,10 @@ export function SimpleChatApp() {
           {/* Chat Area */}
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {isEmpty ? (
-              /* Welcome Screen - Blocks Style */
-              <div className="flex-1 flex flex-col overflow-y-auto">
-                {/* Centered welcome content */}
-                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
-                  <div className="w-full max-w-3xl mx-auto text-center space-y-6 sm:space-y-8 px-2 sm:px-4">
+              /* Welcome Screen - Match chat view structure exactly */
+              <>
+                <div className="flex-1 overflow-y-auto flex items-center justify-center p-4 sm:p-8">
+                  <div className="max-w-3xl w-full text-center space-y-6 sm:space-y-8">
                     {/* Greeting - Clean & Modern */}
                     <div className="space-y-3">
                       <div className="flex justify-center mb-3 sm:mb-4">
@@ -893,15 +892,14 @@ export function SimpleChatApp() {
                     </div>
                   </div>
                 </div>
-
-                {/* Blocks-style Input at bottom with quick prompts */}
+                {/* Blocks-style Input at bottom - outside scroll area like chat view */}
                 <BlocksChatInput
                   selectedPersona={selectedPersona || undefined}
                   profileContext={profileContext}
                   quickPrompts={getPersonaTips(selectedPersona?.id || "default", lang).slice(0, 3)}
                   onQuickPrompt={handleQuickPrompt}
                 />
-              </div>
+              </>
             ) : (
               /* Chat View */
               <>
