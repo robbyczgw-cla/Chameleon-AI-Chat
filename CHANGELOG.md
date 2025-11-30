@@ -6,6 +6,156 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 ---
 
+## [0.8.0-alpha] - 2025-11-30
+
+### Mobile Design System
+- **Design Tokens** - Centralized design system for consistent mobile UI
+  - 8px grid-based spacing system
+  - Touch target sizes (44px minimum for accessibility)
+  - Toggle/switch dimensions standardized
+  - Button, input, and typography scales
+  - Files: `lib/mobile-design-tokens.ts`
+- **Mobile Components** - Touch-optimized component library
+  - MobileButton, MobileIconButton with proper touch targets
+  - MobileNavItem, MobileChip, MobileListItem
+  - MobileSafeArea for notch/home indicator handling
+  - Files: `components/ui/mobile-components.tsx`
+- **Toggle Redesign** - Cleaner, smaller pill-slider toggles
+  - Replaced bulky round toggles with slim pill design
+  - 32x16px track with 10px thumb
+  - Inline styles to force dimensions (CSS specificity fix)
+  - Files: `components/ui/switch.tsx`
+
+### ChatInput Refactoring Foundation
+- **State Management** - useReducer pattern for ChatInput
+  - Centralized state with predictable transitions
+  - 15+ action types for all input operations
+  - Memoized action creators for performance
+  - Files: `hooks/use-chat-input-state.ts`
+- **Voice Input Hook** - Extracted voice recording logic
+  - OpenAI Whisper integration
+  - Haptic feedback on voice events
+  - Files: `hooks/use-voice-input.ts`
+
+### Feature Cleanup
+- **Removed Background Agents** - Deleted unused Chameleon Agents system
+  - Weather and price tracking agents removed
+  - Updated documentation to reflect removal
+  - Deleted: `lib/background-agents.ts`, `components/background-agents-dialog.tsx`
+- **Removed MCP** - Deleted non-functional MCP integration
+  - 6 TODOs indicated incomplete implementation
+  - Deleted: `lib/mcp-client.ts`, `components/mcp-manager.tsx`, `app/api/mcp/route.ts`
+  - Removed MCP settings tab
+
+### Bug Fixes
+- **Settings Sync Race Condition** - Fixed stale state overwrites
+  - Only sync settings when dialog opens, not continuously
+  - Prevents losing user settings on fast interactions
+  - Files: `components/settings-dialog.tsx`
+- **Server Icon Import** - Fixed crash after LM Studio settings access
+  - Restored missing lucide-react Server icon import
+- **Mobile UI Consistency** - Multiple fixes for mobile layout
+  - Switch toggle sizing and centering
+  - Header button sizes
+  - Tab and nav bar consistency
+  - Chat bubble overflow and text clipping
+  - Sidebar chat bubble fixed widths
+
+### Web Search Improvements
+- **OpenRouter Tool Calling** - Automatic web search integration
+  - Tool calling support for November 2025 models
+  - Files: `lib/chat-service.ts`
+
+### UI Modernization
+- **Glassmorphism Layout** - 2024/2025 UI trends
+  - Modern glass-effect styling
+  - Improved visual hierarchy
+  - Enhanced mobile aesthetics
+
+### PWA Stability
+- **Service Worker Fixes** - Improved caching and navigation
+  - Network-first navigation with cache fallback
+  - Proper handling of redirected responses
+  - Skip root navigation in SW to avoid redirect issues
+  - Fix 'page not available' after login
+- **Aggressive Precaching** - Faster app loading
+  - Fixed Android resume issue
+- **Chat Action Buttons** - Always visible on touch devices
+  - Removed hover-only logic for mobile accessibility
+
+### Memory System Improvements
+- **Database Sync** - Cloud sync for memories
+  - Toggle to sync memories to Supabase database
+  - Privacy controls for sensitive data
+  - Files: `lib/memory-service.ts`
+
+### Sidebar Improvements
+- **Fixed Width Layout** - Consistent 300px sidebar
+  - Prevents narrowing on medium screens
+  - Proper right padding for hover buttons
+- **Chat Preview** - Fixed text truncation issues
+  - Rebuilt chat items component
+  - Button positioning improvements
+  - Delete dialog width fixes
+
+### Commits (2025-11-30)
+- `dbf9bbc` fix: Add Server icon back to imports (used in LM Studio settings)
+- `e4940fa` feat: Add mobile design system and ChatInput refactoring foundation
+- `ce0d700` fix: Remove broken MCP feature and fix settings sync race condition
+
+### Commits (2025-11-29)
+- `6db81f1` feat: Remove background agents feature and update documentation
+- `62abc1e` fix: Force switch dimensions with inline styles
+- `a1535f2` fix: Make toggle switches even smaller and more pill-shaped
+- `b567492` feat: Redesign toggles as smaller, cleaner pill sliders
+- `d3d4c01` Merge pull request #129 from robbyczgw-cla/claude/fix-mobile-ui-bugs
+- `3135096` fix: Smaller, properly centered switch toggle
+- `4497f87` Merge pull request #128 from robbyczgw-cla/claude/fix-mobile-ui-bugs
+- `515692f` fix: Improve mobile UI consistency - switches, tabs, and nav bar
+- `a4f5b8a` Merge pull request #127 from robbyczgw-cla/claude/optimize-pwa-performance
+- `8958d50` fix: Adjust Switch toggle size and header button sizes
+- `c962e92` Merge pull request #126 from robbyczgw-cla/claude/optimize-pwa-performance
+- `52616c1` fix: Fix toggle button sizing and switch thumb clipping
+- `96385f2` fix: Make mobile toggle buttons compact and consistent with nav bar
+- `a2cf7ad` Merge pull request #125 from robbyczgw-cla/claude/optimize-pwa-performance
+- `1f0c1c2` fix: Update tool calling support for November 2025 models
+- `9c9d97d` feat: Add automatic web search with OpenRouter tool calling
+- `d5d40e8` Merge pull request #124 from robbyczgw-cla/claude/optimize-pwa-performance
+- `1722911` fix: Fix sidebar chat bubble overflow with fixed pixel widths
+- `f167954` Merge pull request #123 from robbyczgw-cla/claude/optimize-pwa-performance
+- `a84bd55` fix: Fix chat bubble overflow and text clipping issues
+- `8c833d8` Merge pull request #122 from robbyczgw-cla/claude/optimize-pwa-performance
+- `d9d921c` fix: Make chat action buttons always visible (removed hover-only logic)
+- `e787400` Merge pull request #121 from robbyczgw-cla/claude/optimize-pwa-performance
+- `ada72a5` fix: UI fixes for mobile bottom nav, sidebar buttons, and chat actions
+- `731ad50` fix: Simplify to network-first navigation with cache fallback only
+- `2067886` fix: Skip root navigation in SW to avoid redirect issues
+- `4fa201e` fix: Properly handle redirected responses in service worker
+- `1053fbe` fix: Fix 'page not available' after login by handling redirects properly
+- `31a054a` feat: Modernize mobile layout with glassmorphism and 2024/2025 UI trends
+- `fb55018` Merge pull request #120 from robbyczgw-cla/claude/optimize-pwa-performance
+- `a7956f0` feat: Optimize PWA with aggressive precaching and fix Android resume issue
+
+### Commits (2025-11-28)
+- `8e6bac1` Merge pull request #119 from robbyczgw-cla/claude/fix-sidebar-text-truncation
+- `63ef489` fix: Sidebar inline buttons and memory JSON parsing
+- `b6d7d6a` Merge pull request #118 from robbyczgw-cla/claude/fix-sidebar-text-truncation
+- `bac397d` feat: Implement database sync for memories
+- `d7c056e` feat: Add database sync toggle for memories with privacy controls
+- `63461aa` fix: Rebuild sidebar chat items from scratch
+- `7a9430e` Merge pull request #117 from robbyczgw-cla/claude/fix-sidebar-text-truncation
+- `7175954` fix: Sidebar inline buttons and memory JSON parsing
+- `0629db4` Merge pull request #116 from robbyczgw-cla/fix/sidebar-chat-preview
+- `4f3aa0e` fix: sidebar chat preview text cutoff
+- `42bc30e` Merge pull request #115 from robbyczgw-cla/claude/fix-sidebar-text-truncation
+- `b8a2fae` fix: Sidebar button positioning and delete dialog width
+- `747a6a2` Merge pull request #114 from robbyczgw-cla/claude/fix-sidebar-text-truncation
+- `4169381` fix: Set consistent sidebar width of 300px (was getting narrower on md screens)
+- `a114f50` Merge pull request #113 from robbyczgw-cla/claude/fix-sidebar-text-truncation
+- `4aa4265` fix: Add proper right padding to sidebar chat items for hover buttons
+
+---
+
 ## [0.7.0-alpha] - 2025-11-26
 
 ### Message Editing & Content Management
@@ -288,6 +438,7 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.8.0-alpha | 2025-11-30 | Mobile design system, toggle redesign, removed MCP/agents, ChatInput refactor |
 | 0.7.0-alpha | 2025-11-26 | Message editing, full-text search, AI titles, PWA stability |
 | 0.6.0-alpha | 2025-11-24 | Context window meter, pet companion, performance mode |
 | 0.5.0-alpha | 2025-11-20 | Simple Mode, TTS, gamification, PWA enhancements |
