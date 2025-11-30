@@ -133,14 +133,24 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
       }
     }
 
+    const handleStopGeneration = () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+        abortControllerRef.current = null
+        setIsChatLoading(false)
+      }
+    }
+
     window.addEventListener("insertPrompt" as any, handleInsertPrompt)
     window.addEventListener("setImageMode" as any, handleSetImageMode)
     window.addEventListener("sendQuickMessage" as any, handleSendQuickMessage)
+    window.addEventListener("stopGeneration" as any, handleStopGeneration)
 
     return () => {
       window.removeEventListener("insertPrompt" as any, handleInsertPrompt)
       window.removeEventListener("setImageMode" as any, handleSetImageMode)
       window.removeEventListener("sendQuickMessage" as any, handleSendQuickMessage)
+      window.removeEventListener("stopGeneration" as any, handleStopGeneration)
     }
   }, [isChatLoading])
 

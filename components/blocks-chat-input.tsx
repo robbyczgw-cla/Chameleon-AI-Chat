@@ -33,7 +33,16 @@ import {
   Globe,
   Lightbulb,
   ArrowUp,
+  Sparkles,
+  Paperclip,
+  Image,
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface BlocksChatInputProps {
   selectedPersona?: Persona
@@ -59,6 +68,7 @@ export function BlocksChatInput({
   const [input, setInput] = useState("")
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Restore draft when hook is ready
   useEffect(() => {
@@ -156,6 +166,11 @@ export function BlocksChatInput({
       setInput(prompt)
       setTimeout(() => formRef.current?.requestSubmit(), 50)
     }
+  }
+
+  // Stop generation by dispatching event to SimpleChatInput
+  const stopGeneration = () => {
+    window.dispatchEvent(new CustomEvent("stopGeneration"))
   }
 
   return (
