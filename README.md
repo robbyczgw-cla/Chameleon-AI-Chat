@@ -373,6 +373,7 @@ MIT License - see [LICENSE](LICENSE)
 - [Supabase](https://supabase.com) - Backend & auth
 - [OpenRouter](https://openrouter.ai) - AI model access
 - [shadcn/ui](https://ui.shadcn.com) - UI components
+- [blocks](https://github.com/ephraimduncan/blocks) by Ephraim Duncan - Chat input UI inspiration
 - The open source community ❤️
 
 ---
