@@ -782,6 +782,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
               {/* Detailed Stats for assistant messages (when enabled in experimental streaming settings) */}
               {message.role === "assistant" &&
+               isAdvancedMode &&
                settings.experimental?.streamingVisualization?.showDetailedStats !== false && (
                 <MessageStats message={message} />
               )}

@@ -70,6 +70,24 @@ const interestOptions = {
     { id: "languages", emoji: "🌍", label: "Sprachen" },
     { id: "diy", emoji: "🔧", label: "DIY & Basteln" },
   ],
+  es: [
+    { id: "tech", emoji: "💻", label: "Tecnología" },
+    { id: "art", emoji: "🎨", label: "Arte y Diseño" },
+    { id: "music", emoji: "🎵", label: "Música" },
+    { id: "gaming", emoji: "🎮", label: "Videojuegos" },
+    { id: "sports", emoji: "⚽", label: "Deportes" },
+    { id: "travel", emoji: "✈️", label: "Viajes" },
+    { id: "food", emoji: "🍕", label: "Comida y Cocina" },
+    { id: "books", emoji: "📚", label: "Libros y Lectura" },
+    { id: "movies", emoji: "🎬", label: "Películas y TV" },
+    { id: "science", emoji: "🔬", label: "Ciencia" },
+    { id: "fitness", emoji: "💪", label: "Fitness" },
+    { id: "nature", emoji: "🌿", label: "Naturaleza" },
+    { id: "photography", emoji: "📷", label: "Fotografía" },
+    { id: "business", emoji: "💼", label: "Negocios" },
+    { id: "languages", emoji: "🌍", label: "Idiomas" },
+    { id: "diy", emoji: "🔧", label: "Bricolaje y Manualidades" },
+  ],
 }
 
 // Goal options
@@ -89,6 +107,14 @@ const goalOptions = {
     { id: "fun", emoji: "🎉", label: "Spaß haben" },
     { id: "work", emoji: "💼", label: "Bei der Arbeit helfen" },
     { id: "writing", emoji: "✍️", label: "Besser schreiben" },
+  ],
+  es: [
+    { id: "learn", emoji: "🎓", label: "Aprender cosas nuevas" },
+    { id: "creative", emoji: "✨", label: "Obtener ayuda creativa" },
+    { id: "productive", emoji: "📈", label: "Ser más productivo" },
+    { id: "fun", emoji: "🎉", label: "Tener conversaciones divertidas" },
+    { id: "work", emoji: "💼", label: "Ayuda con el trabajo" },
+    { id: "writing", emoji: "✍️", label: "Mejorar mi escritura" },
   ],
 }
 
@@ -206,6 +232,62 @@ const translations = {
     configured: "Konfiguriert",
     optional: "optional",
   },
+  es: {
+    welcome: "Bienvenido a Chameleon AI",
+    welcomeDesc: "Configuremos tu asistente de IA personal en solo unos pasos.",
+    step1Title: "Acerca de Ti",
+    step1Desc: "Cuéntanos un poco sobre ti para respuestas personalizadas.",
+    yourName: "Tu Nombre",
+    namePlaceholder: "¿Cómo debería llamarte?",
+    nameRequired: "El nombre es obligatorio para continuar",
+    occupation: "¿A qué te dedicas?",
+    occupationPlaceholder: "ej., Estudiante, Desarrollador, Diseñador",
+    location: "¿De dónde eres?",
+    locationPlaceholder: "ej., Madrid, Barcelona, Buenos Aires",
+    aboutMe: "Cuéntame sobre ti",
+    aboutMePlaceholder: "Cualquier cosa que te gustaría que la IA sepa sobre ti...",
+    step2Title: "Tus Intereses",
+    step2Desc: "Selecciona lo que te interesa - ¡esto ayuda a personalizar tu experiencia!",
+    selectInterests: "Elige tus intereses",
+    selectGoals: "¿Qué quieres lograr?",
+    step3Title: "Personalizar",
+    step3Desc: "Elige tu idioma y tema.",
+    language: "Idioma",
+    theme: "Tema",
+    preview: "Vista Previa",
+    step4Title: "Claves API",
+    step4Desc: "Añade tus claves API para comenzar a chatear.",
+    openRouterKey: "Clave API de OpenRouter",
+    openRouterDesc: "Requerido para chat IA. ¡Nivel gratuito disponible!",
+    getKey: "Obtener tu clave",
+    openAIKey: "Clave API de OpenAI (opcional)",
+    openAIDesc: "Para entrada de voz y salida de voz premium",
+    serperKey: "Clave API de Serper (opcional)",
+    serperDesc: "Para búsqueda web - ¡2,500 búsquedas gratis!",
+    step5Title: "¡Todo listo!",
+    step5Desc: "Tu asistente de IA está listo. Aquí está una vista previa de tu configuración:",
+    back: "Atrás",
+    next: "Siguiente",
+    skip: "Omitir por ahora",
+    getStarted: "Comenzar",
+    step: "Paso",
+    of: "de",
+    themeLight: "Claro",
+    themeDark: "Oscuro",
+    themeCosmicGlass: "Cosmic Glass",
+    themeModernLight: "Modern Light",
+    themeGirlyViolet: "Girly Violet",
+    themeOceanBreeze: "Ocean Breeze",
+    yourProfile: "Tu Perfil",
+    yourInterests: "Tus Intereses",
+    yourGoals: "Tus Objetivos",
+    appearance: "Apariencia",
+    apiStatus: "Estado API",
+    ready: "Listo",
+    notConfigured: "No configurado",
+    configured: "Configurado",
+    optional: "opcional",
+  },
 }
 
 interface SimpleModeOnboardingProps {
@@ -233,10 +315,10 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
   const totalSteps = 5
 
   // Get translations based on language
-  const lang = localSettings.language === "de" ? "de" : "en"
-  const t = translations[lang]
-  const interests = interestOptions[lang]
-  const goals = goalOptions[lang]
+  const lang = localSettings.language === "de" ? "de" : localSettings.language === "es" ? "es" : "en"
+  const t = translations[lang as keyof typeof translations]
+  const interests = interestOptions[lang as keyof typeof interestOptions]
+  const goals = goalOptions[lang as keyof typeof goalOptions]
 
   useEffect(() => {
     if (open) {
