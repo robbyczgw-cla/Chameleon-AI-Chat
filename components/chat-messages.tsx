@@ -30,7 +30,7 @@ import type { MessageContent } from "@/types"
 import { contentToText } from "@/lib/multimodal-utils"
 import { RichContentParser } from "@/lib/rich-content-parser"
 import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
-import { MessageStatus, MessageStatusVerbose } from "@/components/message-status"
+import { MessageStatus, MessageStatusVerbose, StreamingHistoryDisplay } from "@/components/message-status"
 
 interface ChatMessagesProps {
   currentPersona?: Persona
@@ -158,6 +158,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [speakingId, setSpeakingId] = useState<string | null>(null)
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set())
+  const [expandedStreamingHistory, setExpandedStreamingHistory] = useState<Set<string>>(new Set())
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState("")
   const { toast } = useToast()
@@ -167,6 +168,18 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
   const toggleReasoning = useCallback((messageId: string) => {
     setExpandedReasoning(prev => {
+      const next = new Set(prev)
+      if (next.has(messageId)) {
+        next.delete(messageId)
+      } else {
+        next.add(messageId)
+      }
+      return next
+    })
+  }, [])
+
+  const toggleStreamingHistory = useCallback((messageId: string) => {
+    setExpandedStreamingHistory(prev => {
       const next = new Set(prev)
       if (next.has(messageId)) {
         next.delete(messageId)
@@ -543,6 +556,17 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                           alt={contentToText(message.content)}
                           className="w-full h-auto object-contain max-h-[500px] bg-muted/30"
                           loading="lazy"
+                        />
+                      </div>
+                    )}
+                    {/* Streaming History Display (Advanced mode only) */}
+                    {isAdvancedMode && message.streamingHistory && message.streamingHistory.length > 0 && (
+                      <div className="mb-3">
+                        <StreamingHistoryDisplay
+                          history={message.streamingHistory}
+                          language={settings.language as "en" | "de" | "es"}
+                          collapsed={!expandedStreamingHistory.has(message.id)}
+                          onToggle={() => toggleStreamingHistory(message.id)}
                         />
                       </div>
                     )}

@@ -567,13 +567,127 @@ User sends message
 
 ---
 
+## 8. Streaming History on Completed Messages
+
+For advanced mode, you can show the streaming history at the top of completed assistant messages. This gives users visibility into how the response was generated.
+
+### Types
+
+Add the `StreamingHistoryEntry` type and include it in messages:
+
+```typescript
+// types/index.ts
+export interface StreamingHistoryEntry {
+  phase: "thinking" | "searching" | "tool_use" | "responding" | "done"
+  timestamp: number
+  detail?: string // e.g., search query, tool name
+  duration?: number // time spent in this phase (ms)
+}
+
+export interface Message {
+  // ... existing fields ...
+  streamingHistory?: StreamingHistoryEntry[] // History of streaming phases
+}
+```
+
+### Context Functions
+
+Add history tracking functions to your context:
+
+```typescript
+// contexts/app-context.tsx
+const streamingHistoryRef = useRef<StreamingHistoryEntry[]>([])
+
+const addStreamingHistoryEntry = (entry: Omit<StreamingHistoryEntry, "timestamp">) => {
+  const now = Date.now()
+  // Calculate duration from previous entry
+  const prevEntry = streamingHistoryRef.current[streamingHistoryRef.current.length - 1]
+  if (prevEntry && !prevEntry.duration) {
+    prevEntry.duration = now - prevEntry.timestamp
+  }
+  streamingHistoryRef.current.push({ ...entry, timestamp: now })
+}
+
+const clearStreamingHistory = () => {
+  streamingHistoryRef.current = []
+}
+
+const getStreamingHistory = () => {
+  // Calculate final duration if needed
+  const history = [...streamingHistoryRef.current]
+  if (history.length > 0) {
+    const lastEntry = history[history.length - 1]
+    if (!lastEntry.duration) {
+      lastEntry.duration = Date.now() - lastEntry.timestamp
+    }
+  }
+  return history
+}
+```
+
+### Track History in Chat Input
+
+```typescript
+// At start of request
+setStreamingPhase("thinking")
+clearStreamingHistory()
+addStreamingHistoryEntry({ phase: "thinking" })
+
+// In phase callbacks
+onPhaseChange: (phase) => {
+  setStreamingPhase(phase)
+  addStreamingHistoryEntry({ phase })
+},
+onToolUse: (toolName) => {
+  setCurrentTool(toolName)
+  addStreamingHistoryEntry({ phase: "tool_use", detail: toolName })
+},
+onSearchQuery: (query) => {
+  setSearchQuery(query)
+  addStreamingHistoryEntry({ phase: "searching", detail: query })
+},
+
+// Save to final message
+const streamingHistoryForMessage = getStreamingHistory()
+const finalMessage: Message = {
+  // ... other fields ...
+  ...(streamingHistoryForMessage.length > 0 ? { streamingHistory: streamingHistoryForMessage } : {}),
+}
+```
+
+### Display Component
+
+Use `StreamingHistoryDisplay` from `message-status.tsx`:
+
+```typescript
+import { StreamingHistoryDisplay } from "@/components/message-status"
+
+// In your message rendering (advanced mode only)
+{isAdvancedMode && message.streamingHistory && message.streamingHistory.length > 0 && (
+  <div className="mb-3">
+    <StreamingHistoryDisplay
+      history={message.streamingHistory}
+      language={settings.language}
+      collapsed={!expandedStreamingHistory.has(message.id)}
+      onToggle={() => toggleStreamingHistory(message.id)}
+    />
+  </div>
+)}
+```
+
+The `StreamingHistoryDisplay` component shows:
+- **Collapsed**: Summary with total time and phase badges
+- **Expanded**: Full list of phases with durations and a time distribution bar
+
+---
+
 ## Summary
 
 | Component | Purpose |
 |-----------|---------|
 | `app/api/chat/route.ts` | Emit phase SSE events |
 | `lib/openrouter.ts` | Parse events, call callbacks |
-| `contexts/app-context.tsx` | Global phase state |
-| `components/*-chat-input.tsx` | Connect callbacks |
-| `components/message-status.tsx` | Render visualization |
-| `components/chat-messages.tsx` | Display during loading |
+| `contexts/app-context.tsx` | Global phase state + history tracking |
+| `components/*-chat-input.tsx` | Connect callbacks, track history |
+| `components/message-status.tsx` | Render visualization + history display |
+| `components/chat-messages.tsx` | Display during loading + show history on completed messages |

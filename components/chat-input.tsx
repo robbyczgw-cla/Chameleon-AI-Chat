@@ -36,7 +36,7 @@ import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { useDraft } from "@/hooks/use-draft"
 
 export function ChatInput() {
-  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading, setStreamingPhase, setCurrentTool, setSearchQuery } = useApp()
+  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading, setStreamingPhase, setCurrentTool, setSearchQuery, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
   const currentChat = chats.find((c) => c.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
 
@@ -373,6 +373,9 @@ export function ChatInput() {
     setIsChatLoading(true) // Triggers loading animation in ChatMessages
     // Set initial streaming phase immediately for step-by-step visualization
     setStreamingPhase("thinking")
+    // Clear and start streaming history for verbose display
+    clearStreamingHistory()
+    addStreamingHistoryEntry({ phase: "thinking" })
 
     // Handle image generation mode - always use Gemini 3 Pro Image Preview
     if (imageMode) {
@@ -785,14 +788,17 @@ export function ChatInput() {
         onPhaseChange: (phase) => {
           console.log("[Advanced Chat] 📍 Phase change:", phase)
           setStreamingPhase(phase)
+          addStreamingHistoryEntry({ phase })
         },
         onToolUse: (toolName) => {
           console.log("[Advanced Chat] 🔧 Tool use:", toolName)
           setCurrentTool(toolName)
+          addStreamingHistoryEntry({ phase: "tool_use", detail: toolName })
         },
         onSearchQuery: (query) => {
           console.log("[Advanced Chat] 🔍 Search query:", query)
           setSearchQuery(query)
+          addStreamingHistoryEntry({ phase: "searching", detail: query })
         },
       })
 
@@ -802,6 +808,9 @@ export function ChatInput() {
         const completionTokens = estimateTokens(assistantContent)
         const totalTokens = promptTokens + completionTokens
         const estimatedCost = calculateCost(promptTokens, completionTokens, model)
+
+        // Get streaming history for verbose display on completed messages
+        const streamingHistoryForMessage = getStreamingHistory()
 
         const finalMessage: Message = {
           id: assistantMessageId,
@@ -814,6 +823,7 @@ export function ChatInput() {
             total: totalTokens,
           },
           ...(reasoningContent ? { reasoning: reasoningContent } : {}),
+          ...(streamingHistoryForMessage.length > 0 ? { streamingHistory: streamingHistoryForMessage } : {}),
         }
 
         if (user) {
@@ -842,7 +852,7 @@ export function ChatInput() {
           return prevChats.map((chat) => {
             if (chat.id !== chatId) return chat
             const updatedMessages = chat.messages.map((m) =>
-              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, reasoning: finalMessage.reasoning } : m,
+              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, reasoning: finalMessage.reasoning, streamingHistory: finalMessage.streamingHistory } : m,
             )
             return { ...chat, messages: updatedMessages }
           })

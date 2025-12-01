@@ -12,6 +12,16 @@ export interface MessageContentPart {
   }
 }
 
+/**
+ * Streaming history entry for step-by-step visualization
+ */
+export interface StreamingHistoryEntry {
+  phase: "thinking" | "searching" | "tool_use" | "responding" | "done"
+  timestamp: number
+  detail?: string // e.g., search query, tool name
+  duration?: number // time spent in this phase (ms)
+}
+
 export interface Message {
   id: string
   role: "user" | "assistant" | "system"
@@ -36,6 +46,7 @@ export interface Message {
     searchResults?: number
     searchProvider?: string
   }
+  streamingHistory?: StreamingHistoryEntry[] // History of streaming phases for verbose display
   branches?: ConversationBranch[] // Alternate conversation paths from this message
 }
 

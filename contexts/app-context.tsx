@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from "react"
-import type { Chat, AppSettings, Message, ChatFolder, ComparisonSession } from "@/types"
+import type { Chat, AppSettings, Message, ChatFolder, ComparisonSession, StreamingHistoryEntry } from "@/types"
 import type { StreamingPhase } from "@/components/message-status"
 import { createClient } from "@/lib/supabase/client"
 import { supabaseSync } from "@/lib/supabase/sync"
@@ -31,6 +31,11 @@ interface AppContextType {
   setCurrentTool: (tool: string | null) => void
   searchQuery: string | null
   setSearchQuery: (query: string | null) => void
+  // Streaming history for completed messages
+  streamingHistory: StreamingHistoryEntry[]
+  addStreamingHistoryEntry: (entry: Omit<StreamingHistoryEntry, "timestamp">) => void
+  clearStreamingHistory: () => void
+  getStreamingHistory: () => StreamingHistoryEntry[]
   chatAbortControllerRef: React.MutableRefObject<AbortController | null>
   stopChatGeneration: () => void
   createChat: (model?: string) => string
@@ -125,6 +130,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [streamingPhase, setStreamingPhase] = useState<StreamingPhase>("idle")
   const [currentTool, setCurrentTool] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState<string | null>(null)
+
+  // Streaming history for verbose display on completed messages
+  const streamingHistoryRef = useRef<StreamingHistoryEntry[]>([])
+  const streamingStartTimeRef = useRef<number>(0)
+
+  const addStreamingHistoryEntry = (entry: Omit<StreamingHistoryEntry, "timestamp">) => {
+    const now = Date.now()
+    // Calculate duration from previous entry
+    const prevEntry = streamingHistoryRef.current[streamingHistoryRef.current.length - 1]
+    if (prevEntry && !prevEntry.duration) {
+      prevEntry.duration = now - prevEntry.timestamp
+    }
+    streamingHistoryRef.current.push({
+      ...entry,
+      timestamp: now,
+    })
+  }
+
+  const clearStreamingHistory = () => {
+    streamingHistoryRef.current = []
+    streamingStartTimeRef.current = Date.now()
+  }
+
+  const getStreamingHistory = () => {
+    // Calculate final duration if needed
+    const history = [...streamingHistoryRef.current]
+    if (history.length > 0) {
+      const lastEntry = history[history.length - 1]
+      if (!lastEntry.duration) {
+        lastEntry.duration = Date.now() - lastEntry.timestamp
+      }
+    }
+    return history
+  }
 
   // Shared abort controller for chat streaming - allows stopping from any component
   const chatAbortControllerRef = useRef<AbortController | null>(null)
@@ -1114,6 +1153,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setCurrentTool,
         searchQuery,
         setSearchQuery,
+        streamingHistory: streamingHistoryRef.current,
+        addStreamingHistoryEntry,
+        clearStreamingHistory,
+        getStreamingHistory,
         chatAbortControllerRef,
         stopChatGeneration,
         createChat,
