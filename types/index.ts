@@ -19,6 +19,7 @@ export interface StreamingHistoryEntry {
   phase: "thinking" | "searching" | "tool_use" | "responding" | "done"
   timestamp: number
   detail?: string // e.g., search query, tool name
+  description?: string // Human-readable description of what happened in this phase
   duration?: number // time spent in this phase (ms)
 }
 

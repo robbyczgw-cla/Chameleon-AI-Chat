@@ -375,7 +375,10 @@ export function ChatInput() {
     setStreamingPhase("thinking")
     // Clear and start streaming history for verbose display
     clearStreamingHistory()
-    addStreamingHistoryEntry({ phase: "thinking" })
+    addStreamingHistoryEntry({
+      phase: "thinking",
+      description: "Analyzing your message and planning response"
+    })
 
     // Handle image generation mode - always use Gemini 3 Pro Image Preview
     if (imageMode) {
@@ -788,17 +791,38 @@ export function ChatInput() {
         onPhaseChange: (phase) => {
           console.log("[Advanced Chat] 📍 Phase change:", phase)
           setStreamingPhase(phase)
-          addStreamingHistoryEntry({ phase })
+          const descriptions: Record<string, string> = {
+            thinking: "Processing context and formulating response",
+            responding: "Generating and streaming the response",
+            done: "Response completed"
+          }
+          addStreamingHistoryEntry({
+            phase,
+            description: descriptions[phase] || `Phase: ${phase}`
+          })
         },
         onToolUse: (toolName) => {
           console.log("[Advanced Chat] 🔧 Tool use:", toolName)
           setCurrentTool(toolName)
-          addStreamingHistoryEntry({ phase: "tool_use", detail: toolName })
+          const toolDescriptions: Record<string, string> = {
+            web_search: "Searching the internet for information",
+            calculator: "Performing mathematical calculations",
+            code_interpreter: "Executing and analyzing code"
+          }
+          addStreamingHistoryEntry({
+            phase: "tool_use",
+            detail: toolName,
+            description: toolDescriptions[toolName] || `Using ${toolName.replace(/_/g, " ")}`
+          })
         },
         onSearchQuery: (query) => {
           console.log("[Advanced Chat] 🔍 Search query:", query)
           setSearchQuery(query)
-          addStreamingHistoryEntry({ phase: "searching", detail: query })
+          addStreamingHistoryEntry({
+            phase: "searching",
+            detail: query,
+            description: `Searching web for: "${query}"`
+          })
         },
       })
 
