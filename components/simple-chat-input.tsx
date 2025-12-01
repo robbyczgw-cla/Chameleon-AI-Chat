@@ -36,7 +36,7 @@ interface SimpleChatInputProps {
 }
 
 export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
-  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration, setStreamingPhase, setCurrentTool, setSearchQuery } = useApp()
+  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration, setStreamingPhase, setCurrentTool, setSearchQuery, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
 
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
@@ -213,6 +213,9 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     setIsChatLoading(true)
     // Set initial streaming phase immediately for step-by-step visualization
     setStreamingPhase("thinking")
+    // Clear and start streaming history
+    clearStreamingHistory()
+    addStreamingHistoryEntry({ phase: "thinking" })
 
     // Handle image generation mode - always use Gemini 3 Pro Image Preview
     if (imageMode) {
@@ -588,14 +591,17 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         onPhaseChange: (phase) => {
           console.log("[Simple Chat] 📍 Phase change:", phase)
           setStreamingPhase(phase)
+          addStreamingHistoryEntry({ phase })
         },
         onToolUse: (toolName) => {
           console.log("[Simple Chat] 🔧 Tool use:", toolName)
+          addStreamingHistoryEntry({ phase: "tool_use", detail: toolName })
           setCurrentTool(toolName)
         },
         onSearchQuery: (query) => {
           console.log("[Simple Chat] 🔍 Search query:", query)
           setSearchQuery(query)
+          addStreamingHistoryEntry({ phase: "searching", detail: query })
         },
       })
 
@@ -607,6 +613,9 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         const completionTokens = estimateTokens(assistantContent)
         const totalTokens = promptTokens + completionTokens
         const estimatedCost = calculateCost(promptTokens, completionTokens, model)
+
+        // Get streaming history for verbose display
+        const streamingHistoryForMessage = getStreamingHistory()
 
         const finalMessage: Message = {
           id: assistantMessageId,
@@ -628,6 +637,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
             }),
           },
           ...(reasoningContent ? { reasoning: reasoningContent } : {}),
+          ...(streamingHistoryForMessage.length > 0 ? { streamingHistory: streamingHistoryForMessage } : {}),
         }
 
         if (user) {
