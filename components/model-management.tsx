@@ -245,7 +245,7 @@ export function ModelManagement() {
         </div>
       </ScrollArea>
 
-      {/* Add Models Dialog */}
+      {/* Add Models Dialog - nested prop ensures it renders above parent Advanced Settings dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
         setIsAddDialogOpen(open)
         if (!open) {
@@ -253,7 +253,7 @@ export function ModelManagement() {
           setSearchQuery("")
         }
       }}>
-        <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] !overflow-hidden flex flex-col bg-background">
+        <DialogContent nested className="w-[95vw] sm:max-w-2xl max-h-[90vh] !overflow-hidden flex flex-col bg-background">
           <DialogHeader>
             <DialogTitle className="text-base sm:text-lg">Add Models ({modelsToAdd.length} selected)</DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
