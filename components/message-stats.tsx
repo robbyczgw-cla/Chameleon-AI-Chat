@@ -11,19 +11,24 @@ export function MessageStats({ message }: MessageStatsProps) {
 
   const { stats, tokens } = message
 
-  // Calculate cost (rough estimates, adjust based on actual model pricing)
+  // Calculate cost based on realistic OpenRouter pricing (per 1M tokens)
+  // Using average pricing across popular models:
+  // - Budget models (Grok, DeepSeek): ~$0.20-0.50 per 1M
+  // - Mid-tier (GPT-4o, Gemini): ~$2.50-5.00 per 1M
+  // - Premium (Claude, GPT-4): ~$15-30 per 1M
+  // Average estimate: $1.00 input, $3.00 output per 1M tokens
   const calculateCost = () => {
     if (!tokens) return null
 
-    // Average pricing: $0.01 per 1K input tokens, $0.03 per 1K output tokens
-    const inputCost = (tokens.prompt / 1000) * 0.01
-    const outputCost = (tokens.completion / 1000) * 0.03
+    // Realistic average pricing: $1.00 per 1M input, $3.00 per 1M output
+    const inputCost = (tokens.prompt / 1_000_000) * 1.00
+    const outputCost = (tokens.completion / 1_000_000) * 3.00
     const total = inputCost + outputCost
 
     return {
-      input: inputCost.toFixed(4),
-      output: outputCost.toFixed(4),
-      total: total.toFixed(4)
+      input: inputCost.toFixed(6),
+      output: outputCost.toFixed(6),
+      total: total.toFixed(6)
     }
   }
 
