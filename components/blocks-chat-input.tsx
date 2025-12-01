@@ -97,9 +97,9 @@ export function BlocksChatInput({
     return saved === "true"
   })
 
-  // Check if current model supports reasoning
-  const model = overrideModel || settings.selectedModel || "x-ai/grok-4.1-fast"
-  const modelSupportsReasoning = REASONING_MODELS.has(model)
+  // Reasoning toggle is now available for ALL models
+  // OpenRouter gracefully ignores the reasoning parameter if model doesn't support it
+  const modelSupportsReasoning = true // Always true - let OpenRouter handle model compatibility
 
   // Auto-resize textarea
   useEffect(() => {
