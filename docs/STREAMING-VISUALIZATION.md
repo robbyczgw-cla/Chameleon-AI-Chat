@@ -1387,6 +1387,14 @@ Three predefined configurations for different use cases:
 - `showPhaseDurations` - Phase completion times
 - `showTimestamps` - Event timestamps
 
+**Detailed Stats Integration**
+- `showDetailedStats` - Show comprehensive post-completion statistics
+  - Token usage (prompt, completion, total)
+  - Cost estimates in USD
+  - Performance metrics (response time, tokens/sec, TTFT)
+  - Search statistics (time, results, provider)
+  - Integrated from existing MessageStats component
+
 ### Implementation
 
 #### Type Definition
@@ -1397,37 +1405,38 @@ export interface StreamingVisualizationSettings {
   showCurrentAction?: boolean
   showToolParameters?: boolean
   showSearchProvider?: boolean
-  
+
   // Search & Results
   showSearchResults?: boolean
   showResultSummary?: boolean
-  
+
   // Reasoning & Thinking
   showReasoningTokens?: boolean
   showExtendedThinking?: boolean
-  
-  // Performance Metrics
-  showTokenUsage?: boolean
-  showLatencyMetrics?: boolean
-  showStreamingSpeed?: boolean
-  showCostEstimates?: boolean
-  
+
+  // Performance Metrics (Real-time & Post-completion)
+  showDetailedStats?: boolean        // Post-completion comprehensive stats (NEW)
+  showTokenUsage?: boolean           // Real-time token counts during streaming
+  showLatencyMetrics?: boolean       // Time to first token (TTFT)
+  showStreamingSpeed?: boolean       // Tokens/second, chars/second
+  showCostEstimates?: boolean        // Real-time cost tracking
+
   // Context & Progress
   showContextUsage?: boolean
   showProgressIndicators?: boolean
   showEstimatedTime?: boolean
-  
+
   // Advanced Details
   showModelInfo?: boolean
   showGenerationId?: boolean
   showCacheStatus?: boolean
   showRetryAttempts?: boolean
   showToolChains?: boolean
-  
+
   // Warnings & Errors
   showRateLimitWarnings?: boolean
   showErrorDetails?: boolean
-  
+
   // Timing & Duration
   showPhaseDurations?: boolean
   showTimestamps?: boolean
@@ -1437,7 +1446,7 @@ export interface StreamingVisualizationSettings {
 #### Usage in Components
 
 ```typescript
-// In MessageStatusVerbose component
+// In MessageStatusVerbose component (real-time streaming)
 const { settings } = useApp()
 const vizSettings = settings?.experimental?.streamingVisualization || {}
 
@@ -1446,6 +1455,12 @@ const vizSettings = settings?.experimental?.streamingVisualization || {}
   <div className="reasoning-card">
     {/* Reasoning visualization */}
   </div>
+)}
+
+// In ChatMessages component (post-completion stats)
+{message.role === "assistant" &&
+ settings.experimental?.streamingVisualization?.showDetailedStats !== false && (
+  <MessageStats message={message} />
 )}
 ```
 
@@ -1466,6 +1481,85 @@ const showToolParameters = vizSettings.showToolParameters ?? true
 3. **Customization**: Tailor the experience to individual preferences
 4. **Learning**: New users can start minimal, advanced users can enable everything
 5. **Debugging**: Maximum mode provides comprehensive debugging information
+6. **Unified Control**: All streaming and stats visualization in one place
+
+### Detailed Stats Integration
+
+#### Overview
+
+The `showDetailedStats` setting integrates the existing MessageStats component into the streaming visualization settings system. Previously, this was a separate toggle in the main settings dialog. Now it's part of the comprehensive streaming visualization controls in the Experimental settings (Advanced Mode only).
+
+#### What It Shows
+
+When enabled, displays a comprehensive statistics panel at the end of each assistant message:
+
+**Token Information**
+- Prompt tokens used
+- Completion tokens generated
+- Total token count
+- Visual token usage bar
+
+**Cost Tracking**
+- Estimated cost in USD
+- Based on model pricing
+- Real-time calculation
+
+**Performance Metrics**
+- Total response time (seconds)
+- Tokens per second throughput
+- Time to first token (TTFT)
+- Characters per second
+
+**Search Statistics** (when web search was used)
+- Search provider used
+- Number of results returned
+- Search operation time
+
+#### Implementation Details
+
+```typescript
+// Previous location (REMOVED)
+// components/settings-dialog.tsx
+// Had a dedicated "Detailed Stats" toggle in main settings
+
+// New location (CURRENT)
+// Settings → Labs (Experimental) → Streaming Visualization → Performance Metrics
+// Integrated with other streaming visualization controls
+
+// Code change in chat-messages.tsx
+// Before:
+{message.role === "assistant" && settings.showDetailedStats && (
+  <MessageStats message={message} />
+)}
+
+// After:
+{message.role === "assistant" &&
+ settings.experimental?.streamingVisualization?.showDetailedStats !== false && (
+  <MessageStats message={message} />
+)}
+```
+
+#### Benefits of Integration
+
+1. **Centralized Control**: All streaming/stats visualization in one place
+2. **Better Organization**: Grouped with related performance metrics
+3. **Advanced Mode Only**: Appropriate level of detail for the target audience
+4. **Consistent UX**: Uses the same preset system (Minimal/Balanced/Maximum)
+5. **Default Enabled**: Part of "Balanced" and "Maximum" presets
+
+#### Preset Behavior
+
+- **Minimal**: Disabled (stats hidden)
+- **Balanced**: Enabled (recommended)
+- **Maximum**: Enabled (full transparency)
+
+#### Migration Notes
+
+For users upgrading from previous versions:
+- The old `settings.showDetailedStats` setting is deprecated
+- Functionality is now at `settings.experimental.streamingVisualization.showDetailedStats`
+- Defaults to `true` for maximum transparency
+- Can be toggled in Experimental settings → Streaming Visualization panel
 
 ### Best Practices
 
