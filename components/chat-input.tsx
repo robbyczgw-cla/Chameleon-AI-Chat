@@ -367,30 +367,19 @@ export function ChatInput() {
     setIsLoading(true)
     setIsChatLoading(true) // Triggers loading animation in ChatMessages
 
-    // Handle image generation mode
+    // Handle image generation mode - always use Gemini 3 Pro Image Preview
     if (imageMode) {
       try {
-        const currentChat = chats.find((c) => c.id === chatId)
-        const imageModel = currentChat?.model || settings.selectedModel
-
-        // Determine which API key to use
-        // DALL-E 2/3 use OpenAI API directly, everything else uses OpenRouter
-        const isDallE = imageModel === 'openai/dall-e-2' || imageModel === 'openai/dall-e-3'
-        const apiKey = isDallE
-          ? settings.apiKeys.openAI // Classic DALL-E needs OpenAI key
-          : settings.apiKeys.openRouter // GPT-5 Image, Gemini Image, etc. use OpenRouter
+        const imageModel = "google/gemini-3-pro-image-preview"
+        const apiKey = settings.apiKeys.openRouter
 
         if (!apiKey) {
-          throw new Error(
-            isDallE
-              ? 'OpenAI API key required for DALL-E. Add it in Settings → API Keys'
-              : 'OpenRouter API key required. Add it in Settings → API Keys'
-          )
+          throw new Error('OpenRouter API key required. Add it in Settings → API Keys')
         }
 
         toast({
-          title: "🎨 Generiere Bild...",
-          description: `Verwende ${imageModel}`,
+          title: "🎨 Generating image...",
+          description: "Using Gemini 3 Pro",
         })
 
         const response = await fetch('/api/generate-image', {
