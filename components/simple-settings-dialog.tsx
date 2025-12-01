@@ -663,14 +663,18 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   onCheckedChange={(checked) =>
                     setLocalSettings({
                       ...localSettings,
-                      memorySettings: {
-                        ...localSettings.memorySettings,
-                        enabled: checked,
-                        autoExtract: localSettings.memorySettings?.autoExtract ?? true,
-                        maxMemoriesInContext: localSettings.memorySettings?.maxMemoriesInContext ?? 5,
-                        importanceThreshold: localSettings.memorySettings?.importanceThreshold ?? 2,
-                        syncToDatabase: localSettings.memorySettings?.syncToDatabase ?? false,
-                      },
+                      memorySettings: checked
+                        ? {
+                            enabled: true,
+                            autoExtract: localSettings.memorySettings?.autoExtract ?? true,
+                            maxMemoriesInContext: localSettings.memorySettings?.maxMemoriesInContext ?? 5,
+                            importanceThreshold: localSettings.memorySettings?.importanceThreshold ?? 2,
+                            syncToDatabase: localSettings.memorySettings?.syncToDatabase ?? false,
+                          }
+                        : {
+                            ...localSettings.memorySettings,
+                            enabled: false,
+                          },
                     })
                   }
                 />
