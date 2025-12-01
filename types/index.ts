@@ -31,6 +31,9 @@ export interface StreamingHistoryEntry {
   searchProvider?: string // Search provider (tavily, serper, exa)
   searchParameters?: Record<string, any> // Full search parameters
   resultCount?: number // Number of results returned
+  searchResultsPreview?: string // Preview of actual search results content
+  reasoningContent?: string // Real-time reasoning/thinking tokens (o1, DeepSeek R1, etc.)
+  reasoningTokens?: number // Number of reasoning tokens used
 }
 
 export interface Message {

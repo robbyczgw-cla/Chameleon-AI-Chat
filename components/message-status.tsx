@@ -40,6 +40,9 @@ export interface MessageStatusProps {
     action?: string
     resultCount?: number
     resultSummary?: string
+    searchResultsPreview?: string
+    reasoningContent?: string
+    reasoningTokens?: number
   }
 }
 
@@ -449,6 +452,41 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                             <p className="text-sm text-foreground/80 mt-0.5">
                               {streamingDetails.resultSummary}
                             </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Reasoning tokens (o1, DeepSeek R1, etc.) */}
+                      {streamingDetails.reasoningContent && (
+                        <div className="flex items-start gap-2 p-2 rounded-md bg-amber-500/10 border border-amber-500/20">
+                          <Lightbulb className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0 animate-pulse" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                              {lang === "de" ? "Denkt nach..." : lang === "es" ? "Razonando..." : "Reasoning..."}
+                            </p>
+                            <div className="text-xs text-foreground/70 mt-1 font-mono max-h-32 overflow-y-auto break-words whitespace-pre-wrap">
+                              {streamingDetails.reasoningContent}
+                            </div>
+                            {streamingDetails.reasoningTokens && (
+                              <p className="text-xs text-amber-600/70 dark:text-amber-400/70 mt-1">
+                                {streamingDetails.reasoningTokens} {lang === "de" ? "Reasoning-Tokens" : lang === "es" ? "tokens de razonamiento" : "reasoning tokens"}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Search results preview */}
+                      {streamingDetails.searchResultsPreview && (
+                        <div className="flex items-start gap-2 p-2 rounded-md bg-cyan-500/10 border border-cyan-500/20">
+                          <FileSearch className="w-4 h-4 text-cyan-500 mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-cyan-600 dark:text-cyan-400">
+                              {lang === "de" ? "Suchergebnisse" : lang === "es" ? "Resultados de búsqueda" : "Search Results"}
+                            </p>
+                            <div className="text-xs text-foreground/70 mt-1 max-h-24 overflow-y-auto break-words">
+                              {streamingDetails.searchResultsPreview}
+                            </div>
                           </div>
                         </div>
                       )}

@@ -35,18 +35,35 @@ export interface ChatCompletionResponse {
   }
 }
 
-// Models that support reasoning parameter
+// Models that support reasoning parameter and return reasoning tokens
+// These models have been confirmed to return reasoning_content in their streaming responses
 export const REASONING_MODELS = new Set([
+  // OpenAI o-series (definitely returns reasoning tokens)
+  "openai/o1",
+  "openai/o1-mini",
+  "openai/o1-preview",
+  "openai/o3-mini",
+
+  // DeepSeek R1 (confirmed to return reasoning_content)
+  "deepseek/deepseek-r1",
+  "deepseek/deepseek-r1:free",
+  "deepseek/deepseek-r1-0528",
+  "deepseek/deepseek-r1-0528:free",
+  "deepseek/deepseek-reasoner",
+
+  // Grok models with reasoning (configurable effort)
   "x-ai/grok-4.1-fast",
   "x-ai/grok-4",
   "x-ai/grok-4-fast",
+
+  // Qwen Thinking models
+  "qwen/qwen3-235b-a22b-thinking-2507",
+
+  // Note: Claude, Gemini models may support reasoning parameter
+  // but don't stream reasoning_content separately
   "anthropic/claude-4.5-sonnet-20250929",
   "anthropic/claude-opus-4.1",
-  "anthropic/claude-haiku-4.5",
   "google/gemini-2.5-pro",
-  "google/gemini-2.5-flash",
-  "deepseek/deepseek-chat-v3.2-experimental",
-  "qwen/qwen3-235b-a22b-thinking-2507",
 ])
 
 export const POPULAR_OPENROUTER_MODELS = [
@@ -185,6 +202,9 @@ export async function streamChatMessage(
       action?: string
       resultCount?: number
       resultSummary?: string
+      searchResultsPreview?: string
+      reasoningContent?: string
+      reasoningTokens?: number
     }) => void
   } = {},
 ): Promise<void> {
@@ -367,7 +387,7 @@ export async function streamChatMessage(
             }
 
             // Handle enhanced streaming details (for advanced mode visualization)
-            if (onStreamingDetails && (delta?.toolArguments || delta?.searchProvider || delta?.action || delta?.resultCount || delta?.resultSummary)) {
+            if (onStreamingDetails && (delta?.toolArguments || delta?.searchProvider || delta?.action || delta?.resultCount || delta?.resultSummary || delta?.searchResultsPreview)) {
               const details = {
                 phase: delta.phase,
                 toolName: delta.toolName,
@@ -377,6 +397,7 @@ export async function streamChatMessage(
                 action: delta.action,
                 resultCount: delta.resultCount || delta.searchResultCount,
                 resultSummary: delta.resultSummary,
+                searchResultsPreview: delta.searchResultsPreview,
               }
               console.log("[v0] 📊 Enhanced streaming details:", details)
               onStreamingDetails(details)
@@ -418,8 +439,20 @@ export async function streamChatMessage(
               lastFinishReason = finishReason
             }
 
-            if (reasoningContent && onReasoning) {
-              onReasoning(reasoningContent)
+            if (reasoningContent) {
+              // Call legacy onReasoning callback
+              if (onReasoning) {
+                onReasoning(reasoningContent)
+              }
+
+              // Also send reasoning via enhanced streaming details
+              if (onStreamingDetails) {
+                onStreamingDetails({
+                  phase: "thinking",
+                  reasoningContent: reasoningContent,
+                  action: "Extended reasoning in progress..."
+                })
+              }
             }
 
             if (content) {
