@@ -4,6 +4,7 @@ import type React from "react"
 
 import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from "react"
 import type { Chat, AppSettings, Message, ChatFolder, ComparisonSession } from "@/types"
+import type { StreamingPhase } from "@/components/message-status"
 import { createClient } from "@/lib/supabase/client"
 import { supabaseSync } from "@/lib/supabase/sync"
 import { generateUUID } from "@/lib/utils"
@@ -23,6 +24,13 @@ interface AppContextType {
   isLoading: boolean
   isChatLoading: boolean
   setIsChatLoading: (loading: boolean) => void
+  // Streaming status for step-by-step visualization
+  streamingPhase: StreamingPhase
+  setStreamingPhase: (phase: StreamingPhase) => void
+  currentTool: string | null
+  setCurrentTool: (tool: string | null) => void
+  searchQuery: string | null
+  setSearchQuery: (query: string | null) => void
   chatAbortControllerRef: React.MutableRefObject<AbortController | null>
   stopChatGeneration: () => void
   createChat: (model?: string) => string
@@ -113,6 +121,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isChatLoading, setIsChatLoading] = useState(false)
   const [hasMigrated, setHasMigrated] = useState(false)
 
+  // Streaming status for step-by-step visualization
+  const [streamingPhase, setStreamingPhase] = useState<StreamingPhase>("idle")
+  const [currentTool, setCurrentTool] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState<string | null>(null)
+
   // Shared abort controller for chat streaming - allows stopping from any component
   const chatAbortControllerRef = useRef<AbortController | null>(null)
 
@@ -121,6 +134,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       chatAbortControllerRef.current.abort()
       chatAbortControllerRef.current = null
       setIsChatLoading(false)
+      // Reset streaming status
+      setStreamingPhase("idle")
+      setCurrentTool(null)
+      setSearchQuery(null)
       console.log("[v0] Chat generation stopped")
     }
   }
@@ -1091,6 +1108,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isLoading,
         isChatLoading,
         setIsChatLoading,
+        streamingPhase,
+        setStreamingPhase,
+        currentTool,
+        setCurrentTool,
+        searchQuery,
+        setSearchQuery,
         chatAbortControllerRef,
         stopChatGeneration,
         createChat,

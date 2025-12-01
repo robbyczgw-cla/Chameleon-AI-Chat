@@ -36,7 +36,7 @@ import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { useDraft } from "@/hooks/use-draft"
 
 export function ChatInput() {
-  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading } = useApp()
+  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading, setStreamingPhase, setCurrentTool, setSearchQuery } = useApp()
   const currentChat = chats.find((c) => c.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
 
@@ -779,6 +779,19 @@ export function ChatInput() {
             description: "Processing results...",
           })
         },
+        // Phase tracking for step-by-step visualization
+        onPhaseChange: (phase) => {
+          console.log("[Advanced Chat] 📍 Phase change:", phase)
+          setStreamingPhase(phase)
+        },
+        onToolUse: (toolName) => {
+          console.log("[Advanced Chat] 🔧 Tool use:", toolName)
+          setCurrentTool(toolName)
+        },
+        onSearchQuery: (query) => {
+          console.log("[Advanced Chat] 🔍 Search query:", query)
+          setSearchQuery(query)
+        },
       })
 
       console.log("[v0] Stream complete, final content length:", assistantContent.length)
@@ -932,6 +945,10 @@ export function ChatInput() {
     } finally {
       setIsLoading(false)
       setIsChatLoading(false)
+      // Reset streaming state
+      setStreamingPhase("idle")
+      setCurrentTool(null)
+      setSearchQuery(null)
       setAttachedCollectionId(null)
       abortControllerRef.current = null
       console.log("[v0] Chat submission complete")

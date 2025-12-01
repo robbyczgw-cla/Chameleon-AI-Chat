@@ -30,6 +30,7 @@ import type { MessageContent } from "@/types"
 import { contentToText } from "@/lib/multimodal-utils"
 import { RichContentParser } from "@/lib/rich-content-parser"
 import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
+import { MessageStatus } from "@/components/message-status"
 
 interface ChatMessagesProps {
   currentPersona?: Persona
@@ -153,7 +154,7 @@ const MessageWrapper = memo(function MessageWrapper({ children, className, messa
 })
 
 export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
-  const { chats, currentChatId, addMessage, updateChat, settings, isChatLoading } = useApp()
+  const { chats, currentChatId, addMessage, updateChat, settings, isChatLoading, streamingPhase, currentTool, searchQuery } = useApp()
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [speakingId, setSpeakingId] = useState<string | null>(null)
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set())
@@ -827,7 +828,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
           </MessageWrapper>
         ))}
 
-        {/* Modern AI Loading Indicator */}
+        {/* Modern AI Loading Indicator with Step-by-Step Visualization */}
         {isChatLoading && (
           <div className="flex gap-2 sm:gap-4 animate-slide-in-up">
             <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/30 shrink-0 relative shadow-md ring-2 ring-background">
@@ -850,22 +851,22 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
               )}
             </Avatar>
             <div className="flex flex-col gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[85%] lg:max-w-[80%]">
-              <div className="rounded-[20px] rounded-bl-lg px-4 py-3 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container">
-                {/* Thinking indicator with modern wave dots */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex gap-1 items-center h-5">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <div className="w-2 h-2 bg-primary/80 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+              <div className="rounded-[20px] rounded-bl-lg px-4 py-3 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container min-w-[280px]">
+                {/* Step-by-step status visualization */}
+                <MessageStatus
+                  currentPhase={streamingPhase}
+                  currentTool={currentTool || undefined}
+                  searchQuery={searchQuery || undefined}
+                  language={settings.language as "en" | "de" | "es"}
+                />
+                {/* Skeleton content preview when responding */}
+                {streamingPhase === "responding" && (
+                  <div className="space-y-2.5 mt-3 pt-3 border-t border-border/20">
+                    <div className="h-3 rounded-full bg-muted/60 w-full animate-pulse" />
+                    <div className="h-3 rounded-full bg-muted/40 w-4/5 animate-pulse" style={{ animationDelay: "150ms" }} />
+                    <div className="h-3 rounded-full bg-muted/30 w-3/5 animate-pulse" style={{ animationDelay: "300ms" }} />
                   </div>
-                  <span className="text-xs text-muted-foreground font-medium">Thinking...</span>
-                </div>
-                {/* Skeleton content preview */}
-                <div className="space-y-2.5">
-                  <div className="h-3 rounded-full bg-muted/60 w-full animate-pulse" />
-                  <div className="h-3 rounded-full bg-muted/40 w-4/5 animate-pulse" style={{ animationDelay: "150ms" }} />
-                  <div className="h-3 rounded-full bg-muted/30 w-3/5 animate-pulse" style={{ animationDelay: "300ms" }} />
-                </div>
+                )}
               </div>
             </div>
           </div>

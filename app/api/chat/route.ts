@@ -417,6 +417,16 @@ async function handleStreamingRequest(
       let currentMessages = [...openRouterBody.messages]
       let iterations = 0
       const MAX_ITERATIONS = 3
+      let hasStartedResponding = false
+
+      // Send initial thinking phase
+      await writer.write(
+        encoder.encode(
+          `data: ${JSON.stringify({
+            choices: [{ delta: { phase: "thinking" } }],
+          })}\n\n`
+        )
+      )
 
       while (iterations < MAX_ITERATIONS) {
         iterations++
@@ -496,6 +506,17 @@ async function handleStreamingRequest(
 
               // Forward content to client (only if not in tool call mode)
               if (delta?.content && !hasToolCalls) {
+                // Send responding phase on first content
+                if (!hasStartedResponding) {
+                  hasStartedResponding = true
+                  await writer.write(
+                    encoder.encode(
+                      `data: ${JSON.stringify({
+                        choices: [{ delta: { phase: "responding" } }],
+                      })}\n\n`
+                    )
+                  )
+                }
                 await writer.write(encoder.encode(line + "\n"))
               }
             } catch (e) {
@@ -508,11 +529,20 @@ async function handleStreamingRequest(
         if (hasToolCalls && accumulatedToolCalls.length > 0 && searchApiKey && toolsEnabled) {
           console.log("[Chat] Processing tool calls:", accumulatedToolCalls.length)
 
-          // Send a search status event to the client
+          // Parse the search query from tool call arguments
+          const toolArgs = parseToolArguments(accumulatedToolCalls[0]?.function.arguments || "{}")
+          const toolName = accumulatedToolCalls[0]?.function.name || "unknown"
+
+          // Send phase and tool status events
           await writer.write(
             encoder.encode(
               `data: ${JSON.stringify({
-                choices: [{ delta: { searching: true, searchQuery: accumulatedToolCalls[0]?.function.arguments } }],
+                choices: [{ delta: {
+                  phase: "searching",
+                  searching: true,
+                  toolName: toolName,
+                  searchQuery: toolArgs.query || accumulatedToolCalls[0]?.function.arguments
+                } }],
               })}\n\n`
             )
           )
@@ -564,6 +594,15 @@ async function handleStreamingRequest(
         // No more tool calls, we're done
         break
       }
+
+      // Send done phase event
+      await writer.write(
+        encoder.encode(
+          `data: ${JSON.stringify({
+            choices: [{ delta: { phase: "done" } }],
+          })}\n\n`
+        )
+      )
     } catch (error) {
       console.error("[Chat] Streaming error:", error)
       await writer.write(
