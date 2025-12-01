@@ -200,6 +200,11 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
       })),
     }
 
+    // Capture attached images BEFORE clearing (for image-to-image generation)
+    const inputImagesForGen = attachedFiles
+      .filter(f => f.type.startsWith('image/'))
+      .map(f => f.base64)
+
     addMessage(chatId, userMessage)
     console.log("[Simple Chat] Added user message")
     setInput("")
@@ -223,7 +228,9 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
 
         toast({
           title: settings.language === "de" ? "🎨 Generiere Bild..." : "🎨 Generating image...",
-          description: `${settings.language === "de" ? "Verwende" : "Using"} Gemini 3 Pro`,
+          description: inputImagesForGen.length > 0
+            ? (settings.language === "de" ? "Bearbeite hochgeladenes Bild..." : "Editing uploaded image...")
+            : (settings.language === "de" ? "Verwende" : "Using") + " Gemini 3 Pro",
         })
 
         const response = await fetch('/api/generate-image', {
@@ -233,6 +240,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
             prompt: messageContent,
             model: imageModel,
             apiKey,
+            inputImages: inputImagesForGen, // Send attached images for image-to-image
           }),
         })
 

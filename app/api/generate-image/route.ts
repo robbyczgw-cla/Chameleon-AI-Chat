@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { prompt, model, apiKey } = await req.json()
+    const { prompt, model, apiKey, inputImages } = await req.json()
 
     if (!prompt) {
       return NextResponse.json(
@@ -113,6 +113,26 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Build message content - include input images for image-to-image if provided
+    let messageContent: string | Array<{ type: string; text?: string; image_url?: { url: string } }> = prompt
+
+    if (inputImages && Array.isArray(inputImages) && inputImages.length > 0) {
+      // Image-to-image: include input images + text prompt
+      messageContent = [
+        // Add input images first
+        ...inputImages.map((base64Url: string) => ({
+          type: 'image_url' as const,
+          image_url: { url: base64Url }
+        })),
+        // Then the text prompt
+        {
+          type: 'text' as const,
+          text: prompt
+        }
+      ]
+      console.log(`[Image Gen] Image-to-image mode with ${inputImages.length} input image(s)`)
+    }
+
     // For multimodal models (GPT-5 Image, Gemini Image, Flux, SD), use OpenRouter chat
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -128,7 +148,7 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: 'user',
-            content: prompt
+            content: messageContent
           }
         ],
         // Add Gemini-specific image config
