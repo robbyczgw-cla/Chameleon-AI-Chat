@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -10,19 +9,15 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
-import { MoreVertical, FolderOpen, Music, VolumeX, Download, FileText, Share2, Globe } from "lucide-react"
+import { MoreVertical, Music, VolumeX, Download, FileText, Share2, Globe } from "lucide-react"
 import { useApp } from "@/contexts/app-context"
-import { ambientMusicService } from "@/lib/ambient-music"
-import { cn } from "@/lib/utils"
 
 interface QuickActionsMenuProps {
-  onDocCollectionsClick: () => void
   isMusicPlaying: boolean
   onMusicToggle: () => void
 }
 
 export function QuickActionsMenu({
-  onDocCollectionsClick,
   isMusicPlaying,
   onMusicToggle,
 }: QuickActionsMenuProps) {
@@ -72,7 +67,7 @@ export function QuickActionsMenu({
     const isDark = theme === "dark"
 
     let html = `<!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -148,7 +143,7 @@ export function QuickActionsMenu({
 <body>
   <h1>${currentChat.title}</h1>
   <div class="meta">
-    Exportiert: ${new Date().toLocaleString('de-DE')} • ${currentChat.messages.length} Nachrichten
+    Exported: ${new Date().toLocaleString('en-US')} • ${currentChat.messages.length} messages
   </div>
 `
 
@@ -196,55 +191,49 @@ export function QuickActionsMenu({
           variant="ghost"
           size="icon"
           className="hover:bg-primary/10 h-9 w-9 sm:h-10 sm:w-10 hover:scale-105 transition-all rounded-lg"
-          title="Weitere Aktionen"
+          title="More Actions"
         >
           <MoreVertical className="h-4 w-4 md:h-4.5 md:w-4.5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Schnellaktionen</DropdownMenuLabel>
+        <DropdownMenuLabel>Export & Share</DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem onClick={onDocCollectionsClick}>
-          <FolderOpen className="h-4 w-4 mr-2" />
-          Dokumentensammlungen
+        <DropdownMenuItem onClick={handleExportHTML} disabled={!currentChat}>
+          <Globe className="h-4 w-4 mr-2" />
+          Export as HTML
         </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={handleExportMarkdown} disabled={!currentChat}>
+          <FileText className="h-4 w-4 mr-2" />
+          Export as Markdown
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={handleExportJSON} disabled={!currentChat}>
+          <Download className="h-4 w-4 mr-2" />
+          Export as JSON
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={handleCopyShareLink} disabled={!currentChat}>
+          <Share2 className="h-4 w-4 mr-2" />
+          Copy Chat Link
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
 
         <DropdownMenuItem onClick={onMusicToggle} className="md:hidden">
           {isMusicPlaying ? (
             <>
               <Music className="h-4 w-4 mr-2 text-green-500" />
-              <span>Musik ausschalten</span>
+              <span>Turn Off Music</span>
             </>
           ) : (
             <>
               <VolumeX className="h-4 w-4 mr-2" />
-              <span>Ambient Musik</span>
+              <span>Ambient Music</span>
             </>
           )}
-        </DropdownMenuItem>
-
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel>Export & Teilen</DropdownMenuLabel>
-
-        <DropdownMenuItem onClick={handleExportHTML} disabled={!currentChat}>
-          <Globe className="h-4 w-4 mr-2" />
-          Als HTML exportieren
-        </DropdownMenuItem>
-
-        <DropdownMenuItem onClick={handleExportMarkdown} disabled={!currentChat}>
-          <FileText className="h-4 w-4 mr-2" />
-          Als Markdown exportieren
-        </DropdownMenuItem>
-
-        <DropdownMenuItem onClick={handleExportJSON} disabled={!currentChat}>
-          <Download className="h-4 w-4 mr-2" />
-          Als JSON exportieren
-        </DropdownMenuItem>
-
-        <DropdownMenuItem onClick={handleCopyShareLink} disabled={!currentChat}>
-          <Share2 className="h-4 w-4 mr-2" />
-          Chat-Link kopieren
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
