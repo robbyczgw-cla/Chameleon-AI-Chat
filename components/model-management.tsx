@@ -253,7 +253,7 @@ export function ModelManagement() {
           setSearchQuery("")
         }
       }}>
-        <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] !overflow-hidden flex flex-col bg-background">
+        <DialogContent className="w-[95vw] sm:max-w-2xl lg:max-w-4xl max-h-[min(85vh,calc(100dvh-3rem))] md:max-h-[calc(100vh-3rem)] !overflow-hidden flex flex-col bg-background">
           <DialogHeader>
             <DialogTitle className="text-base sm:text-lg">Add Models ({modelsToAdd.length} selected)</DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
