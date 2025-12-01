@@ -459,7 +459,6 @@ export function ChatHeader() {
           </Button>
           {/* Quick Actions Menu */}
           <QuickActionsMenu
-            onDocCollectionsClick={() => setIsDocCollectionsOpen(true)}
             isMusicPlaying={isMusicPlaying}
             onMusicToggle={toggleMusic}
           />
