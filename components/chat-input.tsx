@@ -62,9 +62,9 @@ export function ChatInput() {
     return saved === "true"
   })
 
-  // Check if current model supports reasoning
-  const model = settings.selectedModel || "x-ai/grok-4.1-fast"
-  const modelSupportsReasoning = REASONING_MODELS.has(model)
+  // Reasoning toggle is now available for ALL models
+  // OpenRouter gracefully ignores the reasoning parameter if model doesn't support it
+  const modelSupportsReasoning = true // Always true - let OpenRouter handle model compatibility
 
   // Save reasoning state
   useEffect(() => {
@@ -768,7 +768,7 @@ export function ChatInput() {
         presencePenalty: modelParams.presencePenalty,
         apiKey: settings.apiKeys.openRouter,
         signal: abortControllerRef.current?.signal,
-        reasoning: reasoningEnabled && modelSupportsReasoning,
+        reasoning: reasoningEnabled, // Always pass if enabled - OpenRouter handles compatibility
         onReasoning,
         // Auto search (tool calling) - AI decides when to search
         enableAutoSearch: settings.enableAutoSearch ?? false,

@@ -35,23 +35,27 @@ export interface ChatCompletionResponse {
   }
 }
 
-// Models that support reasoning parameter and return reasoning tokens
-// These models have been confirmed to return reasoning_content in their streaming responses
-export const REASONING_MODELS = new Set([
+// Models that are KNOWN to support reasoning parameter and return reasoning tokens
+// IMPORTANT: OpenRouter handles the reasoning parameter gracefully - if a model doesn't
+// support it, it simply ignores it. Therefore, we allow the reasoning toggle for ALL models.
+// This list is kept for informational/documentation purposes only.
+export const REASONING_MODELS_KNOWN = new Set([
   // OpenAI o-series (definitely returns reasoning tokens)
   "openai/o1",
   "openai/o1-mini",
   "openai/o1-preview",
   "openai/o3-mini",
 
-  // DeepSeek R1 (confirmed to return reasoning_content)
+  // DeepSeek R1 and R1-based models (confirmed to return reasoning_content)
   "deepseek/deepseek-r1",
   "deepseek/deepseek-r1:free",
   "deepseek/deepseek-r1-0528",
   "deepseek/deepseek-r1-0528:free",
   "deepseek/deepseek-reasoner",
+  "deepseek/deepseek-v3.2", // DeepSeek 3.2 released Dec 1, 2025
+  "deepseek/deepseek-v3.2:free",
 
-  // Grok models with reasoning (configurable effort)
+  // Grok models with reasoning (configurable effort: low/medium/high)
   "x-ai/grok-4.1-fast",
   "x-ai/grok-4",
   "x-ai/grok-4-fast",
@@ -59,12 +63,27 @@ export const REASONING_MODELS = new Set([
   // Qwen Thinking models
   "qwen/qwen3-235b-a22b-thinking-2507",
 
-  // Note: Claude, Gemini models may support reasoning parameter
-  // but don't stream reasoning_content separately
+  // Alibaba Qwen models with thinking mode
+  "qwen/qwen-2.5-coder-32b-instruct",
+  "qwen/qwq-32b-preview",
+
+  // Google Gemini Thinking models
+  "google/gemini-2.0-flash-thinking-exp-01-21",
+  "google/gemini-2.0-flash-thinking-exp",
+
+  // MoonShot Kimi models with thinking
+  "moonshotai/kimi-k2-thinking",
+
+  // Note: Claude, Gemini Pro models may support reasoning parameter
+  // but don't stream reasoning_content separately - they integrate thinking into response
   "anthropic/claude-4.5-sonnet-20250929",
   "anthropic/claude-opus-4.1",
   "google/gemini-2.5-pro",
 ])
+
+// DEPRECATED: Use individual model checking instead
+// Kept for backward compatibility but no longer used for UI restrictions
+export const REASONING_MODELS = REASONING_MODELS_KNOWN
 
 export const POPULAR_OPENROUTER_MODELS = [
   // 🏆 Flagship Models 2025 - Die Besten der Besten
