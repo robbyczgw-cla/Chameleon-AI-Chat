@@ -359,6 +359,11 @@ export function ChatInput() {
       })),
     }
 
+    // Capture attached images BEFORE clearing (for image-to-image generation)
+    const inputImagesForGen = attachedFiles
+      .filter(f => f.type.startsWith('image/'))
+      .map(f => f.base64)
+
     addMessage(chatId, userMessage)
     console.log("[v0] Added user message")
     setInput("")
@@ -379,7 +384,7 @@ export function ChatInput() {
 
         toast({
           title: "🎨 Generating image...",
-          description: "Using Gemini 3 Pro",
+          description: inputImagesForGen.length > 0 ? "Editing uploaded image..." : "Using Gemini 3 Pro",
         })
 
         const response = await fetch('/api/generate-image', {
@@ -389,6 +394,7 @@ export function ChatInput() {
             prompt: messageContent,
             model: imageModel,
             apiKey,
+            inputImages: inputImagesForGen, // Send attached images for image-to-image
           }),
         })
 
