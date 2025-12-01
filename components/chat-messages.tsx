@@ -160,16 +160,10 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set())
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState("")
-  const [isAdvancedMode, setIsAdvancedMode] = useState(false)
   const { toast } = useToast()
 
-  // Detect advanced mode from localStorage
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mode = localStorage.getItem("app-mode")
-      setIsAdvancedMode(mode === "advanced")
-    }
-  }, [])
+  // Advanced mode = NOT simple mode (from settings)
+  const isAdvancedMode = !settings.simpleMode
 
   const toggleReasoning = useCallback((messageId: string) => {
     setExpandedReasoning(prev => {
