@@ -25,6 +25,7 @@ const VISION_MODEL_PREFIXES = [
   // Google Gemini
   "google/gemini-1.5",
   "google/gemini-2",
+  "google/gemini-3",
   // xAI Grok (all vision-capable)
   "x-ai/grok-2",
   "x-ai/grok-3",
@@ -70,6 +71,10 @@ export const VISION_CAPABLE_MODELS = new Set([
   "google/gemini-2.5-pro",
   "google/gemini-2.5-flash",
   "google/gemini-2.5-flash-lite",
+  // Gemini Image Generation models (also support vision input for image-to-image)
+  "google/gemini-3-pro-image-preview",
+  "google/gemini-2.5-flash-image",
+  "google/gemini-2.5-flash-image-preview",
 
   // xAI Grok - all support vision
   "x-ai/grok-2-vision",
