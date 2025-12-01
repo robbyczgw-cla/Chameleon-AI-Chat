@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { User, Palette, Key, Volume2, Settings2, ChevronRight, Search } from "lucide-react"
+import { User, Palette, Key, Volume2, Settings2, ChevronRight, Search, Brain } from "lucide-react"
 import { Sparkles } from "lucide-react"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
@@ -24,6 +24,7 @@ const translations = {
     look: "Look",
     search: "Search",
     voice: "Voice",
+    memory: "Memory",
     api: "API",
     welcomeBack: "Welcome back",
     setYourName: "Set your name below",
@@ -58,6 +59,13 @@ const translations = {
     requiresOpenAI: "Requires OpenAI API key",
     browserVoiceLabel: "Browser Voice",
     systemDefault: "System Default",
+    memoryInfo: "Memory helps the AI remember important facts about you and your conversations.",
+    enableMemory: "Enable Memory",
+    letAiRemember: "Let the AI remember important information",
+    autoExtract: "Auto-Extract Memories",
+    autoExtractDesc: "Automatically extract important information from conversations",
+    manageMemories: "Manage Memories",
+    viewAndEdit: "View and edit your memories",
     apiKeysInfo: "API keys are needed for AI chat and voice features.",
     openRouterKey: "OpenRouter API Key",
     getFrom: "Get from",
@@ -77,6 +85,7 @@ const translations = {
     look: "Aussehen",
     search: "Suche",
     voice: "Stimme",
+    memory: "Gedächtnis",
     api: "API",
     welcomeBack: "Willkommen zurück",
     setYourName: "Gib deinen Namen unten ein",
@@ -111,6 +120,13 @@ const translations = {
     requiresOpenAI: "Benötigt OpenAI API Key",
     browserVoiceLabel: "Browser-Stimme",
     systemDefault: "Systemstandard",
+    memoryInfo: "Das Gedächtnis hilft der KI, wichtige Fakten über dich und deine Gespräche zu merken.",
+    enableMemory: "Gedächtnis aktivieren",
+    letAiRemember: "Lass die KI wichtige Informationen speichern",
+    autoExtract: "Auto-Extraktion",
+    autoExtractDesc: "Wichtige Informationen automatisch aus Gesprächen extrahieren",
+    manageMemories: "Erinnerungen verwalten",
+    viewAndEdit: "Deine Erinnerungen ansehen und bearbeiten",
     apiKeysInfo: "API Keys werden für KI-Chat und Sprachfunktionen benötigt.",
     openRouterKey: "OpenRouter API Key",
     getFrom: "Holen von",
@@ -123,6 +139,67 @@ const translations = {
     save: "Speichern",
     settingsSaved: "Einstellungen gespeichert!",
     preferencesUpdated: "Deine Einstellungen wurden aktualisiert.",
+  },
+  es: {
+    settings: "Configuración",
+    profile: "Perfil",
+    look: "Apariencia",
+    search: "Búsqueda",
+    voice: "Voz",
+    memory: "Memoria",
+    api: "API",
+    welcomeBack: "Bienvenido de nuevo",
+    setYourName: "Introduce tu nombre abajo",
+    yourName: "Tu Nombre",
+    whatShouldICall: "¿Cómo debería llamarte?",
+    whatDoYouDo: "¿A qué te dedicas?",
+    occupationPlaceholder: "ej., Estudiante, Desarrollador, Diseñador",
+    interests: "Intereses",
+    editProfileToAdd: "Edita el perfil para añadir intereses",
+    editFullProfile: "Editar Perfil Completo",
+    language: "Idioma",
+    theme: "Tema",
+    textSize: "Tamaño de Texto",
+    small: "Pequeño",
+    medium: "Mediano",
+    large: "Grande",
+    performanceMode: "Modo Rendimiento",
+    performanceModeDesc: "Reducir uso de GPU (menos efectos de desenfoque)",
+    webSearchInfo: "La búsqueda web permite a la IA encontrar información actualizada en internet.",
+    serperApiKey: "Clave API Serper (Búsqueda Google)",
+    enterSerperKey: "Introduce tu clave API de Serper...",
+    getFreeKey: "Obtén clave gratuita de",
+    freeSearches: "(2,500 búsquedas gratis)",
+    includeImages: "Incluir Imágenes",
+    showImagesInSearch: "Mostrar imágenes en resultados de búsqueda",
+    webSearchReady: "¡Búsqueda web lista! Usa el icono del globo en el chat para buscar.",
+    enableVoice: "Activar Voz",
+    readMessagesAloud: "Leer mensajes en voz alta",
+    voiceType: "Tipo de Voz",
+    browserVoice: "Voz del Navegador (Gratis)",
+    openaiVoice: "Voz OpenAI (Premium)",
+    requiresOpenAI: "Requiere clave API de OpenAI",
+    browserVoiceLabel: "Voz del Navegador",
+    systemDefault: "Predeterminado del Sistema",
+    memoryInfo: "La memoria ayuda a la IA a recordar datos importantes sobre ti y tus conversaciones.",
+    enableMemory: "Activar Memoria",
+    letAiRemember: "Permite a la IA recordar información importante",
+    autoExtract: "Auto-Extracción",
+    autoExtractDesc: "Extraer automáticamente información importante de las conversaciones",
+    manageMemories: "Gestionar Recuerdos",
+    viewAndEdit: "Ver y editar tus recuerdos",
+    apiKeysInfo: "Las claves API son necesarias para el chat de IA y funciones de voz.",
+    openRouterKey: "Clave API de OpenRouter",
+    getFrom: "Obtener de",
+    openAIKeyOptional: "Clave API de OpenAI (Opcional)",
+    forVoiceInput: "Para entrada de voz y TTS premium",
+    switchToAdvanced: "Cambiar a Modo Avanzado",
+    advancedMode: "Modo Avanzado",
+    canSwitchBack: "Puedes volver al Modo Simple en Configuración.",
+    cancel: "Cancelar",
+    save: "Guardar",
+    settingsSaved: "¡Configuración guardada!",
+    preferencesUpdated: "Tus preferencias han sido actualizadas.",
   },
 }
 
@@ -141,8 +218,8 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
   const { toast } = useToast()
 
   // Get translations based on language
-  const lang = settings.language === "de" ? "de" : "en"
-  const t = translations[lang]
+  const lang = settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en"
+  const t = translations[lang as keyof typeof translations]
 
   useEffect(() => {
     if (open) {
@@ -235,7 +312,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full min-w-0">
-          <TabsList className="grid grid-cols-5 gap-1 w-full">
+          <TabsList className="grid grid-cols-6 gap-1 w-full">
             <TabsTrigger value="profile" className="text-xs gap-1 px-2">
               <User className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.profile}</span>
@@ -251,6 +328,10 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
             <TabsTrigger value="voice" className="text-xs gap-1 px-2">
               <Volume2 className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.voice}</span>
+            </TabsTrigger>
+            <TabsTrigger value="memory" className="text-xs gap-1 px-2">
+              <Brain className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t.memory}</span>
             </TabsTrigger>
             <TabsTrigger value="api" className="text-xs gap-1 px-2">
               <Key className="h-3.5 w-3.5" />
@@ -326,15 +407,16 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               {/* Language Pills */}
               <div className="space-y-2">
                 <Label className="text-sm">{t.language}</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {[
                     { value: "en", label: "English", flag: "🇬🇧" },
                     { value: "de", label: "Deutsch", flag: "🇩🇪" },
+                    { value: "es", label: "Español", flag: "🇪🇸" },
                   ].map((lang) => (
                     <button
                       key={lang.value}
                       type="button"
-                      onClick={() => setLocalSettings({ ...localSettings, language: lang.value as "en" | "de" })}
+                      onClick={() => setLocalSettings({ ...localSettings, language: lang.value as "en" | "de" | "es" })}
                       className={cn(
                         "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
                         "border border-border/60 hover:border-violet-300",
@@ -559,6 +641,75 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                       </select>
                     </div>
                   )}
+                </>
+              )}
+            </TabsContent>
+
+            {/* Memory Tab */}
+            <TabsContent value="memory" className="space-y-4 mt-0">
+              <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                <p className="text-sm text-purple-600 dark:text-purple-400">
+                  {t.memoryInfo}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-medium">{t.enableMemory}</Label>
+                  <p className="text-xs text-muted-foreground">{t.letAiRemember}</p>
+                </div>
+                <Switch
+                  checked={localSettings.memorySettings?.enabled ?? false}
+                  onCheckedChange={(checked) =>
+                    setLocalSettings({
+                      ...localSettings,
+                      memorySettings: checked
+                        ? {
+                            enabled: true,
+                            autoExtract: localSettings.memorySettings?.autoExtract ?? true,
+                            maxMemoriesInContext: localSettings.memorySettings?.maxMemoriesInContext ?? 5,
+                            importanceThreshold: localSettings.memorySettings?.importanceThreshold ?? 2,
+                            syncToDatabase: localSettings.memorySettings?.syncToDatabase ?? false,
+                          }
+                        : {
+                            ...localSettings.memorySettings,
+                            enabled: false,
+                          },
+                    })
+                  }
+                />
+              </div>
+
+              {localSettings.memorySettings?.enabled && (
+                <>
+                  <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium">{t.autoExtract}</Label>
+                      <p className="text-xs text-muted-foreground">{t.autoExtractDesc}</p>
+                    </div>
+                    <Switch
+                      checked={localSettings.memorySettings?.autoExtract ?? true}
+                      onCheckedChange={(checked) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          memorySettings: {
+                            ...localSettings.memorySettings!,
+                            autoExtract: checked,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between"
+                    onClick={() => window.dispatchEvent(new Event("openMemoryManager"))}
+                  >
+                    <span>{t.manageMemories}</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center">{t.viewAndEdit}</p>
                 </>
               )}
             </TabsContent>

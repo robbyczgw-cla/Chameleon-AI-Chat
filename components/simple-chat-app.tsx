@@ -85,23 +85,46 @@ const translations = {
     tryAsking: "Frag zum Beispiel:",
     attachFile: "Datei anhängen",
   },
+  es: {
+    newChat: "Nuevo Chat",
+    noChats: "Aún no hay chats. ¡Comienza una nueva conversación!",
+    setUpProfile: "Configurar perfil",
+    chameleonAI: "Chameleon AI",
+    goodMorning: "Buenos días",
+    goodAfternoon: "Buenas tardes",
+    goodEvening: "Buenas noches",
+    imYourAssistant: "Soy tu asistente de IA, listo para ayudarte con cualquier cosa.",
+    choosePersona: "Elige una persona para comenzar:",
+    setUpProfileBtn: "Configura tu perfil para respuestas personalizadas",
+    deleteChat: "Eliminar chat",
+    deleteAllChats: "Eliminar todos los chats",
+    confirmDeleteAll: "¿Estás seguro de que quieres eliminar todos los chats?",
+    chatsDeleted: "Todos los chats eliminados",
+    chatDeleted: "Chat eliminado",
+    createImage: "Crear Imagen",
+    imageModeOn: "Modo imagen activado",
+    imageModeOff: "Modo imagen desactivado",
+    imageModeDesc: "Tu próximo mensaje generará una imagen",
+    tryAsking: "Prueba preguntando:",
+    attachFile: "Adjuntar archivo",
+  },
 }
 
 // Use shared persona example prompts from lib/personas.ts
 // getPersonaTips combines shared prompts with extended prompts for additional personas
-const getPersonaTips = (personaId: string, lang: "en" | "de"): string[] => {
+const getPersonaTips = (personaId: string, lang: "en" | "de" | "es"): string[] => {
   // First check shared prompts
   const sharedPrompts = PERSONA_EXAMPLE_PROMPTS[personaId]
   if (sharedPrompts) {
-    return sharedPrompts[lang]
+    return sharedPrompts[lang] || sharedPrompts["en"]
   }
   // Then check extended prompts
   const extendedPrompts = extendedPersonaTips[personaId]
   if (extendedPrompts) {
-    return extendedPrompts[lang]
+    return extendedPrompts[lang] || extendedPrompts["en"]
   }
   // Fallback to default
-  return PERSONA_EXAMPLE_PROMPTS.default[lang]
+  return PERSONA_EXAMPLE_PROMPTS.default[lang] || PERSONA_EXAMPLE_PROMPTS.default["en"]
 }
 
 // Extended persona tips for personas not in shared config
@@ -587,8 +610,8 @@ export function SimpleChatApp() {
   const selectedPersona = settings.selectedPersona
 
   // Get current language translations
-  const lang = settings.language === "de" ? "de" : "en"
-  const t = translations[lang]
+  const lang = settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en"
+  const t = translations[lang as keyof typeof translations]
 
   // Get greeting based on time of day
   const getGreeting = () => {
