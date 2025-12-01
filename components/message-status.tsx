@@ -731,6 +731,11 @@ export const StreamingHistoryDisplay = memo(function StreamingHistoryDisplay({
                     </span>
                   )}
                 </div>
+                {entry.description && (
+                  <p className="text-muted-foreground text-[10px] mt-0.5 truncate">
+                    {entry.description}
+                  </p>
+                )}
               </div>
 
               {/* Duration */}
