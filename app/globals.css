@@ -1939,6 +1939,17 @@ html {
   /* backface-visibility: hidden; */
 }
 
+/* Nested dialogs - ensure they render above parent dialogs and sidebars */
+[data-slot="dialog-content"][data-nested="true"],
+[data-slot="alert-dialog-content"][data-nested="true"] {
+  z-index: 10999 !important;
+}
+
+[data-slot="dialog-overlay"][data-nested="true"],
+[data-slot="alert-dialog-overlay"][data-nested="true"] {
+  z-index: 10998 !important;
+}
+
 /* Dark mode dialogs */
 .dark [data-slot="dialog-content"] {
   background-color: #1a1a1e !important;
