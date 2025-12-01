@@ -30,7 +30,7 @@ import type { MessageContent } from "@/types"
 import { contentToText } from "@/lib/multimodal-utils"
 import { RichContentParser } from "@/lib/rich-content-parser"
 import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
-import { MessageStatus } from "@/components/message-status"
+import { MessageStatus, MessageStatusVerbose } from "@/components/message-status"
 
 interface ChatMessagesProps {
   currentPersona?: Persona
@@ -160,7 +160,16 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set())
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState("")
+  const [isAdvancedMode, setIsAdvancedMode] = useState(false)
   const { toast } = useToast()
+
+  // Detect advanced mode from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("app-mode")
+      setIsAdvancedMode(mode === "advanced")
+    }
+  }, [])
 
   const toggleReasoning = useCallback((messageId: string) => {
     setExpandedReasoning(prev => {
@@ -175,6 +184,9 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
   }, [])
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
+
+  // Get current model name for display
+  const currentModelName = currentChat?.model || settings.selectedModel || "AI Model"
 
   const handleCopy = useCallback(async (content: MessageContent, messageId: string) => {
     const textContent = contentToText(content)
@@ -851,16 +863,29 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
               )}
             </Avatar>
             <div className="flex flex-col gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[85%] lg:max-w-[80%]">
-              <div className="rounded-[20px] rounded-bl-lg px-4 py-3 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container min-w-[280px]">
-                {/* Step-by-step status visualization */}
-                <MessageStatus
-                  currentPhase={streamingPhase}
-                  currentTool={currentTool || undefined}
-                  searchQuery={searchQuery || undefined}
-                  language={settings.language as "en" | "de" | "es"}
-                />
-                {/* Skeleton content preview when responding */}
-                {streamingPhase === "responding" && (
+              <div className={cn(
+                "rounded-[20px] rounded-bl-lg px-4 py-3 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container",
+                isAdvancedMode ? "min-w-[360px] sm:min-w-[420px]" : "min-w-[280px]"
+              )}>
+                {/* Step-by-step status visualization - verbose for advanced mode */}
+                {isAdvancedMode ? (
+                  <MessageStatusVerbose
+                    currentPhase={streamingPhase}
+                    currentTool={currentTool || undefined}
+                    searchQuery={searchQuery || undefined}
+                    language={settings.language as "en" | "de" | "es"}
+                    modelName={currentModelName}
+                  />
+                ) : (
+                  <MessageStatus
+                    currentPhase={streamingPhase}
+                    currentTool={currentTool || undefined}
+                    searchQuery={searchQuery || undefined}
+                    language={settings.language as "en" | "de" | "es"}
+                  />
+                )}
+                {/* Skeleton content preview when responding (simple mode only) */}
+                {!isAdvancedMode && streamingPhase === "responding" && (
                   <div className="space-y-2.5 mt-3 pt-3 border-t border-border/20">
                     <div className="h-3 rounded-full bg-muted/60 w-full animate-pulse" />
                     <div className="h-3 rounded-full bg-muted/40 w-4/5 animate-pulse" style={{ animationDelay: "150ms" }} />
