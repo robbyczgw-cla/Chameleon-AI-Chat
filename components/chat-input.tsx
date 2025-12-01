@@ -835,7 +835,6 @@ export function ChatInput() {
         },
         // Enhanced streaming details for advanced mode
         onStreamingDetails: (details) => {
-          console.log("[Advanced Chat] 📊 Streaming details:", details)
           setCurrentStreamingDetails(details)
           // Also add to streaming history with enhanced details
           if (details.phase || details.reasoningContent) {
