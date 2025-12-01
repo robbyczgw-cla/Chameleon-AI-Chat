@@ -371,6 +371,8 @@ export function ChatInput() {
     setAttachedFiles([])
     setIsLoading(true)
     setIsChatLoading(true) // Triggers loading animation in ChatMessages
+    // Set initial streaming phase immediately for step-by-step visualization
+    setStreamingPhase("thinking")
 
     // Handle image generation mode - always use Gemini 3 Pro Image Preview
     if (imageMode) {

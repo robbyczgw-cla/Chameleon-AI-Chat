@@ -211,6 +211,8 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     clearDraft() // Clear saved draft after successful send
     setAttachedFiles([])
     setIsChatLoading(true)
+    // Set initial streaming phase immediately for step-by-step visualization
+    setStreamingPhase("thinking")
 
     // Handle image generation mode - always use Gemini 3 Pro Image Preview
     if (imageMode) {
