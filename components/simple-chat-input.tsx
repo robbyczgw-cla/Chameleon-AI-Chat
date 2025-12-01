@@ -629,7 +629,6 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         },
         // Enhanced streaming details for advanced mode
         onStreamingDetails: (details) => {
-          console.log("[Simple Chat] 📊 Streaming details:", details)
           setCurrentStreamingDetails(details)
           // Also add to streaming history with enhanced details
           if (details.phase || details.reasoningContent) {
