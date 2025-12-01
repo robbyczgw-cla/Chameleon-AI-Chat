@@ -175,7 +175,7 @@ function ChatApp() {
         </>
       )}
 
-      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 pb-[44px] md:pb-6 gap-0">
+      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 pb-[44px] md:pb-0 gap-0">
         <PersonaLevelUpNotifier />
         {isMobileSidebarOpen && (
           <div
@@ -217,7 +217,7 @@ function ChatApp() {
                 <div className="flex-1 overflow-hidden">
                   <ChatMessages currentPersona={settings.selectedPersona} />
                 </div>
-                <div className="flex-shrink-0 pb-4 md:pb-0">
+                <div className="flex-shrink-0 pb-4 md:pb-0 md:mt-0">
                   <BranchNavigator />
                   <ChatInput />
                 </div>
