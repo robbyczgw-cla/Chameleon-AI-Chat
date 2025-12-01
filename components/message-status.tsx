@@ -7,6 +7,7 @@ import {
   Activity, BarChart3, Lightbulb
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useApp } from "@/contexts/app-context"
 
 export type StreamingPhase = "idle" | "thinking" | "searching" | "tool_use" | "responding" | "done"
 
@@ -40,6 +41,9 @@ export interface MessageStatusProps {
     action?: string
     resultCount?: number
     resultSummary?: string
+    searchResultsPreview?: string
+    reasoningContent?: string
+    reasoningTokens?: number
   }
 }
 
@@ -191,8 +195,18 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
   modelName,
   streamingDetails,
 }: MessageStatusProps) {
+  const { settings } = useApp()
   const elapsed = useElapsedTime(currentPhase !== "idle" && currentPhase !== "done")
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set(["thinking"]))
+
+  // Get streaming visualization settings (with defaults)
+  const vizSettings = settings?.experimental?.streamingVisualization || {}
+  const showCurrentAction = vizSettings.showCurrentAction ?? true
+  const showToolParameters = vizSettings.showToolParameters ?? true
+  const showSearchProvider = vizSettings.showSearchProvider ?? true
+  const showSearchResults = vizSettings.showSearchResults ?? true
+  const showResultSummary = vizSettings.showResultSummary ?? true
+  const showReasoningTokens = vizSettings.showReasoningTokens ?? true
 
   // Don't render if idle or done
   if (currentPhase === "idle" || currentPhase === "done") {
@@ -388,7 +402,7 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                   {streamingDetails && step.status === "active" && (
                     <div className="space-y-2">
                       {/* Current action being performed */}
-                      {streamingDetails.action && (
+                      {showCurrentAction && streamingDetails.action && (
                         <div className="flex items-start gap-2 p-2 rounded-md bg-primary/10 border border-primary/20">
                           <Zap className="w-4 h-4 text-primary mt-0.5 flex-shrink-0 animate-pulse" />
                           <div className="flex-1 min-w-0">
@@ -403,7 +417,7 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                       )}
 
                       {/* Tool arguments display */}
-                      {streamingDetails.toolArguments && Object.keys(streamingDetails.toolArguments).length > 0 && (
+                      {showToolParameters && streamingDetails.toolArguments && Object.keys(streamingDetails.toolArguments).length > 0 && (
                         <div className="flex items-start gap-2 p-2 rounded-md bg-orange-500/10 border border-orange-500/20">
                           <Wrench className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
                           <div className="flex-1 min-w-0">
@@ -423,7 +437,7 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                       )}
 
                       {/* Search provider and parameters */}
-                      {streamingDetails.searchProvider && (
+                      {showSearchProvider && streamingDetails.searchProvider && (
                         <div className="flex items-start gap-2 p-2 rounded-md bg-purple-500/10 border border-purple-500/20">
                           <Network className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
                           <div className="flex-1 min-w-0">
@@ -439,7 +453,7 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                       )}
 
                       {/* Result summary */}
-                      {streamingDetails.resultSummary && (
+                      {showResultSummary && streamingDetails.resultSummary && (
                         <div className="flex items-start gap-2 p-2 rounded-md bg-green-500/10 border border-green-500/20">
                           <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                           <div className="flex-1 min-w-0">
@@ -449,6 +463,41 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                             <p className="text-sm text-foreground/80 mt-0.5">
                               {streamingDetails.resultSummary}
                             </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Reasoning tokens (o1, DeepSeek R1, etc.) */}
+                      {showReasoningTokens && streamingDetails.reasoningContent && (
+                        <div className="flex items-start gap-2 p-2 rounded-md bg-amber-500/10 border border-amber-500/20">
+                          <Lightbulb className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0 animate-pulse" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                              {lang === "de" ? "Denkt nach..." : lang === "es" ? "Razonando..." : "Reasoning..."}
+                            </p>
+                            <div className="text-xs text-foreground/70 mt-1 font-mono max-h-32 overflow-y-auto break-words whitespace-pre-wrap">
+                              {streamingDetails.reasoningContent}
+                            </div>
+                            {streamingDetails.reasoningTokens && (
+                              <p className="text-xs text-amber-600/70 dark:text-amber-400/70 mt-1">
+                                {streamingDetails.reasoningTokens} {lang === "de" ? "Reasoning-Tokens" : lang === "es" ? "tokens de razonamiento" : "reasoning tokens"}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Search results preview */}
+                      {showSearchResults && streamingDetails.searchResultsPreview && (
+                        <div className="flex items-start gap-2 p-2 rounded-md bg-cyan-500/10 border border-cyan-500/20">
+                          <FileSearch className="w-4 h-4 text-cyan-500 mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-cyan-600 dark:text-cyan-400">
+                              {lang === "de" ? "Suchergebnisse" : lang === "es" ? "Resultados de búsqueda" : "Search Results"}
+                            </p>
+                            <div className="text-xs text-foreground/70 mt-1 max-h-24 overflow-y-auto break-words">
+                              {streamingDetails.searchResultsPreview}
+                            </div>
                           </div>
                         </div>
                       )}

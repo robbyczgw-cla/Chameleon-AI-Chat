@@ -403,25 +403,6 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 />
               </div>
 
-
-              {/* Detailed Stats Toggle */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-lg border bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30">
-                <div className="space-y-0.5 flex-1">
-                  <Label htmlFor="detailed-stats" className="text-sm sm:text-base font-medium">📊 Detaillierte Stats anzeigen</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Zeigt Token-Nutzung, Kosten, Performance-Metriken und Such-Statistiken am Ende jeder Antwort an
-                  </p>
-                </div>
-                <Switch
-                  id="detailed-stats"
-                  checked={localSettings.showDetailedStats ?? false}
-                  onCheckedChange={(checked) =>
-                    setLocalSettings({ ...localSettings, showDetailedStats: checked })
-                  }
-                  className="flex-shrink-0"
-                />
-              </div>
-
               {/* Exa Search Toggle */}
               {hideOptions.includes("mode") && (
                 <div className="p-3 sm:p-4 rounded-lg border border-blue-500/30 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">

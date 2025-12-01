@@ -289,9 +289,11 @@ export async function POST(req: NextRequest) {
       openRouterBody.tool_choice = "auto"
     }
 
-    // Add reasoning parameter if enabled
+    // Add reasoning parameter if enabled (for Grok, o1, o3, DeepSeek R1, etc.)
     if (reasoning) {
       openRouterBody.reasoning = { effort: "medium" }
+      // CRITICAL: OpenRouter requires include_reasoning to actually return reasoning tokens
+      openRouterBody.include_reasoning = true
     }
 
     // Non-streaming request with tool calling
@@ -583,6 +585,11 @@ async function handleStreamingRequest(
 
           currentMessages.push(...toolResults)
 
+          // Extract preview from search results
+          const searchResultsPreview = toolResults.length > 0
+            ? toolResults[0].content.substring(0, 500) + (toolResults[0].content.length > 500 ? '...' : '')
+            : ''
+
           // Send search complete event with detailed results
           await writer.write(
             encoder.encode(
@@ -590,7 +597,8 @@ async function handleStreamingRequest(
                 choices: [{ delta: {
                   searchComplete: true,
                   searchResultCount: toolResults.length,
-                  resultSummary: `Found ${toolResults.length} result${toolResults.length !== 1 ? 's' : ''} from ${searchProvider}`
+                  resultSummary: `Found ${toolResults.length} result${toolResults.length !== 1 ? 's' : ''} from ${searchProvider}`,
+                  searchResultsPreview: searchResultsPreview
                 } }],
               })}\n\n`
             )

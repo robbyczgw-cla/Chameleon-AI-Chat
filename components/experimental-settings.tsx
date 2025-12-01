@@ -3,11 +3,14 @@
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useApp } from "@/contexts/app-context"
-import { FlaskRound, AlertTriangle, Zap } from "lucide-react"
+import { FlaskRound, AlertTriangle, Zap, Monitor } from "lucide-react"
+import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
+import { Separator } from "@/components/ui/separator"
 
 export function ExperimentalSettings() {
   const { settings, updateSettings } = useApp()
   const experimental = settings.experimental || {}
+  const isAdvancedMode = !settings.simpleMode
 
   const handleExperimentalChange = (updates: Partial<typeof experimental>) => {
     updateSettings({
@@ -99,6 +102,34 @@ export function ExperimentalSettings() {
           )}
         </div>
       </div>
+
+      {/* Streaming Visualization Settings (Advanced Mode Only) */}
+      {isAdvancedMode && (
+        <>
+          <Separator />
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Monitor className="h-5 w-5 text-primary" />
+              <div>
+                <h3 className="text-lg font-semibold">Streaming Visualization</h3>
+                <p className="text-xs text-muted-foreground">
+                  Advanced Mode only - Fine-tune what streaming details are displayed
+                </p>
+              </div>
+            </div>
+
+            <div className="pl-7">
+              <StreamingSettingsPanel
+                settings={experimental.streamingVisualization || {}}
+                onSettingsChange={(streamingVisualization) =>
+                  handleExperimentalChange({ streamingVisualization })
+                }
+                language={settings.language as "en" | "de" | "es"}
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

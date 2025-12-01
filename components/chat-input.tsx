@@ -829,15 +829,18 @@ export function ChatInput() {
           console.log("[Advanced Chat] 📊 Streaming details:", details)
           setCurrentStreamingDetails(details)
           // Also add to streaming history with enhanced details
-          if (details.phase) {
+          if (details.phase || details.reasoningContent) {
             addStreamingHistoryEntry({
-              phase: details.phase as any,
+              phase: details.phase as any || "thinking",
               toolName: details.toolName,
               toolArguments: details.toolArguments,
               searchProvider: details.searchProvider,
               searchParameters: details.searchParameters,
               action: details.action,
               resultCount: details.resultCount,
+              searchResultsPreview: details.searchResultsPreview,
+              reasoningContent: details.reasoningContent,
+              reasoningTokens: details.reasoningTokens,
               description: details.resultSummary || details.action
             })
           }
