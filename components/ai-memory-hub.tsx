@@ -43,6 +43,7 @@ export function AIMemoryHub() {
   const [memories, setMemories] = useState<Memory[]>([])
   const [isEnabled, setIsEnabled] = useState(settings.memorySettings?.enabled ?? false)
   const [syncToDatabase, setSyncToDatabase] = useState(settings.memorySettings?.syncToDatabase ?? false)
+  const [autoExtract, setAutoExtract] = useState(settings.memorySettings?.autoExtract ?? true)
   const [activeTab, setActiveTab] = useState<Memory["type"]>("preference")
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -62,7 +63,8 @@ export function AIMemoryHub() {
   useEffect(() => {
     setIsEnabled(settings.memorySettings?.enabled ?? false)
     setSyncToDatabase(settings.memorySettings?.syncToDatabase ?? false)
-  }, [settings.memorySettings?.enabled, settings.memorySettings?.syncToDatabase])
+    setAutoExtract(settings.memorySettings?.autoExtract ?? true)
+  }, [settings.memorySettings?.enabled, settings.memorySettings?.syncToDatabase, settings.memorySettings?.autoExtract])
 
   const loadMemories = () => {
     const allMemories = memoryService.getAllMemories()
@@ -110,6 +112,32 @@ export function AIMemoryHub() {
       toast({
         title: "Cloud Sync Disabled",
         description: "Memories stored locally only. More private.",
+        duration: 3000,
+      })
+    }
+  }
+
+  const toggleAutoExtract = (enabled: boolean) => {
+    console.log("[AIMemoryHub] Auto-extract toggled:", enabled)
+    setAutoExtract(enabled)
+
+    updateSettings({
+      memorySettings: {
+        ...settings.memorySettings,
+        autoExtract: enabled,
+      },
+    })
+
+    if (enabled) {
+      toast({
+        title: "Auto-Extract Enabled",
+        description: "AI will automatically extract important information from conversations.",
+        duration: 3000,
+      })
+    } else {
+      toast({
+        title: "Auto-Extract Disabled",
+        description: "Memories will only be added manually.",
         duration: 3000,
       })
     }
@@ -322,6 +350,32 @@ export function AIMemoryHub() {
             <Switch
               checked={syncToDatabase}
               onCheckedChange={toggleDatabaseSync}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Auto-Extract Toggle */}
+      {isEnabled && (
+        <div className="p-4 rounded-lg border bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 shadow-lg flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-sm">Auto-Extract Memories</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {autoExtract
+                    ? "AI automatically extracts important information from your conversations."
+                    : "You'll need to add memories manually."
+                  }
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={autoExtract}
+              onCheckedChange={toggleAutoExtract}
             />
           </div>
         </div>

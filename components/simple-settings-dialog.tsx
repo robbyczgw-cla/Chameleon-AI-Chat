@@ -64,6 +64,12 @@ const translations = {
     letAiRemember: "Let the AI remember important information",
     autoExtract: "Auto-Extract Memories",
     autoExtractDesc: "Automatically extract important information from conversations",
+    storageLocation: "Storage Location",
+    storageLocationDesc: "Where to store your memories",
+    localStorage: "Local (Private)",
+    localStorageDesc: "Store on this device only",
+    supabaseStorage: "Supabase (Cloud)",
+    supabaseStorageDesc: "Sync across devices",
     manageMemories: "Manage Memories",
     viewAndEdit: "View and edit your memories",
     apiKeysInfo: "API keys are needed for AI chat and voice features.",
@@ -125,6 +131,12 @@ const translations = {
     letAiRemember: "Lass die KI wichtige Informationen speichern",
     autoExtract: "Auto-Extraktion",
     autoExtractDesc: "Wichtige Informationen automatisch aus Gesprächen extrahieren",
+    storageLocation: "Speicherort",
+    storageLocationDesc: "Wo deine Erinnerungen gespeichert werden",
+    localStorage: "Lokal (Privat)",
+    localStorageDesc: "Nur auf diesem Gerät speichern",
+    supabaseStorage: "Supabase (Cloud)",
+    supabaseStorageDesc: "Über Geräte hinweg synchronisieren",
     manageMemories: "Erinnerungen verwalten",
     viewAndEdit: "Deine Erinnerungen ansehen und bearbeiten",
     apiKeysInfo: "API Keys werden für KI-Chat und Sprachfunktionen benötigt.",
@@ -186,6 +198,12 @@ const translations = {
     letAiRemember: "Permite a la IA recordar información importante",
     autoExtract: "Auto-Extracción",
     autoExtractDesc: "Extraer automáticamente información importante de las conversaciones",
+    storageLocation: "Ubicación de Almacenamiento",
+    storageLocationDesc: "Dónde almacenar tus recuerdos",
+    localStorage: "Local (Privado)",
+    localStorageDesc: "Almacenar solo en este dispositivo",
+    supabaseStorage: "Supabase (Nube)",
+    supabaseStorageDesc: "Sincronizar entre dispositivos",
     manageMemories: "Gestionar Recuerdos",
     viewAndEdit: "Ver y editar tus recuerdos",
     apiKeysInfo: "Las claves API son necesarias para el chat de IA y funciones de voz.",
@@ -701,10 +719,77 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                     />
                   </div>
 
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">{t.storageLocation}</Label>
+                    <p className="text-xs text-muted-foreground">{t.storageLocationDesc}</p>
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setLocalSettings({
+                            ...localSettings,
+                            memorySettings: {
+                              ...localSettings.memorySettings!,
+                              syncToDatabase: false,
+                            },
+                          })
+                        }
+                        className={cn(
+                          "w-full p-3 rounded-lg border text-left transition-all",
+                          !localSettings.memorySettings?.syncToDatabase
+                            ? "border-violet-500 bg-violet-500/10"
+                            : "border-border bg-muted/30 hover:border-violet-300"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-sm">{t.localStorage}</div>
+                            <div className="text-xs text-muted-foreground">{t.localStorageDesc}</div>
+                          </div>
+                          {!localSettings.memorySettings?.syncToDatabase && (
+                            <div className="h-4 w-4 rounded-full bg-violet-500 flex items-center justify-center">
+                              <div className="h-2 w-2 rounded-full bg-white" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setLocalSettings({
+                            ...localSettings,
+                            memorySettings: {
+                              ...localSettings.memorySettings!,
+                              syncToDatabase: true,
+                            },
+                          })
+                        }
+                        className={cn(
+                          "w-full p-3 rounded-lg border text-left transition-all",
+                          localSettings.memorySettings?.syncToDatabase
+                            ? "border-violet-500 bg-violet-500/10"
+                            : "border-border bg-muted/30 hover:border-violet-300"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-sm">{t.supabaseStorage}</div>
+                            <div className="text-xs text-muted-foreground">{t.supabaseStorageDesc}</div>
+                          </div>
+                          {localSettings.memorySettings?.syncToDatabase && (
+                            <div className="h-4 w-4 rounded-full bg-violet-500 flex items-center justify-center">
+                              <div className="h-2 w-2 rounded-full bg-white" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
                   <Button
                     variant="outline"
                     className="w-full justify-between"
-                    onClick={() => window.dispatchEvent(new Event("openMemoryManager"))}
+                    onClick={() => window.dispatchEvent(new Event("openMemory"))}
                   >
                     <span>{t.manageMemories}</span>
                     <ChevronRight className="h-4 w-4" />
