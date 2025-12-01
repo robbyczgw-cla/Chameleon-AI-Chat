@@ -2019,6 +2019,25 @@ html {
   isolation: isolate;
 }
 
+/* Force viewport-safe positioning for all dialogs */
+[data-slot="dialog-content"],
+[data-slot="alert-dialog-content"] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  max-height: min(90vh, calc(100dvh - 2rem)) !important;
+  max-width: calc(100vw - 2rem) !important;
+  overflow-y: auto !important;
+}
+
+@media (min-width: 768px) {
+  [data-slot="dialog-content"],
+  [data-slot="alert-dialog-content"] {
+    max-height: calc(100vh - 3rem) !important;
+  }
+}
+
 /* =========================================================================
    AlertDialog Fixes - Same solid background treatment
    ========================================================================= */
