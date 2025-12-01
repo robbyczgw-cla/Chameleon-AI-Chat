@@ -46,7 +46,15 @@ Like a chameleon adapting to its environment, this AI chat platform transforms t
 - 🖼️ **Image Optimization** - Next.js automatic WebP conversion and resizing
 - 👆 **Mobile-First Buttons** - Action buttons always visible on touch devices
 
-**Latest Features (v0.8.0-alpha):**
+**Latest Features (v0.9.0-alpha):**
+- 🎬 **Streaming Visualization** - Real-time phase indicators (Spark → Brain → Pencil) with smooth animations
+- 🪟 **Dialog Viewport Safety** - Dialogs no longer cut off, proper scrolling with `min(90vh, calc(100dvh-2rem))`
+- 👤 **User Profile Context** - Your name, occupation, and interests now passed to AI for personalized responses
+- 👁️ **Vision Model Updates** - Gemini 2.5 Flash/Pro Preview, Claude Sonnet 4, Claude Opus 4
+- 🔇 **Reasoning Spam Fix** - Reduced console logging by 99% during extended thinking
+- 📐 **Desktop Layout** - Chat input now sits directly at bottom (more vertical space)
+
+**v0.8.0 Features:**
 - 🤖 **AI-Driven Web Search** - AI decides when to search using tool calling (Grok 4.1 Fast)
 - 🔧 **MCP Integration** - Model Context Protocol server management in Advanced Mode
 - ✨ **Blocks-Style UI** - Modern chat input inspired by [blocks.so](https://github.com/ephraimduncan/blocks)

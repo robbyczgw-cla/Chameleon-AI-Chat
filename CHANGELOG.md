@@ -6,6 +6,78 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 ---
 
+## [0.9.0-alpha] - 2025-12-01
+
+### Streaming Visualization System (2025-12-01)
+- **Real-Time Phase Indicators** - Visual feedback during AI processing
+  - New icon system: Spark (starting) → Brain (thinking) → Pencil (writing)
+  - Phase colors: Blue spark → Amber thinking → Purple writing
+  - Smooth transitions between phases
+  - Files: `components/message-status-indicator.tsx`, `lib/streaming-visualizer.ts`
+- **Streaming Details Panel** - Live debug information
+  - Shows current phase, tokens, model, reasoning status
+  - Collapsible panel in advanced mode
+  - Real-time token counting during generation
+- **Phase Change Optimization** - Reduced console spam by 99%
+  - Only sends phase "thinking" ONCE when reasoning starts
+  - Prevents 1000+ duplicate phase change events
+  - Files: `app/api/chat/route.ts`, `lib/openrouter.ts`
+
+### Dialog Viewport Safety (2025-12-01)
+- **Viewport-Safe Height Caps** - Dialogs no longer cut off
+  - Uses `min(90vh, calc(100dvh-2rem))` for mobile browser chrome
+  - Desktop fallback: `md:max-h-[calc(100vh-3rem)]`
+  - All dialogs now scrollable when content exceeds viewport
+  - Files: `components/ui/dialog.tsx`, `components/ui/alert-dialog.tsx`
+- **Nested Dialog Support** - Higher z-index for dialogs within dialogs
+  - `nested` prop with conditional z-index (z-[10999] vs z-[9999])
+  - Ensures Add Model dialog appears above Advanced Settings
+  - Files: `components/model-management.tsx`
+- **Delete All Chats Fix** - Confirmation dialog now always visible
+  - Added explicit viewport constraints
+  - Proper positioning on all screen sizes
+  - Files: `components/chat-sidebar.tsx`
+
+### User Profile Context (2025-12-01)
+- **Profile Injection** - User info now passed to AI
+  - Name, age, occupation, interests sent in system prompt
+  - Works with all personas and models
+  - Files: `components/chat-input.tsx`, `lib/user-profile.ts`
+
+### Chat Input Layout (2025-12-01)
+- **Desktop Bottom Position** - Input sits directly at bottom
+  - Removed floating padding: `md:pb-6` → `md:pb-0`
+  - More vertical space for chat messages
+  - Mobile layout unchanged
+  - Files: `app/page.tsx`
+
+### Vision Model Updates (2025-12-01)
+- **Expanded Vision Support** - More models with image capabilities
+  - Added: `google/gemini-2.5-flash-preview`, `google/gemini-2.5-pro-preview`
+  - Added: `anthropic/claude-sonnet-4`, `anthropic/claude-opus-4`
+  - Improved vision detection regex patterns
+  - Files: `lib/openrouter.ts`
+
+### Bug Fixes
+- **Reasoning Phase Spam** - Fixed console flooding during extended thinking
+  - Reduced from 1000+ logs to 1 per reasoning session
+- **Dialog Cutoff** - Fixed unusable dialogs on desktop advanced mode
+  - Add Model dialog, Delete All Chats confirmation now work properly
+
+### Commits (2025-12-01)
+- `c621039` docs: Update ARCHITECTURE.md with last 3 days of changes
+- `5008d0f` fix: Add viewport constraints to delete all chats dialog
+- `20044d2` merge: Combine viewport caps with nested prop from main
+- `2d667eb` fix: Apply viewport-safe height caps to dialogs
+- `3f321e8` Merge pull request #187 from robbyczgw-cla/claude/fix-dialog-cutoff-desktop
+- `ecd2190` fix: Chat input bottom position on desktop
+- `e784dd6` fix: Stop phase change spam during reasoning
+- `5372d9f` feat: Add user profile context to system prompt
+- `1a9bd3a` fix: Initial fix for add model dialog cutoff
+- `3dd01f4` fix: Complete dialog viewport fix for all dialogs
+
+---
+
 ## [0.8.0-alpha] - 2025-11-30
 
 ### Simple Mode Polish (2025-11-30)
@@ -825,6 +897,7 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.9.0-alpha | 2025-12-01 | Streaming visualization, dialog viewport safety, user profile context, vision models |
 | 0.8.0-alpha | 2025-11-30 | AI tool calling search, MCP integration, blocks-style UI, mobile polish |
 | 0.7.0-alpha | 2025-11-26 | Message editing, full-text search, AI titles, PWA stability |
 | 0.6.0-alpha | 2025-11-24 | Context window meter, pet companion, performance mode |
