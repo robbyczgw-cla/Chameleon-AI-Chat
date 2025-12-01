@@ -6,6 +6,7 @@ export const runtime = 'edge'
 // Image generation models (multimodal models that can generate images)
 const IMAGE_MODELS = {
   // Google Gemini Image models (primary)
+  'google/gemini-3-pro-image-preview': { name: 'Gemini 3 Pro Image Preview', multimodal: true },
   'google/gemini-2.5-flash-image': { name: 'Gemini 2.5 Flash Image', multimodal: true },
   'google/gemini-2.5-flash-image-preview': { name: 'Gemini 2.5 Flash Image Preview', multimodal: true },
 
@@ -18,6 +19,9 @@ const IMAGE_MODELS = {
   'black-forest-labs/flux-pro': { name: 'Flux Pro', multimodal: true },
   'stability-ai/stable-diffusion-xl': { name: 'Stable Diffusion XL', multimodal: true },
 }
+
+// Default image model
+const DEFAULT_IMAGE_MODEL = 'google/gemini-3-pro-image-preview'
 
 /**
  * Generate images using OpenRouter's image models
@@ -61,10 +65,10 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Default to Gemini 2.5 Flash Image if model not specified or not an image model
+    // Default to Gemini 3 Pro Image Preview if model not specified or not an image model
     const imageModel = IMAGE_MODELS[model as keyof typeof IMAGE_MODELS]
       ? model
-      : 'google/gemini-2.5-flash-image'
+      : DEFAULT_IMAGE_MODEL
 
     const modelConfig = IMAGE_MODELS[imageModel as keyof typeof IMAGE_MODELS]
     console.log(`[Image Gen] Using model: ${imageModel}, config:`, modelConfig)

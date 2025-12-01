@@ -207,26 +207,23 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     setAttachedFiles([])
     setIsChatLoading(true)
 
-    // Handle image generation mode
+    // Handle image generation mode - always use Gemini 3 Pro Image Preview
     if (imageMode) {
       try {
-        const imageModel = settings.selectedModel || "openai/dall-e-3"
-        const isDallE = imageModel === 'openai/dall-e-2' || imageModel === 'openai/dall-e-3'
-        const apiKey = isDallE
-          ? settings.apiKeys.openAI
-          : settings.apiKeys.openRouter
+        const imageModel = "google/gemini-3-pro-image-preview"
+        const apiKey = settings.apiKeys.openRouter
 
         if (!apiKey) {
           throw new Error(
-            isDallE
-              ? 'OpenAI API key required for DALL-E. Add it in Settings → API'
+            settings.language === "de"
+              ? 'OpenRouter API-Schlüssel erforderlich. Füge ihn unter Einstellungen → API hinzu'
               : 'OpenRouter API key required. Add it in Settings → API'
           )
         }
 
         toast({
           title: settings.language === "de" ? "🎨 Generiere Bild..." : "🎨 Generating image...",
-          description: `${settings.language === "de" ? "Verwende" : "Using"} ${imageModel}`,
+          description: `${settings.language === "de" ? "Verwende" : "Using"} Gemini 3 Pro`,
         })
 
         const response = await fetch('/api/generate-image', {
