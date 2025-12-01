@@ -26,6 +26,7 @@ import { memoryService } from "@/lib/memory-service"
 import { personaMemoryService } from "@/lib/persona-memory-service"
 import { personaContextAwareness } from "@/lib/persona-context-awareness"
 import { personaPreferencesService } from "@/lib/persona-preferences-service"
+import { userProfileService } from "@/lib/user-profile"
 import { TokenCounterPreview } from "@/components/token-counter-preview"
 import { ContextWindowMeter } from "@/components/context-window-meter"
 import { parseSlashCommand, getCommandSuggestions, buildCommandPrompt, SLASH_COMMANDS } from "@/lib/slash-commands"
@@ -476,6 +477,14 @@ export function ChatInput() {
         systemPrompt = `${settings.selectedPersona.prompt}${languageInstruction}`
         console.log("[v0] Using persona with legacy prompt:", settings.selectedPersona.name)
       }
+    }
+
+    // Add user profile context if available
+    const userProfile = userProfileService.getProfile()
+    const profileContext = userProfileService.getProfileContext(userProfile)
+    if (profileContext) {
+      systemPrompt = `${systemPrompt}${profileContext}`
+      console.log("[v0] User profile context added to system prompt")
     }
 
     const messages = [
