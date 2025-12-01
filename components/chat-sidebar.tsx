@@ -427,7 +427,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
       )}
 
       <AlertDialog open={isDeleteAllOpen} onOpenChange={setIsDeleteAllOpen}>
-        <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogContent nested className="sm:max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete all chats?</AlertDialogTitle>
             <AlertDialogDescription>
