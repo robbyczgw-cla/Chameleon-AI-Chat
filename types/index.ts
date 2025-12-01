@@ -219,11 +219,58 @@ export interface UsageStats {
   lastUpdated: number
 }
 
+/**
+ * Streaming Visualization Settings
+ * Fine-grained control over what streaming details to display (Advanced Mode only)
+ */
+export interface StreamingVisualizationSettings {
+  // Core Information
+  showCurrentAction?: boolean // Show what the AI is currently doing
+  showToolParameters?: boolean // Show exact tool arguments
+  showSearchProvider?: boolean // Show search provider and parameters
+
+  // Search & Results
+  showSearchResults?: boolean // Show preview of actual search results content
+  showResultSummary?: boolean // Show result counts and summaries
+
+  // Reasoning & Thinking
+  showReasoningTokens?: boolean // Show reasoning/thinking process (o1, DeepSeek R1)
+  showExtendedThinking?: boolean // Show extended thinking indicators
+
+  // Performance Metrics
+  showTokenUsage?: boolean // Show real-time token counts (prompt, completion, total)
+  showLatencyMetrics?: boolean // Show time to first token (TTFT)
+  showStreamingSpeed?: boolean // Show tokens/second and characters/second
+  showCostEstimates?: boolean // Show real-time cost tracking
+
+  // Context & Progress
+  showContextUsage?: boolean // Show percentage of context window used
+  showProgressIndicators?: boolean // Show progress bars and estimates
+  showEstimatedTime?: boolean // Show estimated time remaining
+
+  // Advanced Details
+  showModelInfo?: boolean // Show model name and provider
+  showGenerationId?: boolean // Show generation ID for tracking
+  showCacheStatus?: boolean // Show prompt cache hits
+  showRetryAttempts?: boolean // Show retry attempts on failures
+  showToolChains?: boolean // Show sequence of multiple tool calls
+
+  // Warnings & Errors
+  showRateLimitWarnings?: boolean // Show when approaching rate limits
+  showErrorDetails?: boolean // Show detailed error information
+
+  // Timing & Duration
+  showPhaseDurations?: boolean // Show how long each phase took
+  showTimestamps?: boolean // Show timestamps for each event
+}
+
 export interface ExperimentalSettings {
   // Response Analysis
   enableResponseAnalysis?: boolean
   // Performance Mode: Disable GPU-intensive effects (chameleon color-shift, memory blink, etc.)
   performanceMode?: boolean
+  // Streaming Visualization (Advanced Mode only)
+  streamingVisualization?: StreamingVisualizationSettings
 }
 
 export interface AppSettings {

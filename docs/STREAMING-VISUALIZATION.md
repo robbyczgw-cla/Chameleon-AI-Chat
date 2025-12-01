@@ -1311,3 +1311,266 @@ This enhanced streaming visualization system provides:
 ✅ **Extensible** - Easy to add new phases, tools, and details
 
 The system is production-ready and provides a Claude.ai/Claude Code-level streaming experience.
+
+---
+
+## Streaming Visualization Settings (Advanced Mode)
+
+### Overview
+
+The streaming visualization system now includes a comprehensive settings panel that allows users to fine-tune exactly what streaming details are displayed. This provides full control over the visualization experience while maintaining performance.
+
+**Location:** Settings → Labs (Experimental) → Streaming Visualization (Advanced Mode Only)
+
+### Features
+
+#### Quick Presets
+
+Three predefined configurations for different use cases:
+
+1. **Minimal** - Essential information only
+   - Current action, search provider, result summary
+   - Reasoning tokens, error details
+   - Model info, progress indicators
+   
+2. **Balanced** (Recommended)
+   - All minimal features PLUS
+   - Tool parameters, search results preview
+   - Performance metrics (tokens, latency, speed)
+   - Extended thinking, tool chains
+   - Phase durations
+   
+3. **Maximum** - Everything enabled
+   - All features including advanced details
+   - Generation IDs, cache status
+   - Timestamps, context usage
+   - Full debugging information
+
+#### Toggleable Visualizations
+
+**Core Information**
+- `showCurrentAction` - Real-time action descriptions
+- `showToolParameters` - Exact tool arguments
+- `showSearchProvider` - Provider and parameter counts
+
+**Search & Results**
+- `showSearchResults` - Preview of actual content (500 chars)
+- `showResultSummary` - Result counts and summaries
+
+**Reasoning & Thinking**
+- `showReasoningTokens` - o1/DeepSeek R1 reasoning process
+- `showExtendedThinking` - Extended thinking indicators
+
+**Performance Metrics** (Planned)
+- `showTokenUsage` - Real-time token counts
+- `showLatencyMetrics` - Time to first token (TTFT)
+- `showStreamingSpeed` - Tokens/second, chars/second
+- `showCostEstimates` - Real-time cost tracking
+
+**Context & Progress**
+- `showContextUsage` - Context window percentage
+- `showProgressIndicators` - Progress bars
+- `showEstimatedTime` - Time remaining estimates
+
+**Advanced Details** (Planned)
+- `showModelInfo` - Model name and provider
+- `showGenerationId` - Request tracking IDs
+- `showCacheStatus` - Prompt cache hits
+- `showRetryAttempts` - Failed request retries
+- `showToolChains` - Multi-tool sequences
+
+**Warnings & Errors**
+- `showRateLimitWarnings` - Rate limit alerts
+- `showErrorDetails` - Detailed error information
+
+**Timing & Duration**
+- `showPhaseDurations` - Phase completion times
+- `showTimestamps` - Event timestamps
+
+### Implementation
+
+#### Type Definition
+
+```typescript
+export interface StreamingVisualizationSettings {
+  // Core Information
+  showCurrentAction?: boolean
+  showToolParameters?: boolean
+  showSearchProvider?: boolean
+  
+  // Search & Results
+  showSearchResults?: boolean
+  showResultSummary?: boolean
+  
+  // Reasoning & Thinking
+  showReasoningTokens?: boolean
+  showExtendedThinking?: boolean
+  
+  // Performance Metrics
+  showTokenUsage?: boolean
+  showLatencyMetrics?: boolean
+  showStreamingSpeed?: boolean
+  showCostEstimates?: boolean
+  
+  // Context & Progress
+  showContextUsage?: boolean
+  showProgressIndicators?: boolean
+  showEstimatedTime?: boolean
+  
+  // Advanced Details
+  showModelInfo?: boolean
+  showGenerationId?: boolean
+  showCacheStatus?: boolean
+  showRetryAttempts?: boolean
+  showToolChains?: boolean
+  
+  // Warnings & Errors
+  showRateLimitWarnings?: boolean
+  showErrorDetails?: boolean
+  
+  // Timing & Duration
+  showPhaseDurations?: boolean
+  showTimestamps?: boolean
+}
+```
+
+#### Usage in Components
+
+```typescript
+// In MessageStatusVerbose component
+const { settings } = useApp()
+const vizSettings = settings?.experimental?.streamingVisualization || {}
+
+// Check settings before rendering
+{vizSettings.showReasoningTokens !== false && streamingDetails.reasoningContent && (
+  <div className="reasoning-card">
+    {/* Reasoning visualization */}
+  </div>
+)}
+```
+
+#### Default Values
+
+All settings default to `true` for maximum transparency. Users can selectively disable features they don't need:
+
+```typescript
+const showReasoningTokens = vizSettings.showReasoningTokens ?? true
+const showToolParameters = vizSettings.showToolParameters ?? true
+// etc.
+```
+
+### Benefits
+
+1. **Performance**: Users can disable expensive visualizations
+2. **Focus**: Reduce visual clutter for specific use cases
+3. **Customization**: Tailor the experience to individual preferences
+4. **Learning**: New users can start minimal, advanced users can enable everything
+5. **Debugging**: Maximum mode provides comprehensive debugging information
+
+### Best Practices
+
+#### For Different User Types
+
+**Beginners**
+- Use "Minimal" preset
+- Focus on understanding basic AI operations
+- Gradually enable more features as needed
+
+**Regular Users**
+- Use "Balanced" preset (recommended)
+- Get important insights without overwhelming detail
+- Enable specific features for particular tasks
+
+**Developers/Researchers**
+- Use "Maximum" preset
+- Full transparency into AI operations
+- Debug issues and understand performance
+
+#### Performance Considerations
+
+If experiencing performance issues:
+1. Disable `showReasoningTokens` (can be large)
+2. Disable `showSearchResults` (preview content)
+3. Disable `showToolParameters` (JSON rendering)
+4. Disable `showTimestamps` (frequent updates)
+
+#### Privacy Considerations
+
+Some visualizations show sensitive data:
+- `showSearchResults` - Shows actual search content
+- `showToolParameters` - May include search queries
+- `showGenerationId` - Request tracking information
+
+Disable these when screen sharing or recording.
+
+### API Reference
+
+#### StreamingSettingsPanel Component
+
+```typescript
+<StreamingSettingsPanel
+  settings={streamingVisualizationSettings}
+  onSettingsChange={(newSettings) => updateSettings(newSettings)}
+  language="en" | "de" | "es"
+/>
+```
+
+**Props:**
+- `settings`: Current visualization settings
+- `onSettingsChange`: Callback when settings change
+- `language`: UI language (optional, default: "en")
+
+**Features:**
+- Organized by category
+- Tooltips with descriptions
+- Quick preset buttons
+- Real-time toggle switches
+- Multilingual support (EN/DE/ES)
+
+### Future Enhancements
+
+Planned additions to streaming visualization:
+
+1. **Real-time Metrics**
+   - Token usage counters
+   - Streaming speed (tokens/sec)
+   - Cost estimates
+   - Latency measurements (TTFT)
+
+2. **Advanced Tracking**
+   - Context window usage bars
+   - Cache hit/miss indicators
+   - Retry attempt tracking
+   - Rate limit warnings
+
+3. **Visual Enhancements**
+   - Interactive timelines
+   - Performance graphs
+   - Cost breakdown charts
+   - Tool chain diagrams
+
+4. **Export Features**
+   - Export streaming logs
+   - Performance reports
+   - Debugging information
+   - Timeline screenshots
+
+### Research Sources
+
+Implementation based on:
+- [OpenRouter API Streaming](https://openrouter.ai/api/api-reference/streaming)
+- [Usage Accounting](https://openrouter.ai/docs/use-cases/usage-accounting)
+- [SSE Best Practices 2025](https://procedure.tech/blogs/the-streaming-backbone-of-llms-why-server-sent-events-(sse)-still-wins-in-2025)
+- [Reasoning Tokens](https://openrouter.ai/docs/use-cases/reasoning-tokens)
+
+### Conclusion
+
+The streaming visualization settings system provides unprecedented control over what users see during AI operations. By allowing fine-grained customization, users can:
+
+- **Optimize performance** by disabling unnecessary visualizations
+- **Focus on relevant information** for their specific use case
+- **Learn progressively** by enabling features as they become comfortable
+- **Debug effectively** with maximum transparency when needed
+
+This system represents a significant advancement in AI UX, providing both simplicity for beginners and power for advanced users.
+
