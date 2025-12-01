@@ -1989,6 +1989,379 @@ body: JSON.stringify({
 
 ---
 
+## Recent Changes (Last 3 Days)
+
+*Updated: 2025-12-01*
+
+### Overview
+
+The last 3 days focused on three major areas:
+1. **Streaming Visualization System** - Real-time feedback during AI responses
+2. **Dialog Viewport Safety** - Preventing modal cutoff on desktop
+3. **Performance & UX Fixes** - Reasoning spam, chat layout, vision models
+
+---
+
+### 1. Streaming Visualization System
+
+**Commits**: `de13aa6`, `4d7b6e0`, `5c2dac9`, `e178f64`, `a373368`, `0085567`, `6e735e4`
+
+A comprehensive system showing users exactly what the AI is doing during response generation.
+
+#### Architecture
+
+```
+User sends message
+      ↓
+┌─────────────────────────────────────────┐
+│ Phase: "thinking" (immediately)          │
+│ - Spinner animation                      │
+│ - "Processing your request..."           │
+└─────────────────────────────────────────┘
+      ↓
+┌─────────────────────────────────────────┐
+│ Phase: "searching" (if web search)       │
+│ - Search icon animation                  │
+│ - "Searching the web..."                 │
+│ - Live search results preview            │
+└─────────────────────────────────────────┘
+      ↓
+┌─────────────────────────────────────────┐
+│ Phase: "reasoning" (if model supports)   │
+│ - Brain icon animation                   │
+│ - "Extended thinking..."                 │
+│ - Live reasoning token count             │
+│ - Expandable reasoning content           │
+└─────────────────────────────────────────┘
+      ↓
+┌─────────────────────────────────────────┐
+│ Phase: "generating"                      │
+│ - Typing animation                       │
+│ - Live token count                       │
+│ - Tokens per second display              │
+└─────────────────────────────────────────┘
+      ↓
+┌─────────────────────────────────────────┐
+│ Phase: "complete"                        │
+│ - Streaming history saved                │
+│ - Final stats displayed                  │
+└─────────────────────────────────────────┘
+```
+
+#### Key Files
+
+| File | Purpose |
+|------|---------|
+| `components/streaming-indicator.tsx` | Main visualization component |
+| `components/streaming-settings-menu.tsx` | User preferences for display |
+| `contexts/app-context.tsx` | Streaming state management |
+| `app/api/chat/route.ts` | Phase emission during streaming |
+| `lib/openrouter.ts` | Streaming details callback |
+
+#### Streaming Details Interface
+
+```typescript
+interface StreamingDetails {
+  phase: "thinking" | "searching" | "reasoning" | "generating" | "complete"
+  action?: string           // Human-readable status
+  reasoningContent?: string // Live reasoning tokens
+  searchResults?: SearchResult[]
+  tokenCount?: number
+  tokensPerSecond?: number
+}
+```
+
+#### Streaming History
+
+After completion, messages store their streaming history:
+
+```typescript
+interface StreamingHistoryEntry {
+  phase: string
+  timestamp: number
+  duration?: number
+  details?: {
+    reasoningTokens?: number
+    searchQueries?: string[]
+    finalTokenCount?: number
+  }
+}
+```
+
+#### Advanced Mode Features
+
+When `settings.simpleMode === false`:
+- Verbose streaming visualization
+- Live token counts
+- Reasoning token preview
+- Search results preview
+- Streaming history on completed messages
+
+#### Settings Integration
+
+```typescript
+interface StreamingVisualizationSettings {
+  showTokenCount: boolean      // Display live token count
+  showPhaseDetails: boolean    // Show detailed phase info
+  showReasoningPreview: boolean // Preview reasoning content
+  showSearchPreview: boolean   // Preview search results
+  compactMode: boolean         // Minimal UI mode
+}
+```
+
+---
+
+### 2. Dialog Viewport Safety System
+
+**Commits**: `1a9bd3a`, `3dd01f4`, `bd0a678`, `b5ece4a`, `2d667eb`, `5008d0f`
+
+Comprehensive fix for dialogs being cut off on desktop, especially nested dialogs.
+
+#### The Problem
+
+```
+Desktop viewport (1920x1080)
+┌────────────────────────────────────────────┐
+│ ┌──────────────────────────────────────┐   │
+│ │ Advanced Settings Dialog              │   │
+│ │ ┌────────────────────────────────┐   │   │
+│ │ │ Add Models Dialog              │   │   │
+│ │ │                                │   │   │
+│ │ │  ← CUT OFF! Can't see bottom   │   │   │
+│ │ │    buttons or scroll           │   │   │
+│ │ └────────────────────────────────┘   │   │
+│ └──────────────────────────────────────┘   │
+└────────────────────────────────────────────┘
+```
+
+#### Solution: Multi-Layer Approach
+
+**Layer 1: Portal to document.body**
+```typescript
+// components/ui/dialog.tsx
+function DialogPortal({ ...props }) {
+  return (
+    <DialogPrimitive.Portal
+      container={typeof window !== 'undefined' ? document.body : undefined}
+      {...props}
+    />
+  )
+}
+```
+
+**Layer 2: High Z-Index**
+```typescript
+// Overlay: z-[9998]
+// Content: z-[9999]
+// Nested overlay: z-[10998]
+// Nested content: z-[10999]
+```
+
+**Layer 3: Viewport-Safe Height Caps**
+```css
+/* Base dialogs */
+max-h-[min(90vh,calc(100dvh-2rem))]
+md:max-h-[calc(100vh-3rem)]
+
+/* Add Model dialog (nested) */
+max-h-[min(85vh,calc(100dvh-3rem))]
+md:max-h-[calc(100vh-3rem)]
+```
+
+**Layer 4: Nested Dialog Support**
+```typescript
+// Dialog with nested prop
+<DialogContent nested className="...">
+
+// Automatically gets higher z-index
+nested ? 'z-[10999]' : 'z-[9999]'
+```
+
+#### CSS Reinforcement
+
+```css
+/* app/globals.css */
+
+/* Nested dialogs - ensure they render above parent dialogs */
+[data-slot="dialog-content"][data-nested="true"],
+[data-slot="alert-dialog-content"][data-nested="true"] {
+  z-index: 10999 !important;
+}
+
+[data-slot="dialog-overlay"][data-nested="true"],
+[data-slot="alert-dialog-overlay"][data-nested="true"] {
+  z-index: 10998 !important;
+}
+```
+
+#### Dialog Sizing Quick Reference
+
+| Dialog Type | Width Classes | Height Classes |
+|-------------|---------------|----------------|
+| Base Dialog | `max-w-[calc(100%-2rem)] sm:max-w-lg` | `max-h-[min(90vh,calc(100dvh-2rem))] md:max-h-[calc(100vh-3rem)]` |
+| Alert Dialog | `max-w-[calc(100%-2rem)] sm:max-w-md` | Same as base |
+| Add Model | `w-[95vw] sm:max-w-2xl lg:max-w-4xl` | `max-h-[min(85vh,calc(100dvh-3rem))] md:max-h-[calc(100vh-3rem)]` |
+
+#### Key Changes Summary
+
+| File | Change |
+|------|--------|
+| `components/ui/dialog.tsx` | Portal to body, viewport caps, nested prop |
+| `components/ui/alert-dialog.tsx` | Same as dialog |
+| `components/model-management.tsx` | `nested` prop, custom sizing |
+| `components/chat-sidebar.tsx` | Viewport constraints on delete dialog |
+| `app/globals.css` | CSS reinforcement for nested z-index |
+
+---
+
+### 3. Reasoning Phase Spam Fix
+
+**Commit**: `e784dd6`
+
+#### The Problem
+
+During reasoning, "phase: thinking" was sent with EVERY token:
+
+```
+[v0] 📍 Phase change: thinking
+[v0] 📍 Phase change: thinking  ← Repeated 1000+ times!
+[v0] 📍 Phase change: thinking
+```
+
+#### The Solution
+
+Send phase ONCE, then only content:
+
+```typescript
+// app/api/chat/route.ts
+let hasStartedReasoning = false
+
+// In streaming loop:
+if (reasoningContent && !hasStartedReasoning) {
+  hasStartedReasoning = true
+  // Send phase change ONCE
+  await writer.write(encoder.encode(`data: ${JSON.stringify({
+    choices: [{ delta: { phase: "thinking" } }]
+  })}\n\n`))
+}
+
+// Send content WITHOUT phase
+await writer.write(encoder.encode(`data: ${JSON.stringify({
+  choices: [{ delta: { reasoning_content: reasoningContent } }]
+})}\n\n`))
+```
+
+#### Result
+
+- Console logs: 1000+ → 1 per reasoning session
+- UI still works correctly
+- Reasoning accumulates properly
+
+---
+
+### 4. User Profile Context
+
+**Commit**: `5372d9f`
+
+User profile information (name, age, occupation, interests) now injected into system prompt.
+
+```typescript
+// components/chat-input.tsx
+const userProfile = userProfileService.getProfile()
+const profileContext = userProfileService.getProfileContext(userProfile)
+if (profileContext) {
+  systemPrompt = `${systemPrompt}${profileContext}`
+}
+```
+
+**Injected format**:
+```
+User Profile Information:
+- Name: John
+- Age: 30
+- Occupation: Software Engineer
+- Location: Berlin
+- Interests: AI, Music, Photography
+```
+
+---
+
+### 5. Chat Input Desktop Layout
+
+**Commit**: `ecd2190`
+
+Removed unnecessary bottom padding on desktop for more chat space.
+
+```typescript
+// app/page.tsx
+
+// Before: pb-[44px] md:pb-6
+// After:  pb-[44px] md:pb-0
+
+<div className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 pb-[44px] md:pb-0 gap-0">
+```
+
+---
+
+### 6. Vision Model Updates
+
+**Commit**: `4e66952`
+
+Added new models to vision-capable list:
+
+```typescript
+// lib/openrouter.ts (or relevant file)
+const VISION_MODELS = [
+  // ... existing models
+  'gemini-3',
+  'gemini-3-flash',
+  // ... image generation models
+]
+```
+
+---
+
+### Documentation Files Created
+
+| File | Purpose |
+|------|---------|
+| `DIALOG_VIEWPORT_FIX.md` | Complete guide for dialog fixes |
+| `RECENT_FIXES_DOCUMENTATION.md` | Step-by-step implementation guide |
+| `docs/STREAMING-VISUALIZATION.md` | Streaming system documentation |
+| `docs/STREAMING-VISUALIZATION-GUIDE.md` | Implementation guide |
+| `docs/UNIFIED-VISUALIZATION-SETTINGS.md` | Settings system proposal |
+| `docs/REASONING-MODES.md` | Reasoning toggle documentation |
+| `docs/LLM-CHAT-IMAGE-FIXES.md` | Vision model fixes |
+
+---
+
+### Testing Checklist
+
+#### Streaming Visualization
+- [ ] Phase indicator shows during response
+- [ ] Reasoning content accumulates (with reasoning toggle ON)
+- [ ] Search results preview appears (with web search)
+- [ ] Streaming history visible on completed messages (advanced mode)
+- [ ] Settings menu controls what's displayed
+
+#### Dialog Viewport
+- [ ] Add Model dialog fully visible on desktop
+- [ ] Delete All Chats dialog fully visible
+- [ ] Nested dialogs render above parent
+- [ ] Dialogs scroll when content exceeds viewport
+- [ ] Mobile dialogs work correctly
+
+#### Reasoning Fix
+- [ ] Console shows only ONE "phase: thinking" per session
+- [ ] Reasoning content still accumulates in UI
+- [ ] Amber reasoning card displays properly
+
+#### Profile Context
+- [ ] AI uses user's name in responses
+- [ ] Profile preferences reflected in responses
+
+---
+
 ## Future Improvements
 
 ### Planned Features
