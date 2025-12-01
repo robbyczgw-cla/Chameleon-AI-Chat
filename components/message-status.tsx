@@ -30,6 +30,17 @@ export interface MessageStatusProps {
   language?: "en" | "de" | "es"
   verbose?: boolean // Enable verbose mode for advanced users
   modelName?: string
+  // Enhanced streaming details (for advanced mode)
+  streamingDetails?: {
+    phase?: string
+    toolName?: string
+    toolArguments?: Record<string, any>
+    searchProvider?: string
+    searchParameters?: Record<string, any>
+    action?: string
+    resultCount?: number
+    resultSummary?: string
+  }
 }
 
 // Tool name translations with descriptions
@@ -178,6 +189,7 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
   reasoningVisible = false,
   language = "en",
   modelName,
+  streamingDetails,
 }: MessageStatusProps) {
   const elapsed = useElapsedTime(currentPhase !== "idle" && currentPhase !== "done")
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set(["thinking"]))
@@ -372,8 +384,79 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
               {/* Expanded content */}
               {isExpanded && (
                 <div className="px-3 pb-3 pt-0 ml-11 space-y-2">
-                  {/* Search query display */}
-                  {step.detail && step.type === "searching" && (
+                  {/* Enhanced streaming details display (like Claude.ai/Claude Code) */}
+                  {streamingDetails && step.status === "active" && (
+                    <div className="space-y-2">
+                      {/* Current action being performed */}
+                      {streamingDetails.action && (
+                        <div className="flex items-start gap-2 p-2 rounded-md bg-primary/10 border border-primary/20">
+                          <Zap className="w-4 h-4 text-primary mt-0.5 flex-shrink-0 animate-pulse" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-primary">
+                              {lang === "de" ? "Aktuelle Aktion" : lang === "es" ? "Acción actual" : "Current Action"}
+                            </p>
+                            <p className="text-sm text-foreground mt-0.5 break-words">
+                              {streamingDetails.action}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Tool arguments display */}
+                      {streamingDetails.toolArguments && Object.keys(streamingDetails.toolArguments).length > 0 && (
+                        <div className="flex items-start gap-2 p-2 rounded-md bg-orange-500/10 border border-orange-500/20">
+                          <Wrench className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-orange-600 dark:text-orange-400">
+                              {lang === "de" ? "Tool-Parameter" : lang === "es" ? "Parámetros de herramienta" : "Tool Parameters"}
+                            </p>
+                            <div className="mt-1 space-y-1">
+                              {Object.entries(streamingDetails.toolArguments).map(([key, value]) => (
+                                <div key={key} className="flex items-start gap-2 text-xs">
+                                  <span className="font-medium text-orange-600 dark:text-orange-400 flex-shrink-0">{key}:</span>
+                                  <span className="text-foreground/80 break-all">{JSON.stringify(value)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Search provider and parameters */}
+                      {streamingDetails.searchProvider && (
+                        <div className="flex items-start gap-2 p-2 rounded-md bg-purple-500/10 border border-purple-500/20">
+                          <Network className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                              {lang === "de" ? "Suchprovider" : lang === "es" ? "Proveedor de búsqueda" : "Search Provider"}
+                            </p>
+                            <p className="text-sm text-foreground/80 mt-0.5 capitalize">
+                              {streamingDetails.searchProvider}
+                              {streamingDetails.searchParameters && ` • ${Object.keys(streamingDetails.searchParameters).length} parameters`}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Result summary */}
+                      {streamingDetails.resultSummary && (
+                        <div className="flex items-start gap-2 p-2 rounded-md bg-green-500/10 border border-green-500/20">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-green-600 dark:text-green-400">
+                              {lang === "de" ? "Ergebnis" : lang === "es" ? "Resultado" : "Result"}
+                            </p>
+                            <p className="text-sm text-foreground/80 mt-0.5">
+                              {streamingDetails.resultSummary}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Search query display (legacy support) */}
+                  {step.detail && step.type === "searching" && !streamingDetails?.action && (
                     <div className="flex items-start gap-2 p-2 rounded-md bg-blue-500/10 border border-blue-500/20">
                       <FileSearch className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
                       <div>
@@ -725,15 +808,33 @@ export const StreamingHistoryDisplay = memo(function StreamingHistoryDisplay({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{getPhaseLabel(entry.phase)}</span>
-                  {entry.detail && (
-                    <span className="text-muted-foreground truncate">
-                      {entry.phase === "searching" ? `"${entry.detail}"` : entry.detail}
+                  {entry.toolName && (
+                    <span className="text-xs text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded">
+                      {entry.toolName}
+                    </span>
+                  )}
+                  {entry.searchProvider && (
+                    <span className="text-xs text-purple-600 dark:text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded capitalize">
+                      {entry.searchProvider}
                     </span>
                   )}
                 </div>
-                {entry.description && (
+                {/* Enhanced action/description */}
+                {(entry.action || entry.description) && (
                   <p className="text-muted-foreground text-[10px] mt-0.5 truncate">
-                    {entry.description}
+                    {entry.action || entry.description}
+                  </p>
+                )}
+                {/* Tool arguments summary */}
+                {entry.toolArguments && Object.keys(entry.toolArguments).length > 0 && (
+                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5 truncate">
+                    {Object.keys(entry.toolArguments).length} parameter{Object.keys(entry.toolArguments).length !== 1 ? 's' : ''}
+                  </p>
+                )}
+                {/* Result count */}
+                {entry.resultCount !== undefined && (
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">
+                    {entry.resultCount} result{entry.resultCount !== 1 ? 's' : ''}
                   </p>
                 )}
               </div>

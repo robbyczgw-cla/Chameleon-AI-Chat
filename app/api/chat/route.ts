@@ -533,7 +533,7 @@ async function handleStreamingRequest(
           const toolArgs = parseToolArguments(accumulatedToolCalls[0]?.function.arguments || "{}")
           const toolName = accumulatedToolCalls[0]?.function.name || "unknown"
 
-          // Send phase and tool status events
+          // Send phase and tool status events with detailed information
           await writer.write(
             encoder.encode(
               `data: ${JSON.stringify({
@@ -541,7 +541,12 @@ async function handleStreamingRequest(
                   phase: "searching",
                   searching: true,
                   toolName: toolName,
-                  searchQuery: toolArgs.query || accumulatedToolCalls[0]?.function.arguments
+                  searchQuery: toolArgs.query || accumulatedToolCalls[0]?.function.arguments,
+                  // Enhanced detailed information
+                  toolArguments: toolArgs,
+                  searchProvider: searchProvider,
+                  searchParameters: searchSettings,
+                  action: `Searching ${searchProvider}: "${toolArgs.query}"`
                 } }],
               })}\n\n`
             )
@@ -578,11 +583,15 @@ async function handleStreamingRequest(
 
           currentMessages.push(...toolResults)
 
-          // Send search complete event
+          // Send search complete event with detailed results
           await writer.write(
             encoder.encode(
               `data: ${JSON.stringify({
-                choices: [{ delta: { searchComplete: true, searchResultCount: toolResults.length } }],
+                choices: [{ delta: {
+                  searchComplete: true,
+                  searchResultCount: toolResults.length,
+                  resultSummary: `Found ${toolResults.length} result${toolResults.length !== 1 ? 's' : ''} from ${searchProvider}`
+                } }],
               })}\n\n`
             )
           )

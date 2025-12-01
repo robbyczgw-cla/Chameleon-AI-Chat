@@ -36,7 +36,7 @@ interface SimpleChatInputProps {
 }
 
 export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
-  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration, setStreamingPhase, setCurrentTool, setSearchQuery, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
+  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration, setStreamingPhase, setCurrentTool, setSearchQuery, currentStreamingDetails, setCurrentStreamingDetails, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
 
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
@@ -626,6 +626,24 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
             detail: query,
             description: `Searching web for: "${query}"`
           })
+        },
+        // Enhanced streaming details for advanced mode
+        onStreamingDetails: (details) => {
+          console.log("[Simple Chat] 📊 Streaming details:", details)
+          setCurrentStreamingDetails(details)
+          // Also add to streaming history with enhanced details
+          if (details.phase) {
+            addStreamingHistoryEntry({
+              phase: details.phase as any,
+              toolName: details.toolName,
+              toolArguments: details.toolArguments,
+              searchProvider: details.searchProvider,
+              searchParameters: details.searchParameters,
+              action: details.action,
+              resultCount: details.resultCount,
+              description: details.resultSummary || details.action
+            })
+          }
         },
       })
 

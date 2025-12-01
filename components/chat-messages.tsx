@@ -154,7 +154,7 @@ const MessageWrapper = memo(function MessageWrapper({ children, className, messa
 })
 
 export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
-  const { chats, currentChatId, addMessage, updateChat, settings, isChatLoading, streamingPhase, currentTool, searchQuery } = useApp()
+  const { chats, currentChatId, addMessage, updateChat, settings, isChatLoading, streamingPhase, currentTool, searchQuery, currentStreamingDetails } = useApp()
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [speakingId, setSpeakingId] = useState<string | null>(null)
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set())
@@ -893,6 +893,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                     searchQuery={searchQuery || undefined}
                     language={settings.language as "en" | "de" | "es"}
                     modelName={currentModelName}
+                    streamingDetails={currentStreamingDetails || undefined}
                   />
                 ) : (
                   <MessageStatus

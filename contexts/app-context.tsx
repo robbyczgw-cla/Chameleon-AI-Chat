@@ -31,6 +31,9 @@ interface AppContextType {
   setCurrentTool: (tool: string | null) => void
   searchQuery: string | null
   setSearchQuery: (query: string | null) => void
+  // Enhanced streaming details (for advanced mode)
+  currentStreamingDetails: Partial<StreamingHistoryEntry> | null
+  setCurrentStreamingDetails: (details: Partial<StreamingHistoryEntry> | null) => void
   // Streaming history for completed messages
   streamingHistory: StreamingHistoryEntry[]
   addStreamingHistoryEntry: (entry: Omit<StreamingHistoryEntry, "timestamp">) => void
@@ -130,6 +133,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [streamingPhase, setStreamingPhase] = useState<StreamingPhase>("idle")
   const [currentTool, setCurrentTool] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState<string | null>(null)
+  // Enhanced streaming details for advanced mode visualization
+  const [currentStreamingDetails, setCurrentStreamingDetails] = useState<Partial<StreamingHistoryEntry> | null>(null)
 
   // Streaming history for verbose display on completed messages
   const streamingHistoryRef = useRef<StreamingHistoryEntry[]>([])
@@ -1153,6 +1158,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setCurrentTool,
         searchQuery,
         setSearchQuery,
+        currentStreamingDetails,
+        setCurrentStreamingDetails,
         streamingHistory: streamingHistoryRef.current,
         addStreamingHistoryEntry,
         clearStreamingHistory,
