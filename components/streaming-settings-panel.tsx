@@ -3,9 +3,8 @@
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
-import { Info, Zap, Search, Brain, TrendingUp, Clock, AlertTriangle } from "lucide-react"
+import { Zap, Search, Brain, TrendingUp, Clock, AlertTriangle, Info } from "lucide-react"
 import type { StreamingVisualizationSettings } from "@/types"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface StreamingSettingsPanelProps {
   settings: StreamingVisualizationSettings
@@ -89,29 +88,20 @@ export function StreamingSettingsPanel({ settings, onSettingsChange, language = 
     onCheckedChange: (checked: boolean) => void
     icon?: any
   }) => (
-    <div className="flex items-center justify-between py-2">
-      <div className="flex items-center gap-2 flex-1">
-        {Icon && <Icon className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
-        <div className="flex-1 min-w-0">
-          <Label htmlFor={label} className="text-sm font-medium cursor-pointer">
-            {label}
-          </Label>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="w-3 h-3 text-muted-foreground ml-1 inline-block" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs text-xs">{description}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+    <div className="flex items-center justify-between py-3 px-2 rounded-md hover:bg-muted/50">
+      <div className="flex-1 min-w-0 pr-4">
+        <Label htmlFor={label} className="text-sm font-medium cursor-pointer block">
+          {label}
+        </Label>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {description}
+        </p>
       </div>
       <Switch
         id={label}
         checked={checked}
         onCheckedChange={onCheckedChange}
+        className="flex-shrink-0"
       />
     </div>
   )
@@ -137,6 +127,7 @@ export function StreamingSettingsPanel({ settings, onSettingsChange, language = 
         showResultSummary: true,
         showReasoningTokens: true,
         showExtendedThinking: false,
+        showDetailedStats: false,
         showTokenUsage: false,
         showLatencyMetrics: false,
         showStreamingSpeed: false,
@@ -162,6 +153,7 @@ export function StreamingSettingsPanel({ settings, onSettingsChange, language = 
         showResultSummary: true,
         showReasoningTokens: true,
         showExtendedThinking: true,
+        showDetailedStats: true,
         showTokenUsage: true,
         showLatencyMetrics: true,
         showStreamingSpeed: true,
@@ -187,6 +179,7 @@ export function StreamingSettingsPanel({ settings, onSettingsChange, language = 
         showResultSummary: true,
         showReasoningTokens: true,
         showExtendedThinking: true,
+        showDetailedStats: true,
         showTokenUsage: true,
         showLatencyMetrics: true,
         showStreamingSpeed: true,
@@ -306,9 +299,15 @@ export function StreamingSettingsPanel({ settings, onSettingsChange, language = 
       {/* Performance Metrics */}
       <Section title={t.performance[language]} icon={TrendingUp}>
         <SettingItem
-          label={language === "de" ? "Token-Nutzung" : language === "es" ? "Uso de tokens" : "Token Usage"}
-          description="Show real-time token counts (prompt, completion, total)"
-          checked={settings.showTokenUsage ?? true}
+          label={language === "de" ? "Detaillierte Stats" : language === "es" ? "Estadísticas detalladas" : "Detailed Stats"}
+          description="Show detailed stats at end of message: tokens, cost, performance, search info"
+          checked={settings.showDetailedStats ?? true}
+          onCheckedChange={(v) => updateSetting("showDetailedStats", v)}
+        />
+        <SettingItem
+          label={language === "de" ? "Token-Nutzung (Live)" : language === "es" ? "Uso de tokens (en vivo)" : "Token Usage (Live)"}
+          description="Show real-time token counts during streaming (prompt, completion, total)"
+          checked={settings.showTokenUsage ?? false}
           onCheckedChange={(v) => updateSetting("showTokenUsage", v)}
         />
         <SettingItem

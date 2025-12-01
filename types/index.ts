@@ -237,11 +237,12 @@ export interface StreamingVisualizationSettings {
   showReasoningTokens?: boolean // Show reasoning/thinking process (o1, DeepSeek R1)
   showExtendedThinking?: boolean // Show extended thinking indicators
 
-  // Performance Metrics
-  showTokenUsage?: boolean // Show real-time token counts (prompt, completion, total)
+  // Performance Metrics (Real-time & Post-completion)
+  showDetailedStats?: boolean // Show detailed stats at end of message (tokens, cost, performance, search)
+  showTokenUsage?: boolean // Show real-time token counts during streaming
   showLatencyMetrics?: boolean // Show time to first token (TTFT)
   showStreamingSpeed?: boolean // Show tokens/second and characters/second
-  showCostEstimates?: boolean // Show real-time cost tracking
+  showCostEstimates?: boolean // Show real-time cost tracking during streaming
 
   // Context & Progress
   showContextUsage?: boolean // Show percentage of context window used
