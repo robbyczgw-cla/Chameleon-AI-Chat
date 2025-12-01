@@ -459,15 +459,15 @@ export async function streamChatMessage(
             }
 
             if (reasoningContent) {
-              // Call legacy onReasoning callback
+              // Call legacy onReasoning callback (accumulates on client)
               if (onReasoning) {
                 onReasoning(reasoningContent)
               }
 
-              // Also send reasoning via enhanced streaming details
+              // Send reasoning via enhanced streaming details WITHOUT redundant phase
+              // (phase change is already sent separately once)
               if (onStreamingDetails) {
                 onStreamingDetails({
-                  phase: "thinking",
                   reasoningContent: reasoningContent,
                   action: "Extended reasoning in progress..."
                 })

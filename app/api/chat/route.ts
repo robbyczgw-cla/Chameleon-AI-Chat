@@ -420,6 +420,7 @@ async function handleStreamingRequest(
       let iterations = 0
       const MAX_ITERATIONS = 3
       let hasStartedResponding = false
+      let hasStartedReasoning = false // Track if we've sent the initial reasoning phase
 
       // Send initial thinking phase
       await writer.write(
@@ -510,13 +511,29 @@ async function handleStreamingRequest(
               // Check for reasoning_content, reasoning, or thinking fields
               const reasoningContent = delta?.reasoning_content || delta?.reasoning || delta?.thinking
               if (reasoningContent && !hasToolCalls) {
+                // Only send phase change ONCE when reasoning starts (not for every token!)
+                if (!hasStartedReasoning) {
+                  hasStartedReasoning = true
+                  await writer.write(
+                    encoder.encode(
+                      `data: ${JSON.stringify({
+                        choices: [{
+                          delta: {
+                            phase: "thinking"
+                          }
+                        }]
+                      })}\n\n`
+                    )
+                  )
+                }
+
+                // Send reasoning content WITHOUT phase spam
                 await writer.write(
                   encoder.encode(
                     `data: ${JSON.stringify({
                       choices: [{
                         delta: {
-                          reasoning_content: reasoningContent,
-                          phase: "thinking"
+                          reasoning_content: reasoningContent
                         }
                       }]
                     })}\n\n`
