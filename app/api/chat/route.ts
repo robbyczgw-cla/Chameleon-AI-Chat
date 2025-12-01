@@ -506,6 +506,24 @@ async function handleStreamingRequest(
                 }
               }
 
+              // Forward reasoning content (o1, DeepSeek R1, thinking models)
+              // Check for reasoning_content, reasoning, or thinking fields
+              const reasoningContent = delta?.reasoning_content || delta?.reasoning || delta?.thinking
+              if (reasoningContent && !hasToolCalls) {
+                await writer.write(
+                  encoder.encode(
+                    `data: ${JSON.stringify({
+                      choices: [{
+                        delta: {
+                          reasoning_content: reasoningContent,
+                          phase: "thinking"
+                        }
+                      }]
+                    })}\n\n`
+                  )
+                )
+              }
+
               // Forward content to client (only if not in tool call mode)
               if (delta?.content && !hasToolCalls) {
                 // Send responding phase on first content
