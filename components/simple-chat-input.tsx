@@ -36,7 +36,7 @@ interface SimpleChatInputProps {
 }
 
 export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
-  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration } = useApp()
+  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration, setStreamingPhase, setCurrentTool, setSearchQuery } = useApp()
 
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
@@ -582,6 +582,19 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
             description: settings.language === "de" ? "AI hat Informationen gefunden" : "AI found relevant information",
           })
         },
+        // Phase tracking for step-by-step visualization
+        onPhaseChange: (phase) => {
+          console.log("[Simple Chat] 📍 Phase change:", phase)
+          setStreamingPhase(phase)
+        },
+        onToolUse: (toolName) => {
+          console.log("[Simple Chat] 🔧 Tool use:", toolName)
+          setCurrentTool(toolName)
+        },
+        onSearchQuery: (query) => {
+          console.log("[Simple Chat] 🔍 Search query:", query)
+          setSearchQuery(query)
+        },
       })
 
       console.log("[Simple Chat] Stream complete, final content length:", assistantContent.length)
@@ -694,6 +707,10 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
       })
     } finally {
       setIsChatLoading(false)
+      // Reset streaming state
+      setStreamingPhase("idle")
+      setCurrentTool(null)
+      setSearchQuery(null)
       chatAbortControllerRef.current = null
       console.log("[Simple Chat] Chat submission complete")
     }

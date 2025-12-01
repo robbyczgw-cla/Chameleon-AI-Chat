@@ -171,6 +171,10 @@ export async function streamChatMessage(
     searchSettings?: Record<string, any>
     onSearchStart?: (query: string) => void
     onSearchComplete?: () => void
+    // Phase tracking callbacks for step-by-step visualization
+    onPhaseChange?: (phase: "thinking" | "searching" | "tool_use" | "responding" | "done") => void
+    onToolUse?: (toolName: string) => void
+    onSearchQuery?: (query: string) => void
   } = {},
 ): Promise<void> {
   const {
@@ -190,6 +194,10 @@ export async function streamChatMessage(
     searchSettings = {},
     onSearchStart,
     onSearchComplete,
+    // Phase tracking
+    onPhaseChange,
+    onToolUse,
+    onSearchQuery,
   } = options
 
   const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
@@ -319,7 +327,33 @@ export async function streamChatMessage(
             const content = delta?.content
             const finishReason = parsed.choices?.[0]?.finish_reason
 
-            // Handle search status events from tool calling
+            // Handle phase change events for step-by-step visualization
+            if (delta?.phase && onPhaseChange) {
+              console.log("[v0] 📍 Phase change:", delta.phase)
+              onPhaseChange(delta.phase)
+            }
+
+            // Handle tool use events
+            if (delta?.toolName && onToolUse) {
+              console.log("[v0] 🔧 Tool use:", delta.toolName)
+              onToolUse(delta.toolName)
+            }
+
+            // Handle search query for display
+            if (delta?.searchQuery && onSearchQuery) {
+              try {
+                // Try to parse as JSON first (tool call arguments)
+                const parsed = JSON.parse(delta.searchQuery)
+                const query = parsed.query || delta.searchQuery
+                console.log("[v0] 🔍 Search query:", query)
+                onSearchQuery(query)
+              } catch {
+                // If not JSON, use as-is
+                onSearchQuery(delta.searchQuery)
+              }
+            }
+
+            // Handle search status events from tool calling (legacy support)
             if (delta?.searching && onSearchStart) {
               try {
                 const searchQuery = JSON.parse(delta.searchQuery || "{}")
