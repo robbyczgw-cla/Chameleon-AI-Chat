@@ -73,7 +73,20 @@ class SearchService {
   /**
    * Tokenize text into searchable words
    */
-  private tokenize(text: string): string[] {
+  private tokenize(text: string | unknown): string[] {
+    // Handle non-string content (e.g., array of content parts with images)
+    if (typeof text !== 'string') {
+      // If it's an array (multi-part content), extract text from text parts
+      if (Array.isArray(text)) {
+        const textParts = text
+          .filter((part: any) => part?.type === 'text' && typeof part?.text === 'string')
+          .map((part: any) => part.text)
+          .join(' ')
+        return this.tokenize(textParts)
+      }
+      return []
+    }
+
     return text
       .toLowerCase()
       .replace(/[^\w\s]/g, " ") // Remove punctuation
