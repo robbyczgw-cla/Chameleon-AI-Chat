@@ -14,13 +14,23 @@ export interface MessageContentPart {
 
 /**
  * Streaming history entry for step-by-step visualization
+ * Enhanced to show detailed, real-time information like Claude.ai
  */
 export interface StreamingHistoryEntry {
   phase: "thinking" | "searching" | "tool_use" | "responding" | "done"
   timestamp: number
-  detail?: string // e.g., search query, tool name
+  detail?: string // e.g., search query, tool name (deprecated in favor of structured fields)
   description?: string // Human-readable description of what happened in this phase
   duration?: number // time spent in this phase (ms)
+
+  // Enhanced detailed information (like Claude.ai/Claude Code)
+  toolName?: string // Specific tool being used (e.g., "web_search", "read_file", "write_file")
+  toolArguments?: Record<string, any> // Actual arguments passed to the tool
+  action?: string // Specific action being performed (e.g., "Reading file: src/app.tsx")
+  files?: string[] // File paths being accessed/modified
+  searchProvider?: string // Search provider (tavily, serper, exa)
+  searchParameters?: Record<string, any> // Full search parameters
+  resultCount?: number // Number of results returned
 }
 
 export interface Message {

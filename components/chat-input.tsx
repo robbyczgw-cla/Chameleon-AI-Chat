@@ -36,7 +36,7 @@ import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { useDraft } from "@/hooks/use-draft"
 
 export function ChatInput() {
-  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading, setStreamingPhase, setCurrentTool, setSearchQuery, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
+  const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading, setStreamingPhase, setCurrentTool, setSearchQuery, currentStreamingDetails, setCurrentStreamingDetails, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
   const currentChat = chats.find((c) => c.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
 
@@ -823,6 +823,24 @@ export function ChatInput() {
             detail: query,
             description: `Searching web for: "${query}"`
           })
+        },
+        // Enhanced streaming details for advanced mode
+        onStreamingDetails: (details) => {
+          console.log("[Advanced Chat] 📊 Streaming details:", details)
+          setCurrentStreamingDetails(details)
+          // Also add to streaming history with enhanced details
+          if (details.phase) {
+            addStreamingHistoryEntry({
+              phase: details.phase as any,
+              toolName: details.toolName,
+              toolArguments: details.toolArguments,
+              searchProvider: details.searchProvider,
+              searchParameters: details.searchParameters,
+              action: details.action,
+              resultCount: details.resultCount,
+              description: details.resultSummary || details.action
+            })
+          }
         },
       })
 

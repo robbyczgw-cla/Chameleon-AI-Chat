@@ -175,6 +175,17 @@ export async function streamChatMessage(
     onPhaseChange?: (phase: "thinking" | "searching" | "tool_use" | "responding" | "done") => void
     onToolUse?: (toolName: string) => void
     onSearchQuery?: (query: string) => void
+    // Enhanced streaming details callback (for advanced mode)
+    onStreamingDetails?: (details: {
+      phase?: string
+      toolName?: string
+      toolArguments?: Record<string, any>
+      searchProvider?: string
+      searchParameters?: Record<string, any>
+      action?: string
+      resultCount?: number
+      resultSummary?: string
+    }) => void
   } = {},
 ): Promise<void> {
   const {
@@ -198,6 +209,8 @@ export async function streamChatMessage(
     onPhaseChange,
     onToolUse,
     onSearchQuery,
+    // Enhanced streaming details
+    onStreamingDetails,
   } = options
 
   const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
@@ -351,6 +364,22 @@ export async function streamChatMessage(
                 // If not JSON, use as-is
                 onSearchQuery(delta.searchQuery)
               }
+            }
+
+            // Handle enhanced streaming details (for advanced mode visualization)
+            if (onStreamingDetails && (delta?.toolArguments || delta?.searchProvider || delta?.action || delta?.resultCount || delta?.resultSummary)) {
+              const details = {
+                phase: delta.phase,
+                toolName: delta.toolName,
+                toolArguments: delta.toolArguments,
+                searchProvider: delta.searchProvider,
+                searchParameters: delta.searchParameters,
+                action: delta.action,
+                resultCount: delta.resultCount || delta.searchResultCount,
+                resultSummary: delta.resultSummary,
+              }
+              console.log("[v0] 📊 Enhanced streaming details:", details)
+              onStreamingDetails(details)
             }
 
             // Handle search status events from tool calling (legacy support)
