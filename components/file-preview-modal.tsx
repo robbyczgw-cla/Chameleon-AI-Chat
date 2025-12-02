@@ -73,8 +73,8 @@ export function FilePreviewModal({ file, open, onOpenChange }: FilePreviewModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b bg-muted/30">
+      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
               <DialogTitle className="text-lg font-semibold truncate">
@@ -140,8 +140,9 @@ export function FilePreviewModal({ file, open, onOpenChange }: FilePreviewModalP
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 h-[calc(90vh-8rem)]">
-          <div className="p-6">
+        <ScrollArea className="flex-1 w-full">
+          <div className="p-6 w-full"
+               style={{ minWidth: '100%' }}>
             {category === "image" && file.dataUrl && (
               <div className="flex items-center justify-center">
                 <img
@@ -173,17 +174,17 @@ export function FilePreviewModal({ file, open, onOpenChange }: FilePreviewModalP
             )}
 
             {category === "document" && file.dataUrl && (
-              <div className="space-y-4 min-w-full">
-                <div className="rounded-lg border bg-muted/30 p-8 text-center min-w-full">
+              <div className="w-full" style={{ minWidth: '100%' }}>
+                <div className="rounded-lg border bg-muted/30 p-8 text-center w-full">
                   <p className="text-sm text-muted-foreground mb-4">
                     PDF Preview (Browser native viewer)
                   </p>
                   <object
-                    key={file.dataUrl} // Force re-render when file changes
+                    key={file.dataUrl}
                     data={file.dataUrl}
                     type="application/pdf"
                     className="w-full h-[600px] rounded-lg"
-                    style={{ minWidth: '100%', width: '100%', display: 'block' }}
+                    style={{ width: '100%', minWidth: '100%', display: 'block' }}
                   >
                     <div className="flex flex-col items-center gap-4 p-8">
                       <p className="text-sm">
