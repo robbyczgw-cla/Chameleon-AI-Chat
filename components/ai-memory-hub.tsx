@@ -5,8 +5,6 @@ import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
@@ -17,11 +15,7 @@ import {
   User,
   Lightbulb,
   TrendingUp,
-  Plus,
   Trash2,
-  Edit,
-  Save,
-  X,
   Info,
   Download,
   Upload,
@@ -45,14 +39,6 @@ export function AIMemoryHub() {
   const [syncToDatabase, setSyncToDatabase] = useState(settings.memorySettings?.syncToDatabase ?? false)
   const [autoExtract, setAutoExtract] = useState(settings.memorySettings?.autoExtract ?? true)
   const [activeTab, setActiveTab] = useState<Memory["type"]>("preference")
-  const [isAddingNew, setIsAddingNew] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [newMemory, setNewMemory] = useState({
-    type: "preference" as Memory["type"],
-    content: "",
-    importance: 2 as 1 | 2 | 3,
-    category: "",
-  })
   const [stats, setStats] = useState(memoryService.getStats())
 
   useEffect(() => {
@@ -141,29 +127,6 @@ export function AIMemoryHub() {
         duration: 3000,
       })
     }
-  }
-
-  const addMemory = () => {
-    if (!newMemory.content.trim()) {
-      alert(translations.memory.content)
-      return
-    }
-
-    memoryService.addMemory({
-      type: newMemory.type,
-      content: newMemory.content,
-      importance: newMemory.importance,
-      category: newMemory.category || undefined,
-    })
-
-    setNewMemory({
-      type: "preference",
-      content: "",
-      importance: 2,
-      category: "",
-    })
-    setIsAddingNew(false)
-    loadMemories()
   }
 
   const deleteMemory = (id: string) => {
@@ -472,61 +435,6 @@ export function AIMemoryHub() {
                 <span className="ml-1.5 hidden sm:inline">{translations.memory.goals}</span>
               </TabsTrigger>
             </TabsList>
-
-            {/* Add New Memory Button */}
-            <div className="mt-3">
-              {!isAddingNew ? (
-                <Button onClick={() => {
-                  setNewMemory({ ...newMemory, type: activeTab })
-                  setIsAddingNew(true)
-                }} size="sm" variant="outline" className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  {translations.memory.addNew} {getTypeLabel(activeTab)}
-                </Button>
-              ) : (
-                <Card className="p-4 space-y-3 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
-                  <div className="space-y-2">
-                    <Label className="text-sm">{translations.memory.content}</Label>
-                    <Input
-                      value={newMemory.content}
-                      onChange={(e) => setNewMemory({ ...newMemory, content: e.target.value })}
-                      placeholder={translations.memory.contentPlaceholder}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-2">
-                      <Label className="text-sm">{translations.memory.category}</Label>
-                      <Input
-                        value={newMemory.category}
-                        onChange={(e) => setNewMemory({ ...newMemory, category: e.target.value })}
-                        placeholder={translations.memory.categoryPlaceholder}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm">{translations.memory.importance}</Label>
-                      <select
-                        value={newMemory.importance}
-                        onChange={(e) => setNewMemory({ ...newMemory, importance: parseInt(e.target.value) as 1 | 2 | 3 })}
-                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                      >
-                        <option value={1}>{translations.memory.importanceLow}</option>
-                        <option value={2}>{translations.memory.importanceMedium}</option>
-                        <option value={3}>{translations.memory.importanceHigh}</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={addMemory} size="sm" className="flex-1">
-                      <Save className="h-4 w-4 mr-2" />
-                      {translations.memory.saveMemory}
-                    </Button>
-                    <Button onClick={() => setIsAddingNew(false)} size="sm" variant="outline">
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </Card>
-              )}
-            </div>
 
             {/* Memory List */}
             <TabsContent value={activeTab} className="mt-4">
