@@ -254,6 +254,42 @@ EXAMPLES:
 | `useSemanticSearch` | true | Use embeddings vs keyword matching |
 | `similarityThreshold` | 0.5 | Minimum similarity score (0.0-1.0) |
 
+### Phase 3: Intelligent Retrieval Settings
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `classificationConfidence` | 0.8 | Minimum confidence to trust "skip" decision. If classifier says "factual" with < 0.8 confidence, retrieve anyway to be safe |
+| `minRelevanceScore` | 0.3 | If best memory match is below this similarity, skip all memories (prevents irrelevant context) |
+| `alwaysRetrieveForPersonas` | true | Bypass classification for persona chats - always retrieve memories |
+
+### Understanding the Flow
+
+```
+Query: "recommend a book"
+        │
+        ▼
+┌─────────────────────┐
+│ 1. Classification   │
+│    → "personal"     │
+│    → confidence 0.95│
+└─────────┬───────────┘
+          │ (needsMemory = true)
+          ▼
+┌─────────────────────┐
+│ 2. Semantic Search  │
+│    → 3 memories     │
+│    → top sim: 0.72  │
+└─────────┬───────────┘
+          │ (0.72 >= minRelevanceScore 0.3 ✓)
+          ▼
+┌─────────────────────┐
+│ 3. Inject Context   │
+│    → 3 memories     │
+│    → decision:      │
+│      "retrieved"    │
+└─────────────────────┘
+```
+
 ### Adjusting Similarity Threshold
 
 - **0.3**: Very loose - includes tangentially related memories

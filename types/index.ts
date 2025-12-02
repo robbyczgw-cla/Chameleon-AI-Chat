@@ -361,4 +361,8 @@ export interface MemorySettings {
   // Semantic search settings
   useSemanticSearch?: boolean // Use embedding-based retrieval (default true when syncToDatabase)
   similarityThreshold?: number // 0.0-1.0, default 0.5 - minimum similarity to include memory
+  // Phase 3: Intelligent retrieval settings
+  classificationConfidence?: number // 0.0-1.0, default 0.8 - minimum confidence to trust classification
+  minRelevanceScore?: number // 0.0-1.0, default 0.3 - if best match below this, skip all memories
+  alwaysRetrieveForPersonas?: boolean // Override classification for persona chats (default true)
 }

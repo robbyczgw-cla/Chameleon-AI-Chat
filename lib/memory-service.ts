@@ -32,6 +32,23 @@ const DEFAULT_SETTINGS: MemorySettings = {
   syncToDatabase: false,
   useSemanticSearch: true, // Use embeddings for better retrieval
   similarityThreshold: 0.5, // Minimum similarity score (0-1)
+  // Phase 3: Intelligent retrieval
+  classificationConfidence: 0.8, // Trust classification if confidence >= this
+  minRelevanceScore: 0.3, // Skip memories if best match below this
+  alwaysRetrieveForPersonas: true, // Always retrieve for persona chats
+}
+
+// Memory retrieval decision - explains why memories were/weren't retrieved
+export interface MemoryRetrievalDecision {
+  action: "skipped" | "retrieved" | "empty"
+  reason: string
+  details: {
+    queryType?: "factual" | "personal" | "ambiguous"
+    confidence?: number
+    searchMethod?: "semantic" | "keyword"
+    topSimilarity?: number
+    memoryCount?: number
+  }
 }
 
 class MemoryService {
@@ -908,37 +925,105 @@ Respond with ONLY valid JSON (no markdown):
   }
 
   /**
-   * Intelligent memory retrieval - classifies query first, then retrieves only if needed
-   * This is the main entry point for smart memory retrieval
+   * Phase 3: Intelligent memory retrieval with combined classification + semantic search
+   *
+   * Flow:
+   * 1. Classify query intent (factual/personal/ambiguous)
+   * 2. If factual with high confidence → skip memory entirely
+   * 3. If personal or low confidence → do semantic search
+   * 4. Apply minimum relevance filter (skip if top result < minRelevanceScore)
+   * 5. Return memories with detailed decision info
+   *
+   * @param query - The user's query
+   * @param apiKey - OpenRouter API key for classification and embeddings
+   * @param limit - Max memories to return
+   * @param isPersonaChat - If true, always retrieve (override classification)
    */
   async getRelevantMemoriesWithClassification(
     query: string,
     apiKey?: string,
-    limit?: number
+    limit?: number,
+    isPersonaChat?: boolean
   ): Promise<{
     memories: Memory[]
     classification: QueryClassification
     skipped: boolean
     searchMethod?: "semantic" | "keyword"
+    decision: MemoryRetrievalDecision
   }> {
-    // First, classify the query
+    const confidenceThreshold = this.settings.classificationConfidence ?? 0.8
+    const minRelevance = this.settings.minRelevanceScore ?? 0.3
+
+    // Phase 3: Persona override - always retrieve for persona chats if enabled
+    if (isPersonaChat && this.settings.alwaysRetrieveForPersonas !== false) {
+      console.log("[Memory] 👤 Persona chat detected - bypassing classification")
+      return this.performMemoryRetrieval(query, apiKey, limit, {
+        needsMemory: true,
+        confidence: 1.0,
+        reason: "Persona chat - always retrieve",
+        queryType: "personal"
+      }, "Persona chat override")
+    }
+
+    // Step 1: Classify the query
     const classification = await this.classifyQueryForMemory(query, apiKey)
 
-    // If query doesn't need memory, skip retrieval entirely
-    if (!classification.needsMemory) {
-      console.log("[Memory] ⏭️ Skipping memory retrieval:", classification.reason)
+    // Step 2: Decide based on classification + confidence threshold
+    // Only skip if: factual AND confidence >= threshold
+    const shouldSkip = !classification.needsMemory &&
+                       classification.confidence >= confidenceThreshold
+
+    if (shouldSkip) {
+      console.log("[Memory] ⏭️ Skipping memory retrieval:", classification.reason,
+        `(confidence: ${classification.confidence.toFixed(2)} >= ${confidenceThreshold})`)
+
       return {
         memories: [],
         classification,
-        skipped: true
+        skipped: true,
+        decision: {
+          action: "skipped",
+          reason: classification.reason,
+          details: {
+            queryType: classification.queryType,
+            confidence: classification.confidence,
+          }
+        }
       }
     }
 
-    // Query needs memory - use semantic search if API key available, else keyword matching
-    console.log("[Memory] ✅ Retrieving memories for personal query")
+    // Step 3: Low confidence or personal query - retrieve memories
+    if (!classification.needsMemory && classification.confidence < confidenceThreshold) {
+      console.log("[Memory] 🤔 Low confidence classification - retrieving anyway",
+        `(confidence: ${classification.confidence.toFixed(2)} < ${confidenceThreshold})`)
+    }
 
-    let memories: Memory[]
+    return this.performMemoryRetrieval(query, apiKey, limit, classification,
+      classification.needsMemory ? "Personal query" : "Low confidence - retrieving anyway")
+  }
+
+  /**
+   * Internal method to perform memory retrieval with relevance filtering
+   */
+  private async performMemoryRetrieval(
+    query: string,
+    apiKey: string | undefined,
+    limit: number | undefined,
+    classification: QueryClassification,
+    retrievalReason: string
+  ): Promise<{
+    memories: Memory[]
+    classification: QueryClassification
+    skipped: boolean
+    searchMethod?: "semantic" | "keyword"
+    decision: MemoryRetrievalDecision
+  }> {
+    const minRelevance = this.settings.minRelevanceScore ?? 0.3
+    console.log("[Memory] ✅ Retrieving memories:", retrievalReason)
+
+    let memories: Array<Memory & { similarity?: number }> = []
     let searchMethod: "semantic" | "keyword" = "keyword"
+    let topSimilarity: number | undefined
 
     // Try semantic search first if enabled and API key available
     if (apiKey && this.settings.useSemanticSearch !== false) {
@@ -948,12 +1033,16 @@ Respond with ONLY valid JSON (no markdown):
         memories = semanticResults
         searchMethod = "semantic"
 
-        // Log similarity scores for debugging
+        // Get top similarity score
         if (semanticResults.length > 0) {
           const similarities = semanticResults
             .filter((m): m is Memory & { similarity: number } => 'similarity' in m)
-            .map(m => m.similarity.toFixed(3))
-          console.log("[Memory] Semantic search similarities:", similarities.join(", "))
+            .map(m => m.similarity)
+
+          if (similarities.length > 0) {
+            topSimilarity = Math.max(...similarities)
+            console.log("[Memory] Semantic search top similarity:", topSimilarity.toFixed(3))
+          }
         }
       } catch (error) {
         console.error("[Memory] Semantic search failed, falling back to keyword:", error)
@@ -966,13 +1055,51 @@ Respond with ONLY valid JSON (no markdown):
       memories = this.getRelevantMemories(query, limit)
     }
 
+    // Step 4: Apply minimum relevance filter for semantic search
+    if (searchMethod === "semantic" && topSimilarity !== undefined && topSimilarity < minRelevance) {
+      console.log("[Memory] 📉 Top similarity", topSimilarity.toFixed(3),
+        "< minRelevance", minRelevance, "- skipping all memories")
+
+      return {
+        memories: [],
+        classification,
+        skipped: false, // Not skipped by classification, but by relevance
+        searchMethod,
+        decision: {
+          action: "empty",
+          reason: `Best match similarity (${topSimilarity.toFixed(2)}) below threshold (${minRelevance})`,
+          details: {
+            queryType: classification.queryType,
+            confidence: classification.confidence,
+            searchMethod,
+            topSimilarity,
+            memoryCount: 0
+          }
+        }
+      }
+    }
+
+    // Success - return memories
     console.log("[Memory] Retrieved", memories.length, "memories via", searchMethod, "search")
 
     return {
       memories,
       classification,
       skipped: false,
-      searchMethod
+      searchMethod,
+      decision: {
+        action: memories.length > 0 ? "retrieved" : "empty",
+        reason: memories.length > 0
+          ? `Retrieved ${memories.length} relevant memories via ${searchMethod} search`
+          : "No memories matched the query",
+        details: {
+          queryType: classification.queryType,
+          confidence: classification.confidence,
+          searchMethod,
+          topSimilarity,
+          memoryCount: memories.length
+        }
+      }
     }
   }
 }

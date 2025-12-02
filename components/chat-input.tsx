@@ -595,27 +595,32 @@ export function ChatInput() {
         }
       }
 
-      // Memory: Intelligent memory retrieval - classifies query first, only retrieves if needed
+      // Memory: Phase 3 intelligent memory retrieval with classification + semantic search
       if (settings.memorySettings?.enabled) {
-        console.log("[ChatInput] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50))
+        const isPersonaChat = !!settings.selectedPersona
+        console.log("[ChatInput] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50),
+          isPersonaChat ? "(persona chat)" : "")
 
-        const { memories: relevantMemories, classification, skipped, searchMethod } =
+        const { memories: relevantMemories, decision, searchMethod } =
           await memoryService.getRelevantMemoriesWithClassification(
             input.trim(),
             settings.apiKeys.openRouter,
-            settings.memorySettings.maxMemoriesInContext
+            settings.memorySettings.maxMemoriesInContext,
+            isPersonaChat
           )
 
-        if (skipped) {
-          console.log("[ChatInput] ⏭️ Memory skipped:", classification.reason,
-            `(${classification.queryType}, confidence: ${classification.confidence.toFixed(2)})`)
-        } else if (relevantMemories.length > 0) {
+        // Log the decision with full details
+        if (decision.action === "skipped") {
+          console.log("[ChatInput] ⏭️ Memory skipped:", decision.reason,
+            `(type: ${decision.details.queryType}, confidence: ${decision.details.confidence?.toFixed(2)})`)
+        } else if (decision.action === "retrieved" && relevantMemories.length > 0) {
           const memoryContext = memoryService.formatMemoriesForContext(relevantMemories)
           messages.splice(-1, 0, { role: "system" as const, content: memoryContext })
-          console.log("[ChatInput] ✅ Memory context added:", relevantMemories.length, "memories",
-            `(${classification.queryType}, confidence: ${classification.confidence.toFixed(2)}, method: ${searchMethod || "keyword"})`)
+          console.log("[ChatInput] ✅ Memory context added:", decision.reason,
+            decision.details.topSimilarity ? `(top similarity: ${decision.details.topSimilarity.toFixed(3)})` : "")
         } else {
-          console.log("[ChatInput] 📭 No relevant memories found for personal query")
+          console.log("[ChatInput] 📭", decision.reason,
+            decision.details.topSimilarity ? `(top similarity: ${decision.details.topSimilarity.toFixed(3)})` : "")
         }
       }
 
