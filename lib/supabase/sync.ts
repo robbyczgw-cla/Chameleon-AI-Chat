@@ -636,7 +636,71 @@ export class SupabaseSync {
       accessCount: dbMemory.access_count || 0,
       createdAt: new Date(dbMemory.created_at).getTime(),
       lastAccessedAt: new Date(dbMemory.last_accessed_at).getTime(),
+      embedding: dbMemory.embedding || undefined,
     }
+  }
+
+  /**
+   * Update memory embedding in database
+   */
+  async updateMemoryEmbedding(userId: string, memoryId: string, embedding: number[]): Promise<void> {
+    // Format embedding as pgvector string: [0.1, 0.2, ...]
+    const embeddingString = `[${embedding.join(",")}]`
+
+    const { error } = await this.supabase
+      .from("memories")
+      .update({ embedding: embeddingString })
+      .eq("id", memoryId)
+      .eq("user_id", userId)
+
+    if (error) {
+      console.error("[Supabase] Error updating memory embedding:", error)
+      throw error
+    }
+
+    console.log("[Supabase] Memory embedding updated:", memoryId.substring(0, 8))
+  }
+
+  /**
+   * Semantic search for memories using pgvector
+   * Returns memories ordered by similarity to the query embedding
+   */
+  async semanticSearchMemories(
+    userId: string,
+    queryEmbedding: number[],
+    options: { threshold?: number; limit?: number } = {}
+  ): Promise<Array<Memory & { similarity: number }>> {
+    const { threshold = 0.5, limit = 5 } = options
+
+    // Format query embedding as pgvector string
+    const embeddingString = `[${queryEmbedding.join(",")}]`
+
+    // Use pgvector's cosine distance operator (<=>)
+    // 1 - distance = similarity (cosine distance is 1 - cosine similarity)
+    const { data, error } = await this.supabase
+      .rpc("search_memories_by_embedding", {
+        query_embedding: embeddingString,
+        match_threshold: threshold,
+        match_count: limit,
+        p_user_id: userId,
+      })
+
+    if (error) {
+      console.error("[Supabase] Semantic search error:", error)
+      // Fallback: if RPC doesn't exist, return empty (will use client-side search)
+      if (error.code === "42883") {
+        console.warn("[Supabase] search_memories_by_embedding function not found, using client-side search")
+        return []
+      }
+      throw error
+    }
+
+    console.log("[Supabase] Semantic search found", data?.length || 0, "memories")
+
+    return (data || []).map((item: any) => ({
+      ...this.mapMemoryFromDB(item),
+      similarity: item.similarity,
+    }))
   }
 
   // ===== Mappers =====

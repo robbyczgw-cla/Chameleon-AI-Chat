@@ -599,7 +599,7 @@ export function ChatInput() {
       if (settings.memorySettings?.enabled) {
         console.log("[ChatInput] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50))
 
-        const { memories: relevantMemories, classification, skipped } =
+        const { memories: relevantMemories, classification, skipped, searchMethod } =
           await memoryService.getRelevantMemoriesWithClassification(
             input.trim(),
             settings.apiKeys.openRouter,
@@ -613,7 +613,7 @@ export function ChatInput() {
           const memoryContext = memoryService.formatMemoriesForContext(relevantMemories)
           messages.splice(-1, 0, { role: "system" as const, content: memoryContext })
           console.log("[ChatInput] ✅ Memory context added:", relevantMemories.length, "memories",
-            `(${classification.queryType}, confidence: ${classification.confidence.toFixed(2)})`)
+            `(${classification.queryType}, confidence: ${classification.confidence.toFixed(2)}, method: ${searchMethod || "keyword"})`)
         } else {
           console.log("[ChatInput] 📭 No relevant memories found for personal query")
         }
