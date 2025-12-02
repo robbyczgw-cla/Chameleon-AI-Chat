@@ -2,20 +2,31 @@
 
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { Slider } from "@/components/ui/slider"
 import { useApp } from "@/contexts/app-context"
-import { FlaskRound, AlertTriangle, Zap, Monitor } from "lucide-react"
+import { FlaskRound, AlertTriangle, Zap, Monitor, Brain } from "lucide-react"
 import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
 
 export function ExperimentalSettings() {
   const { settings, updateSettings } = useApp()
   const experimental = settings.experimental || {}
+  const memorySettings = settings.memorySettings || {}
   const isAdvancedMode = !settings.simpleMode
 
   const handleExperimentalChange = (updates: Partial<typeof experimental>) => {
     updateSettings({
       experimental: {
         ...experimental,
+        ...updates,
+      },
+    })
+  }
+
+  const handleMemorySettingChange = (updates: Partial<typeof memorySettings>) => {
+    updateSettings({
+      memorySettings: {
+        ...memorySettings,
         ...updates,
       },
     })
@@ -102,6 +113,141 @@ export function ExperimentalSettings() {
           )}
         </div>
       </div>
+
+      {/* Memory Intelligence Settings (Only show if memory is enabled) */}
+      {memorySettings.enabled && (
+        <>
+          <Separator />
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-primary" />
+              <div>
+                <h3 className="text-lg font-semibold">Memory Intelligence</h3>
+                <p className="text-xs text-muted-foreground">
+                  Fine-tune how the AI decides when and what memories to retrieve
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4 pl-7">
+              {/* Use Semantic Search */}
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium">Semantic Search</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Use AI embeddings to find memories by meaning (recommended)
+                  </p>
+                </div>
+                <Switch
+                  checked={memorySettings.useSemanticSearch !== false}
+                  onCheckedChange={(checked) => handleMemorySettingChange({ useSemanticSearch: checked })}
+                />
+              </div>
+
+              {/* Always Retrieve for Personas */}
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium">Always Retrieve for Personas</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Bypass query classification when chatting with personas
+                  </p>
+                </div>
+                <Switch
+                  checked={memorySettings.alwaysRetrieveForPersonas !== false}
+                  onCheckedChange={(checked) => handleMemorySettingChange({ alwaysRetrieveForPersonas: checked })}
+                />
+              </div>
+
+              {/* Classification Confidence Threshold */}
+              <div className="p-4 border rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">Classification Confidence</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Only skip memory if classifier is this confident it's factual
+                    </p>
+                  </div>
+                  <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                    {((memorySettings.classificationConfidence ?? 0.8) * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <Slider
+                  value={[(memorySettings.classificationConfidence ?? 0.8) * 100]}
+                  onValueChange={([value]) => handleMemorySettingChange({ classificationConfidence: value / 100 })}
+                  min={50}
+                  max={99}
+                  step={5}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Lower = retrieve more often (safer). Higher = skip more factual queries (saves tokens).
+                </p>
+              </div>
+
+              {/* Similarity Threshold */}
+              <div className="p-4 border rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">Similarity Threshold</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Minimum similarity score to include a memory in results
+                    </p>
+                  </div>
+                  <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                    {((memorySettings.similarityThreshold ?? 0.5) * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <Slider
+                  value={[(memorySettings.similarityThreshold ?? 0.5) * 100]}
+                  onValueChange={([value]) => handleMemorySettingChange({ similarityThreshold: value / 100 })}
+                  min={20}
+                  max={80}
+                  step={5}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Lower = more memories (may include less relevant). Higher = fewer but more relevant.
+                </p>
+              </div>
+
+              {/* Minimum Relevance Score */}
+              <div className="p-4 border rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">Minimum Relevance Score</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Skip ALL memories if best match is below this score
+                    </p>
+                  </div>
+                  <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                    {((memorySettings.minRelevanceScore ?? 0.3) * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <Slider
+                  value={[(memorySettings.minRelevanceScore ?? 0.3) * 100]}
+                  onValueChange={([value]) => handleMemorySettingChange({ minRelevanceScore: value / 100 })}
+                  min={10}
+                  max={50}
+                  step={5}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Prevents irrelevant memories from being injected. Lower = allow more, higher = stricter filter.
+                </p>
+              </div>
+
+              {/* Info Box */}
+              <div className="p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+                <p className="text-xs text-purple-800 dark:text-purple-200">
+                  <strong>How it works:</strong> When you send a message, the AI first classifies if it needs personal context.
+                  If yes, it searches memories using semantic similarity. Only memories above the threshold are included.
+                  If even the best match is too low, nothing is injected.
+                </p>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Streaming Visualization Settings (Advanced Mode Only) */}
       {isAdvancedMode && (

@@ -3,341 +3,551 @@
 A state-of-the-art memory system that makes your AI assistant remember important things about you while being smart about when to use that knowledge.
 
 ## Table of Contents
-- [Quick Start (Simple)](#quick-start-simple)
-- [Advanced Usage](#advanced-usage)
-- [How It Works](#how-it-works-technical)
+
+**For Simple Users:**
+- [What is the Memory System?](#what-is-the-memory-system)
+- [Quick Start Guide](#quick-start-guide)
+- [Adding Memories](#adding-memories)
+- [Best Practices](#best-practices)
+
+**For Advanced Users:**
+- [How It Works (Technical Deep Dive)](#how-it-works-technical-deep-dive)
+- [The Four Phases](#the-four-phases)
 - [Settings Reference](#settings-reference)
+- [Fine-Tuning in Experimental Settings](#fine-tuning-in-experimental-settings)
+- [Database Setup](#database-setup)
+
+**Reference:**
 - [Troubleshooting](#troubleshooting)
+- [Cost Breakdown](#cost-breakdown)
+- [Privacy](#privacy)
+- [API Reference](#api-reference)
 
 ---
 
-## Quick Start (Simple)
+# For Simple Users
 
-### Enabling Memory
+## What is the Memory System?
 
-1. Click the **brain icon** (🧠) in the chat header
-2. Toggle **"AI Memory System"** ON
-3. That's it! The AI will now remember things about you
+The Memory System lets the AI **remember things about you** across conversations. Instead of repeating yourself every time, the AI knows:
 
-### Adding Memories Manually
+- Your preferences ("I prefer dark mode", "I like sci-fi books")
+- Facts about you ("I'm a software engineer", "I live in Berlin")
+- Your projects ("I'm building a React app")
+- Your skills ("I know Python")
+- Your goals ("I want to learn machine learning")
 
-1. Click the brain icon in the chat header
+**The Smart Part:** The AI only uses memories when relevant. Ask "What is 2+2?" and it won't mention your book preferences. Ask "Recommend me a book?" and it remembers you like sci-fi.
+
+---
+
+## Quick Start Guide
+
+### Step 1: Enable Memory
+
+1. Look for the **brain icon** (🧠) in the chat header (top of the screen)
+2. Click it to open the Memory Manager
+3. Toggle **"AI Memory System"** to ON
+
+That's it! The system is now active.
+
+### Step 2: Add Your First Memory
+
+1. Click the brain icon again
 2. Click **"Add Memory"**
-3. Choose a type:
-   - **Preference**: Things you like/dislike ("I prefer dark mode", "I hate spicy food")
-   - **Fact**: Personal information ("I'm a software engineer", "I live in Berlin")
-   - **Context**: Work/project context ("I'm working on a React app")
-   - **Skill**: Your abilities ("I know Python", "I'm learning Spanish")
-   - **Goal**: What you're trying to achieve ("I want to learn machine learning")
-4. Set importance (Low/Medium/High)
-5. Save
+3. Fill in:
+   - **Type**: What kind of info is this? (Preference, Fact, etc.)
+   - **Content**: The actual information
+   - **Importance**: How important is this? (Low/Medium/High)
+4. Click **Save**
 
-### What Happens Automatically
+### Step 3: Test It
 
-- **Auto-extract**: After 4+ messages in a conversation, the AI extracts key facts
-- **Smart retrieval**: Memories only appear when relevant (not for "what is 2+2")
-- **Cloud sync** (optional): Access memories across devices
+Try these queries:
+- ❌ "What is 2+2?" → No memory used (factual question)
+- ✅ "Recommend me a book" → Uses your preferences
+- ✅ "Help me with my project" → Uses your context
+
+Check the browser console (F12 → Console) to see logs like:
+```
+[ChatInput] ✅ Memory context added: 3 memories
+```
 
 ---
 
-## Advanced Usage
+## Adding Memories
 
-### Getting Maximum Value
+### Memory Types Explained
 
-**1. Be Specific in Your Memories**
+| Type | Use For | Examples |
+|------|---------|----------|
+| **Preference** | Things you like or dislike | "I prefer TypeScript over JavaScript", "I don't like spicy food" |
+| **Fact** | Personal information | "I'm 28 years old", "I live in Berlin", "My name is Alex" |
+| **Context** | Current situation/projects | "I'm building a SaaS for restaurants", "I'm studying for AWS certification" |
+| **Skill** | Things you know how to do | "I know React and Node.js", "I'm fluent in Spanish" |
+| **Goal** | What you want to achieve | "I want to become a senior developer", "I'm trying to lose weight" |
+
+### Importance Levels
+
+| Level | When to Use | Effect |
+|-------|-------------|--------|
+| **High (3)** | Critical info that should almost always be considered | Highest priority in retrieval |
+| **Medium (2)** | Useful context that helps personalization | Default, good balance |
+| **Low (1)** | Nice-to-know, only use when highly relevant | Only retrieved for very relevant queries |
+
+### Tips for Good Memories
+
+**Be Specific:**
 ```
-Bad:  "I like programming"
-Good: "I prefer TypeScript over JavaScript for large projects"
-Good: "I use VSCode with Vim keybindings"
+❌ Bad:  "I like programming"
+✅ Good: "I prefer TypeScript with strict mode for large projects"
 ```
 
-**2. Add Context About Your Work**
+**Include Context:**
 ```
-"I'm building a SaaS app for restaurant management"
-"My tech stack is Next.js, Supabase, and Tailwind"
-"I follow clean architecture principles"
-```
-
-**3. Include Communication Preferences**
-```
-"I prefer concise answers with code examples"
-"Explain things like I'm a senior developer"
-"Always include TypeScript types in examples"
+❌ Bad:  "React"
+✅ Good: "I'm building a React dashboard for my company's inventory system"
 ```
 
-**4. Set High Importance for Critical Info**
-- High (3): Things that should almost always be considered
-- Medium (2): Useful context that helps personalization
-- Low (1): Nice-to-know, only used when highly relevant
-
-### Semantic Search Power
-
-The system uses **embeddings** (AI-generated number representations) to find memories by meaning, not just keywords:
-
-| Your Query | Memory | Why It Matches |
-|------------|--------|----------------|
-| "suggest something to read" | "I like scifi books" | Conceptually related |
-| "help with my project" | "Building a React dashboard" | Context relevance |
-| "what should I learn" | "Goal: become ML engineer" | Intent matching |
-
-This means you don't need to use exact words - the AI understands concepts.
-
-### Import/Export for Backup
-
-1. Go to Settings → Memory tab
-2. Click **Export** to save all memories as JSON
-3. Click **Import** to restore from a backup
+**Be Concise:**
+```
+❌ Bad:  "I really really love science fiction books especially ones about space exploration and alien civilizations"
+✅ Good: "I love sci-fi books, especially space exploration themes"
+```
 
 ---
 
-## How It Works (Technical)
+## Best Practices
 
-### Architecture Overview
+### What Works Well
+
+1. **Add communication preferences early:**
+   - "I prefer concise answers with code examples"
+   - "Explain things like I'm a senior developer"
+   - "Always use TypeScript in examples"
+
+2. **Keep work context updated:**
+   - "I'm working on a Next.js e-commerce app"
+   - "My tech stack is React, Supabase, Tailwind"
+
+3. **Note your learning goals:**
+   - "I'm learning Rust"
+   - "I want to understand system design better"
+
+### What to Avoid
+
+1. **Temporary info** - Don't add things that change daily
+2. **Sensitive data** - Don't add passwords, API keys, or private info
+3. **Duplicate memories** - Check if similar memory exists first
+4. **Vague statements** - "I like stuff" isn't helpful
+
+---
+
+# For Advanced Users
+
+## How It Works (Technical Deep Dive)
+
+The memory system uses a **four-phase intelligent retrieval pipeline**:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      User Query                              │
-│                  "recommend me a book"                       │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│              Phase 1: Query Classification                   │
-│                                                              │
-│  LLM (gpt-oss-20b) classifies:                              │
-│  • "factual" → Skip memory (2+2, definitions, conversions)  │
-│  • "personal" → Retrieve memories (recommendations, advice) │
-│  • "ambiguous" → Skip to save tokens                        │
-│                                                              │
-│  Cost: ~$0.00001 per query                                  │
-│  Latency: ~500-2000ms                                       │
-└─────────────────────────┬───────────────────────────────────┘
-                          │ (if personal)
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│              Phase 2: Semantic Search                        │
-│                                                              │
-│  1. Generate query embedding (1536 dimensions)              │
-│  2. Compare with memory embeddings using cosine similarity  │
-│  3. Return memories above threshold (default 0.5)           │
-│                                                              │
-│  Embedding Model: openai/text-embedding-3-small             │
-│  Cost: ~$0.00002 per query                                  │
-│  Latency: ~200-500ms                                        │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│              Phase 3: Context Injection                      │
-│                                                              │
-│  Relevant memories formatted and added to system prompt:    │
-│                                                              │
-│  <user_memory>                                              │
-│  Preferences: I like scifi books; I prefer concise answers  │
-│  Facts: I'm a software engineer in Berlin                   │
-│  Goals: Learning machine learning                           │
-│  </user_memory>                                             │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│              LLM Response                                    │
-│                                                              │
-│  "Based on your love of sci-fi, I recommend..."             │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                         USER QUERY                                   │
+│                    "recommend me a book"                             │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PHASE 1: QUERY CLASSIFICATION                                        │
+│                                                                       │
+│ • Model: gpt-oss-20b via OpenRouter                                  │
+│ • Cost: ~$0.00001 per query                                          │
+│ • Latency: 500-2000ms                                                │
+│                                                                       │
+│ Classifies query as:                                                 │
+│   • "factual" (2+2, definitions) → Skip memory                       │
+│   • "personal" (recommendations, projects) → Retrieve memory         │
+│   • "ambiguous" (unclear) → Skip to save tokens                      │
+│                                                                       │
+│ Output: { needsMemory: true, confidence: 0.95, queryType: "personal"}│
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PHASE 2: CONFIDENCE CHECK                                            │
+│                                                                       │
+│ • If needsMemory = false AND confidence >= 0.8 → SKIP                │
+│ • If needsMemory = false AND confidence < 0.8 → RETRIEVE (safer)     │
+│ • If needsMemory = true → RETRIEVE                                   │
+│ • If persona chat AND alwaysRetrieveForPersonas → RETRIEVE           │
+│                                                                       │
+│ This prevents wrong "skip" decisions when classifier is unsure.      │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PHASE 3: SEMANTIC SEARCH                                             │
+│                                                                       │
+│ • Model: openai/text-embedding-3-small via OpenRouter                │
+│ • Cost: ~$0.00002 per query                                          │
+│ • Latency: 200-500ms                                                 │
+│                                                                       │
+│ How it works:                                                        │
+│ 1. Convert query to 1536-dimensional vector (embedding)              │
+│ 2. Compare with stored memory embeddings using cosine similarity     │
+│ 3. Return memories with similarity >= similarityThreshold (0.5)      │
+│                                                                       │
+│ Search priority:                                                     │
+│ 1. Database (pgvector) if cloud sync enabled                         │
+│ 2. Client-side if local-only                                         │
+│ 3. Keyword matching as fallback                                      │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PHASE 4: RELEVANCE FILTER                                            │
+│                                                                       │
+│ • Check: Is top similarity >= minRelevanceScore (0.3)?               │
+│ • If NO: Skip ALL memories (prevents irrelevant context)             │
+│ • If YES: Proceed with injection                                     │
+│                                                                       │
+│ Example:                                                             │
+│   Query: "what's the weather?"                                       │
+│   Best match: "I like sci-fi books" (similarity: 0.15)               │
+│   0.15 < 0.3 → Skip all memories (irrelevant)                        │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ CONTEXT INJECTION                                                    │
+│                                                                       │
+│ Memories formatted and added to system prompt:                       │
+│                                                                       │
+│ <user_memory>                                                        │
+│ Preferences: I like sci-fi books; I prefer concise answers           │
+│ Facts: I'm a software engineer; I live in Berlin                     │
+│ Goals: Learning machine learning                                     │
+│ </user_memory>                                                       │
+│                                                                       │
+│ Injected before user message in the message array.                   │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ LLM RESPONSE                                                         │
+│                                                                       │
+│ "Based on your love of sci-fi, here are my top recommendations:      │
+│  1. Dune by Frank Herbert - Epic space opera...                      │
+│  2. Foundation by Isaac Asimov..."                                   │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Memory Storage
+---
 
-**Local Storage (Default)**
-- Stored in browser's localStorage
-- Key: `chat_memories`
-- Persists across sessions
-- Maximum privacy - never leaves your device
+## The Four Phases
 
-**Cloud Storage (Optional)**
-- Stored in Supabase PostgreSQL with pgvector
-- Enables cross-device sync
-- Embeddings stored for fast vector search
-- Protected by Row Level Security (RLS)
+### Phase 1: Query Classification
 
-### Embedding Process
+Uses a cheap, fast LLM (gpt-oss-20b, ~$0.00001/call) to classify if the query needs personal context.
 
-When you add a memory:
-
-```typescript
-// 1. Memory created locally
-const memory = {
-  id: "uuid",
-  type: "preference",
-  content: "I like scifi books",
-  importance: 2,
-  // ... other fields
-}
-
-// 2. Embedding generated asynchronously
-const embedding = await generateEmbedding(
-  "I like scifi books",
-  openRouterApiKey
-)
-// Returns: [0.023, -0.156, 0.089, ...] (1536 numbers)
-
-// 3. Stored locally and in database
-memory.embedding = embedding
-localStorage.setItem("chat_memories", JSON.stringify(memories))
-await supabase.from("memories").update({ embedding }).eq("id", memory.id)
-```
-
-### Semantic Search Algorithm
-
-```typescript
-// Cosine similarity: how similar are two vectors?
-function cosineSimilarity(a: number[], b: number[]): number {
-  let dotProduct = 0
-  let normA = 0
-  let normB = 0
-
-  for (let i = 0; i < a.length; i++) {
-    dotProduct += a[i] * b[i]
-    normA += a[i] * a[i]
-    normB += b[i] * b[i]
-  }
-
-  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB))
-}
-
-// Result: 0.0 = completely different, 1.0 = identical meaning
-```
-
-**Database-level search (pgvector)**:
-```sql
-SELECT *, 1 - (embedding <=> query_embedding) as similarity
-FROM memories
-WHERE user_id = auth.uid()
-  AND 1 - (embedding <=> query_embedding) >= 0.5
-ORDER BY embedding <=> query_embedding
-LIMIT 5;
-```
-
-### Query Classification Prompt
-
-The LLM uses this prompt to classify queries:
-
+**Classification Prompt:**
 ```
 CLASSIFICATION RULES:
 - "factual": Generic questions with objective answers.
   Math, definitions, facts, code syntax. NO memory needed.
 - "personal": Questions about recommendations, preferences,
-  projects, or anything where knowing the user helps.
-  Memory NEEDED.
+  projects, or anything where knowing the user helps. Memory NEEDED.
 - "ambiguous": Could go either way - lean towards NO memory.
 
 EXAMPLES:
-- "What is 2+2?" → factual
-- "Recommend a book for me" → personal
-- "Help me with my project" → personal
+- "What is 2+2?" → factual (math)
+- "Convert 5kg to lbs" → factual (conversion)
+- "Recommend a book for me" → personal (needs preferences)
+- "Help me with my project" → personal (needs context)
 ```
+
+**Output:**
+```typescript
+{
+  needsMemory: boolean,    // true = retrieve, false = skip
+  confidence: number,      // 0.0 to 1.0
+  reason: string,          // "Simple math question..."
+  queryType: "factual" | "personal" | "ambiguous"
+}
+```
+
+### Phase 2: Semantic Search with Embeddings
+
+**What are embeddings?**
+- Text converted to numbers (vectors)
+- 1536 numbers per text for text-embedding-3-small
+- Similar meanings = similar vectors = high cosine similarity
+
+**Example:**
+```
+"I like sci-fi books"     → [0.023, -0.156, 0.089, ...]
+"suggest something to read" → [0.018, -0.142, 0.095, ...]
+
+Cosine similarity: 0.72 (high! semantically related)
+```
+
+**Why better than keywords?**
+- "suggest something to read" has NO words in common with "I like sci-fi books"
+- But they're conceptually related
+- Embeddings capture meaning, not just words
+
+### Phase 3: Combined Intelligent Retrieval
+
+The new Phase 3 settings add safety nets:
+
+| Setting | Default | Purpose |
+|---------|---------|---------|
+| `classificationConfidence` | 0.8 | Only trust "skip" if classifier is 80%+ confident |
+| `minRelevanceScore` | 0.3 | Skip memories if best match is < 30% similar |
+| `alwaysRetrieveForPersonas` | true | Bypass classification for persona chats |
+
+**Logic Flow:**
+```typescript
+// Persona override
+if (isPersonaChat && alwaysRetrieveForPersonas) {
+  return retrieveMemories() // Always retrieve
+}
+
+// Classification
+const result = await classifyQuery(query)
+
+// Confidence check
+if (!result.needsMemory && result.confidence >= 0.8) {
+  return [] // Skip - classifier is confident it's factual
+}
+
+if (!result.needsMemory && result.confidence < 0.8) {
+  // Classifier says skip but isn't sure
+  // Retrieve anyway to be safe
+}
+
+// Semantic search
+const memories = await semanticSearch(query)
+
+// Relevance filter
+if (topSimilarity < 0.3) {
+  return [] // Best match isn't good enough
+}
+
+return memories
+```
+
+### Phase 4: Settings UI
+
+All intelligent retrieval settings are now configurable in:
+**Settings → Experimental → Memory Intelligence**
+
+(Only visible when Memory System is enabled)
 
 ---
 
 ## Settings Reference
 
-### Memory Settings
+### Basic Memory Settings
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `enabled` | false | Master toggle for memory system |
-| `autoExtract` | true | Automatically extract memories from chats |
-| `syncToDatabase` | false | Sync to Supabase for cross-device |
-| `maxMemoriesInContext` | 5 | Max memories to inject per query |
-| `importanceThreshold` | 2 | Minimum importance (1-3) to include |
-| `useSemanticSearch` | true | Use embeddings vs keyword matching |
-| `similarityThreshold` | 0.5 | Minimum similarity score (0.0-1.0) |
+| Setting | Default | Location | Description |
+|---------|---------|----------|-------------|
+| `enabled` | false | Memory Dialog | Master toggle for memory system |
+| `autoExtract` | true | Memory Dialog | Auto-extract memories from conversations |
+| `syncToDatabase` | false | Memory Dialog | Sync to Supabase for cross-device access |
+| `maxMemoriesInContext` | 5 | - | Max memories to inject per query |
+| `importanceThreshold` | 2 | - | Minimum importance (1-3) to include |
 
-### Phase 3: Intelligent Retrieval Settings
+### Intelligent Retrieval Settings
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `classificationConfidence` | 0.8 | Minimum confidence to trust "skip" decision. If classifier says "factual" with < 0.8 confidence, retrieve anyway to be safe |
-| `minRelevanceScore` | 0.3 | If best memory match is below this similarity, skip all memories (prevents irrelevant context) |
-| `alwaysRetrieveForPersonas` | true | Bypass classification for persona chats - always retrieve memories |
-
-### Understanding the Flow
-
-```
-Query: "recommend a book"
-        │
-        ▼
-┌─────────────────────┐
-│ 1. Classification   │
-│    → "personal"     │
-│    → confidence 0.95│
-└─────────┬───────────┘
-          │ (needsMemory = true)
-          ▼
-┌─────────────────────┐
-│ 2. Semantic Search  │
-│    → 3 memories     │
-│    → top sim: 0.72  │
-└─────────┬───────────┘
-          │ (0.72 >= minRelevanceScore 0.3 ✓)
-          ▼
-┌─────────────────────┐
-│ 3. Inject Context   │
-│    → 3 memories     │
-│    → decision:      │
-│      "retrieved"    │
-└─────────────────────┘
-```
-
-### Adjusting Similarity Threshold
-
-- **0.3**: Very loose - includes tangentially related memories
-- **0.5**: Balanced (default) - good relevance without noise
-- **0.7**: Strict - only highly relevant memories
-- **0.9**: Very strict - almost exact matches only
+| Setting | Default | Location | Description |
+|---------|---------|----------|-------------|
+| `useSemanticSearch` | true | Experimental | Use embeddings for search (recommended) |
+| `similarityThreshold` | 0.5 | Experimental | Min similarity to include a memory (0.0-1.0) |
+| `classificationConfidence` | 0.8 | Experimental | Min confidence to trust "skip" decision (0.0-1.0) |
+| `minRelevanceScore` | 0.3 | Experimental | Skip ALL if best match below this (0.0-1.0) |
+| `alwaysRetrieveForPersonas` | true | Experimental | Bypass classification for persona chats |
 
 ---
 
-## Troubleshooting
+## Fine-Tuning in Experimental Settings
 
-### Memories Not Showing Up
+When Memory is enabled, go to **Settings → Experimental** to see **Memory Intelligence** settings:
 
-**Check 1: Is memory enabled?**
-- Click brain icon → ensure toggle is ON
+### Semantic Search Toggle
+- **ON (default):** Uses AI embeddings to find memories by meaning
+- **OFF:** Falls back to keyword matching (less accurate but no API cost)
 
-**Check 2: Is the query "personal"?**
-- Factual queries skip memory retrieval
-- Try: "based on what you know about me..."
+### Always Retrieve for Personas Toggle
+- **ON (default):** Persona chats always get memory context
+- **OFF:** Classification decides for persona chats too
 
-**Check 3: Are there relevant memories?**
-- Check your memory list in the brain icon dialog
-- Ensure memories have sufficient importance
+### Classification Confidence Slider (50%-99%)
+Controls when to trust the classifier's "skip" decision.
 
-### Database Sync Not Working
+| Value | Behavior |
+|-------|----------|
+| **50%** | Retrieve unless classifier is very sure (safer, more API calls) |
+| **80% (default)** | Good balance - skip when reasonably confident |
+| **99%** | Almost never skip (wastes tokens on factual queries) |
 
-**Error: "new row violates row-level security policy"**
+**Recommendation:** Keep at 80% unless you notice wrong "skip" decisions.
 
-Run this in Supabase SQL Editor:
+### Similarity Threshold Slider (20%-80%)
+Controls which memories are included in results.
+
+| Value | Behavior |
+|-------|----------|
+| **20%** | Include loosely related memories (more context, may be noisy) |
+| **50% (default)** | Balanced - good relevance |
+| **80%** | Very strict - only highly relevant memories |
+
+**Recommendation:** Start at 50%, lower if memories aren't showing up.
+
+### Minimum Relevance Score Slider (10%-50%)
+Skip ALL memories if even the best match is below this.
+
+| Value | Behavior |
+|-------|----------|
+| **10%** | Almost always inject something (may be irrelevant) |
+| **30% (default)** | Skip if no memory is reasonably related |
+| **50%** | Very strict - skip unless highly relevant |
+
+**Recommendation:** Keep at 30% to prevent irrelevant context.
+
+---
+
+## Database Setup
+
+### Required SQL Scripts
+
+Run these in **Supabase SQL Editor** in order:
+
+**1. Create memories table (scripts/030_add_memories_table.sql):**
+```sql
+CREATE TABLE IF NOT EXISTS public.memories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK (type IN ('preference', 'fact', 'context', 'skill', 'goal')),
+  content TEXT NOT NULL,
+  category TEXT,
+  importance INTEGER NOT NULL CHECK (importance IN (1, 2, 3)),
+  source TEXT,
+  metadata JSONB DEFAULT '{}',
+  access_count INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  last_accessed_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.memories ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own memories" ON public.memories
+  FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own memories" ON public.memories
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own memories" ON public.memories
+  FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own memories" ON public.memories
+  FOR DELETE USING (auth.uid() = user_id);
+```
+
+**2. Enable pgvector and add embedding column:**
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+
+ALTER TABLE public.memories
+ADD COLUMN IF NOT EXISTS embedding vector(1536);
+
+CREATE INDEX IF NOT EXISTS idx_memories_embedding
+ON public.memories
+USING ivfflat (embedding vector_cosine_ops)
+WITH (lists = 100);
+```
+
+**3. Create semantic search function (scripts/032_add_semantic_search.sql):**
+```sql
+CREATE OR REPLACE FUNCTION search_memories_by_embedding(
+  query_embedding vector(1536),
+  match_threshold float DEFAULT 0.5,
+  match_count int DEFAULT 5,
+  p_user_id uuid DEFAULT NULL
+)
+RETURNS TABLE (
+  id uuid, user_id uuid, type text, content text, category text,
+  importance int, source text, metadata jsonb, access_count int,
+  created_at timestamptz, last_accessed_at timestamptz,
+  embedding vector(1536), similarity float
+)
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  RETURN QUERY
+  SELECT m.id, m.user_id, m.type, m.content, m.category, m.importance,
+         m.source, m.metadata, m.access_count, m.created_at, m.last_accessed_at,
+         m.embedding, 1 - (m.embedding <=> query_embedding) as similarity
+  FROM memories m
+  WHERE m.user_id = COALESCE(p_user_id, auth.uid())
+    AND m.embedding IS NOT NULL
+    AND 1 - (m.embedding <=> query_embedding) >= match_threshold
+  ORDER BY m.embedding <=> query_embedding
+  LIMIT match_count;
+END; $$;
+
+GRANT EXECUTE ON FUNCTION search_memories_by_embedding TO authenticated;
+```
+
+**4. Fix RLS if needed (scripts/031_fix_memories_rls.sql):**
 ```sql
 DROP POLICY IF EXISTS "Users can insert their own memories" ON public.memories;
 CREATE POLICY "Users can insert their own memories" ON public.memories
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 ```
 
+---
+
+## Troubleshooting
+
+### Memories Not Being Retrieved
+
+**Symptom:** You ask "recommend a book" but no memories appear.
+
+**Fixes:**
+1. Check console (F12) for `[Memory]` logs
+2. Is memory enabled? (brain icon → toggle ON)
+3. Do you have memories? (brain icon → check list)
+4. Is the query being classified as "factual"? (check logs)
+5. Lower `similarityThreshold` in Experimental settings
+
+### Database Sync Failing
+
+**Error:** `new row violates row-level security policy`
+
+**Fix:** Run scripts/031_fix_memories_rls.sql in Supabase SQL Editor.
+
 ### Semantic Search Not Working
 
-**Check 1: Is pgvector enabled?**
-```sql
-SELECT * FROM pg_extension WHERE extname = 'vector';
-```
+**Symptom:** Logs show "Falling back to keyword matching"
 
-**Check 2: Is the search function created?**
-Run `scripts/032_add_semantic_search.sql` in Supabase SQL Editor.
+**Fixes:**
+1. Check pgvector is enabled: `SELECT * FROM pg_extension WHERE extname = 'vector';`
+2. Run scripts/032_add_semantic_search.sql
+3. Check if memories have embeddings (new memories get them automatically)
 
-**Check 3: Do memories have embeddings?**
-- New memories get embeddings automatically
-- Existing memories can be embedded via `memoryService.embedAllMemories(apiKey)`
+### Too Many Irrelevant Memories
+
+**Symptom:** Unrelated memories appearing in context.
+
+**Fixes:**
+1. Increase `similarityThreshold` (0.5 → 0.6)
+2. Increase `minRelevanceScore` (0.3 → 0.4)
+3. Delete irrelevant memories
+
+### Memories Skipped Too Often
+
+**Symptom:** Personal queries not getting memory context.
+
+**Fixes:**
+1. Lower `classificationConfidence` (0.8 → 0.6)
+2. Check if query contains keywords that make it seem "factual"
+3. Try rephrasing: "based on my preferences, recommend..."
 
 ---
 
@@ -346,34 +556,36 @@ Run `scripts/032_add_semantic_search.sql` in Supabase SQL Editor.
 | Operation | Model | Cost per Call |
 |-----------|-------|---------------|
 | Query Classification | gpt-oss-20b | ~$0.00001 |
-| Memory Embedding | text-embedding-3-small | ~$0.00002 |
+| Query Embedding | text-embedding-3-small | ~$0.00002 |
+| Memory Embedding (once) | text-embedding-3-small | ~$0.00002 |
 | Memory Extraction | gpt-oss-20b | ~$0.00005 |
 
-**Example monthly costs (active user):**
-- 100 queries/day × 30 days = 3000 queries
-- Classification: 3000 × $0.00001 = $0.03
-- Embedding (queries): 1000 × $0.00002 = $0.02
-- **Total: ~$0.05/month** for memory system
+**Example monthly costs (active user, 100 queries/day):**
+- Classifications: 3000 × $0.00001 = $0.03
+- Query embeddings: 1500 × $0.00002 = $0.03
+- Memory embeddings: 50 × $0.00002 = $0.001
+- **Total: ~$0.06/month**
 
 ---
 
-## Privacy Considerations
+## Privacy
 
 ### Local-Only Mode (Default)
-- All memories stored in browser localStorage
-- Never sent to any server
+- Memories stored in browser's localStorage
+- Embeddings stored locally
+- Never sent to any server (except OpenRouter for embedding generation)
 - Lost if browser data cleared
 
 ### Cloud Sync Mode
 - Memories stored in your Supabase database
-- Protected by Row Level Security
-- Only accessible with your account
-- Embeddings stored for search performance
+- Protected by Row Level Security (only you can access)
+- Embeddings stored in PostgreSQL with pgvector
+- Survives browser data clear, accessible on all devices
 
 ### What's Sent to OpenRouter
-- Memory content (for embedding generation)
-- Query text (for classification and search)
-- Standard API security applies
+- Memory content (for embedding generation only)
+- Query text (for classification and embedding)
+- Standard API security (HTTPS, no storage)
 
 ---
 
@@ -382,7 +594,7 @@ Run `scripts/032_add_semantic_search.sql` in Supabase SQL Editor.
 ### MemoryService Methods
 
 ```typescript
-// Add a memory with optional embedding
+// Add a memory (embedding generated async if apiKey provided)
 memoryService.addMemory({
   type: "preference",
   content: "I like TypeScript",
@@ -390,35 +602,85 @@ memoryService.addMemory({
   category: "programming"
 }, apiKey)
 
-// Get relevant memories with classification
+// Intelligent retrieval (classification + semantic search)
 const result = await memoryService.getRelevantMemoriesWithClassification(
   "recommend a programming language",
   apiKey,
-  5 // limit
+  5,     // limit
+  false  // isPersonaChat
 )
-// Returns: { memories, classification, skipped, searchMethod }
+// Returns: { memories, classification, skipped, searchMethod, decision }
 
-// Semantic search directly
+// Direct semantic search
 const memories = await memoryService.getSemanticRelevantMemories(
   "what should I learn",
   apiKey,
   5
 )
 
-// Embed all existing memories
+// Generate embedding for a memory
+await memoryService.embedMemory(memoryId, content, apiKey)
+
+// Embed all memories without embeddings
 await memoryService.embedAllMemories(apiKey)
 
-// Export/import
+// Get all memories
 const all = memoryService.getAllMemories()
+
+// Delete a memory
+memoryService.deleteMemory(id)
+
+// Clear all memories
 memoryService.clearAllMemories()
+```
+
+### Decision Object
+
+```typescript
+interface MemoryRetrievalDecision {
+  action: "skipped" | "retrieved" | "empty"
+  reason: string
+  details: {
+    queryType?: "factual" | "personal" | "ambiguous"
+    confidence?: number
+    searchMethod?: "semantic" | "keyword"
+    topSimilarity?: number
+    memoryCount?: number
+  }
+}
+```
+
+**Examples:**
+```typescript
+// Skipped - factual query
+{
+  action: "skipped",
+  reason: "Simple math question with objective answer",
+  details: { queryType: "factual", confidence: 0.99 }
+}
+
+// Retrieved successfully
+{
+  action: "retrieved",
+  reason: "Retrieved 3 relevant memories via semantic search",
+  details: { queryType: "personal", confidence: 0.95, searchMethod: "semantic", topSimilarity: 0.72, memoryCount: 3 }
+}
+
+// Empty - low relevance
+{
+  action: "empty",
+  reason: "Best match similarity (0.18) below threshold (0.3)",
+  details: { queryType: "personal", confidence: 0.85, searchMethod: "semantic", topSimilarity: 0.18, memoryCount: 0 }
+}
 ```
 
 ---
 
 ## Future Improvements
 
-- [ ] Memory decay (reduce importance over time)
-- [ ] Automatic memory consolidation (merge similar memories)
-- [ ] Per-persona memories
-- [ ] Memory conflicts detection
+- [ ] Memory decay (reduce importance over time for unused memories)
+- [ ] Automatic memory consolidation (merge similar/redundant memories)
+- [ ] Per-persona memories (different memories for different personas)
+- [ ] Memory conflicts detection (alert when memories contradict)
 - [ ] Batch embedding on import
+- [ ] Memory suggestions based on conversation patterns
