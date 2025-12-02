@@ -13,6 +13,16 @@ import { supabaseSync } from "@/lib/supabase/sync"
 
 const MEMORY_STORAGE_KEY = "chat_memories"
 const EXTRACTION_MODEL = "openai/gpt-oss-20b" // Cheap, fast model for extraction
+const CLASSIFIER_MODEL = "openai/gpt-oss-20b" // Same model for query classification
+
+// Query classification result
+export interface QueryClassification {
+  needsMemory: boolean
+  confidence: number // 0-1
+  reason: string
+  queryType: "factual" | "personal" | "ambiguous"
+}
+
 const DEFAULT_SETTINGS: MemorySettings = {
   enabled: false,
   autoExtract: true,
@@ -611,6 +621,163 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
       result: shouldExtract
     })
     return shouldExtract
+  }
+
+  /**
+   * Classify if a query needs memory context using LLM
+   * This is the intelligent gating mechanism that decides whether to retrieve memories
+   */
+  async classifyQueryForMemory(
+    query: string,
+    apiKey?: string
+  ): Promise<QueryClassification> {
+    // Default: don't use memory if we can't classify
+    const defaultResult: QueryClassification = {
+      needsMemory: false,
+      confidence: 0,
+      reason: "No API key available",
+      queryType: "factual"
+    }
+
+    if (!apiKey) {
+      console.log("[Memory] No API key, skipping query classification")
+      return defaultResult
+    }
+
+    // Skip classification for very short queries (likely commands or simple questions)
+    if (query.trim().length < 5) {
+      console.log("[Memory] Query too short, skipping memory")
+      return {
+        needsMemory: false,
+        confidence: 0.95,
+        reason: "Query too short",
+        queryType: "factual"
+      }
+    }
+
+    const classificationPrompt = `You are a query classifier. Determine if this user query would benefit from knowing personal information about the user (their preferences, facts about them, goals, skills, etc).
+
+QUERY: "${query}"
+
+CLASSIFICATION RULES:
+- "factual": Generic questions with objective answers. Math, definitions, facts, code syntax, translations, conversions. NO memory needed.
+- "personal": Questions about recommendations, preferences, projects, or anything where knowing the user helps. Memory NEEDED.
+- "ambiguous": Could go either way - lean towards NO memory to save tokens.
+
+EXAMPLES:
+- "What is 2+2?" → factual (math, no personalization needed)
+- "Convert 5kg to lbs" → factual (conversion, no personalization)
+- "What's the capital of France?" → factual (trivia, no personalization)
+- "Explain async/await in JavaScript" → factual (education, no personalization)
+- "Recommend a book for me" → personal (needs preferences)
+- "Help me with my project" → personal (needs context about their project)
+- "What should I learn next?" → personal (needs their goals/skills)
+- "Write an email to my boss" → personal (needs work context)
+- "Continue what we discussed" → personal (explicit memory reference)
+- "Based on my preferences..." → personal (explicit memory reference)
+
+Respond with ONLY valid JSON (no markdown):
+{"needsMemory": true/false, "confidence": 0.0-1.0, "reason": "brief explanation", "queryType": "factual|personal|ambiguous"}`
+
+    try {
+      console.log("[Memory] Classifying query:", query.substring(0, 50))
+      const startTime = Date.now()
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-openrouter-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: classificationPrompt }],
+          model: CLASSIFIER_MODEL,
+          temperature: 0.1, // Very low temp for consistent classification
+          maxTokens: 100, // Classification is tiny
+          stream: false,
+        }),
+      })
+
+      const latency = Date.now() - startTime
+      console.log("[Memory] Classification latency:", latency, "ms")
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("[Memory] Classification API error:", response.status, errorText)
+        return defaultResult
+      }
+
+      const data = await response.json()
+      const content = data.choices?.[0]?.message?.content || ""
+      console.log("[Memory] Classification response:", content)
+
+      // Parse JSON from response
+      const jsonMatch = content.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) {
+        console.log("[Memory] No valid JSON in classification response")
+        return defaultResult
+      }
+
+      const result = JSON.parse(jsonMatch[0]) as QueryClassification
+
+      // Validate and normalize
+      const classification: QueryClassification = {
+        needsMemory: Boolean(result.needsMemory),
+        confidence: Math.min(1, Math.max(0, result.confidence || 0.5)),
+        reason: result.reason || "Unknown",
+        queryType: ["factual", "personal", "ambiguous"].includes(result.queryType)
+          ? result.queryType
+          : "ambiguous"
+      }
+
+      console.log("[Memory] Query classified:", {
+        query: query.substring(0, 30),
+        ...classification,
+        latency: `${latency}ms`
+      })
+
+      return classification
+    } catch (error) {
+      console.error("[Memory] Classification error:", error)
+      return defaultResult
+    }
+  }
+
+  /**
+   * Intelligent memory retrieval - classifies query first, then retrieves only if needed
+   * This is the main entry point for smart memory retrieval
+   */
+  async getRelevantMemoriesWithClassification(
+    query: string,
+    apiKey?: string,
+    limit?: number
+  ): Promise<{
+    memories: Memory[]
+    classification: QueryClassification
+    skipped: boolean
+  }> {
+    // First, classify the query
+    const classification = await this.classifyQueryForMemory(query, apiKey)
+
+    // If query doesn't need memory, skip retrieval entirely
+    if (!classification.needsMemory) {
+      console.log("[Memory] ⏭️ Skipping memory retrieval:", classification.reason)
+      return {
+        memories: [],
+        classification,
+        skipped: true
+      }
+    }
+
+    // Query needs memory - retrieve relevant ones
+    console.log("[Memory] ✅ Retrieving memories for personal query")
+    const memories = this.getRelevantMemories(query, limit)
+
+    return {
+      memories,
+      classification,
+      skipped: false
+    }
   }
 }
 
