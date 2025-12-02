@@ -2,11 +2,83 @@
 
 **Generated**: December 2, 2025
 **Branch**: `claude/hide-stats-simple-mode-019wzAdTL46UJEaEBS2LnLcp`
-**Commits**: Last 14 commits in detail
+**Commits**: Last 15 commits in detail
 
 ---
 
-## Commit #1: File Preview Modal - Using Proven Settings Dialog Structure
+## Commit #1: Sidebar Dialogs - Brute Force Width Fix with !important
+
+**Commit Hash**: `1590392`
+**Author**: Claude <noreply@anthropic.com>
+**Date**: December 2, 2025
+**Type**: Bug Fix (THE FIX THAT ACTUALLY WORKED!)
+
+### Summary
+Fixed Create Folder and Delete All Chats dialogs collapsing to narrow vertical strips by using Tailwind's `!important` prefix to forcefully override base component styles.
+
+### The Problem - Root Cause Analysis
+After MANY attempts with various approaches (responsive classes, flexbox, inline styles), the dialogs kept collapsing. The issue was:
+
+1. **Base component has conflicting defaults**: `DialogContent` in `components/ui/dialog.tsx` line 69 has:
+   - `grid` display (can cause width collapse with certain content)
+   - `w-full max-w-[calc(100%-2rem)]` base classes
+   - `sm:max-w-lg` default max-width
+
+2. **CSS specificity battle**: Custom classes were being overridden by base component classes
+
+3. **Multiple attempts failed**:
+   - ❌ Just adding `sm:max-w-md` - overridden by base
+   - ❌ Adding `max-w-[95vw]` - still collapsed
+   - ❌ Adding inline styles - not enough specificity
+   - ❌ Complex calc() expressions - didn't help
+
+### The Solution - Nuclear Option
+Used Tailwind's `!` prefix which adds `!important` to CSS rules, forcing them to override everything:
+
+```jsx
+// Create Folder Dialog
+<DialogContent
+  className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-md"
+  style={{ minWidth: '320px' }}
+>
+
+// Delete All Chats AlertDialog
+<AlertDialogContent
+  className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-md"
+  style={{ minWidth: '320px' }}
+>
+```
+
+**Breaking it down:**
+- `!w-[calc(100vw-2rem)]` - Force full viewport width minus padding on mobile (!important)
+- `sm:!w-auto` - On desktop, let width be automatic (!important)
+- `sm:!max-w-md` - Cap maximum width at 28rem on desktop (!important)
+- `style={{ minWidth: '320px' }}` - Absolute minimum width to prevent collapse
+
+### Files Changed
+- `components/chat-sidebar.tsx` - Lines 302-305 and 433-436
+
+### Why This Worked When Nothing Else Did
+1. **!important beats everything** - The `!` prefix generates CSS with `!important` flag
+2. **Inline styles** - Added extra layer of specificity with minWidth
+3. **Mobile-first approach** - Full width on mobile, constrained on desktop
+4. **Calculated viewport** - Uses `calc(100vw-2rem)` for proper mobile spacing
+
+### Impact
+- ✅ **Create Folder dialog displays at proper width**
+- ✅ **Delete All Chats dialog displays at proper width**
+- ✅ **Works on mobile and desktop**
+- ✅ **No more narrow vertical strips**
+- ✅ **Finally fucking works!**
+
+### Lesson Learned
+**Sometimes you need the nuclear option.** When dealing with complex component libraries with deeply nested styles and specificity conflicts, don't be afraid to use `!important` (via Tailwind's `!` prefix). It's not "bad practice" when it's the only way to override stubborn base styles.
+
+**Stop overthinking it** - tried 5+ different "clean" approaches. Should have just gone straight to `!important` from the start.
+
+---
+
+## Commit #2: File Preview Modal - Using Proven Settings Dialog Structure
 
 **Commit Hash**: `a6106c0`
 **Author**: Claude <noreply@anthropic.com>
