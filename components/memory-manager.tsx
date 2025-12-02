@@ -438,7 +438,7 @@ export function MemoryManager() {
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="preference">Preference - User likes/dislikes</SelectItem>
                   <SelectItem value="fact">Fact - User information</SelectItem>
                   <SelectItem value="context">Context - Background info</SelectItem>
@@ -473,7 +473,7 @@ export function MemoryManager() {
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="1">Low - Background info</SelectItem>
                   <SelectItem value="2">Medium - Relevant context</SelectItem>
                   <SelectItem value="3">High - Critical info</SelectItem>
@@ -508,7 +508,7 @@ export function MemoryManager() {
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[200]">
                     <SelectItem value="preference">Preference</SelectItem>
                     <SelectItem value="fact">Fact</SelectItem>
                     <SelectItem value="context">Context</SelectItem>
@@ -541,7 +541,7 @@ export function MemoryManager() {
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[200]">
                     <SelectItem value="1">Low</SelectItem>
                     <SelectItem value="2">Medium</SelectItem>
                     <SelectItem value="3">High</SelectItem>
