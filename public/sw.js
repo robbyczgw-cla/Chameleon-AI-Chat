@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.1.1'
+const CACHE_VERSION = 'v2.1.2'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 
@@ -50,7 +50,7 @@ let lastActiveTime = Date.now()
 
 // Install event - precache ALL critical assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker v2.0.0 with aggressive precaching')
+  console.log('[SW] Installing service worker v2.1.2 with aggressive precaching')
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       console.log('[SW] Precaching critical assets...')
@@ -412,6 +412,15 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
+  // Skip PDF.js worker and other module files - they need special handling
+  // Let the browser load them directly without Service Worker interference
+  if (url.pathname.endsWith('.mjs') ||
+      url.pathname.endsWith('.wasm') ||
+      url.pathname.includes('pdf.worker')) {
+    console.log('[SW] Skipping worker/module file:', url.pathname)
+    return
+  }
+
   // DON'T intercept navigation requests - let browser handle them
   // This completely avoids all redirect issues
   if (event.request.mode === 'navigate') {
@@ -525,4 +534,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.1.1 loaded - navigation passthrough, cache on failure only')
+console.log('[SW] Service Worker v2.1.2 loaded - navigation passthrough, PDF worker bypass, cache on failure only')
