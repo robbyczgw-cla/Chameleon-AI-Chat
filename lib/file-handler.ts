@@ -126,16 +126,17 @@ export async function extractPdfText(file: File): Promise<string> {
     // Dynamic import to avoid SSR issues (PDF.js needs browser APIs)
     const pdfjsLib = await import("pdfjs-dist")
 
-    // Disable worker for simplicity and reliability
-    // For small PDFs this is fine and avoids CDN/worker loading issues
-    console.log(`[PDF] Using PDF.js without worker (disableWorker: true)`)
+    // Set workerSrc to local worker file
+    // Even with disableWorker: true, PDF.js validates that workerSrc is set
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs"
+    console.log(`[PDF] Worker source set to: /pdf.worker.min.mjs`)
 
     const arrayBuffer = await file.arrayBuffer()
     console.log(`[PDF] ArrayBuffer loaded: ${arrayBuffer.byteLength} bytes`)
 
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
-      useWorkerFetch: false,
+      disableWorker: true,  // This is the key setting
       isEvalSupported: false,
       useSystemFonts: true
     })
