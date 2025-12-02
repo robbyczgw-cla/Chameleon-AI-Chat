@@ -331,27 +331,28 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     ]
 
     try {
-      // Memory: Intelligent memory retrieval - classifies query first, only retrieves if needed
+      // Memory: Phase 3 intelligent memory retrieval with classification + semantic search
       if (settings.memorySettings?.enabled) {
         console.log("[Simple Chat] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50))
 
-        const { memories: relevantMemories, classification, skipped } =
+        const { memories: relevantMemories, decision } =
           await memoryService.getRelevantMemoriesWithClassification(
             input.trim(),
             settings.apiKeys.openRouter,
-            settings.memorySettings.maxMemoriesInContext
+            settings.memorySettings.maxMemoriesInContext,
+            false // Simple mode doesn't have personas
           )
 
-        if (skipped) {
-          console.log("[Simple Chat] ⏭️ Memory skipped:", classification.reason,
-            `(${classification.queryType}, confidence: ${classification.confidence.toFixed(2)})`)
-        } else if (relevantMemories.length > 0) {
+        if (decision.action === "skipped") {
+          console.log("[Simple Chat] ⏭️ Memory skipped:", decision.reason,
+            `(type: ${decision.details.queryType}, confidence: ${decision.details.confidence?.toFixed(2)})`)
+        } else if (decision.action === "retrieved" && relevantMemories.length > 0) {
           const memoryContext = memoryService.formatMemoriesForContext(relevantMemories)
           messages.splice(-1, 0, { role: "system" as const, content: memoryContext })
-          console.log("[Simple Chat] ✅ Memory context added:", relevantMemories.length, "memories",
-            `(${classification.queryType}, confidence: ${classification.confidence.toFixed(2)})`)
+          console.log("[Simple Chat] ✅ Memory context added:", decision.reason,
+            decision.details.topSimilarity ? `(top similarity: ${decision.details.topSimilarity.toFixed(3)})` : "")
         } else {
-          console.log("[Simple Chat] 📭 No relevant memories found for personal query")
+          console.log("[Simple Chat] 📭", decision.reason)
         }
       }
 
