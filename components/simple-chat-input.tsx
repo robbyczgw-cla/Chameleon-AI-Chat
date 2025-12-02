@@ -331,15 +331,27 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     ]
 
     try {
-      // Memory: Add relevant memories (works for all personas when enabled)
+      // Memory: Intelligent memory retrieval - classifies query first, only retrieves if needed
       if (settings.memorySettings?.enabled) {
-        console.log("[Simple Chat] 🧠 Retrieving relevant memories for query:", input.trim())
-        const relevantMemories = memoryService.getRelevantMemories(input.trim())
+        console.log("[Simple Chat] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50))
 
-        if (relevantMemories.length > 0) {
+        const { memories: relevantMemories, classification, skipped } =
+          await memoryService.getRelevantMemoriesWithClassification(
+            input.trim(),
+            settings.apiKeys.openRouter,
+            settings.memorySettings.maxMemoriesInContext
+          )
+
+        if (skipped) {
+          console.log("[Simple Chat] ⏭️ Memory skipped:", classification.reason,
+            `(${classification.queryType}, confidence: ${classification.confidence.toFixed(2)})`)
+        } else if (relevantMemories.length > 0) {
           const memoryContext = memoryService.formatMemoriesForContext(relevantMemories)
           messages.splice(-1, 0, { role: "system" as const, content: memoryContext })
-          console.log("[Simple Chat] ✅ Memory context added:", relevantMemories.length, "memories")
+          console.log("[Simple Chat] ✅ Memory context added:", relevantMemories.length, "memories",
+            `(${classification.queryType}, confidence: ${classification.confidence.toFixed(2)})`)
+        } else {
+          console.log("[Simple Chat] 📭 No relevant memories found for personal query")
         }
       }
 
