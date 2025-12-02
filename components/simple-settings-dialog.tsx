@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { User, Palette, Key, Volume2, Settings2, ChevronRight, Search, Brain } from "lucide-react"
+import { User, Palette, Key, Volume2, Settings2, ChevronRight, Search, Brain, HelpCircle } from "lucide-react"
 import { Sparkles } from "lucide-react"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
@@ -26,6 +26,7 @@ const translations = {
     voice: "Voice",
     memory: "Memory",
     api: "API",
+    help: "Help",
     welcomeBack: "Welcome back",
     setYourName: "Set your name below",
     yourName: "Your Name",
@@ -64,6 +65,12 @@ const translations = {
     letAiRemember: "Let the AI remember important information",
     autoExtract: "Auto-Extract Memories",
     autoExtractDesc: "Automatically extract important information from conversations",
+    storageLocation: "Storage Location",
+    storageLocationDesc: "Where to store your memories",
+    localStorage: "Local (Private)",
+    localStorageDesc: "Store on this device only",
+    supabaseStorage: "Supabase (Cloud)",
+    supabaseStorageDesc: "Sync across devices",
     manageMemories: "Manage Memories",
     viewAndEdit: "View and edit your memories",
     apiKeysInfo: "API keys are needed for AI chat and voice features.",
@@ -74,6 +81,29 @@ const translations = {
     switchToAdvanced: "Switch to Advanced Mode",
     advancedMode: "Advanced Mode",
     canSwitchBack: "You can switch back to Simple Mode in Settings.",
+    // Help section
+    helpTitle: "Welcome to Chameleon AI",
+    helpSubtitle: "Your intelligent conversation partner",
+    howItWorks: "How It Works",
+    howItWorksText1: "Chameleon AI connects to powerful language models (LLMs) through OpenRouter. Think of it as having a conversation with an extremely knowledgeable assistant that can help you with almost anything.",
+    howItWorksText2: "The AI reads your messages, understands context, and generates helpful responses. It can write, explain, analyze, create, and much more - all in natural language.",
+    chatTipsTitle: "💡 Tips for Better Conversations",
+    chatTip1: "Be specific: Instead of 'Help me with code', try 'Write a Python function that sorts a list'",
+    chatTip2: "Provide context: Give background information for better, more relevant answers",
+    chatTip3: "Ask follow-up questions: Build on previous responses for deeper understanding",
+    chatTip4: "Request formats: Ask for bullet points, step-by-step guides, or examples",
+    chatTip5: "Use personas: Different personas are optimized for specific tasks (coding, writing, teaching)",
+    featuresTitle: "🎯 Key Features",
+    personasFeature: "Personas: Choose different AI personalities optimized for specific tasks",
+    memoryFeature: "Memory: AI remembers important facts about you across conversations",
+    searchFeature: "Web Search: Access current information from the internet",
+    voiceFeature: "Voice: Listen to responses or talk to the AI",
+    understandingTitle: "🧠 Understanding AI",
+    understandingText1: "The AI doesn't have access to the internet unless you enable web search. It's trained on data up to a certain date.",
+    understandingText2: "Each conversation is independent unless you enable Memory. The AI can't remember past chats without it.",
+    understandingText3: "The AI generates responses word-by-word based on patterns it learned. It can sometimes make mistakes or 'hallucinate' information.",
+    privacyTitle: "🔒 Privacy",
+    privacyText: "Your conversations are sent to OpenRouter/OpenAI for processing. Choose local storage for memories to keep them private on your device only.",
     cancel: "Cancel",
     save: "Save",
     settingsSaved: "Settings saved!",
@@ -87,6 +117,7 @@ const translations = {
     voice: "Stimme",
     memory: "Gedächtnis",
     api: "API",
+    help: "Hilfe",
     welcomeBack: "Willkommen zurück",
     setYourName: "Gib deinen Namen unten ein",
     yourName: "Dein Name",
@@ -125,6 +156,12 @@ const translations = {
     letAiRemember: "Lass die KI wichtige Informationen speichern",
     autoExtract: "Auto-Extraktion",
     autoExtractDesc: "Wichtige Informationen automatisch aus Gesprächen extrahieren",
+    storageLocation: "Speicherort",
+    storageLocationDesc: "Wo deine Erinnerungen gespeichert werden",
+    localStorage: "Lokal (Privat)",
+    localStorageDesc: "Nur auf diesem Gerät speichern",
+    supabaseStorage: "Supabase (Cloud)",
+    supabaseStorageDesc: "Über Geräte hinweg synchronisieren",
     manageMemories: "Erinnerungen verwalten",
     viewAndEdit: "Deine Erinnerungen ansehen und bearbeiten",
     apiKeysInfo: "API Keys werden für KI-Chat und Sprachfunktionen benötigt.",
@@ -135,6 +172,29 @@ const translations = {
     switchToAdvanced: "Zum erweiterten Modus wechseln",
     advancedMode: "Erweiterter Modus",
     canSwitchBack: "Du kannst in den Einstellungen zurück zum einfachen Modus wechseln.",
+    // Help section
+    helpTitle: "Willkommen bei Chameleon AI",
+    helpSubtitle: "Dein intelligenter Gesprächspartner",
+    howItWorks: "Wie es funktioniert",
+    howItWorksText1: "Chameleon AI verbindet sich über OpenRouter mit leistungsstarken Sprachmodellen (LLMs). Stell es dir wie ein Gespräch mit einem extrem wissenswerten Assistenten vor, der dir bei fast allem helfen kann.",
+    howItWorksText2: "Die KI liest deine Nachrichten, versteht den Kontext und generiert hilfreiche Antworten. Sie kann schreiben, erklären, analysieren, erstellen und vieles mehr - alles in natürlicher Sprache.",
+    chatTipsTitle: "💡 Tipps für bessere Gespräche",
+    chatTip1: "Sei spezifisch: Statt 'Hilf mir mit Code', versuche 'Schreibe eine Python-Funktion, die eine Liste sortiert'",
+    chatTip2: "Gib Kontext: Liefere Hintergrundinformationen für bessere, relevantere Antworten",
+    chatTip3: "Stelle Nachfragen: Baue auf vorherige Antworten auf für tieferes Verständnis",
+    chatTip4: "Frage nach Formaten: Bitte um Aufzählungspunkte, Schritt-für-Schritt-Anleitungen oder Beispiele",
+    chatTip5: "Nutze Personas: Verschiedene Personas sind für spezifische Aufgaben optimiert (Programmieren, Schreiben, Lehren)",
+    featuresTitle: "🎯 Hauptfunktionen",
+    personasFeature: "Personas: Wähle verschiedene KI-Persönlichkeiten für spezifische Aufgaben",
+    memoryFeature: "Gedächtnis: Die KI merkt sich wichtige Fakten über dich über Gespräche hinweg",
+    searchFeature: "Websuche: Zugriff auf aktuelle Informationen aus dem Internet",
+    voiceFeature: "Stimme: Höre Antworten an oder sprich mit der KI",
+    understandingTitle: "🧠 KI verstehen",
+    understandingText1: "Die KI hat keinen Zugang zum Internet, außer du aktivierst die Websuche. Sie ist auf Daten bis zu einem bestimmten Datum trainiert.",
+    understandingText2: "Jedes Gespräch ist unabhängig, außer du aktivierst das Gedächtnis. Die KI kann sich ohne Gedächtnis nicht an frühere Chats erinnern.",
+    understandingText3: "Die KI generiert Antworten Wort für Wort basierend auf Mustern, die sie gelernt hat. Sie kann manchmal Fehler machen oder Informationen 'halluzinieren'.",
+    privacyTitle: "🔒 Datenschutz",
+    privacyText: "Deine Gespräche werden zur Verarbeitung an OpenRouter/OpenAI gesendet. Wähle lokalen Speicher für Erinnerungen, um sie nur auf deinem Gerät privat zu halten.",
     cancel: "Abbrechen",
     save: "Speichern",
     settingsSaved: "Einstellungen gespeichert!",
@@ -148,6 +208,7 @@ const translations = {
     voice: "Voz",
     memory: "Memoria",
     api: "API",
+    help: "Ayuda",
     welcomeBack: "Bienvenido de nuevo",
     setYourName: "Introduce tu nombre abajo",
     yourName: "Tu Nombre",
@@ -186,6 +247,12 @@ const translations = {
     letAiRemember: "Permite a la IA recordar información importante",
     autoExtract: "Auto-Extracción",
     autoExtractDesc: "Extraer automáticamente información importante de las conversaciones",
+    storageLocation: "Ubicación de Almacenamiento",
+    storageLocationDesc: "Dónde almacenar tus recuerdos",
+    localStorage: "Local (Privado)",
+    localStorageDesc: "Almacenar solo en este dispositivo",
+    supabaseStorage: "Supabase (Nube)",
+    supabaseStorageDesc: "Sincronizar entre dispositivos",
     manageMemories: "Gestionar Recuerdos",
     viewAndEdit: "Ver y editar tus recuerdos",
     apiKeysInfo: "Las claves API son necesarias para el chat de IA y funciones de voz.",
@@ -196,6 +263,29 @@ const translations = {
     switchToAdvanced: "Cambiar a Modo Avanzado",
     advancedMode: "Modo Avanzado",
     canSwitchBack: "Puedes volver al Modo Simple en Configuración.",
+    // Help section
+    helpTitle: "Bienvenido a Chameleon AI",
+    helpSubtitle: "Tu compañero de conversación inteligente",
+    howItWorks: "Cómo Funciona",
+    howItWorksText1: "Chameleon AI se conecta a modelos de lenguaje potentes (LLMs) a través de OpenRouter. Piensa en ello como tener una conversación con un asistente extremadamente conocedor que puede ayudarte con casi cualquier cosa.",
+    howItWorksText2: "La IA lee tus mensajes, entiende el contexto y genera respuestas útiles. Puede escribir, explicar, analizar, crear y mucho más - todo en lenguaje natural.",
+    chatTipsTitle: "💡 Consejos para Mejores Conversaciones",
+    chatTip1: "Sé específico: En lugar de 'Ayúdame con código', prueba 'Escribe una función Python que ordene una lista'",
+    chatTip2: "Proporciona contexto: Da información de fondo para obtener respuestas mejores y más relevantes",
+    chatTip3: "Haz preguntas de seguimiento: Construye sobre respuestas anteriores para una comprensión más profunda",
+    chatTip4: "Solicita formatos: Pide listas con viñetas, guías paso a paso o ejemplos",
+    chatTip5: "Usa personas: Diferentes personas están optimizadas para tareas específicas (programación, escritura, enseñanza)",
+    featuresTitle: "🎯 Características Principales",
+    personasFeature: "Personas: Elige diferentes personalidades de IA optimizadas para tareas específicas",
+    memoryFeature: "Memoria: La IA recuerda datos importantes sobre ti a través de conversaciones",
+    searchFeature: "Búsqueda Web: Accede a información actual de internet",
+    voiceFeature: "Voz: Escucha respuestas o habla con la IA",
+    understandingTitle: "🧠 Entendiendo la IA",
+    understandingText1: "La IA no tiene acceso a internet a menos que actives la búsqueda web. Está entrenada en datos hasta una fecha determinada.",
+    understandingText2: "Cada conversación es independiente a menos que actives la Memoria. La IA no puede recordar chats pasados sin ella.",
+    understandingText3: "La IA genera respuestas palabra por palabra basándose en patrones que aprendió. A veces puede cometer errores o 'alucinar' información.",
+    privacyTitle: "🔒 Privacidad",
+    privacyText: "Tus conversaciones se envían a OpenRouter/OpenAI para procesamiento. Elige almacenamiento local para recuerdos para mantenerlos privados solo en tu dispositivo.",
     cancel: "Cancelar",
     save: "Guardar",
     settingsSaved: "¡Configuración guardada!",
@@ -312,30 +402,34 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full min-w-0">
-          <TabsList className="grid grid-cols-6 gap-1 w-full">
-            <TabsTrigger value="profile" className="text-xs gap-1 px-2">
+          <TabsList className="grid grid-cols-7 gap-1 w-full">
+            <TabsTrigger value="profile" className="text-xs gap-1 px-1">
               <User className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.profile}</span>
             </TabsTrigger>
-            <TabsTrigger value="appearance" className="text-xs gap-1 px-2">
+            <TabsTrigger value="appearance" className="text-xs gap-1 px-1">
               <Palette className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.look}</span>
             </TabsTrigger>
-            <TabsTrigger value="search" className="text-xs gap-1 px-2">
+            <TabsTrigger value="search" className="text-xs gap-1 px-1">
               <Search className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.search}</span>
             </TabsTrigger>
-            <TabsTrigger value="voice" className="text-xs gap-1 px-2">
+            <TabsTrigger value="voice" className="text-xs gap-1 px-1">
               <Volume2 className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.voice}</span>
             </TabsTrigger>
-            <TabsTrigger value="memory" className="text-xs gap-1 px-2">
+            <TabsTrigger value="memory" className="text-xs gap-1 px-1">
               <Brain className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.memory}</span>
             </TabsTrigger>
-            <TabsTrigger value="api" className="text-xs gap-1 px-2">
+            <TabsTrigger value="api" className="text-xs gap-1 px-1">
               <Key className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.api}</span>
+            </TabsTrigger>
+            <TabsTrigger value="help" className="text-xs gap-1 px-1">
+              <HelpCircle className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t.help}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -701,10 +795,77 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                     />
                   </div>
 
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">{t.storageLocation}</Label>
+                    <p className="text-xs text-muted-foreground">{t.storageLocationDesc}</p>
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setLocalSettings({
+                            ...localSettings,
+                            memorySettings: {
+                              ...localSettings.memorySettings!,
+                              syncToDatabase: false,
+                            },
+                          })
+                        }
+                        className={cn(
+                          "w-full p-3 rounded-lg border text-left transition-all",
+                          !localSettings.memorySettings?.syncToDatabase
+                            ? "border-violet-500 bg-violet-500/10"
+                            : "border-border bg-muted/30 hover:border-violet-300"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-sm">{t.localStorage}</div>
+                            <div className="text-xs text-muted-foreground">{t.localStorageDesc}</div>
+                          </div>
+                          {!localSettings.memorySettings?.syncToDatabase && (
+                            <div className="h-4 w-4 rounded-full bg-violet-500 flex items-center justify-center">
+                              <div className="h-2 w-2 rounded-full bg-white" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setLocalSettings({
+                            ...localSettings,
+                            memorySettings: {
+                              ...localSettings.memorySettings!,
+                              syncToDatabase: true,
+                            },
+                          })
+                        }
+                        className={cn(
+                          "w-full p-3 rounded-lg border text-left transition-all",
+                          localSettings.memorySettings?.syncToDatabase
+                            ? "border-violet-500 bg-violet-500/10"
+                            : "border-border bg-muted/30 hover:border-violet-300"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-sm">{t.supabaseStorage}</div>
+                            <div className="text-xs text-muted-foreground">{t.supabaseStorageDesc}</div>
+                          </div>
+                          {localSettings.memorySettings?.syncToDatabase && (
+                            <div className="h-4 w-4 rounded-full bg-violet-500 flex items-center justify-center">
+                              <div className="h-2 w-2 rounded-full bg-white" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
                   <Button
                     variant="outline"
                     className="w-full justify-between"
-                    onClick={() => window.dispatchEvent(new Event("openMemoryManager"))}
+                    onClick={() => window.dispatchEvent(new Event("openMemory"))}
                   >
                     <span>{t.manageMemories}</span>
                     <ChevronRight className="h-4 w-4" />
@@ -758,6 +919,107 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   className="h-10"
                 />
                 <p className="text-xs text-muted-foreground">{t.forVoiceInput}</p>
+              </div>
+            </TabsContent>
+
+            {/* Help Tab */}
+            <TabsContent value="help" className="space-y-4 mt-0">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+                    <HelpCircle className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{t.helpTitle}</h3>
+                    <p className="text-xs text-muted-foreground">{t.helpSubtitle}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* How It Works */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  {t.howItWorks}
+                </h4>
+                <div className="text-sm text-muted-foreground space-y-2">
+                  <p>{t.howItWorksText1}</p>
+                  <p>{t.howItWorksText2}</p>
+                </div>
+              </div>
+
+              {/* Chat Tips */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">{t.chatTipsTitle}</h4>
+                <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
+                  <li className="flex gap-2">
+                    <span className="text-violet-500">•</span>
+                    <span>{t.chatTip1}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-violet-500">•</span>
+                    <span>{t.chatTip2}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-violet-500">•</span>
+                    <span>{t.chatTip3}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-violet-500">•</span>
+                    <span>{t.chatTip4}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-violet-500">•</span>
+                    <span>{t.chatTip5}</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Key Features */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">{t.featuresTitle}</h4>
+                <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
+                  <li className="flex gap-2">
+                    <span className="text-blue-500">•</span>
+                    <span>{t.personasFeature}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-blue-500">•</span>
+                    <span>{t.memoryFeature}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-blue-500">•</span>
+                    <span>{t.searchFeature}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-blue-500">•</span>
+                    <span>{t.voiceFeature}</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Understanding AI */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">{t.understandingTitle}</h4>
+                <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
+                  <li className="flex gap-2">
+                    <span className="text-amber-500">•</span>
+                    <span>{t.understandingText1}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-amber-500">•</span>
+                    <span>{t.understandingText2}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-amber-500">•</span>
+                    <span>{t.understandingText3}</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Privacy */}
+              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                <h4 className="font-semibold text-sm mb-1">{t.privacyTitle}</h4>
+                <p className="text-xs text-muted-foreground">{t.privacyText}</p>
               </div>
             </TabsContent>
           </div>

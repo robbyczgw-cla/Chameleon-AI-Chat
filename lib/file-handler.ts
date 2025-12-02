@@ -126,11 +126,15 @@ export async function extractPdfText(file: File): Promise<string> {
     // Dynamic import to avoid SSR issues (PDF.js needs browser APIs)
     const pdfjsLib = await import("pdfjs-dist")
 
-    // Configure worker for this session
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+    // Configure worker for this session with explicit https URL
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+    console.log(`[PDF] Worker URL: ${pdfjsLib.GlobalWorkerOptions.workerSrc}`)
 
     const arrayBuffer = await file.arrayBuffer()
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+    console.log(`[PDF] ArrayBuffer loaded: ${arrayBuffer.byteLength} bytes`)
+
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer })
+    const pdf = await loadingTask.promise
 
     console.log(`[PDF] Loaded PDF with ${pdf.numPages} pages`)
 
@@ -146,13 +150,24 @@ export async function extractPdfText(file: File): Promise<string> {
         .join(" ")
 
       fullText += `\n--- Page ${pageNum} ---\n${pageText}\n`
+      console.log(`[PDF] Extracted page ${pageNum}: ${pageText.length} chars`)
     }
 
-    console.log(`[PDF] Extracted ${fullText.length} characters from ${pdf.numPages} pages`)
+    console.log(`[PDF] Successfully extracted ${fullText.length} characters from ${pdf.numPages} pages`)
+
+    if (!fullText.trim()) {
+      console.warn("[PDF] Warning: PDF appears to be empty or contains only images")
+      return `[Document: ${file.name}]\n(PDF appears to contain no extractable text - it may be image-based)`
+    }
 
     return fullText.trim()
   } catch (error) {
     console.error("[PDF] Failed to extract text:", error)
+    console.error("[PDF] Error details:", {
+      name: error instanceof Error ? error.name : "Unknown",
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    })
     throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 }
@@ -197,7 +212,8 @@ export async function processFile(file: File): Promise<FileAttachment> {
     } catch (error) {
       console.error("[processFile] PDF extraction failed:", error)
       // Fallback to placeholder if extraction fails
-      content = `[Document: ${file.name}]\n(Text extraction failed)`
+      const errorMsg = error instanceof Error ? error.message : "Unknown error"
+      content = `[Document: ${file.name}]\n\n❌ Text extraction failed: ${errorMsg}\n\nPlease try:\n• Using a different PDF file\n• Ensuring the PDF contains text (not just images)\n• Check browser console for details`
       dataUrl = await readFileAsDataURL(file)
     }
   }
