@@ -349,6 +349,7 @@ export interface Memory {
   accessCount: number
   source?: string // Which chat it came from
   metadata?: Record<string, any>
+  embedding?: number[] // Vector embedding for semantic search (1536 dimensions)
 }
 
 export interface MemorySettings {
@@ -357,4 +358,7 @@ export interface MemorySettings {
   maxMemoriesInContext: number // How many memories to include in prompts (default 5)
   importanceThreshold: 1 | 2 | 3 // Minimum importance to include (default 2)
   syncToDatabase: boolean // Save memories to Supabase for cross-device sync (less private)
+  // Semantic search settings
+  useSemanticSearch?: boolean // Use embedding-based retrieval (default true when syncToDatabase)
+  similarityThreshold?: number // 0.0-1.0, default 0.5 - minimum similarity to include memory
 }

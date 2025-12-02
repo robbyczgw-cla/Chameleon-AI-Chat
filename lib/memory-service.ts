@@ -10,6 +10,7 @@
 import type { Memory, MemorySettings } from "@/types"
 import { generateUUID } from "@/lib/utils"
 import { supabaseSync } from "@/lib/supabase/sync"
+import { generateEmbedding, findSimilar, cosineSimilarity } from "@/lib/embedding-service"
 
 const MEMORY_STORAGE_KEY = "chat_memories"
 const EXTRACTION_MODEL = "openai/gpt-oss-20b" // Cheap, fast model for extraction
@@ -29,6 +30,8 @@ const DEFAULT_SETTINGS: MemorySettings = {
   maxMemoriesInContext: 5,
   importanceThreshold: 2,
   syncToDatabase: false,
+  useSemanticSearch: true, // Use embeddings for better retrieval
+  similarityThreshold: 0.5, // Minimum similarity score (0-1)
 }
 
 class MemoryService {
@@ -133,7 +136,7 @@ class MemoryService {
   /**
    * Add a new memory
    */
-  addMemory(memory: Omit<Memory, "id" | "createdAt" | "lastAccessedAt" | "accessCount">): Memory {
+  addMemory(memory: Omit<Memory, "id" | "createdAt" | "lastAccessedAt" | "accessCount">, apiKey?: string): Memory {
     const newMemory: Memory = {
       ...memory,
       id: generateUUID(),
@@ -152,8 +155,72 @@ class MemoryService {
       })
     }
 
+    // Generate embedding asynchronously (don't block)
+    if (apiKey && this.settings.useSemanticSearch !== false) {
+      this.embedMemory(newMemory.id, newMemory.content, apiKey).catch(err => {
+        console.error("[Memory] Failed to generate embedding:", err)
+      })
+    }
+
     console.log("[Memory] Added:", newMemory.type, "-", newMemory.content.substring(0, 50))
     return newMemory
+  }
+
+  /**
+   * Generate and store embedding for a memory
+   */
+  async embedMemory(memoryId: string, content: string, apiKey: string): Promise<void> {
+    try {
+      console.log("[Memory] Generating embedding for:", memoryId.substring(0, 8))
+      const startTime = Date.now()
+
+      const embedding = await generateEmbedding(content, apiKey)
+
+      // Update local memory
+      const memoryIndex = this.memories.findIndex(m => m.id === memoryId)
+      if (memoryIndex !== -1) {
+        this.memories[memoryIndex].embedding = embedding
+        this.saveMemories()
+      }
+
+      // Update in database if enabled
+      if (this.syncEnabled && this.userId) {
+        await supabaseSync.updateMemoryEmbedding(this.userId, memoryId, embedding)
+      }
+
+      console.log("[Memory] Embedding generated:", {
+        memoryId: memoryId.substring(0, 8),
+        dimensions: embedding.length,
+        latency: `${Date.now() - startTime}ms`
+      })
+    } catch (error) {
+      console.error("[Memory] Embedding generation failed:", error)
+      throw error
+    }
+  }
+
+  /**
+   * Generate embeddings for all memories that don't have one
+   */
+  async embedAllMemories(apiKey: string): Promise<{ success: number; failed: number }> {
+    const memoriesWithoutEmbedding = this.memories.filter(m => !m.embedding || m.embedding.length === 0)
+
+    console.log("[Memory] Embedding", memoriesWithoutEmbedding.length, "memories without embeddings")
+
+    let success = 0
+    let failed = 0
+
+    for (const memory of memoriesWithoutEmbedding) {
+      try {
+        await this.embedMemory(memory.id, memory.content, apiKey)
+        success++
+      } catch (err) {
+        failed++
+      }
+    }
+
+    console.log("[Memory] Batch embedding complete:", { success, failed })
+    return { success, failed }
   }
 
   /**
@@ -222,6 +289,103 @@ class MemoryService {
     this.saveMemories()
 
     return scored.map(({ memory }) => memory)
+  }
+
+  /**
+   * Get relevant memories using semantic similarity (embedding-based)
+   * Falls back to keyword matching if embeddings aren't available
+   */
+  async getSemanticRelevantMemories(
+    query: string,
+    apiKey: string,
+    limit?: number
+  ): Promise<Array<Memory & { similarity?: number }>> {
+    const maxResults = limit || this.settings.maxMemoriesInContext
+    const threshold = this.settings.similarityThreshold || 0.5
+
+    // First, try database-level semantic search if enabled
+    if (this.syncEnabled && this.userId) {
+      try {
+        console.log("[Memory] Attempting database semantic search...")
+        const queryEmbedding = await generateEmbedding(query, apiKey)
+
+        const results = await supabaseSync.semanticSearchMemories(
+          this.userId,
+          queryEmbedding,
+          { threshold, limit: maxResults }
+        )
+
+        if (results.length > 0) {
+          console.log("[Memory] Database semantic search returned", results.length, "memories")
+          // Update access stats
+          for (const result of results) {
+            const m = this.memories.find(mem => mem.id === result.id)
+            if (m) {
+              m.lastAccessedAt = Date.now()
+              m.accessCount++
+            }
+          }
+          this.saveMemories()
+          return results
+        }
+
+        // Fallback to client-side if database returned nothing
+        console.log("[Memory] Database returned no results, trying client-side search...")
+        return this.clientSideSemanticSearch(queryEmbedding, maxResults, threshold)
+      } catch (error) {
+        console.error("[Memory] Database semantic search failed:", error)
+        // Fall through to client-side search
+      }
+    }
+
+    // Client-side semantic search
+    try {
+      console.log("[Memory] Using client-side semantic search...")
+      const queryEmbedding = await generateEmbedding(query, apiKey)
+      return this.clientSideSemanticSearch(queryEmbedding, maxResults, threshold)
+    } catch (error) {
+      console.error("[Memory] Client-side semantic search failed:", error)
+      // Ultimate fallback: keyword matching
+      console.log("[Memory] Falling back to keyword matching")
+      return this.getRelevantMemories(query, limit)
+    }
+  }
+
+  /**
+   * Client-side semantic search using local embeddings
+   */
+  private clientSideSemanticSearch(
+    queryEmbedding: number[],
+    maxResults: number,
+    threshold: number
+  ): Array<Memory & { similarity: number }> {
+    const memoriesWithEmbeddings = this.memories.filter(
+      m => m.embedding && m.embedding.length > 0
+    )
+
+    if (memoriesWithEmbeddings.length === 0) {
+      console.log("[Memory] No memories with embeddings for client-side search")
+      return []
+    }
+
+    const results = findSimilar(queryEmbedding, memoriesWithEmbeddings, {
+      threshold,
+      maxResults,
+    })
+
+    console.log("[Memory] Client-side semantic search found", results.length, "memories")
+
+    // Update access stats
+    for (const result of results) {
+      const m = this.memories.find(mem => mem.id === result.id)
+      if (m) {
+        m.lastAccessedAt = Date.now()
+        m.accessCount++
+      }
+    }
+    this.saveMemories()
+
+    return results
   }
 
   /**
@@ -755,6 +919,7 @@ Respond with ONLY valid JSON (no markdown):
     memories: Memory[]
     classification: QueryClassification
     skipped: boolean
+    searchMethod?: "semantic" | "keyword"
   }> {
     // First, classify the query
     const classification = await this.classifyQueryForMemory(query, apiKey)
@@ -769,14 +934,45 @@ Respond with ONLY valid JSON (no markdown):
       }
     }
 
-    // Query needs memory - retrieve relevant ones
+    // Query needs memory - use semantic search if API key available, else keyword matching
     console.log("[Memory] ✅ Retrieving memories for personal query")
-    const memories = this.getRelevantMemories(query, limit)
+
+    let memories: Memory[]
+    let searchMethod: "semantic" | "keyword" = "keyword"
+
+    // Try semantic search first if enabled and API key available
+    if (apiKey && this.settings.useSemanticSearch !== false) {
+      try {
+        console.log("[Memory] Using semantic search (embedding-based)")
+        const semanticResults = await this.getSemanticRelevantMemories(query, apiKey, limit)
+        memories = semanticResults
+        searchMethod = "semantic"
+
+        // Log similarity scores for debugging
+        if (semanticResults.length > 0) {
+          const similarities = semanticResults
+            .filter((m): m is Memory & { similarity: number } => 'similarity' in m)
+            .map(m => m.similarity.toFixed(3))
+          console.log("[Memory] Semantic search similarities:", similarities.join(", "))
+        }
+      } catch (error) {
+        console.error("[Memory] Semantic search failed, falling back to keyword:", error)
+        memories = this.getRelevantMemories(query, limit)
+        searchMethod = "keyword"
+      }
+    } else {
+      // Fall back to keyword matching
+      console.log("[Memory] Using keyword matching (no API key or semantic disabled)")
+      memories = this.getRelevantMemories(query, limit)
+    }
+
+    console.log("[Memory] Retrieved", memories.length, "memories via", searchMethod, "search")
 
     return {
       memories,
       classification,
-      skipped: false
+      skipped: false,
+      searchMethod
     }
   }
 }
