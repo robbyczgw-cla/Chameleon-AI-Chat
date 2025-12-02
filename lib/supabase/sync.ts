@@ -524,9 +524,22 @@ export class SupabaseSync {
   async createMemory(userId: string, memory: Memory): Promise<void> {
     console.log("[Supabase] Creating memory:", memory.type, "-", memory.content.substring(0, 40))
 
+    // Verify session and get actual auth.uid() to match RLS policy
+    const { data: { user: authUser } } = await this.supabase.auth.getUser()
+    if (!authUser) {
+      console.error("[Supabase] Cannot create memory: No authenticated user")
+      throw new Error("Not authenticated")
+    }
+
+    // Use the authenticated user's ID to satisfy RLS policy (auth.uid() = user_id)
+    const actualUserId = authUser.id
+    if (actualUserId !== userId) {
+      console.warn("[Supabase] userId mismatch - using auth.uid():", { passed: userId.substring(0, 8), auth: actualUserId.substring(0, 8) })
+    }
+
     const { error } = await this.supabase.from("memories").insert({
       id: memory.id,
-      user_id: userId,
+      user_id: actualUserId, // Use auth user ID to satisfy RLS
       type: memory.type,
       content: memory.content,
       category: memory.category || null,

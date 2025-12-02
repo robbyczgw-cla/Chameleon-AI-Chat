@@ -426,7 +426,7 @@ export function MemoryManager() {
 
       {/* Add Memory Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
+        <DialogContent className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-md" style={{ minWidth: '320px' }}>
           <DialogHeader>
             <DialogTitle>Add New Memory</DialogTitle>
             <DialogDescription>Create a new memory to maintain context across conversations</DialogDescription>
@@ -492,7 +492,7 @@ export function MemoryManager() {
 
       {/* Edit Memory Dialog */}
       <Dialog open={!!editingMemory} onOpenChange={(open) => !open && setEditingMemory(null)}>
-        <DialogContent>
+        <DialogContent className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-md" style={{ minWidth: '320px' }}>
           <DialogHeader>
             <DialogTitle>Edit Memory</DialogTitle>
             <DialogDescription>Update the memory details</DialogDescription>
