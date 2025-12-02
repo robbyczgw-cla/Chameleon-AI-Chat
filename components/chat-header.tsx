@@ -500,7 +500,10 @@ export function ChatHeader() {
       />
       <AdvancedSettingsDialog open={isAdvancedSettingsOpen} onOpenChange={setIsAdvancedSettingsOpen} />
       <Dialog open={isMemoryOpen} onOpenChange={setIsMemoryOpen}>
-        <DialogContent className="sm:max-w-[800px] max-h-[90vh]">
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Memory System</DialogTitle>
+          </DialogHeader>
           <MemoryManager />
         </DialogContent>
       </Dialog>

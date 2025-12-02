@@ -476,7 +476,10 @@ export function AIMemoryHub() {
             {/* Add New Memory Button */}
             <div className="mt-3">
               {!isAddingNew ? (
-                <Button onClick={() => setIsAddingNew(true)} size="sm" variant="outline" className="w-full">
+                <Button onClick={() => {
+                  setNewMemory({ ...newMemory, type: activeTab })
+                  setIsAddingNew(true)
+                }} size="sm" variant="outline" className="w-full">
                   <Plus className="h-4 w-4 mr-2" />
                   {translations.memory.addNew} {getTypeLabel(activeTab)}
                 </Button>

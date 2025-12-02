@@ -434,18 +434,17 @@ export function MemoryManager() {
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Type</label>
-              <Select value={newMemory.type} onValueChange={(v) => setNewMemory({ ...newMemory, type: v as any })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="preference">Preference - User likes/dislikes</SelectItem>
-                  <SelectItem value="fact">Fact - User information</SelectItem>
-                  <SelectItem value="context">Context - Background info</SelectItem>
-                  <SelectItem value="skill">Skill - User abilities</SelectItem>
-                  <SelectItem value="goal">Goal - User objectives</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                value={newMemory.type}
+                onChange={(e) => setNewMemory({ ...newMemory, type: e.target.value as any })}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                <option value="preference">Preference - User likes/dislikes</option>
+                <option value="fact">Fact - User information</option>
+                <option value="context">Context - Background info</option>
+                <option value="skill">Skill - User abilities</option>
+                <option value="goal">Goal - User objectives</option>
+              </select>
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block">Content *</label>
@@ -466,19 +465,15 @@ export function MemoryManager() {
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block">Importance</label>
-              <Select
-                value={String(newMemory.importance)}
-                onValueChange={(v) => setNewMemory({ ...newMemory, importance: Number(v) as any })}
+              <select
+                value={newMemory.importance}
+                onChange={(e) => setNewMemory({ ...newMemory, importance: Number(e.target.value) as any })}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Low - Background info</SelectItem>
-                  <SelectItem value="2">Medium - Relevant context</SelectItem>
-                  <SelectItem value="3">High - Critical info</SelectItem>
-                </SelectContent>
-              </Select>
+                <option value={1}>Low - Background info</option>
+                <option value={2}>Medium - Relevant context</option>
+                <option value={3}>High - Critical info</option>
+              </select>
             </div>
           </div>
           <DialogFooter>
@@ -501,21 +496,17 @@ export function MemoryManager() {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Type</label>
-                <Select
+                <select
                   value={editingMemory.type}
-                  onValueChange={(v) => setEditingMemory({ ...editingMemory, type: v as any })}
+                  onChange={(e) => setEditingMemory({ ...editingMemory, type: e.target.value as any })}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="preference">Preference</SelectItem>
-                    <SelectItem value="fact">Fact</SelectItem>
-                    <SelectItem value="context">Context</SelectItem>
-                    <SelectItem value="skill">Skill</SelectItem>
-                    <SelectItem value="goal">Goal</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <option value="preference">Preference</option>
+                  <option value="fact">Fact</option>
+                  <option value="context">Context</option>
+                  <option value="skill">Skill</option>
+                  <option value="goal">Goal</option>
+                </select>
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Content</label>
@@ -534,19 +525,15 @@ export function MemoryManager() {
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Importance</label>
-                <Select
-                  value={String(editingMemory.importance)}
-                  onValueChange={(v) => setEditingMemory({ ...editingMemory, importance: Number(v) as any })}
+                <select
+                  value={editingMemory.importance}
+                  onChange={(e) => setEditingMemory({ ...editingMemory, importance: Number(e.target.value) as any })}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Low</SelectItem>
-                    <SelectItem value="2">Medium</SelectItem>
-                    <SelectItem value="3">High</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <option value={1}>Low</option>
+                  <option value={2}>Medium</option>
+                  <option value={3}>High</option>
+                </select>
               </div>
             </div>
           )}
