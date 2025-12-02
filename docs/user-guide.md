@@ -9,18 +9,19 @@ Complete guide to getting the most out of Chameleon Chat's power user features.
 1. [Getting Started](#getting-started)
 2. [Simple Mode](#simple-mode) ⭐ NEW
 3. [Understanding Personas](#understanding-personas)
-4. [Message Editing & Drafts](#message-editing--drafts)
-5. [Full-Text Search](#full-text-search)
-6. [AI Chat Titles](#ai-chat-titles)
-7. [Cost Tracking & Optimization](#cost-tracking--optimization)
-8. [AI Debate Mode](#ai-debate-mode)
-9. [Training Data Export](#training-data-export)
-10. [Advanced Settings](#advanced-settings)
-11. [Web Search Integration](#web-search-integration) ⭐ UPDATED
-12. [User Profile System](#user-profile-system)
-13. [Chat Management](#chat-management)
-14. [PWA & Mobile Tips](#pwa--mobile-tips)
-15. [Pro Tips & Tricks](#pro-tips--tricks)
+4. [Intelligent Memory System](#intelligent-memory-system) ⭐ NEW
+5. [Message Editing & Drafts](#message-editing--drafts)
+6. [Full-Text Search](#full-text-search)
+7. [AI Chat Titles](#ai-chat-titles)
+8. [Cost Tracking & Optimization](#cost-tracking--optimization)
+9. [AI Debate Mode](#ai-debate-mode)
+10. [Training Data Export](#training-data-export)
+11. [Advanced Settings](#advanced-settings)
+12. [Web Search Integration](#web-search-integration) ⭐ UPDATED
+13. [User Profile System](#user-profile-system)
+14. [Chat Management](#chat-management)
+15. [PWA & Mobile Tips](#pwa--mobile-tips)
+16. [Pro Tips & Tricks](#pro-tips--tricks)
 
 ---
 
@@ -196,6 +197,74 @@ After each AI response, you'll see 2-3 clickable questions like:
 - AI generates contextual follow-ups in `[FOLLOWUP]Q1|Q2|Q3[/FOLLOWUP]` format
 - App parses and displays as clickable chips
 - One click inserts the question into your input
+
+---
+
+## 🧠 Intelligent Memory System
+
+### What is the Memory System?
+
+The Memory System lets the AI **remember things about you** across all conversations. Instead of repeating yourself every time, the AI knows your preferences, skills, and context.
+
+### Quick Start
+
+1. **Enable Memory**: Click the brain icon (🧠) in the chat header
+2. **Toggle ON**: Enable "AI Memory System"
+3. **Add memories**: Click "Add Memory" and fill in your info
+
+### Memory Types
+
+| Type | Use For | Examples |
+|------|---------|----------|
+| **Preference** | Things you like/dislike | "I prefer TypeScript", "I don't like spicy food" |
+| **Fact** | Personal information | "I'm a software engineer", "I live in Berlin" |
+| **Context** | Current projects | "Building a SaaS", "Studying AWS certification" |
+| **Skill** | Your abilities | "Expert in React", "Fluent in Spanish" |
+| **Goal** | What you want | "Become senior developer", "Learn ML" |
+
+### How It's Smart
+
+The system uses a **4-phase intelligent pipeline**:
+
+1. **Query Classification** - AI determines if your question needs personal context
+   - "What is 2+2?" → No memory needed (factual)
+   - "Recommend a book" → Needs your preferences
+
+2. **Semantic Search** - Uses AI embeddings to find memories by meaning
+   - "Suggest something to read" finds "I like sci-fi books"
+   - Works even with zero words in common!
+
+3. **Combined Intelligence** - Safety nets to avoid mistakes
+   - Confidence thresholds prevent wrong skips
+   - Persona chats can bypass classification
+
+4. **Relevance Filter** - Skips irrelevant memories
+   - Only includes memories that actually match
+
+### Fine-Tuning (Advanced)
+
+Go to **Settings → Experimental → Memory Intelligence**:
+
+- **Semantic Search** - Use AI embeddings (recommended ON)
+- **Always Retrieve for Personas** - Bypass classification for persona chats
+- **Classification Confidence** - How sure AI must be to skip (50-99%)
+- **Similarity Threshold** - Min similarity to include a memory (20-80%)
+- **Min Relevance Score** - Skip all if best match is too low (10-50%)
+
+### Costs
+
+~$0.06/month for active users (100 queries/day):
+- Classifications: ~$0.03/month
+- Embeddings: ~$0.03/month
+
+### Cloud Sync
+
+Enable "Sync to Database" to:
+- Access memories on all devices
+- Use faster pgvector semantic search
+- Survive browser data clear
+
+📚 **Full guide**: [docs/MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md)
 
 ---
 

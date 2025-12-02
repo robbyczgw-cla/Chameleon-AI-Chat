@@ -6,6 +6,62 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 ---
 
+## [0.10.0-alpha] - 2025-12-02
+
+### Intelligent Memory System (2025-12-02)
+
+**State-of-the-Art 4-Phase Memory Retrieval:**
+
+- **Phase 1: Query Classification** - LLM-based intent detection
+  - Uses `gpt-oss-20b` via OpenRouter (~$0.00001/query)
+  - Classifies queries as: factual (skip), personal (retrieve), ambiguous
+  - Files: `lib/memory-service.ts`
+
+- **Phase 2: Semantic Memory Embeddings** - AI-powered search
+  - OpenAI `text-embedding-3-small` via OpenRouter (~$0.00002/query)
+  - 1536-dimension vectors for meaning-based matching
+  - pgvector database storage for cloud sync
+  - Client-side fallback for local-only mode
+  - Files: `lib/embedding-service.ts`, `lib/supabase/sync.ts`
+
+- **Phase 3: Combined Intelligent Retrieval** - Safety nets
+  - Classification confidence threshold (default 0.8)
+  - Minimum relevance score filter (default 0.3)
+  - Persona chat override (always retrieve for personas)
+  - Files: `lib/memory-service.ts`
+
+- **Phase 4: Settings UI** - Fine-tune in Experimental Settings
+  - Memory Intelligence section with sliders and toggles
+  - Semantic Search toggle, Persona override
+  - Classification Confidence (50-99%)
+  - Similarity Threshold (20-80%)
+  - Minimum Relevance Score (10-50%)
+  - Files: `components/experimental-settings.tsx`
+
+**Comprehensive Documentation:**
+- Created `docs/MEMORY_SYSTEM.md` with 700+ lines
+- Simple user guide (Quick Start, Best Practices)
+- Advanced user guide (4 Phases, Technical Deep Dive)
+- Database setup instructions (pgvector, RLS)
+- Troubleshooting, Cost Breakdown, API Reference
+
+**Database:**
+- Added `memories` table with pgvector extension
+- Semantic search function `search_memories_by_embedding`
+- RLS policies for secure per-user access
+- Scripts: `030_add_memories_table.sql`, `031_fix_memories_rls.sql`, `032_add_semantic_search.sql`
+
+**Cost:** ~$0.06/month for active users (100 queries/day)
+
+### Commits (2025-12-02)
+- `6a71ae2` feat: Implement Phase 4 - Settings UI and comprehensive documentation
+- `c3873cc` feat: Implement Phase 3 - Combined Intelligent Retrieval
+- `e7a22bf` docs: Add comprehensive memory system guide
+- `39a4756` feat: Add semantic memory search with embeddings (Phase 2)
+- `5a5e432` fix: Add RLS policy fix script for memories table
+
+---
+
 ## [0.9.0-alpha] - 2025-12-01
 
 ### Streaming Visualization System (2025-12-01)
@@ -897,6 +953,7 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.10.0-alpha | 2025-12-02 | **Intelligent Memory System** - 4-phase retrieval, semantic embeddings, pgvector |
 | 0.9.0-alpha | 2025-12-01 | Streaming visualization, dialog viewport safety, user profile context, vision models |
 | 0.8.0-alpha | 2025-11-30 | AI tool calling search, MCP integration, blocks-style UI, mobile polish |
 | 0.7.0-alpha | 2025-11-26 | Message editing, full-text search, AI titles, PWA stability |

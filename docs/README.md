@@ -14,19 +14,27 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
    - Tips & tricks
    - **Start here if you want to master Chameleon!**
 
+2. **[MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md)** 🧠 NEW!
+   - Intelligent 4-phase memory retrieval
+   - Simple user guide (Quick Start, Best Practices)
+   - Advanced user guide (Semantic Search, Embeddings)
+   - Settings reference and fine-tuning
+   - Database setup (pgvector)
+   - **Learn how the AI remembers you!**
+
 ### For Developers
 
-2. **[ARCHITECTURE.md](./ARCHITECTURE.md)** 🏗️
+3. **[ARCHITECTURE.md](./ARCHITECTURE.md)** 🏗️
    - Technical deep dive
    - Technology stack
    - Directory structure
-   - Core systems explained
+   - Core systems explained (incl. Memory System)
    - Database schema
    - Performance optimizations
    - Security architecture
    - **Read this to understand how Chameleon works**
 
-3. **[FUTURE_FEATURES.md](./FUTURE_FEATURES.md)** 🚀
+4. **[FUTURE_FEATURES.md](./FUTURE_FEATURES.md)** 🚀
    - Implementation guides for new features
    - Chameleon-themed feature ideas
    - Power user enhancements
@@ -38,7 +46,7 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
 
 ### For Dreamers
 
-4. **[CHAMELEON_VISION.md](./CHAMELEON_VISION.md)** 🦎
+5. **[CHAMELEON_VISION.md](./CHAMELEON_VISION.md)** 🦎
    - Origin story
    - Philosophy & core principles
    - Design principles
@@ -55,6 +63,9 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
 **...learn how to use Chameleon like a pro**
 → [POWER_USER_GUIDE.md](./POWER_USER_GUIDE.md)
 
+**...set up the intelligent memory system**
+→ [MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md)
+
 **...understand the codebase**
 → [ARCHITECTURE.md](./ARCHITECTURE.md)
 
@@ -67,6 +78,17 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
 ---
 
 ## Recent Updates
+
+### 2025-12-02
+
+✅ **Intelligent Memory System v2.0**
+- 4-phase intelligent retrieval pipeline
+- LLM-based query classification (Phase 1)
+- Semantic search with OpenAI embeddings (Phase 2)
+- Combined intelligence with safety nets (Phase 3)
+- Fine-tunable settings in Experimental Settings (Phase 4)
+- pgvector database integration for cloud sync
+- Comprehensive MEMORY_SYSTEM.md documentation (700+ lines)
 
 ### 2025-11-19
 
@@ -106,6 +128,7 @@ When contributing documentation:
 
 | Document | Lines | Topics Covered |
 |----------|-------|----------------|
+| MEMORY_SYSTEM.md | ~700 | Memory system guide for simple & advanced users |
 | POWER_USER_GUIDE.md | ~800 | User features, tips, shortcuts |
 | ARCHITECTURE.md | ~800 | Technical details, schema, systems |
 | FUTURE_FEATURES.md | ~1000 | Implementation guides for new features |

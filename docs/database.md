@@ -7,9 +7,10 @@ Complete Supabase PostgreSQL schema documentation.
 ## Overview
 
 - **Database:** Supabase PostgreSQL 15
-- **Tables:** 5 core tables + auth.users
+- **Extensions:** pgvector for semantic search
+- **Tables:** 6 core tables + auth.users
 - **Policies:** Row-Level Security (RLS) on all tables
-- **Migrations:** 23 SQL scripts in `/scripts`
+- **Migrations:** 32+ SQL scripts in `/scripts`
 - **Triggers:** Auto-timestamps, profile creation
 
 ---
@@ -31,6 +32,17 @@ Complete Supabase PostgreSQL schema documentation.
 │  - email            │   │
 │  - display_name     │   │ (1:Many)
 │  - preferences      │   │
+└─────────────────────┘   │
+           │              │
+           │ (1:Many)     │
+           ▼              │
+┌─────────────────────┐   │
+│     memories        │   │ (NEW!)
+│  - id PK            │   │
+│  - type             │   │
+│  - content          │   │
+│  - embedding (1536) │   │  ← pgvector
+│  - importance       │   │
 └─────────────────────┘   │
                           │
            ┌──────────────┘
@@ -340,6 +352,118 @@ CREATE TABLE comparison_sessions (
 - `timestamp` - Creation time
 
 **RLS:** Same pattern as chats/folders
+
+---
+
+### `memories` (NEW - Intelligent Memory System)
+
+User memories for AI personalization with semantic search.
+
+**Extension Required:**
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+**Table Definition:**
+```sql
+CREATE TABLE memories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK (type IN ('preference', 'fact', 'context', 'skill', 'goal')),
+  content TEXT NOT NULL,
+  category TEXT,
+  importance INTEGER NOT NULL CHECK (importance IN (1, 2, 3)),
+  source TEXT,  -- 'manual' | 'extracted'
+  metadata JSONB DEFAULT '{}',
+  embedding vector(1536),  -- OpenAI text-embedding-3-small
+  access_count INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  last_accessed_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+**Columns:**
+- `id` - Unique memory identifier
+- `user_id` - Owner (auth.users FK)
+- `type` - Memory category (preference/fact/context/skill/goal)
+- `content` - The actual memory content
+- `category` - Optional grouping (e.g., "programming", "books")
+- `importance` - Priority level (1=low, 2=medium, 3=high)
+- `source` - How memory was created (manual/extracted)
+- `metadata` - Additional JSON data
+- `embedding` - 1536-dimension vector for semantic search
+- `access_count` - Retrieval tracking for relevance
+- `created_at` - Creation timestamp
+- `last_accessed_at` - Last retrieval time
+
+**Indexes:**
+```sql
+-- User lookup
+CREATE INDEX idx_memories_user_id ON memories(user_id);
+
+-- Semantic search (IVF Flat for pgvector)
+CREATE INDEX idx_memories_embedding ON memories
+  USING ivfflat (embedding vector_cosine_ops)
+  WITH (lists = 100);
+```
+
+**RLS Policies:**
+```sql
+-- Enable RLS
+ALTER TABLE memories ENABLE ROW LEVEL SECURITY;
+
+-- Users can view their own memories
+CREATE POLICY "Users can view their own memories" ON memories
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- Users can insert their own memories
+CREATE POLICY "Users can insert their own memories" ON memories
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Users can update their own memories
+CREATE POLICY "Users can update their own memories" ON memories
+  FOR UPDATE USING (auth.uid() = user_id);
+
+-- Users can delete their own memories
+CREATE POLICY "Users can delete their own memories" ON memories
+  FOR DELETE USING (auth.uid() = user_id);
+```
+
+**Semantic Search Function:**
+```sql
+CREATE OR REPLACE FUNCTION search_memories_by_embedding(
+  query_embedding vector(1536),
+  match_threshold float DEFAULT 0.5,
+  match_count int DEFAULT 5,
+  p_user_id uuid DEFAULT NULL
+)
+RETURNS TABLE (
+  id uuid, user_id uuid, type text, content text, category text,
+  importance int, source text, metadata jsonb, access_count int,
+  created_at timestamptz, last_accessed_at timestamptz,
+  embedding vector(1536), similarity float
+)
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  RETURN QUERY
+  SELECT m.id, m.user_id, m.type, m.content, m.category, m.importance,
+         m.source, m.metadata, m.access_count, m.created_at, m.last_accessed_at,
+         m.embedding, 1 - (m.embedding <=> query_embedding) as similarity
+  FROM memories m
+  WHERE m.user_id = COALESCE(p_user_id, auth.uid())
+    AND m.embedding IS NOT NULL
+    AND 1 - (m.embedding <=> query_embedding) >= match_threshold
+  ORDER BY m.embedding <=> query_embedding
+  LIMIT match_count;
+END; $$;
+
+GRANT EXECUTE ON FUNCTION search_memories_by_embedding TO authenticated;
+```
+
+**Migrations:**
+- `scripts/030_add_memories_table.sql` - Base table
+- `scripts/031_fix_memories_rls.sql` - RLS policy fixes
+- `scripts/032_add_semantic_search.sql` - pgvector search function
 
 ---
 
