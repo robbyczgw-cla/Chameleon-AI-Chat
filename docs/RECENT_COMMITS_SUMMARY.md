@@ -2,11 +2,101 @@
 
 **Generated**: December 2, 2025
 **Branch**: `claude/hide-stats-simple-mode-019wzAdTL46UJEaEBS2LnLcp`
-**Commits**: Last 10 commits in detail
+**Commits**: Last 12 commits in detail
 
 ---
 
-## Commit #1: PDF Extraction with Local Worker File
+## Commit #1: Service Worker Bypassing PDF.js Worker Files
+
+**Commit Hash**: `5657568`
+**Author**: Claude <noreply@anthropic.com>
+**Date**: December 2, 2025
+**Type**: Bug Fix (FINAL FIX - THIS ONE ACTUALLY WORKS!)
+
+### Summary
+Fixed the ACTUAL root cause of PDF extraction failure - Service Worker was intercepting PDF.js worker module files and failing to serve them correctly.
+
+### Root Cause
+The Service Worker was intercepting requests for `/pdf.worker.min.mjs` and trying to handle them with `fetchWithTimeout`, which:
+- Created a new Request with `mode: 'same-origin'`
+- This mode doesn't work for ES module imports (`.mjs` files)
+- Service Worker returned empty response
+- PDF.js received error: `"Setting up fake worker failed: error loading dynamically imported module"`
+
+### The REAL Problem
+All previous attempts were fixing the wrong layer! The issue wasn't with:
+- ❌ PDF.js configuration
+- ❌ Content Security Policy
+- ❌ Worker source path
+- ✅ **Service Worker interference** (this was the real culprit!)
+
+### Solution
+Modified Service Worker to **bypass** these file types entirely:
+- `.mjs` files (ES modules need special handling)
+- `.wasm` files (WebAssembly modules)
+- Any file containing `pdf.worker` in path
+
+These files now load directly from network without Service Worker interference.
+
+### Code Changes
+```javascript
+// public/sw.js - lines 415-422
+if (url.pathname.endsWith('.mjs') ||
+    url.pathname.endsWith('.wasm') ||
+    url.pathname.includes('pdf.worker')) {
+  console.log('[SW] Skipping worker/module file:', url.pathname)
+  return  // Let browser handle it directly
+}
+```
+
+### Files Changed
+- `public/sw.js` - Added bypass logic (12 lines added)
+- Bumped cache version to v2.1.2 to force Service Worker update
+
+### Impact
+- ✅ **PDF extraction FINALLY works!**
+- ✅ Module imports work correctly
+- ✅ No more Service Worker interference
+- ✅ Clean architecture - Service Worker stays out of module loading
+- ✅ Will work for future module-based features too
+
+### Lesson Learned
+When debugging web workers and modules, **always check the Service Worker first**! It's a common source of mysterious import failures because Service Workers intercept all requests, including module imports which need special handling.
+
+---
+
+## Commit #2: Add Comprehensive Summary of Last 10 Commits
+
+**Commit Hash**: `02b0b9a`
+**Author**: Claude <noreply@anthropic.com>
+**Date**: December 2, 2025
+**Type**: Documentation
+
+### Summary
+Created detailed documentation in `docs/RECENT_COMMITS_SUMMARY.md` covering the last 10 commits with full analysis.
+
+### Contents
+- PDF extraction fixes (3 commits)
+- Simple mode enhancements (4 commits)
+- Spanish language support
+- Memory features and fixes
+- Help system replacement
+- UI/UX improvements
+
+Each commit includes:
+- Full commit hash and metadata
+- Problem description and root cause
+- Solution details and technical implementation
+- Files changed with line counts
+- Impact assessment
+- Code examples where relevant
+
+### Files Changed
+- `docs/RECENT_COMMITS_SUMMARY.md` - Created (604 lines)
+
+---
+
+## Commit #3: PDF Extraction with Local Worker File
 
 **Commit Hash**: `99cee41381f0dfa1289a8b315afa20084662307d`
 **Author**: Claude <noreply@anthropic.com>
