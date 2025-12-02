@@ -335,11 +335,11 @@ while (true) {
 
 ---
 
-### 2. Memory System 🧠
+### 2. Intelligent Memory System 🧠
 
-**Location**: `lib/memory-service.ts`, `components/memory-manager.tsx`
+**Location**: `lib/memory-service.ts`, `lib/embedding-service.ts`, `components/memory-manager.tsx`
 
-Token-efficient long-term memory across conversations:
+State-of-the-art 4-phase intelligent memory retrieval with semantic search:
 
 ```typescript
 interface Memory {
@@ -347,58 +347,105 @@ interface Memory {
   type: "preference" | "fact" | "context" | "skill" | "goal"
   content: string
   importance: 1 | 2 | 3  // Filtering threshold
+  embedding?: number[]   // 1536-dim vector for semantic search
   createdAt: number
   lastAccessedAt: number
   accessCount: number
 }
-```
 
-#### How it works
-
-1. **Auto-extract**: Regex patterns detect facts/preferences in conversation
-2. **Manual add**: User manually creates memories
-3. **Retrieval**: Keyword matching + importance scoring + recency
-4. **Injection**: Top N memories added to system prompt (token-efficient)
-
-#### Retrieval Algorithm
-
-```typescript
-function getRelevantMemories(
-  message: string,
-  maxMemories: number,
-  minImportance: number
-): Memory[] {
-  // 1. Filter by importance threshold
-  let relevant = memories.filter(m => m.importance >= minImportance);
-
-  // 2. Score by keyword matching
-  relevant = relevant.map(m => ({
-    memory: m,
-    score: calculateRelevanceScore(m, message)
-  }));
-
-  // 3. Sort by score + recency + access count
-  relevant.sort((a, b) => {
-    const scoreWeight = 0.5;
-    const recencyWeight = 0.3;
-    const accessWeight = 0.2;
-
-    return (b.score * scoreWeight) - (a.score * scoreWeight)
-      + (b.lastAccessed * recencyWeight) - (a.lastAccessed * recencyWeight)
-      + (b.accessCount * accessWeight) - (a.accessCount * accessWeight);
-  });
-
-  // 4. Return top N
-  return relevant.slice(0, maxMemories).map(r => r.memory);
+interface MemoryRetrievalDecision {
+  action: "skipped" | "retrieved" | "empty"
+  reason: string
+  details: {
+    queryType?: "factual" | "personal" | "ambiguous"
+    confidence?: number
+    searchMethod?: "semantic" | "keyword"
+    topSimilarity?: number
+    memoryCount?: number
+  }
 }
 ```
 
+#### 4-Phase Retrieval Pipeline
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         USER QUERY                                   │
+│                    "recommend me a book"                             │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PHASE 1: QUERY CLASSIFICATION                                        │
+│ Model: gpt-oss-20b | Cost: ~$0.00001 | Latency: 500-2000ms          │
+│                                                                       │
+│ Classifies as: "factual" → Skip | "personal" → Retrieve              │
+│ Output: { needsMemory: true, confidence: 0.95, queryType: "personal"}│
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PHASE 2: SEMANTIC SEARCH (Embeddings)                                │
+│ Model: text-embedding-3-small | Cost: ~$0.00002 | Latency: 200-500ms│
+│                                                                       │
+│ 1. Convert query to 1536-dimensional vector                         │
+│ 2. Compare with stored memory embeddings (cosine similarity)        │
+│ 3. Return memories with similarity >= threshold (0.5)               │
+│                                                                       │
+│ Search priority: Database (pgvector) → Client-side → Keyword fallback│
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PHASE 3: COMBINED INTELLIGENCE                                       │
+│                                                                       │
+│ Safety nets:                                                         │
+│ • classificationConfidence (0.8): Trust "skip" if 80%+ confident    │
+│ • alwaysRetrieveForPersonas (true): Bypass for persona chats        │
+│ • minRelevanceScore (0.3): Skip if best match too low               │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PHASE 4: CONTEXT INJECTION                                           │
+│                                                                       │
+│ <user_memory>                                                        │
+│ Preferences: I like sci-fi; Prefer concise answers                   │
+│ Facts: Software engineer; Live in Berlin                             │
+│ </user_memory>                                                       │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### Why Semantic Search > Keywords
+
+```
+Query: "suggest something to read"
+Memory: "I like sci-fi books"
+
+Keyword matching: 0 words in common → NO MATCH
+Semantic similarity: 0.72 → HIGH MATCH (conceptually related)
+```
+
+#### Key Files
+
+| File | Purpose |
+|------|---------|
+| `lib/memory-service.ts` | Core memory operations, 4-phase retrieval |
+| `lib/embedding-service.ts` | OpenRouter embedding generation, cosine similarity |
+| `lib/supabase/sync.ts` | Database sync with pgvector search |
+| `components/memory-manager.tsx` | Memory management UI |
+| `components/experimental-settings.tsx` | Memory Intelligence settings UI |
+
 #### Persistence
 
-- ✅ **FIXED**: Now persists to Supabase via `memory_settings` JSONB column
-- Migration: `scripts/028_add_memory_settings.sql`
-- File: `lib/memory-service.ts:96` (relevantMemories algorithm)
-- Sync: `lib/supabase/sync.ts:575-579` (memory settings persistence)
+- **Local**: localStorage for offline-first experience
+- **Cloud**: Supabase with pgvector for semantic search
+- **Migrations**:
+  - `scripts/030_add_memories_table.sql` - Base table
+  - `scripts/031_fix_memories_rls.sql` - RLS policies
+  - `scripts/032_add_semantic_search.sql` - pgvector function
+
+📚 **Full documentation**: [docs/MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md)
 
 ---
 

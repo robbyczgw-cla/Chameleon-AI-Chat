@@ -244,15 +244,24 @@ Perfect for:
 - Hidden on mobile to save space
 - Instant persona matching
 
-### 🧠 Advanced Memory System
+### 🧠 Intelligent Memory System (NEW!)
 
-**Token-Efficient Long-Term Memory:**
-- Store user preferences, facts, context, skills, goals
-- Automatic extraction from conversations
-- Importance scoring (1-3)
-- Relevance-based retrieval
-- Recency bonus for fresh context
-- Only loads relevant memories per query
+**State-of-the-Art 4-Phase Memory Retrieval:**
+- **Phase 1: Query Classification** - LLM determines if query needs personal context
+- **Phase 2: Semantic Search** - AI embeddings find memories by meaning (not just keywords)
+- **Phase 3: Combined Intelligence** - Confidence thresholds + persona overrides
+- **Phase 4: Relevance Filtering** - Skip irrelevant memories to save tokens
+
+**Features:**
+- Store preferences, facts, context, skills, goals
+- Automatic memory extraction from conversations
+- Importance scoring (1-3) for prioritization
+- OpenAI embeddings via OpenRouter (`text-embedding-3-small`)
+- pgvector database storage for cloud sync
+- Fine-tune in Experimental Settings (confidence, similarity thresholds)
+- ~$0.06/month for active users (100 queries/day)
+
+📚 [Full Memory System Guide](./docs/MEMORY_SYSTEM.md)
 
 ### ✏️ Message Editing & Draft Auto-Save
 
@@ -330,7 +339,8 @@ Perfect for:
 
 - [Changelog](./CHANGELOG.md) - Version history & release notes
 - [User Guide](./docs/user-guide.md) - Complete feature guide
-- [Architecture](./docs/architecture.md) - Technical deep dive
+- [Memory System](./docs/MEMORY_SYSTEM.md) - Intelligent memory guide (NEW!)
+- [Architecture](./docs/ARCHITECTURE.md) - Technical deep dive
 - [Personas](./docs/personas.md) - All 18+ personas explained
 - [API Reference](./docs/api.md) - API routes documentation
 - [Database Schema](./docs/database.md) - Supabase tables & RLS
