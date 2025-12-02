@@ -173,15 +173,17 @@ export function FilePreviewModal({ file, open, onOpenChange }: FilePreviewModalP
             )}
 
             {category === "document" && file.dataUrl && (
-              <div className="space-y-4">
-                <div className="rounded-lg border bg-muted/30 p-8 text-center">
+              <div className="space-y-4 min-w-full">
+                <div className="rounded-lg border bg-muted/30 p-8 text-center min-w-full">
                   <p className="text-sm text-muted-foreground mb-4">
                     PDF Preview (Browser native viewer)
                   </p>
                   <object
+                    key={file.dataUrl} // Force re-render when file changes
                     data={file.dataUrl}
                     type="application/pdf"
                     className="w-full h-[600px] rounded-lg"
+                    style={{ minWidth: '100%', width: '100%', display: 'block' }}
                   >
                     <div className="flex flex-col items-center gap-4 p-8">
                       <p className="text-sm">
