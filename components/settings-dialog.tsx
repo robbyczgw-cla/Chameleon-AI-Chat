@@ -13,7 +13,6 @@ import { Switch } from "@/components/ui/switch"
 import type { SettingsDialogProps } from "@/types"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { memoryService } from "@/lib/memory-service"
-import { ModeHelpDialog } from "@/components/mode-help-dialog"
 
 // Lazy load heavy components for better initial bundle size
 const SystemPromptsManager = lazy(() => import("@/components/system-prompts-manager").then(m => ({ default: m.SystemPromptsManager })))
@@ -31,7 +30,7 @@ function TabLoadingFallback() {
     </div>
   )
 }
-import { Brain, HelpCircle, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, PieChart, Loader2, Puzzle } from "lucide-react"
+import { Brain, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, PieChart, Loader2, Puzzle } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
 
@@ -44,7 +43,6 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const [localSettings, setLocalSettings] = useState(settings)
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
   const [currentTheme, setCurrentTheme] = useState<string>("light")
-  const [isHelpOpen, setIsHelpOpen] = useState(false)
   const [micPermission, setMicPermission] = useState<'unknown' | 'granted' | 'denied' | 'prompt' | 'testing'>('unknown')
   const { toast } = useToast()
 
@@ -439,18 +437,6 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   </div>
                 </div>
               )}
-
-              {/* Help button - mobile only */}
-              <div className="md:hidden p-3 sm:p-4 rounded-lg border border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10">
-                <Button
-                  variant="outline"
-                  className="w-full flex items-center justify-center gap-2"
-                  onClick={() => setIsHelpOpen(true)}
-                >
-                  <HelpCircle className="h-4 w-4" />
-                  Hilfe & Tipps
-                </Button>
-              </div>
 
             </TabsContent>
 
@@ -1476,7 +1462,6 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
           </Button>
         </div>
       </DialogContent>
-      <ModeHelpDialog open={isHelpOpen} onOpenChange={setIsHelpOpen} />
     </Dialog>
   )
 }
