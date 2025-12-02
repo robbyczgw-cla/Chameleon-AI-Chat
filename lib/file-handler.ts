@@ -126,14 +126,19 @@ export async function extractPdfText(file: File): Promise<string> {
     // Dynamic import to avoid SSR issues (PDF.js needs browser APIs)
     const pdfjsLib = await import("pdfjs-dist")
 
-    // Configure worker for this session with explicit https URL
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
-    console.log(`[PDF] Worker URL: ${pdfjsLib.GlobalWorkerOptions.workerSrc}`)
+    // Disable worker for simplicity and reliability
+    // For small PDFs this is fine and avoids CDN/worker loading issues
+    console.log(`[PDF] Using PDF.js without worker (disableWorker: true)`)
 
     const arrayBuffer = await file.arrayBuffer()
     console.log(`[PDF] ArrayBuffer loaded: ${arrayBuffer.byteLength} bytes`)
 
-    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer })
+    const loadingTask = pdfjsLib.getDocument({
+      data: arrayBuffer,
+      useWorkerFetch: false,
+      isEvalSupported: false,
+      useSystemFonts: true
+    })
     const pdf = await loadingTask.promise
 
     console.log(`[PDF] Loaded PDF with ${pdf.numPages} pages`)
