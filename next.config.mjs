@@ -43,7 +43,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://*.supabase.co https://openrouter.ai https://api.openai.com https://api.tavily.com https://google.serper.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://*.supabase.co https://openrouter.ai https://api.openai.com https://api.tavily.com https://google.serper.dev; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
           },
         ],
       },
