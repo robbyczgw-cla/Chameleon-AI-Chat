@@ -299,7 +299,10 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
               <FolderPlus className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent
+            className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-md"
+            style={{ minWidth: '320px' }}
+          >
             <DialogHeader>
               <DialogTitle>Create Folder</DialogTitle>
             </DialogHeader>
@@ -427,7 +430,10 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
       )}
 
       <AlertDialog open={isDeleteAllOpen} onOpenChange={setIsDeleteAllOpen}>
-        <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogContent
+          className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-md"
+          style={{ minWidth: '320px' }}
+        >
           <AlertDialogHeader>
             <AlertDialogTitle>Delete all chats?</AlertDialogTitle>
             <AlertDialogDescription>
