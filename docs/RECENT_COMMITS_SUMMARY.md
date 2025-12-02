@@ -2,11 +2,61 @@
 
 **Generated**: December 2, 2025
 **Branch**: `claude/hide-stats-simple-mode-019wzAdTL46UJEaEBS2LnLcp`
-**Commits**: Last 12 commits in detail
+**Commits**: Last 14 commits in detail
 
 ---
 
-## Commit #1: Service Worker Bypassing PDF.js Worker Files
+## Commit #1: File Preview Modal - Using Proven Settings Dialog Structure
+
+**Commit Hash**: `a6106c0`
+**Author**: Claude <noreply@anthropic.com>
+**Date**: December 2, 2025
+**Type**: Bug Fix
+
+### Summary
+Fixed file preview modal width collapse by copying the EXACT working structure from settings-dialog.tsx instead of trying custom solutions.
+
+### Problem
+- PDF and image preview modal would collapse to a narrow vertical strip on reopen
+- Previous attempts with ScrollArea, inline styles, and various width constraints failed
+- Was over-engineering the solution instead of using what already works
+
+### Solution
+Copied the proven pattern from `components/settings-dialog.tsx`:
+1. **DialogContent**: `max-w-[95vw] sm:max-w-2xl lg:max-w-5xl` for responsive sizing
+2. **DialogHeader**: `flex-shrink-0` to prevent collapse
+3. **Content wrapper**: Simple `<div className="flex-1 overflow-y-auto p-6">`
+4. **Removed**: ScrollArea component, unnecessary wrapper divs, inline styles
+
+### Code Structure
+```jsx
+<DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+  <DialogHeader className="flex-shrink-0 px-6 py-4 border-b bg-muted/30">
+    {/* Header content */}
+  </DialogHeader>
+
+  <div className="flex-1 overflow-y-auto p-6">
+    {/* All preview content directly here */}
+  </div>
+</DialogContent>
+```
+
+### Files Changed
+- `components/file-preview-modal.tsx` - Restructured to match settings dialog (53 insertions, 60 deletions)
+- Removed `ScrollArea` import
+
+### Impact
+- ✅ File preview modal maintains proper width on all reopens
+- ✅ Works for PDF, images, and text files
+- ✅ Uses proven, battle-tested pattern
+- ✅ Cleaner, simpler code
+
+### Lesson Learned
+**Stop reinventing the wheel!** When something works in one place (settings dialog), copy that exact structure instead of trying to be clever with custom solutions. The simplest approach is often the best.
+
+---
+
+## Commit #2: Service Worker Bypassing PDF.js Worker Files
 
 **Commit Hash**: `5657568`
 **Author**: Claude <noreply@anthropic.com>
