@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   X,
   Download,
@@ -73,8 +72,8 @@ export function FilePreviewModal({ file, open, onOpenChange }: FilePreviewModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden flex flex-col">
-        <DialogHeader className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+      <DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0 px-6 py-4 border-b bg-muted/30">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
               <DialogTitle className="text-lg font-semibold truncate">
@@ -140,67 +139,61 @@ export function FilePreviewModal({ file, open, onOpenChange }: FilePreviewModalP
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 w-full">
-          <div className="p-6 w-full"
-               style={{ minWidth: '100%' }}>
-            {category === "image" && file.dataUrl && (
-              <div className="flex items-center justify-center">
-                <img
-                  src={file.dataUrl}
-                  alt={file.name}
-                  className="max-w-full h-auto rounded-lg shadow-lg"
-                  style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
-                />
-              </div>
-            )}
+        <div className="flex-1 overflow-y-auto p-6">
+          {category === "image" && file.dataUrl && (
+            <div className="flex items-center justify-center">
+              <img
+                src={file.dataUrl}
+                alt={file.name}
+                className="max-w-full h-auto rounded-lg shadow-lg"
+                style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
+              />
+            </div>
+          )}
 
-            {category === "text" && (
-              <div className="rounded-lg overflow-hidden border">
-                <SyntaxHighlighter
-                  language={getLanguageFromFileName(file.name)}
-                  style={isDarkMode ? vscDarkPlus : vs}
-                  showLineNumbers
-                  customStyle={{
-                    margin: 0,
-                    borderRadius: '0.5rem',
-                    fontSize: '0.875rem',
-                  }}
-                  wrapLines
-                  wrapLongLines
-                >
-                  {file.content}
-                </SyntaxHighlighter>
-              </div>
-            )}
+          {category === "text" && (
+            <div className="rounded-lg overflow-hidden border">
+              <SyntaxHighlighter
+                language={getLanguageFromFileName(file.name)}
+                style={isDarkMode ? vscDarkPlus : vs}
+                showLineNumbers
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.5rem',
+                  fontSize: '0.875rem',
+                }}
+                wrapLines
+                wrapLongLines
+              >
+                {file.content}
+              </SyntaxHighlighter>
+            </div>
+          )}
 
-            {category === "document" && file.dataUrl && (
-              <div className="w-full" style={{ minWidth: '100%' }}>
-                <div className="rounded-lg border bg-muted/30 p-8 text-center w-full">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    PDF Preview (Browser native viewer)
+          {category === "document" && file.dataUrl && (
+            <div className="rounded-lg border bg-muted/30 p-8 text-center">
+              <p className="text-sm text-muted-foreground mb-4">
+                PDF Preview (Browser native viewer)
+              </p>
+              <object
+                key={file.dataUrl}
+                data={file.dataUrl}
+                type="application/pdf"
+                className="w-full h-[600px] rounded-lg"
+              >
+                <div className="flex flex-col items-center gap-4 p-8">
+                  <p className="text-sm">
+                    PDF preview not available in this browser.
                   </p>
-                  <object
-                    key={file.dataUrl}
-                    data={file.dataUrl}
-                    type="application/pdf"
-                    className="w-full h-[600px] rounded-lg"
-                    style={{ width: '100%', minWidth: '100%', display: 'block' }}
-                  >
-                    <div className="flex flex-col items-center gap-4 p-8">
-                      <p className="text-sm">
-                        PDF preview not available in this browser.
-                      </p>
-                      <Button onClick={handleDownload} variant="outline">
-                        <Download className="h-4 w-4 mr-2" />
-                        Download PDF
-                      </Button>
-                    </div>
-                  </object>
+                  <Button onClick={handleDownload} variant="outline">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download PDF
+                  </Button>
                 </div>
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+              </object>
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   )
