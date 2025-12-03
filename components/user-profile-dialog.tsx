@@ -38,16 +38,35 @@ export function UserProfileDialog({ open, onOpenChange, onProfileUpdate }: UserP
       const apiKey = settings.apiKeys?.openRouter
       const memoryEnabled = settings.memory?.enabled
 
+      console.log("[UserProfileDialog] Save settings:", {
+        hasApiKey: !!apiKey,
+        memoryEnabled,
+        willIntegrate: memoryEnabled && !!apiKey
+      })
+
+      // Check prerequisites for memory integration
+      if (!apiKey) {
+        console.warn("[UserProfileDialog] No OpenRouter API key - memory integration disabled")
+      }
+      if (!memoryEnabled) {
+        console.warn("[UserProfileDialog] Memory system not enabled - memory integration disabled")
+      }
+
       // Save profile with memory integration if conditions are met
       await userProfileService.saveProfile(profile, user?.id, {
         apiKey,
         integrateWithMemory: memoryEnabled && !!apiKey
       })
 
-      // Show success message
-      const description = memoryEnabled && apiKey
-        ? "Deine persönlichen Infos wurden gespeichert und in das Gedächtnissystem integriert."
-        : "Deine persönlichen Infos wurden gespeichert."
+      // Show success message based on what was done
+      let description = "Deine persönlichen Infos wurden gespeichert."
+      if (memoryEnabled && apiKey) {
+        description = "Deine persönlichen Infos wurden gespeichert und in das Gedächtnissystem integriert."
+      } else if (!apiKey) {
+        description = "Profil gespeichert. Tipp: Füge einen OpenRouter API Key hinzu um das Gedächtnissystem zu nutzen."
+      } else if (!memoryEnabled) {
+        description = "Profil gespeichert. Tipp: Aktiviere das Gedächtnissystem in den Einstellungen."
+      }
 
       toast({
         title: "✨ Profil gespeichert!",

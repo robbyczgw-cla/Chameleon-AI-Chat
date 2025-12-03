@@ -109,7 +109,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     livecrawl: "fallback", // Crawl if content is stale
   },
   memorySettings: {
-    enabled: false,
+    enabled: true, // Enable by default for profile integration and better context
     autoExtract: true,
     importanceThreshold: 2,
     maxMemoriesInContext: 5,
