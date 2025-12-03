@@ -276,6 +276,9 @@ export class SupabaseSync {
         memory_settings: settings.memorySettings
           ? JSON.stringify(settings.memorySettings)
           : JSON.stringify({ enabled: false, autoExtract: true, maxMemoriesInContext: 5, importanceThreshold: 2 }),
+        custom_personas: settings.customPersonas
+          ? JSON.stringify(settings.customPersonas)
+          : '[]',
         updated_at: new Date().toISOString(),
       }
 
@@ -808,6 +811,18 @@ export class SupabaseSync {
           : { enabled: false, autoExtract: true, maxMemoriesInContext: 5, importanceThreshold: 2 }
 
         console.log("[Supabase] Parsed memorySettings:", parsed)
+        return parsed
+      })(),
+      customPersonas: (() => {
+        const parsed = dbSettings.custom_personas
+          ? (typeof dbSettings.custom_personas === "string"
+              ? JSON.parse(dbSettings.custom_personas)
+              : Array.isArray(dbSettings.custom_personas)
+              ? dbSettings.custom_personas
+              : [])
+          : []
+
+        console.log("[Supabase] Parsed customPersonas:", parsed)
         return parsed
       })(),
     }

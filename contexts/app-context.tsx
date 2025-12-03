@@ -426,10 +426,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Listen for custom event when model preferences change
     window.addEventListener("modelPreferencesChanged", handleModelPreferencesChanged)
 
+    // Listen for custom personas database sync
+    const handleSyncCustomPersonas = (event: CustomEvent) => {
+      if (user?.id) {
+        const updatedSettings = { ...settings, customPersonas: event.detail }
+        setSettings(updatedSettings)
+        supabaseSync.saveSettings(user.id, updatedSettings).catch((error) => {
+          console.error("[v0] Failed to sync custom personas to database:", error)
+        })
+      }
+    }
+    window.addEventListener("syncCustomPersonasToDatabase", handleSyncCustomPersonas as EventListener)
+
     return () => {
       window.removeEventListener("modelPreferencesChanged", handleModelPreferencesChanged)
+      window.removeEventListener("syncCustomPersonasToDatabase", handleSyncCustomPersonas as EventListener)
     }
-  }, [])
+  }, [settings, user])
 
   const loadFromLocalStorage = () => {
     const savedChats = localStorage.getItem("chats")
