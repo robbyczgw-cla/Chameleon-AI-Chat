@@ -200,6 +200,17 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
   const elapsed = useElapsedTime(currentPhase !== "idle" && currentPhase !== "done")
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set(["thinking"]))
 
+  // Auto-expand the current active step
+  useEffect(() => {
+    if (currentPhase && currentPhase !== "idle" && currentPhase !== "done") {
+      setExpandedSteps(prev => {
+        const next = new Set(prev)
+        next.add(currentPhase)
+        return next
+      })
+    }
+  }, [currentPhase])
+
   // Get streaming visualization settings (with defaults)
   const vizSettings = settings?.experimental?.streamingVisualization || {}
   const showCurrentAction = vizSettings.showCurrentAction ?? true
@@ -314,6 +325,56 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
           <span>{formatTime(elapsed)}</span>
         </div>
       </div>
+
+      {/* Current Activity Banner - Always visible summary of what's happening */}
+      {streamingDetails && (streamingDetails.searchQuery || streamingDetails.action || streamingDetails.reasoningContent) && (
+        <div className="mb-3 space-y-2">
+          {/* Search Query - Prominent blue banner */}
+          {streamingDetails.searchQuery && (
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/15 border border-blue-500/30">
+              <FileSearch className="w-4 h-4 text-blue-500 flex-shrink-0 animate-pulse" />
+              <div className="flex-1 min-w-0">
+                <span className="text-xs font-medium text-blue-600 dark:text-blue-400 mr-2">
+                  {lang === "de" ? "Suche:" : lang === "es" ? "Buscando:" : "Searching:"}
+                </span>
+                <span className="text-sm text-blue-700 dark:text-blue-300 break-words">
+                  "{streamingDetails.searchQuery}"
+                </span>
+              </div>
+              {streamingDetails.searchProvider && (
+                <span className="text-xs text-blue-500/70 capitalize flex-shrink-0">
+                  via {streamingDetails.searchProvider}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Current Action - Primary color banner */}
+          {streamingDetails.action && !streamingDetails.searchQuery && (
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-primary/15 border border-primary/30">
+              <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-pulse" />
+              <span className="text-sm text-foreground break-words">
+                {streamingDetails.action}
+              </span>
+            </div>
+          )}
+
+          {/* Reasoning Content - Amber banner with scrollable content */}
+          {streamingDetails.reasoningContent && (
+            <div className="p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
+              <div className="flex items-center gap-2 mb-1.5">
+                <Lightbulb className="w-4 h-4 text-amber-500 flex-shrink-0 animate-pulse" />
+                <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                  {lang === "de" ? "Denkt nach..." : lang === "es" ? "Razonando..." : "Thinking..."}
+                </span>
+              </div>
+              <div className="text-xs text-foreground/80 font-mono max-h-32 overflow-y-auto break-words whitespace-pre-wrap pl-6">
+                {streamingDetails.reasoningContent}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Steps */}
       <div className="space-y-2">

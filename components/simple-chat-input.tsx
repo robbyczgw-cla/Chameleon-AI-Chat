@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import type { Message } from "@/types"
+import type { Message, StreamingHistoryEntry } from "@/types"
 import { streamChatMessage, REASONING_MODELS } from "@/lib/openrouter"
 import { modelSupportsToolCalling } from "@/lib/tools"
 import { searchWeb, formatSearchResults as formatTavilyResults } from "@/lib/tavily"
@@ -642,13 +642,29 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         },
         // Enhanced streaming details for advanced mode
         onStreamingDetails: (details) => {
-          setCurrentStreamingDetails(details)
+          // Accumulate reasoning content instead of replacing it
+          setCurrentStreamingDetails((prev): Partial<StreamingHistoryEntry> | null => {
+            // If we have new reasoning content, accumulate it
+            if (details.reasoningContent) {
+              return {
+                ...prev,
+                ...details,
+                reasoningContent: (prev?.reasoningContent || '') + details.reasoningContent
+              }
+            }
+            // For other details (search query, action, etc.), merge with previous
+            return {
+              ...prev,
+              ...details
+            }
+          })
           // Also add to streaming history with enhanced details
-          if (details.phase || details.reasoningContent) {
+          if (details.phase || details.reasoningContent || details.searchQuery) {
             addStreamingHistoryEntry({
               phase: details.phase as any || "thinking",
               toolName: details.toolName,
               toolArguments: details.toolArguments,
+              searchQuery: details.searchQuery,
               searchProvider: details.searchProvider,
               searchParameters: details.searchParameters,
               action: details.action,
@@ -656,7 +672,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
               searchResultsPreview: details.searchResultsPreview,
               reasoningContent: details.reasoningContent,
               reasoningTokens: details.reasoningTokens,
-              description: details.resultSummary || details.action
+              description: details.resultSummary || details.action || (details.searchQuery ? `Searching: "${details.searchQuery}"` : undefined)
             })
           }
         },
