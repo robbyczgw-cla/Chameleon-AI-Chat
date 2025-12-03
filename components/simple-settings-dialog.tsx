@@ -341,7 +341,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
 
   const applyTheme = (theme: string) => {
     const html = document.documentElement
-    html.classList.remove("dark", "girly-violet", "ocean-breeze", "paper-mint", "clean-slate", "midnight-hologram", "cosmic-glass", "modern-light")
+    html.classList.remove("dark", "girly-violet", "kawaii-pink", "ocean-breeze", "paper-mint", "clean-slate", "midnight-hologram", "cosmic-glass", "modern-light")
     if (theme !== "light") {
       html.classList.add(theme)
     }
@@ -536,6 +536,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                     { value: "cosmic-glass", label: "Cosmic", bg: "bg-gradient-to-br from-indigo-900 to-purple-900", border: "border-indigo-500/50" },
                     { value: "modern-light", label: "Modern", bg: "bg-gradient-to-br from-slate-50 to-gray-100", border: "border-slate-300" },
                     { value: "girly-violet", label: "Violet", bg: "bg-gradient-to-br from-pink-100 to-purple-200", border: "border-pink-300" },
+                    { value: "kawaii-pink", label: "Kawaii 💖", bg: "bg-gradient-to-br from-pink-200 via-pink-100 to-purple-100", border: "border-pink-400" },
                     { value: "ocean-breeze", label: "Ocean", bg: "bg-gradient-to-br from-cyan-100 to-blue-200", border: "border-cyan-300" },
                   ].map((theme) => (
                     <button

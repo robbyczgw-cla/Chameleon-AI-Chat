@@ -159,6 +159,46 @@
   --sidebar-ring: oklch(0.6 0.2 300);
 }
 
+.kawaii-pink {
+  /* Kawaii Pink theme - Super cute girly pink with playful pastels ✨💖 */
+  /* Inspired by: https://colordrop.io/palette/27325 and https://www.schemecolor.com/cute-kawaii-pastels.php */
+  --background: oklch(0.98 0.03 340);
+  --foreground: oklch(0.25 0.06 340);
+  --card: oklch(0.995 0.015 340);
+  --card-foreground: oklch(0.25 0.06 340);
+  --popover: oklch(0.995 0.02 340);
+  --popover-foreground: oklch(0.25 0.06 340);
+  /* Cute pink primary - vibrant but soft */
+  --primary: oklch(0.68 0.24 345);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.94 0.04 340);
+  --secondary-foreground: oklch(0.25 0.06 340);
+  --muted: oklch(0.95 0.03 340);
+  --muted-foreground: oklch(0.48 0.08 340);
+  /* Mauve/purple accent - dreamy */
+  --accent: oklch(0.72 0.18 300);
+  --accent-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.62 0.26 20);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.88 0.06 340);
+  --input: oklch(0.88 0.06 340);
+  --ring: oklch(0.68 0.24 345);
+  --chart-1: oklch(0.68 0.24 345);
+  --chart-2: oklch(0.72 0.18 300);
+  --chart-3: oklch(0.75 0.16 280);
+  --chart-4: oklch(0.7 0.2 10);
+  --chart-5: oklch(0.76 0.14 50);
+  --radius: 1.2rem;
+  --sidebar: oklch(0.985 0.025 340);
+  --sidebar-foreground: oklch(0.25 0.06 340);
+  --sidebar-primary: oklch(0.68 0.24 345);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.94 0.04 340);
+  --sidebar-accent-foreground: oklch(0.25 0.06 340);
+  --sidebar-border: oklch(0.88 0.06 340);
+  --sidebar-ring: oklch(0.68 0.24 345);
+}
+
 .ocean-breeze {
   /* Ocean Breeze theme - Cool aqua and teal with better contrast */
   --background: oklch(0.96 0.02 210);
