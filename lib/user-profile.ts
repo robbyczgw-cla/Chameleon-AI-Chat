@@ -69,10 +69,10 @@ export const userProfileService = {
     }
   },
 
-  async updateProfile(updates: Partial<UserProfile>, userId?: string): Promise<UserProfile> {
+  async updateProfile(updates: Partial<UserProfile>, userId?: string, options?: { apiKey?: string; integrateWithMemory?: boolean }): Promise<UserProfile> {
     const current = this.getProfile()
     const updated = { ...current, ...updates }
-    await this.saveProfile(updated, userId)
+    await this.saveProfile(updated, userId, options)
     return updated
   },
 
