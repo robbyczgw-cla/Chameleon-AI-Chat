@@ -194,7 +194,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const applyTheme = (theme: string) => {
     const html = document.documentElement
     // Remove all theme classes
-    html.classList.remove("dark", "girly-violet", "kawaii-pink", "ocean-breeze", "paper-mint", "clean-slate", "midnight-hologram", "cosmic-glass", "modern-light")
+    html.classList.remove("dark", "girly-violet", "kawaii-pink", "clay-dream", "industrial", "ocean-breeze", "paper-mint", "clean-slate", "midnight-hologram", "cosmic-glass", "modern-light")
     // Add the selected theme
     if (theme !== "light") {
       html.classList.add(theme)
@@ -392,6 +392,8 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   <option value="midnight-hologram">🌌 Midnight Hologram - Neon Cyan & Purple</option>
                   <option value="girly-violet">💜 Girly Violet - Soft & Purple</option>
                   <option value="kawaii-pink">💖 Kawaii Pink - Cute & Playful</option>
+                  <option value="clay-dream">🍬 Clay Dream - Soft Clay & Pastels</option>
+                  <option value="industrial">⚙️ Industrial - Neumorphic & Mechanical</option>
                   <option value="ocean-breeze">🌊 Ocean Breeze - Fresh & Aqua</option>
                   <option value="paper-mint">📄 Paper Mint - Warm & Crisp</option>
                 </select>
