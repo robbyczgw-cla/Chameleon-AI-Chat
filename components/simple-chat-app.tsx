@@ -10,6 +10,7 @@ import { UserProfileDialog } from "@/components/user-profile-dialog"
 import { SimpleModeOnboarding } from "@/components/simple-mode-onboarding"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 import { ChameleonLogo } from "@/components/chameleon-logo"
+import { MemoryManager } from "@/components/memory-manager"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -35,6 +36,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { type Persona, PERSONA_EXAMPLE_PROMPTS, getPersonaById } from "@/lib/personas"
 
@@ -480,6 +482,7 @@ export function SimpleChatApp() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isPersonasOpen, setIsPersonasOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [isMemoryOpen, setIsMemoryOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [profileContext, setProfileContext] = useState("")
   const [imageMode, setImageMode] = useState(false)
@@ -554,11 +557,13 @@ export function SimpleChatApp() {
     const handleOpenSettings = () => setIsSettingsOpen(true)
     const handleOpenPersonas = () => setIsPersonasOpen(true)
     const handleOpenProfile = () => setIsProfileOpen(true)
+    const handleOpenMemory = () => setIsMemoryOpen(true)
     const handleSetImageMode = (e: CustomEvent) => setImageMode(e.detail)
 
     window.addEventListener("openSettings", handleOpenSettings)
     window.addEventListener("openPersonas", handleOpenPersonas)
     window.addEventListener("openProfile", handleOpenProfile)
+    window.addEventListener("openMemory", handleOpenMemory)
     window.addEventListener("setImageMode" as any, handleSetImageMode)
 
     // Apply performance mode if saved
@@ -571,6 +576,7 @@ export function SimpleChatApp() {
       window.removeEventListener("openSettings", handleOpenSettings)
       window.removeEventListener("openPersonas", handleOpenPersonas)
       window.removeEventListener("openProfile", handleOpenProfile)
+      window.removeEventListener("openMemory", handleOpenMemory)
       window.removeEventListener("setImageMode" as any, handleSetImageMode)
     }
   }, [])
@@ -942,6 +948,14 @@ export function SimpleChatApp() {
         onOpenChange={setIsProfileOpen}
         onProfileUpdate={handleProfileUpdate}
       />
+      <Dialog open={isMemoryOpen} onOpenChange={setIsMemoryOpen}>
+        <DialogContent className="max-w-[900px] max-h-[80vh] overflow-hidden">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Memory System</DialogTitle>
+          </DialogHeader>
+          <MemoryManager />
+        </DialogContent>
+      </Dialog>
 
       {/* Onboarding for first-time Simple Mode users */}
       <SimpleModeOnboarding

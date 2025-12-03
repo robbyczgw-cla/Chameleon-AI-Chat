@@ -113,6 +113,9 @@ const DEFAULT_SETTINGS: AppSettings = {
     autoExtract: true,
     importanceThreshold: 2,
     maxMemoriesInContext: 5,
+    syncToDatabase: true, // Sync to Supabase by default for cross-device access
+    useSemanticSearch: true, // Use embeddings for better retrieval
+    similarityThreshold: 0.5, // Minimum similarity score (0-1)
   },
   showDetailedStats: false, // Disabled by default, enable for hardcore LLM nerds
   fontSize: "medium",
@@ -659,7 +662,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
 
         // CRITICAL FIX: If selectedModel is gpt-4o or old grok models, replace with deepseek-v3.2
-        if (mergedSettings.selectedModel === "openai/gpt-4o" || mergedSettings.selectedModel === "openai/gpt-4o-mini" || mergedSettings.selectedModel === "x-ai/grok-4-fast:free" || mergedSettings.selectedModel === "x-ai/grok-4.1-fast:free") {
+        if (
+          mergedSettings.selectedModel === "openai/gpt-4o" ||
+          mergedSettings.selectedModel === "openai/gpt-4o-mini" ||
+          mergedSettings.selectedModel?.startsWith("x-ai/grok")
+        ) {
           console.warn("[v0] Found old default model", mergedSettings.selectedModel, "- replacing with deepseek-v3.2")
           mergedSettings.selectedModel = "deepseek/deepseek-v3.2"
 

@@ -36,12 +36,14 @@ export function UserProfileDialog({ open, onOpenChange, onProfileUpdate }: UserP
     try {
       // Get API key and check if memory system is enabled
       const apiKey = settings.apiKeys?.openRouter
-      const memoryEnabled = settings.memory?.enabled
+      // Memory is enabled by default, check memorySettings?.enabled and default to true
+      const memoryEnabled = settings.memorySettings?.enabled !== false
 
       console.log("[UserProfileDialog] Save settings:", {
         hasApiKey: !!apiKey,
         memoryEnabled,
-        willIntegrate: memoryEnabled && !!apiKey
+        willIntegrate: memoryEnabled && !!apiKey,
+        profile
       })
 
       // Check prerequisites for memory integration
