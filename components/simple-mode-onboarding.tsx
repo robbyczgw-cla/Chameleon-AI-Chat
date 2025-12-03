@@ -407,7 +407,10 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
     // Save profile with memory integration
     try {
       const apiKey = localSettings.apiKeys?.openRouter
-      const memoryEnabled = localSettings.memory?.enabled
+      // Memory is enabled by default, so check memorySettings?.enabled and default to true
+      const memoryEnabled = localSettings.memorySettings?.enabled !== false
+
+      console.log("[Onboarding] Profile save - API key:", !!apiKey, "Memory enabled:", memoryEnabled)
 
       await userProfileService.saveProfile(profile, user?.id, {
         apiKey,
@@ -415,7 +418,11 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
       })
 
       if (memoryEnabled && apiKey) {
-        console.log("[Onboarding] Profile integrated with memory system")
+        console.log("[Onboarding] ✅ Profile integrated with memory system")
+      } else if (!apiKey) {
+        console.log("[Onboarding] ⚠️ No API key - profile saved but not integrated with memory")
+      } else if (!memoryEnabled) {
+        console.log("[Onboarding] ⚠️ Memory disabled - profile saved but not integrated")
       }
     } catch (error) {
       console.error("[Onboarding] Profile save error:", error)
