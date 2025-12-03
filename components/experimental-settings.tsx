@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { useApp } from "@/contexts/app-context"
-import { FlaskRound, AlertTriangle, Zap, Monitor, Brain } from "lucide-react"
+import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench } from "lucide-react"
 import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
 
@@ -111,6 +111,61 @@ export function ExperimentalSettings() {
               </p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* AI Tools Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Wrench className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">AI Tools</h3>
+        </div>
+
+        <div className="space-y-4 pl-7">
+          <p className="text-xs text-muted-foreground">
+            Enable additional tools that the AI can use when Auto Search is enabled. The AI will decide when to use these tools based on your questions.
+          </p>
+
+          {/* URL Fetch Tool */}
+          <div className="flex items-center justify-between p-4 border rounded-lg border-green-500/30 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+            <div className="space-y-1 flex-1">
+              <div className="flex items-center gap-2">
+                <Link className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <Label className="text-sm font-medium">URL Fetch Tool</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Allow AI to fetch and read content from specific URLs you mention. Useful for analyzing articles, documentation, or web pages.
+              </p>
+            </div>
+            <Switch
+              checked={experimental.enableUrlFetchTool !== false}
+              onCheckedChange={(checked) => handleExperimentalChange({ enableUrlFetchTool: checked })}
+            />
+          </div>
+
+          {/* YouTube Transcript Tool */}
+          <div className="flex items-center justify-between p-4 border rounded-lg border-red-500/30 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20">
+            <div className="space-y-1 flex-1">
+              <div className="flex items-center gap-2">
+                <Youtube className="h-4 w-4 text-red-600 dark:text-red-400" />
+                <Label className="text-sm font-medium">YouTube Transcript Tool</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Allow AI to extract and read transcripts from YouTube videos. Great for summarizing videos or answering questions about video content.
+              </p>
+            </div>
+            <Switch
+              checked={experimental.enableYouTubeTool !== false}
+              onCheckedChange={(checked) => handleExperimentalChange({ enableYouTubeTool: checked })}
+            />
+          </div>
+
+          {/* Info Box */}
+          <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p className="text-xs text-blue-800 dark:text-blue-200">
+              <strong>Note:</strong> These tools require Auto Search to be enabled in Search settings. The AI will automatically decide when to use them based on your questions. No additional API keys required.
+            </p>
+          </div>
         </div>
       </div>
 

@@ -374,6 +374,8 @@ export function ChatInput() {
     setIsChatLoading(true) // Triggers loading animation in ChatMessages
     // Set initial streaming phase immediately for step-by-step visualization
     setStreamingPhase("thinking")
+    // CRITICAL: Clear streaming details from previous chat to prevent stale reasoning
+    setCurrentStreamingDetails(null)
     // Clear and start streaming history for verbose display
     clearStreamingHistory()
     addStreamingHistoryEntry({
@@ -835,6 +837,9 @@ export function ChatInput() {
         searchProvider: autoSearchProvider,
         searchApiKey: autoSearchApiKey,
         searchSettings: autoSearchSettings,
+        // Experimental tool settings
+        enableUrlFetchTool: settings.experimental?.enableUrlFetchTool !== false,
+        enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
         onSearchStart: (query) => {
           toast({
             title: "🔍 AI is searching the web...",
@@ -1076,10 +1081,11 @@ export function ChatInput() {
     } finally {
       setIsLoading(false)
       setIsChatLoading(false)
-      // Reset streaming state
+      // Reset streaming state completely (including streaming details to prevent stale content)
       setStreamingPhase("idle")
       setCurrentTool(null)
       setSearchQuery(null)
+      setCurrentStreamingDetails(null)
       setAttachedCollectionId(null)
       abortControllerRef.current = null
       console.log("[v0] Chat submission complete")

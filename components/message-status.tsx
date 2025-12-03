@@ -4,7 +4,7 @@ import { memo, useState, useEffect } from "react"
 import {
   Loader2, Brain, MessageSquare, CheckCircle2, Globe, Wrench,
   Zap, Cpu, Network, FileSearch, Sparkles, Clock, ChevronDown, ChevronRight,
-  Activity, BarChart3, Lightbulb
+  Activity, BarChart3, Lightbulb, Link, Youtube
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useApp } from "@/contexts/app-context"
@@ -327,41 +327,83 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
       </div>
 
       {/* Current Activity Banner - Always visible summary of what's happening */}
-      {(searchQuery || (streamingDetails && (streamingDetails.searchQuery || streamingDetails.action || streamingDetails.reasoningContent || streamingDetails.toolArguments?.query))) && (
+      {(searchQuery || (streamingDetails && (streamingDetails.searchQuery || streamingDetails.action || streamingDetails.reasoningContent || streamingDetails.toolArguments?.query || streamingDetails.toolArguments?.url || streamingDetails.toolName))) && (
         <div className="mb-3 space-y-2">
-          {/* Search Query - Prominent blue banner - try multiple sources */}
+          {/* Tool-specific banners */}
           {(() => {
-            // Try to get search query from various sources (including the searchQuery prop!)
-            const detectedSearchQuery = searchQuery  // The prop passed from parent
-              || streamingDetails?.searchQuery
-              || streamingDetails?.toolArguments?.query
-              || (streamingDetails?.action?.match(/Searching.*?:\s*"([^"]+)"/)?.[1])
+            const toolName = streamingDetails?.toolName
+            const toolArgs = streamingDetails?.toolArguments || {}
 
-            if (detectedSearchQuery) {
-              return (
-                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/15 border border-blue-500/30">
-                  <FileSearch className="w-4 h-4 text-blue-500 flex-shrink-0 animate-pulse" />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-xs font-medium text-blue-600 dark:text-blue-400 mr-2">
-                      {lang === "de" ? "Suche:" : lang === "es" ? "Buscando:" : "Searching:"}
-                    </span>
-                    <span className="text-sm text-blue-700 dark:text-blue-300 break-words">
-                      "{detectedSearchQuery}"
-                    </span>
+            // Web Search - Blue banner
+            if (toolName === "web_search" || searchQuery || streamingDetails?.searchQuery) {
+              const query = searchQuery || streamingDetails?.searchQuery || toolArgs.query
+              if (query) {
+                return (
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/15 border border-blue-500/30">
+                    <Globe className="w-4 h-4 text-blue-500 flex-shrink-0 animate-pulse" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-medium text-blue-600 dark:text-blue-400 mr-2">
+                        {lang === "de" ? "Web-Suche:" : lang === "es" ? "Búsqueda web:" : "Web Search:"}
+                      </span>
+                      <span className="text-sm text-blue-700 dark:text-blue-300 break-words">
+                        "{query}"
+                      </span>
+                    </div>
+                    {streamingDetails?.searchProvider && (
+                      <span className="text-xs text-blue-500/70 capitalize flex-shrink-0">
+                        via {streamingDetails.searchProvider}
+                      </span>
+                    )}
                   </div>
-                  {streamingDetails?.searchProvider && (
-                    <span className="text-xs text-blue-500/70 capitalize flex-shrink-0">
-                      via {streamingDetails.searchProvider}
-                    </span>
-                  )}
-                </div>
-              )
+                )
+              }
             }
+
+            // URL Fetch - Green banner
+            if (toolName === "url_fetch") {
+              const url = toolArgs.url
+              if (url) {
+                return (
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-green-500/15 border border-green-500/30">
+                    <Link className="w-4 h-4 text-green-500 flex-shrink-0 animate-pulse" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-medium text-green-600 dark:text-green-400 mr-2">
+                        {lang === "de" ? "URL abrufen:" : lang === "es" ? "Obteniendo URL:" : "Fetching URL:"}
+                      </span>
+                      <span className="text-sm text-green-700 dark:text-green-300 break-all">
+                        {url}
+                      </span>
+                    </div>
+                  </div>
+                )
+              }
+            }
+
+            // YouTube Transcript - Red banner
+            if (toolName === "youtube_transcript") {
+              const url = toolArgs.url
+              if (url) {
+                return (
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/15 border border-red-500/30">
+                    <Youtube className="w-4 h-4 text-red-500 flex-shrink-0 animate-pulse" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-medium text-red-600 dark:text-red-400 mr-2">
+                        {lang === "de" ? "YouTube Transkript:" : lang === "es" ? "Transcripción YouTube:" : "YouTube Transcript:"}
+                      </span>
+                      <span className="text-sm text-red-700 dark:text-red-300 break-all">
+                        {url}
+                      </span>
+                    </div>
+                  </div>
+                )
+              }
+            }
+
             return null
           })()}
 
-          {/* Current Action - Primary color banner (only if no search query found) */}
-          {streamingDetails?.action && !searchQuery && !streamingDetails.searchQuery && !streamingDetails.toolArguments?.query && !streamingDetails.action?.includes('Searching') && (
+          {/* Current Action - Primary color banner (only if no specific tool banner shown) */}
+          {streamingDetails?.action && !searchQuery && !streamingDetails?.toolName && !streamingDetails.searchQuery && (
             <div className="flex items-center gap-2 p-2.5 rounded-lg bg-primary/15 border border-primary/30">
               <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-pulse" />
               <span className="text-sm text-foreground break-words">
@@ -371,7 +413,7 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
           )}
 
           {/* Reasoning Content - Amber banner with scrollable content */}
-          {streamingDetails.reasoningContent && (
+          {streamingDetails?.reasoningContent && (
             <div className="p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
               <div className="flex items-center gap-2 mb-1.5">
                 <Lightbulb className="w-4 h-4 text-amber-500 flex-shrink-0 animate-pulse" />

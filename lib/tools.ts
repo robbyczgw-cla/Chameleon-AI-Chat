@@ -85,10 +85,84 @@ DO NOT use for:
 }
 
 /**
+ * URL Fetch Tool Definition
+ *
+ * Fetches and extracts content from a specific URL
+ */
+export const urlFetchTool: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "url_fetch",
+    description: `Fetch and extract content from a specific URL that the user has provided. Use this when:
+- The user shares a specific URL and asks you to read, summarize, or analyze it
+- The user pastes an article link and wants information from it
+- The user wants you to extract content from a webpage they specified
+
+Examples:
+- "Summarize this article: https://example.com/article"
+- "What does this page say? [URL]"
+- "Read this and tell me the main points: [URL]"
+
+DO NOT use for:
+- Searching for information (use web_search instead)
+- YouTube videos (use youtube_transcript instead)
+- General questions without a specific URL`,
+    parameters: {
+      type: "object",
+      properties: {
+        url: {
+          type: "string",
+          description: "The full URL to fetch content from. Must be a valid HTTP/HTTPS URL."
+        }
+      },
+      required: ["url"]
+    }
+  }
+}
+
+/**
+ * YouTube Transcript Tool Definition
+ *
+ * Extracts transcript/captions from YouTube videos
+ */
+export const youtubeTranscriptTool: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "youtube_transcript",
+    description: `Get the transcript (subtitles/captions) from a YouTube video. Use this when:
+- The user shares a YouTube video link and wants to know what's said in it
+- The user asks you to summarize or analyze a YouTube video
+- The user wants a text version of video content
+
+Examples:
+- "What does this video talk about? https://youtube.com/watch?v=..."
+- "Summarize this YouTube video: [URL]"
+- "Can you tell me what's discussed in this video?"
+
+DO NOT use for:
+- Non-YouTube video links
+- General web pages (use url_fetch instead)
+- Searching for videos (use web_search instead)
+
+Note: Only works for videos that have captions/subtitles available.`,
+    parameters: {
+      type: "object",
+      properties: {
+        url: {
+          type: "string",
+          description: "The YouTube video URL. Supports formats: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/shorts/ID"
+        }
+      },
+      required: ["url"]
+    }
+  }
+}
+
+/**
  * Get all available tools for the chat API
  */
 export function getAvailableTools(): ToolDefinition[] {
-  return [webSearchTool]
+  return [webSearchTool, urlFetchTool, youtubeTranscriptTool]
 }
 
 /**
