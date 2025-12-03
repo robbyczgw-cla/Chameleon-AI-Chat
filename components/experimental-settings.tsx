@@ -314,19 +314,48 @@ export function ExperimentalSettings() {
               <div>
                 <h3 className="text-lg font-semibold">Streaming Visualization</h3>
                 <p className="text-xs text-muted-foreground">
-                  Advanced Mode only - Fine-tune what streaming details are displayed
+                  Advanced Mode only - Control what you see during AI responses
                 </p>
               </div>
             </div>
 
-            <div className="pl-7">
-              <StreamingSettingsPanel
-                settings={experimental.streamingVisualization || {}}
-                onSettingsChange={(streamingVisualization) =>
-                  handleExperimentalChange({ streamingVisualization })
-                }
-                language={settings.language as "en" | "de" | "es"}
-              />
+            <div className="space-y-4 pl-7">
+              {/* Detailed Streaming Toggle */}
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium">Detailed Streaming Mode</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Show full step-by-step progress with phases, sub-steps, timer, and progress bar.
+                    When off, only shows current action and reasoning tokens.
+                  </p>
+                </div>
+                <Switch
+                  checked={experimental.showDetailedStreaming || false}
+                  onCheckedChange={(checked) => handleExperimentalChange({ showDetailedStreaming: checked })}
+                />
+              </div>
+
+              {/* Info Box */}
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-xs text-blue-800 dark:text-blue-200">
+                  <strong>Default:</strong> Shows only the current action (search, URL fetch, etc.) and reasoning tokens as they stream in.
+                  Enable detailed mode to see the full visualization with all phases and timing information.
+                </p>
+              </div>
+
+              {/* Extended Settings - Only visible when detailed mode is enabled */}
+              {experimental.showDetailedStreaming && (
+                <div className="pt-4 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground mb-3">Fine-tune detailed streaming visualization:</p>
+                  <StreamingSettingsPanel
+                    settings={experimental.streamingVisualization || {}}
+                    onSettingsChange={(streamingVisualization) =>
+                      handleExperimentalChange({ streamingVisualization })
+                    }
+                    language={settings.language as "en" | "de" | "es"}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </>
