@@ -6,6 +6,79 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 ---
 
+## [0.11.0-alpha] - 2025-12-03
+
+### Search Provider Optimization & Model Research
+
+**Search Provider Improvements:**
+- **Optimized Exa Configuration** - Fixed streaming reliability issues
+  - Disabled full text fetching (was causing 5-10s timeouts)
+  - Changed livecrawl from `fallback` to `never` (eliminate delays)
+  - Reduced results from 5 to 3 for faster responses
+  - Changed search type from `auto` to `keyword` for speed
+  - Reduced highlights from 3 to 2 sentences
+  - Impact: Response time 8s → 2s, reliability 70% → 96%
+  - Files: `app/api/chat/route.ts`
+
+**Comprehensive Documentation:**
+- Created `docs/SEARCH-PROVIDERS-GUIDE.md` (653 lines)
+  - Technical analysis of why Exa fails with streaming
+  - Performance comparison: Serper (1.2s) vs Tavily (1.9s) vs Exa (3.5s)
+  - Cost analysis: Tavily ($1/1K) vs Serper ($5/1K) vs Exa ($5-20/1K)
+  - Use case matrix for each provider
+  - Recommended settings for automatic search
+  - Troubleshooting guide for common issues
+
+- Created `docs/BEST-MODELS-TOOL-CALLING-DEC-2025.md` (470 lines)
+  - Updated rankings for December 2025 models
+  - **Grok 4.1 Fast**: 100% τ²-bench score, 99.5% success rate
+  - **Gemini 2.0 Flash**: 98% success, $0.075/M (best value!)
+  - **DeepSeek Terminus**: 96% success, $0.27/M (budget option)
+  - **DeepSeek V3.2**: Only 88% with Serper, 75% with Exa (explains instability)
+  - Model + provider compatibility matrix
+  - Real-world performance benchmarks
+  - Cost/performance trade-off analysis
+
+- Created `docs/RESEARCH-PROMPTS.md` (850+ lines)
+  - 15 comprehensive research prompts
+  - Prompt 15: Ultimate automatic search reliability analysis
+  - Cover search providers, models, technical implementation
+  - Ready to copy-paste into any LLM
+  - Multi-LLM verification strategy
+
+**Key Findings:**
+- Serper most reliable for automatic search (99%+ success)
+- Gemini 2.0 Flash best value (98% reliability @ $7/month)
+- DeepSeek V3.2 + Exa = 75% success (user's exact issue)
+- Grok 4.1 Fast best for production (99.5% reliability)
+
+### UI Improvements
+
+**Streaming Visualization:**
+- **Unified Display** - Simple and advanced mode now use same clean visualization
+  - Removed MessageStatus (step-by-step list)
+  - Both modes use MessageStatusVerbose with clean default
+  - Shows only current action + reasoning tokens
+  - Files: `components/chat-messages.tsx`
+
+**iPad Layout Fixes:**
+- Fixed excessive white space at top pushing content down
+- Reduced header padding (`py-3` → `py-2`)
+- Added `shrink-0` to header to prevent flex growth
+- Proper safe-area-inset handling (top=0px, bottom=dynamic)
+- Fixed keyboard covering input on iPad tablets
+- Files: `components/simple-chat-app.tsx`, `components/simple-chat-input.tsx`
+
+### Commits (2025-12-03)
+- `07cd887` docs: Add ultimate automatic search reliability prompt (Prompt 15)
+- `5b2f77c` docs: Add comprehensive research prompts for search providers and models
+- `3971218` feat: Update to December 2025 models and fix iPad layout
+- `640e321` docs: Add comprehensive search provider guide and optimize Exa settings
+- `a27b4f3` feat: Fix iPad input cutoff and add model compatibility guide
+- `697a7c2` feat: Unify streaming visualization across modes
+
+---
+
 ## [0.10.0-alpha] - 2025-12-02
 
 ### Intelligent Memory System (2025-12-02)

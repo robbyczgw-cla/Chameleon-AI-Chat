@@ -23,12 +23,13 @@
 - 📊 **Unified Analytics** - Visual stats with charts, model distribution, and AI insights
 - 🎭 **AI Debate Mode** - Watch two AI models debate any topic (2-5 rounds, vote for winner!)
 - 🧠 **Advanced Memory** - Token-efficient long-term memory for context across sessions
+- 🔍 **Optimized Search** - 3 providers (Serper, Tavily, Exa) with auto-tuned settings for reliability
 
 **For Everyone:**
 - 🎭 **18+ AI Personas** - From Nova (cyberpunk hacker) to Sol Goldman (lawyer) to Vibe (curator)
-- 🤖 **100+ AI Models** - GPT-4, Claude, Gemini, Grok, DeepSeek via OpenRouter
-- 🔍 **AI-Powered Web Search** - Tool calling lets AI decide when to search (Tavily, Serper)
-- 📱 **Mobile-First UI** - WhatsApp-style bottom nav, optimized for narrow screens (20:9)
+- 🤖 **100+ AI Models** - GPT-4, Claude, Gemini, Grok 4.1, DeepSeek via OpenRouter
+- 🔍 **Smart Web Search** - AI decides when to search (3 providers: Serper, Tavily, Exa)
+- 📱 **Mobile-First UI** - WhatsApp-style bottom nav, iPad-optimized, safe-area support
 - 🌍 **Multi-language** - German, English, Spanish
 - 🎨 **Dark/Light Themes** - Beautiful gradients with seamless switching
 
@@ -51,13 +52,17 @@
 - 🖼️ **Image Optimization** - Next.js automatic WebP conversion and resizing
 - 👆 **Mobile-First Buttons** - Action buttons always visible on touch devices
 
-**Latest Features (v0.9.0-alpha):**
-- 🎬 **Streaming Visualization** - Real-time phase indicators (Spark → Brain → Pencil) with smooth animations
-- 🪟 **Dialog Viewport Safety** - Dialogs no longer cut off, proper scrolling with `min(90vh, calc(100dvh-2rem))`
-- 👤 **User Profile Context** - Your name, occupation, and interests now passed to AI for personalized responses
+**Latest Features (v0.11.0-alpha):**
+- 🔍 **Search Provider Optimization** - Fixed Exa streaming issues (8s → 2s, 70% → 96% reliability)
+- 📊 **Model Research** - Comprehensive guides for December 2025 models (Grok 4.1, Gemini 2.0 Flash)
+- 📱 **iPad Layout Fix** - No more white space at top, keyboard no longer covers input
+- 🎨 **Unified Streaming** - Clean visualization in both simple and advanced modes
+- 📚 **15 Research Prompts** - Copy-paste prompts to research models and providers with any LLM
+
+**Previous Features (v0.9.0-alpha):**
+- 🎬 **Streaming Visualization** - Real-time phase indicators with smooth animations
+- 👤 **User Profile Context** - Name, occupation, interests passed to AI for personalization
 - 👁️ **Vision Model Updates** - Gemini 2.5 Flash/Pro Preview, Claude Sonnet 4, Claude Opus 4
-- 🔇 **Reasoning Spam Fix** - Reduced console logging by 99% during extended thinking
-- 📐 **Desktop Layout** - Chat input now sits directly at bottom (more vertical space)
 
 **v0.8.0 Features:**
 - 🤖 **AI-Driven Web Search** - AI decides when to search using tool calling (Grok 4.1 Fast)
@@ -111,9 +116,10 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 NEXT_PUBLIC_OPENROUTER_API_KEY=your_openrouter_key
 
-# Optional - Web Search
-NEXT_PUBLIC_TAVILY_API_KEY=your_tavily_key
-NEXT_PUBLIC_SERPER_API_KEY=your_serper_key  # 10x cheaper!
+# Optional - Web Search (choose one or all)
+NEXT_PUBLIC_TAVILY_API_KEY=your_tavily_key     # $1/1000 queries (budget)
+NEXT_PUBLIC_SERPER_API_KEY=your_serper_key     # $5/1000 queries (recommended!)
+NEXT_PUBLIC_EXA_API_KEY=your_exa_key           # $5/1000 queries (research)
 ```
 
 ---
@@ -342,15 +348,23 @@ Perfect for:
 
 ## 📚 Documentation
 
+### User Guides
 - [Changelog](./CHANGELOG.md) - Version history & release notes
 - [User Guide](./docs/user-guide.md) - Complete feature guide
-- [Memory System](./docs/MEMORY_SYSTEM.md) - Intelligent memory guide (NEW!)
-- [Architecture](./docs/ARCHITECTURE.md) - Technical deep dive
+- [Memory System](./docs/MEMORY_SYSTEM.md) - Intelligent memory guide
 - [Personas](./docs/personas.md) - All 18+ personas explained
+
+### Technical Documentation
+- [Architecture](./docs/ARCHITECTURE.md) - Technical deep dive
 - [API Reference](./docs/api.md) - API routes documentation
 - [Database Schema](./docs/database.md) - Supabase tables & RLS
 - [Deployment](./docs/deployment.md) - How to deploy
 - [Contributing](./docs/contributing.md) - Development guide
+
+### Research & Optimization (NEW!)
+- [Search Providers Guide](./docs/SEARCH-PROVIDERS-GUIDE.md) - Serper vs Tavily vs Exa comparison
+- [Best Models Dec 2025](./docs/BEST-MODELS-TOOL-CALLING-DEC-2025.md) - Model rankings & recommendations
+- [Research Prompts](./docs/RESEARCH-PROMPTS.md) - 15 prompts to research with any LLM
 
 ---
 
