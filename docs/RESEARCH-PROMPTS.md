@@ -642,4 +642,212 @@ After getting responses, search for:
 - "LLM agent performance comparison 2025"
 - "Production AI chatbot case study [company name]"
 
+---
+
+## 🎯 BONUS: The Ultimate Automatic Search Reliability Prompt
+
+### Prompt 15: Optimizing Model + Provider for Automatic Search (MOST IMPORTANT)
+
+```
+I'm building an AI chatbot where the LLM automatically decides when to search the web (tool calling). The user doesn't explicitly say "search for X" - the AI must detect when current knowledge is insufficient and trigger search autonomously.
+
+Critical requirements:
+1. High reliability (95%+ success rate)
+2. Fast responses (<3s from search trigger to results)
+3. Streaming must not break when search is triggered
+4. LLM must consistently return valid tool call JSON
+5. LLM must wait for search results before responding
+6. Cost-effective for 1000-2000 searches/day
+
+Research the COMBINATION of model + search provider for December 2025:
+
+**Test these combinations:**
+
+Models:
+- Grok 4.1 Fast
+- Gemini 2.0 Flash
+- Claude 3.7 Sonnet
+- GPT-4o
+- DeepSeek Terminus
+- DeepSeek V3.2
+
+Search Providers:
+- Serper (Google API)
+- Tavily
+- Exa
+
+**For each combination, analyze:**
+
+1. **Tool Calling Reliability:**
+   - Does the model generate valid JSON consistently?
+   - Does it call tools at appropriate times (not too often/rarely)?
+   - Can it handle the search provider's response format?
+   - Does it complete the tool call before responding?
+
+2. **Streaming Compatibility:**
+   - Does the combination work well with Server-Sent Events?
+   - Are there timeout issues with slower search providers?
+   - Does the stream stay alive during search execution?
+   - Any known issues with chunked responses?
+
+3. **Response Quality:**
+   - How well does the model integrate search results?
+   - Does it cite sources appropriately?
+   - Can it synthesize information from multiple results?
+   - Does it fall back gracefully if search fails?
+
+4. **Performance:**
+   - Average time from tool call to search completion
+   - Impact on token generation speed
+   - Any latency issues or bottlenecks?
+
+5. **Cost:**
+   - Total cost per conversation (model + search)
+   - Monthly cost for expected usage
+   - Cost vs reliability trade-off
+
+**Provide specific recommendations:**
+
+1. **Best Overall (Reliability + Performance):**
+   - Which model + provider combination has highest success rate?
+   - What configuration settings optimize reliability?
+   - Any OpenRouter `:exacto` endpoints that help?
+
+2. **Best Value (Cost + Performance):**
+   - Which combination gives 95%+ reliability at lowest cost?
+   - Where can we cut costs without hurting reliability?
+
+3. **Fastest Response:**
+   - Which combination gets results fastest?
+   - What's the theoretical minimum latency?
+
+4. **Most Reliable with Slow Providers:**
+   - If using Exa (3-10s responses), which model handles it best?
+   - How to configure timeouts and retries?
+
+**Known Issues to Document:**
+
+- "DeepSeek V3.2 + Exa = 75% success" (from our testing)
+- "Grok 4.1 + Serper = 99.5% success" (from our testing)
+- Any other known problematic combinations?
+- Common failure patterns to avoid?
+
+**Configuration Recommendations:**
+
+For the top 3 combinations, provide exact configuration:
+
+```json
+{
+  "model": "model-id",
+  "searchProvider": "provider",
+  "searchSettings": {
+    "maxResults": 5,
+    // ... other settings
+  },
+  "modelSettings": {
+    "temperature": 0.7,
+    "maxTokens": 4096,
+    // ... other settings
+  },
+  "timeouts": {
+    "search": 10000,
+    "stream": 30000
+  }
+}
+```
+
+**Real-World Scenarios:**
+
+Test these queries and predict success rate:
+1. "What's the Bitcoin price right now?"
+2. "Compare the latest iPhone vs Samsung flagship"
+3. "What are the top AI news stories today?"
+4. "Should I invest in Tesla stock?"
+5. "What's the weather in Vienna tomorrow?"
+
+For each scenario, explain:
+- Which models will trigger search automatically?
+- Which search providers return best results?
+- Expected response time
+- Common failure modes
+
+**Decision Matrix:**
+
+Create a table ranking all combinations by:
+- Reliability score (1-10)
+- Speed score (1-10)
+- Cost score (1-10)
+- Overall recommendation (use/avoid)
+
+Include specific evidence, benchmarks, or case studies if available.
+
+**Final Recommendation:**
+
+Based on all analysis, provide THE definitive combination for automatic search in production:
+- Exact model ID
+- Exact search provider
+- Exact configuration settings
+- Expected performance metrics
+- Monthly cost estimate
+- Known limitations
+
+This should be the "set it and forget it" configuration that works reliably.
+```
+
+---
+
+## 🔥 Priority Order for Research
+
+If you only have time for a few prompts, do these in order:
+
+1. **Prompt 15** (above) - Most comprehensive for your use case
+2. **Prompt 5** - Best models for tool calling
+3. **Prompt 3** - Serper vs Tavily comparison
+4. **Prompt 6** - Model + provider compatibility matrix
+5. **Prompt 8** - OpenRouter optimizations
+
+These five prompts will give you 80% of what you need to make the right decisions.
+
+---
+
+## 🎓 How to Get Best Results
+
+### When asking these prompts:
+
+**1. Always specify the date:**
+```
+"As of December 2025, what are..."
+```
+
+**2. Request evidence:**
+```
+"Provide benchmark data and sources for..."
+```
+
+**3. Ask for specifics:**
+```
+"Give exact configuration values, not just general advice"
+```
+
+**4. Request comparisons:**
+```
+"Compare X vs Y with a table showing..."
+```
+
+**5. Ask for trade-offs:**
+```
+"Explain the downsides of each option..."
+```
+
+### Multi-LLM Strategy:
+
+1. **Ask Gemini 2.0 Flash** - Fast, cheap, good at finding recent info
+2. **Verify with Claude 3.7** - Best at analyzing trade-offs
+3. **Cross-check with GPT-4o** - Practical implementation details
+4. **Use Perplexity** - Verify benchmarks and recent changes
+
+If they all agree, it's probably accurate. If they disagree, dig deeper.
+
+---
+
 Good luck with your research! 🚀
