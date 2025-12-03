@@ -98,7 +98,7 @@ export const POPULAR_OPENROUTER_MODELS = [
   { id: "anthropic/claude-opus-4.1", name: "Claude Opus 4.1", provider: "Anthropic", category: "flagship" },
 
   // 💰 Beste Preis-Leistung 2025
-  { id: "deepseek/deepseek-v3.2", name: "DeepSeek V3.2 (Best Value)", provider: "DeepSeek", category: "value" },
+  { id: "deepseek/deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", category: "value" },
   { id: "x-ai/grok-4-fast:free", name: "Grok 4 Fast", provider: "xAI", category: "value" },
   {
     id: "google/gemini-2.5-flash",

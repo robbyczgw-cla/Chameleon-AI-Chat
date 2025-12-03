@@ -67,6 +67,8 @@ export function PersonasManager() {
   const saveCustomPersonas = (updated: Persona[]) => {
     PersonasStorageService.saveCustomPersonas(updated)
     setCustomPersonas(updated)
+    // Notify other components that personas changed
+    window.dispatchEvent(new CustomEvent("personasChanged"))
   }
 
   const handleOpenDialog = (persona?: Persona) => {
@@ -108,7 +110,7 @@ export function PersonasManager() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt,
-          model: 'google/gemini-2.5-flash-image',
+          model: 'google/gemini-3-pro-image-preview',
           apiKey: settings.apiKeys.openRouter,
         }),
       })

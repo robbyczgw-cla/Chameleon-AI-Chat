@@ -20,6 +20,9 @@ export class PersonasStorageService {
 
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(personas))
+
+      // Also sync to database by dispatching event to app-context
+      window.dispatchEvent(new CustomEvent("syncCustomPersonasToDatabase", { detail: personas }))
     } catch (error) {
       console.error("[PersonasStorage] Error saving personas:", error)
     }

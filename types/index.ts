@@ -295,6 +295,7 @@ export interface AppSettings {
   selectedModel: string
   selectedModels?: string[] // Array of user's selected OpenRouter models (persisted to database)
   selectedPersona?: import("@/lib/personas").Persona // Currently selected persona
+  customPersonas?: import("@/lib/personas").Persona[] // User-created custom personas (persisted to database)
   temperature?: number
   maxTokens?: number
   systemPrompt: string
