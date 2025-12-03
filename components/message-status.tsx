@@ -38,6 +38,7 @@ export interface MessageStatusProps {
     toolArguments?: Record<string, any>
     searchProvider?: string
     searchParameters?: Record<string, any>
+    searchQuery?: string  // The actual search query being executed
     action?: string
     resultCount?: number
     resultSummary?: string
@@ -411,6 +412,21 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                             </p>
                             <p className="text-sm text-foreground mt-0.5 break-words">
                               {streamingDetails.action}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Search query display (prominent, like Claude.ai) */}
+                      {streamingDetails.searchQuery && (
+                        <div className="flex items-start gap-2 p-2 rounded-md bg-blue-500/10 border border-blue-500/20">
+                          <FileSearch className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                              {lang === "de" ? "Suchanfrage" : lang === "es" ? "Consulta de búsqueda" : "Search Query"}
+                            </p>
+                            <p className="text-sm text-blue-700 dark:text-blue-300 mt-0.5 break-words">
+                              "{streamingDetails.searchQuery}"
                             </p>
                           </div>
                         </div>
