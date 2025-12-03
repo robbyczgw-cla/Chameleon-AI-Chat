@@ -76,7 +76,7 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
   })
 
   // Check if current model supports reasoning
-  const model = overrideModel || settings.selectedModel || "x-ai/grok-4.1-fast:free"
+  const model = overrideModel || settings.selectedModel || "deepseek/deepseek-v3.2"
   const modelSupportsReasoning = REASONING_MODELS.has(model)
 
   // OPTIMIZED: Combined localStorage saves to reduce useEffect count

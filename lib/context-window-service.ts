@@ -39,7 +39,6 @@ export const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
   "google/gemini-pro": 32768,
 
   // xAI Grok Models
-  "x-ai/grok-4.1-fast:free": 2000000,
   "x-ai/grok-4-fast:free": 2000000,
   "x-ai/grok-4": 2000000,
   "x-ai/grok-2": 131072,
@@ -49,6 +48,7 @@ export const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
   "xai/grok-4-fast": 2000000,
 
   // DeepSeek Models
+  "deepseek/deepseek-v3.2": 128000,
   "deepseek/deepseek-chat": 64000,
   "deepseek/deepseek-chat-v3.2-experimental": 64000,
   "deepseek/deepseek-chat-v3-0324:free": 64000,

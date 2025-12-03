@@ -118,7 +118,7 @@ export default function Page() {
         console.log("[v0] Settings don't exist, creating...")
         const { error: settingsError } = await supabase.from("user_settings").insert({
           user_id: signUpData.user.id,
-          selected_model: "x-ai/grok-4.1-fast:free",
+          selected_model: "deepseek/deepseek-v3.2",
           temperature: 0.7,
           max_tokens: 16000,
           top_p: 1,
