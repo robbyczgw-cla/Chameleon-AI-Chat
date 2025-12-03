@@ -658,10 +658,11 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
               ...details
             }
           })
-          // Also add to streaming history with enhanced details
-          if (details.phase || details.reasoningContent || details.searchQuery) {
+          // Only add to streaming history for significant events (NOT every reasoning chunk)
+          // Reasoning content updates the live display but doesn't spam history
+          if (details.phase || details.searchQuery || details.toolName) {
             addStreamingHistoryEntry({
-              phase: details.phase as any || "thinking",
+              phase: details.phase as any || "searching",
               toolName: details.toolName,
               toolArguments: details.toolArguments,
               searchQuery: details.searchQuery,
@@ -670,8 +671,6 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
               action: details.action,
               resultCount: details.resultCount,
               searchResultsPreview: details.searchResultsPreview,
-              reasoningContent: details.reasoningContent,
-              reasoningTokens: details.reasoningTokens,
               description: details.resultSummary || details.action || (details.searchQuery ? `Searching: "${details.searchQuery}"` : undefined)
             })
           }
