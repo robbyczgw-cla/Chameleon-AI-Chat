@@ -33,7 +33,7 @@ interface AppContextType {
   setSearchQuery: (query: string | null) => void
   // Enhanced streaming details (for advanced mode)
   currentStreamingDetails: Partial<StreamingHistoryEntry> | null
-  setCurrentStreamingDetails: (details: Partial<StreamingHistoryEntry> | null) => void
+  setCurrentStreamingDetails: (details: Partial<StreamingHistoryEntry> | null | ((prev: Partial<StreamingHistoryEntry> | null) => Partial<StreamingHistoryEntry> | null)) => void
   // Streaming history for completed messages
   streamingHistory: StreamingHistoryEntry[]
   addStreamingHistoryEntry: (entry: Omit<StreamingHistoryEntry, "timestamp">) => void

@@ -28,6 +28,7 @@ export interface StreamingHistoryEntry {
   toolArguments?: Record<string, any> // Actual arguments passed to the tool
   action?: string // Specific action being performed (e.g., "Reading file: src/app.tsx")
   files?: string[] // File paths being accessed/modified
+  searchQuery?: string // The actual search query being executed
   searchProvider?: string // Search provider (tavily, serper, exa)
   searchParameters?: Record<string, any> // Full search parameters
   resultCount?: number // Number of results returned
