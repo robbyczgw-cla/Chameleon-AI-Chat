@@ -258,9 +258,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...defaults.voiceSettings,
         ...(parsed.voiceSettings || {}),
       },
+      // IMPORTANT: For memorySettings, localStorage (in defaults) takes priority
+      // This ensures user's local setting isn't overwritten by database
       memorySettings: {
-        ...defaults.memorySettings,
         ...(parsed.memorySettings || {}),
+        ...defaults.memorySettings,
+        // But if parsed has explicit enabled value, respect it (for non-Supabase scenarios)
+        enabled: defaults.memorySettings?.enabled ?? parsed.memorySettings?.enabled ?? false,
       },
       experimental: {
         ...defaults.experimental,
@@ -607,6 +611,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 tavily: localSettings.apiKeys.tavily || "",
                 serper: localSettings.apiKeys.serper || "",
                 exa: localSettings.apiKeys.exa || "",
+              }
+            }
+            // CRITICAL FIX: Also preserve memorySettings from localStorage
+            // This allows users to override database settings locally
+            if (localSettings.memorySettings !== undefined) {
+              console.log("[v0] Preserving memorySettings from localStorage:", localSettings.memorySettings?.enabled)
+              baseSettings.memorySettings = {
+                ...DEFAULT_SETTINGS.memorySettings,
+                ...localSettings.memorySettings,
               }
             }
           } catch (e) {
