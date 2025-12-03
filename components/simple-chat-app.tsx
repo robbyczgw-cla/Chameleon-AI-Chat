@@ -528,8 +528,9 @@ export function SimpleChatApp() {
 
     // Check if this is an existing user switching to Simple Mode
     // Existing users should NOT see onboarding - their settings sync between modes
+    // NOTE: We don't check user !== null because a newly registered user
+    // is authenticated but should still see onboarding
     const isExistingUser =
-      user !== null ||
       chats.length > 0 ||
       localStorage.getItem("chameleon-mode-selected") ||
       localStorage.getItem("chameleon-chats") ||

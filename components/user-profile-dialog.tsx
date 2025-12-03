@@ -23,7 +23,7 @@ export function UserProfileDialog({ open, onOpenChange, onProfileUpdate }: UserP
   const [newInterest, setNewInterest] = useState("")
   const [newGoal, setNewGoal] = useState("")
   const { toast } = useToast()
-  const { user } = useApp()
+  const { user, settings } = useApp()
 
   useEffect(() => {
     if (open) {
@@ -34,10 +34,24 @@ export function UserProfileDialog({ open, onOpenChange, onProfileUpdate }: UserP
 
   const handleSave = async () => {
     try {
-      await userProfileService.saveProfile(profile, user?.id)
+      // Get API key and check if memory system is enabled
+      const apiKey = settings.apiKeys?.openRouter
+      const memoryEnabled = settings.memory?.enabled
+
+      // Save profile with memory integration if conditions are met
+      await userProfileService.saveProfile(profile, user?.id, {
+        apiKey,
+        integrateWithMemory: memoryEnabled && !!apiKey
+      })
+
+      // Show success message
+      const description = memoryEnabled && apiKey
+        ? "Deine persönlichen Infos wurden gespeichert und in das Gedächtnissystem integriert."
+        : "Deine persönlichen Infos wurden gespeichert."
+
       toast({
         title: "✨ Profil gespeichert!",
-        description: "Deine persönlichen Infos wurden gespeichert.",
+        description,
       })
       onProfileUpdate?.()
       onOpenChange(false)

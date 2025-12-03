@@ -1,4 +1,5 @@
 import { supabaseSync } from "@/lib/supabase/sync"
+import { memoryService } from "@/lib/memory-service"
 
 export interface UserProfile {
   name?: string
@@ -29,7 +30,7 @@ export const userProfileService = {
     }
   },
 
-  async saveProfile(profile: UserProfile, userId?: string): Promise<void> {
+  async saveProfile(profile: UserProfile, userId?: string, options?: { apiKey?: string; integrateWithMemory?: boolean }): Promise<void> {
     if (typeof window === "undefined") return
 
     try {
@@ -45,6 +46,22 @@ export const userProfileService = {
         } catch (error) {
           console.error("[User Profile] Failed to save to Supabase:", error)
           // Don't throw - localStorage save was successful
+        }
+      }
+
+      // Integrate with memory system if enabled and API key provided
+      if (options?.integrateWithMemory && options?.apiKey) {
+        try {
+          console.log("[User Profile] Integrating profile into memory system...")
+          const result = await memoryService.integrateProfile(profile, options.apiKey)
+          if (result.success) {
+            console.log("[User Profile] Successfully integrated profile into memory system. Created", result.memoriesCreated, "memories")
+          } else {
+            console.warn("[User Profile] Profile integration failed:", result.error)
+          }
+        } catch (error) {
+          console.error("[User Profile] Failed to integrate profile with memory system:", error)
+          // Don't throw - profile save was successful
         }
       }
     } catch (error) {

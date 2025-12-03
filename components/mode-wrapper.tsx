@@ -29,11 +29,11 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
     }
 
     // Check if this is an existing user using MULTIPLE methods:
-    // 1. User is authenticated (has Supabase session)
-    // 2. User has chats in context (from Supabase sync)
-    // 3. User has any localStorage data
+    // 1. User has chats in context (from Supabase sync or localStorage)
+    // 2. User has any localStorage data
+    // NOTE: We don't check user !== null because a newly registered user
+    // is authenticated but should still see mode selection
     const isExistingUser =
-      user !== null ||
       chats.length > 0 ||
       localStorage.getItem("chameleon-chats") ||
       localStorage.getItem("chameleon-settings") ||

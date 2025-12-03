@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.1.2'
+const CACHE_VERSION = 'v2.1.3'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 
@@ -18,6 +18,7 @@ const PRECACHE_ASSETS = [
   '/favicon.ico',
   '/chameleon-icon.svg',
   '/icon.svg',
+  '/chameleon-logo.jpg',
 
   // Auth routes (frequently accessed)
   '/auth/login',
@@ -50,7 +51,7 @@ let lastActiveTime = Date.now()
 
 // Install event - precache ALL critical assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker v2.1.2 with aggressive precaching')
+  console.log('[SW] Installing service worker v2.1.3 with aggressive precaching')
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       console.log('[SW] Precaching critical assets...')
@@ -534,4 +535,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.1.2 loaded - navigation passthrough, PDF worker bypass, cache on failure only')
+console.log('[SW] Service Worker v2.1.3 loaded - navigation passthrough, PDF worker bypass, cache on failure only')

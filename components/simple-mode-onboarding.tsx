@@ -404,9 +404,19 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
   }
 
   const handleComplete = async () => {
-    // Save profile
+    // Save profile with memory integration
     try {
-      await userProfileService.saveProfile(profile, user?.id)
+      const apiKey = localSettings.apiKeys?.openRouter
+      const memoryEnabled = localSettings.memory?.enabled
+
+      await userProfileService.saveProfile(profile, user?.id, {
+        apiKey,
+        integrateWithMemory: memoryEnabled && !!apiKey
+      })
+
+      if (memoryEnabled && apiKey) {
+        console.log("[Onboarding] Profile integrated with memory system")
+      }
     } catch (error) {
       console.error("[Onboarding] Profile save error:", error)
     }
