@@ -273,6 +273,11 @@ export interface ExperimentalSettings {
   performanceMode?: boolean
   // Streaming Visualization (Advanced Mode only)
   streamingVisualization?: StreamingVisualizationSettings
+  // Detailed Streaming: Show all steps, progress bar, sub-steps (default: false - only show action + reasoning)
+  showDetailedStreaming?: boolean
+  // Tool Settings (for AI tool calling)
+  enableUrlFetchTool?: boolean // Allow AI to fetch and read URL content
+  enableYouTubeTool?: boolean // Allow AI to extract YouTube video transcripts
 }
 
 export interface AppSettings {

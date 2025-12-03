@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { checkRateLimit } from "@/lib/rate-limit"
-import { webSearchTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
+import { webSearchTool, urlFetchTool, youtubeTranscriptTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
+import { fetchUrlContent, fetchYouTubeTranscript, formatUrlFetchResult, formatYouTubeResult } from "@/lib/url-tools"
 
 export const runtime = "edge"
 
@@ -50,6 +51,9 @@ interface ChatRequest {
   searchProvider?: "tavily" | "serper" | "exa"
   searchApiKey?: string
   searchSettings?: Record<string, any>
+  // Experimental tool settings
+  enableUrlFetchTool?: boolean
+  enableYouTubeTool?: boolean
 }
 
 // Search cache to reduce duplicate searches
@@ -250,6 +254,9 @@ export async function POST(req: NextRequest) {
       searchProvider = "tavily",
       searchApiKey,
       searchSettings = {},
+      // Experimental tool settings (default to true for backward compatibility)
+      enableUrlFetchTool = true,
+      enableYouTubeTool = true,
     } = body as ChatRequest
 
     const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
@@ -283,10 +290,14 @@ export async function POST(req: NextRequest) {
       stream,
     }
 
-    // Add tools if enabled
+    // Add tools if enabled - conditionally include tools based on settings
     if (shouldIncludeTools) {
-      openRouterBody.tools = [webSearchTool]
+      const tools = [webSearchTool] // Web search is always included when auto search is enabled
+      if (enableUrlFetchTool) tools.push(urlFetchTool)
+      if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
+      openRouterBody.tools = tools
       openRouterBody.tool_choice = "auto"
+      console.log("[Chat] Tools enabled:", tools.map(t => t.function.name).join(", "))
     }
 
     // Add reasoning parameter if enabled (for Grok, o1, o3, DeepSeek R1, etc.)
@@ -580,27 +591,44 @@ async function handleStreamingRequest(
         }
 
         // Handle tool calls
-        if (hasToolCalls && accumulatedToolCalls.length > 0 && searchApiKey && toolsEnabled) {
+        if (hasToolCalls && accumulatedToolCalls.length > 0 && toolsEnabled) {
           console.log("[Chat] Processing tool calls:", accumulatedToolCalls.length)
 
-          // Parse the search query from tool call arguments
+          // Parse the tool call arguments
           const toolArgs = parseToolArguments(accumulatedToolCalls[0]?.function.arguments || "{}")
           const toolName = accumulatedToolCalls[0]?.function.name || "unknown"
+
+          // Determine phase and action based on tool type
+          let phase = "tool_use"
+          let action = `Using tool: ${toolName}`
+          let toolQuery = toolArgs.query || toolArgs.url || ""
+
+          if (toolName === "web_search") {
+            phase = "searching"
+            action = `Searching ${searchProvider}: "${toolArgs.query}"`
+            toolQuery = toolArgs.query || ""
+          } else if (toolName === "url_fetch") {
+            phase = "tool_use"
+            action = `Fetching URL: ${toolArgs.url}`
+            toolQuery = toolArgs.url || ""
+          } else if (toolName === "youtube_transcript") {
+            phase = "tool_use"
+            action = `Getting YouTube transcript: ${toolArgs.url}`
+            toolQuery = toolArgs.url || ""
+          }
 
           // Send phase and tool status events with detailed information
           await writer.write(
             encoder.encode(
               `data: ${JSON.stringify({
                 choices: [{ delta: {
-                  phase: "searching",
-                  searching: true,
+                  phase: phase,
                   toolName: toolName,
-                  searchQuery: toolArgs.query || accumulatedToolCalls[0]?.function.arguments,
-                  // Enhanced detailed information
+                  searchQuery: toolQuery,
                   toolArguments: toolArgs,
-                  searchProvider: searchProvider,
-                  searchParameters: searchSettings,
-                  action: `Searching ${searchProvider}: "${toolArgs.query}"`
+                  searchProvider: toolName === "web_search" ? searchProvider : undefined,
+                  searchParameters: toolName === "web_search" ? searchSettings : undefined,
+                  action: action
                 } }],
               })}\n\n`
             )
@@ -616,8 +644,17 @@ async function handleStreamingRequest(
           // Execute tool calls
           const toolResults = await Promise.all(
             accumulatedToolCalls.map(async (toolCall) => {
+              const args = parseToolArguments(toolCall.function.arguments)
+
               if (toolCall.function.name === "web_search") {
-                const args = parseToolArguments(toolCall.function.arguments)
+                if (!searchApiKey) {
+                  return {
+                    tool_call_id: toolCall.id,
+                    role: "tool" as const,
+                    name: "web_search",
+                    content: "Error: No search API key configured",
+                  }
+                }
                 const result = await executeWebSearch(args.query || "", searchProvider, searchApiKey, searchSettings)
                 return {
                   tool_call_id: toolCall.id,
@@ -626,6 +663,29 @@ async function handleStreamingRequest(
                   content: result,
                 }
               }
+
+              if (toolCall.function.name === "url_fetch") {
+                console.log("[Chat] Executing url_fetch:", args.url)
+                const result = await fetchUrlContent(args.url || "")
+                return {
+                  tool_call_id: toolCall.id,
+                  role: "tool" as const,
+                  name: "url_fetch",
+                  content: formatUrlFetchResult(result),
+                }
+              }
+
+              if (toolCall.function.name === "youtube_transcript") {
+                console.log("[Chat] Executing youtube_transcript:", args.url)
+                const result = await fetchYouTubeTranscript(args.url || "")
+                return {
+                  tool_call_id: toolCall.id,
+                  role: "tool" as const,
+                  name: "youtube_transcript",
+                  content: formatYouTubeResult(result),
+                }
+              }
+
               return {
                 tool_call_id: toolCall.id,
                 role: "tool" as const,

@@ -4,7 +4,7 @@ import { memo, useState, useEffect } from "react"
 import {
   Loader2, Brain, MessageSquare, CheckCircle2, Globe, Wrench,
   Zap, Cpu, Network, FileSearch, Sparkles, Clock, ChevronDown, ChevronRight,
-  Activity, BarChart3, Lightbulb
+  Activity, BarChart3, Lightbulb, Link, Youtube
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useApp } from "@/contexts/app-context"
@@ -185,7 +185,8 @@ function formatTime(seconds: number): string {
 
 /**
  * Verbose MessageStatus component for advanced mode
- * Shows detailed step-by-step progress with sub-steps and timing
+ * By default: Shows only current action + reasoning tokens
+ * With showDetailedStreaming: Shows full step-by-step progress
  */
 export const MessageStatusVerbose = memo(function MessageStatusVerbose({
   currentPhase,
@@ -200,31 +201,131 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
   const elapsed = useElapsedTime(currentPhase !== "idle" && currentPhase !== "done")
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set(["thinking"]))
 
-  // Auto-expand the current active step
+  // Check if detailed streaming mode is enabled
+  const showDetailedStreaming = settings?.experimental?.showDetailedStreaming ?? false
+  const lang = language as "en" | "de" | "es"
+
+  // Auto-expand the current active step (only in detailed mode)
   useEffect(() => {
-    if (currentPhase && currentPhase !== "idle" && currentPhase !== "done") {
+    if (showDetailedStreaming && currentPhase && currentPhase !== "idle" && currentPhase !== "done") {
       setExpandedSteps(prev => {
         const next = new Set(prev)
         next.add(currentPhase)
         return next
       })
     }
-  }, [currentPhase])
-
-  // Get streaming visualization settings (with defaults)
-  const vizSettings = settings?.experimental?.streamingVisualization || {}
-  const showCurrentAction = vizSettings.showCurrentAction ?? true
-  const showToolParameters = vizSettings.showToolParameters ?? true
-  const showSearchProvider = vizSettings.showSearchProvider ?? true
-  const showSearchResults = vizSettings.showSearchResults ?? true
-  const showResultSummary = vizSettings.showResultSummary ?? true
-  const showReasoningTokens = vizSettings.showReasoningTokens ?? true
+  }, [currentPhase, showDetailedStreaming])
 
   // Don't render if idle or done
   if (currentPhase === "idle" || currentPhase === "done") {
     return null
   }
 
+  // ============================================
+  // SIMPLE MODE (Default): Only action + reasoning
+  // ============================================
+  if (!showDetailedStreaming) {
+    const toolName = streamingDetails?.toolName
+    const toolArgs = streamingDetails?.toolArguments || {}
+    const hasContent = searchQuery || streamingDetails?.searchQuery || streamingDetails?.action ||
+                       streamingDetails?.reasoningContent || toolName
+
+    if (!hasContent) {
+      // Just show a simple loading indicator
+      return (
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/30">
+          <Loader2 className="w-4 h-4 animate-spin text-primary" />
+          <span className="text-sm text-muted-foreground">
+            {lang === "de" ? "Verarbeite..." : lang === "es" ? "Procesando..." : "Processing..."}
+          </span>
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-2">
+        {/* Current Action Banner - What the AI is doing right now */}
+        {(() => {
+          // Web Search
+          if (toolName === "web_search" || searchQuery || streamingDetails?.searchQuery) {
+            const query = searchQuery || streamingDetails?.searchQuery || toolArgs.query
+            if (query) {
+              return (
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/15 border border-blue-500/30">
+                  <Globe className="w-4 h-4 text-blue-500 flex-shrink-0 animate-pulse" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-medium text-blue-600 dark:text-blue-400 mr-2">
+                      {lang === "de" ? "Suche:" : lang === "es" ? "Buscando:" : "Searching:"}
+                    </span>
+                    <span className="text-sm text-blue-700 dark:text-blue-300 break-words">"{query}"</span>
+                  </div>
+                </div>
+              )
+            }
+          }
+
+          // URL Fetch
+          if (toolName === "url_fetch" && toolArgs.url) {
+            return (
+              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-green-500/15 border border-green-500/30">
+                <Link className="w-4 h-4 text-green-500 flex-shrink-0 animate-pulse" />
+                <div className="flex-1 min-w-0">
+                  <span className="text-xs font-medium text-green-600 dark:text-green-400 mr-2">
+                    {lang === "de" ? "Lade URL:" : lang === "es" ? "Cargando:" : "Fetching:"}
+                  </span>
+                  <span className="text-sm text-green-700 dark:text-green-300 break-all">{toolArgs.url}</span>
+                </div>
+              </div>
+            )
+          }
+
+          // YouTube Transcript
+          if (toolName === "youtube_transcript" && toolArgs.url) {
+            return (
+              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/15 border border-red-500/30">
+                <Youtube className="w-4 h-4 text-red-500 flex-shrink-0 animate-pulse" />
+                <div className="flex-1 min-w-0">
+                  <span className="text-xs font-medium text-red-600 dark:text-red-400 mr-2">YouTube:</span>
+                  <span className="text-sm text-red-700 dark:text-red-300 break-all">{toolArgs.url}</span>
+                </div>
+              </div>
+            )
+          }
+
+          // Generic action
+          if (streamingDetails?.action) {
+            return (
+              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-primary/15 border border-primary/30">
+                <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-pulse" />
+                <span className="text-sm text-foreground break-words">{streamingDetails.action}</span>
+              </div>
+            )
+          }
+
+          return null
+        })()}
+
+        {/* Reasoning Content - Streaming thinking tokens */}
+        {streamingDetails?.reasoningContent && (
+          <div className="p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
+            <div className="flex items-center gap-2 mb-1.5">
+              <Lightbulb className="w-4 h-4 text-amber-500 flex-shrink-0 animate-pulse" />
+              <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                {lang === "de" ? "Denkt nach..." : lang === "es" ? "Pensando..." : "Thinking..."}
+              </span>
+            </div>
+            <div className="text-xs text-foreground/80 font-mono max-h-40 overflow-y-auto break-words whitespace-pre-wrap pl-6">
+              {streamingDetails.reasoningContent}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // ============================================
+  // DETAILED MODE: Full step-by-step visualization
+  // ============================================
   const toggleStep = (stepId: string) => {
     setExpandedSteps(prev => {
       const next = new Set(prev)
@@ -246,7 +347,6 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
 
   // Build steps
   const steps: Step[] = []
-  const lang = language as "en" | "de" | "es"
 
   // Thinking step
   const thinkingInfo = phaseInfo.thinking[lang]
@@ -326,58 +426,73 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
         </div>
       </div>
 
-      {/* Current Activity Banner - Always visible summary of what's happening */}
-      {(searchQuery || (streamingDetails && (streamingDetails.searchQuery || streamingDetails.action || streamingDetails.reasoningContent || streamingDetails.toolArguments?.query))) && (
+      {/* Current Activity Banner - Always visible summary */}
+      {(searchQuery || streamingDetails?.searchQuery || streamingDetails?.action || streamingDetails?.reasoningContent || streamingDetails?.toolName) && (
         <div className="mb-3 space-y-2">
-          {/* Search Query - Prominent blue banner - try multiple sources */}
+          {/* Tool-specific banners */}
           {(() => {
-            // Try to get search query from various sources (including the searchQuery prop!)
-            const detectedSearchQuery = searchQuery  // The prop passed from parent
-              || streamingDetails?.searchQuery
-              || streamingDetails?.toolArguments?.query
-              || (streamingDetails?.action?.match(/Searching.*?:\s*"([^"]+)"/)?.[1])
+            const toolName = streamingDetails?.toolName
+            const toolArgs = streamingDetails?.toolArguments || {}
 
-            if (detectedSearchQuery) {
-              return (
-                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/15 border border-blue-500/30">
-                  <FileSearch className="w-4 h-4 text-blue-500 flex-shrink-0 animate-pulse" />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-xs font-medium text-blue-600 dark:text-blue-400 mr-2">
-                      {lang === "de" ? "Suche:" : lang === "es" ? "Buscando:" : "Searching:"}
-                    </span>
-                    <span className="text-sm text-blue-700 dark:text-blue-300 break-words">
-                      "{detectedSearchQuery}"
-                    </span>
+            if (toolName === "web_search" || searchQuery || streamingDetails?.searchQuery) {
+              const query = searchQuery || streamingDetails?.searchQuery || toolArgs.query
+              if (query) {
+                return (
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/15 border border-blue-500/30">
+                    <Globe className="w-4 h-4 text-blue-500 flex-shrink-0 animate-pulse" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-medium text-blue-600 dark:text-blue-400 mr-2">Web Search:</span>
+                      <span className="text-sm text-blue-700 dark:text-blue-300 break-words">"{query}"</span>
+                    </div>
+                    {streamingDetails?.searchProvider && (
+                      <span className="text-xs text-blue-500/70 capitalize flex-shrink-0">via {streamingDetails.searchProvider}</span>
+                    )}
                   </div>
-                  {streamingDetails?.searchProvider && (
-                    <span className="text-xs text-blue-500/70 capitalize flex-shrink-0">
-                      via {streamingDetails.searchProvider}
-                    </span>
-                  )}
+                )
+              }
+            }
+
+            if (toolName === "url_fetch" && toolArgs.url) {
+              return (
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-green-500/15 border border-green-500/30">
+                  <Link className="w-4 h-4 text-green-500 flex-shrink-0 animate-pulse" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-medium text-green-600 dark:text-green-400 mr-2">Fetching URL:</span>
+                    <span className="text-sm text-green-700 dark:text-green-300 break-all">{toolArgs.url}</span>
+                  </div>
                 </div>
               )
             }
+
+            if (toolName === "youtube_transcript" && toolArgs.url) {
+              return (
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/15 border border-red-500/30">
+                  <Youtube className="w-4 h-4 text-red-500 flex-shrink-0 animate-pulse" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-medium text-red-600 dark:text-red-400 mr-2">YouTube Transcript:</span>
+                    <span className="text-sm text-red-700 dark:text-red-300 break-all">{toolArgs.url}</span>
+                  </div>
+                </div>
+              )
+            }
+
             return null
           })()}
 
-          {/* Current Action - Primary color banner (only if no search query found) */}
-          {streamingDetails?.action && !searchQuery && !streamingDetails.searchQuery && !streamingDetails.toolArguments?.query && !streamingDetails.action?.includes('Searching') && (
+          {/* Generic action */}
+          {streamingDetails?.action && !searchQuery && !streamingDetails?.toolName && !streamingDetails.searchQuery && (
             <div className="flex items-center gap-2 p-2.5 rounded-lg bg-primary/15 border border-primary/30">
               <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-pulse" />
-              <span className="text-sm text-foreground break-words">
-                {streamingDetails.action}
-              </span>
+              <span className="text-sm text-foreground break-words">{streamingDetails.action}</span>
             </div>
           )}
 
-          {/* Reasoning Content - Amber banner with scrollable content */}
-          {streamingDetails.reasoningContent && (
+          {/* Reasoning Content */}
+          {streamingDetails?.reasoningContent && (
             <div className="p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
               <div className="flex items-center gap-2 mb-1.5">
                 <Lightbulb className="w-4 h-4 text-amber-500 flex-shrink-0 animate-pulse" />
-                <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                  {lang === "de" ? "Denkt nach..." : lang === "es" ? "Razonando..." : "Thinking..."}
-                </span>
+                <span className="text-xs font-medium text-amber-600 dark:text-amber-400">Thinking...</span>
               </div>
               <div className="text-xs text-foreground/80 font-mono max-h-32 overflow-y-auto break-words whitespace-pre-wrap pl-6">
                 {streamingDetails.reasoningContent}
@@ -404,41 +519,27 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                 step.status === "pending" && "border-border/30 bg-muted/20 opacity-50"
               )}
             >
-              {/* Step header */}
               <button
                 onClick={() => toggleStep(step.id)}
                 className="w-full flex items-center gap-3 p-3 text-left"
               >
-                {/* Expand/collapse icon */}
                 <div className="flex-shrink-0 text-muted-foreground">
-                  {isExpanded ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
+                  {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                 </div>
 
-                {/* Status icon */}
                 <div className="relative flex-shrink-0">
                   {isActive ? (
                     <div className="relative">
                       <div className="absolute inset-0 animate-ping rounded-full bg-primary/40" />
-                      <div className="relative p-2 rounded-full bg-primary/20 text-primary">
-                        {step.icon}
-                      </div>
+                      <div className="relative p-2 rounded-full bg-primary/20 text-primary">{step.icon}</div>
                     </div>
                   ) : isCompleted ? (
-                    <div className="p-2 rounded-full bg-green-500/20 text-green-500">
-                      <CheckCircle2 className="w-4 h-4" />
-                    </div>
+                    <div className="p-2 rounded-full bg-green-500/20 text-green-500"><CheckCircle2 className="w-4 h-4" /></div>
                   ) : (
-                    <div className="p-2 rounded-full bg-muted text-muted-foreground">
-                      {step.icon}
-                    </div>
+                    <div className="p-2 rounded-full bg-muted text-muted-foreground">{step.icon}</div>
                   )}
                 </div>
 
-                {/* Label and description */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className={cn(
@@ -449,211 +550,48 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                     )}>
                       {isActive ? step.labelActive : step.label}
                     </span>
-                    {isActive && (
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                    )}
+                    {isActive && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {step.description}
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{step.description}</p>
                 </div>
 
-                {/* Step number */}
                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
-                  {isCompleted ? (
-                    <span className="text-green-500">✓</span>
-                  ) : (
-                    <span className="text-muted-foreground">{idx + 1}</span>
-                  )}
+                  {isCompleted ? <span className="text-green-500">✓</span> : <span className="text-muted-foreground">{idx + 1}</span>}
                 </div>
               </button>
 
-              {/* Expanded content */}
-              {isExpanded && (
-                <div className="px-3 pb-3 pt-0 ml-11 space-y-2">
-                  {/* Enhanced streaming details display (like Claude.ai/Claude Code) */}
-                  {streamingDetails && step.status === "active" && (
-                    <div className="space-y-2">
-                      {/* Current action being performed */}
-                      {showCurrentAction && streamingDetails.action && (
-                        <div className="flex items-start gap-2 p-2 rounded-md bg-primary/10 border border-primary/20">
-                          <Zap className="w-4 h-4 text-primary mt-0.5 flex-shrink-0 animate-pulse" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-primary">
-                              {lang === "de" ? "Aktuelle Aktion" : lang === "es" ? "Acción actual" : "Current Action"}
-                            </p>
-                            <p className="text-sm text-foreground mt-0.5 break-words">
-                              {streamingDetails.action}
-                            </p>
-                          </div>
-                        </div>
-                      )}
+              {isExpanded && step.subSteps && (
+                <div className="px-3 pb-3 pt-0 ml-11 space-y-1.5">
+                  {step.subSteps.map((subStep, subIdx) => {
+                    let subStatus: "active" | "completed" | "pending" = "pending"
+                    if (isCompleted) subStatus = "completed"
+                    else if (isActive) {
+                      const progress = Math.floor((elapsed % 6) / 2)
+                      if (subIdx < progress) subStatus = "completed"
+                      else if (subIdx === progress) subStatus = "active"
+                    }
 
-                      {/* Search query display (prominent, like Claude.ai) */}
-                      {streamingDetails.searchQuery && (
-                        <div className="flex items-start gap-2 p-2 rounded-md bg-blue-500/10 border border-blue-500/20">
-                          <FileSearch className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                              {lang === "de" ? "Suchanfrage" : lang === "es" ? "Consulta de búsqueda" : "Search Query"}
-                            </p>
-                            <p className="text-sm text-blue-700 dark:text-blue-300 mt-0.5 break-words">
-                              "{streamingDetails.searchQuery}"
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Tool arguments display */}
-                      {showToolParameters && streamingDetails.toolArguments && Object.keys(streamingDetails.toolArguments).length > 0 && (
-                        <div className="flex items-start gap-2 p-2 rounded-md bg-orange-500/10 border border-orange-500/20">
-                          <Wrench className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-orange-600 dark:text-orange-400">
-                              {lang === "de" ? "Tool-Parameter" : lang === "es" ? "Parámetros de herramienta" : "Tool Parameters"}
-                            </p>
-                            <div className="mt-1 space-y-1">
-                              {Object.entries(streamingDetails.toolArguments).map(([key, value]) => (
-                                <div key={key} className="flex items-start gap-2 text-xs">
-                                  <span className="font-medium text-orange-600 dark:text-orange-400 flex-shrink-0">{key}:</span>
-                                  <span className="text-foreground/80 break-all">{JSON.stringify(value)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Search provider and parameters */}
-                      {showSearchProvider && streamingDetails.searchProvider && (
-                        <div className="flex items-start gap-2 p-2 rounded-md bg-purple-500/10 border border-purple-500/20">
-                          <Network className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                              {lang === "de" ? "Suchprovider" : lang === "es" ? "Proveedor de búsqueda" : "Search Provider"}
-                            </p>
-                            <p className="text-sm text-foreground/80 mt-0.5 capitalize">
-                              {streamingDetails.searchProvider}
-                              {streamingDetails.searchParameters && ` • ${Object.keys(streamingDetails.searchParameters).length} parameters`}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Result summary */}
-                      {showResultSummary && streamingDetails.resultSummary && (
-                        <div className="flex items-start gap-2 p-2 rounded-md bg-green-500/10 border border-green-500/20">
-                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-green-600 dark:text-green-400">
-                              {lang === "de" ? "Ergebnis" : lang === "es" ? "Resultado" : "Result"}
-                            </p>
-                            <p className="text-sm text-foreground/80 mt-0.5">
-                              {streamingDetails.resultSummary}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Reasoning tokens count only (content shown in top banner) */}
-                      {showReasoningTokens && streamingDetails.reasoningTokens && (
-                        <div className="flex items-center gap-2 p-2 rounded-md bg-amber-500/10 border border-amber-500/20">
-                          <Lightbulb className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                          <p className="text-xs text-amber-600 dark:text-amber-400">
-                            {streamingDetails.reasoningTokens} {lang === "de" ? "Reasoning-Tokens verwendet" : lang === "es" ? "tokens de razonamiento usados" : "reasoning tokens used"}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Search results preview */}
-                      {showSearchResults && streamingDetails.searchResultsPreview && (
-                        <div className="flex items-start gap-2 p-2 rounded-md bg-cyan-500/10 border border-cyan-500/20">
-                          <FileSearch className="w-4 h-4 text-cyan-500 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-cyan-600 dark:text-cyan-400">
-                              {lang === "de" ? "Suchergebnisse" : lang === "es" ? "Resultados de búsqueda" : "Search Results"}
-                            </p>
-                            <div className="text-xs text-foreground/70 mt-1 max-h-24 overflow-y-auto break-words">
-                              {streamingDetails.searchResultsPreview}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Search query display (legacy support) */}
-                  {step.detail && step.type === "searching" && !streamingDetails?.action && (
-                    <div className="flex items-start gap-2 p-2 rounded-md bg-blue-500/10 border border-blue-500/20">
-                      <FileSearch className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                          {lang === "de" ? "Suchanfrage" : lang === "es" ? "Consulta de búsqueda" : "Search Query"}
-                        </p>
-                        <p className="text-sm text-blue-700 dark:text-blue-300 mt-0.5">
-                          "{step.detail}"
-                        </p>
+                    return (
+                      <div
+                        key={subIdx}
+                        className={cn(
+                          "flex items-center gap-2 text-xs py-1 px-2 rounded",
+                          subStatus === "active" && "bg-primary/10 text-primary",
+                          subStatus === "completed" && "text-green-600 dark:text-green-400",
+                          subStatus === "pending" && "text-muted-foreground/60"
+                        )}
+                      >
+                        {subStatus === "completed" ? (
+                          <CheckCircle2 className="w-3 h-3 text-green-500" />
+                        ) : subStatus === "active" ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border border-current" />
+                        )}
+                        <span>{subStep}</span>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Extended thinking indicator */}
-                  {step.detail && step.type === "thinking" && reasoningVisible && (
-                    <div className="flex items-start gap-2 p-2 rounded-md bg-purple-500/10 border border-purple-500/20">
-                      <Lightbulb className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                          {lang === "de" ? "Erweitertes Denken" : lang === "es" ? "Pensamiento extendido" : "Extended Thinking"}
-                        </p>
-                        <p className="text-xs text-purple-600/80 dark:text-purple-400/80 mt-0.5">
-                          {lang === "de"
-                            ? "Das Modell verwendet erweitertes Reasoning für komplexe Aufgaben"
-                            : lang === "es"
-                            ? "El modelo utiliza razonamiento extendido para tareas complejas"
-                            : "Model is using extended reasoning for complex tasks"}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Sub-steps */}
-                  {step.subSteps && step.subSteps.length > 0 && (
-                    <div className="space-y-1.5 mt-2">
-                      {step.subSteps.map((subStep, subIdx) => {
-                        // Determine sub-step status based on main step status
-                        let subStatus: "active" | "completed" | "pending" = "pending"
-                        if (isCompleted) {
-                          subStatus = "completed"
-                        } else if (isActive) {
-                          // Simulate progress through sub-steps
-                          const progress = Math.floor((elapsed % 6) / 2) // Cycle through every 2 seconds
-                          if (subIdx < progress) subStatus = "completed"
-                          else if (subIdx === progress) subStatus = "active"
-                        }
-
-                        return (
-                          <div
-                            key={subIdx}
-                            className={cn(
-                              "flex items-center gap-2 text-xs py-1 px-2 rounded",
-                              subStatus === "active" && "bg-primary/10 text-primary",
-                              subStatus === "completed" && "text-green-600 dark:text-green-400",
-                              subStatus === "pending" && "text-muted-foreground/60"
-                            )}
-                          >
-                            {subStatus === "completed" ? (
-                              <CheckCircle2 className="w-3 h-3 text-green-500" />
-                            ) : subStatus === "active" ? (
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                            ) : (
-                              <div className="w-3 h-3 rounded-full border border-current" />
-                            )}
-                            <span>{subStep}</span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
+                    )
+                  })}
                 </div>
               )}
             </div>

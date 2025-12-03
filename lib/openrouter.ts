@@ -205,6 +205,9 @@ export async function streamChatMessage(
     searchProvider?: "tavily" | "serper" | "exa"
     searchApiKey?: string
     searchSettings?: Record<string, any>
+    // Experimental tool settings
+    enableUrlFetchTool?: boolean
+    enableYouTubeTool?: boolean
     onSearchStart?: (query: string) => void
     onSearchComplete?: () => void
     // Phase tracking callbacks for step-by-step visualization
@@ -243,6 +246,9 @@ export async function streamChatMessage(
     searchProvider = "tavily",
     searchApiKey,
     searchSettings = {},
+    // Experimental tool settings
+    enableUrlFetchTool = true,
+    enableYouTubeTool = true,
     onSearchStart,
     onSearchComplete,
     // Phase tracking
@@ -294,7 +300,10 @@ export async function streamChatMessage(
     requestBody.searchProvider = searchProvider
     requestBody.searchApiKey = searchApiKey
     requestBody.searchSettings = searchSettings
-    console.log("[v0] Auto search enabled with provider:", searchProvider)
+    // Pass experimental tool settings
+    requestBody.enableUrlFetchTool = enableUrlFetchTool
+    requestBody.enableYouTubeTool = enableYouTubeTool
+    console.log("[v0] Auto search enabled with provider:", searchProvider, "tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool })
   }
 
   console.log("[v0] FINAL REQUEST BODY TO /api/chat:", JSON.stringify(requestBody, null, 2))

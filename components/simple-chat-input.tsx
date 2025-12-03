@@ -213,6 +213,8 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     setIsChatLoading(true)
     // Set initial streaming phase immediately for step-by-step visualization
     setStreamingPhase("thinking")
+    // CRITICAL: Clear streaming details from previous chat to prevent stale reasoning
+    setCurrentStreamingDetails(null)
     // Clear and start streaming history
     clearStreamingHistory()
     addStreamingHistoryEntry({
@@ -589,6 +591,9 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
         searchProvider: searchProviderForTools as "tavily" | "serper" | "exa",
         searchApiKey: searchApiKeyForTools,
         searchSettings: searchProviderForTools === "serper" ? settings.serperSettings : settings.tavilySettings,
+        // Experimental tool settings
+        enableUrlFetchTool: settings.experimental?.enableUrlFetchTool !== false,
+        enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
         onSearchStart: (query) => {
           console.log("[Simple Chat] 🤖 AI triggered search:", query)
           toast({
@@ -791,10 +796,11 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
       })
     } finally {
       setIsChatLoading(false)
-      // Reset streaming state
+      // Reset streaming state completely (including streaming details to prevent stale content)
       setStreamingPhase("idle")
       setCurrentTool(null)
       setSearchQuery(null)
+      setCurrentStreamingDetails(null)
       chatAbortControllerRef.current = null
       console.log("[Simple Chat] Chat submission complete")
     }
