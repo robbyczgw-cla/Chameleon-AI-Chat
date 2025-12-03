@@ -125,13 +125,14 @@ async function executeWebSearch(
         headers["x-api-key"] = apiKey
         requestBody = {
           query,
-          type: settings.searchType || "auto",
-          useAutoprompt: settings.useAutoprompt !== false,
-          numResults: settings.maxResults || 5,
-          livecrawl: settings.livecrawl || "fallback",
+          type: settings.searchType || "keyword",  // "keyword" is faster than "auto" or "neural"
+          useAutoprompt: false,  // Skip query optimization for speed
+          numResults: settings.maxResults || 3,  // Fewer results for faster streaming
+          livecrawl: settings.livecrawl || "never",  // CRITICAL: Avoid unpredictable delays
           contents: {
-            text: settings.includeFullText !== false ? { maxCharacters: settings.maxTextCharacters || 3000 } : false,
-            highlights: settings.includeHighlights !== false ? { numSentences: settings.highlightsPerResult || 3 } : false,
+            // CRITICAL: Don't fetch full text for automatic search - causes timeouts
+            text: false,  // Disabled to prevent large payloads blocking stream
+            highlights: settings.includeHighlights !== false ? { numSentences: 2 } : false,  // Reduced from 3
           },
         }
         if (settings.category) requestBody.category = settings.category

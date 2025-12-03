@@ -887,24 +887,15 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                 "rounded-[20px] rounded-bl-lg px-4 py-3 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container",
                 isAdvancedMode ? "min-w-[360px] sm:min-w-[420px]" : "min-w-[280px]"
               )}>
-                {/* Step-by-step status visualization - verbose for advanced mode */}
-                {isAdvancedMode ? (
-                  <MessageStatusVerbose
-                    currentPhase={streamingPhase}
-                    currentTool={currentTool || undefined}
-                    searchQuery={searchQuery || undefined}
-                    language={settings.language as "en" | "de" | "es"}
-                    modelName={currentModelName}
-                    streamingDetails={currentStreamingDetails || undefined}
-                  />
-                ) : (
-                  <MessageStatus
-                    currentPhase={streamingPhase}
-                    currentTool={currentTool || undefined}
-                    searchQuery={searchQuery || undefined}
-                    language={settings.language as "en" | "de" | "es"}
-                  />
-                )}
+                {/* Step-by-step status visualization - clean default for both modes */}
+                <MessageStatusVerbose
+                  currentPhase={streamingPhase}
+                  currentTool={currentTool || undefined}
+                  searchQuery={searchQuery || undefined}
+                  language={settings.language as "en" | "de" | "es"}
+                  modelName={currentModelName}
+                  streamingDetails={currentStreamingDetails || undefined}
+                />
                 {/* Skeleton content preview when responding (simple mode only) */}
                 {!isAdvancedMode && streamingPhase === "responding" && (
                   <div className="space-y-2.5 mt-3 pt-3 border-t border-border/20">
