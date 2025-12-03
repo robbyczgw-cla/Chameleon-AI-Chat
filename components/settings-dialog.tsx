@@ -133,6 +133,17 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
     }
   }, [open, settings])
 
+  // Sync memorySettings with global changes (e.g., from AIMemoryHub toggle)
+  // This prevents the Save button from overwriting memory toggle changes
+  useEffect(() => {
+    if (open && settings.memorySettings) {
+      setLocalSettings(prev => ({
+        ...prev,
+        memorySettings: settings.memorySettings
+      }))
+    }
+  }, [open, settings.memorySettings])
+
   useEffect(() => {
     // Load voices - they load asynchronously on most browsers
     const loadVoices = () => {
