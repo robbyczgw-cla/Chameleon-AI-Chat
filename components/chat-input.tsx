@@ -522,6 +522,16 @@ export function ChatInput() {
 
       if (webSearchEnabled && hasSearchKey) {
         try {
+          // Set streaming phase to searching and show the query
+          setStreamingPhase("searching")
+          setSearchQuery(input.trim())
+          setCurrentStreamingDetails({
+            phase: "searching",
+            searchQuery: input.trim(),
+            searchProvider: searchProvider,
+            action: `Searching ${searchProvider}: "${input.trim()}"`,
+          })
+
           // Show provider-specific toast
           const toastMessages = {
             exa: { title: "🔮 Exa Neural Search...", description: "Semantische Suche mit AI-Verständnis" },
@@ -576,8 +586,26 @@ export function ChatInput() {
 
           messages.splice(-1, 0, { role: "system" as const, content: searchContext })
 
-          // Show success toast
+          // Update streaming details with results
           const imageCount = searchResponse.images?.length || 0
+          setCurrentStreamingDetails(prev => ({
+            ...prev,
+            resultCount: searchResponse.results.length,
+            resultSummary: `${searchResponse.results.length} results${imageCount > 0 ? ` + ${imageCount} images` : ''} found`,
+            searchResultsPreview: searchResponse.results.slice(0, 3).map(r => r.title || r.url).join(", "),
+          }))
+
+          // Add to streaming history
+          addStreamingHistoryEntry({
+            phase: "searching",
+            searchQuery: input.trim(),
+            searchProvider: searchProvider,
+            resultCount: searchResponse.results.length,
+            action: `Searched ${searchProvider}: "${input.trim()}"`,
+            description: `Found ${searchResponse.results.length} results`,
+          })
+
+          // Show success toast
           toast({
             title: searchProvider === "exa" ? "🔮 Exa Search abgeschlossen" :
                    searchProvider === "serper" ? "🔍 Serper abgeschlossen" :
