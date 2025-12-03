@@ -239,6 +239,7 @@ export class SupabaseSync {
       })
 
       const settingsData = {
+        simple_mode: settings.simpleMode ?? false,
         system_prompt: settings.systemPrompt,
         temperature: settings.modelParameters.temperature,
         max_tokens: settings.modelParameters.maxTokens,
@@ -756,6 +757,7 @@ export class SupabaseSync {
     })
 
     return {
+      simpleMode: dbSettings.simple_mode ?? false,
       systemPrompt:
         dbSettings.system_prompt ||
         "You are a helpful, knowledgeable AI assistant. Provide comprehensive, detailed, and well-structured answers. When answering questions, be thorough and explain concepts fully. Use examples where appropriate. Don't cut answers short - complete your thoughts and provide meaningful, substantive responses. Am Ende jeder Antwort schlägst du 2-3 passende next possible User prompts vor im Format: [FOLLOWUP]Frage 1|Frage 2|Frage 3[/FOLLOWUP] , vor diesem follow up schreibst du mir 1-3 anregende Fragen zum fortführen der diskussion wenn es passt. aber formuliere dies immer etwas anders.",
