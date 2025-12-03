@@ -301,6 +301,7 @@ const themes = [
   { id: "cosmic-glass", icon: Gem, gradient: "from-purple-500 to-pink-500" },
   { id: "modern-light", icon: Sparkles, gradient: "from-blue-400 to-cyan-400" },
   { id: "girly-violet", icon: Heart, gradient: "from-pink-400 to-violet-500" },
+  { id: "kawaii-pink", icon: Heart, gradient: "from-pink-300 to-pink-500" },
   { id: "ocean-breeze", icon: Waves, gradient: "from-teal-400 to-blue-500" },
 ]
 
@@ -337,7 +338,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
 
   const applyTheme = (theme: string) => {
     const html = document.documentElement
-    html.classList.remove("dark", "girly-violet", "ocean-breeze", "paper-mint", "clean-slate", "midnight-hologram", "cosmic-glass", "modern-light")
+    html.classList.remove("dark", "girly-violet", "kawaii-pink", "ocean-breeze", "paper-mint", "clean-slate", "midnight-hologram", "cosmic-glass", "modern-light")
     if (theme !== "light") {
       html.classList.add(theme)
     }
@@ -424,6 +425,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
       case "cosmic-glass": return t.themeCosmicGlass
       case "modern-light": return t.themeModernLight
       case "girly-violet": return t.themeGirlyViolet
+      case "kawaii-pink": return "Kawaii Pink"
       case "ocean-breeze": return t.themeOceanBreeze
       default: return themeId
     }
