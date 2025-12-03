@@ -66,7 +66,7 @@ export function ContextCompressionDialog({ open, onOpenChange }: ContextCompress
       }
 
       // Use grok-4.1-fast for compression (fast, cheap, 2M context)
-      const compressionModel = "x-ai/grok-4.1-fast"
+      const compressionModel = "x-ai/grok-4.1-fast:free"
       let generatedSummary = ""
 
       await streamChatMessage(

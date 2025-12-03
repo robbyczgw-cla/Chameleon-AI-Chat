@@ -56,8 +56,8 @@ export const MODEL_PRICING: Record<string, { input: number; output: number }> = 
   "google/gemini-pro": { input: 0.50, output: 1.50 },
 
   // xAI Grok Models - Updated November 2025
-  "x-ai/grok-4.1-fast": { input: 0.60, output: 2.0 },
-  "x-ai/grok-4-fast": { input: 0.60, output: 2.0 },
+  "x-ai/grok-4.1-fast:free": { input: 0.60, output: 2.0 },
+  "x-ai/grok-4-fast:free": { input: 0.60, output: 2.0 },
   "x-ai/grok-4": { input: 3.0, output: 15.0 },
   "x-ai/grok-2": { input: 2.0, output: 10.0 },
   "x-ai/grok-beta": { input: 5.0, output: 15.0 },
@@ -114,7 +114,7 @@ export class CostTracker {
 
   // Calculate cost for a specific model and token usage
   calculateCost(model: string, inputTokens: number, outputTokens: number): number {
-    const pricing = MODEL_PRICING[model] || MODEL_PRICING["x-ai/grok-4.1-fast"] // fallback
+    const pricing = MODEL_PRICING[model] || MODEL_PRICING["x-ai/grok-4.1-fast:free"] // fallback
 
     // Pricing is per 1M tokens
     const inputCost = (inputTokens / 1_000_000) * pricing.input

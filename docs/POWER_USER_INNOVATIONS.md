@@ -501,7 +501,7 @@ interface ModelProfile {
 
 const MODEL_PROFILES: ModelProfile[] = [
   {
-    id: "x-ai/grok-4-fast",
+    id: "x-ai/grok-4-fast:free",
     costPer1kTokens: 0.0001,
     avgResponseTime: 2.5,
     strengths: ["general", "fast"],
@@ -565,7 +565,7 @@ class SmartModelRouter {
 
     // Use fast model to categorize
     const category = await callAI({
-      model: "x-ai/grok-4-fast",
+      model: "x-ai/grok-4-fast:free",
       messages: [{
         role: "user",
         content: `Categorize this query into ONE category: coding, math, creative, analysis, general\n\nQuery: ${query}`
@@ -944,7 +944,7 @@ class EnsembleVoting {
     models: string[] = [
       "anthropic/claude-3.5-sonnet",
       "openai/gpt-4-turbo",
-      "x-ai/grok-4-fast",
+      "x-ai/grok-4-fast:free",
       "google/gemini-2.0-flash-thinking-exp",
       "meta/llama-3.3-70b-instruct"
     ],
@@ -1033,7 +1033,7 @@ class EnsembleVoting {
         "anthropic/claude-3.5-sonnet": 0.95,
         "openai/gpt-4-turbo": 0.92,
         "google/gemini-2.0-flash-thinking-exp": 0.88,
-        "x-ai/grok-4-fast": 0.75,
+        "x-ai/grok-4-fast:free": 0.75,
         "meta/llama-3.3-70b-instruct": 0.85
       }
 

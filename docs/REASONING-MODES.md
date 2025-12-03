@@ -159,9 +159,9 @@ When reasoning is enabled, responses include:
 - Improved "vibe coding" experience
 
 #### **Grok Series** (xAI)
-- `x-ai/grok-4.1-fast` - Default model, 2M context
+- `x-ai/grok-4.1-fast:free` - Default model, 2M context
 - `x-ai/grok-4` - Full Grok 4
-- `x-ai/grok-4-fast` - Faster variant
+- `x-ai/grok-4-fast:free` - Faster variant
 
 **Characteristics:**
 - Supports `reasoning.effort`: low/medium/high
@@ -310,7 +310,7 @@ export const REASONING_MODELS_KNOWN = new Set([
   "deepseek/deepseek-r1", "deepseek/deepseek-v3.2",
 
   // Grok models
-  "x-ai/grok-4.1-fast", "x-ai/grok-4",
+  "x-ai/grok-4.1-fast:free", "x-ai/grok-4",
 
   // Qwen thinking
   "qwen/qwen3-235b-a22b-thinking-2507",
@@ -587,7 +587,7 @@ Decision:`
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "x-ai/grok-4.1-fast", // Fast, cheap model for classification
+      model: "x-ai/grok-4.1-fast:free", // Fast, cheap model for classification
       messages: [{ role: "user", content: prompt }],
       max_tokens: 5,
       temperature: 0.1

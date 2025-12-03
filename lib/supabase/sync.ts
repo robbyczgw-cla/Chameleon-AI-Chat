@@ -91,7 +91,7 @@ export class SupabaseSync {
       chat_id: chatId,
       role: message.role,
       content: message.content,
-      model: message.model || "x-ai/grok-4.1-fast",
+      model: message.model || "x-ai/grok-4.1-fast:free",
       created_at: new Date(message.timestamp).toISOString(),
     })
 
@@ -246,7 +246,7 @@ export class SupabaseSync {
         frequency_penalty: settings.modelParameters.frequencyPenalty,
         presence_penalty: settings.modelParameters.presencePenalty,
         selected_model: settings.selectedModel,
-        selected_models: settings.selectedModels || ["x-ai/grok-4.1-fast"],
+        selected_models: settings.selectedModels || ["x-ai/grok-4.1-fast:free"],
         tavily_search_depth: settings.tavilySettings.searchDepth,
         tavily_max_results: settings.tavilySettings.maxResults,
         tavily_include_images: settings.tavilySettings.includeImages,
@@ -712,7 +712,7 @@ export class SupabaseSync {
       createdAt: new Date(dbChat.created_at).getTime(),
       updatedAt: new Date(dbChat.updated_at).getTime(),
       pinned: dbChat.pinned,
-      model: dbChat.model || "x-ai/grok-4.1-fast",
+      model: dbChat.model || "x-ai/grok-4.1-fast:free",
       folderId: dbChat.folder_id || undefined,
     }
   }
@@ -763,8 +763,8 @@ export class SupabaseSync {
         frequencyPenalty: Number.parseFloat(dbSettings.frequency_penalty) || 0.0,
         presencePenalty: Number.parseFloat(dbSettings.presence_penalty) || 0.0,
       },
-      selectedModel: dbSettings.selected_model || "x-ai/grok-4.1-fast",
-      selectedModels: dbSettings.selected_models || ["x-ai/grok-4.1-fast"],
+      selectedModel: dbSettings.selected_model || "x-ai/grok-4.1-fast:free",
+      selectedModels: dbSettings.selected_models || ["x-ai/grok-4.1-fast:free"],
       apiKeys: {
         // CRITICAL: Return undefined for NULL database values instead of empty strings
         // This allows localStorage keys to be preserved during merge in app-context

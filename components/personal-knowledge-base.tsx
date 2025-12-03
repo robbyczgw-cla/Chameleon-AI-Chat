@@ -117,7 +117,7 @@ Antworte NUR mit dem JSON-Objekt.`
 
     await streamChatMessage(
       [{ role: "user", content: searchPrompt }],
-      "x-ai/grok-4-fast",
+      "x-ai/grok-4-fast:free",
       (chunk) => {
         fullResponse += chunk
       },

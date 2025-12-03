@@ -4,7 +4,7 @@
 
 -- Add model column to chats table
 ALTER TABLE public.chats
-ADD COLUMN IF NOT EXISTS model TEXT DEFAULT 'x-ai/grok-4-fast';
+ADD COLUMN IF NOT EXISTS model TEXT DEFAULT 'x-ai/grok-4-fast:free';
 
 -- Add comment for documentation
-COMMENT ON COLUMN public.chats.model IS 'The AI model selected for this chat (e.g., x-ai/grok-4-fast, anthropic/claude-opus, etc.)';
+COMMENT ON COLUMN public.chats.model IS 'The AI model selected for this chat (e.g., x-ai/grok-4-fast:free, anthropic/claude-opus, etc.)';

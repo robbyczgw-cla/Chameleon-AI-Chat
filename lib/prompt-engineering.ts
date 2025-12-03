@@ -551,7 +551,7 @@ export async function improvePrompt(originalPrompt: string, apiKey: string): Pro
       "X-Title": "Chameleon Chat - Prompt Helper",
     },
     body: JSON.stringify({
-      model: "x-ai/grok-4-fast", // Fast and cheap for this task
+      model: "x-ai/grok-4-fast:free", // Fast and cheap for this task
       messages: [
         {
           role: "system",
