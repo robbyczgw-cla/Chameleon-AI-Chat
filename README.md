@@ -1,11 +1,16 @@
-# 🦎 Chameleon AI Chat - Adapt to Any Conversation
+<div align="center">
+  <img src="public/chameleon-logo.jpg" alt="Chameleon AI Logo" width="200" />
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-DB-green?style=flat-square&logo=supabase)](https://supabase.com/)
+  # 🦎 Chameleon AI Chat
+  ### Adapt to Any Conversation
 
-Like a chameleon adapting to its environment, this AI chat platform transforms to match your needs with 18+ unique personas, cost tracking, and 100+ AI models via OpenRouter.
+  [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+  [![React](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react)](https://react.dev/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+  [![Supabase](https://img.shields.io/badge/Supabase-DB-green?style=flat-square&logo=supabase)](https://supabase.com/)
+
+  Like a chameleon adapting to its environment, this AI chat platform transforms to match your needs with 18+ unique personas, cost tracking, and 100+ AI models via OpenRouter.
+</div>
 
 ---
 
