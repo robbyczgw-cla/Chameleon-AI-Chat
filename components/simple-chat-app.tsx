@@ -917,7 +917,7 @@ export function SimpleChatApp() {
           </header>
 
           {/* Chat Area - Always use chat view structure, ChatMessages handles empty state */}
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden pb-safe">
             <div className="flex-1 overflow-hidden">
               <ChatMessages currentPersona={selectedPersona || undefined} />
             </div>
