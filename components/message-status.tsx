@@ -327,16 +327,17 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
       </div>
 
       {/* Current Activity Banner - Always visible summary of what's happening */}
-      {streamingDetails && (streamingDetails.searchQuery || streamingDetails.action || streamingDetails.reasoningContent || streamingDetails.toolArguments?.query) && (
+      {(searchQuery || (streamingDetails && (streamingDetails.searchQuery || streamingDetails.action || streamingDetails.reasoningContent || streamingDetails.toolArguments?.query))) && (
         <div className="mb-3 space-y-2">
           {/* Search Query - Prominent blue banner - try multiple sources */}
           {(() => {
-            // Try to get search query from various sources
-            const searchQuery = streamingDetails.searchQuery
-              || streamingDetails.toolArguments?.query
-              || (streamingDetails.action?.match(/Searching.*?:\s*"([^"]+)"/)?.[1])
+            // Try to get search query from various sources (including the searchQuery prop!)
+            const detectedSearchQuery = searchQuery  // The prop passed from parent
+              || streamingDetails?.searchQuery
+              || streamingDetails?.toolArguments?.query
+              || (streamingDetails?.action?.match(/Searching.*?:\s*"([^"]+)"/)?.[1])
 
-            if (searchQuery) {
+            if (detectedSearchQuery) {
               return (
                 <div className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/15 border border-blue-500/30">
                   <FileSearch className="w-4 h-4 text-blue-500 flex-shrink-0 animate-pulse" />
@@ -345,10 +346,10 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                       {lang === "de" ? "Suche:" : lang === "es" ? "Buscando:" : "Searching:"}
                     </span>
                     <span className="text-sm text-blue-700 dark:text-blue-300 break-words">
-                      "{searchQuery}"
+                      "{detectedSearchQuery}"
                     </span>
                   </div>
-                  {streamingDetails.searchProvider && (
+                  {streamingDetails?.searchProvider && (
                     <span className="text-xs text-blue-500/70 capitalize flex-shrink-0">
                       via {streamingDetails.searchProvider}
                     </span>
@@ -360,7 +361,7 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
           })()}
 
           {/* Current Action - Primary color banner (only if no search query found) */}
-          {streamingDetails.action && !streamingDetails.searchQuery && !streamingDetails.toolArguments?.query && !streamingDetails.action?.includes('Searching') && (
+          {streamingDetails?.action && !searchQuery && !streamingDetails.searchQuery && !streamingDetails.toolArguments?.query && !streamingDetails.action?.includes('Searching') && (
             <div className="flex items-center gap-2 p-2.5 rounded-lg bg-primary/15 border border-primary/30">
               <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-pulse" />
               <span className="text-sm text-foreground break-words">
