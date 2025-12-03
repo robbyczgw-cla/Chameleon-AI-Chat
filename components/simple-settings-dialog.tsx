@@ -51,6 +51,8 @@ const translations = {
     freeSearches: "(2,500 free searches)",
     includeImages: "Include Images",
     showImagesInSearch: "Show images in search results",
+    autoSearch: "Automatic Web Search",
+    autoSearchDesc: "Let AI automatically search the web when needed",
     webSearchReady: "Web search is ready! Use the globe icon in chat to search.",
     enableVoice: "Enable Voice",
     readMessagesAloud: "Read messages aloud",
@@ -142,6 +144,8 @@ const translations = {
     freeSearches: "(2.500 kostenlose Suchen)",
     includeImages: "Bilder einschließen",
     showImagesInSearch: "Bilder in Suchergebnissen anzeigen",
+    autoSearch: "Automatische Websuche",
+    autoSearchDesc: "KI sucht automatisch im Web wenn nötig",
     webSearchReady: "Websuche bereit! Nutze das Globus-Symbol im Chat zum Suchen.",
     enableVoice: "Sprache aktivieren",
     readMessagesAloud: "Nachrichten vorlesen",
@@ -233,6 +237,8 @@ const translations = {
     freeSearches: "(2,500 búsquedas gratis)",
     includeImages: "Incluir Imágenes",
     showImagesInSearch: "Mostrar imágenes en resultados de búsqueda",
+    autoSearch: "Búsqueda Web Automática",
+    autoSearchDesc: "La IA busca automáticamente en la web cuando es necesario",
     webSearchReady: "¡Búsqueda web lista! Usa el icono del globo en el chat para buscar.",
     enableVoice: "Activar Voz",
     readMessagesAloud: "Leer mensajes en voz alta",
@@ -631,6 +637,22 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 <p className="text-xs text-muted-foreground">
                   {t.getFreeKey} <a href="https://serper.dev" target="_blank" rel="noopener noreferrer" className="underline">serper.dev</a> {t.freeSearches}
                 </p>
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <div>
+                  <Label className="text-sm">{t.autoSearch}</Label>
+                  <p className="text-xs text-muted-foreground">{t.autoSearchDesc}</p>
+                </div>
+                <Switch
+                  checked={localSettings.enableAutoSearch || false}
+                  onCheckedChange={(checked) =>
+                    setLocalSettings({
+                      ...localSettings,
+                      enableAutoSearch: checked,
+                    })
+                  }
+                />
               </div>
 
               <div className="flex items-center justify-between py-2">
