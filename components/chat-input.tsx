@@ -596,31 +596,37 @@ export function ChatInput() {
       }
 
       // Memory: Phase 3 intelligent memory retrieval with classification + semantic search
+      // Wrapped in try-catch to prevent memory issues from blocking chat
       if (settings.memorySettings?.enabled) {
-        const isPersonaChat = !!settings.selectedPersona
-        console.log("[ChatInput] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50),
-          isPersonaChat ? "(persona chat)" : "")
+        try {
+          const isPersonaChat = !!settings.selectedPersona
+          console.log("[ChatInput] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50),
+            isPersonaChat ? "(persona chat)" : "")
 
-        const { memories: relevantMemories, decision, searchMethod } =
-          await memoryService.getRelevantMemoriesWithClassification(
-            input.trim(),
-            settings.apiKeys.openRouter,
-            settings.memorySettings.maxMemoriesInContext,
-            isPersonaChat
-          )
+          const { memories: relevantMemories, decision, searchMethod } =
+            await memoryService.getRelevantMemoriesWithClassification(
+              input.trim(),
+              settings.apiKeys.openRouter,
+              settings.memorySettings.maxMemoriesInContext,
+              isPersonaChat
+            )
 
-        // Log the decision with full details
-        if (decision.action === "skipped") {
-          console.log("[ChatInput] ⏭️ Memory skipped:", decision.reason,
-            `(type: ${decision.details.queryType}, confidence: ${decision.details.confidence?.toFixed(2)})`)
-        } else if (decision.action === "retrieved" && relevantMemories.length > 0) {
-          const memoryContext = memoryService.formatMemoriesForContext(relevantMemories)
-          messages.splice(-1, 0, { role: "system" as const, content: memoryContext })
-          console.log("[ChatInput] ✅ Memory context added:", decision.reason,
-            decision.details.topSimilarity ? `(top similarity: ${decision.details.topSimilarity.toFixed(3)})` : "")
-        } else {
-          console.log("[ChatInput] 📭", decision.reason,
-            decision.details.topSimilarity ? `(top similarity: ${decision.details.topSimilarity.toFixed(3)})` : "")
+          // Log the decision with full details
+          if (decision.action === "skipped") {
+            console.log("[ChatInput] ⏭️ Memory skipped:", decision.reason,
+              `(type: ${decision.details.queryType}, confidence: ${decision.details.confidence?.toFixed(2)})`)
+          } else if (decision.action === "retrieved" && relevantMemories.length > 0) {
+            const memoryContext = memoryService.formatMemoriesForContext(relevantMemories)
+            messages.splice(-1, 0, { role: "system" as const, content: memoryContext })
+            console.log("[ChatInput] ✅ Memory context added:", decision.reason,
+              decision.details.topSimilarity ? `(top similarity: ${decision.details.topSimilarity.toFixed(3)})` : "")
+          } else {
+            console.log("[ChatInput] 📭", decision.reason,
+              decision.details.topSimilarity ? `(top similarity: ${decision.details.topSimilarity.toFixed(3)})` : "")
+          }
+        } catch (memoryError) {
+          console.error("[ChatInput] ⚠️ Memory retrieval failed, continuing without memory:", memoryError)
+          // Continue without memory - don't block the chat
         }
       }
 
