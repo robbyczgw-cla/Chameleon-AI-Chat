@@ -162,6 +162,7 @@ export function getVisionConfig(modelId: string): VisionModelConfig {
 
 /**
  * Get a recommended vision model if current model doesn't support vision
+ * Prioritizes cost-effective vision models
  */
 export function getRecommendedVisionModel(currentModel?: string): string {
   // If current model already supports vision, return it
@@ -169,8 +170,9 @@ export function getRecommendedVisionModel(currentModel?: string): string {
     return currentModel
   }
 
-  // Return best default vision model
-  return "anthropic/claude-4.5-sonnet-20250929"
+  // Return best cost-effective vision model: Claude Haiku 4.5
+  // Cost: $0.80/$4.00 per million tokens (vs Sonnet 4.5: $3.00/$15.00)
+  return "anthropic/claude-haiku-4.5"
 }
 
 /**
