@@ -53,7 +53,7 @@ BEGIN
   )
   VALUES (
     NEW.id,
-    'x-ai/grok-4-fast',
+    'x-ai/grok-4-fast:free',
     0.7,
     16000,
     1.0,

@@ -23,8 +23,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
     serper: "",
     exa: "",
   },
-  selectedModel: "x-ai/grok-4.1-fast",
-  selectedModels: ["x-ai/grok-4.1-fast"],
+  selectedModel: "x-ai/grok-4.1-fast:free",
+  selectedModels: ["x-ai/grok-4.1-fast:free"],
   searchProvider: "tavily",
   modelParameters: {
     temperature: 0.7,

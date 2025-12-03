@@ -4,7 +4,7 @@
 
 -- Add column to store user's selected models list
 ALTER TABLE public.user_settings
-ADD COLUMN IF NOT EXISTS selected_models TEXT[] DEFAULT ARRAY['x-ai/grok-4-fast'];
+ADD COLUMN IF NOT EXISTS selected_models TEXT[] DEFAULT ARRAY['x-ai/grok-4-fast:free'];
 
 -- Add comment for documentation
 COMMENT ON COLUMN public.user_settings.selected_models IS 'Array of OpenRouter model IDs that user has selected/configured in model selector';

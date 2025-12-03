@@ -214,7 +214,7 @@ CREATE TABLE messages (
 - `metadata` - JSON object:
   ```json
   {
-    "model": "x-ai/grok-4-fast",
+    "model": "x-ai/grok-4-fast:free",
     "tokens": {
       "prompt": 150,
       "completion": 300,

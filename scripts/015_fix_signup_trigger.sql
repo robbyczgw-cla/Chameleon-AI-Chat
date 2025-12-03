@@ -18,7 +18,7 @@ BEGIN
 
   -- Create default settings for new user
   INSERT INTO public.user_settings (id, selected_model, created_at, updated_at)
-  VALUES (NEW.id, 'x-ai/grok-4-fast', NOW(), NOW())
+  VALUES (NEW.id, 'x-ai/grok-4-fast:free', NOW(), NOW())
   ON CONFLICT (id) DO NOTHING;
 
   RETURN NEW;

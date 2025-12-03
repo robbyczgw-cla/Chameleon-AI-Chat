@@ -82,9 +82,9 @@ export const VISION_CAPABLE_MODELS = new Set([
   "x-ai/grok-3",
   "x-ai/grok-3-fast",
   "x-ai/grok-4",
-  "x-ai/grok-4-fast",
+  "x-ai/grok-4-fast:free",
   "x-ai/grok-4.1",
-  "x-ai/grok-4.1-fast",
+  "x-ai/grok-4.1-fast:free",
 
   // Qwen
   "qwen/qwen3-max",

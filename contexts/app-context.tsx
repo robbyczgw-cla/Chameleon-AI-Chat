@@ -71,8 +71,8 @@ const DEFAULT_SETTINGS: AppSettings = {
     serper: "",
     exa: "",
   },
-  selectedModel: "x-ai/grok-4.1-fast",
-  selectedModels: ["x-ai/grok-4.1-fast"],
+  selectedModel: "x-ai/grok-4.1-fast:free",
+  selectedModels: ["x-ai/grok-4.1-fast:free"],
   searchProvider: "tavily", // Default to Tavily, can switch to Serper
   modelParameters: {
     temperature: 0.7,
@@ -631,9 +631,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         let mergedSettings = deepMergeSettings(baseSettings, settingsData)
 
         // CRITICAL FIX: If selectedModel is gpt-4o or old grok-4-fast, replace with grok-4.1-fast
-        if (mergedSettings.selectedModel === "openai/gpt-4o" || mergedSettings.selectedModel === "openai/gpt-4o-mini" || mergedSettings.selectedModel === "x-ai/grok-4-fast") {
+        if (mergedSettings.selectedModel === "openai/gpt-4o" || mergedSettings.selectedModel === "openai/gpt-4o-mini" || mergedSettings.selectedModel === "x-ai/grok-4-fast:free") {
           console.warn("[v0] Found old default model", mergedSettings.selectedModel, "- replacing with grok-4.1-fast")
-          mergedSettings.selectedModel = "x-ai/grok-4.1-fast"
+          mergedSettings.selectedModel = "x-ai/grok-4.1-fast:free"
 
           // Save the corrected settings back to Supabase
           supabaseSync.saveSettings(user.id, mergedSettings).catch((error) => {
@@ -645,7 +645,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const imageModels = ["google/gemini-2.5-flash-image", "openai/dall-e-2", "openai/dall-e-3"]
         if (imageModels.includes(mergedSettings.selectedModel)) {
           console.warn("[v0] Found image generation model as default", mergedSettings.selectedModel, "- replacing with grok-4.1-fast")
-          mergedSettings.selectedModel = "x-ai/grok-4.1-fast"
+          mergedSettings.selectedModel = "x-ai/grok-4.1-fast:free"
 
           // Save the corrected settings back to Supabase
           supabaseSync.saveSettings(user.id, mergedSettings).catch((error) => {

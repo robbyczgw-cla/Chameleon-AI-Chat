@@ -4,13 +4,13 @@
  */
 
 const STORAGE_KEY = "user-selected-models"
-const DEFAULT_MODEL = "x-ai/grok-4.1-fast"
+const DEFAULT_MODEL = "x-ai/grok-4.1-fast:free"
 const MAX_MODELS = 30
 
 // Default starting models for new users
 const DEFAULT_STARTING_MODELS = [
-  "x-ai/grok-4.1-fast", // ALWAYS the default - 2M context, reasoning support
-  "x-ai/grok-4-fast",
+  "x-ai/grok-4.1-fast:free", // ALWAYS the default - 2M context, reasoning support
+  "x-ai/grok-4-fast:free",
   "openai/gpt-5.1",
   "moonshotai/kimi-k2-thinking",
   "anthropic/claude-haiku-4.5",

@@ -750,7 +750,7 @@ const MODEL_PRICING = {
     input: 3.00,
     output: 15.00
   },
-  "x-ai/grok-4-fast": {
+  "x-ai/grok-4-fast:free": {
     input: 0.02,
     output: 0.10
   },

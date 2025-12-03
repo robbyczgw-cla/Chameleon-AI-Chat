@@ -31,7 +31,7 @@ Content-Type: application/json
     { "role": "system", "content": "You are a helpful assistant..." },
     { "role": "user", "content": "Hello!" }
   ],
-  "model": "x-ai/grok-4-fast",          // OpenRouter model ID
+  "model": "x-ai/grok-4-fast:free",          // OpenRouter model ID
   "temperature": 0.7,                    // Optional, 0.0-2.0
   "maxTokens": 2000,                     // Optional, 100-8000
   "topP": 1.0,                          // Optional, 0.0-1.0
@@ -72,7 +72,7 @@ Each line is a JSON object with:
     "completion_tokens": 300,
     "total_tokens": 450
   },
-  "model": "x-ai/grok-4-fast"
+  "model": "x-ai/grok-4-fast:free"
 }
 ```
 
@@ -95,7 +95,7 @@ const response = await fetch('/api/chat', {
     messages: [
       { role: 'user', content: 'Hello!' }
     ],
-    model: 'x-ai/grok-4-fast',
+    model: 'x-ai/grok-4-fast:free',
     apiKey: 'sk-or-v1-...'
   })
 });
@@ -284,7 +284,7 @@ export async function middleware(request: NextRequest) {
 - `openai/gpt-4o`
 - `anthropic/claude-3.5-sonnet`
 - `google/gemini-pro-1.5`
-- `x-ai/grok-4-fast`
+- `x-ai/grok-4-fast:free`
 - `deepseek/deepseek-chat`
 - ...and more
 
@@ -298,7 +298,7 @@ GET https://openrouter.ai/api/v1/chat/completions
 Content-Type: application/json
 
 {
-  "model": "x-ai/grok-4-fast",
+  "model": "x-ai/grok-4-fast:free",
   "messages": [...],
   "stream": true
 }
@@ -386,7 +386,7 @@ curl -X POST https://your-domain.com/api/chat \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [{"role":"user","content":"Hello!"}],
-    "model": "x-ai/grok-4-fast",
+    "model": "x-ai/grok-4-fast:free",
     "apiKey": "sk-or-v1-..."
   }'
 

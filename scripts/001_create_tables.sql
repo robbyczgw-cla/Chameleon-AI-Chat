@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS public.user_settings (
   top_p NUMERIC DEFAULT 1.0,
   frequency_penalty NUMERIC DEFAULT 0.0,
   presence_penalty NUMERIC DEFAULT 0.0,
-  selected_model TEXT DEFAULT 'x-ai/grok-4-fast',
+  selected_model TEXT DEFAULT 'x-ai/grok-4-fast:free',
   tavily_search_depth TEXT DEFAULT 'basic',
   tavily_max_results INTEGER DEFAULT 5,
   tavily_include_images BOOLEAN DEFAULT TRUE,

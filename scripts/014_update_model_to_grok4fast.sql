@@ -3,10 +3,10 @@
 
 UPDATE public.user_settings
 SET
-  selected_model = 'x-ai/grok-4-fast',
+  selected_model = 'x-ai/grok-4-fast:free',
   updated_at = NOW()
 WHERE
-  selected_model != 'x-ai/grok-4-fast'
+  selected_model != 'x-ai/grok-4-fast:free'
   OR selected_model IS NULL;
 
 -- Verify the update

@@ -39,8 +39,8 @@ export const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
   "google/gemini-pro": 32768,
 
   // xAI Grok Models
-  "x-ai/grok-4.1-fast": 2000000,
-  "x-ai/grok-4-fast": 2000000,
+  "x-ai/grok-4.1-fast:free": 2000000,
+  "x-ai/grok-4-fast:free": 2000000,
   "x-ai/grok-4": 2000000,
   "x-ai/grok-2": 131072,
   "x-ai/grok-beta": 131072,
