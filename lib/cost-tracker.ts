@@ -66,6 +66,7 @@ export const MODEL_PRICING: Record<string, { input: number; output: number }> = 
   "xai/grok-4-fast": { input: 0.60, output: 2.0 },
 
   // DeepSeek Models - Very affordable
+  "deepseek/deepseek-v3.2": { input: 0.14, output: 0.28 },
   "deepseek/deepseek-chat": { input: 0.14, output: 0.28 },
   "deepseek/deepseek-chat-v3.2-experimental": { input: 0.14, output: 0.28 },
   "deepseek/deepseek-chat-v3-0324:free": { input: 0.0, output: 0.0 },

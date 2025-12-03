@@ -71,8 +71,8 @@ const DEFAULT_SETTINGS: AppSettings = {
     serper: "",
     exa: "",
   },
-  selectedModel: "x-ai/grok-4.1-fast:free",
-  selectedModels: ["x-ai/grok-4.1-fast:free"],
+  selectedModel: "deepseek/deepseek-v3.2",
+  selectedModels: ["deepseek/deepseek-v3.2"],
   searchProvider: "tavily", // Default to Tavily, can switch to Serper
   modelParameters: {
     temperature: 0.7,
@@ -644,10 +644,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        // CRITICAL FIX: If selectedModel is gpt-4o or old grok-4-fast, replace with grok-4.1-fast
-        if (mergedSettings.selectedModel === "openai/gpt-4o" || mergedSettings.selectedModel === "openai/gpt-4o-mini" || mergedSettings.selectedModel === "x-ai/grok-4-fast:free") {
-          console.warn("[v0] Found old default model", mergedSettings.selectedModel, "- replacing with grok-4.1-fast")
-          mergedSettings.selectedModel = "x-ai/grok-4.1-fast:free"
+        // CRITICAL FIX: If selectedModel is gpt-4o or old grok models, replace with deepseek-v3.2
+        if (mergedSettings.selectedModel === "openai/gpt-4o" || mergedSettings.selectedModel === "openai/gpt-4o-mini" || mergedSettings.selectedModel === "x-ai/grok-4-fast:free" || mergedSettings.selectedModel === "x-ai/grok-4.1-fast:free") {
+          console.warn("[v0] Found old default model", mergedSettings.selectedModel, "- replacing with deepseek-v3.2")
+          mergedSettings.selectedModel = "deepseek/deepseek-v3.2"
 
           // Save the corrected settings back to Supabase
           supabaseSync.saveSettings(user.id, mergedSettings).catch((error) => {
@@ -655,11 +655,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
           })
         }
 
-        // CRITICAL FIX: If selectedModel is an image generation model, replace with grok-4.1-fast
+        // CRITICAL FIX: If selectedModel is an image generation model, replace with deepseek-v3.2
         const imageModels = ["google/gemini-2.5-flash-image", "openai/dall-e-2", "openai/dall-e-3"]
         if (imageModels.includes(mergedSettings.selectedModel)) {
-          console.warn("[v0] Found image generation model as default", mergedSettings.selectedModel, "- replacing with grok-4.1-fast")
-          mergedSettings.selectedModel = "x-ai/grok-4.1-fast:free"
+          console.warn("[v0] Found image generation model as default", mergedSettings.selectedModel, "- replacing with deepseek-v3.2")
+          mergedSettings.selectedModel = "deepseek/deepseek-v3.2"
 
           // Save the corrected settings back to Supabase
           supabaseSync.saveSettings(user.id, mergedSettings).catch((error) => {

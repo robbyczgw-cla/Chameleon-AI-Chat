@@ -4,12 +4,12 @@
  */
 
 const STORAGE_KEY = "user-selected-models"
-const DEFAULT_MODEL = "x-ai/grok-4.1-fast:free"
+const DEFAULT_MODEL = "deepseek/deepseek-v3.2"
 const MAX_MODELS = 30
 
 // Default starting models for new users
 const DEFAULT_STARTING_MODELS = [
-  "x-ai/grok-4.1-fast:free", // ALWAYS the default - 2M context, reasoning support
+  "deepseek/deepseek-v3.2", // ALWAYS the default - Superior performance, ultra-low cost
   "x-ai/grok-4-fast:free",
   "openai/gpt-5.1",
   "moonshotai/kimi-k2-thinking",

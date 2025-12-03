@@ -56,7 +56,6 @@ export const REASONING_MODELS_KNOWN = new Set([
   "deepseek/deepseek-v3.2:free",
 
   // Grok models with reasoning (configurable effort: low/medium/high)
-  "x-ai/grok-4.1-fast:free",
   "x-ai/grok-4",
   "x-ai/grok-4-fast:free",
 
@@ -99,7 +98,7 @@ export const POPULAR_OPENROUTER_MODELS = [
   { id: "anthropic/claude-opus-4.1", name: "Claude Opus 4.1", provider: "Anthropic", category: "flagship" },
 
   // 💰 Beste Preis-Leistung 2025
-  { id: "x-ai/grok-4.1-fast:free", name: "Grok 4.1 Fast", provider: "xAI", category: "value" },
+  { id: "deepseek/deepseek-v3.2", name: "DeepSeek V3.2 (Best Value)", provider: "DeepSeek", category: "value" },
   { id: "x-ai/grok-4-fast:free", name: "Grok 4 Fast", provider: "xAI", category: "value" },
   {
     id: "google/gemini-2.5-flash",
