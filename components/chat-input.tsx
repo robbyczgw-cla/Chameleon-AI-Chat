@@ -299,20 +299,23 @@ export function ChatInput() {
 
     // Build multimodal content (properly handles images for vision models)
     const multimodalContent = buildMultimodalContent(messageContent, processedFiles)
-    const currentModel = chats.find((c) => c.id === chatId)?.model || settings.selectedModel
+    let currentModel = chats.find((c) => c.id === chatId)?.model || settings.selectedModel
     const modelSupportsVision = supportsVision(currentModel)
 
     // Warn or auto-switch if images are attached but model doesn't support vision
     if (imageAttachments.length > 0 && !modelSupportsVision) {
       const recommendedModel = getRecommendedVisionModel(currentModel)
 
+      // Update the model variable IMMEDIATELY for this message (React state update is async)
+      currentModel = recommendedModel
+
       toast({
-        title: "⚠️ Model doesn't support images",
-        description: `Switching to ${recommendedModel.split('/')[1]} for vision support`,
+        title: "🖼️ Vision mode activated",
+        description: `Using ${recommendedModel.split('/')[1]} for this image (will return to ${(chats.find((c) => c.id === chatId)?.model || settings.selectedModel).split('/')[1]} for text messages)`,
         duration: 4000,
       })
 
-      // Auto-switch to vision-capable model
+      // Also update chat state for persistence (async)
       if (chatId) {
         const currentChat = chats.find((c) => c.id === chatId)
         if (currentChat) {
@@ -320,8 +323,6 @@ export function ChatInput() {
             c.id === chatId ? { ...c, model: recommendedModel } : c
           ))
         }
-      } else {
-        updateSettings({ selectedModel: recommendedModel })
       }
     }
 
@@ -452,7 +453,8 @@ export function ChatInput() {
     }
 
     const currentChat = chats.find ((c) => c.id === chatId)
-    const model = currentChat?.model || settings.selectedModel
+    // Use the currentModel variable which may have been updated for vision support
+    const model = currentModel || settings.selectedModel
     console.log("[v0] Using model:", model)
 
     // Build system prompt: Base + Language instruction + Persona personality
