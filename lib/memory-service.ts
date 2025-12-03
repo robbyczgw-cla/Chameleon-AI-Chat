@@ -501,6 +501,158 @@ class MemoryService {
   }
 
   /**
+   * Integrate profile information into memory system
+   * Uses LLM to intelligently categorize and assign importance
+   */
+  async integrateProfile(profile: any, apiKey: string): Promise<{ success: boolean; memoriesCreated: number; error?: string }> {
+    try {
+      console.log("[Memory] Integrating profile into memory system...")
+
+      // Step 1: Delete existing profile memories
+      const existingProfileMemories = this.memories.filter(m => m.source === "profile")
+      for (const memory of existingProfileMemories) {
+        this.deleteMemory(memory.id)
+      }
+      console.log("[Memory] Removed", existingProfileMemories.length, "old profile memories")
+
+      // Step 2: Prepare profile data for LLM processing
+      const profileData: Record<string, any> = {}
+      if (profile.name) profileData.name = profile.name
+      if (profile.age) profileData.age = profile.age
+      if (profile.occupation) profileData.occupation = profile.occupation
+      if (profile.location) profileData.location = profile.location
+      if (profile.aboutMe) profileData.aboutMe = profile.aboutMe
+      if (profile.interests?.length > 0) profileData.interests = profile.interests
+      if (profile.goals?.length > 0) profileData.goals = profile.goals
+      if (profile.preferences?.communicationStyle) profileData.communicationStyle = profile.preferences.communicationStyle
+      if (profile.preferences?.topicsToAvoid?.length > 0) profileData.topicsToAvoid = profile.preferences.topicsToAvoid
+
+      // If no profile data, nothing to do
+      if (Object.keys(profileData).length === 0) {
+        console.log("[Memory] No profile data to integrate")
+        return { success: true, memoriesCreated: 0 }
+      }
+
+      // Step 3: Use LLM to categorize profile information
+      const prompt = `You are a memory categorization system. Given user profile information, convert each piece of information into structured memory entries.
+
+For each piece of profile information, determine:
+1. Memory type: "fact" (concrete information), "preference" (likes/dislikes), "goal" (aspirations), "context" (background), or "skill" (abilities)
+2. Importance: 1 (low), 2 (medium), or 3 (high)
+3. Clear, concise content (one fact per memory)
+
+Guidelines:
+- Name, age, occupation, location are typically "fact" type with importance 3 (high)
+- Interests and hobbies are "preference" type with importance 2 (medium)
+- Goals and aspirations are "goal" type with importance 2-3
+- Communication style is "preference" type with importance 2
+- Break lists (interests, goals) into individual memories
+- Make content clear and searchable (e.g., "User's name is John" not just "John")
+
+Profile data:
+${JSON.stringify(profileData, null, 2)}
+
+Return a JSON array of memory objects with this structure:
+[
+  {
+    "type": "fact" | "preference" | "goal" | "context" | "skill",
+    "content": "clear, searchable description",
+    "category": "personal_info" | "interests" | "goals" | "communication" | "background",
+    "importance": 1 | 2 | 3
+  }
+]
+
+Return ONLY the JSON array, no other text.`
+
+      // Call LLM
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": typeof window !== "undefined" ? window.location.href : "https://chameleon-ai.chat",
+        },
+        body: JSON.stringify({
+          model: EXTRACTION_MODEL,
+          messages: [
+            { role: "user", content: prompt }
+          ],
+          temperature: 0.3, // Low temperature for consistent categorization
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`LLM request failed: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      const llmResponse = data.choices?.[0]?.message?.content?.trim()
+
+      if (!llmResponse) {
+        throw new Error("Empty LLM response")
+      }
+
+      // Parse LLM response (extract JSON from markdown if needed)
+      let memoriesData: any[]
+      try {
+        // Remove markdown code blocks if present
+        const jsonMatch = llmResponse.match(/```(?:json)?\s*(\[[\s\S]*?\])\s*```/) ||
+                         llmResponse.match(/(\[[\s\S]*?\])/)
+        const jsonStr = jsonMatch ? jsonMatch[1] : llmResponse
+        memoriesData = JSON.parse(jsonStr)
+      } catch (parseError) {
+        console.error("[Memory] Failed to parse LLM response:", llmResponse)
+        throw new Error("Failed to parse LLM response as JSON")
+      }
+
+      if (!Array.isArray(memoriesData)) {
+        throw new Error("LLM response is not an array")
+      }
+
+      // Step 4: Create memories from LLM output
+      let createdCount = 0
+      for (const memData of memoriesData) {
+        try {
+          const memory = this.addMemory({
+            type: memData.type,
+            content: memData.content,
+            category: memData.category,
+            importance: memData.importance,
+            source: "profile",
+            metadata: { profileField: "auto-categorized" }
+          }, apiKey)
+
+          // Generate embedding if API key provided and sync enabled
+          if (apiKey && this.settings.useSemanticSearch) {
+            try {
+              await this.embedMemory(memory.id, memory.content, apiKey)
+            } catch (embedError) {
+              console.warn("[Memory] Failed to generate embedding for profile memory:", embedError)
+              // Continue even if embedding fails
+            }
+          }
+
+          createdCount++
+        } catch (error) {
+          console.error("[Memory] Failed to create memory from LLM output:", memData, error)
+          // Continue with other memories
+        }
+      }
+
+      console.log("[Memory] Successfully created", createdCount, "profile memories")
+      return { success: true, memoriesCreated: createdCount }
+
+    } catch (error) {
+      console.error("[Memory] Profile integration failed:", error)
+      return {
+        success: false,
+        memoriesCreated: 0,
+        error: error instanceof Error ? error.message : "Unknown error"
+      }
+    }
+  }
+
+  /**
    * Get memory statistics
    */
   getStats() {

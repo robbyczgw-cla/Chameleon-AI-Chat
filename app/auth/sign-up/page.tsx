@@ -150,79 +150,81 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-background via-background to-orange-950/5">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-6">
-          {/* Logo */}
-          <div className="flex justify-center mb-4">
-            <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 shadow-lg shadow-orange-500/20">
-              <Sparkles className="w-8 h-8 text-white" />
+    <div className="flex min-h-svh w-full flex-col bg-gradient-to-br from-background via-background to-orange-950/5">
+      <div className="flex-1 flex items-center justify-center p-6 md:p-10 pb-32 md:pb-24">
+        <div className="w-full max-w-sm">
+          <div className="flex flex-col gap-6">
+            {/* Logo */}
+            <div className="flex justify-center mb-4">
+              <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 shadow-lg shadow-orange-500/20">
+                <Sparkles className="w-8 h-8 text-white" />
+              </div>
             </div>
-          </div>
 
-          <Card className="border-border/50 shadow-xl">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Registrieren</CardTitle>
-              <CardDescription>Erstelle einen neuen Account</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSignUp}>
-                <div className="flex flex-col gap-6">
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">E-Mail</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="deine@email.de"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
+            <Card className="border-border/50 shadow-xl">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Registrieren</CardTitle>
+                <CardDescription>Erstelle einen neuen Account</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSignUp}>
+                  <div className="flex flex-col gap-6">
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">E-Mail</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="deine@email.de"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="password">Passwort</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="repeat-password">Passwort wiederholen</Label>
+                      <Input
+                        id="repeat-password"
+                        type="password"
+                        required
+                        value={repeatPassword}
+                        onChange={(e) => setRepeatPassword(e.target.value)}
+                      />
+                    </div>
+                    {error && (
+                      <div className="text-sm text-red-500 bg-red-50 dark:bg-red-950/20 p-3 rounded-lg">{error}</div>
+                    )}
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? "Registrieren..." : "Registrieren"}
+                    </Button>
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Passwort</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
+                  <div className="mt-4 text-center text-sm">
+                    Bereits ein Account?{" "}
+                    <Link
+                      href="/auth/login"
+                      className="underline underline-offset-4 text-orange-600 hover:text-orange-700"
+                    >
+                      Anmelden
+                    </Link>
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="repeat-password">Passwort wiederholen</Label>
-                    <Input
-                      id="repeat-password"
-                      type="password"
-                      required
-                      value={repeatPassword}
-                      onChange={(e) => setRepeatPassword(e.target.value)}
-                    />
-                  </div>
-                  {error && (
-                    <div className="text-sm text-red-500 bg-red-50 dark:bg-red-950/20 p-3 rounded-lg">{error}</div>
-                  )}
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Registrieren..." : "Registrieren"}
-                  </Button>
-                </div>
-                <div className="mt-4 text-center text-sm">
-                  Bereits ein Account?{" "}
-                  <Link
-                    href="/auth/login"
-                    className="underline underline-offset-4 text-orange-600 hover:text-orange-700"
-                  >
-                    Anmelden
-                  </Link>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
 
-      {/* Legal Footer */}
-      <div className="fixed bottom-0 left-0 right-0 z-50">
+      {/* Legal Footer - Fixed but with proper spacing */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:relative md:mt-auto">
         <LegalFooter />
       </div>
     </div>
