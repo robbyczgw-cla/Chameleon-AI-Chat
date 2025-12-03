@@ -65,6 +65,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined)
 
 const DEFAULT_SETTINGS: AppSettings = {
   language: "en", // Default to English
+  simpleMode: false, // Default to Advanced Mode (users can switch via mode selection dialog)
   apiKeys: {
     openRouter: "",
     tavily: "",
