@@ -27,6 +27,7 @@ import { memoryService } from "@/lib/memory-service"
 import { ContextWindowMeter } from "@/components/context-window-meter"
 import { useDraft } from "@/hooks/use-draft"
 import { analyzeQueryForSearch } from "@/lib/search-heuristics"
+import { supportsVision, getRecommendedVisionModel } from "@/lib/vision-models"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
@@ -297,8 +298,21 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
     const currentChat = chats.find((c) => c.id === chatId)
 
     // Use override model or settings default
-    const model = overrideModel || settings.selectedModel
+    let model = overrideModel || settings.selectedModel
     console.log("[Simple Chat] Using model:", model, overrideModel ? "(override)" : "(default)")
+
+    // 🖼️ Vision Model Auto-Switching: Check if images are attached
+    const imageAttachments = attachedFiles.filter(f => f.type.startsWith('image/'))
+    if (imageAttachments.length > 0 && !supportsVision(model)) {
+      const originalModel = model
+      model = getRecommendedVisionModel(model)
+      console.log("[Simple Chat] 🖼️ Images detected - temporarily switching to vision model:", model)
+      toast({
+        title: "🖼️ Vision mode activated",
+        description: `Using ${model.split('/')[1]} for this image (will return to ${originalModel.split('/')[1]} for text-only messages)`,
+        duration: 4000,
+      })
+    }
 
     // Build system prompt: Use persona prompt if provided, otherwise use settings
     let systemPrompt = selectedPersona?.prompt || settings.systemPrompt
