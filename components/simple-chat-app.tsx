@@ -11,6 +11,7 @@ import { SimpleModeOnboarding } from "@/components/simple-mode-onboarding"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { userProfileService } from "@/lib/user-profile"
 import {
@@ -25,7 +26,7 @@ import {
   MoreVertical,
   ImagePlus,
   Lightbulb,
-  Paperclip,
+  Search,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -35,7 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
-import { type Persona, PERSONA_EXAMPLE_PROMPTS } from "@/lib/personas"
+import { type Persona, PERSONA_EXAMPLE_PROMPTS, getPersonaById } from "@/lib/personas"
 
 // Translations for Simple Mode
 const translations = {
@@ -60,7 +61,7 @@ const translations = {
     imageModeOff: "Image mode disabled",
     imageModeDesc: "Your next message will generate an image",
     tryAsking: "Try asking:",
-    attachFile: "Attach file",
+    searchChats: "Search chats",
   },
   de: {
     newChat: "Neuer Chat",
@@ -83,7 +84,7 @@ const translations = {
     imageModeOff: "Bildmodus deaktiviert",
     imageModeDesc: "Deine nächste Nachricht wird ein Bild generieren",
     tryAsking: "Frag zum Beispiel:",
-    attachFile: "Datei anhängen",
+    searchChats: "Chats durchsuchen",
   },
   es: {
     newChat: "Nuevo Chat",
@@ -106,7 +107,7 @@ const translations = {
     imageModeOff: "Modo imagen desactivado",
     imageModeDesc: "Tu próximo mensaje generará una imagen",
     tryAsking: "Prueba preguntando:",
-    attachFile: "Adjuntar archivo",
+    searchChats: "Buscar chats",
   },
 }
 
@@ -484,6 +485,8 @@ export function SimpleChatApp() {
   const [imageMode, setImageMode] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
@@ -607,11 +610,20 @@ export function SimpleChatApp() {
     }, 100)
   }
 
-  const selectedPersona = settings.selectedPersona
+  // Default to Cami (friendly persona) if no persona is selected in simple mode
+  const selectedPersona = settings.selectedPersona || getPersonaById("friendly")
 
   // Get current language translations
   const lang = settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en"
   const t = translations[lang as keyof typeof translations]
+
+  // Filter chats based on search query
+  const filteredChats = searchQuery.trim()
+    ? chats.filter((chat) =>
+        chat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        chat.messages.some((msg) => msg.content.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    : chats
 
   // Get greeting based on time of day
   const getGreeting = () => {
@@ -742,15 +754,33 @@ export function SimpleChatApp() {
               </DropdownMenu>
             </div>
 
+            {/* Search Input */}
+            <div className="px-3 pb-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder={t.searchChats}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 h-9"
+                />
+              </div>
+            </div>
+
             {/* Chat List */}
             <div className="flex-1 overflow-y-auto p-2">
               {chats.length === 0 ? (
                 <div className="text-center text-muted-foreground text-sm py-8">
                   {t.noChats}
                 </div>
+              ) : filteredChats.length === 0 ? (
+                <div className="text-center text-muted-foreground text-sm py-8">
+                  No chats found
+                </div>
               ) : (
                 <div className="space-y-1">
-                  {chats.slice(0, 20).map((chat) => (
+                  {filteredChats.slice(0, 20).map((chat) => (
                     <div
                       key={chat.id}
                       className={cn(
@@ -842,11 +872,11 @@ export function SimpleChatApp() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={triggerFileUpload}
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
                 className="relative h-10 w-10 sm:h-9 sm:w-9"
-                title={t.attachFile}
+                title={t.searchChats}
               >
-                <Paperclip className="h-5 w-5 sm:h-4 sm:w-4" />
+                <Search className="h-5 w-5 sm:h-4 sm:w-4" />
               </Button>
               <Button
                 variant={imageMode ? "default" : "ghost"}
