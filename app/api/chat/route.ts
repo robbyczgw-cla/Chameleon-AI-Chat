@@ -485,13 +485,25 @@ async function handleStreamingRequest(
               const delta = parsed.choices?.[0]?.delta
               const finish = parsed.choices?.[0]?.finish_reason
 
-              if (finish) {
-                finishReason = finish
+              // Debug: Log delta structure for troubleshooting empty responses
+              if (delta && Object.keys(delta).length > 0) {
+                const deltaKeys = Object.keys(delta)
+                // Only log if it's not a simple content chunk (to avoid spam)
+                if (!delta.content || deltaKeys.length > 1) {
+                  console.log("[Chat] Delta keys:", deltaKeys.join(", "), "hasToolCalls:", hasToolCalls)
+                }
               }
 
-              // Accumulate tool calls
-              if (delta?.tool_calls) {
+              if (finish) {
+                finishReason = finish
+                console.log("[Chat] Finish reason:", finish)
+              }
+
+              // Accumulate tool calls - MUST check for non-empty array!
+              // Empty arrays are truthy in JS and would incorrectly block content
+              if (delta?.tool_calls && Array.isArray(delta.tool_calls) && delta.tool_calls.length > 0) {
                 hasToolCalls = true
+                console.log("[Chat] Tool calls detected in stream:", delta.tool_calls.length)
                 for (const tc of delta.tool_calls) {
                   const index = tc.index ?? 0
                   if (!accumulatedToolCalls[index]) {
@@ -542,10 +554,13 @@ async function handleStreamingRequest(
               }
 
               // Forward content to client (only if not in tool call mode)
-              if (delta?.content && !hasToolCalls) {
+              // Also check for 'text' field as some models use that instead of 'content'
+              const contentToForward = delta?.content || delta?.text
+              if (contentToForward && !hasToolCalls) {
                 // Send responding phase on first content
                 if (!hasStartedResponding) {
                   hasStartedResponding = true
+                  console.log("[Chat] First content received, sending responding phase")
                   await writer.write(
                     encoder.encode(
                       `data: ${JSON.stringify({
@@ -554,10 +569,12 @@ async function handleStreamingRequest(
                     )
                   )
                 }
-                await writer.write(encoder.encode(line + "\n"))
+                // Forward original line with proper SSE format (double newline)
+                await writer.write(encoder.encode(line + "\n\n"))
               }
             } catch (e) {
-              // Ignore parse errors for incomplete JSON
+              // Log parse errors for debugging - don't silently swallow them
+              console.warn("[Chat] SSE parse error:", e, "- raw data:", data?.substring(0, 100))
             }
           }
         }

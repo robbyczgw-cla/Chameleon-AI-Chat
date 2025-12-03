@@ -376,7 +376,8 @@ export async function streamChatMessage(
           try {
             const parsed = JSON.parse(data)
             const delta = parsed.choices?.[0]?.delta
-            const content = delta?.content
+            // Check for content in both 'content' and 'text' fields (model compatibility)
+            const content = delta?.content || delta?.text
             const finishReason = parsed.choices?.[0]?.finish_reason
 
             // Handle phase change events for step-by-step visualization
@@ -478,6 +479,9 @@ export async function streamChatMessage(
               chunkCount++
               totalContent += content
               onChunk(content)
+            } else if (delta && Object.keys(delta).length > 0 && !delta.phase) {
+              // Log when we receive delta without content (helps debug empty responses)
+              console.log("[v0] Delta without content, keys:", Object.keys(delta).join(", "))
             }
           } catch (e) {
             console.warn("[v0] Failed to parse SSE data:", data.substring(0, 50), e)
