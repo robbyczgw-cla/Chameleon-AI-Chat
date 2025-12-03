@@ -258,13 +258,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...defaults.voiceSettings,
         ...(parsed.voiceSettings || {}),
       },
-      // IMPORTANT: For memorySettings, localStorage (in defaults) takes priority
-      // This ensures user's local setting isn't overwritten by database
+      // Standard merge: defaults first, then parsed (new values) override
       memorySettings: {
-        ...(parsed.memorySettings || {}),
         ...defaults.memorySettings,
-        // But if parsed has explicit enabled value, respect it (for non-Supabase scenarios)
-        enabled: defaults.memorySettings?.enabled ?? parsed.memorySettings?.enabled ?? false,
+        ...(parsed.memorySettings || {}),
       },
       experimental: {
         ...defaults.experimental,
@@ -629,6 +626,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         // Now merge with database settings (database wins for everything EXCEPT empty API keys)
         let mergedSettings = deepMergeSettings(baseSettings, settingsData)
+
+        // CRITICAL FIX: Restore localStorage memorySettings after merge
+        // This ensures the user's local memory preference isn't overwritten by database
+        if (localStorageSettings) {
+          try {
+            const localSettings = JSON.parse(localStorageSettings)
+            if (localSettings.memorySettings !== undefined) {
+              console.log("[v0] Restoring localStorage memorySettings.enabled:", localSettings.memorySettings?.enabled)
+              mergedSettings.memorySettings = {
+                ...mergedSettings.memorySettings,
+                ...localSettings.memorySettings,
+              }
+            }
+          } catch (e) {
+            // Already logged above
+          }
+        }
 
         // CRITICAL FIX: If selectedModel is gpt-4o or old grok-4-fast, replace with grok-4.1-fast
         if (mergedSettings.selectedModel === "openai/gpt-4o" || mergedSettings.selectedModel === "openai/gpt-4o-mini" || mergedSettings.selectedModel === "x-ai/grok-4-fast:free") {
