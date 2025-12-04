@@ -605,17 +605,17 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   </p>
                 </div>
 
-                {/* Auto Search Toggle */}
+                {/* Auto Tool Use Toggle */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-lg border border-green-500/30 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30">
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">🤖</span>
-                      <Label htmlFor="auto-search" className="text-sm sm:text-base font-medium">
-                        Automatic Web Search (Tool Calling)
+                      <Label htmlFor="auto-tool-use" className="text-sm sm:text-base font-medium">
+                        Automatic Tool Use (AI Tool Calling)
                       </Label>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Let AI automatically decide when to search the web. The model will search for current events, prices, news, weather, etc.
+                      Let AI automatically decide when to use tools like web search, weather lookup, URL fetching, etc. The model will intelligently choose the right tool based on your question.
                     </p>
                     <div className="flex flex-wrap gap-1 mt-1">
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">GPT-5</span>
@@ -628,20 +628,21 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                     </div>
                   </div>
                   <Switch
-                    id="auto-search"
-                    checked={localSettings.enableAutoSearch ?? false}
+                    id="auto-tool-use"
+                    checked={localSettings.enableAutoToolUse ?? true}
                     onCheckedChange={(checked) =>
-                      setLocalSettings({ ...localSettings, enableAutoSearch: checked })
+                      setLocalSettings({ ...localSettings, enableAutoToolUse: checked })
                     }
                     className="flex-shrink-0"
                   />
                 </div>
 
-                {localSettings.enableAutoSearch && (
+                {localSettings.enableAutoToolUse && (
                   <div className="rounded-lg border border-amber-500/30 bg-amber-50 dark:bg-amber-950/20 p-3 text-xs space-y-1">
                     <p className="font-medium text-amber-700 dark:text-amber-400">Requirements:</p>
                     <ul className="list-disc list-inside text-muted-foreground space-y-0.5 pl-1">
-                      <li>A search API key (Tavily, Serper, or Exa) must be configured in API Keys tab</li>
+                      <li>For web search: A search API key (Tavily, Serper, or Exa) must be configured</li>
+                      <li>For weather: Add WEATHER_API_KEY environment variable (optional)</li>
                       <li>Use a model with tool calling support (GPT-5, Claude 4.5, Gemini 2.5, Grok 4, Llama 4, etc.)</li>
                       <li>Most 2025 flagship and mid-tier models support this feature</li>
                     </ul>

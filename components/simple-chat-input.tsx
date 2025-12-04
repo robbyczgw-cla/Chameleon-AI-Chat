@@ -597,14 +597,15 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         signal: chatAbortControllerRef.current?.signal,
         reasoning: reasoningEnabled && modelSupportsReasoning,
         onReasoning,
-        // Tool calling for AI-driven search
-        enableAutoSearch: enableToolCallingSearch,
+        // Tool calling for AI-driven tool use
+        enableAutoToolUse: enableToolCallingSearch,
         searchProvider: searchProviderForTools as "tavily" | "serper" | "exa",
         searchApiKey: searchApiKeyForTools,
         searchSettings: searchProviderForTools === "serper" ? settings.serperSettings : settings.tavilySettings,
         // Experimental tool settings
         enableUrlFetchTool: settings.experimental?.enableUrlFetchTool !== false,
         enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
+        enableWeatherTool: settings.experimental?.enableWeatherTool !== false,
         onSearchStart: (query) => {
           console.log("[Simple Chat] 🤖 AI triggered search:", query)
           toast({

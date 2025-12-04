@@ -278,13 +278,14 @@ export interface ExperimentalSettings {
   // Tool Settings (for AI tool calling)
   enableUrlFetchTool?: boolean // Allow AI to fetch and read URL content
   enableYouTubeTool?: boolean // Allow AI to extract YouTube video transcripts
+  enableWeatherTool?: boolean // Allow AI to get weather information and forecasts
 }
 
 export interface AppSettings {
   theme?: "light" | "dark"
   language?: "en" | "de" | "es" // UI language: English, German, or Spanish
   simpleMode?: boolean // Simple Mode: Clean UI focused on personas & profile
-  enableAutoSearch?: boolean // Enable automatic web search via tool calling (AI decides when to search)
+  enableAutoToolUse?: boolean // Enable automatic tool use (web search, weather, etc.) via tool calling (AI decides when to use tools)
   apiKeys: {
     openRouter?: string
     openAI?: string
