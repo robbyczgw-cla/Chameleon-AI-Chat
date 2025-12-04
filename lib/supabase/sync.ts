@@ -648,13 +648,15 @@ export class SupabaseSync {
    * Update memory embedding in database
    */
   async updateMemoryEmbedding(userId: string, memoryId: string, embedding: number[]): Promise<void> {
-    // For pgvector in Supabase, pass the array directly
-    // The Supabase client will handle the conversion to vector type
-    const { error } = await this.supabase
-      .from("memories")
-      .update({ embedding: embedding })  // Pass array directly, not as string
-      .eq("id", memoryId)
-      .eq("user_id", userId)
+    // Use RPC function to ensure proper vector type handling
+    // Format as string for pgvector: "[0.1,0.2,...]"
+    const embeddingString = `[${embedding.join(",")}]`
+
+    const { error } = await this.supabase.rpc("update_memory_embedding", {
+      p_memory_id: memoryId,
+      p_user_id: userId,
+      p_embedding: embeddingString,
+    })
 
     if (error) {
       console.error("[Supabase] Error updating memory embedding:", error)
@@ -675,12 +677,15 @@ export class SupabaseSync {
   ): Promise<Array<Memory & { similarity: number }>> {
     const { threshold = 0.5, limit = 5 } = options
 
-    // Pass the array directly - Supabase client will handle the vector conversion
+    // Format query embedding as pgvector string: "[0.1,0.2,...]"
+    // This is the format pgvector RPC functions expect
+    const embeddingString = `[${queryEmbedding.join(",")}]`
+
     // Use pgvector's cosine distance operator (<=>)
     // 1 - distance = similarity (cosine distance is 1 - cosine similarity)
     const { data, error } = await this.supabase
       .rpc("search_memories_by_embedding", {
-        query_embedding: queryEmbedding,  // Pass array directly
+        query_embedding: embeddingString,
         match_threshold: threshold,
         match_count: limit,
         p_user_id: userId,
