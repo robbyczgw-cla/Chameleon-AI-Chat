@@ -318,7 +318,9 @@ class MemoryService {
     limit?: number
   ): Promise<Array<Memory & { similarity?: number }>> {
     const maxResults = limit || this.settings.maxMemoriesInContext
-    const threshold = this.settings.similarityThreshold || 0.5
+    // Use minRelevanceScore for semantic search threshold (typically lower than similarityThreshold)
+    // This allows for more flexible matching of semantically related content
+    const threshold = this.settings.minRelevanceScore || 0.25
 
     // First, try database-level semantic search if enabled
     if (this.syncEnabled && this.userId) {
