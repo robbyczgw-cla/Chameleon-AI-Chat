@@ -661,26 +661,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        // CRITICAL FIX: If selectedModel is gpt-4o or old grok models, replace with deepseek-v3.2
-        if (
-          mergedSettings.selectedModel === "openai/gpt-4o" ||
-          mergedSettings.selectedModel === "openai/gpt-4o-mini" ||
-          mergedSettings.selectedModel?.startsWith("x-ai/grok")
-        ) {
-          console.warn("[v0] Found old default model", mergedSettings.selectedModel, "- replacing with deepseek-v3.2")
-          mergedSettings.selectedModel = "deepseek/deepseek-v3.2"
+        // CRITICAL FIX: Migrate old/problematic models to Grok 4.1 Fast (better tool calling reliability)
+        const oldModels = [
+          "openai/gpt-4o",
+          "openai/gpt-4o-mini",
+          "z-ai/glm-4.6:exacto",  // Multi-step tool calling often fails
+          "deepseek/deepseek-v3.2",  // Migrate from deepseek to grok
+          "google/gemini-2.5-flash-image",  // Image models shouldn't be default
+          "openai/dall-e-2",
+          "openai/dall-e-3",
+        ]
 
-          // Save the corrected settings back to Supabase
-          supabaseSync.saveSettings(user.id, mergedSettings).catch((error) => {
-            console.error("[v0] Failed to save corrected settings:", error)
-          })
-        }
-
-        // CRITICAL FIX: If selectedModel is an image generation model, replace with deepseek-v3.2
-        const imageModels = ["google/gemini-2.5-flash-image", "openai/dall-e-2", "openai/dall-e-3"]
-        if (imageModels.includes(mergedSettings.selectedModel)) {
-          console.warn("[v0] Found image generation model as default", mergedSettings.selectedModel, "- replacing with deepseek-v3.2")
-          mergedSettings.selectedModel = "deepseek/deepseek-v3.2"
+        if (oldModels.includes(mergedSettings.selectedModel)) {
+          console.warn("[v0] Found old/problematic model", mergedSettings.selectedModel, "- replacing with Grok 4.1 Fast")
+          mergedSettings.selectedModel = "x-ai/grok-4.1-fast"
 
           // Save the corrected settings back to Supabase
           supabaseSync.saveSettings(user.id, mergedSettings).catch((error) => {
