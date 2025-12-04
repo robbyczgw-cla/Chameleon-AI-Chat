@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next"
 import { Outfit, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
+import "./keyboard-optimizations.css"
 import { Toaster } from "@/components/ui/toaster"
 import { PWARegister } from "@/components/pwa-register"
 import { CookieConsentBanner } from "@/components/cookie-consent-banner"
@@ -40,6 +41,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: 'cover', // ✅ CRITICAL: Enables safe area insets for iOS notch/Dynamic Island
 }
 
 export default function RootLayout({
