@@ -484,7 +484,6 @@ export function SimpleChatApp() {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isMemoryOpen, setIsMemoryOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [profileContext, setProfileContext] = useState("")
   const [imageMode, setImageMode] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
@@ -493,12 +492,6 @@ export function SimpleChatApp() {
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
-
-  // Load profile context
-  useEffect(() => {
-    const profile = userProfileService.getProfile()
-    setProfileContext(userProfileService.getProfileContext(profile))
-  }, [])
 
   // Track AI-generated titles for animation
   useEffect(() => {
@@ -594,15 +587,15 @@ export function SimpleChatApp() {
   }
 
   const handleProfileUpdate = () => {
-    const profile = userProfileService.getProfile()
-    setProfileContext(userProfileService.getProfileContext(profile))
+    // Profile data is now managed through the memory system
+    // No need to refresh profileContext as it's no longer injected into prompts
+    // Profile changes are automatically available via memoryService.integrateProfile()
   }
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false)
-    // Refresh profile context after onboarding
-    const profile = userProfileService.getProfile()
-    setProfileContext(userProfileService.getProfileContext(profile))
+    // Profile data from onboarding is automatically integrated into memory system
+    // No need to refresh profileContext as it's no longer injected into prompts
   }
 
   // Handle conversation starter or creative prompt
@@ -931,7 +924,6 @@ export function SimpleChatApp() {
             )}
             <SimpleChatInput
               selectedPersona={selectedPersona || undefined}
-              profileContext={profileContext}
             />
           </div>
         </main>

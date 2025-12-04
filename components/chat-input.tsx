@@ -483,13 +483,9 @@ export function ChatInput() {
       }
     }
 
-    // Add user profile context if available
-    const userProfile = userProfileService.getProfile()
-    const profileContext = userProfileService.getProfileContext(userProfile)
-    if (profileContext) {
-      systemPrompt = `${systemPrompt}${profileContext}`
-      console.log("[v0] User profile context added to system prompt")
-    }
+    // NOTE: User profile data is NOT injected directly into prompts
+    // Profile data is stored in the memory system via memoryService.integrateProfile()
+    // This ensures profile information is handled as retrievable memories, not hardcoded context
 
     const messages = [
       { role: "system" as const, content: systemPrompt },

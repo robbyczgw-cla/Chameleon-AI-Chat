@@ -31,12 +31,11 @@ import { supportsVision, getRecommendedVisionModel } from "@/lib/vision-models"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
-  profileContext?: string
   webSearchEnabled?: boolean
   overrideModel?: string // Override the model
 }
 
-export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
+export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
   const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration, setStreamingPhase, setCurrentTool, setSearchQuery, currentStreamingDetails, setCurrentStreamingDetails, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
 
   // Draft auto-save system
@@ -328,13 +327,11 @@ export function SimpleChatInput({ selectedPersona, profileContext, webSearchEnab
 
     systemPrompt = `${systemPrompt}${languageInstruction}`
 
-    // Add profile context if provided
-    if (profileContext) {
-      systemPrompt = `${systemPrompt}\n\n${profileContext}`
-    }
+    // NOTE: User profile data is NOT injected directly into prompts
+    // Profile data is stored in the memory system via memoryService.integrateProfile()
+    // This ensures profile information is handled as retrievable memories, not hardcoded context
 
     console.log("[Simple Chat] Using persona:", selectedPersona?.name || "Default")
-    console.log("[Simple Chat] Profile context:", profileContext || "None")
     console.log("[Simple Chat] 🔴 DEBUG - System Prompt (first 500 chars):", systemPrompt.substring(0, 500))
 
     const messages = [
