@@ -1,7 +1,29 @@
 -- Add semantic search function for memory embeddings
 -- Run this in your Supabase SQL Editor after enabling pgvector
 
--- Function to search memories by embedding similarity
+-- Step 1: Enable pgvector extension (if not already enabled)
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Step 2: Add embedding column to memories table
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'memories' AND column_name = 'embedding'
+  ) THEN
+    ALTER TABLE public.memories ADD COLUMN embedding vector(1536);
+    RAISE NOTICE 'Added embedding column to memories table';
+  ELSE
+    RAISE NOTICE 'Embedding column already exists';
+  END IF;
+END $$;
+
+-- Step 3: Create index for efficient similarity search
+CREATE INDEX IF NOT EXISTS idx_memories_embedding ON public.memories
+USING ivfflat (embedding vector_cosine_ops)
+WITH (lists = 100);
+
+-- Step 4: Function to search memories by embedding similarity
 CREATE OR REPLACE FUNCTION search_memories_by_embedding(
   query_embedding vector(1536),
   match_threshold float DEFAULT 0.5,
