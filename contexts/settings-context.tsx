@@ -23,8 +23,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
     serper: "",
     exa: "",
   },
-  selectedModel: "deepseek/deepseek-v3.2",
-  selectedModels: ["deepseek/deepseek-v3.2"],
+  selectedModel: "z-ai/glm-4.6:exacto",
+  selectedModels: ["z-ai/glm-4.6:exacto"],
   searchProvider: "tavily",
   modelParameters: {
     temperature: 0.7,
