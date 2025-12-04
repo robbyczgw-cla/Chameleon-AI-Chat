@@ -1,0 +1,79 @@
+/**
+ * 2025 VirtualKeyboard API & Mobile Keyboard Optimizations
+ * Prevents layout shift, content hiding, and iOS zoom issues
+ */
+
+/* Keyboard-aware containers using env() variables (Chrome 94+) */
+.keyboard-aware-container {
+  /* Automatically adjust padding for virtual keyboard */
+  padding-bottom: max(env(keyboard-inset-height, 0px), env(safe-area-inset-bottom, 0px));
+}
+
+/* Prevent iOS zoom on input focus - CRITICAL for mobile UX */
+input,
+textarea,
+select,
+[contenteditable] {
+  /* iOS won't zoom if font-size >= 16px */
+  font-size: max(16px, 1rem) !important;
+}
+
+/* Smooth keyboard transitions using dynamic viewport height */
+@supports (height: 100dvh) {
+  .keyboard-aware {
+    height: 100dvh; /* Dynamic viewport height - accounts for keyboard */
+    min-height: 100dvh;
+  }
+}
+
+/* Fallback for browsers without dvh support */
+@supports not (height: 100dvh) {
+  .keyboard-aware {
+    height: 100vh;
+    min-height: 100vh;
+  }
+}
+
+/* Mobile input optimizations */
+@media (max-width: 768px) {
+  /* Ensure inputs don't cause layout shift */
+  input:focus,
+  textarea:focus {
+    /* Prevent zoom and maintain layout */
+    transform: scale(1);
+    -webkit-transform: scale(1);
+  }
+
+  /* Optimize virtual keyboard overlay */
+  @supports (height: 100dvh) {
+    body {
+      /* Use dynamic viewport that accounts for browser UI */
+      min-height: 100dvh;
+    }
+  }
+
+  /* Touch target optimization for mobile */
+  button,
+  a,
+  [role="button"] {
+    /* Ensure minimum touch target size (WCAG 2.5.5) */
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Passive scroll listeners optimization for INP */
+* {
+  /* Enable passive listeners by default for better INP scores */
+  touch-action: manipulation;
+}
+
+/* Prevent double-tap zoom on mobile */
+button,
+a,
+[role="button"],
+input[type="submit"],
+input[type="button"] {
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
+}

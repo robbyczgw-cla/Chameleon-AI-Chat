@@ -35,11 +35,15 @@ import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 import type { Persona } from "@/lib/personas"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { useDraft } from "@/hooks/use-draft"
+import { useVirtualKeyboard } from "@/hooks/use-virtual-keyboard"
 
 export function ChatInput() {
   const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading, setStreamingPhase, setCurrentTool, setSearchQuery, currentStreamingDetails, setCurrentStreamingDetails, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
   const currentChat = chats.find((c) => c.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
+
+  // VirtualKeyboard API for 2025 mobile keyboard handling
+  const { keyboardHeight, isKeyboardVisible } = useVirtualKeyboard()
 
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
@@ -1099,10 +1103,19 @@ export function ChatInput() {
   }
 
   return (
-    <div className={cn(
-      "bg-background p-2 sm:p-4 md:p-5 border-t-2 border-border/50 smooth-transition",
-      isEmpty ? "shadow-2xl rounded-2xl border-2 border-border/40 glass-strong" : "shadow-xl"
-    )}>
+    <div
+      className={cn(
+        "bg-background p-2 sm:p-4 md:p-5 border-t-2 border-border/50 smooth-transition keyboard-aware-container",
+        isEmpty ? "shadow-2xl rounded-2xl border-2 border-border/40 glass-strong" : "shadow-xl"
+      )}
+      style={{
+        // Apply keyboard-aware positioning for mobile
+        transform: isKeyboardVisible ? `translateY(-${keyboardHeight}px)` : 'translateY(0)',
+        transition: 'transform 0.2s ease-out',
+        // Ensure proper stacking
+        zIndex: isKeyboardVisible ? 1000 : 'auto'
+      }}
+    >
       {attachedCollectionId && (
         <div className="mx-auto max-w-4xl mb-3 md:mb-4 flex items-center gap-2 rounded-xl bg-gradient-to-r from-muted/70 to-muted/50 border border-border/40 px-4 py-2.5 text-xs sm:text-sm shadow-sm">
           <FolderOpen className="h-4 w-4 md:h-4.5 md:w-4.5 text-primary" />
