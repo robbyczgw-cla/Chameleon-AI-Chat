@@ -23,8 +23,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
     serper: "",
     exa: "",
   },
-  selectedModel: "z-ai/glm-4.6:exacto",
-  selectedModels: ["z-ai/glm-4.6:exacto"],
+  selectedModel: "x-ai/grok-4.1-fast",
+  selectedModels: ["x-ai/grok-4.1-fast"],
   searchProvider: "tavily",
   modelParameters: {
     temperature: 0.7,
