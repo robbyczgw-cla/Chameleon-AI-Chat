@@ -4,12 +4,12 @@
  */
 
 const STORAGE_KEY = "user-selected-models"
-const DEFAULT_MODEL = "z-ai/glm-4.6:exacto"
+const DEFAULT_MODEL = "x-ai/grok-4.1-fast"
 const MAX_MODELS = 30
 
 // Default starting models for new users
 const DEFAULT_STARTING_MODELS = [
-  "z-ai/glm-4.6:exacto", // ALWAYS the default - Fast, stable, excellent tool calling
+  "x-ai/grok-4.1-fast", // ALWAYS the default - Fast, reliable, excellent multi-step tool calling
   "minimax/m2",
   "anthropic/claude-haiku-4.5",
   "google/gemini-2.5-flash",
