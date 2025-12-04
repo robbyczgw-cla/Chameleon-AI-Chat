@@ -23,17 +23,20 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Brain, Plus, Trash2, Edit2, Search, TrendingUp, Zap, Target, Info, Download, Upload } from "lucide-react"
+import { Brain, Plus, Trash2, Edit2, Search, TrendingUp, Zap, Target, Info, Download, Upload, Sparkles } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import { useApp } from "@/contexts/app-context"
 
 export function MemoryManager() {
+  const { settings } = useApp()
   const [memories, setMemories] = useState<Memory[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState<Memory["type"] | "all">("all")
   const [filterImportance, setFilterImportance] = useState<1 | 2 | 3 | "all">("all")
   const [editingMemory, setEditingMemory] = useState<Memory | null>(null)
   const [showAddDialog, setShowAddDialog] = useState(false)
+  const [isGeneratingEmbeddings, setIsGeneratingEmbeddings] = useState(false)
   const [newMemory, setNewMemory] = useState({
     type: "fact" as Memory["type"],
     content: "",
@@ -217,6 +220,46 @@ export function MemoryManager() {
     input.click()
   }
 
+  const handleGenerateEmbeddings = async () => {
+    const apiKey = settings.apiKeys?.openRouter
+    if (!apiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please set your OpenRouter API key in settings to generate embeddings",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const memoriesWithoutEmbedding = memories.filter(m => !m.embedding || m.embedding.length === 0)
+    if (memoriesWithoutEmbedding.length === 0) {
+      toast({
+        title: "All memories have embeddings",
+        description: "No memories need embedding generation",
+      })
+      return
+    }
+
+    setIsGeneratingEmbeddings(true)
+    try {
+      const result = await memoryService.embedAllMemories(apiKey)
+      loadMemories() // Refresh to show updated embeddings
+
+      toast({
+        title: "Embeddings generated",
+        description: `Successfully generated embeddings for ${result.success} memories${result.failed > 0 ? `, ${result.failed} failed` : ""}`,
+      })
+    } catch (error) {
+      toast({
+        title: "Embedding generation failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGeneratingEmbeddings(false)
+    }
+  }
+
   const stats = memoryService.getStats()
 
   const getTypeIcon = (type: Memory["type"]) => {
@@ -281,6 +324,15 @@ export function MemoryManager() {
           <Button variant="outline" size="sm" onClick={() => setShowAddDialog(true)}>
             <Plus className="h-4 w-4 mr-1" />
             Add
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleGenerateEmbeddings}
+            disabled={isGeneratingEmbeddings || memories.length === 0}
+          >
+            <Sparkles className="h-4 w-4 mr-1" />
+            {isGeneratingEmbeddings ? "Generating..." : "Generate Embeddings"}
           </Button>
           <Button variant="outline" size="sm" onClick={handleExport} disabled={memories.length === 0}>
             <Download className="h-4 w-4 mr-1" />
