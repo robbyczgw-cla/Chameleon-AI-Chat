@@ -199,14 +199,15 @@ export async function streamChatMessage(
     signal?: AbortSignal
     reasoning?: boolean
     onReasoning?: (content: string) => void
-    // Auto search options (tool calling)
-    enableAutoSearch?: boolean
+    // Auto tool use options (tool calling)
+    enableAutoToolUse?: boolean
     searchProvider?: "tavily" | "serper" | "exa"
     searchApiKey?: string
     searchSettings?: Record<string, any>
     // Experimental tool settings
     enableUrlFetchTool?: boolean
     enableYouTubeTool?: boolean
+    enableWeatherTool?: boolean
     onSearchStart?: (query: string) => void
     onSearchComplete?: () => void
     // Phase tracking callbacks for step-by-step visualization
@@ -240,14 +241,15 @@ export async function streamChatMessage(
     signal,
     reasoning = false,
     onReasoning,
-    // Auto search
-    enableAutoSearch = false,
+    // Auto tool use
+    enableAutoToolUse = true,
     searchProvider = "tavily",
     searchApiKey,
     searchSettings = {},
     // Experimental tool settings
     enableUrlFetchTool = true,
     enableYouTubeTool = true,
+    enableWeatherTool = true,
     onSearchStart,
     onSearchComplete,
     // Phase tracking
@@ -293,16 +295,17 @@ export async function streamChatMessage(
     requestBody.reasoning = true
   }
 
-  // Add auto search parameters if enabled
-  if (enableAutoSearch && searchApiKey) {
-    requestBody.enableAutoSearch = true
+  // Add auto tool use parameters if enabled
+  if (enableAutoToolUse && searchApiKey) {
+    requestBody.enableAutoToolUse = true
     requestBody.searchProvider = searchProvider
     requestBody.searchApiKey = searchApiKey
     requestBody.searchSettings = searchSettings
     // Pass experimental tool settings
     requestBody.enableUrlFetchTool = enableUrlFetchTool
     requestBody.enableYouTubeTool = enableYouTubeTool
-    console.log("[v0] Auto search enabled with provider:", searchProvider, "tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool })
+    requestBody.enableWeatherTool = enableWeatherTool
+    console.log("[v0] Auto tool use enabled with provider:", searchProvider, "tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool, weather: enableWeatherTool })
   }
 
   console.log("[v0] FINAL REQUEST BODY TO /api/chat:", JSON.stringify(requestBody, null, 2))

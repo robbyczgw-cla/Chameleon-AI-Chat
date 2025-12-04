@@ -830,14 +830,15 @@ export function ChatInput() {
         signal: abortControllerRef.current?.signal,
         reasoning: reasoningEnabled, // Always pass if enabled - OpenRouter handles compatibility
         onReasoning,
-        // Auto search (tool calling) - AI decides when to search
-        enableAutoSearch: settings.enableAutoSearch ?? false,
+        // Auto tool use (tool calling) - AI decides when to use tools
+        enableAutoToolUse: settings.enableAutoToolUse ?? true,
         searchProvider: autoSearchProvider,
         searchApiKey: autoSearchApiKey,
         searchSettings: autoSearchSettings,
         // Experimental tool settings
         enableUrlFetchTool: settings.experimental?.enableUrlFetchTool !== false,
         enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
+        enableWeatherTool: settings.experimental?.enableWeatherTool !== false,
         onSearchStart: (query) => {
           toast({
             title: "🔍 AI is searching the web...",

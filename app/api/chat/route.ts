@@ -47,13 +47,14 @@ interface ChatRequest {
   stream?: boolean
   reasoning?: boolean
   // Tool calling options
-  enableAutoSearch?: boolean
+  enableAutoToolUse?: boolean
   searchProvider?: "tavily" | "serper" | "exa"
   searchApiKey?: string
   searchSettings?: Record<string, any>
   // Experimental tool settings
   enableUrlFetchTool?: boolean
   enableYouTubeTool?: boolean
+  enableWeatherTool?: boolean
 }
 
 // Search cache to reduce duplicate searches
@@ -362,13 +363,14 @@ export async function POST(req: NextRequest) {
       stream = false,
       reasoning = false,
       // Tool calling options
-      enableAutoSearch = false,
+      enableAutoToolUse = true,
       searchProvider = "tavily",
       searchApiKey,
       searchSettings = {},
       // Experimental tool settings (default to true for backward compatibility)
       enableUrlFetchTool = true,
       enableYouTubeTool = true,
+      enableWeatherTool = true,
     } = body as ChatRequest
 
     const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
@@ -376,7 +378,7 @@ export async function POST(req: NextRequest) {
     console.log("[Chat] ===== API ROUTE CALLED =====")
     console.log("[Chat] Model:", model)
     console.log("[Chat] Stream:", stream)
-    console.log("[Chat] Auto Search:", enableAutoSearch)
+    console.log("[Chat] Auto Tool Use:", enableAutoToolUse)
     console.log("[Chat] Search Provider:", searchProvider)
 
     // Get API key from environment or request headers
@@ -387,7 +389,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Determine if we should include tools
-    const shouldIncludeTools = enableAutoSearch && searchApiKey && modelSupportsToolCalling(model)
+    const shouldIncludeTools = enableAutoToolUse && searchApiKey && modelSupportsToolCalling(model)
 
     console.log("[Chat] Include tools:", shouldIncludeTools)
 
@@ -404,7 +406,8 @@ export async function POST(req: NextRequest) {
 
     // Add tools if enabled - conditionally include tools based on settings
     if (shouldIncludeTools) {
-      const tools = [webSearchTool, weatherTool] // Web search and weather are always included when auto search is enabled
+      const tools = [webSearchTool] // Web search is always included when auto tool use is enabled
+      if (enableWeatherTool) tools.push(weatherTool)
       if (enableUrlFetchTool) tools.push(urlFetchTool)
       if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
       openRouterBody.tools = tools

@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { useApp } from "@/contexts/app-context"
-import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench } from "lucide-react"
+import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun } from "lucide-react"
 import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
 
@@ -123,7 +123,7 @@ export function ExperimentalSettings() {
 
         <div className="space-y-4 pl-7">
           <p className="text-xs text-muted-foreground">
-            Enable additional tools that the AI can use when Auto Search is enabled. The AI will decide when to use these tools based on your questions.
+            Enable additional tools that the AI can use when Auto Tool Use is enabled. The AI will decide when to use these tools based on your questions.
           </p>
 
           {/* URL Fetch Tool */}
@@ -160,10 +160,27 @@ export function ExperimentalSettings() {
             />
           </div>
 
+          {/* Weather Tool */}
+          <div className="flex items-center justify-between p-4 border rounded-lg border-blue-500/30 bg-gradient-to-r from-blue-50 to-sky-50 dark:from-blue-950/20 dark:to-sky-950/20">
+            <div className="space-y-1 flex-1">
+              <div className="flex items-center gap-2">
+                <CloudSun className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <Label className="text-sm font-medium">Weather Tool</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Allow AI to get current weather conditions, forecasts, and air quality. Requires WEATHER_API_KEY environment variable.
+              </p>
+            </div>
+            <Switch
+              checked={experimental.enableWeatherTool !== false}
+              onCheckedChange={(checked) => handleExperimentalChange({ enableWeatherTool: checked })}
+            />
+          </div>
+
           {/* Info Box */}
           <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
             <p className="text-xs text-blue-800 dark:text-blue-200">
-              <strong>Note:</strong> These tools require Auto Search to be enabled in Search settings. The AI will automatically decide when to use them based on your questions. No additional API keys required.
+              <strong>Note:</strong> These tools require Auto Tool Use to be enabled in Search settings. The AI will automatically decide when to use them based on your questions. Weather tool requires WEATHER_API_KEY environment variable; other tools need no additional API keys.
             </p>
           </div>
         </div>
