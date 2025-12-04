@@ -159,10 +159,57 @@ Note: Only works for videos that have captions/subtitles available.`,
 }
 
 /**
+ * Weather Tool Definition
+ *
+ * Gets current weather conditions, forecasts, and air quality
+ */
+export const weatherTool: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "get_weather",
+    description: `Get current weather conditions, forecasts, and air quality for any location. Use this when:
+- The user asks about weather conditions ("What's the weather like in Vienna?")
+- The user asks about temperature ("How hot is it in London?")
+- The user wants weather forecasts ("Will it rain tomorrow in Berlin?")
+- The user asks about air quality or pollution
+- The user asks about sunrise/sunset times
+- The user needs to plan outdoor activities based on weather
+
+Examples:
+- "What's the weather in Vienna?"
+- "Is it raining in Tokyo right now?"
+- "Should I bring an umbrella today?"
+- "What's the temperature in New York?"
+- "Will it snow this weekend in Munich?"
+- "When is sunset today?"
+
+DO NOT use for:
+- Historical weather data (use web_search instead)
+- Long-term climate information (use web_search)
+- General questions about weather concepts`,
+    parameters: {
+      type: "object",
+      properties: {
+        location: {
+          type: "string",
+          description: "City name, region, or coordinates. Examples: 'Vienna, Austria', 'London', 'New York', '48.2082,16.3738'"
+        },
+        type: {
+          type: "string",
+          description: "Type of weather data requested",
+          enum: ["current", "forecast"]
+        }
+      },
+      required: ["location"]
+    }
+  }
+}
+
+/**
  * Get all available tools for the chat API
  */
 export function getAvailableTools(): ToolDefinition[] {
-  return [webSearchTool, urlFetchTool, youtubeTranscriptTool]
+  return [webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool]
 }
 
 /**
