@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { checkRateLimit } from "@/lib/rate-limit"
-import { webSearchTool, urlFetchTool, youtubeTranscriptTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
+import { webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
 import { fetchUrlContent, fetchYouTubeTranscript, formatUrlFetchResult, formatYouTubeResult } from "@/lib/url-tools"
 
 export const runtime = "edge"
@@ -59,6 +59,117 @@ interface ChatRequest {
 // Search cache to reduce duplicate searches
 const searchCache = new Map<string, { result: string; timestamp: number }>()
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+// Weather cache
+const weatherCache = new Map<string, { result: string; timestamp: number }>()
+const WEATHER_CACHE_TTL = 10 * 60 * 1000 // 10 minutes
+
+/**
+ * Execute weather API call
+ */
+async function executeWeather(
+  location: string,
+  type: string = "current"
+): Promise<string> {
+  console.log(`[Tool] 🌤️ Executing get_weather: "${location}" (${type})`)
+
+  // Check cache
+  const cacheKey = `${location}:${type}`
+  const cached = weatherCache.get(cacheKey)
+  if (cached && Date.now() - cached.timestamp < WEATHER_CACHE_TTL) {
+    console.log(`[Tool] ✅ Weather cache hit for: "${location}"`)
+    return cached.result
+  }
+
+  try {
+    const apiKey = process.env.WEATHER_API_KEY
+    if (!apiKey) {
+      return "Weather service is not configured. Please add WEATHER_API_KEY to environment variables."
+    }
+
+    // WeatherAPI.com - Free tier: 1M calls/month
+    const endpoint = type === "forecast"
+      ? `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(location)}&days=3&aqi=yes`
+      : `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(location)}&aqi=yes`
+
+    const response = await fetch(endpoint)
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`[Tool] ❌ Weather API error:`, response.status, errorText)
+
+      if (response.status === 400) {
+        return `Weather location not found: "${location}". Please try with a city name, region, or coordinates.`
+      }
+      return `Weather service error: ${response.status}`
+    }
+
+    const data = await response.json()
+    let formattedResult: string
+
+    if (type === "forecast") {
+      const location = data.location
+      const forecast = data.forecast.forecastday
+
+      let forecastText = forecast.map((day: any) => {
+        return `**${day.date}**
+- Condition: ${day.day.condition.text}
+- Temperature: ${day.day.maxtemp_c}°C / ${day.day.mintemp_c}°C
+- Rain chance: ${day.day.daily_chance_of_rain}%
+- UV Index: ${day.day.uv}`
+      }).join('\n\n')
+
+      formattedResult = `## 3-Day Weather Forecast for ${location.name}, ${location.country}
+
+${forecastText}
+
+---
+*Last updated: ${data.current.last_updated}*`
+    } else {
+      const location = data.location
+      const current = data.current
+      const aqi = current.air_quality
+
+      formattedResult = `## Current Weather in ${location.name}, ${location.country}
+
+**Condition:** ${current.condition.text}
+**Temperature:** ${current.temp_c}°C (feels like ${current.feelslike_c}°C)
+**Humidity:** ${current.humidity}%
+**Wind:** ${current.wind_kph} km/h ${current.wind_dir}
+**Pressure:** ${current.pressure_mb} mb
+**Visibility:** ${current.vis_km} km
+**UV Index:** ${current.uv}
+
+${aqi ? `**Air Quality Index (US EPA):** ${aqi['us-epa-index']} ${getAQIDescription(aqi['us-epa-index'])}\n` : ''}
+**Local Time:** ${location.localtime}
+
+---
+*Last updated: ${current.last_updated}*`
+    }
+
+    // Cache the result
+    weatherCache.set(cacheKey, { result: formattedResult, timestamp: Date.now() })
+
+    console.log(`[Tool] ✅ Weather data retrieved for: ${location}`)
+    return formattedResult
+  } catch (error) {
+    console.error("[Tool] ❌ Weather request failed:", error)
+    return `Weather service error: ${error instanceof Error ? error.message : "Unknown error"}. Please try again.`
+  }
+}
+
+/**
+ * Get air quality description from EPA index
+ */
+function getAQIDescription(index: number): string {
+  if (index === 1) return "(Good)"
+  if (index === 2) return "(Moderate)"
+  if (index === 3) return "(Unhealthy for sensitive group)"
+  if (index === 4) return "(Unhealthy)"
+  if (index === 5) return "(Very unhealthy)"
+  if (index === 6) return "(Hazardous)"
+  return ""
+}
 
 /**
  * Execute web search using the specified provider
@@ -293,7 +404,7 @@ export async function POST(req: NextRequest) {
 
     // Add tools if enabled - conditionally include tools based on settings
     if (shouldIncludeTools) {
-      const tools = [webSearchTool] // Web search is always included when auto search is enabled
+      const tools = [webSearchTool, weatherTool] // Web search and weather are always included when auto search is enabled
       if (enableUrlFetchTool) tools.push(urlFetchTool)
       if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
       openRouterBody.tools = tools
@@ -608,6 +719,10 @@ async function handleStreamingRequest(
             phase = "searching"
             action = `Searching ${searchProvider}: "${toolArgs.query}"`
             toolQuery = toolArgs.query || ""
+          } else if (toolName === "get_weather") {
+            phase = "tool_use"
+            action = `Getting weather for: ${toolArgs.location}`
+            toolQuery = toolArgs.location || ""
           } else if (toolName === "url_fetch") {
             phase = "tool_use"
             action = `Fetching URL: ${toolArgs.url}`
@@ -684,6 +799,17 @@ async function handleStreamingRequest(
                   role: "tool" as const,
                   name: "youtube_transcript",
                   content: formatYouTubeResult(result),
+                }
+              }
+
+              if (toolCall.function.name === "get_weather") {
+                console.log("[Chat] Executing get_weather:", args.location, args.type)
+                const result = await executeWeather(args.location || "", args.type || "current")
+                return {
+                  tool_call_id: toolCall.id,
+                  role: "tool" as const,
+                  name: "get_weather",
+                  content: result,
                 }
               }
 

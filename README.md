@@ -120,6 +120,9 @@ NEXT_PUBLIC_OPENROUTER_API_KEY=your_openrouter_key
 NEXT_PUBLIC_TAVILY_API_KEY=your_tavily_key     # $1/1000 queries (budget)
 NEXT_PUBLIC_SERPER_API_KEY=your_serper_key     # $5/1000 queries (recommended!)
 NEXT_PUBLIC_EXA_API_KEY=your_exa_key           # $5/1000 queries (research)
+
+# Optional - Weather (automatic tool use)
+WEATHER_API_KEY=your_weatherapi_key            # FREE: 1M calls/month (weatherapi.com)
 ```
 
 ---
