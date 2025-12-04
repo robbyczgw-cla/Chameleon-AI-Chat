@@ -4,22 +4,22 @@
  */
 
 const STORAGE_KEY = "user-selected-models"
-const DEFAULT_MODEL = "deepseek/deepseek-v3.2"
+const DEFAULT_MODEL = "z-ai/glm-4.6:exacto"
 const MAX_MODELS = 30
 
 // Default starting models for new users
 const DEFAULT_STARTING_MODELS = [
-  "deepseek/deepseek-v3.2", // ALWAYS the default - Superior performance, ultra-low cost
-  "x-ai/grok-4-fast:free",
-  "openai/gpt-5.1",
-  "moonshotai/kimi-k2-thinking",
+  "z-ai/glm-4.6:exacto", // ALWAYS the default - Fast, stable, excellent tool calling
+  "minimax/m2",
   "anthropic/claude-haiku-4.5",
-  "z-ai/glm-4.6",
-  "deepseek/deepseek-v3.2-exp",
-  "google/gemini-2.5-flash-preview-09-2025",
+  "google/gemini-2.5-flash",
+  "x-ai/grok-4-fast:free",
+  "anthropic/claude-4.5-sonnet-20250929",
+  "openai/gpt-5.1",
+  "google/gemini-3-pro",
+  "moonshotai/kimi-k2-thinking",
   "qwen/qwen3-max",
   "openai/gpt-oss-120b",
-  "openai/gpt-oss-20b",
   "google/gemini-2.5-flash-image", // Only image model
 ]
 
