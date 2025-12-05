@@ -270,7 +270,7 @@ export function ChatHeader() {
             </h1>
           </div>
 
-          {/* Right: Settings, Tune, Image, More */}
+          {/* Right: Settings, Tune, More */}
           <div className="flex items-center gap-0.5">
             <Button
               variant="ghost"
@@ -295,24 +295,6 @@ export function ChatHeader() {
               title="Tune"
             >
               <Sliders className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "h-8 w-8 rounded-xl active:scale-95 transition-all",
-                isImageModeActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
-              onClick={() => {
-                haptics.trigger('selection')
-                setIsImageModeActive(!isImageModeActive)
-                window.dispatchEvent(new CustomEvent("toggleImageMode"))
-              }}
-              title="Image mode"
-            >
-              <Image className="h-4 w-4" />
             </Button>
             <MobileMoreMenu
               onSettingsClick={() => setIsSettingsOpen(true)}

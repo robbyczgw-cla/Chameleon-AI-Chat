@@ -8,7 +8,7 @@ export interface SlashCommand {
   description: string
   prompt: string
   category: "code" | "text" | "analysis" | "utility" | "action"
-  action?: "toggle-reasoning" | "toggle-web-search" // Special action commands
+  action?: "toggle-reasoning" | "toggle-web-search" | "toggle-image-mode" // Special action commands
 }
 
 export const SLASH_COMMANDS: SlashCommand[] = [
@@ -116,6 +116,13 @@ export const SLASH_COMMANDS: SlashCommand[] = [
     prompt: "",
     category: "action",
     action: "toggle-web-search"
+  },
+  {
+    command: "/i",
+    description: "Toggle image generation mode",
+    prompt: "",
+    category: "action",
+    action: "toggle-image-mode"
   },
 
   // Utility Commands

@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { useApp } from "@/contexts/app-context"
-import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun } from "lucide-react"
+import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun, ImageIcon } from "lucide-react"
 import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
 
@@ -174,6 +174,23 @@ export function ExperimentalSettings() {
             <Switch
               checked={experimental.enableWeatherTool !== false}
               onCheckedChange={(checked) => handleExperimentalChange({ enableWeatherTool: checked })}
+            />
+          </div>
+
+          {/* Image Generation Tool */}
+          <div className="flex items-center justify-between p-4 border rounded-lg border-purple-500/30 bg-gradient-to-r from-purple-50 to-fuchsia-50 dark:from-purple-950/20 dark:to-fuchsia-950/20">
+            <div className="space-y-1 flex-1">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <Label className="text-sm font-medium">Image Generation Tool</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Allow AI to automatically generate images when you ask for them. Uses Gemini Flash by default, Pro for high-quality requests.
+              </p>
+            </div>
+            <Switch
+              checked={experimental.enableImageGenerationTool !== false}
+              onCheckedChange={(checked) => handleExperimentalChange({ enableImageGenerationTool: checked })}
             />
           </div>
 

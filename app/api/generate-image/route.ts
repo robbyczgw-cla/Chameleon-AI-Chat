@@ -20,8 +20,10 @@ const IMAGE_MODELS = {
   'stability-ai/stable-diffusion-xl': { name: 'Stable Diffusion XL', multimodal: true },
 }
 
-// Default image model
-const DEFAULT_IMAGE_MODEL = 'google/gemini-3-pro-image-preview'
+// Default image model (fast, good quality)
+const DEFAULT_IMAGE_MODEL = 'google/gemini-2.5-flash-image-preview'
+// High quality model (slower, better quality) - use when user asks for "high quality", "detailed", etc.
+const HIGH_QUALITY_IMAGE_MODEL = 'google/gemini-3-pro-image-preview'
 
 /**
  * Generate images using OpenRouter's image models
@@ -49,7 +51,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { prompt, model, apiKey, inputImages } = await req.json()
+    const { prompt, model, apiKey, inputImages, quality } = await req.json()
 
     if (!prompt) {
       return NextResponse.json(
@@ -65,10 +67,15 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Default to Gemini 3 Pro Image Preview if model not specified or not an image model
-    const imageModel = IMAGE_MODELS[model as keyof typeof IMAGE_MODELS]
-      ? model
-      : DEFAULT_IMAGE_MODEL
+    // Determine which model to use
+    // Priority: explicit model > quality setting > default
+    let selectedModel = DEFAULT_IMAGE_MODEL
+    if (model && IMAGE_MODELS[model as keyof typeof IMAGE_MODELS]) {
+      selectedModel = model
+    } else if (quality === 'high') {
+      selectedModel = HIGH_QUALITY_IMAGE_MODEL
+    }
+    const imageModel = selectedModel
 
     const modelConfig = IMAGE_MODELS[imageModel as keyof typeof IMAGE_MODELS]
     console.log(`[Image Gen] Using model: ${imageModel}, config:`, modelConfig)

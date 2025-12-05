@@ -265,6 +265,14 @@ export function ChatInput() {
             title: newState ? "🌐 Web search enabled" : "Web search disabled",
             description: newState ? "AI will search the web for answers" : "Using knowledge only",
           })
+        } else if (command.action === 'toggle-image-mode') {
+          const newState = !imageMode
+          setImageMode(newState)
+          window.dispatchEvent(new CustomEvent("toggleImageMode"))
+          toast({
+            title: newState ? "🎨 Image mode enabled" : "Image mode disabled",
+            description: newState ? "AI will generate images from prompts" : "Standard chat mode",
+          })
         }
         setInput('')
         clearDraft()
@@ -1171,8 +1179,8 @@ export function ChatInput() {
               onChange={(e) => handleInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Message..."
-              rows={2}
-              className="min-h-[56px] max-h-[200px] resize-none pr-24 md:pr-28 text-sm sm:text-base rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-sm transition-all duration-200 py-2"
+              rows={1}
+              className="min-h-[64px] max-h-[200px] resize-none pr-24 md:pr-28 text-sm sm:text-base rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-sm transition-all duration-200 pt-2.5 pb-9"
               disabled={isLoading}
             />
             {/* Buttons inside textarea - positioned at bottom to leave first row for text */}

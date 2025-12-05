@@ -206,10 +206,62 @@ DO NOT use for:
 }
 
 /**
+ * Image Generation Tool Definition
+ *
+ * Generates images from text descriptions using AI models
+ */
+export const imageGenerationTool: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "generate_image",
+    description: `Generate an image from a text description using AI image generation. Use this when:
+- The user asks you to create, generate, make, or draw an image/picture
+- The user says "show me", "visualize", or "illustrate" something
+- The user wants to see what something looks like
+- The user asks for artwork, illustrations, or visual content
+- The user provides a creative prompt for image creation
+
+Examples of when to use:
+- "Create an image of a sunset over mountains"
+- "Generate a picture of a cute robot"
+- "Draw me a fantasy castle"
+- "Show me what a futuristic city looks like"
+- "Make an illustration of a space explorer"
+- "I want to see a cyberpunk cat"
+
+DO NOT use for:
+- Analyzing or describing existing images (the user would upload them)
+- Questions about images without asking to create one
+- General discussions about art or imagery
+- Editing or modifying existing images`,
+    parameters: {
+      type: "object",
+      properties: {
+        prompt: {
+          type: "string",
+          description: "A detailed description of the image to generate. Be specific about style, colors, composition, and mood. The more detailed, the better the result."
+        },
+        style: {
+          type: "string",
+          description: "Optional style hint for the image",
+          enum: ["photorealistic", "artistic", "cartoon", "3d-render", "sketch", "painting", "digital-art"]
+        },
+        quality: {
+          type: "string",
+          description: "Image quality level. Use 'high' only when user explicitly asks for high quality, detailed, professional, or high resolution image. Default is 'standard' for fast generation.",
+          enum: ["standard", "high"]
+        }
+      },
+      required: ["prompt"]
+    }
+  }
+}
+
+/**
  * Get all available tools for the chat API
  */
 export function getAvailableTools(): ToolDefinition[] {
-  return [webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool]
+  return [webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool, imageGenerationTool]
 }
 
 /**
