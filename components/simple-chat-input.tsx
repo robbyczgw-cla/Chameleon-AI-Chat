@@ -28,6 +28,7 @@ import { ContextWindowMeter } from "@/components/context-window-meter"
 import { useDraft } from "@/hooks/use-draft"
 import { analyzeQueryForSearch } from "@/lib/search-heuristics"
 import { supportsVision, getRecommendedVisionModel } from "@/lib/vision-models"
+import { useFeatureFlags } from "@/hooks/use-feature-flags"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
@@ -37,6 +38,7 @@ interface SimpleChatInputProps {
 
 export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
   const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration, setStreamingPhase, setCurrentTool, setSearchQuery, currentStreamingDetails, setCurrentStreamingDetails, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
+  const { features, isAdvancedMode } = useFeatureFlags()
 
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
@@ -92,9 +94,9 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     setIsAdvancedMode(mode === "advanced")
   }, [])
 
-  // Update command suggestions when input changes (Advanced mode only)
+  // Update command suggestions when input changes (Advanced mode only with feature flag)
   useEffect(() => {
-    if (!isAdvancedMode) {
+    if (!isAdvancedMode || !features.showSlashCommands) {
       setCommandSuggestions([])
       return
     }
@@ -106,7 +108,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     } else {
       setCommandSuggestions([])
     }
-  }, [input, isAdvancedMode])
+  }, [input, isAdvancedMode, features.showSlashCommands])
 
   // OPTIMIZED: Combined all window event listeners into single useEffect
   useEffect(() => {
@@ -877,8 +879,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               disabled={isChatLoading}
             />
 
-            {/* Slash Command Suggestions (Advanced Mode Only) */}
-            {isAdvancedMode && commandSuggestions.length > 0 && (
+            {/* Slash Command Suggestions (Advanced Mode Only with feature flag) */}
+            {isAdvancedMode && features.showSlashCommands && commandSuggestions.length > 0 && (
               <div className="absolute bottom-full left-0 mb-2 w-full max-w-md bg-popover border border-border rounded-lg shadow-lg overflow-hidden z-50">
                 <div className="p-2 border-b border-border bg-muted/50">
                   <div className="text-xs font-medium text-muted-foreground">
@@ -952,10 +954,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
             {isChatLoading ? <Square className="h-5 w-5" /> : <Send className="h-5 w-5" />}
           </Button>
         </div>
-        {/* Context Window Meter */}
-        <div className="mt-1.5 flex justify-end">
-          <ContextWindowMeter compact />
-        </div>
+        {/* Context Window Meter - Only show in advanced mode */}
+        {features.showContextMeter && (
+          <div className="mt-1.5 flex justify-end">
+            <ContextWindowMeter compact />
+          </div>
+        )}
       </form>
     </div>
   )

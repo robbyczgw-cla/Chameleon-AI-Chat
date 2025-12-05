@@ -39,6 +39,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { type Persona, PERSONA_EXAMPLE_PROMPTS, getPersonaById } from "@/lib/personas"
+import { useIOSPWA } from "@/hooks/use-ios-pwa"
 
 // Translations for Simple Mode
 const translations = {
@@ -479,6 +480,19 @@ const extendedPersonaTips: Record<string, { en: string[]; de: string[] }> = {
 export function SimpleChatApp() {
   const { chats, currentChatId, createChat, deleteChat, setCurrentChat, settings, updateSettings, setChats, user } = useApp()
   const { toast } = useToast()
+
+  // iOS PWA optimization - handle app suspension/resume
+  const { isIOSPWA } = useIOSPWA({
+    isSimpleMode: true,
+    onResume: () => {
+      console.log("[Simple Mode] iOS PWA resumed - checking state")
+      // Re-verify onboarding state on resume
+      const profile = userProfileService.getProfile()
+      if (profile.name && !localStorage.getItem("simple-mode-onboarding-complete")) {
+        localStorage.setItem("simple-mode-onboarding-complete", "true")
+      }
+    },
+  })
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isPersonasOpen, setIsPersonasOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
