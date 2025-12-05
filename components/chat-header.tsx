@@ -243,19 +243,46 @@ export function ChatHeader() {
       <header className="flex h-14 md:h-16 items-center justify-between border-b border-border/40 bg-background/80 backdrop-blur-xl px-3 sm:px-4 md:px-5 shadow-sm mobile-header-glass">
         {/* Mobile: Modern minimalistic header */}
         <div className="flex md:hidden items-center justify-between w-full">
-          {/* Left: Sidebar toggle + Image mode */}
+          {/* Left: Sidebar toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
+            onClick={() => {
+              haptics.trigger('selection')
+              toggleMobileSidebar()
+            }}
+            title="Chats"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+
+          {/* Center: Logo and title */}
+          <div className="flex items-center gap-2 min-w-0 flex-1 justify-center px-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 border border-primary/10 flex-shrink-0">
+              <ChameleonLogoSimple className="text-primary" size={14} />
+            </div>
+            <h1 className={cn(
+              "text-sm font-semibold text-foreground truncate max-w-[100px]",
+              isTitleAnimated && "animate-title-appear"
+            )}>
+              {currentChat?.title || "Chameleon"}
+            </h1>
+          </div>
+
+          {/* Right: Tune, Image, More */}
           <div className="flex items-center gap-0.5">
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
+              className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
               onClick={() => {
                 haptics.trigger('selection')
-                toggleMobileSidebar()
+                setIsAdvancedSettingsOpen(true)
               }}
-              title="Chats"
+              title="Tune"
             >
-              <Menu className="h-5 w-5" />
+              <Sliders className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
@@ -274,47 +301,6 @@ export function ChatHeader() {
               title="Image mode"
             >
               <Image className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* Center: Logo and title */}
-          <div className="flex items-center gap-2 min-w-0 flex-1 justify-center px-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 border border-primary/10 flex-shrink-0">
-              <ChameleonLogoSimple className="text-primary" size={14} />
-            </div>
-            <h1 className={cn(
-              "text-sm font-semibold text-foreground truncate max-w-[100px]",
-              isTitleAnimated && "animate-title-appear"
-            )}>
-              {currentChat?.title || "Chameleon"}
-            </h1>
-          </div>
-
-          {/* Right: Settings, Tune, More */}
-          <div className="flex items-center gap-0.5">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
-              onClick={() => {
-                haptics.trigger('selection')
-                setIsSettingsOpen(true)
-              }}
-              title="Settings"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
-              onClick={() => {
-                haptics.trigger('selection')
-                setIsAdvancedSettingsOpen(true)
-              }}
-              title="Tune"
-            >
-              <Sliders className="h-4 w-4" />
             </Button>
             <MobileMoreMenu
               onSettingsClick={() => setIsSettingsOpen(true)}
