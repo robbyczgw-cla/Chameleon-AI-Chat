@@ -16,6 +16,9 @@ const nextConfig = {
     // Empty config to silence webpack/turbopack warning
     // PDF.js works fine with Turbopack out of the box
   },
+  experimental: {
+    turbopackUseSystemTlsCerts: true,
+  },
   async headers() {
     return [
       {
