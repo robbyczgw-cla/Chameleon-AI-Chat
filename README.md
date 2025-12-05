@@ -337,15 +337,16 @@ Perfect for:
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 16 + React 19 + TypeScript 5
+- **Frontend**: Next.js 16 + React 19.2 + TypeScript 5
 - **Styling**: Tailwind CSS 4.1 + shadcn/ui components
 - **Database**: Supabase PostgreSQL (Row-Level Security)
 - **AI**: OpenRouter (100+ models)
 - **Voice Input**: OpenAI Whisper API
 - **Voice Output**: OpenAI TTS + Browser SpeechSynthesis
-- **Search**: Tavily + Serper (Google Search)
+- **Search**: Tavily + Serper + Exa (Web Search)
 - **State**: React Context API
 - **Deployment**: Vercel (Edge Runtime)
+- **UI Components**: Radix UI + vaul 1.1.2 (React 19 compatible)
 
 ---
 
@@ -361,6 +362,7 @@ Perfect for:
 - [Architecture](./docs/ARCHITECTURE.md) - Technical deep dive
 - [API Reference](./docs/api.md) - API routes documentation
 - [Database Schema](./docs/database.md) - Supabase tables & RLS
+- [Database Implementation Guide](./docs/DATABASE_IMPLEMENTATION_GUIDE.md) - Step-by-step database setup (NEW!)
 - [Deployment](./docs/deployment.md) - How to deploy
 - [Contributing](./docs/contributing.md) - Development guide
 

@@ -34,7 +34,23 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
    - Security architecture
    - **Read this to understand how Chameleon works**
 
-4. **[FUTURE_FEATURES.md](./FUTURE_FEATURES.md)** 🚀
+4. **[database.md](./database.md)** 🗄️
+   - Complete Supabase PostgreSQL schema
+   - Table definitions with SQL
+   - RLS policies and security
+   - Indexes and performance
+   - Query examples
+   - **Reference for the current database schema**
+
+5. **[DATABASE_IMPLEMENTATION_GUIDE.md](./DATABASE_IMPLEMENTATION_GUIDE.md)** 🏗️ NEW!
+   - Step-by-step database setup guide
+   - Schema design principles
+   - Security best practices (RLS, triggers)
+   - Performance optimization
+   - Alternative implementations (MySQL, SQLite, MongoDB)
+   - **Complete guide for implementing a database from scratch**
+
+6. **[FUTURE_FEATURES.md](./FUTURE_FEATURES.md)** 🚀
    - Implementation guides for new features
    - Chameleon-themed feature ideas
    - Power user enhancements
@@ -68,6 +84,12 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
 
 **...understand the codebase**
 → [ARCHITECTURE.md](./ARCHITECTURE.md)
+
+**...set up the database or adapt it for my own project**
+→ [DATABASE_IMPLEMENTATION_GUIDE.md](./DATABASE_IMPLEMENTATION_GUIDE.md)
+
+**...see the current database schema**
+→ [database.md](./database.md)
 
 **...contribute a new feature**
 → [FUTURE_FEATURES.md](./FUTURE_FEATURES.md)
@@ -131,6 +153,8 @@ When contributing documentation:
 | MEMORY_SYSTEM.md | ~700 | Memory system guide for simple & advanced users |
 | POWER_USER_GUIDE.md | ~800 | User features, tips, shortcuts |
 | ARCHITECTURE.md | ~800 | Technical details, schema, systems |
+| database.md | ~650 | Complete Supabase schema reference |
+| DATABASE_IMPLEMENTATION_GUIDE.md | ~800 | Step-by-step database implementation guide |
 | FUTURE_FEATURES.md | ~1000 | Implementation guides for new features |
 | CHAMELEON_VISION.md | ~400 | Philosophy, origin story, roadmap |
 
