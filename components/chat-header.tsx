@@ -243,27 +243,47 @@ export function ChatHeader() {
       <header className="flex h-14 md:h-16 items-center justify-between border-b border-border/40 bg-background/80 backdrop-blur-xl px-3 sm:px-4 md:px-5 shadow-sm mobile-header-glass">
         {/* Mobile: Modern minimalistic header */}
         <div className="flex md:hidden items-center justify-between w-full">
-          {/* Left: Sidebar toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
-            onClick={() => {
-              haptics.trigger('selection')
-              toggleMobileSidebar()
-            }}
-            title="Chats"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+          {/* Left: Sidebar toggle + Image mode */}
+          <div className="flex items-center gap-0.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
+              onClick={() => {
+                haptics.trigger('selection')
+                toggleMobileSidebar()
+              }}
+              title="Chats"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-8 w-8 rounded-xl active:scale-95 transition-all",
+                isImageModeActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              )}
+              onClick={() => {
+                haptics.trigger('selection')
+                setIsImageModeActive(!isImageModeActive)
+                window.dispatchEvent(new CustomEvent("toggleImageMode"))
+              }}
+              title="Image mode"
+            >
+              <Image className="h-4 w-4" />
+            </Button>
+          </div>
 
           {/* Center: Logo and title */}
           <div className="flex items-center gap-2 min-w-0 flex-1 justify-center px-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 shadow-sm border border-primary/10 flex-shrink-0">
-              <ChameleonLogoSimple className="text-primary" size={16} />
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 border border-primary/10 flex-shrink-0">
+              <ChameleonLogoSimple className="text-primary" size={14} />
             </div>
             <h1 className={cn(
-              "text-sm font-semibold text-foreground truncate max-w-[120px]",
+              "text-sm font-semibold text-foreground truncate max-w-[100px]",
               isTitleAnimated && "animate-title-appear"
             )}>
               {currentChat?.title || "Chameleon"}
