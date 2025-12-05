@@ -404,32 +404,40 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
   }
 
   const handleComplete = async () => {
+    // Enable memory by default for simple mode users (for personalized experience)
+    const updatedSettings = {
+      ...localSettings,
+      memorySettings: {
+        ...localSettings.memorySettings,
+        enabled: true, // Always enable memory for simple mode
+        autoExtract: true,
+      },
+      enableAutoToolUse: true, // Enable auto tool use (search, etc.)
+    }
+    setLocalSettings(updatedSettings)
+
     // Save profile with memory integration
     try {
-      const apiKey = localSettings.apiKeys?.openRouter
-      // Memory is enabled by default, so check memorySettings?.enabled and default to true
-      const memoryEnabled = localSettings.memorySettings?.enabled !== false
+      const apiKey = updatedSettings.apiKeys?.openRouter
 
-      console.log("[Onboarding] Profile save - API key:", !!apiKey, "Memory enabled:", memoryEnabled)
+      console.log("[Onboarding] Profile save - API key:", !!apiKey, "Memory enabled: true")
 
       await userProfileService.saveProfile(profile, user?.id, {
         apiKey,
-        integrateWithMemory: memoryEnabled && !!apiKey
+        integrateWithMemory: !!apiKey // Integrate with memory if API key available
       })
 
-      if (memoryEnabled && apiKey) {
+      if (apiKey) {
         console.log("[Onboarding] ✅ Profile integrated with memory system")
-      } else if (!apiKey) {
+      } else {
         console.log("[Onboarding] ⚠️ No API key - profile saved but not integrated with memory")
-      } else if (!memoryEnabled) {
-        console.log("[Onboarding] ⚠️ Memory disabled - profile saved but not integrated")
       }
     } catch (error) {
       console.error("[Onboarding] Profile save error:", error)
     }
 
-    // Save settings
-    updateSettings(localSettings)
+    // Save settings (with memory enabled)
+    updateSettings(updatedSettings)
 
     // Mark onboarding as complete
     localStorage.setItem("simple-mode-onboarding-complete", "true")

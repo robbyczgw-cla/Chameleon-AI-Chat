@@ -514,6 +514,7 @@ export function SimpleChatApp() {
 
 
   // Check if onboarding should be shown (first time Simple Mode user)
+  // IMPORTANT: This is designed to prevent duplicate onboarding on iOS PWA where localStorage can be unreliable
   useEffect(() => {
     const onboardingComplete = localStorage.getItem("simple-mode-onboarding-complete")
 
@@ -522,11 +523,17 @@ export function SimpleChatApp() {
       return
     }
 
+    // Check if user has a profile with data set - this is more reliable than localStorage flags
+    // If the user has profile data, they've already completed onboarding before
+    const profile = userProfileService.getProfile()
+    if (profile.name) {
+      console.log("[Simple Mode] User has existing profile, marking onboarding complete")
+      localStorage.setItem("simple-mode-onboarding-complete", "true")
+      return
+    }
+
     // Check if this is an existing user switching to Simple Mode
     // Existing users should NOT see onboarding - their settings sync between modes
-    // NOTE: We don't check user !== null or chameleon-mode-selected because
-    // a newly registered user is authenticated and has selected a mode,
-    // but should still see onboarding
     const isExistingUser =
       chats.length > 0 ||
       localStorage.getItem("chameleon-chats") ||
@@ -534,15 +541,29 @@ export function SimpleChatApp() {
 
     if (isExistingUser) {
       // Mark onboarding as complete for existing users
+      console.log("[Simple Mode] Existing user detected, marking onboarding complete")
       localStorage.setItem("simple-mode-onboarding-complete", "true")
       return
     }
 
-    // Truly new user - show onboarding
-    const profile = userProfileService.getProfile()
-    if (!profile.name) {
-      setShowOnboarding(true)
+    // Also check if user has any memories (another sign of existing usage)
+    const memories = localStorage.getItem("chat_memories")
+    if (memories) {
+      try {
+        const parsed = JSON.parse(memories)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          console.log("[Simple Mode] User has existing memories, marking onboarding complete")
+          localStorage.setItem("simple-mode-onboarding-complete", "true")
+          return
+        }
+      } catch {
+        // Ignore parse errors
+      }
     }
+
+    // Truly new user - show onboarding
+    console.log("[Simple Mode] New user detected, showing onboarding")
+    setShowOnboarding(true)
   }, [user, chats.length])
 
   // Handle events from other components
@@ -575,8 +596,21 @@ export function SimpleChatApp() {
   }, [])
 
   const handleNewChat = () => {
-    createChat(settings.selectedModel)
-    setIsSidebarOpen(false)
+    try {
+      createChat(settings.selectedModel)
+      setIsSidebarOpen(false)
+    } catch (error) {
+      console.error("[Simple Mode] Failed to create new chat:", error)
+      toast({
+        title: lang === "de" ? "Fehler" : lang === "es" ? "Error" : "Error",
+        description: lang === "de"
+          ? "Chat konnte nicht erstellt werden"
+          : lang === "es"
+          ? "No se pudo crear el chat"
+          : "Could not create chat",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleSelectPersona = (persona: Persona | null) => {
@@ -687,7 +721,8 @@ export function SimpleChatApp() {
         </>
       )}
 
-      <div className="relative z-10 h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] overflow-hidden pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,12px)] md:pb-4">
+      {/* iOS PWA fix: Only apply safe-area-inset-top here, bottom padding is handled by SimpleChatInput */}
+      <div className="relative z-10 h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] overflow-hidden pt-[env(safe-area-inset-top,0px)] md:pb-4">
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div

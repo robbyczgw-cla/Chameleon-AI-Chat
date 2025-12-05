@@ -611,10 +611,21 @@ Return ONLY the JSON array, no other text.`
         throw new Error("LLM response is not an array")
       }
 
-      // Step 4: Create memories from LLM output
+      // Step 4: Create memories from LLM output (with deduplication)
+      // Get non-profile memories to check for duplicates
+      const nonProfileMemories = this.memories.filter(m => m.source !== "profile")
+
       let createdCount = 0
+      let skippedDuplicates = 0
       for (const memData of memoriesData) {
         try {
+          // Check for duplicates before adding
+          if (this.isMemoryDuplicate(memData.content, nonProfileMemories)) {
+            console.log("[Memory] Skipping duplicate profile memory:", memData.content.substring(0, 40))
+            skippedDuplicates++
+            continue
+          }
+
           const memory = this.addMemory({
             type: memData.type,
             content: memData.content,
@@ -641,7 +652,7 @@ Return ONLY the JSON array, no other text.`
         }
       }
 
-      console.log("[Memory] Successfully created", createdCount, "profile memories")
+      console.log("[Memory] Profile integration complete:", createdCount, "created,", skippedDuplicates, "duplicates skipped")
       return { success: true, memoriesCreated: createdCount }
 
     } catch (error) {
@@ -673,6 +684,117 @@ Return ONLY the JSON array, no other text.`
         low: this.memories.filter(m => m.importance === 1).length,
       },
     }
+  }
+
+  /**
+   * Check if a memory is a duplicate of an existing memory
+   * Uses multiple strategies to detect duplicates:
+   * 1. Exact match (case-insensitive)
+   * 2. Key-value pattern matching (e.g., "name is X", "age is Y")
+   * 3. High substring overlap (>80% similar)
+   */
+  isMemoryDuplicate(newContent: string, existingMemories: Memory[]): boolean {
+    if (!newContent || existingMemories.length === 0) return false
+
+    const newContentLower = newContent.toLowerCase().trim()
+    const newContentNormalized = this.normalizeMemoryContent(newContentLower)
+
+    for (const existing of existingMemories) {
+      const existingLower = existing.content.toLowerCase().trim()
+      const existingNormalized = this.normalizeMemoryContent(existingLower)
+
+      // Strategy 1: Exact match (normalized)
+      if (newContentNormalized === existingNormalized) {
+        console.log("[Memory] Duplicate: exact match")
+        return true
+      }
+
+      // Strategy 2: Key-value pattern matching (for profile-like data)
+      // Detect patterns like "user's name is X", "name: X", "age is Y"
+      const newKeyValue = this.extractKeyValue(newContentLower)
+      const existingKeyValue = this.extractKeyValue(existingLower)
+      if (newKeyValue && existingKeyValue &&
+          newKeyValue.key === existingKeyValue.key &&
+          newKeyValue.value === existingKeyValue.value) {
+        console.log("[Memory] Duplicate: same key-value pair", newKeyValue)
+        return true
+      }
+
+      // Strategy 3: High substring overlap (for longer content)
+      const similarity = this.calculateSimilarity(newContentNormalized, existingNormalized)
+      if (similarity > 0.85) {
+        console.log("[Memory] Duplicate: high similarity", similarity.toFixed(2))
+        return true
+      }
+    }
+
+    return false
+  }
+
+  /**
+   * Normalize memory content for comparison
+   * Removes common filler words and punctuation
+   */
+  private normalizeMemoryContent(content: string): string {
+    return content
+      .replace(/user's?|the user|my/gi, "")
+      .replace(/\bis\b|\bare\b|\bhas\b|\bhave\b/gi, "")
+      .replace(/['".,!?:;]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+  }
+
+  /**
+   * Extract key-value pattern from memory content
+   * Handles patterns like: "name is John", "user's age: 35", "location: Vienna"
+   */
+  private extractKeyValue(content: string): { key: string; value: string } | null {
+    // Common profile fields
+    const patterns = [
+      /(?:name|called|named)\s*(?:is|:)?\s*(.+)/i,
+      /(?:age|years old)\s*(?:is|:)?\s*(\d+)/i,
+      /(?:lives? in|location|from|city)\s*(?:is|:)?\s*(.+)/i,
+      /(?:works? as|job|occupation|profession)\s*(?:is|:)?\s*(.+)/i,
+      /(?:interested? in|interests?|hobbies?)\s*(?:is|are|:)?\s*(.+)/i,
+      /(?:goals?|wants? to)\s*(?:is|are|:)?\s*(.+)/i,
+    ]
+
+    const keyMap: Record<number, string> = {
+      0: "name",
+      1: "age",
+      2: "location",
+      3: "occupation",
+      4: "interests",
+      5: "goals",
+    }
+
+    for (let i = 0; i < patterns.length; i++) {
+      const match = content.match(patterns[i])
+      if (match && match[1]) {
+        return {
+          key: keyMap[i],
+          value: match[1].toLowerCase().trim()
+        }
+      }
+    }
+
+    return null
+  }
+
+  /**
+   * Calculate Jaccard similarity between two strings
+   */
+  private calculateSimilarity(str1: string, str2: string): number {
+    const words1 = new Set(str1.split(/\s+/).filter(w => w.length > 2))
+    const words2 = new Set(str2.split(/\s+/).filter(w => w.length > 2))
+
+    if (words1.size === 0 && words2.size === 0) return 1
+    if (words1.size === 0 || words2.size === 0) return 0
+
+    const intersection = new Set([...words1].filter(x => words2.has(x)))
+    const union = new Set([...words1, ...words2])
+
+    return intersection.size / union.size
   }
 
   /**
@@ -886,11 +1008,13 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
       for (const item of extracted) {
         console.log("[Memory] Processing item:", item)
 
-        // Skip if too similar to existing memory
+        // Enhanced deduplication - check for semantic similarity, not just first 30 chars
         const contentLower = item.content?.toLowerCase() || ""
-        if (existingContent && existingContent.length > 0 && contentLower.length >= 30) {
-          if (existingContent.includes(contentLower.substring(0, 30))) {
-            console.log("[Memory] Skipping duplicate:", item.content?.substring(0, 40))
+        if (existingContent && existingContent.length > 0 && contentLower.length > 0) {
+          // Check if this exact content or very similar content already exists
+          const isDuplicate = this.isMemoryDuplicate(item.content, existingMemories)
+          if (isDuplicate) {
+            console.log("[Memory] Skipping duplicate:", item.content?.substring(0, 50))
             continue
           }
         }

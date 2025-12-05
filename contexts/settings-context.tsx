@@ -60,7 +60,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     livecrawl: "fallback",
   },
   memorySettings: {
-    enabled: false,
+    enabled: true, // Enabled by default for personalized experience
     autoExtract: true,
     importanceThreshold: 2,
     maxMemoriesInContext: 5,
