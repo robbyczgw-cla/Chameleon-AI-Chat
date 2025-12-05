@@ -2,11 +2,24 @@
 @import "tw-animate-css";
 /* Removed KaTeX CSS import to fix runtime error */
 
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=OpenDyslexic&display=swap');
+/* Fonts now loaded via Next.js font loader in layout.tsx */
+
+/* OpenDyslexic - not available in Google Fonts, using CDN */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/opendyslexic@3.0.0/fonts/OpenDyslexic-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/opendyslexic@3.0.0/fonts/OpenDyslexic-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -1829,43 +1842,42 @@
    FONT SYSTEM
    ======================================== */
 
-/* Font Family CSS Variables */
+/* Font Family CSS Variables - loaded via Next.js font loader in layout.tsx */
+/* Variables --font-inter, --font-roboto, --font-jetbrains, --font-atkinson are auto-generated */
+
+/* Define fallback variables for fonts not loaded via Next.js */
 :root {
-  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-roboto: 'Roboto', system-ui, -apple-system, sans-serif;
-  --font-atkinson: 'Atkinson Hyperlegible', system-ui, sans-serif;
   --font-opendyslexic: 'OpenDyslexic', monospace;
-  --font-jetbrains: 'JetBrains Mono', 'Consolas', monospace;
   --font-system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Default: Inter */
+/* Default: Inter (from Next.js font loader) */
 body {
   font-family: var(--font-inter);
 }
 
 /* Font Family Switching via data attribute */
-[data-font='inter'] {
+[data-font='inter'] body {
   font-family: var(--font-inter);
 }
 
-[data-font='roboto'] {
+[data-font='roboto'] body {
   font-family: var(--font-roboto);
 }
 
-[data-font='atkinson'] {
+[data-font='atkinson'] body {
   font-family: var(--font-atkinson);
 }
 
-[data-font='opendyslexic'] {
+[data-font='opendyslexic'] body {
   font-family: var(--font-opendyslexic);
 }
 
-[data-font='jetbrains'] {
+[data-font='jetbrains'] body {
   font-family: var(--font-jetbrains);
 }
 
-[data-font='system'] {
+[data-font='system'] body {
   font-family: var(--font-system);
 }
 
