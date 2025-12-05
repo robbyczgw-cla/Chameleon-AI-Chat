@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch"
 import type { SettingsDialogProps } from "@/types"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { memoryService } from "@/lib/memory-service"
+import { languageService } from "@/lib/languages"
 
 // Lazy load heavy components for better initial bundle size
 const SystemPromptsManager = lazy(() => import("@/components/system-prompts-manager").then(m => ({ default: m.SystemPromptsManager })))
@@ -211,8 +212,16 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const handleSave = () => {
     console.log("[SettingsDialog] handleSave called, saving localSettings:", {
       memoryEnabled: localSettings.memorySettings?.enabled,
-      hasApiKeys: !!localSettings.apiKeys
+      hasApiKeys: !!localSettings.apiKeys,
+      language: localSettings.language
     })
+
+    // Sync language to languageService for compatibility
+    if (localSettings.language && localSettings.language !== settings.language) {
+      languageService.setLanguage(localSettings.language)
+      console.log("[SettingsDialog] Synced language change to languageService:", localSettings.language)
+    }
+
     updateSettings(localSettings)
     onOpenChange(false)
   }
