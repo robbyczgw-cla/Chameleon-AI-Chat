@@ -7,7 +7,8 @@ export interface SlashCommand {
   command: string
   description: string
   prompt: string
-  category: "code" | "text" | "analysis" | "utility"
+  category: "code" | "text" | "analysis" | "utility" | "action"
+  action?: "toggle-reasoning" | "toggle-web-search" // Special action commands
 }
 
 export const SLASH_COMMANDS: SlashCommand[] = [
@@ -99,6 +100,22 @@ export const SLASH_COMMANDS: SlashCommand[] = [
     description: "Explain like I'm 5",
     prompt: "Please explain the following in simple terms that anyone can understand:\n\n",
     category: "analysis"
+  },
+
+  // Action Commands (toggle settings)
+  {
+    command: "/r",
+    description: "Toggle reasoning mode",
+    prompt: "",
+    category: "action",
+    action: "toggle-reasoning"
+  },
+  {
+    command: "/web",
+    description: "Toggle web search",
+    prompt: "",
+    category: "action",
+    action: "toggle-web-search"
   },
 
   // Utility Commands

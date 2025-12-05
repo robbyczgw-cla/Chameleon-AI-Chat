@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { FolderOpen, Send, Mic, Globe, MicOff, Square, Zap, Image, Lightbulb } from "lucide-react"
+import { FolderOpen, Send, Mic, Globe, MicOff, Square, Zap, Image } from "lucide-react"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
@@ -62,10 +62,6 @@ export function ChatInput() {
     const saved = localStorage.getItem("chameleon-reasoning-enabled")
     return saved === "true"
   })
-
-  // Reasoning toggle is now available for ALL models
-  // OpenRouter gracefully ignores the reasoning parameter if model doesn't support it
-  const modelSupportsReasoning = true // Always true - let OpenRouter handle model compatibility
 
   // Save reasoning state
   useEffect(() => {
@@ -253,6 +249,28 @@ export function ChatInput() {
     // Parse slash commands
     const { isCommand, command, remainingText } = parseSlashCommand(messageContent)
     if (isCommand && command) {
+      // Handle action commands (toggle settings)
+      if (command.action) {
+        if (command.action === 'toggle-reasoning') {
+          const newState = !reasoningEnabled
+          setReasoningEnabled(newState)
+          toast({
+            title: newState ? "🧠 Reasoning enabled" : "Reasoning disabled",
+            description: newState ? "AI will show its thinking process" : "Standard response mode",
+          })
+        } else if (command.action === 'toggle-web-search') {
+          const newState = !webSearchEnabled
+          setWebSearchEnabled(newState)
+          toast({
+            title: newState ? "🌐 Web search enabled" : "Web search disabled",
+            description: newState ? "AI will search the web for answers" : "Using knowledge only",
+          })
+        }
+        setInput('')
+        clearDraft()
+        return // Don't send a message for action commands
+      }
+
       messageContent = buildCommandPrompt(command, remainingText)
       toast({
         title: `Slash Command: ${command.command}`,
@@ -1165,40 +1183,25 @@ export function ChatInput() {
                 variant={webSearchEnabled ? "default" : "ghost"}
                 className="h-7 w-7 md:h-8 md:w-8 rounded-lg transition-all"
                 onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                title="Web search"
+                title="Web search (or type /web)"
               >
                 <Globe className="h-3.5 w-3.5 md:h-4 md:w-4" />
               </Button>
-              {/* Reasoning toggle - visible on mobile and desktop */}
-              {modelSupportsReasoning && (
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={reasoningEnabled ? "default" : "ghost"}
-                  className={cn(
-                    "h-7 w-7 md:h-8 md:w-8 rounded-lg transition-all",
-                    reasoningEnabled && "bg-amber-500 hover:bg-amber-600"
-                  )}
-                  onClick={() => setReasoningEnabled(!reasoningEnabled)}
-                  title="Reasoning"
-                >
-                  <Lightbulb className={cn("h-3.5 w-3.5 md:h-4 md:w-4", reasoningEnabled && "text-white")} />
-                </Button>
-              )}
+              {/* Voice input - visible on mobile and desktop */}
+              <Button
+                type="button"
+                size="icon"
+                variant={isListening ? "default" : "ghost"}
+                className="h-7 w-7 md:h-8 md:w-8 rounded-lg transition-all"
+                onClick={toggleVoiceInput}
+                title="Voice input"
+              >
+                {isListening ? <MicOff className="h-3.5 w-3.5 md:h-4 md:w-4" /> : <Mic className="h-3.5 w-3.5 md:h-4 md:w-4" />}
+              </Button>
               {/* File upload */}
               <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-              {/* Desktop only: Voice, Image */}
+              {/* Desktop only: Image mode */}
               <div className="hidden md:flex gap-1">
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={isListening ? "default" : "ghost"}
-                  className="h-8 w-8 rounded-lg transition-all"
-                  onClick={toggleVoiceInput}
-                  title="Voice input"
-                >
-                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                </Button>
                 <Button
                   type="button"
                   size="icon"
