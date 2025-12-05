@@ -730,6 +730,10 @@ async function handleStreamingRequest(
             phase = "tool_use"
             action = `Fetching URL: ${toolArgs.url}`
             toolQuery = toolArgs.url || ""
+          } else if (toolName === "generate_image") {
+            phase = "tool_use"
+            action = `Generating image: ${toolArgs.prompt?.substring(0, 50)}...`
+            toolQuery = toolArgs.prompt || ""
           } else if (toolName === "youtube_transcript") {
             phase = "tool_use"
             action = `Getting YouTube transcript: ${toolArgs.url}`
@@ -813,6 +817,54 @@ async function handleStreamingRequest(
                   role: "tool" as const,
                   name: "get_weather",
                   content: result,
+                }
+              }
+
+              if (toolCall.function.name === "generate_image") {
+                console.log("[Chat] Executing generate_image:", args.prompt)
+                const imagePrompt = args.style
+                  ? `${args.prompt}, style: ${args.style}`
+                  : args.prompt
+
+                try {
+                  // Call our image generation API
+                  const imageResponse = await fetch(new URL('/api/generate-image', req.url).toString(), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      prompt: imagePrompt,
+                      apiKey: apiKey, // Use the same OpenRouter API key
+                    }),
+                  })
+
+                  if (imageResponse.ok) {
+                    const imageResult = await imageResponse.json()
+                    if (imageResult.imageUrl) {
+                      return {
+                        tool_call_id: toolCall.id,
+                        role: "tool" as const,
+                        name: "generate_image",
+                        content: `I've generated an image based on your request. Here it is:\n\n![Generated Image](${imageResult.imageUrl})\n\nPrompt used: "${args.prompt}"`,
+                      }
+                    }
+                  }
+
+                  // If image generation failed, return error message
+                  const errorData = await imageResponse.json().catch(() => ({}))
+                  return {
+                    tool_call_id: toolCall.id,
+                    role: "tool" as const,
+                    name: "generate_image",
+                    content: `Image generation failed: ${errorData.error || 'Unknown error'}. Please try again or rephrase your request.`,
+                  }
+                } catch (error) {
+                  console.error("[Chat] Image generation error:", error)
+                  return {
+                    tool_call_id: toolCall.id,
+                    role: "tool" as const,
+                    name: "generate_image",
+                    content: `Image generation encountered an error. Please try again later.`,
+                  }
                 }
               }
 
