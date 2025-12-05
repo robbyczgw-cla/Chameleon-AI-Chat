@@ -57,8 +57,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   const [imageMode, setImageMode] = useState(false)
   const { toast } = useToast()
 
-  // Detect if we're in Advanced mode (from localStorage, not persona-based)
-  const [isAdvancedMode, setIsAdvancedMode] = useState(false)
+  // NOTE: isAdvancedMode is now provided by useFeatureFlags() hook above
 
   // Load web search state from localStorage (PERSIST USER PREFERENCE!)
   const [webSearchEnabled, setWebSearchEnabled] = useState(() => {
@@ -89,10 +88,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     }
   }, [webSearchEnabled, reasoningEnabled])
 
-  useEffect(() => {
-    const mode = localStorage.getItem("app-mode")
-    setIsAdvancedMode(mode === "advanced")
-  }, [])
+  // NOTE: isAdvancedMode detection moved to useFeatureFlags() hook
 
   // Update command suggestions when input changes (Advanced mode only with feature flag)
   useEffect(() => {
