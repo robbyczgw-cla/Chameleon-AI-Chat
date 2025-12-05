@@ -456,34 +456,40 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
           <MessageWrapper
             key={message.id}
             messageId={message.id}
-            className={cn("flex gap-2 sm:gap-4 group w-full animate-slide-in-up", message.role === "user" ? "justify-end" : "justify-start")}
+            className={cn(
+              "group w-full animate-slide-in-up",
+              message.role === "user" ? "flex gap-2 sm:gap-4 justify-end" : "flex flex-col gap-2"
+            )}
           >
             {message.role === "assistant" && (
-              <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/20 shrink-0 shadow-md smooth-transition ring-2 ring-background">
-                {currentPersona?.avatarUrl ? (
-                  <>
-                    <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/20 shrink-0 shadow-md smooth-transition ring-2 ring-background">
+                  {currentPersona?.avatarUrl ? (
+                    <>
+                      <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                        <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
+                      </AvatarFallback>
+                    </>
+                  ) : currentPersona?.emoji ? (
                     <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
                       <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
                     </AvatarFallback>
-                  </>
-                ) : currentPersona?.emoji ? (
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                    <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
-                  </AvatarFallback>
-                ) : (
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                    <Bot className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
-                  </AvatarFallback>
-                )}
-              </Avatar>
+                  ) : (
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                      <Bot className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+                <span className="text-sm font-medium text-muted-foreground">{currentPersona?.name || "AI Assistant"}</span>
+              </div>
             )}
 
             <div className={cn(
               "flex flex-col gap-2 min-w-0",
               message.role === "user"
                 ? "w-fit max-w-[80%] sm:max-w-[70%] md:max-w-[60%]"
-                : "min-w-0 w-full max-w-[90%] sm:max-w-[85%] md:max-w-[85%] lg:max-w-[80%]"
+                : "w-full"
             )}>
               {message.attachments && message.attachments.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
@@ -503,7 +509,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                   "text-sm sm:text-base smooth-transition relative overflow-hidden",
                   message.role === "user"
                     ? "message-bubble-user rounded-[20px] rounded-br-lg px-4 py-3 sm:px-5 sm:py-3.5 text-primary-foreground shadow-lg shadow-primary/20 w-fit"
-                    : "message-bubble-ai rounded-[20px] rounded-bl-lg px-4 py-3 sm:px-5 sm:py-3.5 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm w-full",
+                    : "message-bubble-ai rounded-[20px] rounded-tl-lg px-4 py-3 sm:px-5 sm:py-3.5 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm w-full",
                 )}
               >
                 {/* Glass shine effect for user messages */}
@@ -862,29 +868,32 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
         {/* Modern AI Loading Indicator with Step-by-Step Visualization */}
         {isChatLoading && (
-          <div className="flex gap-2 sm:gap-4 animate-slide-in-up">
-            <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/30 shrink-0 relative shadow-md ring-2 ring-background">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-primary animate-spin-slow opacity-30" />
-              {currentPersona?.avatarUrl ? (
-                <>
-                  <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
+          <div className="flex flex-col gap-2 animate-slide-in-up">
+            <div className="flex items-center gap-2">
+              <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/30 shrink-0 relative shadow-md ring-2 ring-background">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-primary animate-spin-slow opacity-30" />
+                {currentPersona?.avatarUrl ? (
+                  <>
+                    <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                      <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
+                    </AvatarFallback>
+                  </>
+                ) : currentPersona?.emoji ? (
                   <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
                     <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
                   </AvatarFallback>
-                </>
-              ) : currentPersona?.emoji ? (
-                <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                  <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
-                </AvatarFallback>
-              ) : (
-                <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                  <Bot className="h-4 w-4" />
-                </AvatarFallback>
-              )}
-            </Avatar>
-            <div className="flex flex-col gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[85%] lg:max-w-[80%]">
+                ) : (
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                    <Bot className="h-4 w-4" />
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <span className="text-sm font-medium text-muted-foreground">{currentPersona?.name || "AI Assistant"}</span>
+            </div>
+            <div className="flex flex-col gap-2 w-full">
               <div className={cn(
-                "rounded-[20px] rounded-bl-lg px-4 py-3 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container",
+                "rounded-[20px] rounded-tl-lg px-4 py-3 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container",
                 isAdvancedMode ? "min-w-[360px] sm:min-w-[420px]" : "min-w-[280px]"
               )}>
                 {/* Step-by-step status visualization - clean default for both modes */}
