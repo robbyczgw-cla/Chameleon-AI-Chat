@@ -26,6 +26,7 @@ import {
   FileCode,
   Mic,
   Image,
+  MoreHorizontal,
 } from "lucide-react"
 import { useEffect } from "react"
 import { ModelSelector } from "@/components/model-selector"
@@ -46,6 +47,8 @@ import { QuickActionsMenu } from "@/components/quick-actions-menu"
 import { PromptInspector } from "@/components/prompt-inspector"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { PromptHelperDialog } from "@/components/prompt-helper-dialog"
+import { MobileMoreMenu } from "@/components/mobile-more-menu"
+import { haptics } from "@/lib/haptics"
 
 export function ChatHeader() {
   const { settings, updateSettings, chats, currentChatId } = useApp()
@@ -238,63 +241,74 @@ export function ChatHeader() {
   return (
     <>
       <header className="flex h-14 md:h-16 items-center justify-between border-b border-border/40 bg-background/80 backdrop-blur-xl px-3 sm:px-4 md:px-5 shadow-sm mobile-header-glass">
-        {/* Mobile: Modern compact header */}
-        <div className="flex md:hidden items-center gap-3 min-w-0 flex-1">
-          {/* Logo and title */}
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 shadow-sm border border-primary/10 flex-shrink-0 transition-transform active:scale-95">
-              <ChameleonLogoSimple className="text-primary" size={18} />
+        {/* Mobile: Modern minimalistic header */}
+        <div className="flex md:hidden items-center justify-between w-full">
+          {/* Left: Sidebar toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
+            onClick={() => {
+              haptics.trigger('selection')
+              toggleMobileSidebar()
+            }}
+            title="Chats"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+
+          {/* Center: Logo and title */}
+          <div className="flex items-center gap-2 min-w-0 flex-1 justify-center px-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 shadow-sm border border-primary/10 flex-shrink-0">
+              <ChameleonLogoSimple className="text-primary" size={16} />
             </div>
-            <div className="min-w-0 flex-1">
-              <h1 className={cn(
-                "text-sm font-bold text-foreground truncate leading-tight",
-                isTitleAnimated && "animate-title-appear"
-              )}>
-                {currentChat?.title || "Chameleon"}
-              </h1>
-              <p className="text-[10px] text-muted-foreground/70 truncate">
-                AI Chat Assistant
-              </p>
-            </div>
+            <h1 className={cn(
+              "text-sm font-semibold text-foreground truncate max-w-[120px]",
+              isTitleAnimated && "animate-title-appear"
+            )}>
+              {currentChat?.title || "Chameleon"}
+            </h1>
           </div>
-          {/* Mobile toggles - pill style */}
-          <div className="flex items-center gap-1 flex-shrink-0 p-1 rounded-2xl mobile-nav-glass border border-white/10 dark:border-white/5">
+
+          {/* Right: Settings, Tune, More */}
+          <div className="flex items-center gap-0.5">
             <Button
-              type="button"
-              size="icon"
               variant="ghost"
-              className={cn(
-                "h-7 w-7 rounded-xl transition-all duration-200",
-                isVoiceActive
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
+              size="icon"
+              className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
               onClick={() => {
-                setIsVoiceActive(!isVoiceActive)
-                window.dispatchEvent(new CustomEvent("toggleVoice"))
+                haptics.trigger('selection')
+                setIsSettingsOpen(true)
               }}
-              title="Voice input"
+              title="Settings"
             >
-              <Mic className="h-3.5 w-3.5" />
+              <Settings className="h-4 w-4" />
             </Button>
             <Button
-              type="button"
-              size="icon"
               variant="ghost"
-              className={cn(
-                "h-7 w-7 rounded-xl transition-all duration-200",
-                isImageModeActive
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
+              size="icon"
+              className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
               onClick={() => {
-                setIsImageModeActive(!isImageModeActive)
-                window.dispatchEvent(new CustomEvent("toggleImageMode"))
+                haptics.trigger('selection')
+                setIsAdvancedSettingsOpen(true)
               }}
-              title="Image mode"
+              title="Tune"
             >
-              <Image className="h-3.5 w-3.5" />
+              <Sliders className="h-4 w-4" />
             </Button>
+            <MobileMoreMenu
+              onSettingsClick={() => setIsSettingsOpen(true)}
+              onProfileClick={() => setIsProfileOpen(true)}
+              onMemoryClick={() => setIsMemoryOpen(true)}
+              onComparisonClick={toggleComparisonMode}
+              onSearchClick={() => setIsSearchOpen(true)}
+              onDocCollectionsClick={() => setIsDocCollectionsOpen(true)}
+              onDebateClick={() => setIsDebateOpen(true)}
+              onInspectorClick={() => setIsInspectorOpen(true)}
+              onStatsClick={toggleStatsPanel}
+              onPersonasClick={() => setIsPersonasOpen(true)}
+              onPromptHelperClick={() => setIsPromptHelperOpen(true)}
+            />
           </div>
         </div>
 

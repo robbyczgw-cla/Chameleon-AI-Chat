@@ -12,13 +12,13 @@ import { StatsDashboard } from "@/components/stats-dashboard"
 import { ModeWrapper } from "@/components/mode-wrapper"
 import { keyboardShortcutService } from "@/lib/keyboard-shortcuts"
 import { ChameleonLogo } from "@/components/chameleon-logo"
-import { MobileBottomNav } from "@/components/mobile-bottom-nav"
+// Mobile bottom nav removed - navigation now in header
 import { PersonaLevelUpNotifier } from "@/components/persona-level-up-notifier"
 import { FontApplier } from "@/components/font-applier"
 import { cn } from "@/lib/utils"
 
 function ChatApp() {
-  const { chats, currentChatId, createChat, settings } = useApp()
+  const { chats, currentChatId, settings } = useApp()
   const [isComparisonMode, setIsComparisonMode] = useState(false)
   const [showStatsPanel, setShowStatsPanel] = useState(false)
   const [showSidebar, setShowSidebar] = useState(true)
@@ -26,59 +26,6 @@ function ChatApp() {
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
-
-  // Mobile bottom nav handlers
-  const handleMobileNewChat = () => {
-    createChat(settings.selectedModel)
-  }
-
-  const handleMobilePersonas = () => {
-    window.dispatchEvent(new Event("openPersonas"))
-  }
-
-  const handleMobilePromptHelper = () => {
-    window.dispatchEvent(new Event("openPromptHelper"))
-  }
-
-  const handleMobileSettings = () => {
-    window.dispatchEvent(new Event("openSettings"))
-  }
-
-  const handleMobileProfile = () => {
-    window.dispatchEvent(new Event("openProfile"))
-  }
-
-  const handleMobileMemory = () => {
-    window.dispatchEvent(new Event("openMemory"))
-  }
-
-  const handleMobileComparison = () => {
-    setIsComparisonMode((prev) => !prev)
-  }
-
-  const handleMobileSearch = () => {
-    window.dispatchEvent(new Event("openSearch"))
-  }
-
-  const handleMobileCollections = () => {
-    window.dispatchEvent(new Event("openDocCollections"))
-  }
-
-  const handleMobileAdvancedSettings = () => {
-    window.dispatchEvent(new Event("openAdvancedSettings"))
-  }
-
-  const handleMobileDebate = () => {
-    window.dispatchEvent(new Event("openDebate"))
-  }
-
-  const handleMobileInspector = () => {
-    window.dispatchEvent(new Event("openInspector"))
-  }
-
-  const handleMobileStats = () => {
-    setShowStatsPanel((prev) => !prev)
-  }
 
   // Apply saved theme and performance mode on mount and when settings change
   useEffect(() => {
@@ -180,7 +127,7 @@ function ChatApp() {
         </>
       )}
 
-      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 pb-[44px] md:pb-0 gap-0">
+      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 gap-0">
         <PersonaLevelUpNotifier />
         {isMobileSidebarOpen && (
           <div
@@ -201,7 +148,7 @@ function ChatApp() {
 
         <div className={cn("flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl", settings.theme === "blueprint" && "animate-[rise_0.6s_ease-out]")}>
           <ChatHeader />
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-2 md:px-4 pb-2 md:pb-4">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-2 md:px-4">
             {showStatsPanel ? (
               <StatsDashboard />
             ) : isComparisonMode ? (
@@ -222,7 +169,7 @@ function ChatApp() {
                 <div className="flex-1 overflow-hidden">
                   <ChatMessages currentPersona={settings.selectedPersona} />
                 </div>
-                <div className="flex-shrink-0 pb-4 md:pb-0 md:mt-0">
+                <div className="flex-shrink-0">
                   <BranchNavigator />
                   <ChatInput />
                 </div>
@@ -231,23 +178,6 @@ function ChatApp() {
           </div>
         </div>
 
-        {/* Mobile Bottom Navigation */}
-        <MobileBottomNav
-          onMenuClick={() => setIsMobileSidebarOpen(prev => !prev)}
-          onNewChatClick={handleMobileNewChat}
-          onPersonasClick={handleMobilePersonas}
-          onPromptHelperClick={handleMobilePromptHelper}
-          onSettingsClick={handleMobileSettings}
-          onProfileClick={handleMobileProfile}
-          onMemoryClick={handleMobileMemory}
-          onComparisonClick={handleMobileComparison}
-          onSearchClick={handleMobileSearch}
-          onDocCollectionsClick={handleMobileCollections}
-          onAdvancedSettingsClick={handleMobileAdvancedSettings}
-          onDebateClick={handleMobileDebate}
-          onInspectorClick={handleMobileInspector}
-          onStatsClick={handleMobileStats}
-        />
       </div>
     </div>
   )
