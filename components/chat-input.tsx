@@ -1171,7 +1171,8 @@ export function ChatInput() {
               onChange={(e) => handleInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Message..."
-              className="min-h-[40px] max-h-[200px] resize-none md:pr-28 text-sm sm:text-base rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-sm transition-all duration-200 py-2"
+              rows={2}
+              className="min-h-[56px] max-h-[200px] resize-none pr-24 md:pr-28 text-sm sm:text-base rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-sm transition-all duration-200 py-2"
               disabled={isLoading}
             />
             {/* Buttons inside textarea */}
