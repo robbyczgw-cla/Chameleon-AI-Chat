@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch"
 import type { SettingsDialogProps } from "@/types"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { memoryService } from "@/lib/memory-service"
+import { languageService } from "@/lib/languages"
 
 // Lazy load heavy components for better initial bundle size
 const SystemPromptsManager = lazy(() => import("@/components/system-prompts-manager").then(m => ({ default: m.SystemPromptsManager })))
@@ -172,8 +173,8 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
       setTimeout(loadVoices, 500)
     }
 
-    // Load theme from localStorage
-    const savedTheme = localStorage.getItem("chameleon-theme") || "light"
+    // Load theme from settings context (preferred) or fallback to localStorage for migration
+    const savedTheme = settings.theme || localStorage.getItem("chameleon-theme") || "light"
     setCurrentTheme(savedTheme)
     applyTheme(savedTheme)
 
@@ -206,13 +207,23 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const handleThemeChange = (theme: string) => {
     setCurrentTheme(theme)
     applyTheme(theme)
+    // Also update localSettings so it gets saved to settings context
+    setLocalSettings({ ...localSettings, theme: theme as any })
   }
 
   const handleSave = () => {
     console.log("[SettingsDialog] handleSave called, saving localSettings:", {
       memoryEnabled: localSettings.memorySettings?.enabled,
-      hasApiKeys: !!localSettings.apiKeys
+      hasApiKeys: !!localSettings.apiKeys,
+      language: localSettings.language
     })
+
+    // Sync language to languageService for compatibility
+    if (localSettings.language && localSettings.language !== settings.language) {
+      languageService.setLanguage(localSettings.language)
+      console.log("[SettingsDialog] Synced language change to languageService:", localSettings.language)
+    }
+
     updateSettings(localSettings)
     onOpenChange(false)
   }

@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Outfit, Geist_Mono } from "next/font/google"
+import { Inter, Roboto, JetBrains_Mono, Atkinson_Hyperlegible } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import "./keyboard-optimizations.css"
@@ -8,8 +8,34 @@ import { Toaster } from "@/components/ui/toaster"
 import { PWARegister } from "@/components/pwa-register"
 import { CookieConsentBanner } from "@/components/cookie-consent-banner"
 
-const outfit = Outfit({ subsets: ["latin"] })
-const geistMono = Geist_Mono({ subsets: ["latin"] })
+// Load all font choices
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+})
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-roboto",
+  display: "swap",
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  display: "swap",
+})
+
+const atkinsonHyperlegible = Atkinson_Hyperlegible({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-atkinson",
+  display: "swap",
+})
+
+// Note: OpenDyslexic loaded via @font-face in globals.css (not available in Google Fonts)
 
 export const metadata: Metadata = {
   title: "Chameleon AI Chat - Adapt to Any Conversation",
@@ -51,7 +77,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={outfit.className}>
+      <body
+        className={`${inter.variable} ${roboto.variable} ${jetbrainsMono.variable} ${atkinsonHyperlegible.variable}`}
+      >
         <PWARegister />
         {children}
         <Toaster />

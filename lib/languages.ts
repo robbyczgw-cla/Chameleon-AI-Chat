@@ -26,7 +26,7 @@ export const LANGUAGES: Language[] = [
   },
 ]
 
-export const DEFAULT_LANGUAGE = "de"
+export const DEFAULT_LANGUAGE = "en"
 
 const STORAGE_KEY = "app-language"
 
@@ -35,6 +35,16 @@ export const languageService = {
     if (typeof window === "undefined") return DEFAULT_LANGUAGE
 
     try {
+      // First try to get from settings context (preferred source of truth)
+      const settingsStr = localStorage.getItem("settings")
+      if (settingsStr) {
+        const settings = JSON.parse(settingsStr)
+        if (settings.language) {
+          return settings.language
+        }
+      }
+
+      // Fallback to old storage key for migration
       const stored = localStorage.getItem(STORAGE_KEY)
       return stored || DEFAULT_LANGUAGE
     } catch (error) {
@@ -47,8 +57,22 @@ export const languageService = {
     if (typeof window === "undefined") return
 
     try {
+      // Keep old storage key for compatibility
       localStorage.setItem(STORAGE_KEY, code)
       console.log("[Language] Set language to:", code)
+
+      // Also update settings context
+      const settingsStr = localStorage.getItem("settings")
+      if (settingsStr) {
+        try {
+          const settings = JSON.parse(settingsStr)
+          settings.language = code
+          localStorage.setItem("settings", JSON.stringify(settings))
+          console.log("[Language] Synced language to settings context")
+        } catch (e) {
+          console.warn("[Language] Failed to sync to settings context:", e)
+        }
+      }
     } catch (error) {
       console.error("[Language] Failed to save language:", error)
     }

@@ -362,7 +362,15 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
     } else {
       html.classList.remove("performance-mode")
     }
+    // Save to both localStorage (for immediate effect) and settings context (for persistence)
     localStorage.setItem("chameleon-performance-mode", String(enabled))
+    setLocalSettings({
+      ...localSettings,
+      experimental: {
+        ...localSettings.experimental,
+        performanceMode: enabled
+      }
+    })
   }
 
   const handleThemeChange = (theme: string) => {

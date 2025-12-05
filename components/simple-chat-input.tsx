@@ -59,13 +59,22 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
   // NOTE: isAdvancedMode is now provided by useFeatureFlags() hook above
 
-  // Load web search state from localStorage (PERSIST USER PREFERENCE!)
+  // Load web search state from settings context (PERSIST USER PREFERENCE!)
+  // Default is TRUE unless user explicitly disabled it
   const [webSearchEnabled, setWebSearchEnabled] = useState(() => {
     if (typeof window === "undefined") return initialWebSearchEnabled ?? true
+
+    // Check settings context first (preferred - always enabled by default unless user disables)
+    if (settings.enableAutoToolUse !== undefined) {
+      return settings.enableAutoToolUse
+    }
+
+    // Fallback to old localStorage key for migration
     const saved = localStorage.getItem("chameleon-web-search-enabled")
     if (saved !== null) {
       return saved === "true"
     }
+
     return initialWebSearchEnabled ?? true
   })
 
@@ -81,10 +90,25 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   const modelSupportsReasoning = REASONING_MODELS.has(model)
 
   // OPTIMIZED: Combined localStorage saves to reduce useEffect count
+  // NOTE: Also sync to settings context for persistence
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("chameleon-web-search-enabled", String(webSearchEnabled))
       localStorage.setItem("chameleon-reasoning-enabled", String(reasoningEnabled))
+
+      // Sync to settings context if value changed
+      const settingsStr = localStorage.getItem("settings")
+      if (settingsStr) {
+        try {
+          const currentSettings = JSON.parse(settingsStr)
+          if (currentSettings.enableAutoToolUse !== webSearchEnabled) {
+            currentSettings.enableAutoToolUse = webSearchEnabled
+            localStorage.setItem("settings", JSON.stringify(currentSettings))
+          }
+        } catch (e) {
+          console.warn("[SimpleChatInput] Failed to sync web search to settings:", e)
+        }
+      }
     }
   }, [webSearchEnabled, reasoningEnabled])
 
