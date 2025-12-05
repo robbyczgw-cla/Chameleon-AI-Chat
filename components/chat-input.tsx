@@ -1175,8 +1175,8 @@ export function ChatInput() {
               className="min-h-[56px] max-h-[200px] resize-none pr-24 md:pr-28 text-sm sm:text-base rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-sm transition-all duration-200 py-2"
               disabled={isLoading}
             />
-            {/* Buttons inside textarea */}
-            <div className="absolute bottom-2 right-2 flex gap-0.5 md:gap-1">
+            {/* Buttons inside textarea - positioned at bottom to leave first row for text */}
+            <div className="absolute bottom-1.5 right-2 flex gap-0.5 md:gap-1">
               {/* Web search - visible on mobile and desktop */}
               <Button
                 type="button"
