@@ -865,6 +865,7 @@ export function ChatInput() {
         enableUrlFetchTool: settings.experimental?.enableUrlFetchTool !== false,
         enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
         enableWeatherTool: settings.experimental?.enableWeatherTool !== false,
+        enableImageGenerationTool: settings.experimental?.enableImageGenerationTool !== false,
         onSearchStart: (query) => {
           toast({
             title: "🔍 AI is searching the web...",
@@ -1180,11 +1181,11 @@ export function ChatInput() {
               onKeyDown={handleKeyDown}
               placeholder="Message..."
               rows={1}
-              className="min-h-[64px] max-h-[200px] resize-none pr-24 md:pr-28 text-sm sm:text-base rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-sm transition-all duration-200 pt-2.5 pb-9"
+              className="min-h-[44px] max-h-[200px] resize-none pr-24 md:pr-28 text-sm sm:text-base rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-sm transition-all duration-200 pt-2 pb-2"
               disabled={isLoading}
             />
-            {/* Buttons inside textarea - positioned at bottom to leave first row for text */}
-            <div className="absolute bottom-1.5 right-2 flex gap-0.5 md:gap-1">
+            {/* Buttons inside textarea - vertically centered for single row */}
+            <div className="absolute top-1/2 -translate-y-1/2 right-2 flex gap-0.5 md:gap-1">
               {/* Web search - visible on mobile and desktop */}
               <Button
                 type="button"
