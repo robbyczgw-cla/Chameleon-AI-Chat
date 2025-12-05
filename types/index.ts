@@ -279,6 +279,7 @@ export interface ExperimentalSettings {
   enableUrlFetchTool?: boolean // Allow AI to fetch and read URL content
   enableYouTubeTool?: boolean // Allow AI to extract YouTube video transcripts
   enableWeatherTool?: boolean // Allow AI to get weather information and forecasts
+  enableImageGenerationTool?: boolean // Allow AI to automatically generate images when asked
 }
 
 export interface AppSettings {

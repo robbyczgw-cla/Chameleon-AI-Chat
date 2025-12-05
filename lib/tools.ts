@@ -245,6 +245,11 @@ DO NOT use for:
           type: "string",
           description: "Optional style hint for the image",
           enum: ["photorealistic", "artistic", "cartoon", "3d-render", "sketch", "painting", "digital-art"]
+        },
+        quality: {
+          type: "string",
+          description: "Image quality level. Use 'high' only when user explicitly asks for high quality, detailed, professional, or high resolution image. Default is 'standard' for fast generation.",
+          enum: ["standard", "high"]
         }
       },
       required: ["prompt"]
