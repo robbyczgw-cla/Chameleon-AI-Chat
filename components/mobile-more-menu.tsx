@@ -46,6 +46,7 @@ interface MobileMoreMenuProps {
   onStatsClick: () => void
   onPersonasClick: () => void
   onPromptHelperClick: () => void
+  compact?: boolean // For header usage
 }
 
 export function MobileMoreMenu({
@@ -60,6 +61,7 @@ export function MobileMoreMenu({
   onStatsClick,
   onPersonasClick,
   onPromptHelperClick,
+  compact = true,
 }: MobileMoreMenuProps) {
   const { settings, updateSettings } = useApp()
   const { inspectorData } = usePromptInspectorStore()
@@ -137,14 +139,16 @@ export function MobileMoreMenu({
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
+          size="icon"
           className={cn(
-            "flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg transition-all",
-            "text-muted-foreground hover:text-foreground"
+            "transition-all text-muted-foreground hover:text-foreground",
+            compact
+              ? "h-8 w-8 rounded-xl hover:bg-muted/50 active:scale-95"
+              : "flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg"
           )}
         >
-          <MoreHorizontal className="h-5 w-5" />
-          <span className="text-[10px] font-medium">More</span>
+          <MoreHorizontal className={compact ? "h-4 w-4" : "h-5 w-5"} />
+          {!compact && <span className="text-[10px] font-medium">More</span>}
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[300px] sm:w-[350px]">

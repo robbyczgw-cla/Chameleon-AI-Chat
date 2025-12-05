@@ -1101,8 +1101,8 @@ export function ChatInput() {
   return (
     <div
       className={cn(
-        "bg-background p-2 sm:p-4 md:p-5 border-t-2 border-border/50 smooth-transition",
-        isEmpty ? "shadow-2xl rounded-2xl border-2 border-border/40 glass-strong" : "shadow-xl"
+        "bg-background p-2 sm:p-4 md:p-5 border-t border-border/30 smooth-transition pb-[max(8px,env(safe-area-inset-bottom))] md:pb-4",
+        isEmpty ? "shadow-2xl rounded-2xl border-2 border-border/40 glass-strong" : "shadow-lg"
       )}
     >
       {attachedCollectionId && (
