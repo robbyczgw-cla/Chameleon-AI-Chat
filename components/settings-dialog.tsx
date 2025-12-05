@@ -173,8 +173,8 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
       setTimeout(loadVoices, 500)
     }
 
-    // Load theme from localStorage
-    const savedTheme = localStorage.getItem("chameleon-theme") || "light"
+    // Load theme from settings context (preferred) or fallback to localStorage for migration
+    const savedTheme = settings.theme || localStorage.getItem("chameleon-theme") || "light"
     setCurrentTheme(savedTheme)
     applyTheme(savedTheme)
 
@@ -207,6 +207,8 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const handleThemeChange = (theme: string) => {
     setCurrentTheme(theme)
     applyTheme(theme)
+    // Also update localSettings so it gets saved to settings context
+    setLocalSettings({ ...localSettings, theme: theme as any })
   }
 
   const handleSave = () => {

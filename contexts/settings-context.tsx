@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from "react"
 import type { AppSettings } from "@/types"
 import { getUserSelectedModels } from "@/lib/model-preferences"
+import { runMigrationOnStartup } from "@/lib/settings-migration"
 
 interface SettingsContextType {
   settings: AppSettings
@@ -144,6 +145,9 @@ export function SettingsProvider({
   // Load settings from localStorage on mount
   useEffect(() => {
     if (typeof window === "undefined") return
+
+    // Run migration first to move old localStorage keys to settings
+    runMigrationOnStartup()
 
     const savedSettings = localStorage.getItem("settings")
     if (savedSettings) {

@@ -80,20 +80,25 @@ function ChatApp() {
     setShowStatsPanel((prev) => !prev)
   }
 
-  // Apply saved theme and performance mode on mount
+  // Apply saved theme and performance mode on mount and when settings change
   useEffect(() => {
-    const savedTheme = localStorage.getItem("chameleon-theme") || "light"
+    // Load theme from settings context (preferred) or fallback to localStorage for migration
+    const savedTheme = settings.theme || localStorage.getItem("chameleon-theme") || "light"
     const html = document.documentElement
-    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "paper-mint")
+    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "paper-mint", "cosmic-glass", "modern-light", "clean-slate", "midnight-hologram", "kawaii-pink", "clay-dream", "industrial")
     if (savedTheme !== "light") {
       html.classList.add(savedTheme)
     }
-    // Apply performance mode if saved
-    const savedPerformanceMode = localStorage.getItem("chameleon-performance-mode") === "true"
+
+    // Apply performance mode from settings context (preferred) or fallback to localStorage
+    const savedPerformanceMode = settings.experimental?.performanceMode ??
+      (localStorage.getItem("chameleon-performance-mode") === "true")
     if (savedPerformanceMode) {
       html.classList.add("performance-mode")
+    } else {
+      html.classList.remove("performance-mode")
     }
-  }, [])
+  }, [settings.theme, settings.experimental?.performanceMode])
 
   // Apply font family from settings
   useEffect(() => {
