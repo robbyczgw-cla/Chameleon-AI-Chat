@@ -1,8 +1,16 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.1.3'
+const CACHE_VERSION = 'v2.2.0'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
+const SIMPLE_MODE_CACHE = `ai-chat-simple-${CACHE_VERSION}`
+
+// iOS PWA DETECTION: Detect if running as iOS PWA
+const isIOSPWA = () => {
+  const isIOS = /iPhone|iPad|iPod/.test(navigator?.userAgent || '')
+  const isStandalone = self.registration?.scope && !navigator?.userAgent?.includes('Safari')
+  return isIOS || isStandalone
+}
 
 // AGGRESSIVE PRECACHING: All critical routes and assets
 // This ensures the app works instantly even after being backgrounded
@@ -28,6 +36,15 @@ const PRECACHE_ASSETS = [
   '/privacy',
   '/terms',
   '/cookies',
+]
+
+// SIMPLE MODE specific assets - lightweight, essential only
+const SIMPLE_MODE_ASSETS = [
+  '/',
+  '/manifest.json',
+  '/icon-192.png',
+  '/apple-touch-icon.png',
+  '/favicon.ico',
 ]
 
 // Assets to cache opportunistically (not critical for app shell)
@@ -487,6 +504,45 @@ self.addEventListener('message', (event) => {
           })
         }
         break
+
+      // iOS PWA OPTIMIZATION: Handle simple mode setup
+      case 'SIMPLE_MODE_INIT':
+        console.log('[SW] Simple mode initialized - optimizing for mobile')
+        caches.open(SIMPLE_MODE_CACHE).then(async (cache) => {
+          // Cache essential simple mode assets
+          for (const url of SIMPLE_MODE_ASSETS) {
+            try {
+              const response = await fetch(url, { cache: 'reload' })
+              if (response.ok) {
+                await cache.put(url, response)
+                console.log('[SW] Simple mode cached:', url)
+              }
+            } catch (e) {
+              // Silent fail
+            }
+          }
+        })
+        break
+
+      // iOS PWA OPTIMIZATION: Persist critical data before app suspension
+      case 'PERSIST_DATA':
+        // This is called before iOS suspends the PWA
+        console.log('[SW] iOS suspension detected - data persisted via client')
+        lastActiveTime = Date.now()
+        break
+
+      // iOS PWA OPTIMIZATION: Clear stale caches
+      case 'CLEAR_STALE_CACHE':
+        console.log('[SW] Clearing stale caches for iOS PWA')
+        caches.keys().then(cacheNames => {
+          cacheNames.forEach(cacheName => {
+            if (!cacheName.includes(CACHE_VERSION)) {
+              caches.delete(cacheName)
+              console.log('[SW] Deleted stale cache:', cacheName)
+            }
+          })
+        })
+        break
     }
   }
 })
@@ -535,4 +591,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.1.3 loaded - navigation passthrough, PDF worker bypass, cache on failure only')
+console.log('[SW] Service Worker v2.2.0 loaded - iOS PWA optimized, simple mode support, navigation passthrough')
