@@ -6,6 +6,56 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 ---
 
+## [0.11.1-alpha] - 2025-12-05
+
+### React 19 Compatibility Fix
+
+**Dependency Updates:**
+- **Upgraded vaul** from 0.9.9 → 1.1.2 for React 19 compatibility
+  - Old version only supported React 16-18
+  - New version supports React 19.2.1
+  - Fixes peer dependency conflicts
+  - Files: `package.json`, `pnpm-lock.yaml`, `package-lock.json`
+
+- **Added TLS Configuration** for Turbopack builds
+  - Enables `turbopackUseSystemTlsCerts` for environments with TLS restrictions
+  - Fixes Google Fonts access in restricted build environments
+  - Files: `next.config.mjs`
+
+**Documentation Updates:**
+- **Created DATABASE_IMPLEMENTATION_GUIDE.md** (800+ lines)
+  - Complete step-by-step guide for implementing a database from scratch
+  - Schema design principles and best practices
+  - Security with Row-Level Security (RLS)
+  - Performance optimization strategies
+  - Alternative implementations (MySQL, SQLite, MongoDB, Prisma, Firebase)
+  - Testing, validation, and migration strategies
+  - Ideal for developers adapting Chameleon for their own projects
+
+- **Updated docs/README.md**
+  - Added DATABASE_IMPLEMENTATION_GUIDE.md to documentation index
+  - Added database.md reference
+  - Updated file sizes table
+  - Added quick navigation for database setup
+
+- **Updated main README.md**
+  - Updated tech stack to mention React 19.2 and vaul 1.1.2
+  - Added Database Implementation Guide to technical documentation
+  - Updated search providers (Tavily + Serper + Exa)
+
+**Why This Matters:**
+- Builds now work reliably on all environments (Vercel, local, CI/CD)
+- React 19 compatibility future-proofs the app
+- Database guide helps developers understand and adapt the schema
+
+### Commits (2025-12-05)
+- `e2993d1` chore: Update pnpm-lock.yaml to match vaul 1.1.2
+- `ebf25f2` fix: Upgrade vaul to support React 19 and add TLS config
+- `8a1d602` Revert "Updated package-lock.json"
+- `8cd5baf` Revert "Updated pnpm-lock.yaml"
+
+---
+
 ## [0.11.0-alpha] - 2025-12-03
 
 ### Search Provider Optimization & Model Research
