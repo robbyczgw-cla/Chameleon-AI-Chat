@@ -270,8 +270,20 @@ export function ChatHeader() {
             </h1>
           </div>
 
-          {/* Right: Tune, Image, More */}
+          {/* Right: Settings, Tune, Image, More */}
           <div className="flex items-center gap-0.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
+              onClick={() => {
+                haptics.trigger('selection')
+                setIsSettingsOpen(true)
+              }}
+              title="Settings"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
