@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useSwipeable } from "react-swipeable"
 import { ChatSidebar } from "@/components/chat-sidebar"
 import { ChatHeader } from "@/components/chat-header"
 import { ChatMessages } from "@/components/chat-messages"
@@ -17,6 +18,7 @@ import { useToast } from "@/hooks/use-toast"
 import { PersonaLevelUpNotifier } from "@/components/persona-level-up-notifier"
 import { FontApplier } from "@/components/font-applier"
 import { cn } from "@/lib/utils"
+import { haptics } from "@/lib/haptics"
 
 function ChatApp() {
   const { chats, currentChatId, settings, setChats, setCurrentChatId } = useApp()
@@ -29,6 +31,33 @@ function ChatApp() {
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
+
+  // Swipe gesture handlers for mobile sidebar
+  const swipeHandlers = useSwipeable({
+    onSwipedRight: (eventData) => {
+      // Only open sidebar if:
+      // 1. Swipe started from left edge (within 50px of left side)
+      // 2. Swipe velocity is sufficient
+      // 3. Sidebar is not already open
+      const startX = eventData.initial[0]
+      if (startX <= 50 && !isMobileSidebarOpen) {
+        haptics.trigger('light')
+        setIsMobileSidebarOpen(true)
+      }
+    },
+    onSwipedLeft: (eventData) => {
+      // Close sidebar when swiping left and sidebar is open
+      if (isMobileSidebarOpen) {
+        haptics.trigger('light')
+        setIsMobileSidebarOpen(false)
+      }
+    },
+    trackMouse: false, // Only track touch events
+    trackTouch: true,
+    delta: 50, // Minimum distance for swipe
+    preventScrollOnSwipe: false, // Allow normal scrolling
+    swipeDuration: 500, // Maximum time for swipe gesture
+  })
 
   // Handle shared chat links
   useEffect(() => {
@@ -192,7 +221,7 @@ function ChatApp() {
         </>
       )}
 
-      <div className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 gap-0">
+      <div {...swipeHandlers} className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 gap-0 touch-pan-y">
         <PersonaLevelUpNotifier />
         {isMobileSidebarOpen && (
           <div
