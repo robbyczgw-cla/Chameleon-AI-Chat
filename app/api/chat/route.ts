@@ -841,26 +841,25 @@ async function handleStreamingRequest(
                     }),
                   })
 
-                  if (imageResponse.ok) {
-                    const imageResult = await imageResponse.json()
-                    if (imageResult.url) {
-                      const qualityNote = args.quality === 'high' ? ' (high quality)' : ''
-                      return {
-                        tool_call_id: toolCall.id,
-                        role: "tool" as const,
-                        name: "generate_image",
-                        content: `I've generated an image${qualityNote} based on your request. Here it is:\n\n![Generated Image](${imageResult.url})\n\nPrompt used: "${args.prompt}"`,
-                      }
+                  const imageResult = await imageResponse.json().catch(() => ({ error: 'Failed to parse response' }))
+
+                  if (imageResponse.ok && imageResult.url) {
+                    const qualityNote = args.quality === 'high' ? ' (high quality)' : ''
+                    return {
+                      tool_call_id: toolCall.id,
+                      role: "tool" as const,
+                      name: "generate_image",
+                      content: `I've generated an image${qualityNote} based on your request. Here it is:\n\n![Generated Image](${imageResult.url})\n\nPrompt used: "${args.prompt}"`,
                     }
                   }
 
                   // If image generation failed, return error message
-                  const errorData = await imageResponse.json().catch(() => ({}))
+                  console.error("[Chat] Image generation failed:", imageResult.error || imageResult)
                   return {
                     tool_call_id: toolCall.id,
                     role: "tool" as const,
                     name: "generate_image",
-                    content: `Image generation failed: ${errorData.error || 'Unknown error'}. Please try again or rephrase your request.`,
+                    content: `Image generation failed: ${imageResult.error || 'Unknown error'}. Please try again or rephrase your request.`,
                   }
                 } catch (error) {
                   console.error("[Chat] Image generation error:", error)
