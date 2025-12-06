@@ -172,17 +172,16 @@ export async function POST(req: NextRequest) {
     // Log the full response for debugging
     console.error('[Image Gen] Could not extract image URL. Full response:', JSON.stringify(data, null, 2))
 
-    const actualContent = data.choices?.[0]?.message?.content
-    const contentPreview = typeof actualContent === 'string'
-      ? actualContent.substring(0, 200)
-      : JSON.stringify(actualContent)?.substring(0, 200)
-
+    // Return the FULL raw response so user can see what's happening
     return NextResponse.json(
       {
-        error: `Image model returned text instead of image. Response: "${contentPreview}..."`,
+        error: `No image found in response. RAW RESPONSE: ${JSON.stringify(data, null, 2)}`,
         debugInfo: {
           model: IMAGE_MODEL,
-          hasImages: !!data.choices?.[0]?.message?.images
+          hasImages: !!data.choices?.[0]?.message?.images,
+          hasContent: !!data.choices?.[0]?.message?.content,
+          contentType: typeof data.choices?.[0]?.message?.content,
+          keys: Object.keys(data.choices?.[0]?.message || {})
         }
       },
       { status: 500 }
