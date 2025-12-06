@@ -347,7 +347,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
 
   const applyTheme = (theme: string) => {
     const html = document.documentElement
-    html.classList.remove("dark", "girly-violet", "kawaii-pink", "clay-dream", "industrial", "ocean-breeze", "paper-mint", "clean-slate", "midnight-hologram", "cosmic-glass", "modern-light")
+    html.classList.remove("dark", "girly-violet", "kawaii-pink", "clay-dream", "industrial", "ocean-breeze", "paper-mint", "clean-slate", "modern-light", "cyberpunk", "retro-wave", "chameleon", "velvet-dusk")
     if (theme !== "light") {
       html.classList.add(theme)
     }
@@ -547,7 +547,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   {[
                     { value: "light", label: "Light", bg: "bg-white", border: "border-gray-200" },
                     { value: "dark", label: "Dark", bg: "bg-gray-900", border: "border-gray-700" },
-                    { value: "cosmic-glass", label: "Cosmic", bg: "bg-gradient-to-br from-indigo-900 to-purple-900", border: "border-indigo-500/50" },
+                    { value: "velvet-dusk", label: "Velvet ✨", bg: "bg-gradient-to-br from-rose-950 via-purple-950 to-amber-950", border: "border-rose-400/50" },
                     { value: "modern-light", label: "Modern", bg: "bg-gradient-to-br from-slate-50 to-gray-100", border: "border-slate-300" },
                     { value: "girly-violet", label: "Violet", bg: "bg-gradient-to-br from-pink-100 to-purple-200", border: "border-pink-300" },
                     { value: "kawaii-pink", label: "Kawaii 💖", bg: "bg-gradient-to-br from-pink-200 via-pink-100 to-purple-100", border: "border-pink-400" },

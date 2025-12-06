@@ -443,45 +443,6 @@
   --sidebar-ring: oklch(0.72 0.24 145);
 }
 
-.midnight-hologram {
-  /* Midnight Hologram - Deep space with neon cyan and purple accents */
-  --background: #05050A;
-  --foreground: #FFFFFF;
-  --card: rgba(20, 20, 30, 0.6);
-  --card-foreground: #FFFFFF;
-  --popover: rgba(20, 20, 30, 0.8);
-  --popover-foreground: #FFFFFF;
-  /* Neon Cyan primary */
-  --primary: #00F0FF;
-  --primary-foreground: #05050A;
-  --secondary: rgba(255, 255, 255, 0.05);
-  --secondary-foreground: #FFFFFF;
-  --muted: rgba(255, 255, 255, 0.08);
-  --muted-foreground: #94A3B8;
-  /* Electric Purple accent */
-  --accent: #7000FF;
-  --accent-foreground: #FFFFFF;
-  --destructive: #FF3366;
-  --destructive-foreground: #FFFFFF;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.05);
-  --ring: #00F0FF;
-  /* Neon spectrum for charts */
-  --chart-1: #00F0FF;
-  --chart-2: #7000FF;
-  --chart-3: #FF3366;
-  --chart-4: #00FF88;
-  --chart-5: #FFE600;
-  --radius: 1rem;
-  --sidebar: rgba(10, 10, 15, 0.9);
-  --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #00F0FF;
-  --sidebar-primary-foreground: #05050A;
-  --sidebar-accent: rgba(112, 0, 255, 0.2);
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #00F0FF;
-}
 
 .clean-slate {
   /* Clean Slate - Minimal & Neutral, easy on the eyes */
@@ -523,44 +484,45 @@
   --sidebar-ring: #2563EB;
 }
 
-.cosmic-glass {
-  /* Cosmic Glass - Deep space with neon accents and heavy glassmorphism */
-  --background: #030014;
-  --foreground: #FFFFFF;
-  --card: rgba(13, 18, 30, 0.85);
-  --card-foreground: #FFFFFF;
-  --popover: rgba(13, 18, 30, 0.95);
-  --popover-foreground: #FFFFFF;
-  /* Neon Purple Primary */
-  --primary: #A78BFA;
-  --primary-foreground: #FFFFFF;
-  --secondary: rgba(167, 139, 250, 0.2);
-  --secondary-foreground: #FFFFFF;
-  --muted: rgba(30, 41, 59, 0.7);
-  --muted-foreground: #CBD5E1;
-  /* Cyan Accent */
-  --accent: #22D3EE;
-  --accent-foreground: #FFFFFF;
-  --destructive: #EF4444;
-  --destructive-foreground: #FFFFFF;
-  --border: rgba(148, 163, 184, 0.2);
-  --input: rgba(30, 41, 59, 0.7);
-  --ring: #A78BFA;
-  /* Chart colors */
-  --chart-1: #A78BFA;
-  --chart-2: #22D3EE;
-  --chart-3: #F472B6;
-  --chart-4: #34D399;
-  --chart-5: #FBBF24;
+.velvet-dusk {
+  /* Velvet Dusk - Premium dark theme with warm rose gold & amber accents */
+  /* Inspired by luxury brand aesthetics, soft on eyes, sophisticated feel */
+  --background: oklch(0.12 0.015 320);
+  --foreground: oklch(0.95 0.01 60);
+  --card: oklch(0.16 0.018 320);
+  --card-foreground: oklch(0.95 0.01 60);
+  --popover: oklch(0.14 0.016 320);
+  --popover-foreground: oklch(0.95 0.01 60);
+  /* Rose Gold Primary - warm, elegant */
+  --primary: oklch(0.72 0.14 25);
+  --primary-foreground: oklch(0.12 0.015 320);
+  --secondary: oklch(0.22 0.02 320);
+  --secondary-foreground: oklch(0.92 0.01 60);
+  --muted: oklch(0.2 0.018 320);
+  --muted-foreground: oklch(0.7 0.02 60);
+  /* Warm Amber Accent - luxurious highlight */
+  --accent: oklch(0.78 0.16 70);
+  --accent-foreground: oklch(0.12 0.015 320);
+  --destructive: oklch(0.62 0.22 15);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.28 0.025 320);
+  --input: oklch(0.2 0.02 320);
+  --ring: oklch(0.72 0.14 25);
+  /* Warm gradient for charts */
+  --chart-1: oklch(0.72 0.14 25);
+  --chart-2: oklch(0.78 0.16 70);
+  --chart-3: oklch(0.68 0.12 340);
+  --chart-4: oklch(0.75 0.1 180);
+  --chart-5: oklch(0.7 0.15 290);
   --radius: 1rem;
-  --sidebar: rgba(5, 8, 16, 0.9);
-  --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #A78BFA;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: rgba(167, 139, 250, 0.2);
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: rgba(148, 163, 184, 0.15);
-  --sidebar-ring: #A78BFA;
+  --sidebar: oklch(0.1 0.012 320);
+  --sidebar-foreground: oklch(0.95 0.01 60);
+  --sidebar-primary: oklch(0.72 0.14 25);
+  --sidebar-primary-foreground: oklch(0.12 0.015 320);
+  --sidebar-accent: oklch(0.22 0.02 320);
+  --sidebar-accent-foreground: oklch(0.92 0.01 60);
+  --sidebar-border: oklch(0.26 0.02 320);
+  --sidebar-ring: oklch(0.72 0.14 25);
 }
 
 .modern-light {
@@ -2111,16 +2073,12 @@ html {
   background-color: #0f1a14 !important;
 }
 
-.midnight-hologram [data-slot="dialog-content"] {
-  background-color: #0a0a12 !important;
+.velvet-dusk [data-slot="dialog-content"] {
+  background-color: #1a1418 !important;
 }
 
 .clean-slate [data-slot="dialog-content"] {
   background-color: #ffffff !important;
-}
-
-.cosmic-glass [data-slot="dialog-content"] {
-  background-color: #0d121e !important;
 }
 
 .modern-light [data-slot="dialog-content"] {
@@ -2189,16 +2147,12 @@ html {
   background-color: #0f1a14 !important;
 }
 
-.midnight-hologram [data-slot="alert-dialog-content"] {
-  background-color: #0a0a12 !important;
+.velvet-dusk [data-slot="alert-dialog-content"] {
+  background-color: #1a1418 !important;
 }
 
 .clean-slate [data-slot="alert-dialog-content"] {
   background-color: #ffffff !important;
-}
-
-.cosmic-glass [data-slot="alert-dialog-content"] {
-  background-color: #0d121e !important;
 }
 
 .modern-light [data-slot="alert-dialog-content"] {
@@ -2456,9 +2410,9 @@ html {
   border-color: rgba(47, 191, 159, 0.2);
 }
 
-.midnight-hologram .mobile-nav-glass {
-  background: rgba(5, 5, 10, 0.95);
-  border-color: rgba(0, 240, 255, 0.15);
+.velvet-dusk .mobile-nav-glass {
+  background: rgba(26, 20, 24, 0.95);
+  border-color: rgba(225, 165, 130, 0.15);
 }
 
 /* Reduce motion for accessibility */
