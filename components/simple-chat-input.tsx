@@ -953,7 +953,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   const hasContent = input.trim().length > 0 || attachedFiles.length > 0
 
   return (
-    <div className="bg-background p-2 md:p-4 border-t border-border/30 pb-[max(4px,env(safe-area-inset-bottom))] md:pb-4">
+    <div className="bg-background p-2 md:p-4 border-t border-border/30 pb-[env(safe-area-inset-bottom,4px)] md:pb-4">
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
         {/* Main Input Container */}
         <div className="flex flex-col gap-1.5 md:gap-0">
