@@ -1285,15 +1285,17 @@ export function ChatInput() {
             )}
           </Button>
         </div>
-        {/* Token & Context Info Bar - desktop only */}
-        <div className="mt-3 hidden md:flex md:items-center md:justify-between md:gap-6 px-1">
-          <div className="flex items-center gap-4">
-            <TokenCounterPreview input={input} />
+        {/* Token & Context Info Bar - desktop only (experimental) */}
+        {settings.experimental?.showInputStats && (
+          <div className="mt-3 hidden md:flex md:items-center md:justify-between md:gap-6 px-1">
+            <div className="flex items-center gap-4">
+              <TokenCounterPreview input={input} />
+            </div>
+            <div className="flex items-center gap-3">
+              <ContextWindowMeter compact />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <ContextWindowMeter compact />
-          </div>
-        </div>
+        )}
       </form>
     </div>
   )

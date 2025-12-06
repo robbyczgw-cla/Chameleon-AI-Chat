@@ -96,44 +96,6 @@
   --sidebar-ring: oklch(0.73 0.18 240);
 }
 
-.cyberpunk {
-  /* Cyberpunk theme - Neon colors, dark futuristic with high contrast */
-  --background: oklch(0.08 0.02 270);
-  --foreground: oklch(0.98 0.1 180);
-  --card: oklch(0.14 0.06 270);
-  --card-foreground: oklch(0.98 0.1 180);
-  --popover: oklch(0.15 0.06 270);
-  --popover-foreground: oklch(0.98 0.1 180);
-  /* Neon cyan primary - brighter */
-  --primary: oklch(0.78 0.22 200);
-  --primary-foreground: oklch(0.08 0.02 270);
-  --secondary: oklch(0.18 0.06 270);
-  --secondary-foreground: oklch(0.98 0.1 180);
-  --muted: oklch(0.16 0.04 270);
-  --muted-foreground: oklch(0.75 0.12 180);
-  /* Neon magenta accent - brighter */
-  --accent: oklch(0.75 0.28 330);
-  --accent-foreground: oklch(0.08 0.02 270);
-  --destructive: oklch(0.68 0.3 10);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.28 0.16 200);
-  --input: oklch(0.28 0.16 200);
-  --ring: oklch(0.78 0.22 200);
-  --chart-1: oklch(0.78 0.22 200);
-  --chart-2: oklch(0.75 0.28 330);
-  --chart-3: oklch(0.73 0.26 280);
-  --chart-4: oklch(0.7 0.24 150);
-  --chart-5: oklch(0.76 0.24 60);
-  --sidebar: oklch(0.11 0.04 270);
-  --sidebar-foreground: oklch(0.98 0.1 180);
-  --sidebar-primary: oklch(0.78 0.22 200);
-  --sidebar-primary-foreground: oklch(0.08 0.02 270);
-  --sidebar-accent: oklch(0.18 0.06 270);
-  --sidebar-accent-foreground: oklch(0.98 0.1 180);
-  --sidebar-border: oklch(0.28 0.16 200);
-  --sidebar-ring: oklch(0.78 0.22 200);
-}
-
 .clay-dream {
   /* Clay Dream theme - High-fidelity claymorphism with soft pastels and 4-layer depth */
   /* Inspired by premium vinyl toys, marshmallow foam, and candy stores */
@@ -364,44 +326,6 @@
   --sidebar-accent-foreground: #1e252d;
   --sidebar-border: #e3d9c8;
   --sidebar-ring: #2fbf9f;
-}
-
-.retro-wave {
-  /* Retro Wave theme - 80s neon aesthetics with pink, purple, orange */
-  --background: oklch(0.1 0.03 300);
-  --foreground: oklch(0.98 0.08 340);
-  --card: oklch(0.15 0.05 300);
-  --card-foreground: oklch(0.98 0.08 340);
-  --popover: oklch(0.16 0.06 300);
-  --popover-foreground: oklch(0.98 0.08 340);
-  /* Hot pink primary */
-  --primary: oklch(0.72 0.26 340);
-  --primary-foreground: oklch(0.1 0.03 300);
-  --secondary: oklch(0.2 0.05 300);
-  --secondary-foreground: oklch(0.98 0.08 340);
-  --muted: oklch(0.18 0.04 300);
-  --muted-foreground: oklch(0.72 0.1 340);
-  /* Electric orange accent */
-  --accent: oklch(0.7 0.24 50);
-  --accent-foreground: oklch(0.1 0.03 300);
-  --destructive: oklch(0.66 0.28 15);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.3 0.14 340);
-  --input: oklch(0.3 0.14 340);
-  --ring: oklch(0.72 0.26 340);
-  --chart-1: oklch(0.72 0.26 340);
-  --chart-2: oklch(0.7 0.24 50);
-  --chart-3: oklch(0.68 0.22 280);
-  --chart-4: oklch(0.74 0.2 320);
-  --chart-5: oklch(0.7 0.26 10);
-  --sidebar: oklch(0.12 0.04 300);
-  --sidebar-foreground: oklch(0.98 0.08 340);
-  --sidebar-primary: oklch(0.72 0.26 340);
-  --sidebar-primary-foreground: oklch(0.1 0.03 300);
-  --sidebar-accent: oklch(0.2 0.05 300);
-  --sidebar-accent-foreground: oklch(0.98 0.08 340);
-  --sidebar-border: oklch(0.3 0.14 340);
-  --sidebar-ring: oklch(0.72 0.26 340);
 }
 
 .chameleon {
@@ -2049,10 +1973,6 @@ html {
 }
 
 /* Theme-specific solid backgrounds for dialogs */
-.cyberpunk [data-slot="dialog-content"] {
-  background-color: #1a1a2e !important;
-}
-
 .girly-violet [data-slot="dialog-content"] {
   background-color: #fdf5ff !important;
 }
@@ -2063,10 +1983,6 @@ html {
 
 .paper-mint [data-slot="dialog-content"] {
   background-color: #ffffff !important;
-}
-
-.retro-wave [data-slot="dialog-content"] {
-  background-color: #1a1028 !important;
 }
 
 .chameleon [data-slot="dialog-content"] {
@@ -2123,10 +2039,6 @@ html {
   background-color: #1a1a1e !important;
 }
 
-.cyberpunk [data-slot="alert-dialog-content"] {
-  background-color: #1a1a2e !important;
-}
-
 .girly-violet [data-slot="alert-dialog-content"] {
   background-color: #fdf5ff !important;
 }
@@ -2137,10 +2049,6 @@ html {
 
 .paper-mint [data-slot="alert-dialog-content"] {
   background-color: #ffffff !important;
-}
-
-.retro-wave [data-slot="alert-dialog-content"] {
-  background-color: #1a1028 !important;
 }
 
 .chameleon [data-slot="alert-dialog-content"] {
@@ -2395,16 +2303,6 @@ html {
 }
 
 /* Theme-specific glassmorphism adjustments */
-.cyberpunk .mobile-nav-glass {
-  background: rgba(8, 8, 20, 0.9);
-  border-color: rgba(0, 240, 255, 0.2);
-}
-
-.retro-wave .mobile-nav-glass {
-  background: rgba(16, 10, 30, 0.9);
-  border-color: rgba(255, 44, 85, 0.2);
-}
-
 .paper-mint .mobile-nav-glass {
   background: rgba(249, 246, 239, 0.95);
   border-color: rgba(47, 191, 159, 0.2);

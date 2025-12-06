@@ -97,7 +97,7 @@ function ChatApp() {
     // Load theme from settings context (preferred) or fallback to localStorage for migration
     const savedTheme = settings.theme || localStorage.getItem("chameleon-theme") || "light"
     const html = document.documentElement
-    html.classList.remove("dark", "cyberpunk", "girly-violet", "ocean-breeze", "retro-wave", "chameleon", "paper-mint", "modern-light", "clean-slate", "kawaii-pink", "clay-dream", "industrial", "soft-sunrise")
+    html.classList.remove("dark", "girly-violet", "ocean-breeze", "chameleon", "paper-mint", "modern-light", "clean-slate", "kawaii-pink", "clay-dream", "industrial", "soft-sunrise")
     if (savedTheme !== "light") {
       html.classList.add(savedTheme)
     }
