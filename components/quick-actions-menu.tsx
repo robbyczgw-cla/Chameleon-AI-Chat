@@ -178,48 +178,44 @@ export function QuickActionsMenu({
     URL.revokeObjectURL(url)
   }
 
-  const handleCopyShareLink = async () => {
+  const handleCopyShareLink = () => {
     if (!currentChat) return
 
-    try {
-      // Create a shareable chat data structure (lightweight version)
-      const shareData = {
-        v: 1, // version for future compatibility
-        t: currentChat.title,
-        m: currentChat.messages.map(msg => ({
-          r: msg.role === "user" ? "u" : "a", // shortened role
-          c: msg.content
-        })),
-        d: new Date().toISOString().split('T')[0] // date shared
-      }
+    // Create a shareable chat data structure (lightweight version)
+    const shareData = {
+      v: 1, // version for future compatibility
+      t: currentChat.title,
+      m: currentChat.messages.map(msg => ({
+        r: msg.role === "user" ? "u" : "a", // shortened role
+        c: msg.content
+      })),
+      d: new Date().toISOString().split('T')[0] // date shared
+    }
 
-      // Compress to base64
-      const jsonStr = JSON.stringify(shareData)
-      const base64 = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))))
+    // Compress to base64
+    const jsonStr = JSON.stringify(shareData)
+    const base64 = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))))
 
-      // Create shareable URL with base64 data
-      const baseUrl = window.location.origin
-      const shareUrl = `${baseUrl}?share=${base64}`
+    // Create shareable URL with base64 data
+    const baseUrl = window.location.origin
+    const shareUrl = `${baseUrl}?share=${base64}`
 
-      // Copy to clipboard
-      await navigator.clipboard.writeText(shareUrl)
-
-      // Show success feedback
+    // Copy to clipboard
+    navigator.clipboard.writeText(shareUrl).then(() => {
       setLinkCopied(true)
       setTimeout(() => setLinkCopied(false), 2000)
-
       toast({
         title: "Link copied!",
         description: "Share this link to let others view this conversation",
       })
-    } catch (error) {
+    }).catch((error) => {
       console.error("Failed to copy share link:", error)
       toast({
         title: "Failed to copy",
         description: "Could not copy the share link. Try again.",
         variant: "destructive",
       })
-    }
+    })
   }
 
   return (
