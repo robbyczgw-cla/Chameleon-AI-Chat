@@ -52,17 +52,19 @@
 - 🖼️ **Image Optimization** - Next.js automatic WebP conversion and resizing
 - 👆 **Mobile-First Buttons** - Action buttons always visible on touch devices
 
-**Latest Features (v0.11.0-alpha):**
+**Latest Features (v0.9-beta):**
+- 🔗 **Shareable Chat Links** - Copy chat link creates shareable URLs with base64-encoded conversations
+- 🖼️ **Desktop Image Toggle** - Image generation toggle now on desktop with quality indicators (+/●)
+- 👋 **Personalized Greeting** - Time-of-day greeting (morning/afternoon/evening/night) with user profile name
+- 🌍 **Multi-Language Greetings** - Localized greetings in EN, DE, ES, FR
 - 🔍 **Search Provider Optimization** - Fixed Exa streaming issues (8s → 2s, 70% → 96% reliability)
 - 📊 **Model Research** - Comprehensive guides for December 2025 models (Grok 4.1, Gemini 2.0 Flash)
-- 📱 **iPad Layout Fix** - No more white space at top, keyboard no longer covers input
-- 🎨 **Unified Streaming** - Clean visualization in both simple and advanced modes
-- 📚 **15 Research Prompts** - Copy-paste prompts to research models and providers with any LLM
 
-**Previous Features (v0.9.0-alpha):**
+**Previous Features (v0.11.x-alpha):**
 - 🎬 **Streaming Visualization** - Real-time phase indicators with smooth animations
 - 👤 **User Profile Context** - Name, occupation, interests passed to AI for personalization
 - 👁️ **Vision Model Updates** - Gemini 2.5 Flash/Pro Preview, Claude Sonnet 4, Claude Opus 4
+- 📱 **iPad Layout Fix** - No more white space at top, keyboard no longer covers input
 
 **v0.8.0 Features:**
 - 🤖 **AI-Driven Web Search** - AI decides when to search using tool calling (Grok 4.1 Fast)
@@ -226,13 +228,19 @@ Perfect for:
 - Token usage analytics
 - Export history as JSON
 
-### 💾 Export & File Management
+### 💾 Export & Sharing
 
 **Export Formats:**
 - **JSONL** - Fine-tuning GPT-3.5/GPT-4, Claude
 - **HTML** - Theme-aware exports (preserves dark/light mode)
 - **Markdown** - Portable, readable format
 - **JSON** - Full conversation data with metadata
+
+**Chat Link Sharing:**
+- **Copy Chat Link** - Creates shareable URL with base64-encoded conversation
+- **Import Shared Chats** - Recipients can view conversations by opening shared links
+- **Version-Aware** - Future-compatible format with version field
+- **Privacy Preserved** - No server storage, data lives in the URL itself
 
 **File Previews:**
 - Lightbox modal with zoom (50-200%)
