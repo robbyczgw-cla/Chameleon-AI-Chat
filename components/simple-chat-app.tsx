@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSwipeable } from "react-swipeable"
 import { useApp } from "@/contexts/app-context"
+import { haptics } from "@/lib/haptics"
 import { ChatMessages } from "@/components/chat-messages"
 import { SimpleChatInput } from "@/components/simple-chat-input"
 import { SimpleSettingsDialog } from "@/components/simple-settings-dialog"
@@ -502,7 +504,40 @@ export function SimpleChatApp() {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState("")
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
+
+  // Swipe gesture handlers for mobile sidebar and new chat
+  const swipeHandlers = useSwipeable({
+    onSwipedRight: (eventData) => {
+      const startX = eventData.initial[0]
+      // Swipe right from LEFT edge (100px) → Open sidebar
+      if (startX <= 100 && !isSidebarOpen) {
+        haptics.trigger('light')
+        setIsSidebarOpen(true)
+      }
+    },
+    onSwipedLeft: (eventData) => {
+      const startX = eventData.initial[0]
+      const viewportWidth = window.innerWidth
+      // Close sidebar when swiping left and sidebar is open
+      if (isSidebarOpen) {
+        haptics.trigger('light')
+        setIsSidebarOpen(false)
+      }
+      // Swipe left from RIGHT edge (100px) → Create new chat
+      if (startX >= viewportWidth - 100 && !isSidebarOpen) {
+        haptics.trigger('medium')
+        handleNewChat()
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('focusChatInput'))
+        }, 100)
+      }
+    },
+    trackMouse: false,
+    trackTouch: true,
+    delta: 40,
+    preventScrollOnSwipe: false,
+    swipeDuration: 500,
+  })
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
@@ -736,7 +771,7 @@ export function SimpleChatApp() {
       )}
 
       {/* iOS PWA fix: Only apply safe-area-inset-top here, bottom padding is handled by SimpleChatInput */}
-      <div className="relative z-10 h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] overflow-hidden pt-[env(safe-area-inset-top,0px)] md:pb-4">
+      <div {...swipeHandlers} className="relative z-10 h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] overflow-hidden pt-[env(safe-area-inset-top,0px)] md:pb-4 touch-pan-y">
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
@@ -918,15 +953,6 @@ export function SimpleChatApp() {
             </div>
 
             <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="relative h-10 w-10 sm:h-9 sm:w-9"
-                title={t.searchChats}
-              >
-                <Search className="h-5 w-5 sm:h-4 sm:w-4" />
-              </Button>
               <Button
                 variant="ghost"
                 size="icon"

@@ -195,6 +195,59 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     })
   }
 
+  const handleVoice = async () => {
+    const openAiKey = settings.apiKeys.openai
+    if (!openAiKey) {
+      toast({
+        title: settings.language === "de" ? "API Key erforderlich" : "API key required",
+        description: settings.language === "de"
+          ? "Bitte OpenAI API Key in den Einstellungen hinterlegen"
+          : "Please add OpenAI API key in settings",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (isListening) {
+      haptics.trigger('light')
+      voiceService.stopWhisperListening()
+      setIsListening(false)
+    } else {
+      haptics.trigger('medium')
+      setIsListening(true)
+
+      await voiceService.startWhisperListening(
+        openAiKey,
+        (text) => {
+          haptics.trigger('success')
+          setInput(text)
+          setIsListening(false)
+          toast({
+            title: "✓ " + (settings.language === "de" ? "Transkribiert" : "Transcribed"),
+            description: `"${text.substring(0, 50)}${text.length > 50 ? '...' : ''}"`,
+          })
+        },
+        (error) => {
+          haptics.trigger('error')
+          toast({
+            title: settings.language === "de" ? "Sprachfehler" : "Voice error",
+            description: error,
+            variant: "destructive",
+          })
+          setIsListening(false)
+        },
+        () => {
+          toast({
+            title: settings.language === "de" ? "🎤 Aufnahme gestartet" : "🎤 Recording started",
+            description: settings.language === "de"
+              ? "Sprich jetzt... Klicke nochmal zum Stoppen"
+              : "Speak now... Click again to stop",
+          })
+        }
+      )
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if ((!input.trim() && attachedFiles.length === 0) || isChatLoading) return
@@ -903,6 +956,96 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
         {/* Main Input Container */}
         <div className="flex flex-col gap-1.5 md:gap-0">
+          {/* Mobile: Action buttons row above textarea */}
+          <div className="flex md:hidden items-center gap-1 px-0.5 pb-1">
+            <div className="flex items-center gap-0.5">
+              {/* Web search */}
+              <Button
+                type="button"
+                size="icon"
+                variant={webSearchEnabled ? "default" : "ghost"}
+                className={cn(
+                  "h-8 w-8 rounded-lg",
+                  webSearchEnabled
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground"
+                )}
+                onClick={() => {
+                  haptics.trigger('selection')
+                  setWebSearchEnabled(!webSearchEnabled)
+                }}
+              >
+                <Globe className="h-3.5 w-3.5" />
+              </Button>
+              {/* File upload */}
+              <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
+              {/* Image mode */}
+              <Button
+                type="button"
+                size="icon"
+                variant={imageMode !== "off" ? "default" : "ghost"}
+                className={cn(
+                  "h-8 w-8 rounded-lg relative",
+                  imageMode !== "off"
+                    ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white"
+                    : "text-muted-foreground"
+                )}
+                onClick={() => {
+                  haptics.trigger('selection')
+                  const nextState = imageMode === "off" ? "normal" : imageMode === "normal" ? "high" : "off"
+                  setImageMode(nextState)
+                }}
+              >
+                <Image className="h-3.5 w-3.5" />
+                {imageMode === "high" && (
+                  <span className="absolute -top-0.5 -right-0.5 text-[7px] font-bold bg-yellow-400 text-yellow-900 rounded-full w-3 h-3 flex items-center justify-center">+</span>
+                )}
+              </Button>
+              {/* Reasoning (if supported) */}
+              {modelSupportsReasoning && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={reasoningEnabled ? "default" : "ghost"}
+                  className={cn(
+                    "h-8 w-8 rounded-lg",
+                    reasoningEnabled
+                      ? "bg-amber-500 text-white"
+                      : "text-muted-foreground"
+                  )}
+                  onClick={() => {
+                    haptics.trigger('selection')
+                    setReasoningEnabled(!reasoningEnabled)
+                  }}
+                >
+                  <Lightbulb className="h-3.5 w-3.5" />
+                </Button>
+              )}
+              {/* Voice input */}
+              <Button
+                type="button"
+                size="icon"
+                variant={isListening ? "default" : "ghost"}
+                className={cn(
+                  "h-8 w-8 rounded-lg",
+                  isListening
+                    ? "bg-red-500 text-white animate-pulse"
+                    : "text-muted-foreground"
+                )}
+                onClick={handleVoice}
+              >
+                {isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+              </Button>
+            </div>
+            {/* Show active mode labels */}
+            <div className="flex items-center gap-1 ml-auto text-[10px] text-muted-foreground">
+              {webSearchEnabled && <span className="px-1.5 py-0.5 bg-primary/10 rounded">Web</span>}
+              {imageMode !== "off" && <span className="px-1.5 py-0.5 bg-purple-500/10 rounded">{imageMode === "high" ? "HD" : "Img"}</span>}
+              {reasoningEnabled && <span className="px-1.5 py-0.5 bg-amber-500/10 rounded">Think</span>}
+              {isListening && <span className="px-1.5 py-0.5 bg-red-500/10 rounded">🎤</span>}
+            </div>
+          </div>
+
           {/* Input row with send button */}
           <div className="flex items-end gap-2 md:gap-3">
             <div className="flex-1 min-w-0 relative">
@@ -1040,80 +1183,6 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
             >
               {isChatLoading ? <Square className="h-4 w-4 md:h-5 md:w-5" /> : <Send className="h-4 w-4 md:h-5 md:w-5" />}
             </Button>
-          </div>
-
-          {/* Mobile: Action buttons row below textarea */}
-          <div className="flex md:hidden items-center gap-1 px-0.5">
-            <div className="flex items-center gap-0.5">
-              {/* Web search */}
-              <Button
-                type="button"
-                size="icon"
-                variant={webSearchEnabled ? "default" : "ghost"}
-                className={cn(
-                  "h-8 w-8 rounded-lg",
-                  webSearchEnabled
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground"
-                )}
-                onClick={() => {
-                  haptics.trigger('selection')
-                  setWebSearchEnabled(!webSearchEnabled)
-                }}
-              >
-                <Globe className="h-3.5 w-3.5" />
-              </Button>
-              {/* File upload */}
-              <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-              {/* Image mode */}
-              <Button
-                type="button"
-                size="icon"
-                variant={imageMode !== "off" ? "default" : "ghost"}
-                className={cn(
-                  "h-8 w-8 rounded-lg relative",
-                  imageMode !== "off"
-                    ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white"
-                    : "text-muted-foreground"
-                )}
-                onClick={() => {
-                  haptics.trigger('selection')
-                  const nextState = imageMode === "off" ? "normal" : imageMode === "normal" ? "high" : "off"
-                  setImageMode(nextState)
-                }}
-              >
-                <Image className="h-3.5 w-3.5" />
-                {imageMode === "high" && (
-                  <span className="absolute -top-0.5 -right-0.5 text-[7px] font-bold bg-yellow-400 text-yellow-900 rounded-full w-3 h-3 flex items-center justify-center">+</span>
-                )}
-              </Button>
-              {/* Reasoning (if supported) */}
-              {modelSupportsReasoning && (
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={reasoningEnabled ? "default" : "ghost"}
-                  className={cn(
-                    "h-8 w-8 rounded-lg",
-                    reasoningEnabled
-                      ? "bg-amber-500 text-white"
-                      : "text-muted-foreground"
-                  )}
-                  onClick={() => {
-                    haptics.trigger('selection')
-                    setReasoningEnabled(!reasoningEnabled)
-                  }}
-                >
-                  <Lightbulb className="h-3.5 w-3.5" />
-                </Button>
-              )}
-            </div>
-            {/* Show active mode labels */}
-            <div className="flex items-center gap-1 ml-auto text-[10px] text-muted-foreground">
-              {webSearchEnabled && <span className="px-1.5 py-0.5 bg-primary/10 rounded">Web</span>}
-              {imageMode !== "off" && <span className="px-1.5 py-0.5 bg-purple-500/10 rounded">{imageMode === "high" ? "HD" : "Img"}</span>}
-              {reasoningEnabled && <span className="px-1.5 py-0.5 bg-amber-500/10 rounded">Think</span>}
-            </div>
           </div>
         </div>
         {/* Context Window Meter - Only show in advanced mode */}
