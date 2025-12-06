@@ -25,7 +25,6 @@ import {
   Swords,
   FileCode,
   Mic,
-  Image,
   MoreHorizontal,
 } from "lucide-react"
 import { useEffect } from "react"
@@ -66,11 +65,6 @@ export function ChatHeader() {
   const [isInspectorOpen, setIsInspectorOpen] = useState(false)
   const [isPromptHelperOpen, setIsPromptHelperOpen] = useState(false)
   const { inspectorData } = usePromptInspectorStore()
-
-  // Mobile toggle states
-  const [isVoiceActive, setIsVoiceActive] = useState(false)
-  // Image mode: "off" | "normal" | "high"
-  const [imageModeState, setImageModeState] = useState<"off" | "normal" | "high">("off")
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const [isTitleAnimated, setIsTitleAnimated] = useState(false)
@@ -241,7 +235,7 @@ export function ChatHeader() {
 
   return (
     <>
-      <header className="flex h-14 md:h-16 items-center justify-between border-b border-border/40 bg-background/80 backdrop-blur-xl px-3 sm:px-4 md:px-5 shadow-sm mobile-header-glass">
+      <header className="sticky top-0 z-30 flex h-14 md:h-16 items-center justify-between border-b border-border/40 bg-background/80 backdrop-blur-xl px-3 sm:px-4 md:px-5 shadow-sm mobile-header-glass">
         {/* Mobile: Modern minimalistic header */}
         <div className="flex md:hidden items-center justify-between w-full">
           {/* Left: Sidebar toggle */}
@@ -296,31 +290,6 @@ export function ChatHeader() {
               title="Tune"
             >
               <Sliders className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={imageModeState !== "off" ? "default" : "ghost"}
-              size="icon"
-              className={cn(
-                "h-8 w-8 rounded-xl active:scale-95 transition-all relative",
-                imageModeState !== "off"
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
-              onClick={() => {
-                haptics.trigger('selection')
-                const nextState = imageModeState === "off" ? "normal" : imageModeState === "normal" ? "high" : "off"
-                setImageModeState(nextState)
-                window.dispatchEvent(new CustomEvent("setImageMode", { detail: nextState }))
-              }}
-              title={imageModeState === "off" ? "Image mode (off)" : imageModeState === "normal" ? "Image mode (normal)" : "Image mode (high quality)"}
-            >
-              <Image className="h-4 w-4" />
-              {imageModeState === "high" && (
-                <span className="absolute -top-0.5 -right-0.5 text-[8px] font-bold text-primary-foreground bg-yellow-500 rounded-full w-3 h-3 flex items-center justify-center shadow-sm">+</span>
-              )}
-              {imageModeState === "normal" && (
-                <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full shadow-sm" />
-              )}
             </Button>
             <MobileMoreMenu
               onSettingsClick={() => setIsSettingsOpen(true)}
@@ -470,30 +439,6 @@ export function ChatHeader() {
             className="hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             <Sliders className="h-4 w-4 md:h-4.5 md:w-4.5" />
-          </Button>
-          {/* Image Mode Toggle - Desktop */}
-          <Button
-            variant={imageModeState !== "off" ? "default" : "ghost"}
-            size="icon"
-            className={cn(
-              "h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg relative",
-              imageModeState !== "off" ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary/10"
-            )}
-            onClick={() => {
-              haptics.trigger('selection')
-              const nextState = imageModeState === "off" ? "normal" : imageModeState === "normal" ? "high" : "off"
-              setImageModeState(nextState)
-              window.dispatchEvent(new CustomEvent("setImageMode", { detail: nextState }))
-            }}
-            title={imageModeState === "off" ? "Image generation (off)" : imageModeState === "normal" ? "Image generation (normal quality)" : "Image generation (high quality)"}
-          >
-            <Image className="h-4 w-4 md:h-4.5 md:w-4.5" />
-            {imageModeState === "high" && (
-              <span className="absolute -top-0.5 -right-0.5 text-[10px] font-bold text-primary-foreground bg-yellow-500 rounded-full w-3.5 h-3.5 flex items-center justify-center shadow-sm">+</span>
-            )}
-            {imageModeState === "normal" && (
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full shadow-sm" />
-            )}
           </Button>
           {/* AI Debate Mode */}
           <Button
