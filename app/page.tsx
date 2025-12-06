@@ -12,20 +12,85 @@ import { StatsDashboard } from "@/components/stats-dashboard"
 import { ModeWrapper } from "@/components/mode-wrapper"
 import { keyboardShortcutService } from "@/lib/keyboard-shortcuts"
 import { ChameleonLogo } from "@/components/chameleon-logo"
+import { useToast } from "@/hooks/use-toast"
 // Mobile bottom nav removed - navigation now in header
 import { PersonaLevelUpNotifier } from "@/components/persona-level-up-notifier"
 import { FontApplier } from "@/components/font-applier"
 import { cn } from "@/lib/utils"
 
 function ChatApp() {
-  const { chats, currentChatId, settings } = useApp()
+  const { chats, currentChatId, settings, setChats, setCurrentChatId } = useApp()
+  const { toast } = useToast()
   const [isComparisonMode, setIsComparisonMode] = useState(false)
   const [showStatsPanel, setShowStatsPanel] = useState(false)
   const [showSidebar, setShowSidebar] = useState(true)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const [shareHandled, setShareHandled] = useState(false)
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
+
+  // Handle shared chat links
+  useEffect(() => {
+    if (shareHandled) return
+
+    const params = new URLSearchParams(window.location.search)
+    const shareData = params.get("share")
+
+    if (shareData) {
+      try {
+        // Decode from base64
+        const jsonStr = decodeURIComponent(
+          atob(shareData)
+            .split("")
+            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
+        )
+        const data = JSON.parse(jsonStr)
+
+        // Validate data structure
+        if (data.v === 1 && data.t && data.m && Array.isArray(data.m)) {
+          // Create new chat from shared data
+          const newChat = {
+            id: `shared-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            title: `📥 ${data.t}`,
+            messages: data.m.map((msg: { r: string; c: string }, idx: number) => ({
+              id: `msg-${idx}`,
+              role: msg.r === "u" ? "user" : "assistant",
+              content: msg.c,
+              timestamp: Date.now(),
+            })),
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            model: settings.selectedModel,
+          }
+
+          // Add to chats and switch to it
+          setChats((prev: typeof chats) => [newChat, ...prev])
+          setCurrentChatId(newChat.id)
+
+          // Clean URL without reload
+          window.history.replaceState({}, document.title, window.location.pathname)
+
+          toast({
+            title: "Shared chat loaded!",
+            description: `"${data.t}" has been added to your chats`,
+          })
+        }
+      } catch (error) {
+        console.error("Failed to parse shared chat:", error)
+        toast({
+          title: "Invalid share link",
+          description: "Could not load the shared conversation",
+          variant: "destructive",
+        })
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname)
+      }
+
+      setShareHandled(true)
+    }
+  }, [shareHandled, setChats, setCurrentChatId, settings.selectedModel, toast])
 
   // Apply saved theme and performance mode on mount and when settings change
   useEffect(() => {

@@ -9,8 +9,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
-import { MoreVertical, Music, VolumeX, Download, FileText, Share2, Globe } from "lucide-react"
+import { MoreVertical, Music, VolumeX, Download, FileText, Share2, Globe, Link, Check } from "lucide-react"
 import { useApp } from "@/contexts/app-context"
+import { useToast } from "@/hooks/use-toast"
+import { useState } from "react"
 
 interface QuickActionsMenuProps {
   isMusicPlaying: boolean
@@ -22,6 +24,8 @@ export function QuickActionsMenu({
   onMusicToggle,
 }: QuickActionsMenuProps) {
   const { chats, currentChatId } = useApp()
+  const { toast } = useToast()
+  const [linkCopied, setLinkCopied] = useState(false)
   const currentChat = chats.find((c) => c.id === currentChatId)
 
   const handleExportMarkdown = () => {
@@ -174,14 +178,48 @@ export function QuickActionsMenu({
     URL.revokeObjectURL(url)
   }
 
-  const handleCopyShareLink = () => {
-    // For now, just copy chat ID - could be enhanced with actual sharing
+  const handleCopyShareLink = async () => {
     if (!currentChat) return
 
-    const shareText = `Check out this chat: ${currentChat.title}`
-    navigator.clipboard.writeText(shareText)
+    try {
+      // Create a shareable chat data structure (lightweight version)
+      const shareData = {
+        v: 1, // version for future compatibility
+        t: currentChat.title,
+        m: currentChat.messages.map(msg => ({
+          r: msg.role === "user" ? "u" : "a", // shortened role
+          c: msg.content
+        })),
+        d: new Date().toISOString().split('T')[0] // date shared
+      }
 
-    // Show toast notification would be nice here
+      // Compress to base64
+      const jsonStr = JSON.stringify(shareData)
+      const base64 = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))))
+
+      // Create shareable URL with base64 data
+      const baseUrl = window.location.origin
+      const shareUrl = `${baseUrl}?share=${base64}`
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(shareUrl)
+
+      // Show success feedback
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 2000)
+
+      toast({
+        title: "Link copied!",
+        description: "Share this link to let others view this conversation",
+      })
+    } catch (error) {
+      console.error("Failed to copy share link:", error)
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy the share link. Try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   return (
@@ -216,8 +254,17 @@ export function QuickActionsMenu({
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleCopyShareLink} disabled={!currentChat}>
-          <Share2 className="h-4 w-4 mr-2" />
-          Copy Chat Link
+          {linkCopied ? (
+            <>
+              <Check className="h-4 w-4 mr-2 text-green-500" />
+              <span className="text-green-500">Link Copied!</span>
+            </>
+          ) : (
+            <>
+              <Link className="h-4 w-4 mr-2" />
+              Copy Chat Link
+            </>
+          )}
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
