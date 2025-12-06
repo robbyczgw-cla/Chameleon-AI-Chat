@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo, type ReactNode } from "react"
 import type { Chat, AppSettings, Message, ChatFolder, ComparisonSession, StreamingHistoryEntry } from "@/types"
 import type { StreamingPhase } from "@/components/message-status"
 import { createClient } from "@/lib/supabase/client"
@@ -177,7 +177,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Shared abort controller for chat streaming - allows stopping from any component
   const chatAbortControllerRef = useRef<AbortController | null>(null)
 
-  const stopChatGeneration = () => {
+  const stopChatGeneration = useCallback(() => {
     if (chatAbortControllerRef.current) {
       chatAbortControllerRef.current.abort()
       chatAbortControllerRef.current = null
@@ -188,7 +188,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setSearchQuery(null)
       console.log("[v0] Chat generation stopped")
     }
-  }
+  }, [])
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false)
   const isLoadingFromSupabaseRef = useRef(false)
   const settingsSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -872,7 +872,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     safeSetLocalStorage("comparisonSessions", comparisonSessions)
   }, [comparisonSessions, isLoading])
 
-  const createChat = (model?: string): string => {
+  const createChat = useCallback((model?: string): string => {
     const chatId = generateUUID()
 
     const newChat: Chat = {
@@ -906,42 +906,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     return newChat.id
-  }
+  }, [settings.selectedModel, user])
 
-  const deleteChat = (chatId: string) => {
+  const deleteChat = useCallback((chatId: string) => {
     setChats((prev) => prev.filter((chat) => chat.id !== chatId))
-    if (currentChatId === chatId) {
-      setCurrentChatId(null)
-    }
+    setCurrentChatId((prev) => prev === chatId ? null : prev)
 
     if (user) {
       supabaseSync.deleteChat(user.id, chatId).catch(console.error)
     }
-  }
+  }, [user])
 
-  const deleteAllChats = () => {
+  const deleteAllChats = useCallback(() => {
     setChats([])
     setCurrentChatId(null)
 
     if (user) {
       supabaseSync.deleteAllChats(user.id).catch(console.error)
     }
-  }
+  }, [user])
 
-  const updateChat = (chatId: string, updates: Partial<Chat>) => {
-    setChats((prev) => prev.map((chat) => (chat.id === chatId ? { ...chat, ...updates, updatedAt: Date.now() } : chat)))
-
-    if (user) {
-      const chat = chats.find((c) => c.id === chatId)
-      if (chat) {
+  const updateChat = useCallback((chatId: string, updates: Partial<Chat>) => {
+    setChats((prev) => {
+      const chat = prev.find((c) => c.id === chatId)
+      if (chat && user) {
         supabaseSync.updateChat(user.id, { ...chat, ...updates }).catch(console.error)
       }
-    }
-  }
+      return prev.map((c) => (c.id === chatId ? { ...c, ...updates, updatedAt: Date.now() } : c))
+    })
+  }, [user])
 
-  const setCurrentChat = (chatId: string | null) => {
+  const setCurrentChat = useCallback((chatId: string | null) => {
     setCurrentChatId(chatId)
-  }
+  }, [])
 
   const addMessage = (chatId: string, message: Message) => {
     // Extract text content from message (handles both string and multimodal content)
@@ -1028,7 +1025,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const updateSettings = (updates: Partial<AppSettings>) => {
+  const updateSettings = useCallback((updates: Partial<AppSettings>) => {
     const validatedUpdates = { ...updates }
 
     if (validatedUpdates.modelParameters?.maxTokens && validatedUpdates.modelParameters.maxTokens < 4096) {
@@ -1062,9 +1059,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       return merged
     })
-  }
+  }, [])
 
-  const createFolder = (name: string): string => {
+  const createFolder = useCallback((name: string): string => {
     const newFolder: ChatFolder = {
       id: `folder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       name,
@@ -1078,16 +1075,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     return newFolder.id
-  }
+  }, [user])
 
-  const deleteFolder = (folderId: string) => {
+  const deleteFolder = useCallback((folderId: string) => {
     setFolders((prev) => prev.filter((folder) => folder.id !== folderId))
     setChats((prev) => prev.map((chat) => (chat.folderId === folderId ? { ...chat, folderId: undefined } : chat)))
 
     if (user) {
       supabaseSync.deleteFolder(user.id, folderId).catch(console.error)
     }
-  }
+  }, [user])
 
   const exportChat = (chatId: string): string => {
     const chat = chats.find((c) => c.id === chatId)
@@ -1182,52 +1179,61 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    chats,
+    currentChatId,
+    settings,
+    folders,
+    comparisonSessions,
+    user,
+    isLoading,
+    isChatLoading,
+    setIsChatLoading,
+    streamingPhase,
+    setStreamingPhase,
+    currentTool,
+    setCurrentTool,
+    searchQuery,
+    setSearchQuery,
+    currentStreamingDetails,
+    setCurrentStreamingDetails,
+    streamingHistory: streamingHistoryRef.current,
+    addStreamingHistoryEntry,
+    clearStreamingHistory,
+    getStreamingHistory,
+    chatAbortControllerRef,
+    stopChatGeneration,
+    createChat,
+    deleteChat,
+    deleteAllChats,
+    updateChat,
+    setCurrentChat,
+    addMessage,
+    updateSettings,
+    createFolder,
+    deleteFolder,
+    exportChat,
+    importChat,
+    exportAllChats,
+    setChats,
+    saveComparisonSession,
+    deleteComparisonSession,
+    deleteAllComparisonSessions,
+    updateComparisonSession,
+    signOut,
+  }), [
+    chats, currentChatId, settings, folders, comparisonSessions, user,
+    isLoading, isChatLoading, streamingPhase, currentTool, searchQuery,
+    currentStreamingDetails, stopChatGeneration, createChat, deleteChat,
+    deleteAllChats, updateChat, setCurrentChat, addMessage, updateSettings,
+    createFolder, deleteFolder, exportChat, importChat, exportAllChats,
+    saveComparisonSession, deleteComparisonSession, deleteAllComparisonSessions,
+    updateComparisonSession, signOut,
+  ])
+
   return (
-    <AppContext.Provider
-      value={{
-        chats,
-        currentChatId,
-        settings,
-        folders,
-        comparisonSessions,
-        user,
-        isLoading,
-        isChatLoading,
-        setIsChatLoading,
-        streamingPhase,
-        setStreamingPhase,
-        currentTool,
-        setCurrentTool,
-        searchQuery,
-        setSearchQuery,
-        currentStreamingDetails,
-        setCurrentStreamingDetails,
-        streamingHistory: streamingHistoryRef.current,
-        addStreamingHistoryEntry,
-        clearStreamingHistory,
-        getStreamingHistory,
-        chatAbortControllerRef,
-        stopChatGeneration,
-        createChat,
-        deleteChat,
-        deleteAllChats,
-        updateChat,
-        setCurrentChat,
-        addMessage,
-        updateSettings,
-        createFolder,
-        deleteFolder,
-        exportChat,
-        importChat,
-        exportAllChats,
-        setChats,
-        saveComparisonSession,
-        deleteComparisonSession,
-        deleteAllComparisonSessions,
-        updateComparisonSession,
-        signOut,
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   )

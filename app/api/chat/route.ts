@@ -375,6 +375,23 @@ export async function POST(req: NextRequest) {
 
     const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
 
+    // Inject current date into system message so AI knows the current date for search queries
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+    const dateContext = `\n\n[CURRENT DATE: ${currentDate}. When searching for "current", "latest", or "recent" information, use ${new Date().getFullYear()} as the year, not previous years.]`
+
+    // Add date context to the first system message
+    const messagesWithDate = messages.map((msg: { role: string; content: string }, index: number) => {
+      if (msg.role === "system" && index === 0) {
+        return { ...msg, content: msg.content + dateContext }
+      }
+      return msg
+    })
+
     console.log("[Chat] ===== API ROUTE CALLED =====")
     console.log("[Chat] Model:", model)
     console.log("[Chat] Stream:", stream)
@@ -395,7 +412,7 @@ export async function POST(req: NextRequest) {
 
     const openRouterBody: Record<string, any> = {
       model,
-      messages,
+      messages: messagesWithDate,
       temperature,
       max_tokens: maxTokens,
       top_p: topP,

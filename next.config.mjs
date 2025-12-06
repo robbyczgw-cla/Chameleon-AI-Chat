@@ -18,6 +18,15 @@ const nextConfig = {
   },
   experimental: {
     turbopackUseSystemTlsCerts: true,
+    // Enable optimized package imports for better tree-shaking
+    // lucide-react is already optimized by its own package, no need for modularizeImports
+    optimizePackageImports: [
+      'lucide-react',
+      'date-fns',
+      '@radix-ui/react-icons',
+      'recharts',
+      'react-syntax-highlighter',
+    ],
   },
   async headers() {
     return [
