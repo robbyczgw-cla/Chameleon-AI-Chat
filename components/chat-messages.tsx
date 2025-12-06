@@ -31,6 +31,78 @@ import { contentToText } from "@/lib/multimodal-utils"
 import { RichContentParser } from "@/lib/rich-content-parser"
 import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
 import { MessageStatus, MessageStatusVerbose, StreamingHistoryDisplay } from "@/components/message-status"
+import { userProfileService } from "@/lib/user-profile"
+
+// Time-of-day greetings in different languages
+const getTimeGreeting = (lang: string): string => {
+  const hour = new Date().getHours()
+
+  const greetings: Record<string, { morning: string; afternoon: string; evening: string; night: string }> = {
+    en: {
+      morning: "Good morning",
+      afternoon: "Good afternoon",
+      evening: "Good evening",
+      night: "Good night"
+    },
+    de: {
+      morning: "Guten Morgen",
+      afternoon: "Guten Tag",
+      evening: "Guten Abend",
+      night: "Gute Nacht"
+    },
+    es: {
+      morning: "Buenos días",
+      afternoon: "Buenas tardes",
+      evening: "Buenas tardes",
+      night: "Buenas noches"
+    },
+    fr: {
+      morning: "Bonjour",
+      afternoon: "Bon après-midi",
+      evening: "Bonsoir",
+      night: "Bonne nuit"
+    }
+  }
+
+  const langGreetings = greetings[lang] || greetings.en
+
+  if (hour >= 5 && hour < 12) return langGreetings.morning
+  if (hour >= 12 && hour < 17) return langGreetings.afternoon
+  if (hour >= 17 && hour < 21) return langGreetings.evening
+  return langGreetings.night
+}
+
+const getSubGreeting = (lang: string): string => {
+  const subGreetings: Record<string, string[]> = {
+    en: [
+      "What can I help you with today?",
+      "How can I assist you?",
+      "Ready to help you out!",
+      "What's on your mind?"
+    ],
+    de: [
+      "Wie kann ich dir heute helfen?",
+      "Was kann ich für dich tun?",
+      "Ich bin bereit dir zu helfen!",
+      "Was hast du auf dem Herzen?"
+    ],
+    es: [
+      "¿En qué puedo ayudarte hoy?",
+      "¿Cómo puedo asistirte?",
+      "¡Listo para ayudarte!",
+      "¿Qué tienes en mente?"
+    ],
+    fr: [
+      "Comment puis-je vous aider aujourd'hui?",
+      "Comment puis-je vous assister?",
+      "Prêt à vous aider!",
+      "Qu'avez-vous en tête?"
+    ]
+  }
+
+  const langSubs = subGreetings[lang] || subGreetings.en
+  return langSubs[Math.floor(Math.random() * langSubs.length)]
+}
 
 interface ChatMessagesProps {
   currentPersona?: Persona
@@ -387,6 +459,12 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
     // Get language from settings
     const lang = (settings.language || "en") as "en" | "de"
 
+    // Get user profile for personalized greeting
+    const userProfile = userProfileService.getProfile()
+    const userName = userProfile.name?.trim()
+    const timeGreeting = getTimeGreeting(lang)
+    const subGreeting = getSubGreeting(lang)
+
     // Get persona-specific prompts (6 prompts)
     const personaId = currentPersona?.id || "default"
     const starterPrompts = getPersonaExamplePrompts(personaId, lang)
@@ -395,53 +473,73 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
       window.dispatchEvent(new CustomEvent("insertPrompt", { detail: prompt }))
     }
 
+    // Truncate very long names to prevent cutoffs
+    const displayName = userName && userName.length > 20
+      ? userName.substring(0, 20) + "…"
+      : userName
+
     return (
-      <div className="flex h-full items-center justify-center p-4">
-        <div className="w-full max-w-4xl mx-auto">
-          {/* Persona greeting */}
-          <div className="text-center mb-6">
-            {currentPersona ? (
-              <div className="flex flex-col items-center gap-3">
-                <div className="text-5xl">{currentPersona.emoji}</div>
-                <div>
-                  <h3 className="text-lg font-semibold">{currentPersona.name}</h3>
-                  <p className="text-sm text-muted-foreground">{currentPersona.description}</p>
+      <div className="flex h-full items-center justify-center p-3 sm:p-4 overflow-hidden">
+        <div className="w-full max-w-4xl mx-auto px-1 sm:px-2">
+          {/* Personalized greeting */}
+          <div className="text-center mb-6 sm:mb-8">
+            {/* Main greeting with time of day */}
+            <div className="mb-4 sm:mb-6">
+              <h1
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-fade-in break-words"
+                style={{
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
+                  hyphens: "auto"
+                }}
+              >
+                {displayName ? `${timeGreeting}, ${displayName}` : timeGreeting}
+              </h1>
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-2 sm:mt-3 animate-fade-in px-2" style={{ animationDelay: "150ms" }}>
+                {subGreeting}
+              </p>
+            </div>
+
+            {/* Persona info if selected */}
+            {currentPersona && (
+              <div className="flex flex-col items-center gap-2 mt-3 sm:mt-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
+                <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20 max-w-[90%]">
+                  <span className="text-xl sm:text-2xl flex-shrink-0">{currentPersona.emoji}</span>
+                  <span className="text-xs sm:text-sm font-medium text-primary truncate">{currentPersona.name}</span>
                 </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-3">
-                <div className="text-5xl">💬</div>
-                <p className="text-sm text-muted-foreground">
-                  {lang === "de" ? "Probiere eine dieser Fragen:" : "Try asking one of these:"}
-                </p>
+                <p className="text-xs text-muted-foreground max-w-[90%] sm:max-w-md line-clamp-2">{currentPersona.description}</p>
               </div>
             )}
           </div>
 
-          {/* Persona starter prompts grid - 6 prompts in 3x2 on mobile, 2x3 on tablet, 3x2 on desktop */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+          {/* Persona starter prompts grid - responsive for all screen sizes */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-2 md:gap-3">
             {starterPrompts.slice(0, 6).map((prompt, index) => (
               <button
                 key={index}
                 onClick={() => handleStarterClick(prompt)}
                 className={cn(
-                  "flex items-center justify-center text-center p-3 sm:p-4 rounded-xl",
-                  "border border-border/60 bg-card/50 hover:bg-primary/5",
+                  "flex items-center justify-center text-center p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl",
+                  "border border-border/60 bg-card/50 hover:bg-primary/5 active:scale-[0.98]",
                   "hover:border-primary/40 transition-all duration-200",
-                  "text-xs sm:text-sm font-medium text-foreground/80 hover:text-foreground",
-                  "min-h-[70px] sm:min-h-[90px]"
+                  "text-[11px] sm:text-xs md:text-sm font-medium text-foreground/80 hover:text-foreground",
+                  "min-h-[60px] sm:min-h-[70px] md:min-h-[90px]"
                 )}
               >
-                <span className="line-clamp-3 leading-snug">{prompt}</span>
+                <span className="line-clamp-3 leading-snug break-words" style={{ wordBreak: "break-word" }}>{prompt}</span>
               </button>
             ))}
           </div>
 
           {/* Tip text */}
-          <p className="text-center text-xs text-muted-foreground mt-4">
+          <p className="text-center text-[10px] sm:text-xs text-muted-foreground mt-3 sm:mt-4 animate-fade-in px-2" style={{ animationDelay: "450ms" }}>
             {lang === "de"
-              ? "Klicke auf eine Frage oder tippe deine eigene Nachricht"
-              : "Click a prompt or type your own message"
+              ? "Tippe auf eine Frage oder schreib deine eigene"
+              : lang === "es"
+              ? "Toca una sugerencia o escribe la tuya"
+              : lang === "fr"
+              ? "Touchez une suggestion ou écrivez la vôtre"
+              : "Tap a prompt or type your own"
             }
           </p>
         </div>
