@@ -52,21 +52,17 @@ function ChatApp() {
       }
     },
     onSwipedDown: (eventData) => {
-      // Create new chat on swipe down from top area (within 150px of top)
-      // Only when not already scrolled down and sidebar is closed
+      // Create new chat on swipe down from bottom area (within 200px of bottom)
+      // Only when sidebar is closed
       const startY = eventData.initial[1]
-      if (startY <= 150 && !isMobileSidebarOpen) {
+      const viewportHeight = window.innerHeight
+      if (startY >= viewportHeight - 200 && !isMobileSidebarOpen) {
         haptics.trigger('medium')
         createChat()
         // Focus the chat input after a short delay to ensure it's rendered
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('focusChatInput'))
         }, 100)
-        toast({
-          title: "✨ New chat",
-          description: "Start typing your message",
-          duration: 2000,
-        })
       }
     },
     trackMouse: false, // Only track touch events
