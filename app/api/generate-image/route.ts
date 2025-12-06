@@ -4,11 +4,12 @@ import { checkRateLimit } from '@/lib/rate-limit'
 export const runtime = 'edge'
 
 // Image generation models (multimodal models that can generate images)
+// These are actual OpenRouter model IDs that support image output
 const IMAGE_MODELS = {
-  // Google Gemini Image models (primary)
-  'google/gemini-3-pro-image-preview': { name: 'Gemini 3 Pro Image Preview', multimodal: true },
-  'google/gemini-2.5-flash-image': { name: 'Gemini 2.5 Flash Image', multimodal: true },
-  'google/gemini-2.5-flash-image-preview': { name: 'Gemini 2.5 Flash Image Preview', multimodal: true },
+  // Google Gemini models with image generation support
+  'google/gemini-2.0-flash-exp:free': { name: 'Gemini 2.0 Flash (Free)', multimodal: true },
+  'google/gemini-2.0-flash-exp': { name: 'Gemini 2.0 Flash Exp', multimodal: true },
+  'google/gemini-exp-1206:free': { name: 'Gemini Exp 1206 (Free)', multimodal: true },
 
   // Classic DALL-E (requires OpenAI API key)
   'openai/dall-e-3': { name: 'DALL-E 3', size: '1024x1024', multimodal: false },
@@ -17,13 +18,12 @@ const IMAGE_MODELS = {
   // Other providers
   'black-forest-labs/flux-1.1-pro': { name: 'Flux 1.1 Pro', multimodal: true },
   'black-forest-labs/flux-pro': { name: 'Flux Pro', multimodal: true },
-  'stability-ai/stable-diffusion-xl': { name: 'Stable Diffusion XL', multimodal: true },
 }
 
-// Default image model (fast, good quality)
-const DEFAULT_IMAGE_MODEL = 'google/gemini-2.5-flash-image-preview'
-// High quality model (slower, better quality) - use when user asks for "high quality", "detailed", etc.
-const HIGH_QUALITY_IMAGE_MODEL = 'google/gemini-3-pro-image-preview'
+// Default image model - Gemini 2.0 Flash free tier for fast generation
+const DEFAULT_IMAGE_MODEL = 'google/gemini-2.0-flash-exp:free'
+// High quality model - paid Gemini for better results
+const HIGH_QUALITY_IMAGE_MODEL = 'google/gemini-2.0-flash-exp'
 
 /**
  * Generate images using OpenRouter's image models
