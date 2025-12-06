@@ -443,19 +443,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
     window.dispatchEvent(new CustomEvent("insertPrompt", { detail: suggestion }))
   }
 
-  if (!currentChat) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <div className="text-center space-y-3">
-          <div className="text-6xl">💬</div>
-          <h3 className="text-xl font-semibold">No chat selected</h3>
-          <p className="text-sm text-muted-foreground">Create a new chat or select an existing one to get started</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (currentChat.messages.length === 0) {
+  // Show greeting when no chat selected OR chat is empty
+  if (!currentChat || currentChat.messages.length === 0) {
     // Get language from settings
     const lang = (settings.language || "en") as "en" | "de"
 
