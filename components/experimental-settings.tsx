@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { useApp } from "@/contexts/app-context"
-import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun } from "lucide-react"
+import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun, BarChart2 } from "lucide-react"
 import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
 
@@ -108,6 +108,39 @@ export function ExperimentalSettings() {
               <p className="text-xs text-green-800 dark:text-green-200">
                 <strong>Disabled effects:</strong> Chameleon logo color-shift, memory icon pulse, avatar glows,
                 background animations, and other GPU-intensive visual effects. GPU usage should be minimal.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Input Stats Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <BarChart2 className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">Input Statistics</h3>
+        </div>
+
+        <div className="space-y-4 pl-7">
+          {/* Show Input Stats */}
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="space-y-1">
+              <Label className="text-sm font-medium">Show Token & Context Stats</Label>
+              <p className="text-xs text-muted-foreground">
+                Display token count, estimated cost, and context window usage below the chat input (desktop only)
+              </p>
+            </div>
+            <Switch
+              checked={experimental.showInputStats || false}
+              onCheckedChange={(checked) => handleExperimentalChange({ showInputStats: checked })}
+            />
+          </div>
+
+          {/* Info Box */}
+          {experimental.showInputStats && (
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+              <p className="text-xs text-amber-800 dark:text-amber-200">
+                <strong>Visible stats:</strong> Character count, estimated tokens, estimated cost per message, and context window usage meter. Helpful for monitoring API costs and context limits.
               </p>
             </div>
           )}

@@ -340,7 +340,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
 
   const applyTheme = (theme: string) => {
     const html = document.documentElement
-    html.classList.remove("dark", "girly-violet", "kawaii-pink", "clay-dream", "industrial", "ocean-breeze", "paper-mint", "clean-slate", "modern-light", "cyberpunk", "retro-wave", "chameleon", "soft-sunrise")
+    html.classList.remove("dark", "girly-violet", "kawaii-pink", "clay-dream", "industrial", "ocean-breeze", "paper-mint", "clean-slate", "modern-light", "chameleon", "soft-sunrise")
     if (theme !== "light") {
       html.classList.add(theme)
     }
