@@ -1148,142 +1148,222 @@ export function ChatInput() {
         </div>
 
         {/* Main Input Container with enhanced depth */}
-        <div className="flex items-end gap-3 md:gap-4">
-          <div className="flex-1 relative group">
-            {/* Slash Command Autocomplete Menu */}
-            {showCommandMenu && commandSuggestions.length > 0 && (
-              <div className="absolute bottom-full left-0 right-0 mb-3 md:mb-4 bg-background border-2 border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[300px] md:max-h-[350px] overflow-y-auto animate-slide-in-down">
-                <div className="p-3 md:p-3.5 border-b border-border/40 gradient-glass">
-                  <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground font-semibold">
-                    <Zap className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary glow-subtle" />
-                    <span>Slash Commands</span>
-                  </div>
-                </div>
-                {commandSuggestions.map((cmd) => (
-                  <button
-                    key={cmd.command}
-                    type="button"
-                    onClick={() => selectCommand(cmd)}
-                    className="w-full text-left px-3 md:px-4 py-2.5 md:py-3 hover:bg-accent/70 smooth-transition hover-lift flex items-start gap-2 md:gap-3 border-b border-border/20 last:border-0"
-                  >
-                    <div className="flex-1">
-                      <div className="font-semibold text-sm md:text-base">{cmd.command}</div>
-                      <div className="text-xs md:text-sm text-muted-foreground/90 mt-0.5">{cmd.description}</div>
+        <div className="flex flex-col gap-2 md:gap-0">
+          {/* Desktop: Side-by-side layout */}
+          <div className="flex items-end gap-3 md:gap-4">
+            <div className="flex-1 relative group">
+              {/* Slash Command Autocomplete Menu */}
+              {showCommandMenu && commandSuggestions.length > 0 && (
+                <div className="absolute bottom-full left-0 right-0 mb-3 md:mb-4 bg-background border-2 border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[300px] md:max-h-[350px] overflow-y-auto animate-slide-in-down">
+                  <div className="p-3 md:p-3.5 border-b border-border/40 gradient-glass">
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground font-semibold">
+                      <Zap className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary glow-subtle" />
+                      <span>Slash Commands</span>
                     </div>
-                    <span className="text-xs bg-primary/15 text-primary px-2.5 py-1 rounded-md font-medium">{cmd.category}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-            <Textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => handleInputChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Message..."
-              rows={1}
-              className={cn(
-                "min-h-[48px] md:min-h-[52px] max-h-[200px] resize-none pr-32 md:pr-44 text-sm sm:text-base rounded-xl",
-                "bg-muted/20 border-2 border-border/40",
-                "focus:border-primary/60 focus:ring-2 focus:ring-primary/20 focus:shadow-lg focus:shadow-primary/5",
-                "shadow-sm hover:shadow-md hover:border-border/60",
-                "transition-all duration-300 ease-out",
-                "pt-3 pb-3 pl-4",
-                hasContent && "border-primary/30 shadow-md"
+                  </div>
+                  {commandSuggestions.map((cmd) => (
+                    <button
+                      key={cmd.command}
+                      type="button"
+                      onClick={() => selectCommand(cmd)}
+                      className="w-full text-left px-3 md:px-4 py-2.5 md:py-3 hover:bg-accent/70 smooth-transition hover-lift flex items-start gap-2 md:gap-3 border-b border-border/20 last:border-0"
+                    >
+                      <div className="flex-1">
+                        <div className="font-semibold text-sm md:text-base">{cmd.command}</div>
+                        <div className="text-xs md:text-sm text-muted-foreground/90 mt-0.5">{cmd.description}</div>
+                      </div>
+                      <span className="text-xs bg-primary/15 text-primary px-2.5 py-1 rounded-md font-medium">{cmd.category}</span>
+                    </button>
+                  ))}
+                </div>
               )}
-              disabled={isLoading}
-            />
-            {/* Action Buttons - grouped with clear visual hierarchy */}
-            <div className="absolute top-1/2 -translate-y-1/2 right-3 flex items-center">
-              {/* Left group: Search + Voice + File (utilities) */}
-              <div className="flex items-center gap-1 md:gap-2 pr-2 md:pr-3 border-r border-border/30">
-                {/* Web search */}
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={webSearchEnabled ? "default" : "ghost"}
-                  className={cn(
-                    "h-8 w-8 md:h-9 md:w-9 rounded-lg transition-all duration-200",
-                    webSearchEnabled ? "bg-primary text-primary-foreground shadow-md" : "hover:bg-muted/80"
-                  )}
-                  onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                  title="Web search - Search the internet for current information"
-                >
-                  <Globe className="h-4 w-4" />
-                </Button>
-                {/* Voice input */}
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={isListening ? "default" : "ghost"}
-                  className={cn(
-                    "h-8 w-8 md:h-9 md:w-9 rounded-lg transition-all duration-200",
-                    isListening ? "bg-red-500 text-white animate-pulse shadow-md" : "hover:bg-muted/80"
-                  )}
-                  onClick={toggleVoiceInput}
-                  title="Voice input - Click to start speaking"
-                >
-                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                </Button>
-                {/* File upload */}
-                <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-              </div>
+              <Textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => handleInputChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Message..."
+                rows={1}
+                className={cn(
+                  "min-h-[48px] md:min-h-[52px] max-h-[200px] resize-none text-sm sm:text-base rounded-xl",
+                  "pr-4 md:pr-44", // No padding for mobile buttons, desktop keeps inline buttons
+                  "bg-muted/20 border-2 border-border/40",
+                  "focus:border-primary/60 focus:ring-2 focus:ring-primary/20 focus:shadow-lg focus:shadow-primary/5",
+                  "shadow-sm hover:shadow-md hover:border-border/60",
+                  "transition-all duration-300 ease-out",
+                  "pt-3 pb-3 pl-4",
+                  hasContent && "border-primary/30 shadow-md"
+                )}
+                disabled={isLoading}
+              />
+              {/* Desktop: Action Buttons inside textarea - hidden on mobile */}
+              <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 right-3 items-center">
+                {/* Left group: Search + Voice + File (utilities) */}
+                <div className="flex items-center gap-2 pr-3 border-r border-border/30">
+                  {/* Web search */}
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant={webSearchEnabled ? "default" : "ghost"}
+                    className={cn(
+                      "h-9 w-9 rounded-lg transition-all duration-200",
+                      webSearchEnabled ? "bg-primary text-primary-foreground shadow-md" : "hover:bg-muted/80"
+                    )}
+                    onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                    title="Web search - Search the internet for current information"
+                  >
+                    <Globe className="h-4 w-4" />
+                  </Button>
+                  {/* Voice input */}
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant={isListening ? "default" : "ghost"}
+                    className={cn(
+                      "h-9 w-9 rounded-lg transition-all duration-200",
+                      isListening ? "bg-red-500 text-white animate-pulse shadow-md" : "hover:bg-muted/80"
+                    )}
+                    onClick={toggleVoiceInput}
+                    title="Voice input - Click to start speaking"
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                  {/* File upload */}
+                  <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
+                </div>
 
-              {/* Right group: Image mode (desktop only) */}
-              <div className="hidden md:flex items-center gap-2 pl-3">
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={imageMode !== "off" ? "default" : "ghost"}
-                  className={cn(
-                    "h-9 w-9 rounded-lg transition-all duration-200 relative",
-                    imageMode !== "off"
-                      ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md hover:shadow-lg"
-                      : "hover:bg-muted/80"
-                  )}
-                  onClick={() => {
-                    haptics.trigger('selection')
-                    const nextState = imageMode === "off" ? "normal" : imageMode === "normal" ? "high" : "off"
-                    setImageMode(nextState)
-                  }}
-                  title={imageMode === "off" ? "Image generation - Click to enable" : imageMode === "normal" ? "Normal quality - Click for high quality" : "High quality mode - Click to disable"}
-                >
-                  <Image className="h-4 w-4" />
-                  {imageMode === "high" && (
-                    <span className="absolute -top-1 -right-1 text-[9px] font-bold bg-yellow-400 text-yellow-900 rounded-full w-4 h-4 flex items-center justify-center shadow-sm">+</span>
-                  )}
-                  {imageMode === "normal" && (
-                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full shadow-sm border border-white/50" />
-                  )}
-                </Button>
+                {/* Right group: Image mode */}
+                <div className="flex items-center gap-2 pl-3">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant={imageMode !== "off" ? "default" : "ghost"}
+                    className={cn(
+                      "h-9 w-9 rounded-lg transition-all duration-200 relative",
+                      imageMode !== "off"
+                        ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md hover:shadow-lg"
+                        : "hover:bg-muted/80"
+                    )}
+                    onClick={() => {
+                      haptics.trigger('selection')
+                      const nextState = imageMode === "off" ? "normal" : imageMode === "normal" ? "high" : "off"
+                      setImageMode(nextState)
+                    }}
+                    title={imageMode === "off" ? "Image generation - Click to enable" : imageMode === "normal" ? "Normal quality - Click for high quality" : "High quality mode - Click to disable"}
+                  >
+                    <Image className="h-4 w-4" />
+                    {imageMode === "high" && (
+                      <span className="absolute -top-1 -right-1 text-[9px] font-bold bg-yellow-400 text-yellow-900 rounded-full w-4 h-4 flex items-center justify-center shadow-sm">+</span>
+                    )}
+                    {imageMode === "normal" && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full shadow-sm border border-white/50" />
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
+            {/* Send Button - prominent when content exists */}
+            <Button
+              type={isLoading ? "button" : "submit"}
+              onClick={isLoading ? stopGeneration : undefined}
+              disabled={!isLoading && !hasContent}
+              className={cn(
+                "h-12 w-12 md:h-14 md:w-14 rounded-xl transition-all duration-300 ease-out flex-shrink-0",
+                isLoading
+                  ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/25 animate-pulse"
+                  : hasContent
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 scale-105 hover:scale-110"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80",
+                "active:scale-95"
+              )}
+              title={isLoading ? "Stop generation" : hasContent ? "Send message (Enter)" : "Type a message to send"}
+            >
+              {isLoading ? (
+                <Square className="h-5 w-5 md:h-6 md:w-6" />
+              ) : (
+                <Send className={cn(
+                  "h-5 w-5 md:h-6 md:w-6 transition-transform duration-200",
+                  hasContent && "translate-x-0.5"
+                )} />
+              )}
+            </Button>
           </div>
-          {/* Send Button - prominent when content exists */}
-          <Button
-            type={isLoading ? "button" : "submit"}
-            onClick={isLoading ? stopGeneration : undefined}
-            disabled={!isLoading && !hasContent}
-            className={cn(
-              "h-12 w-12 md:h-14 md:w-14 rounded-xl transition-all duration-300 ease-out",
-              isLoading
-                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/25 animate-pulse"
-                : hasContent
-                  ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 scale-105 hover:scale-110"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80",
-              "active:scale-95"
-            )}
-            title={isLoading ? "Stop generation" : hasContent ? "Send message (Enter)" : "Type a message to send"}
-          >
-            {isLoading ? (
-              <Square className="h-5 w-5 md:h-6 md:w-6" />
-            ) : (
-              <Send className={cn(
-                "h-5 w-5 md:h-6 md:w-6 transition-transform duration-200",
-                hasContent && "translate-x-0.5"
-              )} />
-            )}
-          </Button>
+
+          {/* Mobile: Action buttons row below textarea */}
+          <div className="flex md:hidden items-center justify-between px-1">
+            {/* Left: Action tools in a pill container */}
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted/40 border border-border/30">
+              {/* Web search */}
+              <Button
+                type="button"
+                size="icon"
+                variant={webSearchEnabled ? "default" : "ghost"}
+                className={cn(
+                  "h-9 w-9 rounded-lg transition-all duration-200",
+                  webSearchEnabled
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "hover:bg-muted"
+                )}
+                onClick={() => {
+                  haptics.trigger('selection')
+                  setWebSearchEnabled(!webSearchEnabled)
+                }}
+              >
+                <Globe className="h-4 w-4" />
+              </Button>
+              {/* Voice input */}
+              <Button
+                type="button"
+                size="icon"
+                variant={isListening ? "default" : "ghost"}
+                className={cn(
+                  "h-9 w-9 rounded-lg transition-all duration-200",
+                  isListening
+                    ? "bg-red-500 text-white animate-pulse shadow-sm"
+                    : "hover:bg-muted"
+                )}
+                onClick={toggleVoiceInput}
+              >
+                {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              </Button>
+              {/* File upload - compact on mobile */}
+              <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
+            </div>
+
+            {/* Right: Image mode toggle */}
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted/40 border border-border/30">
+              <Button
+                type="button"
+                size="icon"
+                variant={imageMode !== "off" ? "default" : "ghost"}
+                className={cn(
+                  "h-9 w-9 rounded-lg transition-all duration-200 relative",
+                  imageMode !== "off"
+                    ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-sm"
+                    : "hover:bg-muted"
+                )}
+                onClick={() => {
+                  haptics.trigger('selection')
+                  const nextState = imageMode === "off" ? "normal" : imageMode === "normal" ? "high" : "off"
+                  setImageMode(nextState)
+                }}
+              >
+                <Image className="h-4 w-4" />
+                {imageMode === "high" && (
+                  <span className="absolute -top-1 -right-1 text-[8px] font-bold bg-yellow-400 text-yellow-900 rounded-full w-3.5 h-3.5 flex items-center justify-center shadow-sm">+</span>
+                )}
+                {imageMode === "normal" && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full shadow-sm border border-white/50" />
+                )}
+              </Button>
+              {/* Mode label on mobile */}
+              {imageMode !== "off" && (
+                <span className="text-[10px] font-medium text-muted-foreground pr-1.5">
+                  {imageMode === "high" ? "HD" : "IMG"}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
         {/* Token & Context Info Bar - desktop only (experimental) */}
         {settings.experimental?.showInputStats && (
