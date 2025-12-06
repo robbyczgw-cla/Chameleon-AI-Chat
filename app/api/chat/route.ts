@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { checkRateLimit } from "@/lib/rate-limit"
-import { webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
+import { webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool, imageGenerationTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
 import { fetchUrlContent, fetchYouTubeTranscript, formatUrlFetchResult, formatYouTubeResult } from "@/lib/url-tools"
 
 export const runtime = "edge"
@@ -55,6 +55,7 @@ interface ChatRequest {
   enableUrlFetchTool?: boolean
   enableYouTubeTool?: boolean
   enableWeatherTool?: boolean
+  enableImageGenerationTool?: boolean
 }
 
 // Search cache to reduce duplicate searches
@@ -371,6 +372,7 @@ export async function POST(req: NextRequest) {
       enableUrlFetchTool = true,
       enableYouTubeTool = true,
       enableWeatherTool = true,
+      enableImageGenerationTool = true,
     } = body as ChatRequest
 
     const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
@@ -410,6 +412,7 @@ export async function POST(req: NextRequest) {
       if (enableWeatherTool) tools.push(weatherTool)
       if (enableUrlFetchTool) tools.push(urlFetchTool)
       if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
+      if (enableImageGenerationTool) tools.push(imageGenerationTool)
       openRouterBody.tools = tools
       openRouterBody.tool_choice = "auto"
       console.log("[Chat] Tools enabled:", tools.map(t => t.function.name).join(", "))
