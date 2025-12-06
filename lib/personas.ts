@@ -566,7 +566,8 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
   },
 }
 
-export function getPersonaExamplePrompts(personaId: string, lang: "en" | "de" = "en"): string[] {
+export function getPersonaExamplePrompts(personaId: string, lang: string = "en"): string[] {
   const prompts = PERSONA_EXAMPLE_PROMPTS[personaId] || PERSONA_EXAMPLE_PROMPTS.default
-  return prompts[lang]
+  // Return prompts for the language, fallback to English if not available (e.g., for Spanish, French)
+  return prompts[lang as keyof typeof prompts] || prompts.en
 }
