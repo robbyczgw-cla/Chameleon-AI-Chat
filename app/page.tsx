@@ -36,26 +36,27 @@ function ChatApp() {
   const swipeHandlers = useSwipeable({
     onSwipedRight: (eventData) => {
       const startX = eventData.initial[0]
-      const viewportWidth = window.innerWidth
       // Swipe right from LEFT edge (100px) → Open sidebar
       if (startX <= 100 && !isMobileSidebarOpen) {
         haptics.trigger('light')
         setIsMobileSidebarOpen(true)
       }
-      // Swipe right from RIGHT edge (100px) → Create new chat
+    },
+    onSwipedLeft: (eventData) => {
+      const startX = eventData.initial[0]
+      const viewportWidth = window.innerWidth
+      // Close sidebar when swiping left and sidebar is open
+      if (isMobileSidebarOpen) {
+        haptics.trigger('light')
+        setIsMobileSidebarOpen(false)
+      }
+      // Swipe left from RIGHT edge (100px) → Create new chat
       if (startX >= viewportWidth - 100 && !isMobileSidebarOpen) {
         haptics.trigger('medium')
         createChat()
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('focusChatInput'))
         }, 100)
-      }
-    },
-    onSwipedLeft: (eventData) => {
-      // Close sidebar when swiping left and sidebar is open
-      if (isMobileSidebarOpen) {
-        haptics.trigger('light')
-        setIsMobileSidebarOpen(false)
       }
     },
     trackMouse: false, // Only track touch events
