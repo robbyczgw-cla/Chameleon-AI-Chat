@@ -92,11 +92,17 @@ export function ChatInput() {
         })
       }
     }
+    const handleFocusChatInput = () => {
+      // Focus the textarea and open keyboard on mobile
+      textareaRef.current?.focus()
+    }
     window.addEventListener("insertPrompt" as any, handleInsertPrompt)
     window.addEventListener("attachCollection" as any, handleAttachCollection)
+    window.addEventListener("focusChatInput", handleFocusChatInput)
     return () => {
       window.removeEventListener("insertPrompt" as any, handleInsertPrompt)
       window.removeEventListener("attachCollection" as any, handleAttachCollection)
+      window.removeEventListener("focusChatInput", handleFocusChatInput)
     }
   }, [toast])
 
