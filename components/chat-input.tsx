@@ -1293,8 +1293,13 @@ export function ChatInput() {
 
           {/* Mobile: Action buttons row below textarea - all in one line */}
           <div className="flex md:hidden items-center gap-1 px-0.5">
+            {/* Model & Persona pickers */}
+            <div className="flex items-center gap-1">
+              <QuickModelPicker />
+              <QuickPersonaPicker />
+            </div>
             {/* All tools in a single row */}
-            <div className="flex items-center gap-0.5">
+            <div className="flex items-center gap-0.5 ml-auto">
               {/* Web search */}
               <Button
                 type="button"
@@ -1352,11 +1357,6 @@ export function ChatInput() {
                   <span className="absolute -top-0.5 -right-0.5 text-[7px] font-bold bg-yellow-400 text-yellow-900 rounded-full w-3 h-3 flex items-center justify-center">+</span>
                 )}
               </Button>
-            </div>
-            {/* Show active mode labels */}
-            <div className="flex items-center gap-1 ml-auto text-[10px] text-muted-foreground">
-              {webSearchEnabled && <span className="px-1.5 py-0.5 bg-primary/10 rounded">Web</span>}
-              {imageMode !== "off" && <span className="px-1.5 py-0.5 bg-purple-500/10 rounded">{imageMode === "high" ? "HD" : "Img"}</span>}
             </div>
           </div>
         </div>
