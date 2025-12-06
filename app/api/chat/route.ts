@@ -853,13 +853,15 @@ async function handleStreamingRequest(
                     }
                   }
 
-                  // If image generation failed, return error message
-                  console.error("[Chat] Image generation failed:", imageResult.error || imageResult)
+                  // If image generation failed, return error message with details
+                  const errorMsg = imageResult.error || 'Unknown error'
+                  const debugInfo = imageResult.debugInfo ? ` (Model: ${imageResult.debugInfo.model}, hasImages: ${imageResult.debugInfo.hasImages})` : ''
+                  console.error("[Chat] Image generation failed:", errorMsg, imageResult.debugInfo || '')
                   return {
                     tool_call_id: toolCall.id,
                     role: "tool" as const,
                     name: "generate_image",
-                    content: `Image generation failed: ${imageResult.error || 'Unknown error'}. Please try again or rephrase your request.`,
+                    content: `Image generation failed: ${errorMsg}${debugInfo}`,
                   }
                 } catch (error) {
                   console.error("[Chat] Image generation error:", error)

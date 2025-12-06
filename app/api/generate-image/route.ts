@@ -240,13 +240,20 @@ export async function POST(req: NextRequest) {
     // Log the full response for debugging
     console.error('[Image Gen] Could not extract image URL. Full response:', JSON.stringify(data, null, 2))
 
+    // Include the actual response content so user can see what model returned
+    const actualContent = data.choices?.[0]?.message?.content
+    const contentPreview = typeof actualContent === 'string'
+      ? actualContent.substring(0, 200)
+      : JSON.stringify(actualContent)?.substring(0, 200)
+
     return NextResponse.json(
       {
-        error: `Image model "${imageModel}" may not support image generation yet through OpenRouter. Try using DALL-E 3 (requires OpenAI API key) or check OpenRouter docs for supported image models.`,
+        error: `Image model "${imageModel}" returned text instead of image. Response: "${contentPreview}..."`,
         debugInfo: {
           model: imageModel,
           responseStructure: data.choices?.[0]?.message?.content ? 'has content' : 'no content',
-          contentType: typeof data.choices?.[0]?.message?.content
+          contentType: typeof data.choices?.[0]?.message?.content,
+          hasImages: !!data.choices?.[0]?.message?.images
         }
       },
       { status: 500 }
