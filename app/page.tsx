@@ -36,11 +36,10 @@ function ChatApp() {
   const swipeHandlers = useSwipeable({
     onSwipedRight: (eventData) => {
       // Only open sidebar if:
-      // 1. Swipe started from left edge (within 50px of left side)
-      // 2. Swipe velocity is sufficient
-      // 3. Sidebar is not already open
+      // 1. Swipe started from left area (within 100px of left side)
+      // 2. Sidebar is not already open
       const startX = eventData.initial[0]
-      if (startX <= 50 && !isMobileSidebarOpen) {
+      if (startX <= 100 && !isMobileSidebarOpen) {
         haptics.trigger('light')
         setIsMobileSidebarOpen(true)
       }
@@ -54,7 +53,7 @@ function ChatApp() {
     },
     trackMouse: false, // Only track touch events
     trackTouch: true,
-    delta: 50, // Minimum distance for swipe
+    delta: 40, // Minimum distance for swipe (reduced for easier activation)
     preventScrollOnSwipe: false, // Allow normal scrolling
     swipeDuration: 500, // Maximum time for swipe gesture
   })
