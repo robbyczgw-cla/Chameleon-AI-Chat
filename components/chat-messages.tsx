@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX, ChevronDown, ChevronRight, Lightbulb, Pencil, X, Save } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useState, useEffect, memo, useCallback, useRef } from "react"
+import { useState, memo, useCallback, useMemo } from "react"
+import dynamic from "next/dynamic"
 import { useToast } from "@/hooks/use-toast"
 import ReactMarkdown from "react-markdown"
 import { voiceService } from "@/lib/voice"
@@ -16,8 +17,6 @@ import remarkMath from "remark-math"
 import rehypeSanitize from "rehype-sanitize"
 import rehypeKatex from "rehype-katex"
 import "katex/dist/katex.min.css"
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism"
 import { FollowUpSuggestions } from "@/components/follow-up-suggestions"
 import { parseFollowUps } from "@/lib/follow-up-parser"
 import { MessageStats } from "@/components/message-stats"
@@ -32,6 +31,26 @@ import { RichContentParser } from "@/lib/rich-content-parser"
 import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
 import { MessageStatus, MessageStatusVerbose, StreamingHistoryDisplay } from "@/components/message-status"
 import { userProfileService } from "@/lib/user-profile"
+
+// Lazy load heavy syntax highlighter with its style - reduces initial bundle by ~100KB
+const SyntaxHighlighterWithStyle = dynamic(
+  () => Promise.all([
+    import("react-syntax-highlighter").then(mod => mod.Prism),
+    import("react-syntax-highlighter/dist/cjs/styles/prism/vsc-dark-plus").then(mod => mod.default)
+  ]).then(([Highlighter, style]) => {
+    // Return a wrapper component that includes the style
+    const HighlighterWithStyle = (props: any) => <Highlighter style={style} {...props} />
+    return { default: HighlighterWithStyle }
+  }),
+  {
+    loading: () => <div className="bg-zinc-800 rounded-lg p-4 animate-pulse h-20" />,
+    ssr: false
+  }
+)
+
+// Memoize markdown plugins to prevent recreation on every render
+const remarkPlugins = [remarkGfm, remarkMath]
+const rehypePlugins = [rehypeSanitize, rehypeKatex]
 
 // Time-of-day greetings in different languages
 const getTimeGreeting = (lang: string): string => {
@@ -168,8 +187,7 @@ const CodeBlock = memo(function CodeBlock({ language, code, onCopy }: CodeBlockP
           Copy
         </Button>
       </div>
-      <SyntaxHighlighter
-        style={vscDarkPlus}
+      <SyntaxHighlighterWithStyle
         language={language}
         PreTag="div"
         wrapLines
@@ -192,7 +210,7 @@ const CodeBlock = memo(function CodeBlock({ language, code, onCopy }: CodeBlockP
         }}
       >
         {code}
-      </SyntaxHighlighter>
+      </SyntaxHighlighterWithStyle>
     </div>
   )
 })
@@ -696,8 +714,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                       return (
                         <>
                           <ReactMarkdown
-                            remarkPlugins={[remarkGfm, remarkMath]}
-                            rehypePlugins={[rehypeSanitize, rehypeKatex]}
+                            remarkPlugins={remarkPlugins}
+                            rehypePlugins={rehypePlugins}
                             components={{
                               p: ({ children }) => {
                                 // Check if paragraph contains placeholders

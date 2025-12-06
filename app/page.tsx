@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import dynamic from "next/dynamic"
 import { useSwipeable } from "react-swipeable"
 import { ChatSidebar } from "@/components/chat-sidebar"
 import { ChatHeader } from "@/components/chat-header"
@@ -8,8 +9,6 @@ import { ChatMessages } from "@/components/chat-messages"
 import { ChatInput } from "@/components/chat-input"
 import { BranchNavigator } from "@/components/branch-navigator"
 import { AppProvider, useApp } from "@/contexts/app-context"
-import { ModelComparison } from "@/components/model-comparison"
-import { StatsDashboard } from "@/components/stats-dashboard"
 import { ModeWrapper } from "@/components/mode-wrapper"
 import { keyboardShortcutService } from "@/lib/keyboard-shortcuts"
 import { ChameleonLogo } from "@/components/chameleon-logo"
@@ -20,8 +19,19 @@ import { FontApplier } from "@/components/font-applier"
 import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
 
+// Dynamic imports for heavy components - only loaded when needed
+const ModelComparison = dynamic(() => import("@/components/model-comparison").then(mod => ({ default: mod.ModelComparison })), {
+  loading: () => <div className="flex items-center justify-center h-full"><div className="animate-pulse text-muted-foreground">Loading comparison...</div></div>,
+  ssr: false,
+})
+
+const StatsDashboard = dynamic(() => import("@/components/stats-dashboard").then(mod => ({ default: mod.StatsDashboard })), {
+  loading: () => <div className="flex items-center justify-center h-full"><div className="animate-pulse text-muted-foreground">Loading stats...</div></div>,
+  ssr: false,
+})
+
 function ChatApp() {
-  const { chats, currentChatId, settings, setChats, setCurrentChatId, createChat } = useApp()
+  const { chats, currentChatId, settings, setChats, setCurrentChat, createChat } = useApp()
   const { toast } = useToast()
   const [isComparisonMode, setIsComparisonMode] = useState(false)
   const [showStatsPanel, setShowStatsPanel] = useState(false)
@@ -29,36 +39,43 @@ function ChatApp() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [shareHandled, setShareHandled] = useState(false)
 
-  const currentChat = chats.find((chat) => chat.id === currentChatId)
-  const isEmpty = !currentChat || currentChat.messages.length === 0
+  // Memoize derived state to prevent unnecessary recalculations
+  const currentChat = useMemo(() => chats.find((chat) => chat.id === currentChatId), [chats, currentChatId])
+  const isEmpty = useMemo(() => !currentChat || currentChat.messages.length === 0, [currentChat])
+
+  // Memoized swipe handlers to prevent recreation on every render
+  const handleSwipeRight = useCallback((eventData: { initial: number[] }) => {
+    const startX = eventData.initial[0]
+    // Swipe right from LEFT edge (100px) → Open sidebar
+    if (startX <= 100) {
+      haptics.trigger('light')
+      setIsMobileSidebarOpen(true)
+    }
+  }, [])
+
+  const handleSwipeLeft = useCallback((eventData: { initial: number[] }) => {
+    const startX = eventData.initial[0]
+    const viewportWidth = window.innerWidth
+    // Close sidebar when swiping left and sidebar is open
+    if (isMobileSidebarOpen) {
+      haptics.trigger('light')
+      setIsMobileSidebarOpen(false)
+      return
+    }
+    // Swipe left from RIGHT edge (100px) → Create new chat
+    if (startX >= viewportWidth - 100) {
+      haptics.trigger('medium')
+      createChat()
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('focusChatInput'))
+      }, 100)
+    }
+  }, [isMobileSidebarOpen, createChat])
 
   // Swipe gesture handlers for mobile sidebar and new chat
   const swipeHandlers = useSwipeable({
-    onSwipedRight: (eventData) => {
-      const startX = eventData.initial[0]
-      // Swipe right from LEFT edge (100px) → Open sidebar
-      if (startX <= 100 && !isMobileSidebarOpen) {
-        haptics.trigger('light')
-        setIsMobileSidebarOpen(true)
-      }
-    },
-    onSwipedLeft: (eventData) => {
-      const startX = eventData.initial[0]
-      const viewportWidth = window.innerWidth
-      // Close sidebar when swiping left and sidebar is open
-      if (isMobileSidebarOpen) {
-        haptics.trigger('light')
-        setIsMobileSidebarOpen(false)
-      }
-      // Swipe left from RIGHT edge (100px) → Create new chat
-      if (startX >= viewportWidth - 100 && !isMobileSidebarOpen) {
-        haptics.trigger('medium')
-        createChat()
-        setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('focusChatInput'))
-        }, 100)
-      }
-    },
+    onSwipedRight: handleSwipeRight,
+    onSwipedLeft: handleSwipeLeft,
     trackMouse: false, // Only track touch events
     trackTouch: true,
     delta: 40, // Minimum distance for swipe (reduced for easier activation)
@@ -103,7 +120,7 @@ function ChatApp() {
 
           // Add to chats and switch to it
           setChats((prev: typeof chats) => [newChat, ...prev])
-          setCurrentChatId(newChat.id)
+          setCurrentChat(newChat.id)
 
           // Clean URL without reload
           window.history.replaceState({}, document.title, window.location.pathname)
@@ -126,7 +143,7 @@ function ChatApp() {
 
       setShareHandled(true)
     }
-  }, [shareHandled, setChats, setCurrentChatId, settings.selectedModel, toast])
+  }, [shareHandled, setChats, setCurrentChat, settings.selectedModel, toast])
 
   // Apply saved theme and performance mode on mount and when settings change
   useEffect(() => {
