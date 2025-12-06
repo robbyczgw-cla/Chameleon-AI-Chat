@@ -56,7 +56,8 @@ export function ChatInput() {
   const [attachedFiles, setAttachedFiles] = useState<FileAttachment[]>([])
   const [isListening, setIsListening] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
-  const [imageMode, setImageMode] = useState(false)
+  // Image mode: "off" | "normal" | "high"
+  const [imageMode, setImageMode] = useState<"off" | "normal" | "high">("off")
   const [reasoningEnabled, setReasoningEnabled] = useState(() => {
     if (typeof window === "undefined") return false
     const saved = localStorage.getItem("chameleon-reasoning-enabled")
@@ -178,18 +179,18 @@ export function ChatInput() {
   // Listen for toggle events from header
   useEffect(() => {
     const handleToggleVoice = () => toggleVoiceInput()
-    const handleToggleImageMode = () => {
+    const handleSetImageMode = (e: CustomEvent<"off" | "normal" | "high">) => {
       haptics.trigger('selection')
-      setImageMode(prev => !prev)
+      setImageMode(e.detail)
     }
     const handleToggleReasoning = () => setReasoningEnabled(prev => !prev)
 
     window.addEventListener("toggleVoice", handleToggleVoice)
-    window.addEventListener("toggleImageMode", handleToggleImageMode)
+    window.addEventListener("setImageMode", handleSetImageMode as EventListener)
     window.addEventListener("toggleReasoning", handleToggleReasoning)
     return () => {
       window.removeEventListener("toggleVoice", handleToggleVoice)
-      window.removeEventListener("toggleImageMode", handleToggleImageMode)
+      window.removeEventListener("setImageMode", handleSetImageMode as EventListener)
       window.removeEventListener("toggleReasoning", handleToggleReasoning)
     }
   })
@@ -264,14 +265,6 @@ export function ChatInput() {
           toast({
             title: newState ? "🌐 Web search enabled" : "Web search disabled",
             description: newState ? "AI will search the web for answers" : "Using knowledge only",
-          })
-        } else if (command.action === 'toggle-image-mode') {
-          const newState = !imageMode
-          setImageMode(newState)
-          window.dispatchEvent(new CustomEvent("toggleImageMode"))
-          toast({
-            title: newState ? "🎨 Image mode enabled" : "Image mode disabled",
-            description: newState ? "AI will generate images from prompts" : "Standard chat mode",
           })
         }
         setInput('')
@@ -410,11 +403,11 @@ export function ChatInput() {
       description: "Analyzing your message and planning response"
     })
 
-    // Handle image generation mode - always use Gemini 3 Pro Image Preview
-    if (imageMode) {
+    // Handle image generation mode - "normal" or "high" quality
+    if (imageMode !== "off") {
       try {
-        const imageModel = "google/gemini-3-pro-image-preview"
         const apiKey = settings.apiKeys.openRouter
+        const isHighQuality = imageMode === "high"
 
         if (!apiKey) {
           throw new Error('OpenRouter API key required. Add it in Settings → API Keys')
@@ -422,7 +415,9 @@ export function ChatInput() {
 
         toast({
           title: "🎨 Generating image...",
-          description: inputImagesForGen.length > 0 ? "Editing uploaded image..." : "Using Gemini 3 Pro",
+          description: inputImagesForGen.length > 0
+            ? "Editing uploaded image..."
+            : isHighQuality ? "Using Gemini 3 Pro (high quality)" : "Using Gemini 2.5 Flash",
         })
 
         const response = await fetch('/api/generate-image', {
@@ -430,8 +425,8 @@ export function ChatInput() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             prompt: messageContent,
-            model: imageModel,
             apiKey,
+            quality: isHighQuality ? "high" : "normal",
             inputImages: inputImagesForGen, // Send attached images for image-to-image
           }),
         })
@@ -865,7 +860,6 @@ export function ChatInput() {
         enableUrlFetchTool: settings.experimental?.enableUrlFetchTool !== false,
         enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
         enableWeatherTool: settings.experimental?.enableWeatherTool !== false,
-        enableImageGenerationTool: settings.experimental?.enableImageGenerationTool !== false,
         onSearchStart: (query) => {
           toast({
             title: "🔍 AI is searching the web...",
@@ -1210,20 +1204,24 @@ export function ChatInput() {
               </Button>
               {/* File upload */}
               <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-              {/* Desktop only: Image mode */}
+              {/* Desktop only: Image mode (3-state: off -> normal -> high -> off) */}
               <div className="hidden md:flex gap-1">
                 <Button
                   type="button"
                   size="icon"
-                  variant={imageMode ? "default" : "ghost"}
-                  className="h-8 w-8 rounded-lg transition-all"
+                  variant={imageMode !== "off" ? "default" : "ghost"}
+                  className="h-8 w-8 rounded-lg transition-all relative"
                   onClick={() => {
                     haptics.trigger('selection')
-                    setImageMode(!imageMode)
+                    const nextState = imageMode === "off" ? "normal" : imageMode === "normal" ? "high" : "off"
+                    setImageMode(nextState)
                   }}
-                  title="Image mode"
+                  title={imageMode === "off" ? "Image mode (off)" : imageMode === "normal" ? "Image mode (normal)" : "Image mode (high quality)"}
                 >
                   <Image className="h-4 w-4" />
+                  {imageMode === "high" && (
+                    <span className="absolute -top-0.5 -right-0.5 text-[8px] font-bold text-primary-foreground">+</span>
+                  )}
                 </Button>
               </div>
             </div>
