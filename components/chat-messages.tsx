@@ -895,7 +895,9 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
               {message.role === "assistant" &&
                isAdvancedMode &&
                settings.experimental?.streamingVisualization?.showDetailedStats !== false && (
-                <MessageStats message={message} />
+                <div className="hidden md:block">
+                  <MessageStats message={message} />
+                </div>
               )}
 
               {/* Response Analysis for assistant messages (when enabled in experimental settings) */}
