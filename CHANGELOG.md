@@ -66,7 +66,35 @@ This marks the transition from alpha to beta! Core features are now stable and r
 - Works in both Simple and Advanced modes
 - Files: `components/chat-messages.tsx`
 
+### Mobile Swipe Gestures (NEW!)
+
+**Edge-Based Gesture System (react-swipeable):**
+- **Swipe right from LEFT edge (100px)** → Open sidebar
+- **Swipe left anywhere** → Close sidebar
+- **Swipe left from RIGHT edge (100px)** → Create new chat + focus input
+- Haptic feedback on all gesture actions
+- Works in both Simple Mode and Advanced Mode
+- Uses `touch-pan-y` class for vertical scroll compatibility
+- Files: `app/page.tsx`, `components/simple-chat-app.tsx`
+
+### Mobile Chat Input Redesign (NEW!)
+
+**Simple Mode Layout:**
+- Persona picker + action buttons in single row ABOVE textarea
+- Voice input button added (OpenAI Whisper)
+- Files: `components/simple-chat-input.tsx`
+
+**Advanced Mode Layout:**
+- Model + Persona pickers in dedicated row ABOVE textarea
+- Action buttons (web search, voice, file, image) BELOW textarea
+- Files: `components/chat-input.tsx`
+
 ### UI/UX Improvements
+
+**Theme Updates:**
+- **Soft Sunrise theme** - Warm gradient theme (coral → peach → soft pink)
+- **Deleted old themes** - Removed Theme 1-8 placeholders
+- Files: `lib/themes.ts`
 
 **Responsive Greeting Display:**
 - Text scales across breakpoints (2xl → 5xl)
@@ -84,8 +112,22 @@ This marks the transition from alpha to beta! Core features are now stable and r
 - **Fixed dropdown menu breaking** - Reverted async handler that broke click events
 - **Fixed greeting not showing on load** - Combined both empty state conditions
 - **Fixed text cutoffs** - Added responsive sizing and truncation
+- **Fixed swipe gesture logic** - Changed from "swipe right at right edge" to "swipe left from right edge" (physically possible!)
+- **Fixed voice import path** - Corrected import from `@/lib/voice-service` to `@/lib/voice`
+- **Fixed file upload icon color** - Now uses theme-appropriate color
+- **Fixed mobile model/persona pickers** - Restored missing pickers in Advanced Mode mobile
 
 ### Commits (2025-12-06)
+- `b1edc32` fix: Move mobile model/persona pickers to own row above chat input
+- `f63e6e0` fix: Restore mobile model/persona pickers and combine UI rows
+- `a934429` fix: Correct voice service import path
+- `8aed5ea` feat: Improve simple mode mobile UX and fix swipe gestures
+- `1d49010` feat: Improve mobile chat input and swipe gestures
+- `04fdf38` fix: Change swipe down zone to bottom of screen, remove toast
+- `f0eb9ae` feat: Add swipe down gesture to create new chat
+- `103db89` feat: Widen swipe gesture detection area to 100px from edge
+- `dc85981` chore: Update pnpm lockfile for react-swipeable
+- `e103ece` feat: Add swipe gestures and fix PWA scroll issues
 - `e852d59` fix: Improve greeting responsiveness to prevent cutoffs on all screens
 - `69a6027` feat: Add personalized greeting with time of day on empty chat
 - `7babfc0` fix: Use non-async handler for copy share link to fix dropdown menu

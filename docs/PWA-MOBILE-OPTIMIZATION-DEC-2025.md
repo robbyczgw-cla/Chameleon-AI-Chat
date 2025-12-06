@@ -379,7 +379,71 @@ export default withBundleAnalyzer(nextConfig)
 ### 8. Enhanced Swipe Gestures
 **Impact:** 19% increase in session duration
 **Effort:** Medium (3 hours)
-**Status:** ⚠️ You have pull-to-refresh, extend it
+**Status:** ✅ IMPLEMENTED (December 2025)
+
+**Implementation using react-swipeable:**
+
+Both Simple Mode and Advanced Mode now support swipe gestures:
+
+```typescript
+// app/page.tsx (Advanced Mode)
+// components/simple-chat-app.tsx (Simple Mode)
+
+import { useSwipeable } from "react-swipeable"
+import { haptics } from "@/lib/haptics"
+
+const swipeHandlers = useSwipeable({
+  onSwipedRight: (eventData) => {
+    const startX = eventData.initial[0]
+    // Swipe right from LEFT edge (100px) → Open sidebar
+    if (startX <= 100 && !isSidebarOpen) {
+      haptics.trigger('light')
+      setSidebarOpen(true)
+    }
+  },
+  onSwipedLeft: (eventData) => {
+    const startX = eventData.initial[0]
+    const viewportWidth = window.innerWidth
+    // Close sidebar when swiping left
+    if (isSidebarOpen) {
+      haptics.trigger('light')
+      setSidebarOpen(false)
+    }
+    // Swipe left from RIGHT edge (100px) → Create new chat
+    if (startX >= viewportWidth - 100 && !isSidebarOpen) {
+      haptics.trigger('medium')
+      handleNewChat()
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('focusChatInput'))
+      }, 100)
+    }
+  },
+  trackMouse: false,
+  trackTouch: true,
+  delta: 40,           // Minimum swipe distance
+  preventScrollOnSwipe: false,  // Allow normal scrolling
+  swipeDuration: 500,  // Max time for swipe gesture
+})
+
+// Apply to main container
+<div {...swipeHandlers} className="... touch-pan-y">
+```
+
+**Gesture Summary:**
+| Gesture | Action |
+|---------|--------|
+| Swipe right from left edge | Open sidebar |
+| Swipe left (anywhere) | Close sidebar |
+| Swipe left from right edge | Create new chat + focus input |
+
+**Key Features:**
+- Haptic feedback on all gesture actions
+- Edge detection (100px from screen edges)
+- Works in both Simple and Advanced modes
+- `touch-pan-y` class allows vertical scrolling
+- Auto-focuses chat input after creating new chat
+
+**Legacy Custom Implementation (for reference):**
 
 **Create `hooks/use-swipe-gestures.ts`:**
 

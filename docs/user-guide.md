@@ -82,8 +82,11 @@ Simple Mode is a streamlined, distraction-free chat experience designed for casu
 **Mobile-Optimized:**
 - Fixed header with persona name (truncated if long)
 - Bottom chat input (thumb-friendly)
-- Swipe gestures for sidebar
+- Swipe gestures: left edge → sidebar, right edge → new chat
+- Voice input button (OpenAI Whisper)
+- Persona picker + action buttons above textarea
 - Touch-friendly toggle switches
+- Haptic feedback on interactions
 
 ### Simple Mode Settings
 
@@ -1338,17 +1341,29 @@ AI: Since you're using Next.js, Vercel is perfect - made by same team.
 
 ### 9. Mobile Experience
 
-**Swipe Gestures:**
-- Swipe right → Open sidebar
-- Swipe left → Close sidebar
+**Swipe Gestures (Edge-Based):**
+- Swipe right from LEFT edge → Open sidebar
+- Swipe left (anywhere) → Close sidebar
+- Swipe left from RIGHT edge → Create new chat + auto-focus input
 
-**Hamburger Menu:**
-- Tap ☰ → Full navigation
-- Access all features
+**Haptic Feedback:**
+- Light haptic on sidebar open/close
+- Medium haptic on new chat creation
+
+**Mobile Chat Input Layout:**
+- **Simple Mode:** Persona picker + action buttons ABOVE textarea (single row)
+- **Advanced Mode:** Model + Persona pickers ABOVE textarea, action buttons BELOW
 
 **Voice Input:**
-- Microphone icon in input
+- Microphone icon in both Simple and Advanced modes
+- OpenAI Whisper transcription
 - Hands-free messaging
+
+**Mobile Action Buttons:**
+- Web search toggle
+- Voice input
+- File upload
+- Image generation mode
 
 ### 10. Experimental Features
 
@@ -1431,13 +1446,31 @@ Action buttons (edit, copy, audio) are now always visible on touch devices!
 - Press Enter to send (no Shift needed)
 - Shift+Enter for new line
 
-**Gestures:**
-- Swipe right to open sidebar (if enabled)
-- Pull down to refresh
+**Swipe Gestures (react-swipeable):**
+- **Swipe right from LEFT edge (100px)** → Open sidebar
+- **Swipe left anywhere** → Close sidebar
+- **Swipe left from RIGHT edge (100px)** → Create new chat + focus input
+
+These gestures work in both Simple Mode and Advanced Mode with haptic feedback.
 
 **File Upload:**
 - Tap paperclip icon
 - Or drag & drop files onto chat area
+
+### Mobile Chat Input Layout
+
+**Simple Mode:**
+```
+[QuickPersonaPicker] [Web|File|Image|Reason|Voice] ← Above textarea
+[━━━━━━━━ Textarea ━━━━━━━━] [Send] ← Main row
+```
+
+**Advanced Mode:**
+```
+[QuickModelPicker] [QuickPersonaPicker] ← Row 1 (above)
+[━━━━━━━━ Textarea ━━━━━━━━] [Send]   ← Row 2 (main)
+[Web|Voice|File|Image]                 ← Row 3 (below)
+```
 
 ---
 

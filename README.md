@@ -57,6 +57,9 @@
 - 🖼️ **Desktop Image Toggle** - Image generation toggle now on desktop with quality indicators (+/●)
 - 👋 **Personalized Greeting** - Time-of-day greeting (morning/afternoon/evening/night) with user profile name
 - 🌍 **Multi-Language Greetings** - Localized greetings in EN, DE, ES, FR
+- 👆 **Mobile Swipe Gestures** - Edge-based gestures: left edge → sidebar, right edge → new chat (react-swipeable)
+- 📱 **Mobile Chat Input Redesign** - Model/Persona pickers above textarea, action buttons organized cleanly
+- 🎙️ **Voice in Simple Mode** - Voice input button now available in Simple Mode (OpenAI Whisper)
 - 🔍 **Search Provider Optimization** - Fixed Exa streaming issues (8s → 2s, 70% → 96% reliability)
 - 📊 **Model Research** - Comprehensive guides for December 2025 models (Grok 4.1, Gemini 2.0 Flash)
 
@@ -138,6 +141,18 @@ WEATHER_API_KEY=your_weatherapi_key            # FREE: 1M calls/month (weatherap
 - Prominent "New Chat" button (larger, primary color)
 - Optimized for one-handed use
 - Safe area support for notched phones
+
+**Edge-Based Swipe Gestures (react-swipeable):**
+- Swipe right from LEFT edge (100px) → Open sidebar
+- Swipe left anywhere → Close sidebar
+- Swipe left from RIGHT edge (100px) → Create new chat + focus input
+- Haptic feedback on all gesture actions
+- Works in both Simple Mode and Advanced Mode
+
+**Mobile Chat Input Layout:**
+- **Simple Mode:** Persona picker + action buttons ABOVE textarea
+- **Advanced Mode:** Model + Persona pickers ABOVE, action buttons BELOW
+- Voice input, web search, file upload, image mode all accessible
 
 **Narrow Screen Optimized (20:9):**
 - Clean text wrapping without aggressive breaking
