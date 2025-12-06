@@ -69,7 +69,8 @@ export function ChatHeader() {
 
   // Mobile toggle states
   const [isVoiceActive, setIsVoiceActive] = useState(false)
-  const [isImageModeActive, setIsImageModeActive] = useState(false)
+  // Image mode: "off" | "normal" | "high"
+  const [imageModeState, setImageModeState] = useState<"off" | "normal" | "high">("off")
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const [isTitleAnimated, setIsTitleAnimated] = useState(false)
@@ -295,6 +296,23 @@ export function ChatHeader() {
               title="Tune"
             >
               <Sliders className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={imageModeState !== "off" ? "default" : "ghost"}
+              size="icon"
+              className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all relative"
+              onClick={() => {
+                haptics.trigger('selection')
+                const nextState = imageModeState === "off" ? "normal" : imageModeState === "normal" ? "high" : "off"
+                setImageModeState(nextState)
+                window.dispatchEvent(new CustomEvent("setImageMode", { detail: nextState }))
+              }}
+              title={imageModeState === "off" ? "Image mode (off)" : imageModeState === "normal" ? "Image mode (normal)" : "Image mode (high quality)"}
+            >
+              <Image className="h-4 w-4" />
+              {imageModeState === "high" && (
+                <span className="absolute -top-0.5 -right-0.5 text-[8px] font-bold text-primary">+</span>
+              )}
             </Button>
             <MobileMoreMenu
               onSettingsClick={() => setIsSettingsOpen(true)}

@@ -3,8 +3,9 @@ import { checkRateLimit } from '@/lib/rate-limit'
 
 export const runtime = 'edge'
 
-// Single image generation model - Gemini 2.5 Flash Image
-const IMAGE_MODEL = 'google/gemini-2.5-flash-image'
+// Image generation models
+const IMAGE_MODEL_NORMAL = 'google/gemini-2.5-flash-image'
+const IMAGE_MODEL_HIGH = 'google/gemini-3-pro-image-preview'
 
 /**
  * Generate images using Gemini 2.5 Flash Image
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { prompt, apiKey, inputImages } = await req.json()
+    const { prompt, apiKey, inputImages, quality } = await req.json()
 
     if (!prompt) {
       return NextResponse.json(
@@ -47,7 +48,9 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    console.log(`[Image Gen] Using model: ${IMAGE_MODEL}`)
+    // Select model based on quality setting
+    const IMAGE_MODEL = quality === 'high' ? IMAGE_MODEL_HIGH : IMAGE_MODEL_NORMAL
+    console.log(`[Image Gen] Using model: ${IMAGE_MODEL} (quality: ${quality || 'normal'})`)
 
     // Build message content - include input images for image-to-image if provided
     let messageContent: string | Array<{ type: string; text?: string; image_url?: { url: string } }> = prompt
@@ -172,17 +175,16 @@ export async function POST(req: NextRequest) {
     // Log the full response for debugging
     console.error('[Image Gen] Could not extract image URL. Full response:', JSON.stringify(data, null, 2))
 
-    const actualContent = data.choices?.[0]?.message?.content
-    const contentPreview = typeof actualContent === 'string'
-      ? actualContent.substring(0, 200)
-      : JSON.stringify(actualContent)?.substring(0, 200)
-
+    // Return the FULL raw response so user can see what's happening
     return NextResponse.json(
       {
-        error: `Image model returned text instead of image. Response: "${contentPreview}..."`,
+        error: `No image found in response. RAW RESPONSE: ${JSON.stringify(data, null, 2)}`,
         debugInfo: {
           model: IMAGE_MODEL,
-          hasImages: !!data.choices?.[0]?.message?.images
+          hasImages: !!data.choices?.[0]?.message?.images,
+          hasContent: !!data.choices?.[0]?.message?.content,
+          contentType: typeof data.choices?.[0]?.message?.content,
+          keys: Object.keys(data.choices?.[0]?.message || {})
         }
       },
       { status: 500 }

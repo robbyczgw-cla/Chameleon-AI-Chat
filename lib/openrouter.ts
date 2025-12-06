@@ -208,7 +208,6 @@ export async function streamChatMessage(
     enableUrlFetchTool?: boolean
     enableYouTubeTool?: boolean
     enableWeatherTool?: boolean
-    enableImageGenerationTool?: boolean
     onSearchStart?: (query: string) => void
     onSearchComplete?: () => void
     // Phase tracking callbacks for step-by-step visualization
@@ -251,7 +250,6 @@ export async function streamChatMessage(
     enableUrlFetchTool = true,
     enableYouTubeTool = true,
     enableWeatherTool = true,
-    enableImageGenerationTool = true,
     onSearchStart,
     onSearchComplete,
     // Phase tracking
@@ -307,8 +305,7 @@ export async function streamChatMessage(
     requestBody.enableUrlFetchTool = enableUrlFetchTool
     requestBody.enableYouTubeTool = enableYouTubeTool
     requestBody.enableWeatherTool = enableWeatherTool
-    requestBody.enableImageGenerationTool = enableImageGenerationTool
-    console.log("[v0] Auto tool use enabled with provider:", searchProvider, "tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool, weather: enableWeatherTool, imageGen: enableImageGenerationTool })
+    console.log("[v0] Auto tool use enabled with provider:", searchProvider, "tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool, weather: enableWeatherTool })
   }
 
   console.log("[v0] FINAL REQUEST BODY TO /api/chat:", JSON.stringify(requestBody, null, 2))

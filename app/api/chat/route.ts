@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { checkRateLimit } from "@/lib/rate-limit"
-import { webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool, imageGenerationTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
+import { webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
 import { fetchUrlContent, fetchYouTubeTranscript, formatUrlFetchResult, formatYouTubeResult } from "@/lib/url-tools"
 
 export const runtime = "edge"
@@ -55,7 +55,6 @@ interface ChatRequest {
   enableUrlFetchTool?: boolean
   enableYouTubeTool?: boolean
   enableWeatherTool?: boolean
-  enableImageGenerationTool?: boolean
 }
 
 // Search cache to reduce duplicate searches
@@ -372,7 +371,6 @@ export async function POST(req: NextRequest) {
       enableUrlFetchTool = true,
       enableYouTubeTool = true,
       enableWeatherTool = true,
-      enableImageGenerationTool = true,
     } = body as ChatRequest
 
     const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
@@ -412,7 +410,6 @@ export async function POST(req: NextRequest) {
       if (enableWeatherTool) tools.push(weatherTool)
       if (enableUrlFetchTool) tools.push(urlFetchTool)
       if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
-      if (enableImageGenerationTool) tools.push(imageGenerationTool)
       openRouterBody.tools = tools
       openRouterBody.tool_choice = "auto"
       console.log("[Chat] Tools enabled:", tools.map(t => t.function.name).join(", "))
@@ -733,10 +730,6 @@ async function handleStreamingRequest(
             phase = "tool_use"
             action = `Fetching URL: ${toolArgs.url}`
             toolQuery = toolArgs.url || ""
-          } else if (toolName === "generate_image") {
-            phase = "tool_use"
-            action = `Generating image: ${toolArgs.prompt?.substring(0, 50)}...`
-            toolQuery = toolArgs.prompt || ""
           } else if (toolName === "youtube_transcript") {
             phase = "tool_use"
             action = `Getting YouTube transcript: ${toolArgs.url}`
@@ -820,55 +813,6 @@ async function handleStreamingRequest(
                   role: "tool" as const,
                   name: "get_weather",
                   content: result,
-                }
-              }
-
-              if (toolCall.function.name === "generate_image") {
-                console.log("[Chat] Executing generate_image:", args.prompt)
-                const imagePrompt = args.style
-                  ? `${args.prompt}, style: ${args.style}`
-                  : args.prompt
-
-                try {
-                  // Call our image generation API
-                  const imageResponse = await fetch(new URL('/api/generate-image', req.url).toString(), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      prompt: imagePrompt,
-                      apiKey: apiKey,
-                    }),
-                  })
-
-                  const imageResult = await imageResponse.json().catch(() => ({ error: 'Failed to parse response' }))
-
-                  if (imageResponse.ok && imageResult.url) {
-                    return {
-                      tool_call_id: toolCall.id,
-                      role: "tool" as const,
-                      name: "generate_image",
-                      content: `I've generated an image based on your request. Here it is:\n\n![Generated Image](${imageResult.url})\n\nPrompt used: "${args.prompt}"`,
-                    }
-                  }
-
-                  // If image generation failed, return error message with details
-                  const errorMsg = imageResult.error || 'Unknown error'
-                  const debugInfo = imageResult.debugInfo ? ` (Model: ${imageResult.debugInfo.model}, hasImages: ${imageResult.debugInfo.hasImages})` : ''
-                  console.error("[Chat] Image generation failed:", errorMsg, imageResult.debugInfo || '')
-                  return {
-                    tool_call_id: toolCall.id,
-                    role: "tool" as const,
-                    name: "generate_image",
-                    content: `Image generation failed: ${errorMsg}${debugInfo}`,
-                  }
-                } catch (error) {
-                  console.error("[Chat] Image generation error:", error)
-                  return {
-                    tool_call_id: toolCall.id,
-                    role: "tool" as const,
-                    name: "generate_image",
-                    content: `Image generation encountered an error. Please try again later.`,
-                  }
                 }
               }
 
