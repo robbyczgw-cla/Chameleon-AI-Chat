@@ -484,45 +484,45 @@
   --sidebar-ring: #2563EB;
 }
 
-.velvet-dusk {
-  /* Velvet Dusk - Premium dark theme with warm rose gold & amber accents */
-  /* Inspired by luxury brand aesthetics, soft on eyes, sophisticated feel */
-  --background: oklch(0.12 0.015 320);
-  --foreground: oklch(0.95 0.01 60);
-  --card: oklch(0.16 0.018 320);
-  --card-foreground: oklch(0.95 0.01 60);
-  --popover: oklch(0.14 0.016 320);
-  --popover-foreground: oklch(0.95 0.01 60);
-  /* Rose Gold Primary - warm, elegant */
-  --primary: oklch(0.72 0.14 25);
-  --primary-foreground: oklch(0.12 0.015 320);
-  --secondary: oklch(0.22 0.02 320);
-  --secondary-foreground: oklch(0.92 0.01 60);
-  --muted: oklch(0.2 0.018 320);
-  --muted-foreground: oklch(0.7 0.02 60);
-  /* Warm Amber Accent - luxurious highlight */
-  --accent: oklch(0.78 0.16 70);
-  --accent-foreground: oklch(0.12 0.015 320);
-  --destructive: oklch(0.62 0.22 15);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.28 0.025 320);
-  --input: oklch(0.2 0.02 320);
-  --ring: oklch(0.72 0.14 25);
-  /* Warm gradient for charts */
-  --chart-1: oklch(0.72 0.14 25);
-  --chart-2: oklch(0.78 0.16 70);
-  --chart-3: oklch(0.68 0.12 340);
-  --chart-4: oklch(0.75 0.1 180);
-  --chart-5: oklch(0.7 0.15 290);
-  --radius: 1rem;
-  --sidebar: oklch(0.1 0.012 320);
-  --sidebar-foreground: oklch(0.95 0.01 60);
-  --sidebar-primary: oklch(0.72 0.14 25);
-  --sidebar-primary-foreground: oklch(0.12 0.015 320);
-  --sidebar-accent: oklch(0.22 0.02 320);
-  --sidebar-accent-foreground: oklch(0.92 0.01 60);
-  --sidebar-border: oklch(0.26 0.02 320);
-  --sidebar-ring: oklch(0.72 0.14 25);
+.soft-sunrise {
+  /* Soft Sunrise - Warm, inviting light theme with peach & lavender */
+  /* Inspired by morning golden hour, calm and refreshing */
+  --background: #FDF8F5;
+  --foreground: #2D2A3E;
+  --card: #FFFFFF;
+  --card-foreground: #2D2A3E;
+  --popover: #FFFFFF;
+  --popover-foreground: #2D2A3E;
+  /* Soft Coral Primary - warm and friendly */
+  --primary: #E8786B;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FFF5F0;
+  --secondary-foreground: #2D2A3E;
+  --muted: #F5EDE8;
+  --muted-foreground: #6B6680;
+  /* Lavender Accent - calming and modern */
+  --accent: #9B8EC4;
+  --accent-foreground: #FFFFFF;
+  --destructive: #DC4A4A;
+  --destructive-foreground: #FFFFFF;
+  --border: #EDE5DF;
+  --input: #F5EDE8;
+  --ring: #E8786B;
+  /* Warm sunrise palette for charts */
+  --chart-1: #E8786B;
+  --chart-2: #9B8EC4;
+  --chart-3: #5BB5A6;
+  --chart-4: #F4A261;
+  --chart-5: #7BAFD4;
+  --radius: 0.875rem;
+  --sidebar: #FAF5F2;
+  --sidebar-foreground: #2D2A3E;
+  --sidebar-primary: #E8786B;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FFF5F0;
+  --sidebar-accent-foreground: #2D2A3E;
+  --sidebar-border: #EDE5DF;
+  --sidebar-ring: #E8786B;
 }
 
 .modern-light {
@@ -2073,8 +2073,8 @@ html {
   background-color: #0f1a14 !important;
 }
 
-.velvet-dusk [data-slot="dialog-content"] {
-  background-color: #1a1418 !important;
+.soft-sunrise [data-slot="dialog-content"] {
+  background-color: #FFFFFF !important;
 }
 
 .clean-slate [data-slot="dialog-content"] {
@@ -2147,8 +2147,8 @@ html {
   background-color: #0f1a14 !important;
 }
 
-.velvet-dusk [data-slot="alert-dialog-content"] {
-  background-color: #1a1418 !important;
+.soft-sunrise [data-slot="alert-dialog-content"] {
+  background-color: #FFFFFF !important;
 }
 
 .clean-slate [data-slot="alert-dialog-content"] {
@@ -2410,9 +2410,9 @@ html {
   border-color: rgba(47, 191, 159, 0.2);
 }
 
-.velvet-dusk .mobile-nav-glass {
-  background: rgba(26, 20, 24, 0.95);
-  border-color: rgba(225, 165, 130, 0.15);
+.soft-sunrise .mobile-nav-glass {
+  background: rgba(253, 248, 245, 0.95);
+  border-color: rgba(232, 120, 107, 0.2);
 }
 
 /* Reduce motion for accessibility */

@@ -195,7 +195,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const applyTheme = (theme: string) => {
     const html = document.documentElement
     // Remove all theme classes
-    html.classList.remove("dark", "girly-violet", "kawaii-pink", "clay-dream", "industrial", "ocean-breeze", "paper-mint", "clean-slate", "modern-light", "cyberpunk", "retro-wave", "chameleon", "velvet-dusk")
+    html.classList.remove("dark", "girly-violet", "kawaii-pink", "clay-dream", "industrial", "ocean-breeze", "paper-mint", "clean-slate", "modern-light", "cyberpunk", "retro-wave", "chameleon", "soft-sunrise")
     // Add the selected theme
     if (theme !== "light") {
       html.classList.add(theme)
@@ -397,7 +397,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 >
                   <option value="light">☀️ Light - Bright & Classic</option>
                   <option value="dark">🌙 Dark - Dark & Modern</option>
-                  <option value="velvet-dusk">✨ Velvet Dusk - Rose Gold & Amber</option>
+                  <option value="soft-sunrise">🌅 Soft Sunrise - Warm Peach & Lavender</option>
                   <option value="modern-light">🌟 Modern Light - Clean & Airy</option>
                   <option value="clean-slate">🧼 Clean Slate - Minimal & Neutral</option>
                   <option value="cyberpunk">🤖 Cyberpunk - Neon & Futuristic</option>
