@@ -463,8 +463,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
   // Show greeting when no chat selected OR chat is empty
   if (!currentChat || currentChat.messages.length === 0) {
-    // Get language from settings
-    const lang = (settings.language || "en") as "en" | "de"
+    // Get language from settings (supports en, de, es, fr)
+    const lang = settings.language || "en"
 
     // Get user profile for personalized greeting
     const userProfile = userProfileService.getProfile()

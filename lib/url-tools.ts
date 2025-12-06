@@ -3,6 +3,10 @@
  * No external APIs required - uses free methods
  */
 
+// Cache for URL fetch results (5 minute TTL)
+const urlCache = new Map<string, { result: any; timestamp: number }>()
+const URL_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
 /**
  * Extract readable text content from HTML
  */
@@ -77,6 +81,13 @@ export async function fetchUrlContent(url: string): Promise<{
   url: string
 }> {
   try {
+    // Check cache first
+    const cached = urlCache.get(url)
+    if (cached && Date.now() - cached.timestamp < URL_CACHE_TTL) {
+      console.log(`[URL Fetch] ✅ Cache hit for: ${url}`)
+      return cached.result
+    }
+
     // Validate URL
     const parsedUrl = new URL(url)
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
@@ -92,7 +103,7 @@ export async function fetchUrlContent(url: string): Promise<{
         'Accept-Language': 'en-US,en;q=0.5',
       },
       redirect: 'follow',
-      signal: AbortSignal.timeout(15000), // 15 second timeout
+      signal: AbortSignal.timeout(10000), // 10 second timeout (reduced from 15s)
     })
 
     if (!response.ok) {
@@ -125,13 +136,18 @@ export async function fetchUrlContent(url: string): Promise<{
 
     console.log(`[URL Fetch] Success: ${title || url} (${truncatedContent.length} chars)`)
 
-    return {
+    const result = {
       success: true,
       title: title || undefined,
       description: description || undefined,
       content: truncatedContent,
       url
     }
+
+    // Cache the result
+    urlCache.set(url, { result, timestamp: Date.now() })
+
+    return result
 
   } catch (error) {
     console.error('[URL Fetch] Error:', error)
