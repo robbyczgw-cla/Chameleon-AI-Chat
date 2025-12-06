@@ -113,47 +113,58 @@ export async function POST(req: NextRequest) {
     const data = await response.json()
     console.log('[Image Gen] Full Response:', JSON.stringify(data, null, 2))
 
-    // Parse response - OpenRouter returns images in message.images[] array
+    // Parse response - try multiple formats
     if (data.choices && data.choices[0]?.message) {
       const message = data.choices[0].message
 
-      // Check message.images[] array (OpenRouter standard)
+      // Format 1: message.images[] array (OpenRouter standard)
       if (message.images && Array.isArray(message.images) && message.images.length > 0) {
         const firstImage = message.images[0]
-        if (firstImage?.image_url?.url) {
-          console.log('[Image Gen] ✅ Found image in message.images[] array')
-          return NextResponse.json({
-            url: firstImage.image_url.url,
-            model: IMAGE_MODEL,
-            prompt,
-          })
+        // Check various image URL locations
+        const imageUrl = firstImage?.image_url?.url || firstImage?.url || firstImage?.b64_json
+        if (imageUrl) {
+          console.log('[Image Gen] ✅ Found image in message.images[]')
+          const url = firstImage?.b64_json ? `data:image/png;base64,${firstImage.b64_json}` : imageUrl
+          return NextResponse.json({ url, model: IMAGE_MODEL, prompt })
         }
       }
 
-      // Fallback: Check content array
+      // Format 2: content array with image parts
       if (Array.isArray(message.content)) {
         for (const item of message.content) {
+          // Check for image_url type
           if (item.type === 'image_url' && item.image_url?.url) {
-            console.log('[Image Gen] Found image in content array')
-            return NextResponse.json({
-              url: item.image_url.url,
-              model: IMAGE_MODEL,
-              prompt,
-            })
+            console.log('[Image Gen] ✅ Found image in content[] as image_url')
+            return NextResponse.json({ url: item.image_url.url, model: IMAGE_MODEL, prompt })
+          }
+          // Check for image type with data
+          if (item.type === 'image' && (item.data || item.source?.data)) {
+            const b64 = item.data || item.source?.data
+            console.log('[Image Gen] ✅ Found image in content[] as base64 data')
+            return NextResponse.json({ url: `data:image/png;base64,${b64}`, model: IMAGE_MODEL, prompt })
+          }
+          // Check for inline_data (Google format)
+          if (item.inline_data?.data) {
+            const mime = item.inline_data.mime_type || 'image/png'
+            console.log('[Image Gen] ✅ Found image in content[] as inline_data')
+            return NextResponse.json({ url: `data:${mime};base64,${item.inline_data.data}`, model: IMAGE_MODEL, prompt })
           }
         }
       }
 
-      // Check for image URL in text content
+      // Format 3: Check for base64 in text content
       if (typeof message.content === 'string') {
+        // Check for data URL
+        const dataUrlMatch = message.content.match(/(data:image\/[^;]+;base64,[A-Za-z0-9+/=]+)/)
+        if (dataUrlMatch) {
+          console.log('[Image Gen] ✅ Found data URL in text content')
+          return NextResponse.json({ url: dataUrlMatch[1], model: IMAGE_MODEL, prompt })
+        }
+        // Check for http URL
         const urlMatch = message.content.match(/(https?:\/\/[^\s)]+\.(?:png|jpg|jpeg|webp|gif))/i)
         if (urlMatch) {
-          console.log('[Image Gen] Found image URL in text content')
-          return NextResponse.json({
-            url: urlMatch[1],
-            model: IMAGE_MODEL,
-            prompt,
-          })
+          console.log('[Image Gen] ✅ Found http URL in text content')
+          return NextResponse.json({ url: urlMatch[1], model: IMAGE_MODEL, prompt })
         }
       }
     }
