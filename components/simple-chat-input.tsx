@@ -30,7 +30,7 @@ import { analyzeQueryForSearch } from "@/lib/search-heuristics"
 import { supportsVision, getRecommendedVisionModel } from "@/lib/vision-models"
 import { useFeatureFlags } from "@/hooks/use-feature-flags"
 import { haptics } from "@/lib/haptics"
-import { voiceService } from "@/lib/voice-service"
+import { voiceService } from "@/lib/voice"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
