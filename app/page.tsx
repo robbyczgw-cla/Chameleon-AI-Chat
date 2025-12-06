@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
 
 function ChatApp() {
-  const { chats, currentChatId, settings, setChats, setCurrentChatId } = useApp()
+  const { chats, currentChatId, settings, setChats, setCurrentChatId, createChat } = useApp()
   const { toast } = useToast()
   const [isComparisonMode, setIsComparisonMode] = useState(false)
   const [showStatsPanel, setShowStatsPanel] = useState(false)
@@ -32,7 +32,7 @@ function ChatApp() {
   const currentChat = chats.find((chat) => chat.id === currentChatId)
   const isEmpty = !currentChat || currentChat.messages.length === 0
 
-  // Swipe gesture handlers for mobile sidebar
+  // Swipe gesture handlers for mobile sidebar and new chat
   const swipeHandlers = useSwipeable({
     onSwipedRight: (eventData) => {
       // Only open sidebar if:
@@ -49,6 +49,20 @@ function ChatApp() {
       if (isMobileSidebarOpen) {
         haptics.trigger('light')
         setIsMobileSidebarOpen(false)
+      }
+    },
+    onSwipedDown: (eventData) => {
+      // Create new chat on swipe down from bottom area (within 200px of bottom)
+      // Only when sidebar is closed
+      const startY = eventData.initial[1]
+      const viewportHeight = window.innerHeight
+      if (startY >= viewportHeight - 200 && !isMobileSidebarOpen) {
+        haptics.trigger('medium')
+        createChat()
+        // Focus the chat input after a short delay to ensure it's rendered
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('focusChatInput'))
+        }, 100)
       }
     },
     trackMouse: false, // Only track touch events
