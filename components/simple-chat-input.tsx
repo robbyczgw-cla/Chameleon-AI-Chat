@@ -31,6 +31,7 @@ import { supportsVision, getRecommendedVisionModel } from "@/lib/vision-models"
 import { useFeatureFlags } from "@/hooks/use-feature-flags"
 import { haptics } from "@/lib/haptics"
 import { voiceService } from "@/lib/voice"
+import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
@@ -958,7 +959,10 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         <div className="flex flex-col gap-1.5 md:gap-0">
           {/* Mobile: Action buttons row above textarea */}
           <div className="flex md:hidden items-center gap-1 px-0.5 pb-1">
-            <div className="flex items-center gap-0.5">
+            {/* Persona picker */}
+            <QuickPersonaPicker />
+            {/* Action buttons */}
+            <div className="flex items-center gap-0.5 ml-auto">
               {/* Web search */}
               <Button
                 type="button"
@@ -1036,13 +1040,6 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               >
                 {isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
               </Button>
-            </div>
-            {/* Show active mode labels */}
-            <div className="flex items-center gap-1 ml-auto text-[10px] text-muted-foreground">
-              {webSearchEnabled && <span className="px-1.5 py-0.5 bg-primary/10 rounded">Web</span>}
-              {imageMode !== "off" && <span className="px-1.5 py-0.5 bg-purple-500/10 rounded">{imageMode === "high" ? "HD" : "Img"}</span>}
-              {reasoningEnabled && <span className="px-1.5 py-0.5 bg-amber-500/10 rounded">Think</span>}
-              {isListening && <span className="px-1.5 py-0.5 bg-red-500/10 rounded">🎤</span>}
             </div>
           </div>
 

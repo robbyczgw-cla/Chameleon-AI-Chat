@@ -10,7 +10,6 @@ import { SimpleSettingsDialog } from "@/components/simple-settings-dialog"
 import { PersonasDialog } from "@/components/personas-dialog"
 import { UserProfileDialog } from "@/components/user-profile-dialog"
 import { SimpleModeOnboarding } from "@/components/simple-mode-onboarding"
-import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { MemoryManager } from "@/components/memory-manager"
 import { Button } from "@/components/ui/button"
@@ -977,14 +976,6 @@ export function SimpleChatApp() {
             <div className="flex-1 overflow-hidden">
               <ChatMessages currentPersona={selectedPersona || undefined} />
             </div>
-            {/* Show persona picker above input when chat is empty */}
-            {isEmpty && (
-              <div className="px-4 py-2 border-t border-border/30">
-                <div className="max-w-3xl mx-auto">
-                  <QuickPersonaPicker />
-                </div>
-              </div>
-            )}
             <SimpleChatInput
               selectedPersona={selectedPersona || undefined}
             />
