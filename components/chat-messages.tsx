@@ -473,61 +473,73 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
       window.dispatchEvent(new CustomEvent("insertPrompt", { detail: prompt }))
     }
 
+    // Truncate very long names to prevent cutoffs
+    const displayName = userName && userName.length > 20
+      ? userName.substring(0, 20) + "…"
+      : userName
+
     return (
-      <div className="flex h-full items-center justify-center p-4">
-        <div className="w-full max-w-4xl mx-auto">
+      <div className="flex h-full items-center justify-center p-3 sm:p-4 overflow-hidden">
+        <div className="w-full max-w-4xl mx-auto px-1 sm:px-2">
           {/* Personalized greeting */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             {/* Main greeting with time of day */}
-            <div className="mb-6">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-fade-in">
-                {userName ? `${timeGreeting}, ${userName}` : timeGreeting}
+            <div className="mb-4 sm:mb-6">
+              <h1
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-fade-in break-words"
+                style={{
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
+                  hyphens: "auto"
+                }}
+              >
+                {displayName ? `${timeGreeting}, ${displayName}` : timeGreeting}
               </h1>
-              <p className="text-base sm:text-lg text-muted-foreground mt-3 animate-fade-in" style={{ animationDelay: "150ms" }}>
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-2 sm:mt-3 animate-fade-in px-2" style={{ animationDelay: "150ms" }}>
                 {subGreeting}
               </p>
             </div>
 
             {/* Persona info if selected */}
             {currentPersona && (
-              <div className="flex flex-col items-center gap-2 mt-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-                  <span className="text-2xl">{currentPersona.emoji}</span>
-                  <span className="text-sm font-medium text-primary">{currentPersona.name}</span>
+              <div className="flex flex-col items-center gap-2 mt-3 sm:mt-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
+                <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20 max-w-[90%]">
+                  <span className="text-xl sm:text-2xl flex-shrink-0">{currentPersona.emoji}</span>
+                  <span className="text-xs sm:text-sm font-medium text-primary truncate">{currentPersona.name}</span>
                 </div>
-                <p className="text-xs text-muted-foreground max-w-md">{currentPersona.description}</p>
+                <p className="text-xs text-muted-foreground max-w-[90%] sm:max-w-md line-clamp-2">{currentPersona.description}</p>
               </div>
             )}
           </div>
 
-          {/* Persona starter prompts grid - 6 prompts in 3x2 on mobile, 2x3 on tablet, 3x2 on desktop */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+          {/* Persona starter prompts grid - responsive for all screen sizes */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-2 md:gap-3">
             {starterPrompts.slice(0, 6).map((prompt, index) => (
               <button
                 key={index}
                 onClick={() => handleStarterClick(prompt)}
                 className={cn(
-                  "flex items-center justify-center text-center p-3 sm:p-4 rounded-xl",
-                  "border border-border/60 bg-card/50 hover:bg-primary/5",
+                  "flex items-center justify-center text-center p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl",
+                  "border border-border/60 bg-card/50 hover:bg-primary/5 active:scale-[0.98]",
                   "hover:border-primary/40 transition-all duration-200",
-                  "text-xs sm:text-sm font-medium text-foreground/80 hover:text-foreground",
-                  "min-h-[70px] sm:min-h-[90px]"
+                  "text-[11px] sm:text-xs md:text-sm font-medium text-foreground/80 hover:text-foreground",
+                  "min-h-[60px] sm:min-h-[70px] md:min-h-[90px]"
                 )}
               >
-                <span className="line-clamp-3 leading-snug">{prompt}</span>
+                <span className="line-clamp-3 leading-snug break-words" style={{ wordBreak: "break-word" }}>{prompt}</span>
               </button>
             ))}
           </div>
 
           {/* Tip text */}
-          <p className="text-center text-xs text-muted-foreground mt-4 animate-fade-in" style={{ animationDelay: "450ms" }}>
+          <p className="text-center text-[10px] sm:text-xs text-muted-foreground mt-3 sm:mt-4 animate-fade-in px-2" style={{ animationDelay: "450ms" }}>
             {lang === "de"
-              ? "Klicke auf eine Frage oder tippe deine eigene Nachricht"
+              ? "Tippe auf eine Frage oder schreib deine eigene"
               : lang === "es"
-              ? "Haz clic en una sugerencia o escribe tu propio mensaje"
+              ? "Toca una sugerencia o escribe la tuya"
               : lang === "fr"
-              ? "Cliquez sur une suggestion ou tapez votre propre message"
-              : "Click a prompt or type your own message"
+              ? "Touchez une suggestion ou écrivez la vôtre"
+              : "Tap a prompt or type your own"
             }
           </p>
         </div>
