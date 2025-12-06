@@ -31,6 +31,78 @@ import { contentToText } from "@/lib/multimodal-utils"
 import { RichContentParser } from "@/lib/rich-content-parser"
 import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
 import { MessageStatus, MessageStatusVerbose, StreamingHistoryDisplay } from "@/components/message-status"
+import { userProfileService } from "@/lib/user-profile"
+
+// Time-of-day greetings in different languages
+const getTimeGreeting = (lang: string): string => {
+  const hour = new Date().getHours()
+
+  const greetings: Record<string, { morning: string; afternoon: string; evening: string; night: string }> = {
+    en: {
+      morning: "Good morning",
+      afternoon: "Good afternoon",
+      evening: "Good evening",
+      night: "Good night"
+    },
+    de: {
+      morning: "Guten Morgen",
+      afternoon: "Guten Tag",
+      evening: "Guten Abend",
+      night: "Gute Nacht"
+    },
+    es: {
+      morning: "Buenos días",
+      afternoon: "Buenas tardes",
+      evening: "Buenas tardes",
+      night: "Buenas noches"
+    },
+    fr: {
+      morning: "Bonjour",
+      afternoon: "Bon après-midi",
+      evening: "Bonsoir",
+      night: "Bonne nuit"
+    }
+  }
+
+  const langGreetings = greetings[lang] || greetings.en
+
+  if (hour >= 5 && hour < 12) return langGreetings.morning
+  if (hour >= 12 && hour < 17) return langGreetings.afternoon
+  if (hour >= 17 && hour < 21) return langGreetings.evening
+  return langGreetings.night
+}
+
+const getSubGreeting = (lang: string): string => {
+  const subGreetings: Record<string, string[]> = {
+    en: [
+      "What can I help you with today?",
+      "How can I assist you?",
+      "Ready to help you out!",
+      "What's on your mind?"
+    ],
+    de: [
+      "Wie kann ich dir heute helfen?",
+      "Was kann ich für dich tun?",
+      "Ich bin bereit dir zu helfen!",
+      "Was hast du auf dem Herzen?"
+    ],
+    es: [
+      "¿En qué puedo ayudarte hoy?",
+      "¿Cómo puedo asistirte?",
+      "¡Listo para ayudarte!",
+      "¿Qué tienes en mente?"
+    ],
+    fr: [
+      "Comment puis-je vous aider aujourd'hui?",
+      "Comment puis-je vous assister?",
+      "Prêt à vous aider!",
+      "Qu'avez-vous en tête?"
+    ]
+  }
+
+  const langSubs = subGreetings[lang] || subGreetings.en
+  return langSubs[Math.floor(Math.random() * langSubs.length)]
+}
 
 interface ChatMessagesProps {
   currentPersona?: Persona
@@ -387,6 +459,12 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
     // Get language from settings
     const lang = (settings.language || "en") as "en" | "de"
 
+    // Get user profile for personalized greeting
+    const userProfile = userProfileService.getProfile()
+    const userName = userProfile.name?.trim()
+    const timeGreeting = getTimeGreeting(lang)
+    const subGreeting = getSubGreeting(lang)
+
     // Get persona-specific prompts (6 prompts)
     const personaId = currentPersona?.id || "default"
     const starterPrompts = getPersonaExamplePrompts(personaId, lang)
@@ -398,22 +476,26 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
     return (
       <div className="flex h-full items-center justify-center p-4">
         <div className="w-full max-w-4xl mx-auto">
-          {/* Persona greeting */}
-          <div className="text-center mb-6">
-            {currentPersona ? (
-              <div className="flex flex-col items-center gap-3">
-                <div className="text-5xl">{currentPersona.emoji}</div>
-                <div>
-                  <h3 className="text-lg font-semibold">{currentPersona.name}</h3>
-                  <p className="text-sm text-muted-foreground">{currentPersona.description}</p>
+          {/* Personalized greeting */}
+          <div className="text-center mb-8">
+            {/* Main greeting with time of day */}
+            <div className="mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-fade-in">
+                {userName ? `${timeGreeting}, ${userName}` : timeGreeting}
+              </h1>
+              <p className="text-base sm:text-lg text-muted-foreground mt-3 animate-fade-in" style={{ animationDelay: "150ms" }}>
+                {subGreeting}
+              </p>
+            </div>
+
+            {/* Persona info if selected */}
+            {currentPersona && (
+              <div className="flex flex-col items-center gap-2 mt-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+                  <span className="text-2xl">{currentPersona.emoji}</span>
+                  <span className="text-sm font-medium text-primary">{currentPersona.name}</span>
                 </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-3">
-                <div className="text-5xl">💬</div>
-                <p className="text-sm text-muted-foreground">
-                  {lang === "de" ? "Probiere eine dieser Fragen:" : "Try asking one of these:"}
-                </p>
+                <p className="text-xs text-muted-foreground max-w-md">{currentPersona.description}</p>
               </div>
             )}
           </div>
@@ -438,9 +520,13 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
           </div>
 
           {/* Tip text */}
-          <p className="text-center text-xs text-muted-foreground mt-4">
+          <p className="text-center text-xs text-muted-foreground mt-4 animate-fade-in" style={{ animationDelay: "450ms" }}>
             {lang === "de"
               ? "Klicke auf eine Frage oder tippe deine eigene Nachricht"
+              : lang === "es"
+              ? "Haz clic en una sugerencia o escribe tu propio mensaje"
+              : lang === "fr"
+              ? "Cliquez sur une suggestion ou tapez votre propre message"
               : "Click a prompt or type your own message"
             }
           </p>
