@@ -824,42 +824,42 @@ async function handleStreamingRequest(
               }
 
               if (toolCall.function.name === "generate_image") {
-                console.log("[Chat] Executing generate_image:", args.prompt, "quality:", args.quality)
+                console.log("[Chat] Executing generate_image:", args.prompt)
                 const imagePrompt = args.style
                   ? `${args.prompt}, style: ${args.style}`
                   : args.prompt
 
                 try {
-                  // Call our image generation API with quality parameter
+                  // Call our image generation API
                   const imageResponse = await fetch(new URL('/api/generate-image', req.url).toString(), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       prompt: imagePrompt,
-                      apiKey: apiKey, // Use the same OpenRouter API key
-                      quality: args.quality || 'standard', // Pass quality level (standard or high)
+                      apiKey: apiKey,
                     }),
                   })
 
                   const imageResult = await imageResponse.json().catch(() => ({ error: 'Failed to parse response' }))
 
                   if (imageResponse.ok && imageResult.url) {
-                    const qualityNote = args.quality === 'high' ? ' (high quality)' : ''
                     return {
                       tool_call_id: toolCall.id,
                       role: "tool" as const,
                       name: "generate_image",
-                      content: `I've generated an image${qualityNote} based on your request. Here it is:\n\n![Generated Image](${imageResult.url})\n\nPrompt used: "${args.prompt}"`,
+                      content: `I've generated an image based on your request. Here it is:\n\n![Generated Image](${imageResult.url})\n\nPrompt used: "${args.prompt}"`,
                     }
                   }
 
-                  // If image generation failed, return error message
-                  console.error("[Chat] Image generation failed:", imageResult.error || imageResult)
+                  // If image generation failed, return error message with details
+                  const errorMsg = imageResult.error || 'Unknown error'
+                  const debugInfo = imageResult.debugInfo ? ` (Model: ${imageResult.debugInfo.model}, hasImages: ${imageResult.debugInfo.hasImages})` : ''
+                  console.error("[Chat] Image generation failed:", errorMsg, imageResult.debugInfo || '')
                   return {
                     tool_call_id: toolCall.id,
                     role: "tool" as const,
                     name: "generate_image",
-                    content: `Image generation failed: ${imageResult.error || 'Unknown error'}. Please try again or rephrase your request.`,
+                    content: `Image generation failed: ${errorMsg}${debugInfo}`,
                   }
                 } catch (error) {
                   console.error("[Chat] Image generation error:", error)

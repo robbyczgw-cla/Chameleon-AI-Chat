@@ -3,31 +3,11 @@ import { checkRateLimit } from '@/lib/rate-limit'
 
 export const runtime = 'edge'
 
-// Image generation models (multimodal models that can generate images)
-const IMAGE_MODELS = {
-  // Google Gemini Image models (primary)
-  'google/gemini-3-pro-image-preview': { name: 'Gemini 3 Pro Image Preview', multimodal: true },
-  'google/gemini-2.5-flash-image': { name: 'Gemini 2.5 Flash Image', multimodal: true },
-  'google/gemini-2.5-flash-image-preview': { name: 'Gemini 2.5 Flash Image Preview', multimodal: true },
-
-  // Classic DALL-E (requires OpenAI API key)
-  'openai/dall-e-3': { name: 'DALL-E 3', size: '1024x1024', multimodal: false },
-  'openai/dall-e-2': { name: 'DALL-E 2', size: '1024x1024', multimodal: false },
-
-  // Other providers
-  'black-forest-labs/flux-1.1-pro': { name: 'Flux 1.1 Pro', multimodal: true },
-  'black-forest-labs/flux-pro': { name: 'Flux Pro', multimodal: true },
-  'stability-ai/stable-diffusion-xl': { name: 'Stable Diffusion XL', multimodal: true },
-}
-
-// Default image model (fast, good quality)
-const DEFAULT_IMAGE_MODEL = 'google/gemini-2.5-flash-image-preview'
-// High quality model (slower, better quality) - use when user asks for "high quality", "detailed", etc.
-const HIGH_QUALITY_IMAGE_MODEL = 'google/gemini-3-pro-image-preview'
+// Single image generation model - Gemini 2.5 Flash Image
+const IMAGE_MODEL = 'google/gemini-2.5-flash-image'
 
 /**
- * Generate images using OpenRouter's image models
- * Only works with actual image models (DALL-E, Flux, SD)
+ * Generate images using Gemini 2.5 Flash Image
  */
 export async function POST(req: NextRequest) {
   try {
@@ -51,7 +31,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { prompt, model, apiKey, inputImages, quality } = await req.json()
+    const { prompt, apiKey, inputImages } = await req.json()
 
     if (!prompt) {
       return NextResponse.json(
@@ -67,58 +47,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Determine which model to use
-    // Priority: explicit model > quality setting > default
-    let selectedModel = DEFAULT_IMAGE_MODEL
-    if (model && IMAGE_MODELS[model as keyof typeof IMAGE_MODELS]) {
-      selectedModel = model
-    } else if (quality === 'high') {
-      selectedModel = HIGH_QUALITY_IMAGE_MODEL
-    }
-    const imageModel = selectedModel
-
-    const modelConfig = IMAGE_MODELS[imageModel as keyof typeof IMAGE_MODELS]
-    console.log(`[Image Gen] Using model: ${imageModel}, config:`, modelConfig)
-
-    // For classic DALL-E (non-multimodal), use dedicated images endpoint
-    if (imageModel === 'openai/dall-e-3' || imageModel === 'openai/dall-e-2') {
-      try {
-        const response = await fetch('https://api.openai.com/v1/images/generations', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: imageModel.replace('openai/', ''),
-            prompt,
-            n: 1,
-            size: modelConfig.size || '1024x1024',
-          }),
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          if (data.data && data.data[0]?.url) {
-            return NextResponse.json({
-              url: data.data[0].url,
-              model: imageModel,
-              prompt,
-            })
-          }
-        }
-
-        const error = await response.json()
-        throw new Error(error.error?.message || 'DALL-E generation failed')
-      } catch (error: any) {
-        console.warn('DALL-E API failed:', error.message)
-        // Don't fallback for DALL-E, return error
-        return NextResponse.json(
-          { error: `DALL-E failed: ${error.message}` },
-          { status: 500 }
-        )
-      }
-    }
+    console.log(`[Image Gen] Using model: ${IMAGE_MODEL}`)
 
     // Build message content - include input images for image-to-image if provided
     let messageContent: string | Array<{ type: string; text?: string; image_url?: { url: string } }> = prompt
@@ -126,12 +55,10 @@ export async function POST(req: NextRequest) {
     if (inputImages && Array.isArray(inputImages) && inputImages.length > 0) {
       // Image-to-image: include input images + text prompt
       messageContent = [
-        // Add input images first
         ...inputImages.map((base64Url: string) => ({
           type: 'image_url' as const,
           image_url: { url: base64Url }
         })),
-        // Then the text prompt
         {
           type: 'text' as const,
           text: prompt
@@ -140,7 +67,7 @@ export async function POST(req: NextRequest) {
       console.log(`[Image Gen] Image-to-image mode with ${inputImages.length} input image(s)`)
     }
 
-    // For multimodal models (GPT-5 Image, Gemini Image, Flux, SD), use OpenRouter chat
+    // Call OpenRouter with Gemini image model
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -150,20 +77,14 @@ export async function POST(req: NextRequest) {
         'X-Title': 'Chameleon Chat',
       },
       body: JSON.stringify({
-        model: imageModel,
-        modalities: ['image', 'text'], // CRITICAL: Tell OpenRouter to generate images!
+        model: IMAGE_MODEL,
+        modalities: ['image', 'text'],
         messages: [
           {
             role: 'user',
             content: messageContent
           }
         ],
-        // Add Gemini-specific image config
-        ...(imageModel.includes('gemini') && {
-          image_config: {
-            aspect_ratio: '1:1' // Can be 1:1, 16:9, 9:16, 3:4, 4:3, etc.
-          }
-        })
       }),
     })
 
@@ -196,41 +117,41 @@ export async function POST(req: NextRequest) {
     if (data.choices && data.choices[0]?.message) {
       const message = data.choices[0].message
 
-      // CORRECT FORMAT: Check message.images[] array (OpenRouter standard)
+      // Check message.images[] array (OpenRouter standard)
       if (message.images && Array.isArray(message.images) && message.images.length > 0) {
         const firstImage = message.images[0]
         if (firstImage?.image_url?.url) {
           console.log('[Image Gen] ✅ Found image in message.images[] array')
           return NextResponse.json({
-            url: firstImage.image_url.url, // Will be base64: data:image/png;base64,...
-            model: imageModel,
+            url: firstImage.image_url.url,
+            model: IMAGE_MODEL,
             prompt,
           })
         }
       }
 
-      // LEGACY FALLBACK: Check content array (older format)
+      // Fallback: Check content array
       if (Array.isArray(message.content)) {
         for (const item of message.content) {
           if (item.type === 'image_url' && item.image_url?.url) {
-            console.log('[Image Gen] Found image in content array (legacy format)')
+            console.log('[Image Gen] Found image in content array')
             return NextResponse.json({
               url: item.image_url.url,
-              model: imageModel,
+              model: IMAGE_MODEL,
               prompt,
             })
           }
         }
       }
 
-      // Check for image URL in text content (text-based models)
+      // Check for image URL in text content
       if (typeof message.content === 'string') {
         const urlMatch = message.content.match(/(https?:\/\/[^\s)]+\.(?:png|jpg|jpeg|webp|gif))/i)
         if (urlMatch) {
           console.log('[Image Gen] Found image URL in text content')
           return NextResponse.json({
             url: urlMatch[1],
-            model: imageModel,
+            model: IMAGE_MODEL,
             prompt,
           })
         }
@@ -240,13 +161,17 @@ export async function POST(req: NextRequest) {
     // Log the full response for debugging
     console.error('[Image Gen] Could not extract image URL. Full response:', JSON.stringify(data, null, 2))
 
+    const actualContent = data.choices?.[0]?.message?.content
+    const contentPreview = typeof actualContent === 'string'
+      ? actualContent.substring(0, 200)
+      : JSON.stringify(actualContent)?.substring(0, 200)
+
     return NextResponse.json(
       {
-        error: `Image model "${imageModel}" may not support image generation yet through OpenRouter. Try using DALL-E 3 (requires OpenAI API key) or check OpenRouter docs for supported image models.`,
+        error: `Image model returned text instead of image. Response: "${contentPreview}..."`,
         debugInfo: {
-          model: imageModel,
-          responseStructure: data.choices?.[0]?.message?.content ? 'has content' : 'no content',
-          contentType: typeof data.choices?.[0]?.message?.content
+          model: IMAGE_MODEL,
+          hasImages: !!data.choices?.[0]?.message?.images
         }
       },
       { status: 500 }
