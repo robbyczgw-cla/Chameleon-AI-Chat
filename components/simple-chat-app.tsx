@@ -928,18 +928,6 @@ export function SimpleChatApp() {
                 <Search className="h-5 w-5 sm:h-4 sm:w-4" />
               </Button>
               <Button
-                variant={imageMode ? "default" : "ghost"}
-                size="icon"
-                onClick={toggleImageMode}
-                className={cn(
-                  "relative h-10 w-10 sm:h-9 sm:w-9",
-                  imageMode && "bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600"
-                )}
-                title={t.createImage}
-              >
-                <ImagePlus className="h-5 w-5 sm:h-4 sm:w-4" />
-              </Button>
-              <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsPersonasOpen(true)}

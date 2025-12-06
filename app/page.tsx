@@ -35,13 +35,20 @@ function ChatApp() {
   // Swipe gesture handlers for mobile sidebar and new chat
   const swipeHandlers = useSwipeable({
     onSwipedRight: (eventData) => {
-      // Only open sidebar if:
-      // 1. Swipe started from left area (within 100px of left side)
-      // 2. Sidebar is not already open
       const startX = eventData.initial[0]
+      const viewportWidth = window.innerWidth
+      // Swipe right from LEFT edge (100px) → Open sidebar
       if (startX <= 100 && !isMobileSidebarOpen) {
         haptics.trigger('light')
         setIsMobileSidebarOpen(true)
+      }
+      // Swipe right from RIGHT edge (100px) → Create new chat
+      if (startX >= viewportWidth - 100 && !isMobileSidebarOpen) {
+        haptics.trigger('medium')
+        createChat()
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('focusChatInput'))
+        }, 100)
       }
     },
     onSwipedLeft: (eventData) => {
@@ -49,20 +56,6 @@ function ChatApp() {
       if (isMobileSidebarOpen) {
         haptics.trigger('light')
         setIsMobileSidebarOpen(false)
-      }
-    },
-    onSwipedDown: (eventData) => {
-      // Create new chat on swipe down from bottom area (within 200px of bottom)
-      // Only when sidebar is closed
-      const startY = eventData.initial[1]
-      const viewportHeight = window.innerHeight
-      if (startY >= viewportHeight - 200 && !isMobileSidebarOpen) {
-        haptics.trigger('medium')
-        createChat()
-        // Focus the chat input after a short delay to ensure it's rendered
-        setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('focusChatInput'))
-        }, 100)
       }
     },
     trackMouse: false, // Only track touch events
