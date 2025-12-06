@@ -298,11 +298,11 @@ interface SimpleModeOnboardingProps {
 const themes = [
   { id: "light", icon: Sun, gradient: "from-amber-400 to-orange-500" },
   { id: "dark", icon: Moon, gradient: "from-slate-600 to-slate-800" },
-  { id: "cosmic-glass", icon: Gem, gradient: "from-purple-500 to-pink-500" },
+  { id: "velvet-dusk", icon: Sparkles, gradient: "from-rose-400 to-amber-400" },
   { id: "modern-light", icon: Sparkles, gradient: "from-blue-400 to-cyan-400" },
   { id: "girly-violet", icon: Heart, gradient: "from-pink-400 to-violet-500" },
   { id: "kawaii-pink", icon: Heart, gradient: "from-pink-300 to-pink-500" },
-  { id: "clay-dream", icon: Sparkles, gradient: "from-purple-400 to-pink-400" },
+  { id: "clay-dream", icon: Gem, gradient: "from-purple-400 to-pink-400" },
   { id: "industrial", icon: Gem, gradient: "from-gray-400 to-orange-400" },
   { id: "ocean-breeze", icon: Waves, gradient: "from-teal-400 to-blue-500" },
 ]
@@ -340,7 +340,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
 
   const applyTheme = (theme: string) => {
     const html = document.documentElement
-    html.classList.remove("dark", "girly-violet", "kawaii-pink", "clay-dream", "industrial", "ocean-breeze", "paper-mint", "clean-slate", "midnight-hologram", "cosmic-glass", "modern-light")
+    html.classList.remove("dark", "girly-violet", "kawaii-pink", "clay-dream", "industrial", "ocean-breeze", "paper-mint", "clean-slate", "modern-light", "cyberpunk", "retro-wave", "chameleon", "velvet-dusk")
     if (theme !== "light") {
       html.classList.add(theme)
     }
@@ -449,7 +449,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
     switch (themeId) {
       case "light": return t.themeLight
       case "dark": return t.themeDark
-      case "cosmic-glass": return t.themeCosmicGlass
+      case "velvet-dusk": return "Velvet Dusk ✨"
       case "modern-light": return t.themeModernLight
       case "girly-violet": return t.themeGirlyViolet
       case "kawaii-pink": return "Kawaii Pink"

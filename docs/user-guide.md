@@ -1,5 +1,7 @@
 # 📖 Chameleon Chat User Guide - Master All Features
 
+**Version 0.9-beta** | Last updated: December 2025
+
 Complete guide to getting the most out of Chameleon Chat's power user features.
 
 ---
@@ -7,21 +9,24 @@ Complete guide to getting the most out of Chameleon Chat's power user features.
 ## 🎯 Table of Contents
 
 1. [Getting Started](#getting-started)
-2. [Simple Mode](#simple-mode) ⭐ NEW
-3. [Understanding Personas](#understanding-personas)
-4. [Intelligent Memory System](#intelligent-memory-system) ⭐ NEW
-5. [Message Editing & Drafts](#message-editing--drafts)
-6. [Full-Text Search](#full-text-search)
-7. [AI Chat Titles](#ai-chat-titles)
-8. [Cost Tracking & Optimization](#cost-tracking--optimization)
-9. [AI Debate Mode](#ai-debate-mode)
-10. [Training Data Export](#training-data-export)
-11. [Advanced Settings](#advanced-settings)
-12. [Web Search Integration](#web-search-integration) ⭐ UPDATED
-13. [User Profile System](#user-profile-system)
-14. [Chat Management](#chat-management)
-15. [PWA & Mobile Tips](#pwa--mobile-tips)
-16. [Pro Tips & Tricks](#pro-tips--tricks)
+2. [Simple Mode](#simple-mode)
+3. [Personalized Greeting](#personalized-greeting) ⭐ NEW (v0.9-beta)
+4. [Chat Link Sharing](#chat-link-sharing) ⭐ NEW (v0.9-beta)
+5. [Image Generation](#image-generation) ⭐ UPDATED (v0.9-beta)
+6. [Understanding Personas](#understanding-personas)
+7. [Intelligent Memory System](#intelligent-memory-system)
+8. [Message Editing & Drafts](#message-editing--drafts)
+9. [Full-Text Search](#full-text-search)
+10. [AI Chat Titles](#ai-chat-titles)
+11. [Cost Tracking & Optimization](#cost-tracking--optimization)
+12. [AI Debate Mode](#ai-debate-mode)
+13. [Training Data Export](#training-data-export)
+14. [Advanced Settings](#advanced-settings)
+15. [Web Search Integration](#web-search-integration)
+16. [User Profile System](#user-profile-system)
+17. [Chat Management](#chat-management)
+18. [PWA & Mobile Tips](#pwa--mobile-tips)
+19. [Pro Tips & Tricks](#pro-tips--tricks)
 
 ---
 
@@ -127,6 +132,199 @@ Access settings via gear icon in header:
 - Fine-tuning parameters
 - Using MCP servers
 - Power-user features
+
+---
+
+## 👋 Personalized Greeting
+
+### Welcome Experience (v0.9-beta) ⭐ NEW
+
+When you open Chameleon Chat or start a new conversation, you'll see a beautiful personalized greeting!
+
+**What You See:**
+- Time-of-day greeting (Good morning/afternoon/evening/night)
+- Your profile name (if set)
+- Gradient text animation (purple → pink)
+
+**Example Greetings:**
+```
+Good morning, Alex
+Good afternoon, Maria
+Good evening
+Guten Morgen, Stefan
+Buenos días, Carlos
+Bonsoir, Marie
+```
+
+### Time-of-Day Logic
+
+| Time | English | German | Spanish | French |
+|------|---------|--------|---------|--------|
+| 5am-12pm | Good morning | Guten Morgen | Buenos días | Bonjour |
+| 12pm-5pm | Good afternoon | Guten Tag | Buenas tardes | Bon après-midi |
+| 5pm-9pm | Good evening | Guten Abend | Buenas tardes | Bonsoir |
+| 9pm-5am | Good night | Gute Nacht | Buenas noches | Bonne nuit |
+
+### Setting Your Name
+
+1. Click profile icon in header
+2. Go to "Edit Profile"
+3. Enter your name in the "Name" field
+4. Save changes
+
+**Note:** Names longer than 20 characters are truncated with "…" to prevent layout issues.
+
+### Language Support
+
+The greeting automatically uses your app language setting:
+- 🇬🇧 English (default)
+- 🇩🇪 German (Deutsch)
+- 🇪🇸 Spanish (Español)
+- 🇫🇷 French (Français)
+
+Change language: Settings → Language
+
+---
+
+## 🔗 Chat Link Sharing
+
+### Share Conversations (v0.9-beta) ⭐ NEW
+
+Share your conversations with anyone via a simple URL - no account required for viewing!
+
+**How to Share:**
+1. Open the chat you want to share
+2. Click the menu icon (three dots) in the header
+3. Click "Copy Chat Link"
+4. Share the copied URL with anyone
+
+**What Gets Shared:**
+- Chat title
+- All messages (user and AI)
+- Date created
+
+**What's NOT Shared:**
+- Your profile information
+- API keys or settings
+- Memory system data
+
+### How It Works
+
+The share link uses **base64 encoding** to embed the conversation directly in the URL:
+
+```
+https://yoursite.com?share=eyJ2IjoxLCJ0IjoiSGVsbG8gV29ybGQiLCJtIjpb...
+```
+
+**Technical Format:**
+```json
+{
+  "v": 1,           // Version (for future compatibility)
+  "t": "Chat Title", // Title
+  "m": [            // Messages (compressed)
+    { "r": "u", "c": "Hello" },    // user message
+    { "r": "a", "c": "Hi there!" } // assistant message
+  ],
+  "d": "2025-12-06" // Date
+}
+```
+
+### Receiving Shared Chats
+
+When someone opens a shared link:
+1. The chat is automatically imported
+2. Title shows "📥 [Original Title]"
+3. Toast notification confirms import
+4. Chat appears in sidebar
+5. URL is cleaned up (share parameter removed)
+
+### Privacy & Security
+
+- **No Server Storage** - Data lives entirely in the URL
+- **Client-Side Only** - No conversation data sent to servers
+- **Ephemeral** - Recipient must save chat to keep it
+- **Transparent** - Anyone can decode the base64 to see content
+
+### Use Cases
+
+**Team Collaboration:**
+- Share interesting AI conversations with colleagues
+- Distribute research findings
+- Collaborate on prompts and responses
+
+**Education:**
+- Share example conversations with students
+- Demonstrate AI capabilities
+- Create conversation templates
+
+**Social Sharing:**
+- Share funny or interesting AI chats
+- Create viral content
+- Show off creative prompts
+
+### Limitations
+
+- Very long conversations may create very long URLs
+- Some URL shorteners may truncate long URLs
+- Shared chats don't include images or attachments
+
+---
+
+## 🖼️ Image Generation
+
+### Image Toggle (v0.9-beta) ⭐ UPDATED
+
+Control AI image generation directly from the header on both mobile AND desktop!
+
+**Where to Find It:**
+- **Mobile**: Header bar (next to voice/reasoning toggles)
+- **Desktop**: Header bar (new in v0.9-beta!)
+
+**Three States:**
+1. **Off** - No image generation (default)
+2. **Normal Quality** - Green dot indicator (●)
+3. **High Quality** - Yellow "+" badge (+)
+
+**How to Toggle:**
+- Click the image icon in header
+- Each click cycles: Off → Normal → High → Off
+- Haptic feedback on touch devices
+
+**Visual Indicators:**
+- 🔘 Off: Plain icon, no badge
+- 🟢 Normal: Green dot in corner
+- 🟡+ High: Yellow "+" badge in corner
+
+### Quality Modes
+
+**Normal Quality:**
+- Faster generation
+- Lower cost
+- Good for quick visuals
+- Standard resolution
+
+**High Quality:**
+- Slower generation
+- Higher cost
+- Best for final outputs
+- Maximum resolution
+
+### Using Image Generation
+
+1. Enable image mode (click toggle)
+2. Describe what you want to see
+3. AI generates image using DALL-E
+4. Image appears in chat
+
+**Good Prompts:**
+- "A cyberpunk city at night with neon lights"
+- "A cozy cabin in snowy mountains"
+- "A friendly cartoon robot"
+
+**Tips:**
+- Be specific about style (realistic, cartoon, oil painting)
+- Mention colors and lighting
+- Describe composition (close-up, wide shot)
 
 ---
 

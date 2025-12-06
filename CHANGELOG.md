@@ -2,7 +2,94 @@
 
 All notable changes to Chameleon AI Chat are documented in this file.
 
-This project is currently in **alpha stage** (v0.x). APIs and features may change.
+This project is transitioning from **alpha** to **beta stage** (v0.9-beta). Core features are stable.
+
+---
+
+## [0.9-beta] - 2025-12-06
+
+### 🎉 Beta Release Milestone
+
+This marks the transition from alpha to beta! Core features are now stable and ready for broader testing.
+
+### Shareable Chat Links (NEW!)
+
+**Copy Chat Link Functionality:**
+- **Base64 Encoded URLs** - Conversations encoded directly in shareable URLs
+- **No Server Required** - Data lives in the URL, privacy-first design
+- **Version Field** - Future-compatible format (v1) for migrations
+- **Import on Open** - Recipients automatically see the shared conversation
+- **Toast Notifications** - Visual feedback on copy and import actions
+- Files: `components/quick-actions-menu.tsx`, `app/page.tsx`
+
+**How It Works:**
+```typescript
+// Share format
+{
+  v: 1,                    // Version for compatibility
+  t: "Chat Title",         // Title
+  m: [                     // Messages (compressed)
+    { r: "u", c: "Hello" },  // user
+    { r: "a", c: "Hi!" }     // assistant
+  ],
+  d: "2025-12-06"          // Date
+}
+```
+
+### Desktop Image Toggle (NEW!)
+
+**Image Generation Controls:**
+- **Desktop Parity** - Image toggle now visible on desktop header (was mobile-only)
+- **Quality Indicators** - Yellow "+" badge for high quality, green dot for normal
+- **3-State Cycling** - Off → Normal → High Quality → Off
+- **Haptic Feedback** - Touch feedback on toggle interactions
+- Files: `components/chat-header.tsx`
+
+### Personalized Greeting System (NEW!)
+
+**Time-of-Day Greetings:**
+- **Morning** (5am-12pm) - "Good morning"
+- **Afternoon** (12pm-5pm) - "Good afternoon"
+- **Evening** (5pm-9pm) - "Good evening"
+- **Night** (9pm-5am) - "Good night"
+
+**Multi-Language Support:**
+- 🇬🇧 English: "Good morning", "Good afternoon", "Good evening", "Good night"
+- 🇩🇪 German: "Guten Morgen", "Guten Tag", "Guten Abend", "Gute Nacht"
+- 🇪🇸 Spanish: "Buenos días", "Buenas tardes", "Buenas tardes", "Buenas noches"
+- 🇫🇷 French: "Bonjour", "Bon après-midi", "Bonsoir", "Bonne nuit"
+
+**User Profile Integration:**
+- Displays user's profile name in greeting
+- Name truncation (max 20 chars) to prevent overflow
+- Gradient text styling (purple → pink) with animation
+- Works in both Simple and Advanced modes
+- Files: `components/chat-messages.tsx`
+
+### UI/UX Improvements
+
+**Responsive Greeting Display:**
+- Text scales across breakpoints (2xl → 5xl)
+- Word-break handling for long names
+- Centered layout with overflow protection
+- Works on mobile, tablet, and desktop
+
+**Empty State Consolidation:**
+- Unified "no chat" and "empty chat" states
+- Single greeting view instead of two separate screens
+- Cleaner first-time user experience
+
+### Bug Fixes
+
+- **Fixed dropdown menu breaking** - Reverted async handler that broke click events
+- **Fixed greeting not showing on load** - Combined both empty state conditions
+- **Fixed text cutoffs** - Added responsive sizing and truncation
+
+### Commits (2025-12-06)
+- `e852d59` fix: Improve greeting responsiveness to prevent cutoffs on all screens
+- `69a6027` feat: Add personalized greeting with time of day on empty chat
+- `7babfc0` fix: Use non-async handler for copy share link to fix dropdown menu
+- `1892fbf` feat: Add functional chat link sharing and desktop image toggle
 
 ---
 
@@ -1076,6 +1163,9 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| **0.9-beta** | 2025-12-06 | 🎉 **Beta Release** - Shareable chat links, desktop image toggle, personalized greetings |
+| 0.11.1-alpha | 2025-12-05 | React 19 compatibility, vaul 1.1.2, database implementation guide |
+| 0.11.0-alpha | 2025-12-03 | Search provider optimization, model research, iPad fixes |
 | 0.10.0-alpha | 2025-12-02 | **Intelligent Memory System** - 4-phase retrieval, semantic embeddings, pgvector |
 | 0.9.0-alpha | 2025-12-01 | Streaming visualization, dialog viewport safety, user profile context, vision models |
 | 0.8.0-alpha | 2025-11-30 | AI tool calling search, MCP integration, blocks-style UI, mobile polish |
@@ -1091,17 +1181,21 @@ This project is currently in **alpha stage** (v0.x). APIs and features may chang
 
 ## Upcoming (Roadmap)
 
-### 0.8.0-alpha (Planned)
+### 1.0.0 (Stable Release)
 - [ ] Conversation branching UI improvements
 - [ ] Artifact generation (code, diagrams)
 - [ ] Voice conversations (real-time)
-- [ ] Plugin system
-
-### 1.0.0 (Stable)
+- [ ] Plugin/extension system
 - [ ] API stabilization
 - [ ] Performance benchmarks
 - [ ] Full test coverage
 - [ ] Production deployment guide
+
+### Post-1.0 Features
+- [ ] Team collaboration features
+- [ ] Custom persona builder
+- [ ] Advanced analytics dashboard
+- [ ] Mobile native apps (iOS/Android)
 
 ---
 
