@@ -1155,6 +1155,12 @@ export function ChatInput() {
 
         {/* Main Input Container */}
         <div className="flex flex-col gap-1.5 md:gap-0">
+          {/* Mobile: Model & Persona pickers above textarea */}
+          <div className="flex md:hidden items-center gap-2 px-0.5 pb-1">
+            <QuickModelPicker />
+            <QuickPersonaPicker />
+          </div>
+
           {/* Input row with send button */}
           <div className="flex items-end gap-2 md:gap-4">
             <div className="flex-1 min-w-0 relative group">
@@ -1291,15 +1297,9 @@ export function ChatInput() {
             </Button>
           </div>
 
-          {/* Mobile: Action buttons row below textarea - all in one line */}
+          {/* Mobile: Action buttons row below textarea */}
           <div className="flex md:hidden items-center gap-1 px-0.5">
-            {/* Model & Persona pickers */}
-            <div className="flex items-center gap-1">
-              <QuickModelPicker />
-              <QuickPersonaPicker />
-            </div>
-            {/* All tools in a single row */}
-            <div className="flex items-center gap-0.5 ml-auto">
+            <div className="flex items-center gap-0.5">
               {/* Web search */}
               <Button
                 type="button"
