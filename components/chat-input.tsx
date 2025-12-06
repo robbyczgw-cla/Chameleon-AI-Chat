@@ -1125,7 +1125,7 @@ export function ChatInput() {
   return (
     <div
       className={cn(
-        "bg-background p-2 sm:p-4 md:p-6 border-t border-border/30 smooth-transition pb-[max(8px,env(safe-area-inset-bottom))] md:pb-5",
+        "bg-background p-2 md:p-6 border-t border-border/30 smooth-transition pb-[max(4px,env(safe-area-inset-bottom))] md:pb-5",
         isEmpty ? "shadow-2xl rounded-2xl border-2 border-border/40 glass-strong" : "shadow-lg"
       )}
     >
@@ -1139,19 +1139,19 @@ export function ChatInput() {
         </div>
       )}
       <form onSubmit={handleSubmit} className="mx-auto max-w-4xl">
-        {/* Compact Toolbar - single row with model/persona pickers */}
-        <div className="flex items-center gap-2 mb-2 md:mb-3">
-          <div className="flex items-center gap-1.5 md:gap-2">
+        {/* Compact Toolbar - hidden on mobile, visible on desktop */}
+        <div className="hidden md:flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2">
             <QuickModelPicker />
             <QuickPersonaPicker />
           </div>
         </div>
 
-        {/* Main Input Container with enhanced depth */}
-        <div className="flex flex-col gap-2 md:gap-0">
-          {/* Desktop: Side-by-side layout */}
-          <div className="flex items-end gap-3 md:gap-4">
-            <div className="flex-1 relative group">
+        {/* Main Input Container */}
+        <div className="flex flex-col gap-1.5 md:gap-0">
+          {/* Input row with send button */}
+          <div className="flex items-end gap-2 md:gap-4">
+            <div className="flex-1 min-w-0 relative group">
               {/* Slash Command Autocomplete Menu */}
               {showCommandMenu && commandSuggestions.length > 0 && (
                 <div className="absolute bottom-full left-0 right-0 mb-3 md:mb-4 bg-background border-2 border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[300px] md:max-h-[350px] overflow-y-auto animate-slide-in-down">
@@ -1185,14 +1185,13 @@ export function ChatInput() {
                 placeholder="Message..."
                 rows={1}
                 className={cn(
-                  "min-h-[48px] md:min-h-[52px] max-h-[200px] resize-none text-sm sm:text-base rounded-xl",
-                  "pr-4 md:pr-44", // No padding for mobile buttons, desktop keeps inline buttons
-                  "bg-muted/20 border-2 border-border/40",
-                  "focus:border-primary/60 focus:ring-2 focus:ring-primary/20 focus:shadow-lg focus:shadow-primary/5",
-                  "shadow-sm hover:shadow-md hover:border-border/60",
-                  "transition-all duration-300 ease-out",
-                  "pt-3 pb-3 pl-4",
-                  hasContent && "border-primary/30 shadow-md"
+                  "min-h-[44px] md:min-h-[52px] max-h-[120px] md:max-h-[200px] resize-none text-sm sm:text-base rounded-xl",
+                  "pr-3 md:pr-44", // Minimal padding on mobile, desktop keeps inline buttons
+                  "bg-muted/20 border border-border/40",
+                  "focus:border-primary/50 focus:ring-1 focus:ring-primary/20",
+                  "transition-all duration-200",
+                  "py-2.5 pl-3 md:pt-3 md:pb-3 md:pl-4",
+                  hasContent && "border-primary/30"
                 )}
                 disabled={isLoading}
               />
@@ -1262,54 +1261,51 @@ export function ChatInput() {
                 </div>
               </div>
             </div>
-            {/* Send Button - prominent when content exists */}
+            {/* Send Button - compact on mobile */}
             <Button
               type={isLoading ? "button" : "submit"}
               onClick={isLoading ? stopGeneration : undefined}
               disabled={!isLoading && !hasContent}
               className={cn(
-                "h-12 w-12 md:h-14 md:w-14 rounded-xl transition-all duration-300 ease-out flex-shrink-0",
+                "h-10 w-10 md:h-14 md:w-14 rounded-xl transition-all duration-200 flex-shrink-0",
                 isLoading
-                  ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/25 animate-pulse"
+                  ? "bg-red-500 hover:bg-red-600 text-white shadow-md animate-pulse"
                   : hasContent
-                    ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 scale-105 hover:scale-110"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80",
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
+                    : "bg-muted text-muted-foreground",
                 "active:scale-95"
               )}
               title={isLoading ? "Stop generation" : hasContent ? "Send message (Enter)" : "Type a message to send"}
             >
               {isLoading ? (
-                <Square className="h-5 w-5 md:h-6 md:w-6" />
+                <Square className="h-4 w-4 md:h-6 md:w-6" />
               ) : (
-                <Send className={cn(
-                  "h-5 w-5 md:h-6 md:w-6 transition-transform duration-200",
-                  hasContent && "translate-x-0.5"
-                )} />
+                <Send className="h-4 w-4 md:h-6 md:w-6" />
               )}
             </Button>
           </div>
 
-          {/* Mobile: Action buttons row below textarea */}
-          <div className="flex md:hidden items-center justify-between px-1">
-            {/* Left: Action tools in a pill container */}
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted/40 border border-border/30">
+          {/* Mobile: Action buttons row below textarea - all in one line */}
+          <div className="flex md:hidden items-center gap-1 px-0.5">
+            {/* All tools in a single row */}
+            <div className="flex items-center gap-0.5">
               {/* Web search */}
               <Button
                 type="button"
                 size="icon"
                 variant={webSearchEnabled ? "default" : "ghost"}
                 className={cn(
-                  "h-9 w-9 rounded-lg transition-all duration-200",
+                  "h-8 w-8 rounded-lg",
                   webSearchEnabled
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "hover:bg-muted"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground"
                 )}
                 onClick={() => {
                   haptics.trigger('selection')
                   setWebSearchEnabled(!webSearchEnabled)
                 }}
               >
-                <Globe className="h-4 w-4" />
+                <Globe className="h-3.5 w-3.5" />
               </Button>
               {/* Voice input */}
               <Button
@@ -1317,30 +1313,27 @@ export function ChatInput() {
                 size="icon"
                 variant={isListening ? "default" : "ghost"}
                 className={cn(
-                  "h-9 w-9 rounded-lg transition-all duration-200",
+                  "h-8 w-8 rounded-lg",
                   isListening
-                    ? "bg-red-500 text-white animate-pulse shadow-sm"
-                    : "hover:bg-muted"
+                    ? "bg-red-500 text-white animate-pulse"
+                    : "text-muted-foreground"
                 )}
                 onClick={toggleVoiceInput}
               >
-                {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                {isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
               </Button>
-              {/* File upload - compact on mobile */}
+              {/* File upload */}
               <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-            </div>
-
-            {/* Right: Image mode toggle */}
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted/40 border border-border/30">
+              {/* Image mode */}
               <Button
                 type="button"
                 size="icon"
                 variant={imageMode !== "off" ? "default" : "ghost"}
                 className={cn(
-                  "h-9 w-9 rounded-lg transition-all duration-200 relative",
+                  "h-8 w-8 rounded-lg relative",
                   imageMode !== "off"
-                    ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-sm"
-                    : "hover:bg-muted"
+                    ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white"
+                    : "text-muted-foreground"
                 )}
                 onClick={() => {
                   haptics.trigger('selection')
@@ -1348,20 +1341,16 @@ export function ChatInput() {
                   setImageMode(nextState)
                 }}
               >
-                <Image className="h-4 w-4" />
+                <Image className="h-3.5 w-3.5" />
                 {imageMode === "high" && (
-                  <span className="absolute -top-1 -right-1 text-[8px] font-bold bg-yellow-400 text-yellow-900 rounded-full w-3.5 h-3.5 flex items-center justify-center shadow-sm">+</span>
-                )}
-                {imageMode === "normal" && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full shadow-sm border border-white/50" />
+                  <span className="absolute -top-0.5 -right-0.5 text-[7px] font-bold bg-yellow-400 text-yellow-900 rounded-full w-3 h-3 flex items-center justify-center">+</span>
                 )}
               </Button>
-              {/* Mode label on mobile */}
-              {imageMode !== "off" && (
-                <span className="text-[10px] font-medium text-muted-foreground pr-1.5">
-                  {imageMode === "high" ? "HD" : "IMG"}
-                </span>
-              )}
+            </div>
+            {/* Show active mode labels */}
+            <div className="flex items-center gap-1 ml-auto text-[10px] text-muted-foreground">
+              {webSearchEnabled && <span className="px-1.5 py-0.5 bg-primary/10 rounded">Web</span>}
+              {imageMode !== "off" && <span className="px-1.5 py-0.5 bg-purple-500/10 rounded">{imageMode === "high" ? "HD" : "Img"}</span>}
             </div>
           </div>
         </div>
