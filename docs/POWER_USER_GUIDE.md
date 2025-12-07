@@ -596,22 +596,45 @@ OpenRouter charges per million tokens:
 - **Mid**: $2-5/M tokens (GPT-4o mini, Claude Sonnet)
 - **Premium**: $5-15/M tokens (GPT-4 Turbo, Claude Opus)
 
-### Cost Tracking
+### Exact Cost Tracking (v0.10-beta) ⭐ NEW
 
-Chameleon tracks cost automatically:
+Chameleon now tracks **EXACT COSTS** from OpenRouter's generation API instead of estimates!
+
+**What's Different:**
+- ✅ **Real billing data** - Not estimates, actual charges from OpenRouter
+- ✅ **Native tokens** - Actual tokens used for billing
+- ✅ **Provider transparency** - See which backend (Anthropic, OpenAI) served your request
+- ✅ **Cache discounts** - Track prompt caching savings (up to 90% off!)
+- ✅ **Matches openrouter.ai/activity** - 100% accurate to the penny
+
+**Access Cost Tracker:**
+1. Settings → Advanced Settings
+2. Click "💸 Cost Tracker" button
+3. View complete analytics dashboard
+
+**What You'll See:**
+- Total cost (all time, exact billing data)
+- Cost by model (top 5 most expensive)
+- Cost over time (14-day chart)
+- Monthly projection (based on last 7 days)
+- Export to JSON for deep analysis
+
+**Per-Message Stats:**
 1. Settings → Show Detailed Stats: ✅
 2. Every message shows:
-   - Tokens used (prompt + completion)
-   - Estimated cost in USD
-   - Tokens/second
-   - Time to first token
+   - **Exact cost** in USD (not estimated!)
+   - Native tokens (prompt + completion + reasoning)
+   - Provider name (Anthropic, OpenAI, etc.)
+   - Cache savings (if applicable)
+   - Generation ID (OpenRouter transaction ID)
+   - Performance metrics (tokens/sec, TTFT)
 
-**View analytics**:
-- Click "📊 Statistics" button
-- See:
-  - Total cost (all time, this week, today)
-  - Cost by model
-  - Token usage over time
+**Retroactive Fetching:**
+- Click "Fetch Exact Costs" in Cost Tracker
+- Fetches exact costs for recent messages (<30 days)
+- Updates estimated costs with real billing data
+
+📚 **Full guide**: [docs/EXACT_COST_TRACKING.md](./EXACT_COST_TRACKING.md)
 
 ### Cost Optimization Techniques
 

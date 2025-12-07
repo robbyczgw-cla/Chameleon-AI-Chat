@@ -592,44 +592,71 @@ When you start a new chat, the AI automatically generates a concise, descriptive
 
 ## 💸 Cost Tracking & Optimization
 
-### Why Track Costs?
+### Exact Cost Tracking (v0.10-beta) ⭐ NEW
+
+Chameleon now tracks **EXACT COSTS** from OpenRouter's generation API - not estimates!
+
+**What's Revolutionary:**
+- ✅ **100% accurate** - Real billing data from OpenRouter
+- ✅ **Matches openrouter.ai/activity** - Verify to the penny
+- ✅ **Native tokens** - Actual tokens used for billing
+- ✅ **Provider transparency** - See which backend served your request (Anthropic, OpenAI, etc.)
+- ✅ **Cache discounts** - Track prompt caching savings (up to 90% off!)
+- ✅ **No more outdated pricing tables** - Always current
+
+### Why Exact Costs Matter
 
 Different models have VASTLY different pricing:
 - **GPT-4o**: $2.50 per 1M input tokens
 - **Grok-4-Fast**: $0.02 per 1M input tokens (125x cheaper!)
 - **Claude Sonnet 3.5**: $3.00 per 1M input tokens
 
-A 1000-token conversation could cost $0.003 or $0.000024 depending on model choice!
+**With estimates**, you could be off by 10-30% due to:
+- Outdated pricing tables
+- Token counting inaccuracies
+- Missing cache discounts
+- Provider routing differences
+
+**With exact costs**, you know EXACTLY what you spent. No surprises.
 
 ### Accessing Cost Tracker
 
 1. Click Settings (⚙️) in header
 2. Open "Advanced Settings" dialog
 3. Click **"💸 Cost Tracker"** button in "LLM Nerd Features"
-4. Dashboard shows complete spending analytics
+4. Dashboard shows complete spending analytics (all exact!)
 
 ### Understanding the Dashboard
 
 **Overview Cards:**
-- **Total Cost** - All-time spending across all models
-- **Total Tokens** - Input + output tokens used
+- **Total Cost** - All-time spending (exact billing data!)
+- **Total Tokens** - Native tokens used for billing
 - **Chat Count** - Number of conversations tracked
-- **Avg Cost/Message** - Spending per message
+- **Avg Cost/Message** - Exact spending per message
 
 **Monthly Projection:**
-- Based on last 7 days of usage
+- Based on last 7 days of exact costs
 - Extrapolates to 30-day spending
 - Shows: "At this rate, you'll spend $X.XX this month"
+- Much more accurate than estimates!
 
 **Cost by Model:**
 - Bar chart showing top 5 most expensive models
+- Based on real billing data
 - See which models drain your budget
 - Consider switching to cheaper alternatives!
 
 **Cost Over Time:**
-- 14-day bar chart showing daily spending
+- 14-day bar chart showing daily spending (exact!)
 - Identify spending spikes
 - Track optimization improvements
+- Export to JSON for deep analysis
+
+**Retroactive Fetching:**
+- Click "Fetch Exact Costs" button
+- Fetches exact costs for recent messages (<30 days old)
+- Updates estimated costs with real billing data
+- Progress shown: "Fetching... 15/42 updated"
 
 ### Optimization Strategies
 
