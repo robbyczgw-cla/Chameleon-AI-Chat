@@ -22,8 +22,8 @@ export interface CostStats {
   avgCostPerMessage: number
 }
 
-// Model pricing (per 1M tokens) - OpenRouter prices as of November 2025
-// Source: https://openrouter.ai/models - Updated 2025-11
+// Model pricing (per 1M tokens) - OpenRouter prices as of December 2025
+// Source: https://openrouter.ai/api/v1/models - Updated 2025-12-07
 export const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   // OpenAI Models
   "openai/gpt-5-2025-08-07": { input: 10.0, output: 30.0 },
@@ -39,36 +39,38 @@ export const MODEL_PRICING: Record<string, { input: number; output: number }> = 
 
   // Anthropic Models
   "anthropic/claude-4.5-sonnet-20250929": { input: 3.0, output: 15.0 },
+  "anthropic/claude-opus-4.5": { input: 5.0, output: 25.0 },
   "anthropic/claude-opus-4.1": { input: 15.0, output: 75.0 },
   "anthropic/claude-3.5-sonnet": { input: 3.0, output: 15.0 },
   "anthropic/claude-3-opus": { input: 15.0, output: 75.0 },
   "anthropic/claude-3-sonnet": { input: 3.0, output: 15.0 },
   "anthropic/claude-3-haiku": { input: 0.25, output: 1.25 },
-  "anthropic/claude-haiku-4.5": { input: 0.80, output: 4.0 },
+  "anthropic/claude-haiku-4.5": { input: 1.0, output: 5.0 },
   "anthropic/claude-3.5-haiku": { input: 1.0, output: 5.0 },
 
   // Google Models
   "google/gemini-2.5-pro": { input: 1.25, output: 5.0 },
+  "google/gemini-2.5-flash-preview": { input: 0.30, output: 2.50 },
   "google/gemini-2.5-flash": { input: 0.075, output: 0.30 },
   "google/gemini-2.5-flash-lite": { input: 0.02, output: 0.08 },
   "google/gemini-2.0-flash-exp": { input: 0.0, output: 0.0 }, // Free experimental
   "google/gemini-pro-1.5": { input: 1.25, output: 5.0 },
   "google/gemini-pro": { input: 0.50, output: 1.50 },
 
-  // xAI Grok Models - Updated November 2025
-  "x-ai/grok-4.1-fast:free": { input: 0.60, output: 2.0 },
-  "x-ai/grok-4-fast:free": { input: 0.60, output: 2.0 },
+  // xAI Grok Models - Updated December 2025
+  "x-ai/grok-4.1-fast:free": { input: 0.20, output: 0.50 },
+  "x-ai/grok-4-fast:free": { input: 0.20, output: 0.50 },
   "x-ai/grok-4": { input: 3.0, output: 15.0 },
   "x-ai/grok-2": { input: 2.0, output: 10.0 },
   "x-ai/grok-beta": { input: 5.0, output: 15.0 },
   "x-ai/grok-code-fast-1": { input: 0.20, output: 0.80 },
   "xai/grok-4": { input: 3.0, output: 15.0 },
-  "xai/grok-4-fast": { input: 0.60, output: 2.0 },
+  "xai/grok-4-fast": { input: 0.20, output: 0.50 },
 
   // DeepSeek Models - Very affordable
-  "deepseek/deepseek-v3.2": { input: 0.14, output: 0.28 },
-  "deepseek/deepseek-chat": { input: 0.14, output: 0.28 },
-  "deepseek/deepseek-chat-v3.2-experimental": { input: 0.14, output: 0.28 },
+  "deepseek/deepseek-v3.2": { input: 0.27, output: 0.40 },
+  "deepseek/deepseek-chat": { input: 0.27, output: 0.40 },
+  "deepseek/deepseek-chat-v3.2-experimental": { input: 0.27, output: 0.40 },
   "deepseek/deepseek-chat-v3-0324:free": { input: 0.0, output: 0.0 },
   "deepseek/deepseek-r1": { input: 0.55, output: 2.19 },
   "deepseek/deepseek-coder-v3": { input: 0.14, output: 0.28 },
@@ -92,8 +94,11 @@ export const MODEL_PRICING: Record<string, { input: number; output: number }> = 
   "mistralai/codestral-2025": { input: 0.30, output: 0.90 },
 
   // Other models
-  "zhipu/glm-4.6": { input: 0.10, output: 0.10 },
-  "minimax/m2": { input: 0.15, output: 0.45 },
+  "z-ai/glm-4.6": { input: 0.40, output: 1.75 },
+  "zhipu/glm-4.6": { input: 0.40, output: 1.75 }, // Alias for z-ai/glm-4.6
+  "minimax/minimax-m2": { input: 0.255, output: 1.02 },
+  "minimax/m2": { input: 0.255, output: 1.02 }, // Alias for minimax-m2
+  "moonshotai/kimi-k2-thinking": { input: 0.45, output: 2.35 },
 }
 
 // Search API pricing (per search)

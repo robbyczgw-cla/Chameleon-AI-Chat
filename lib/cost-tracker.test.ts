@@ -44,9 +44,9 @@ describe('CostTracker', () => {
 
     test('uses fallback pricing for unknown models', () => {
       const cost = tracker.calculateCost('unknown/model', 1000, 2000)
-      // Fallback is grok-4.1-fast: $0.60 input, $2.0 output
-      // 1000/1M * $0.60 + 2000/1M * $2.0 = $0.0006 + $0.004 = $0.0046
-      expect(cost).toBeCloseTo(0.0046, 6)
+      // Fallback is grok-4.1-fast: $0.20 input, $0.50 output
+      // 1000/1M * $0.20 + 2000/1M * $0.50 = $0.0002 + $0.001 = $0.0012
+      expect(cost).toBeCloseTo(0.0012, 6)
     })
 
     test('handles zero tokens', () => {
