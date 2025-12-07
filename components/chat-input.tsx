@@ -21,7 +21,7 @@ import { haptics } from "@/lib/haptics"
 import { documentCollectionService } from "@/lib/document-collections"
 import { generateUUID } from "@/lib/utils"
 import { supabaseSync } from "@/lib/supabase/sync"
-import { estimateTokens, calculateCost } from "@/lib/token-tracker"
+import { estimateTokens } from "@/lib/token-tracker"
 import { memoryService } from "@/lib/memory-service"
 import { personaMemoryService } from "@/lib/persona-memory-service"
 import { personaContextAwareness } from "@/lib/persona-context-awareness"
@@ -957,7 +957,7 @@ export function ChatInput() {
       if (messageAdded && assistantContent) {
         const completionTokens = estimateTokens(assistantContent)
         const totalTokens = promptTokens + completionTokens
-        const estimatedCost = calculateCost(promptTokens, completionTokens, model)
+        const estimatedCost = 0 // Now using exact costs from OpenRouter API
 
         // Get streaming history for verbose display on completed messages
         const streamingHistoryForMessage = getStreamingHistory()

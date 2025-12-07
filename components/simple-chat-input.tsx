@@ -16,7 +16,7 @@ import type { SearchResponse } from "@/lib/serper"
 import { useToast } from "@/hooks/use-toast"
 import { generateUUID, cn } from "@/lib/utils"
 import { supabaseSync } from "@/lib/supabase/sync"
-import { estimateTokens, calculateCost } from "@/lib/token-tracker"
+import { estimateTokens } from "@/lib/token-tracker"
 import { languageService, getTranslation } from "@/lib/languages"
 import { FileUpload } from "@/components/file-upload"
 import { extractTextFromAttachments, type FileAttachment } from "@/lib/file-handler"
@@ -793,7 +793,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         const promptTokens = estimateTokens(promptText)
         const completionTokens = estimateTokens(assistantContent)
         const totalTokens = promptTokens + completionTokens
-        const estimatedCost = calculateCost(promptTokens, completionTokens, model)
+        const estimatedCost = 0 // Now using exact costs from OpenRouter API
 
         // Get streaming history for verbose display
         const streamingHistoryForMessage = getStreamingHistory()
