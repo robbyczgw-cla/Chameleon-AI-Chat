@@ -275,6 +275,20 @@ export interface StreamingVisualizationSettings {
   showTimestamps?: boolean // Show timestamps for each event
 }
 
+export interface StatsDisplaySettings {
+  // Which stats sections to show (all default to true)
+  showReasoning?: boolean // 🧠 Reasoning tokens (for o1/DeepSeek R1)
+  showCache?: boolean // 💾 Prompt cache stats
+  showNativeTokens?: boolean // 📏 Native tokenizer counts
+  showPerformance?: boolean // ⚡ Response time, TTFT, tokens/sec
+  showGeneration?: boolean // 🎛️ Model, provider, stop reason
+  showSearch?: boolean // 🔍 Web search stats
+  showEfficiency?: boolean // 📈 Cost per token, chars/token
+  // Default expand state
+  defaultExpandReasoning?: boolean // Auto-expand reasoning section
+  defaultExpandCache?: boolean // Auto-expand cache section
+}
+
 export interface ExperimentalSettings {
   // Response Analysis
   enableResponseAnalysis?: boolean
@@ -288,6 +302,8 @@ export interface ExperimentalSettings {
   enableUrlFetchTool?: boolean // Allow AI to fetch and read URL content
   enableYouTubeTool?: boolean // Allow AI to extract YouTube video transcripts
   enableWeatherTool?: boolean // Allow AI to get weather information and forecasts
+  // Stats Display Settings
+  statsDisplay?: StatsDisplaySettings
 }
 
 export interface AppSettings {

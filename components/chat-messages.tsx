@@ -921,7 +921,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                isAdvancedMode &&
                settings.experimental?.streamingVisualization?.showDetailedStats !== false && (
                 <div className="hidden md:block">
-                  <MessageStats message={message} />
+                  <MessageStats message={message} statsSettings={settings.experimental?.statsDisplay} />
                 </div>
               )}
 

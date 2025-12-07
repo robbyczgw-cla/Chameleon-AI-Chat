@@ -143,11 +143,137 @@ export function ExperimentalSettings() {
             />
           </div>
 
+          {/* Stats Sections Toggles - Only show when stats are enabled */}
+          {experimental.streamingVisualization?.showDetailedStats !== false && (
+            <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+              <Label className="text-sm font-medium text-muted-foreground">Stats Sections to Show:</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {/* Reasoning */}
+                <div className="flex items-center justify-between p-2 border rounded bg-background">
+                  <span className="text-xs">🧠 Reasoning</span>
+                  <Switch
+                    checked={experimental.statsDisplay?.showReasoning !== false}
+                    onCheckedChange={(checked) =>
+                      handleExperimentalChange({
+                        statsDisplay: { ...experimental.statsDisplay, showReasoning: checked }
+                      })
+                    }
+                  />
+                </div>
+                {/* Cache */}
+                <div className="flex items-center justify-between p-2 border rounded bg-background">
+                  <span className="text-xs">💾 Cache</span>
+                  <Switch
+                    checked={experimental.statsDisplay?.showCache !== false}
+                    onCheckedChange={(checked) =>
+                      handleExperimentalChange({
+                        statsDisplay: { ...experimental.statsDisplay, showCache: checked }
+                      })
+                    }
+                  />
+                </div>
+                {/* Native Tokens */}
+                <div className="flex items-center justify-between p-2 border rounded bg-background">
+                  <span className="text-xs">📏 Native Tokens</span>
+                  <Switch
+                    checked={experimental.statsDisplay?.showNativeTokens !== false}
+                    onCheckedChange={(checked) =>
+                      handleExperimentalChange({
+                        statsDisplay: { ...experimental.statsDisplay, showNativeTokens: checked }
+                      })
+                    }
+                  />
+                </div>
+                {/* Performance */}
+                <div className="flex items-center justify-between p-2 border rounded bg-background">
+                  <span className="text-xs">⚡ Performance</span>
+                  <Switch
+                    checked={experimental.statsDisplay?.showPerformance !== false}
+                    onCheckedChange={(checked) =>
+                      handleExperimentalChange({
+                        statsDisplay: { ...experimental.statsDisplay, showPerformance: checked }
+                      })
+                    }
+                  />
+                </div>
+                {/* Generation */}
+                <div className="flex items-center justify-between p-2 border rounded bg-background">
+                  <span className="text-xs">🎛️ Generation</span>
+                  <Switch
+                    checked={experimental.statsDisplay?.showGeneration !== false}
+                    onCheckedChange={(checked) =>
+                      handleExperimentalChange({
+                        statsDisplay: { ...experimental.statsDisplay, showGeneration: checked }
+                      })
+                    }
+                  />
+                </div>
+                {/* Search */}
+                <div className="flex items-center justify-between p-2 border rounded bg-background">
+                  <span className="text-xs">🔍 Search</span>
+                  <Switch
+                    checked={experimental.statsDisplay?.showSearch !== false}
+                    onCheckedChange={(checked) =>
+                      handleExperimentalChange({
+                        statsDisplay: { ...experimental.statsDisplay, showSearch: checked }
+                      })
+                    }
+                  />
+                </div>
+                {/* Efficiency */}
+                <div className="flex items-center justify-between p-2 border rounded bg-background">
+                  <span className="text-xs">📈 Efficiency</span>
+                  <Switch
+                    checked={experimental.statsDisplay?.showEfficiency !== false}
+                    onCheckedChange={(checked) =>
+                      handleExperimentalChange({
+                        statsDisplay: { ...experimental.statsDisplay, showEfficiency: checked }
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Default Expand Options */}
+              <div className="pt-2 border-t">
+                <Label className="text-xs font-medium text-muted-foreground">Auto-expand sections:</Label>
+                <div className="flex gap-4 mt-2">
+                  <label className="flex items-center gap-2 text-xs">
+                    <input
+                      type="checkbox"
+                      checked={experimental.statsDisplay?.defaultExpandReasoning !== false}
+                      onChange={(e) =>
+                        handleExperimentalChange({
+                          statsDisplay: { ...experimental.statsDisplay, defaultExpandReasoning: e.target.checked }
+                        })
+                      }
+                      className="rounded border-border"
+                    />
+                    🧠 Reasoning
+                  </label>
+                  <label className="flex items-center gap-2 text-xs">
+                    <input
+                      type="checkbox"
+                      checked={experimental.statsDisplay?.defaultExpandCache || false}
+                      onChange={(e) =>
+                        handleExperimentalChange({
+                          statsDisplay: { ...experimental.statsDisplay, defaultExpandCache: e.target.checked }
+                        })
+                      }
+                      className="rounded border-border"
+                    />
+                    💾 Cache
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Info Box */}
           {experimental.streamingVisualization?.showDetailedStats !== false && (
             <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <p className="text-xs text-blue-800 dark:text-blue-200">
-                <strong>Shows:</strong> Exact costs from OpenRouter API, native tokens (prompt/completion/reasoning), performance metrics (tokens/sec, TTFT), model info, provider name, search stats. This is the main stats panel after AI responses.
+                <strong>Tip:</strong> Click section headers in stats to expand/collapse. Sections are hidden if they have no data. Toggle sections here to completely hide them.
               </p>
             </div>
           )}

@@ -2,10 +2,11 @@
 
 import { useState } from "react"
 import { ChevronDown, ChevronRight } from "lucide-react"
-import type { Message } from "@/types"
+import type { Message, StatsDisplaySettings } from "@/types"
 
 interface MessageStatsProps {
   message: Message
+  statsSettings?: StatsDisplaySettings
 }
 
 interface CollapsibleSectionProps {
@@ -61,10 +62,21 @@ function StatRow({ label, value, valueClass = "" }: { label: string; value: Reac
   )
 }
 
-export function MessageStats({ message }: MessageStatsProps) {
+export function MessageStats({ message, statsSettings }: MessageStatsProps) {
   if (!message.stats && !message.tokens) return null
 
   const { stats, tokens } = message
+
+  // Settings with defaults (all true by default)
+  const showReasoning = statsSettings?.showReasoning !== false
+  const showCache = statsSettings?.showCache !== false
+  const showNativeTokens = statsSettings?.showNativeTokens !== false
+  const showPerformance = statsSettings?.showPerformance !== false
+  const showGeneration = statsSettings?.showGeneration !== false
+  const showSearch = statsSettings?.showSearch !== false
+  const showEfficiency = statsSettings?.showEfficiency !== false
+  const defaultExpandReasoning = statsSettings?.defaultExpandReasoning !== false
+  const defaultExpandCache = statsSettings?.defaultExpandCache || false
 
   // Use exact cost from OpenRouter API (no more estimates!)
   const cost = stats?.actualCost || stats?.cost || null
@@ -124,11 +136,11 @@ export function MessageStats({ message }: MessageStatsProps) {
       )}
 
       {/* 🧠 Reasoning Tokens - For thinking models */}
-      {hasReasoningTokens && (
+      {showReasoning && hasReasoningTokens && (
         <CollapsibleSection
           title="Reasoning"
           icon="🧠"
-          defaultOpen={true}
+          defaultOpen={defaultExpandReasoning}
           badge={`${reasoningPercentage?.toFixed(0)}%`}
           badgeColor="bg-amber-500/20 text-amber-600 dark:text-amber-400"
         >
@@ -149,10 +161,11 @@ export function MessageStats({ message }: MessageStatsProps) {
       )}
 
       {/* 💾 Cache Stats - Prompt caching */}
-      {hasCacheStats && (
+      {showCache && hasCacheStats && (
         <CollapsibleSection
           title="Prompt Cache"
           icon="💾"
+          defaultOpen={defaultExpandCache}
           badge={cacheSavingsPercent ? `${cacheSavingsPercent.toFixed(0)}% saved` : undefined}
           badgeColor="bg-blue-500/20 text-blue-600 dark:text-blue-400"
         >
@@ -180,7 +193,7 @@ export function MessageStats({ message }: MessageStatsProps) {
       )}
 
       {/* 📏 Native Tokens - Accurate tokenizer */}
-      {hasNativeTokens && (
+      {showNativeTokens && hasNativeTokens && (
         <CollapsibleSection title="Native Tokenizer" icon="📏">
           {stats?.nativeTokensPrompt && (
             <StatRow
@@ -205,7 +218,7 @@ export function MessageStats({ message }: MessageStatsProps) {
       )}
 
       {/* ⚡ Performance */}
-      {hasPerformance && (
+      {showPerformance && hasPerformance && (
         <CollapsibleSection
           title="Performance"
           icon="⚡"
@@ -240,7 +253,7 @@ export function MessageStats({ message }: MessageStatsProps) {
       )}
 
       {/* 🎛️ Generation Info */}
-      {(stats?.model || stats?.provider || stats?.stopReason || stats?.generationId) && (
+      {showGeneration && (stats?.model || stats?.provider || stats?.stopReason || stats?.generationId) && (
         <CollapsibleSection title="Generation" icon="🎛️">
           {stats?.model && (
             <StatRow
@@ -281,7 +294,7 @@ export function MessageStats({ message }: MessageStatsProps) {
       )}
 
       {/* 🔍 Search Stats */}
-      {hasSearch && (
+      {showSearch && hasSearch && (
         <CollapsibleSection
           title="Web Search"
           icon="🔍"
@@ -300,7 +313,7 @@ export function MessageStats({ message }: MessageStatsProps) {
       )}
 
       {/* 📈 Efficiency Metrics */}
-      {tokens && cost && (
+      {showEfficiency && tokens && cost && (
         <CollapsibleSection title="Efficiency" icon="📈">
           <StatRow
             label="Cost/Input Token"
