@@ -622,6 +622,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       let assistantContent = ""
       let reasoningContent = ""
       let messageAdded = false
+      let capturedGenerationId = "" // For exact cost tracking
 
       console.log("[Simple Chat] Creating assistant message:", assistantMessageId)
 
@@ -752,11 +753,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         // Capture generation ID for exact cost tracking
         onGenerationId: (generationId) => {
           console.log("[Simple Chat] 💰 Generation ID captured:", generationId)
-          // Store it in the assistant message stats
-          assistantMessage.stats = {
-            ...assistantMessage.stats,
-            generationId
-          }
+          capturedGenerationId = generationId
         },
         // Enhanced streaming details for advanced mode
         onStreamingDetails: (details) => {
@@ -820,6 +817,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           stats: {
             model,
             cost: estimatedCost,
+            ...(capturedGenerationId && { generationId: capturedGenerationId }),
             ...(searchStats && {
               searchProvider: searchStats.provider,
               searchResults: searchStats.results,

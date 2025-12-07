@@ -743,6 +743,7 @@ export function ChatInput() {
       let assistantContent = ""
       let reasoningContent = ""
       let messageAdded = false
+      let capturedGenerationId = "" // For exact cost tracking
 
       console.log("[v0] Creating assistant message:", assistantMessageId)
 
@@ -918,11 +919,7 @@ export function ChatInput() {
         // Capture generation ID for exact cost tracking
         onGenerationId: (generationId) => {
           console.log("[Advanced Chat] 💰 Generation ID captured:", generationId)
-          // Store it in the assistant message stats
-          assistantMessage.stats = {
-            ...assistantMessage.stats,
-            generationId
-          }
+          capturedGenerationId = generationId
         },
         // Enhanced streaming details for advanced mode
         onStreamingDetails: (details) => {
@@ -981,6 +978,11 @@ export function ChatInput() {
             completion: completionTokens,
             total: totalTokens,
           },
+          stats: capturedGenerationId
+            ? {
+                generationId: capturedGenerationId,
+              }
+            : undefined,
           ...(reasoningContent ? { reasoning: reasoningContent } : {}),
           ...(streamingHistoryForMessage.length > 0 ? { streamingHistory: streamingHistoryForMessage } : {}),
         }
