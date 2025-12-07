@@ -40,7 +40,8 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json()
-    return NextResponse.json(data)
+    // OpenRouter returns { data: { total_cost, ... } } - unwrap it
+    return NextResponse.json(data.data || data)
   } catch (error) {
     console.error("[Generation] Error fetching generation data:", error)
     return NextResponse.json({ error: "Failed to fetch generation data" }, { status: 500 })
