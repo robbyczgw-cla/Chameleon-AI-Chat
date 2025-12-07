@@ -1,6 +1,6 @@
 # 💰 Exact Cost Tracking Guide
 
-**Version 0.10-beta** | Revolutionary Feature
+**Version 0.10-beta** | Revolutionary Feature | **Updated 2025-12-07**
 
 ## Overview
 
@@ -21,9 +21,105 @@ Chameleon Chat now tracks **EXACT COSTS** from OpenRouter's generation API inste
 - ✅ Native token counts used for billing
 - ✅ Provider transparency (see which backend served your request)
 - ✅ Cache discount tracking (prompt caching savings)
+- ✅ Reasoning token tracking (for o1/DeepSeek R1 models)
+- ✅ Collapsible stats sections with toggles
 - ✅ Usage Dashboard in Settings → Stats
 - ✅ Retroactive "Fetch Exact Costs" for recent requests
 - ✅ Export to JSON for analysis
+
+---
+
+## Critical Bug Fixes (2025-12-07)
+
+### Bug #1: Stats Not Being Saved to Messages
+
+**Symptom:** Cost, model, and provider info not showing in Detailed Stats even though logs showed generation ID was captured.
+
+**Root Cause:** In `chat-input.tsx`, the `setChats` update was missing the `stats` field:
+
+```javascript
+// BEFORE (BROKEN)
+const updatedMessages = chat.messages.map((m) =>
+  m.id === assistantMessageId
+    ? { ...m, tokens: finalMessage.tokens, reasoning: ..., streamingHistory: ... }
+    : m,
+)
+// ❌ MISSING: stats: finalMessage.stats
+
+// AFTER (FIXED)
+const updatedMessages = chat.messages.map((m) =>
+  m.id === assistantMessageId
+    ? { ...m, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: ..., streamingHistory: ... }
+    : m,
+)
+// ✅ Now includes stats!
+```
+
+**Fix:** Added `stats: finalMessage.stats` to the setChats update.
+
+**File:** `components/chat-input.tsx` (line ~1016)
+
+---
+
+### Bug #2: API Key Not Passed to Generation Endpoint
+
+**Symptom:** Console showed `[AutoFetchCosts] Failed to fetch cost for xxx: <empty string>`
+
+**Root Cause:** The `useAutoFetchCosts` hook wasn't passing the API key:
+
+```javascript
+// BEFORE (BROKEN)
+const response = await fetch(`/api/generation?id=${generationId}`)
+// ❌ No API key header!
+
+// AFTER (FIXED)
+const headers: Record<string, string> = {}
+if (apiKey) {
+  headers["x-api-key"] = apiKey
+}
+const response = await fetch(`/api/generation?id=${generationId}`, { headers })
+// ✅ API key passed in header
+```
+
+**Fix:**
+1. Added `apiKey` parameter to `useAutoFetchCosts` hook
+2. Pass `settings.apiKeys?.openRouter` from `chat-messages.tsx`
+
+**Files:**
+- `hooks/use-auto-fetch-costs.ts`
+- `components/chat-messages.tsx`
+
+---
+
+### Bug #3: OpenRouter Response Nested in `data` Object
+
+**Symptom:** API call succeeded but `total_cost` was undefined.
+
+**Root Cause:** OpenRouter returns `{ data: { total_cost, ... } }` but code expected `{ total_cost, ... }`:
+
+```javascript
+// OpenRouter Response Format
+{
+  "data": {
+    "id": "gen-xxx",
+    "total_cost": 0.00492,
+    "native_tokens_prompt": 150,
+    ...
+  }
+}
+
+// BEFORE (BROKEN)
+return NextResponse.json(data)
+// Returns the wrapper object, not the data inside
+
+// AFTER (FIXED)
+return NextResponse.json(data.data || data)
+// Unwraps the nested data
+```
+
+**Fix:** Unwrap the nested `data` object in `/api/generation/route.ts`.
+
+**File:** `app/api/generation/route.ts` (line ~43)
 
 ---
 
@@ -47,10 +143,12 @@ Authorization: Bearer {your-api-key}
     "created_at": "2025-12-06T10:30:00Z",
     "native_tokens_prompt": 150,
     "native_tokens_completion": 300,
-    "native_tokens_completion_reasoning": 0,
+    "native_tokens_completion_reasoning": 45,
     "num_media_generations": null,
     "provider_name": "Anthropic",
-    "total_cost": 0.001275
+    "total_cost": 0.001275,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 500
   }
 }
 ```
@@ -62,15 +160,25 @@ Authorization: Bearer {your-api-key}
    ↓
 2. Chat API streams response from OpenRouter
    ↓
-3. OpenRouter response headers include X-Or-Id (generation ID)
+3. Server captures generation ID from response (parsed.id)
    ↓
-4. Chameleon extracts generation ID
+4. Server sends {generation_id: xxx} before [DONE]
    ↓
-5. Background fetch to /api/v1/generation
+5. Client captures via onGenerationId callback
    ↓
-6. Exact cost data stored in message metadata
+6. capturedGenerationId stored in finalMessage.stats
    ↓
-7. Display in UI and track in stats
+7. setChats update includes stats: finalMessage.stats ← CRITICAL!
+   ↓
+8. useAutoFetchCosts finds messages with generationId
+   ↓
+9. Fetches /api/generation?id=xxx WITH API key
+   ↓
+10. /api/generation unwraps data.data response
+   ↓
+11. Cost data stored in message.stats.actualCost
+   ↓
+12. MessageStats displays with collapsible sections
 ```
 
 ### What Gets Tracked
@@ -82,473 +190,195 @@ Authorization: Bearer {your-api-key}
 - **Generation ID** - Unique ID for OpenRouter transaction
 - **Timestamp** - When the request was made
 
+**For reasoning models (o1, o3, DeepSeek R1, Qwen Thinking):**
+- **Reasoning Tokens** - Tokens spent on "thinking"
+- **Reasoning Percentage** - % of output that was reasoning
+
 **For cache-enabled models:**
 - **Cache Creation Tokens** - Tokens written to cache
 - **Cache Read Tokens** - Tokens read from cache
-- **Cache Discount** - Savings from prompt caching
+- **Cache Savings %** - Percentage of input from cache
 
 ---
 
-## Using the Cost Tracker
+## Detailed Stats Display
 
-### Accessing the Dashboard
+### Enhanced Stats Panel (v0.10-beta)
 
-1. Click **Settings** (⚙️) in header
-2. Open **Advanced Settings** dialog
-3. Click **"💸 Cost Tracker"** button
-4. View complete analytics dashboard
+The stats panel now shows ALL data from OpenRouter with collapsible sections:
 
-### Dashboard Sections
-
-#### 1. Overview Cards
-
-**Total Cost**
-- All-time spending across all models
-- Based on **exact billing data** (not estimates!)
-- Example: `$2.45`
-
-**Total Tokens**
-- Native tokens used for billing
-- Input + output + reasoning tokens
-- Example: `1,250,000 tokens`
-
-**Chat Count**
-- Number of conversations with cost data
-- Example: `42 chats`
-
-**Avg Cost/Message**
-- Average spending per message
-- Calculated from exact costs
-- Example: `$0.003`
-
-#### 2. Monthly Projection
-
-Based on last 7 days of usage:
 ```
-📊 Monthly Projection: $12.34
-At this rate, you'll spend $12.34 this month
-```
+📊 Detailed Stats                    $0.000412
+────────────────────────────────────────────
+Input:  168 tokens    Output: 152 tokens
+Total:  320 tokens    Rate:   $0.0013/1K
 
-#### 3. Cost by Model
+▶ 🧠 Reasoning          [42%]
+   Thinking Tokens:     45
+   % of Output:         42%
+   Visible Output:      107
 
-Bar chart showing top 5 models by total cost:
-```
-anthropic/claude-3.5-sonnet    ████████████ $1.20
-openai/gpt-4o                  ████████░░░░ $0.85
-x-ai/grok-4                    █████░░░░░░░ $0.25
-google/gemini-2.0-flash        ██░░░░░░░░░░ $0.10
-deepseek/deepseek-chat         █░░░░░░░░░░░ $0.05
-```
+▶ 💾 Prompt Cache       [35% saved]
+   Cache Hits:          500 tokens
+   Cache Created:       0 tokens
+   Input Cached:        35%
 
-#### 4. Cost Over Time
+▶ 📏 Native Tokenizer
+   Native Input:        172
+   Native Output:       158
+   Estimate Diff:       +2.4%
 
-14-day bar chart showing daily spending:
-- Hover to see exact daily cost
-- Identify spending spikes
-- Track optimization improvements
+▶ ⚡ Performance        [45 t/s]
+   Time to First Token: 0.32s
+   Total Response Time: 3.56s
+   Generation Speed:    45 tokens/sec
+   Generation Time:     3.24s
 
-#### 5. Export Data
+▶ 🎛️ Generation
+   Model:              x-ai/grok-4.1-fast
+   Provider:           Together
+   Stop Reason:        end_turn
+   Output Ratio:       48%
+   Input:Output:       1.11:1
+   Generation ID:      gen-1765136398...
 
-Click **"Export Data"** to download JSON:
-```json
-{
-  "exportDate": "2025-12-06T12:00:00Z",
-  "totalCost": 2.45,
-  "totalTokens": 1250000,
-  "chats": [
-    {
-      "id": "chat-123",
-      "title": "Python Tutorial",
-      "createdAt": "2025-12-05T10:00:00Z",
-      "messages": [
-        {
-          "id": "msg-456",
-          "role": "assistant",
-          "cost": 0.00125,
-          "nativeTokensPrompt": 150,
-          "nativeTokensCompletion": 300,
-          "provider": "Anthropic",
-          "model": "anthropic/claude-3.5-sonnet",
-          "timestamp": "2025-12-05T10:01:00Z"
-        }
-      ],
-      "totalCost": 0.00125,
-      "totalTokens": 450
-    }
-  ]
-}
+▶ 🔍 Web Search        [5 results]
+   Provider:           serper
+   Results Found:      5
+   Search Time:        1.23s
+
+▶ 📈 Efficiency
+   Cost/Input Token:   $0.15/M
+   Cost/Output Token:  $0.60/M
+   Cost/Second:        $0.000116/s
+   Chars/Token (out):  4.2
 ```
 
----
+### Settings → Experimental → Message Statistics
 
-## Message-Level Cost Display
+Control which sections display and their default expand state:
 
-### Where to See Costs
-
-**Enable Detailed Stats:**
-1. Settings → Advanced Settings
-2. Toggle **"Show Detailed Stats"** ON
-3. Every AI message now shows exact cost
-
-**Stats Display:**
-```
-📊 Stats
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Model: anthropic/claude-3.5-sonnet
-Provider: Anthropic
-
-💰 Cost: $0.001275 (exact)
-
-📝 Native Tokens
-  Prompt: 150 tokens
-  Completion: 300 tokens
-  Total: 450 tokens
-
-⚡ Performance
-  Speed: 45.2 tokens/sec
-  Time: 2.3s
-  TTFT: 0.8s
-
-🔗 Generation ID: gen-abc123...
-```
-
-### What "Exact" Means
-
-**Not estimated** - This is the exact amount OpenRouter charged for this request
-**Matches billing** - Check openrouter.ai/activity to verify
-**Native tokens** - Actual tokens used for billing (not normalized estimates)
-
-### Cache Discount Display
-
-For models with prompt caching (Claude, etc.):
-```
-💰 Cost: $0.000450 (exact)
-   💾 Cache savings: -$0.000825 (65% off!)
-
-📝 Native Tokens
-  Prompt: 50 tokens (new)
-  Cache Read: 500 tokens (from cache!)
-  Cache Write: 550 tokens (created)
-  Completion: 300 tokens
-```
-
----
-
-## Retroactive Cost Fetching
-
-### What It Does
-
-Fetches exact costs for recent messages that only have estimated costs.
-
-### How to Use
-
-1. Open **Cost Tracker** dashboard
-2. Click **"Fetch Exact Costs"** button
-3. Chameleon scans recent messages (last 7 days)
-4. For each message with generation ID:
-   - Calls OpenRouter generation API
-   - Retrieves exact cost data
-   - Updates message metadata
-5. Progress shown: "Fetching... 15/42 updated"
-
-### Requirements
-
-- Messages must have generation ID (stored in metadata)
-- Generation data must still be available on OpenRouter (usually ~30 days)
-- Valid OpenRouter API key
-
-### What Gets Updated
-
-**Before:**
-```json
-{
-  "stats": {
-    "cost": 0.001500,  // Estimated
-    "tokens": {
-      "prompt": 150,   // Estimated (4 chars = 1 token)
-      "completion": 300 // Estimated
-    }
-  }
-}
-```
-
-**After:**
-```json
-{
-  "stats": {
-    "cost": 0.001275,           // EXACT from OpenRouter
-    "actualCost": 0.001275,     // Stored separately
-    "nativeTokensPrompt": 150,  // Native billing tokens
-    "nativeTokensCompletion": 300,
-    "provider": "Anthropic",
-    "generationId": "gen-abc123..."
-  }
-}
-```
-
----
-
-## API Integration
-
-### Fetching Exact Costs
-
-**Endpoint:**
-```
-GET /api/openrouter/generation?id={generationId}
-```
-
-**Request:**
-```typescript
-const response = await fetch(`/api/openrouter/generation?id=${generationId}`, {
-  headers: {
-    'Authorization': `Bearer ${apiKey}`
-  }
-})
-
-const data = await response.json()
-```
-
-**Response:**
-```json
-{
-  "id": "gen-abc123...",
-  "model": "anthropic/claude-3.5-sonnet",
-  "provider_name": "Anthropic",
-  "native_tokens_prompt": 150,
-  "native_tokens_completion": 300,
-  "total_cost": 0.001275,
-  "created_at": "2025-12-06T10:30:00Z"
-}
-```
-
-### Extracting Generation ID
-
-OpenRouter includes generation ID in response headers:
-
-```typescript
-// From streaming response
-const generationId = response.headers.get('X-Or-Id')
-// or
-const generationId = response.headers.get('X-Request-Id')
-```
-
-**Storage:**
-```typescript
-// Store in message metadata
-message.stats = {
-  ...message.stats,
-  generationId: generationId
-}
-```
-
----
-
-## Cost Optimization with Exact Data
-
-### 1. Identify Expensive Patterns
-
-**Check Cost by Model:**
-- Which models are draining your budget?
-- Are you using expensive models for simple tasks?
-
-**Example findings:**
-```
-anthropic/claude-3.5-sonnet: $1.20 (48% of total)
-↓ Analysis: Using for ALL messages
-✅ Solution: Use only for complex tasks
-```
-
-### 2. Compare Provider Costs
-
-**Provider transparency shows:**
-- Same model, different providers can have different costs
-- OpenRouter routes to cheapest available provider
-- Track which providers serve your requests
-
-**Example:**
-```
-Model: gpt-4o
-Provider A: $0.003/message
-Provider B: $0.0025/message
-↓ 17% savings by using Provider B
-```
-
-### 3. Leverage Cache Discounts
-
-**For Claude models with prompt caching:**
-- First message: $0.00150 (full cost)
-- Subsequent: $0.00045 (70% off from cache!)
-- Keep conversations going to maximize savings
-
-**Track cache effectiveness:**
-```
-Total cost without cache: $5.00
-Cache savings: -$3.50 (70%)
-Actual cost: $1.50
-```
-
-### 4. Set Budgets Based on Real Data
-
-**Use monthly projection:**
-```
-Last 7 days: $2.45
-Monthly projection: $10.50
-↓ Set budget: $12/month
-✅ Track weekly, adjust usage to stay under
-```
-
-### 5. Export and Analyze
-
-**Get JSON export:**
-- Import to Excel/Python
-- Group by model, date, provider
-- Find optimization opportunities
-- Share insights with team
-
-**Example analysis:**
-```python
-import json
-import pandas as pd
-
-with open('usage-export.json') as f:
-    data = json.load(f)
-
-df = pd.DataFrame(data['chats'])
-print(df.groupby('model')['totalCost'].sum().sort_values(ascending=False))
-```
+| Setting | Description |
+|---------|-------------|
+| 🧠 Reasoning | Show reasoning token stats (o1/DeepSeek R1) |
+| 💾 Cache | Show prompt cache statistics |
+| 📏 Native Tokens | Show native tokenizer counts |
+| ⚡ Performance | Show timing and speed metrics |
+| 🎛️ Generation | Show model, provider, stop reason |
+| 🔍 Search | Show web search statistics |
+| 📈 Efficiency | Show cost efficiency metrics |
+| Auto-expand 🧠 | Automatically expand reasoning section |
+| Auto-expand 💾 | Automatically expand cache section |
 
 ---
 
 ## Technical Implementation
 
-### Message Metadata Structure
+### Message Stats Type Definition
 
 ```typescript
 interface MessageStats {
+  // Basic info
+  model?: string
+  cost?: number // Deprecated, use actualCost
+
   // Exact cost data from OpenRouter
-  cost?: number                    // Exact USD cost
-  actualCost?: number              // Same as cost (for clarity)
+  actualCost?: number
+  generationId?: string
+  provider?: string
 
   // Native tokens (billing)
   nativeTokensPrompt?: number
   nativeTokensCompletion?: number
   nativeTokensCompletionReasoning?: number
 
-  // Cache tokens (if applicable)
+  // Cache tokens
   cacheCreationTokens?: number
   cacheReadTokens?: number
 
-  // Provider info
-  provider?: string                // e.g., "Anthropic"
-  generationId?: string           // OpenRouter generation ID
+  // Performance
+  responseTime?: number
+  tokensPerSecond?: number
+  firstTokenTime?: number
+  stopReason?: string
 
-  // Legacy (for backwards compatibility)
-  tokens?: {
-    prompt: number                 // Estimated tokens
-    completion: number
-    total: number
-  }
+  // Search
+  searchProvider?: string
+  searchResults?: number
+  searchTime?: number
 }
 ```
 
-### Database Schema (Supabase)
+### Stats Display Settings Type
 
-**No schema changes needed!** Exact costs are stored in existing `stats` JSONB column:
-
-```sql
--- messages table (unchanged)
-CREATE TABLE messages (
-  id uuid PRIMARY KEY,
-  chat_id uuid REFERENCES chats(id),
-  role text NOT NULL,
-  content text NOT NULL,
-  stats jsonb,  -- Stores exact cost data
-  created_at timestamptz DEFAULT now()
-);
-
--- Query messages with exact costs
-SELECT
-  id,
-  content,
-  stats->>'actualCost' as exact_cost,
-  stats->>'provider' as provider,
-  stats->>'nativeTokensPrompt' as prompt_tokens
-FROM messages
-WHERE stats->>'actualCost' IS NOT NULL;
-```
-
-### Backwards Compatibility
-
-**Old messages (v0.9 and earlier):**
-- Have `stats.cost` (estimated)
-- Have `stats.tokens` (estimated)
-- No `actualCost` or `nativeTokens`
-
-**New messages (v0.10+):**
-- Have `stats.actualCost` (exact!)
-- Have `stats.nativeTokensPrompt` (exact!)
-- Still have `stats.cost` for backwards compatibility
-
-**Display logic:**
 ```typescript
-// Prefer exact cost, fall back to estimated
-const displayCost = message.stats?.actualCost ?? message.stats?.cost ?? null
+interface StatsDisplaySettings {
+  // Which sections to show (all default to true)
+  showReasoning?: boolean
+  showCache?: boolean
+  showNativeTokens?: boolean
+  showPerformance?: boolean
+  showGeneration?: boolean
+  showSearch?: boolean
+  showEfficiency?: boolean
 
-// Show "(exact)" vs "(estimated)" label
-const isExact = message.stats?.actualCost !== undefined
-const label = isExact ? "exact" : "estimated"
+  // Default expand state
+  defaultExpandReasoning?: boolean // Default: true
+  defaultExpandCache?: boolean // Default: false
+}
 ```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `hooks/use-auto-fetch-costs.ts` | Background fetching of exact costs |
+| `app/api/generation/route.ts` | Proxy to OpenRouter generation API |
+| `components/message-stats.tsx` | Stats display with collapsible sections |
+| `components/experimental-settings.tsx` | Stats toggle settings |
+| `components/chat-messages.tsx` | Integrates auto-fetch hook |
+| `components/chat-input.tsx` | Captures generation ID, saves stats |
+| `types/index.ts` | Type definitions for stats |
 
 ---
 
 ## Troubleshooting
 
-### "Cost showing as $0.00"
+### "Cost showing as $0.00 or not showing"
 
-**Causes:**
-- Generation data not yet available (wait 30 seconds)
-- Generation ID missing from response
-- OpenRouter generation expired (>30 days old)
+**Checklist:**
+1. ✅ Check console for `[v0] 💰 Generation ID received:`
+2. ✅ Check console for `[Advanced Chat] 💰 Generation ID captured:`
+3. ✅ Check console for `[AutoFetchCosts] Fetching exact cost...`
+4. ✅ Check console for `[AutoFetchCosts] ✅ Fetched exact cost:`
 
-**Solutions:**
-1. Wait and click "Fetch Exact Costs" in Cost Tracker
-2. Check message metadata for `generationId`
-3. For old messages, estimates may be only available data
+**If generation ID not received:**
+- Model might not support generation IDs
+- API route might have tool calls (generation ID only sent for non-tool responses)
 
-### "Fetch Exact Costs not finding any"
+**If fetch fails with empty error:**
+- API key not being passed
+- Check `settings.apiKeys?.openRouter` is set
 
-**Causes:**
-- Messages don't have generation IDs
-- All messages already have exact costs
-- OpenRouter API key invalid
+**If cost undefined after successful fetch:**
+- OpenRouter response format changed
+- Check `/api/generation/route.ts` is unwrapping `data.data`
 
-**Solutions:**
-1. Check at least one message has `stats.generationId`
-2. Check Cost Tracker for "(exact)" label on costs
-3. Verify API key in Settings → Advanced Settings
+### "Stats not persisting after page reload"
 
-### "Cost doesn't match openrouter.ai"
+**Cause:** Stats weren't being saved to the message when setChats was called.
 
-**This should never happen!** Exact costs are pulled directly from OpenRouter's generation API.
+**Fix:** Ensure `stats: finalMessage.stats` is included in the setChats update in `chat-input.tsx`.
 
-**If it does:**
-1. Check generation ID matches on both sides
-2. Ensure you're comparing same request
-3. Report bug with generation ID for investigation
+### "Native tokens don't match estimated tokens"
 
-### "Missing cache discount info"
+**This is expected!** Native tokens use the model's actual tokenizer. Estimates use tiktoken which may differ by 5-15%.
 
-**Causes:**
-- Model doesn't support prompt caching
-- Cache not enabled in request
-- First message in conversation (cache not populated yet)
+### "Reasoning tokens showing 0"
 
-**Models with caching:**
-- Claude 3.5 Sonnet
-- Claude 3 Opus
-- Claude 3 Haiku
-
-**Check OpenRouter docs for cache-enabled models**
+- Model doesn't support reasoning
+- Reasoning toggle wasn't enabled when message was sent
+- Model returned reasoning but didn't report token count
 
 ---
 
@@ -577,127 +407,57 @@ const label = isExact ? "exact" : "estimated"
 - Encrypted at rest
 - Only YOU can access (row-level security)
 
-**OpenRouter:**
-- They keep generation data for ~30 days
-- You can fetch exact costs during this window
-- After 30 days, data may be archived (estimates remain)
+---
+
+## Changelog
+
+### 2025-12-07
+- **FIXED:** Stats not saved to messages (missing in setChats update)
+- **FIXED:** API key not passed to /api/generation
+- **FIXED:** OpenRouter response nested in data.data
+- **ADDED:** Collapsible stats sections with toggles
+- **ADDED:** Reasoning tokens display for thinking models
+- **ADDED:** Cache statistics display
+- **ADDED:** Provider name display
+- **ADDED:** Efficiency metrics (cost/token, cost/second)
+- **ADDED:** Settings to control which sections show
+- **ADDED:** Auto-expand settings for sections
+
+### Previous
+- Initial exact cost tracking implementation
+- Generation ID capture from stream
+- Background auto-fetch hook
 
 ---
 
-## Frequently Asked Questions
+## FAQ
 
-### Q: Do I have to pay extra for exact cost tracking?
+### Q: Why did cost tracking stop working?
 
-**A: No!** OpenRouter's generation API is free. You only pay for the AI requests themselves (which you're already paying for). Fetching exact costs is an additional free API call.
+**A:** Three bugs were introduced during refactoring:
+1. Stats weren't saved to messages
+2. API key wasn't passed to generation endpoint
+3. Response data wasn't unwrapped properly
 
-### Q: How accurate are the exact costs?
+All fixed in the 2025-12-07 update.
 
-**A: 100% accurate.** These are the exact amounts OpenRouter charged for each request. Check openrouter.ai/activity to verify - they'll match exactly.
+### Q: What models support reasoning tokens?
 
-### Q: What about old messages before v0.10?
+**A:** Models with extended thinking:
+- OpenAI o1, o1-mini, o1-pro
+- OpenAI o3, o3-mini
+- DeepSeek R1, DeepSeek Reasoner
+- Qwen QwQ, Qwen Thinking series
 
-**A: Two options:**
-1. Use "Fetch Exact Costs" to retroactively fetch data (if <30 days old)
-2. Keep estimated costs (they're pretty close, just not exact)
+### Q: What models support prompt caching?
 
-### Q: Will costs change retroactively?
+**A:** Currently:
+- Claude 3.5 Sonnet, Claude 3 Opus/Haiku
+- Some OpenAI models via OpenRouter
 
-**A: No.** Once a cost is fetched from the generation API, it's locked in. That's what you were charged, and it won't change.
+### Q: Can I see exact costs for old messages?
 
-### Q: Can I hide estimated costs and only show exact?
-
-**A: Yes!** In Cost Tracker settings (coming soon), you can filter by exact costs only. For now, check the "(exact)" vs "(estimated)" label.
-
-### Q: Do exact costs include OpenRouter's markup?
-
-**A: Yes.** OpenRouter charges base provider cost + their markup. The exact cost includes everything you were billed.
-
-### Q: What if a model changes pricing?
-
-**A: Doesn't matter!** Old messages show what you were charged at that time. New messages show current pricing. All exact, all correct.
-
----
-
-## Migration from Estimated Costs
-
-### What Happened to `calculateCost()`?
-
-**Removed in v0.10-beta.** We no longer need static pricing tables or cost calculations.
-
-**Before:**
-```typescript
-import { calculateCost } from '@/lib/token-tracker'
-
-const cost = calculateCost(promptTokens, completionTokens, model)
-// Returns estimated cost based on MODEL_PRICING table
-```
-
-**After:**
-```typescript
-// Cost comes from OpenRouter generation API
-const cost = message.stats?.actualCost ?? 0
-// Real billing data, not estimates!
-```
-
-### Updating Your Code
-
-If you were using `calculateCost()`:
-
-```typescript
-// ❌ OLD - Don't do this anymore
-import { calculateCost } from '@/lib/token-tracker'
-const estimatedCost = calculateCost(promptTokens, completionTokens, model)
-
-// ✅ NEW - Use exact costs from message stats
-const exactCost = message.stats?.actualCost ?? 0
-```
-
-### Data Migration
-
-**No migration needed!** Old messages keep their estimated costs. New messages get exact costs. Both work seamlessly.
-
----
-
-## Roadmap
-
-### Coming Soon
-
-**Budget Alerts (v0.11):**
-- Set monthly spending limits
-- Get alerts at 50%, 80%, 100%
-- Auto-switch to cheaper models
-
-**Cost Forecasting (v0.12):**
-- ML-based usage prediction
-- "At this rate, you'll hit budget in 12 days"
-- Optimization suggestions
-
-**Team Cost Tracking (v0.13):**
-- Shared team budgets
-- Per-user cost attribution
-- Department-level reporting
-
-**Advanced Analytics (v0.14):**
-- Cost per conversation topic
-- ROI tracking (value vs cost)
-- A/B test model costs
-
----
-
-## Conclusion
-
-Exact cost tracking transforms Chameleon from "pretty good cost estimates" to **100% accurate billing transparency**. Every dollar you spend is tracked, analyzed, and exportable.
-
-**Key Takeaways:**
-
-✅ **No more guessing** - Real billing data from OpenRouter
-✅ **Provider transparency** - See who served your request
-✅ **Cache insights** - Track prompt caching savings
-✅ **Retroactive fetching** - Get exact costs for recent messages
-✅ **Export everything** - JSON export for deep analysis
-✅ **Backwards compatible** - Old messages keep working
-
-**Start optimizing your AI spending with REAL data today!** 💰
+**A:** Only if they have a `generationId` stored. Messages from before generation ID capture was implemented won't have exact costs available.
 
 ---
 
@@ -705,4 +465,4 @@ Exact cost tracking transforms Chameleon from "pretty good cost estimates" to **
 
 GitHub: https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues
 
-**Happy cost tracking!** 🦎
+**Happy cost tracking!** 🦎💰

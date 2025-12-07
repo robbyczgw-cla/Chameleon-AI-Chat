@@ -1,6 +1,6 @@
 # 📖 Chameleon Chat User Guide - Master All Features
 
-**Version 0.9-beta** | Last updated: December 2025
+**Version 0.10-beta** | Last updated: December 2025
 
 Complete guide to getting the most out of Chameleon Chat's power user features.
 
@@ -592,7 +592,7 @@ When you start a new chat, the AI automatically generates a concise, descriptive
 
 ## 💸 Cost Tracking & Optimization
 
-### Exact Cost Tracking (v0.10-beta) ⭐ NEW
+### Exact Cost Tracking (v0.10-beta) ⭐ ENHANCED
 
 Chameleon now tracks **EXACT COSTS** from OpenRouter's generation API - not estimates!
 
@@ -603,6 +603,8 @@ Chameleon now tracks **EXACT COSTS** from OpenRouter's generation API - not esti
 - ✅ **Provider transparency** - See which backend served your request (Anthropic, OpenAI, etc.)
 - ✅ **Cache discounts** - Track prompt caching savings (up to 90% off!)
 - ✅ **No more outdated pricing tables** - Always current
+- ✅ **Collapsible stats sections** - 7 detailed sections with toggles
+- ✅ **Reasoning token tracking** - For o1/DeepSeek R1/Qwen QwQ models
 
 ### Why Exact Costs Matter
 
@@ -657,6 +659,70 @@ Different models have VASTLY different pricing:
 - Fetches exact costs for recent messages (<30 days old)
 - Updates estimated costs with real billing data
 - Progress shown: "Fetching... 15/42 updated"
+
+### Enhanced Detailed Stats Display (v0.10-beta)
+
+Each AI message now shows expandable stats sections:
+
+```
+📊 Detailed Stats                    $0.000412
+────────────────────────────────────────────────
+Input:  168 tokens    Output: 152 tokens
+Total:  320 tokens    Rate:   $0.0013/1K
+
+▶ 🧠 Reasoning          [42%]
+   Thinking Tokens:     45
+   % of Output:         42%
+   Visible Output:      107
+
+▶ 💾 Prompt Cache       [35% saved]
+   Cache Hits:          500 tokens
+   Cache Created:       0 tokens
+   Input Cached:        35%
+
+▶ 📏 Native Tokenizer
+   Native Input:        172
+   Native Output:       158
+   Estimate Diff:       +2.4%
+
+▶ ⚡ Performance        [45 t/s]
+   Time to First Token: 0.32s
+   Total Response Time: 3.56s
+   Generation Speed:    45 tokens/sec
+   Generation Time:     3.24s
+
+▶ 🎛️ Generation
+   Model:              x-ai/grok-4.1-fast
+   Provider:           Together
+   Stop Reason:        end_turn
+   Output Ratio:       48%
+   Input:Output:       1.11:1
+   Generation ID:      gen-1765136398...
+
+▶ 🔍 Web Search        [5 results]
+   Provider:           serper
+   Results Found:      5
+   Search Time:        1.23s
+
+▶ 📈 Efficiency
+   Cost/Input Token:   $0.15/M
+   Cost/Output Token:  $0.60/M
+   Cost/Second:        $0.000116/s
+   Chars/Token (out):  4.2
+```
+
+**Customizing Stats Display:**
+1. Go to Settings → Experimental
+2. Find "Message Statistics" section
+3. Toggle which sections you want to see:
+   - 🧠 Reasoning (thinking models only)
+   - 💾 Cache (prompt caching stats)
+   - 📏 Native Tokens (billing accuracy)
+   - ⚡ Performance (speed metrics)
+   - 🎛️ Generation (model/provider info)
+   - 🔍 Search (web search stats)
+   - 📈 Efficiency (cost analysis)
+4. Set auto-expand preferences for Reasoning and Cache sections
 
 ### Optimization Strategies
 

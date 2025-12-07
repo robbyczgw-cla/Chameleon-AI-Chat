@@ -878,9 +878,143 @@ Users can choose in Settings → Voice:
 
 ---
 
-### 8. Cost Tracking System 💸
+### 8. Exact Cost Tracking System 💰 (v0.10-beta)
+
+**Location**: `hooks/use-auto-fetch-costs.ts`, `app/api/generation/route.ts`, `components/message-stats.tsx`
+
+#### Revolutionary Architecture (No More Estimates!)
+
+```
+LLM Response with generation ID
+    ↓
+Client captures generation ID from stream
+    ↓
+useAutoFetchCosts hook triggers in background
+    ↓
+Fetch exact costs from OpenRouter's /api/v1/generation endpoint
+    ↓
+Store in message.stats.actualCost (not estimates!)
+    ↓
+Display in collapsible MessageStats component
+```
+
+#### Why Exact Costs?
+
+**Before (v0.9 and earlier):**
+- ❌ Static pricing tables that become outdated
+- ❌ Estimated costs based on token count calculations
+- ❌ Inaccurate when providers change pricing
+- ❌ No visibility into cache discounts
+
+**After (v0.10-beta):**
+- ✅ **Real billing data** from OpenRouter's generation API
+- ✅ Matches openrouter.ai/activity dashboard exactly
+- ✅ Native token counts (actual tokens used for billing)
+- ✅ Provider transparency (see which backend served you)
+- ✅ Cache discount tracking (prompt caching savings)
+- ✅ Reasoning token tracking (for o1/DeepSeek R1 models)
+
+#### Integration Flow
+
+```
+1. User sends message
+   ↓
+2. Chat API streams response from OpenRouter
+   ↓
+3. Server captures generation ID from response (parsed.id)
+   ↓
+4. Server sends {generation_id: xxx} before [DONE]
+   ↓
+5. Client captures via onGenerationId callback
+   ↓
+6. capturedGenerationId stored in finalMessage.stats
+   ↓
+7. setChats update includes stats: finalMessage.stats ← CRITICAL!
+   ↓
+8. useAutoFetchCosts finds messages with generationId
+   ↓
+9. Fetches /api/generation?id=xxx WITH API key
+   ↓
+10. /api/generation unwraps data.data response
+    ↓
+11. Cost data stored in message.stats.actualCost
+    ↓
+12. MessageStats displays with collapsible sections
+```
+
+#### OpenRouter Generation API
+
+```typescript
+// Request
+GET https://openrouter.ai/api/v1/generation?id={generationId}
+Authorization: Bearer {your-api-key}
+
+// Response
+{
+  "data": {
+    "id": "gen-abc123...",
+    "model": "anthropic/claude-3.5-sonnet",
+    "created_at": "2025-12-06T10:30:00Z",
+    "native_tokens_prompt": 150,
+    "native_tokens_completion": 300,
+    "native_tokens_completion_reasoning": 45,  // For thinking models
+    "provider_name": "Anthropic",
+    "total_cost": 0.001275,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 500
+  }
+}
+```
+
+#### Key Files (Cost Tracking)
+
+| File | Purpose |
+|------|---------|
+| `hooks/use-auto-fetch-costs.ts` | Background fetching of exact costs |
+| `app/api/generation/route.ts` | Proxy to OpenRouter generation API |
+| `components/message-stats.tsx` | Stats display with collapsible sections |
+| `components/experimental-settings.tsx` | Stats toggle settings |
+| `components/chat-messages.tsx` | Integrates auto-fetch hook |
+| `components/chat-input.tsx` | Captures generation ID, saves stats |
+
+#### Enhanced Message Stats Display
+
+The MessageStats component shows ALL data from OpenRouter with collapsible sections:
+
+```
+📊 Detailed Stats                    $0.000412
+────────────────────────────────────────────────
+Input:  168 tokens    Output: 152 tokens
+Total:  320 tokens    Rate:   $0.0013/1K
+
+▶ 🧠 Reasoning          [42%]
+▶ 💾 Prompt Cache       [35% saved]
+▶ 📏 Native Tokenizer
+▶ ⚡ Performance        [45 t/s]
+▶ 🎛️ Generation
+▶ 🔍 Web Search        [5 results]
+▶ 📈 Efficiency
+```
+
+Each section can be toggled in Settings → Experimental → Message Statistics.
+
+#### Critical Bug Fixes (2025-12-07)
+
+Three bugs were fixed to make exact cost tracking work:
+
+1. **Stats not saved to messages** - Added `stats: finalMessage.stats` to setChats
+2. **API key not passed** - Added apiKey parameter to useAutoFetchCosts
+3. **Response not unwrapped** - Fixed `data.data || data` in /api/generation
+
+📚 **Full guide**: [docs/EXACT_COST_TRACKING.md](./EXACT_COST_TRACKING.md)
+
+---
+
+### 9. Legacy Cost Estimation (Fallback)
 
 **Location**: `lib/cost-tracker.ts`, `components/cost-tracker-dashboard.tsx`
+
+For messages without generation IDs (older messages, non-OpenRouter providers):
 
 #### Architecture
 
@@ -2068,10 +2202,59 @@ import { FixedSizeList } from 'react-window';
 
 ---
 
+### 11. Chunk Error Handler 🔄 (v0.10-beta)
+
+**Location**: `components/chunk-error-handler.tsx`
+
+Auto-recovery for stale JavaScript chunks after deployment.
+
+#### The Problem
+
+When you deploy a new version:
+1. User has old page open with old chunk references
+2. User navigates → App tries to load old chunk file
+3. Old chunk no longer exists (deleted after deploy)
+4. **Error:** "Failed to load chunk /_next/static/chunks/xxx.js"
+
+#### The Solution
+
+```typescript
+// ChunkErrorHandler listens for script errors
+window.addEventListener('error', (event) => {
+  if (isChunkLoadError(event)) {
+    // Check cooldown (10 seconds) to prevent loops
+    if (!recentlyReloaded()) {
+      window.location.reload()  // Get fresh chunks!
+    }
+  }
+})
+```
+
+#### Key Features
+
+- **Auto-reload**: Refreshes page on chunk load failures
+- **Loop prevention**: 10-second cooldown between reloads
+- **Session tracking**: Uses sessionStorage to track reload attempts
+- **Transparent**: User just sees a quick page refresh
+
+#### Usage
+
+Added to `app/layout.tsx`:
+
+```tsx
+<ChunkErrorHandler />
+```
+
+---
+
 ## Key Files Reference
 
 | File | Purpose | Critical Sections | Lines |
 |------|---------|-------------------|-------|
+| `hooks/use-auto-fetch-costs.ts` | Exact cost fetching | apiKey param | 14-48 |
+| `app/api/generation/route.ts` | OpenRouter generation proxy | data.data unwrap | 43 |
+| `components/message-stats.tsx` | Collapsible stats display | All sections | 65-346 |
+| `components/chunk-error-handler.tsx` | Stale chunk recovery | Auto-reload | All |
 | `contexts/app-context.tsx` | Global state management | API key protection | 814-836 |
 | `lib/supabase/sync.ts` | Database sync logic | saveSettings, memory persistence | 182-303, 575-579 |
 | `components/ai-debate-mode.tsx` | AI Discussion mode | Genuine opinion prompts | 470-493 |

@@ -2,7 +2,78 @@
 
 All notable changes to Chameleon AI Chat are documented in this file.
 
-This project is transitioning from **alpha** to **beta stage** (v0.9-beta). Core features are stable.
+This project is in **beta stage** (v0.10-beta). Core features are stable with exact cost tracking.
+
+---
+
+## [0.10-beta] - 2025-12-07
+
+### 💰 Exact Cost Tracking - Revolutionary Update
+
+This release fixes critical bugs in the exact cost tracking system and adds enhanced stats display with collapsible sections.
+
+### Critical Bug Fixes
+
+**Bug #1: Stats Not Being Saved to Messages**
+- **Symptom:** Cost, model, and provider info not showing in Detailed Stats even though generation ID was captured
+- **Root Cause:** In `chat-input.tsx`, the `setChats` update was missing the `stats` field
+- **Fix:** Added `stats: finalMessage.stats` to the setChats update
+- **File:** `components/chat-input.tsx`
+
+**Bug #2: API Key Not Passed to Generation Endpoint**
+- **Symptom:** `[AutoFetchCosts] Failed to fetch cost for xxx: <empty string>`
+- **Root Cause:** The `useAutoFetchCosts` hook wasn't passing the API key to `/api/generation`
+- **Fix:** Added `apiKey` parameter to `useAutoFetchCosts`, pass `settings.apiKeys?.openRouter`
+- **Files:** `hooks/use-auto-fetch-costs.ts`, `components/chat-messages.tsx`
+
+**Bug #3: OpenRouter Response Nested in `data` Object**
+- **Symptom:** API call succeeded but `total_cost` was undefined
+- **Root Cause:** OpenRouter returns `{ data: { total_cost, ... } }` but code expected `{ total_cost, ... }`
+- **Fix:** Unwrap the nested data with `data.data || data`
+- **File:** `app/api/generation/route.ts`
+
+### Enhanced Message Stats Display
+
+**Collapsible Sections:**
+- 🧠 **Reasoning** - Thinking tokens for o1/DeepSeek R1/Qwen QwQ models
+- 💾 **Prompt Cache** - Cache hits, creation tokens, savings percentage
+- 📏 **Native Tokenizer** - Accurate native token counts vs estimates
+- ⚡ **Performance** - TTFT, response time, tokens/sec, generation time
+- 🎛️ **Generation** - Model, provider, stop reason, output ratio
+- 🔍 **Web Search** - Provider, results count, search time
+- 📈 **Efficiency** - Cost per token, cost per second, chars/token
+
+**Stats Display Settings (Experimental Settings):**
+- Toggle visibility of each section
+- Auto-expand options for Reasoning and Cache sections
+- All sections enabled by default for discoverability
+
+### Stability Improvements
+
+**Chunk Error Handler:**
+- Auto-reloads page when stale chunks detected after deployment
+- Prevents "Failed to load chunk" errors
+- 10-second cooldown prevents reload loops
+- New component: `components/chunk-error-handler.tsx`
+
+**CSP Font Fix:**
+- Added `https://cdn.jsdelivr.net` to font-src
+- Fixes OpenDyslexic font loading from jsDelivr CDN
+
+### New Components & Files
+
+| File | Purpose |
+|------|---------|
+| `components/chunk-error-handler.tsx` | Auto-reload on stale chunks |
+| `components/message-stats.tsx` | Enhanced collapsible stats |
+| `hooks/use-auto-fetch-costs.ts` | Background cost fetching |
+
+### Commits (2025-12-07)
+- `10c0087` feat: Stats section toggles in Experimental Settings
+- `162805b` feat: Collapsible stats sections with more metrics
+- `5c8ce9e` feat: Enhanced Detailed Stats with OpenRouter data
+- `bc1e271` fix(CRITICAL): Fix price display + improve chunk error handler
+- `ca449e7` fix(CRITICAL): Pass API key to /api/generation for exact cost fetching
 
 ---
 
@@ -1205,6 +1276,7 @@ This marks the transition from alpha to beta! Core features are now stable and r
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| **0.10-beta** | 2025-12-07 | 💰 **Exact Cost Tracking** - 3 critical bug fixes, collapsible stats, provider tracking |
 | **0.9-beta** | 2025-12-06 | 🎉 **Beta Release** - Shareable chat links, desktop image toggle, personalized greetings |
 | 0.11.1-alpha | 2025-12-05 | React 19 compatibility, vaul 1.1.2, database implementation guide |
 | 0.11.0-alpha | 2025-12-03 | Search provider optimization, model research, iPad fixes |
