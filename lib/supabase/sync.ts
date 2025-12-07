@@ -280,6 +280,9 @@ export class SupabaseSync {
         custom_personas: settings.customPersonas
           ? JSON.stringify(settings.customPersonas)
           : '[]',
+        experimental_settings: settings.experimental
+          ? JSON.stringify(settings.experimental)
+          : '{}',
         updated_at: new Date().toISOString(),
       }
 
@@ -827,6 +830,16 @@ export class SupabaseSync {
           : []
 
         console.log("[Supabase] Parsed customPersonas:", parsed)
+        return parsed
+      })(),
+      experimental: (() => {
+        const parsed = dbSettings.experimental_settings
+          ? (typeof dbSettings.experimental_settings === "string"
+              ? JSON.parse(dbSettings.experimental_settings)
+              : dbSettings.experimental_settings)
+          : {}
+
+        console.log("[Supabase] Parsed experimental settings:", parsed)
         return parsed
       })(),
     }
