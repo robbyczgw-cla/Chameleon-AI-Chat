@@ -18,7 +18,7 @@
 
 **For Power Users:**
 - 🎯 **Intelligent Follow-Ups** - Categorized 3-tier suggestions (⚡ Quick / 🧠 Deep / 🔗 Related) - guide conversations naturally
-- 💸 **Cost Tracker** - Track LLM spending, project monthly costs, analyze by model
+- 💰 **Exact Cost Tracking** - Real billing data from OpenRouter API (not estimates!), provider info, cache savings, export to JSON
 - 💾 **Training Data Export** - Export conversations in JSONL/HTML/Markdown for fine-tuning
 - 📊 **Unified Analytics** - Visual stats with charts, model distribution, and AI insights
 - 🎭 **AI Debate Mode** - Watch two AI models debate any topic (2-5 rounds, vote for winner!)
@@ -52,7 +52,18 @@
 - 🖼️ **Image Optimization** - Next.js automatic WebP conversion and resizing
 - 👆 **Mobile-First Buttons** - Action buttons always visible on touch devices
 
-**Latest Features (v0.9-beta):**
+**Latest Features (v0.10-beta):**
+- 💰 **Exact Cost Tracking (NEW!)** - Real billing data from OpenRouter's generation API
+  - ✅ Actual costs, not estimates (matches openrouter.ai/activity exactly)
+  - ✅ Native token counts used for billing
+  - ✅ Provider transparency (see which backend served your request)
+  - ✅ Cache discount tracking (prompt caching savings)
+  - ✅ Usage Dashboard in Settings → Stats with export to JSON
+  - ✅ Retroactive "Fetch Exact Costs" for recent requests
+- 📊 **Updated Model Pricing** - December 2025 rates from OpenRouter (Grok 67% cheaper!)
+- 📱 **Mobile Token Stats Hidden** - Detailed stats now hidden on mobile for cleaner UI
+
+**Features (v0.9-beta):**
 - 🔗 **Shareable Chat Links** - Copy chat link creates shareable URLs with base64-encoded conversations
 - 🖼️ **Desktop Image Toggle** - Image generation toggle now on desktop with quality indicators (+/●)
 - 👋 **Personalized Greeting** - Time-of-day greeting (morning/afternoon/evening/night) with user profile name

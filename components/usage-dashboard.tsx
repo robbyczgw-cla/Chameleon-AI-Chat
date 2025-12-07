@@ -119,11 +119,9 @@ export function UsageDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCost(stats.totalCost)}</div>
-            {stats.totalActualCost !== undefined && stats.totalActualCost > 0 && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Exact: {formatCost(stats.totalActualCost)} ({stats.entriesWithActualCost}/{entries.length})
-              </p>
-            )}
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.entriesWithActualCost} requests tracked
+            </p>
           </CardContent>
         </Card>
 
@@ -204,7 +202,7 @@ export function UsageDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Recent Usage</CardTitle>
-          <CardDescription>Last 20 API requests with exact costs</CardDescription>
+          <CardDescription>Exact costs from OpenRouter API (real billing data)</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -220,8 +218,7 @@ export function UsageDashboard() {
               </thead>
               <tbody>
                 {entries.slice(0, 20).map((entry) => {
-                  const cost = entry.actualCost !== undefined ? entry.actualCost : entry.cost
-                  const isExact = entry.actualCost !== undefined
+                  if (!entry.actualCost) return null // Only show entries with exact costs
 
                   return (
                     <tr key={entry.id} className="border-b hover:bg-muted/50">
@@ -232,19 +229,13 @@ export function UsageDashboard() {
                         {entry.model.split("/").pop()}
                       </td>
                       <td className="py-2 px-3 text-right font-mono text-xs">
-                        {isExact && entry.nativeTokensPrompt ? (
-                          <span title="Native tokens (exact)">
-                            {entry.nativeTokensPrompt + (entry.nativeTokensCompletion || 0)}
-                          </span>
-                        ) : (
-                          entry.totalTokens
-                        )}
+                        {entry.nativeTokensPrompt && entry.nativeTokensCompletion
+                          ? entry.nativeTokensPrompt + entry.nativeTokensCompletion
+                          : entry.totalTokens}
                       </td>
-                      <td className="py-2 px-3 text-right font-mono text-xs">
-                        <span className={isExact ? "text-green-600 font-semibold" : ""}>
-                          {formatCost(cost)}
-                        </span>
-                        {isExact && entry.cacheDiscount && entry.cacheDiscount > 0 && (
+                      <td className="py-2 px-3 text-right font-mono text-xs text-green-600 font-semibold">
+                        {formatCost(entry.actualCost)}
+                        {entry.cacheDiscount && entry.cacheDiscount > 0 && (
                           <span className="ml-1 text-xs text-purple-600" title="Cache discount">
                             (-{formatCost(entry.cacheDiscount)})
                           </span>
