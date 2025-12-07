@@ -915,6 +915,15 @@ export function ChatInput() {
             description: `Searching web for: "${query}"`
           })
         },
+        // Capture generation ID for exact cost tracking
+        onGenerationId: (generationId) => {
+          console.log("[Advanced Chat] 💰 Generation ID captured:", generationId)
+          // Store it in the assistant message stats
+          assistantMessage.stats = {
+            ...assistantMessage.stats,
+            generationId
+          }
+        },
         // Enhanced streaming details for advanced mode
         onStreamingDetails: (details) => {
           // Accumulate reasoning content instead of replacing it

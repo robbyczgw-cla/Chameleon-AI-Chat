@@ -214,6 +214,8 @@ export async function streamChatMessage(
     onPhaseChange?: (phase: "thinking" | "searching" | "tool_use" | "responding" | "done") => void
     onToolUse?: (toolName: string) => void
     onSearchQuery?: (query: string) => void
+    // Generation ID callback for exact cost tracking
+    onGenerationId?: (generationId: string) => void
     // Enhanced streaming details callback (for advanced mode)
     onStreamingDetails?: (details: {
       phase?: string
@@ -256,6 +258,7 @@ export async function streamChatMessage(
     onPhaseChange,
     onToolUse,
     onSearchQuery,
+    onGenerationId,
     // Enhanced streaming details
     onStreamingDetails,
   } = options
@@ -391,6 +394,12 @@ export async function streamChatMessage(
             // Check for content in both 'content' and 'text' fields (model compatibility)
             const content = delta?.content || delta?.text
             const finishReason = parsed.choices?.[0]?.finish_reason
+
+            // Handle generation ID for exact cost tracking
+            if (parsed.generation_id && onGenerationId) {
+              console.log("[v0] 💰 Generation ID received:", parsed.generation_id)
+              onGenerationId(parsed.generation_id)
+            }
 
             // Handle phase change events for step-by-step visualization
             if (delta?.phase && onPhaseChange) {
