@@ -114,20 +114,50 @@ export function ExperimentalSettings() {
         </div>
       </div>
 
-      {/* Input Stats Section */}
+      {/* Message Stats Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <BarChart2 className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold">Input Statistics</h3>
+          <h3 className="text-lg font-semibold">Message Statistics</h3>
         </div>
 
         <div className="space-y-4 pl-7">
+          {/* Show Message Stats (Main Toggle) */}
+          <div className="flex items-center justify-between p-4 border-2 border-primary/30 rounded-lg bg-gradient-to-r from-primary/5 to-primary/10">
+            <div className="space-y-1">
+              <Label className="text-sm font-medium">💰 Show Detailed Message Stats</Label>
+              <p className="text-xs text-muted-foreground">
+                Display stats after each AI message: exact costs, tokens, performance metrics (desktop only, Advanced Mode)
+              </p>
+            </div>
+            <Switch
+              checked={experimental.streamingVisualization?.showDetailedStats !== false}
+              onCheckedChange={(checked) =>
+                handleExperimentalChange({
+                  streamingVisualization: {
+                    ...experimental.streamingVisualization,
+                    showDetailedStats: checked
+                  }
+                })
+              }
+            />
+          </div>
+
+          {/* Info Box */}
+          {experimental.streamingVisualization?.showDetailedStats !== false && (
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-xs text-blue-800 dark:text-blue-200">
+                <strong>Shows:</strong> Exact costs from OpenRouter API, native tokens (prompt/completion/reasoning), performance metrics (tokens/sec, TTFT), model info, provider name, search stats. This is the main stats panel after AI responses.
+              </p>
+            </div>
+          )}
+
           {/* Show Input Stats */}
           <div className="flex items-center justify-between p-4 border rounded-lg">
             <div className="space-y-1">
-              <Label className="text-sm font-medium">Show Token & Context Stats</Label>
+              <Label className="text-sm font-medium">Show Input Stats (Before Sending)</Label>
               <p className="text-xs text-muted-foreground">
-                Display token count, estimated cost, and context window usage below the chat input (desktop only)
+                Display token count and estimated cost below the chat input before sending (desktop only)
               </p>
             </div>
             <Switch
@@ -136,11 +166,11 @@ export function ExperimentalSettings() {
             />
           </div>
 
-          {/* Info Box */}
+          {/* Info Box for Input Stats */}
           {experimental.showInputStats && (
             <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
               <p className="text-xs text-amber-800 dark:text-amber-200">
-                <strong>Visible stats:</strong> Character count, estimated tokens, estimated cost per message, and context window usage meter. Helpful for monitoring API costs and context limits.
+                <strong>Shows:</strong> Character count, estimated tokens, estimated cost per message, and context window usage meter below chat input.
               </p>
             </div>
           )}
