@@ -10,7 +10,8 @@ import type { Message } from "@/types"
  */
 export function useAutoFetchCosts(
   messages: Message[],
-  onCostFetched: (messageId: string, costData: any) => void
+  onCostFetched: (messageId: string, costData: any) => void,
+  apiKey?: string
 ) {
   const fetchedIds = useRef(new Set<string>())
 
@@ -39,7 +40,12 @@ export function useAutoFetchCosts(
       try {
         console.log(`[AutoFetchCosts] Fetching exact cost for message ${msg.id.slice(0, 8)}...`)
 
-        const response = await fetch(`/api/generation?id=${generationId}`)
+        const headers: Record<string, string> = {}
+        if (apiKey) {
+          headers["x-api-key"] = apiKey
+        }
+
+        const response = await fetch(`/api/generation?id=${generationId}`, { headers })
 
         if (!response.ok) {
           console.warn(`[AutoFetchCosts] Failed to fetch cost for ${msg.id.slice(0, 8)}:`, response.statusText)
@@ -66,5 +72,5 @@ export function useAutoFetchCosts(
         console.error(`[AutoFetchCosts] Error fetching cost for ${msg.id.slice(0, 8)}:`, error)
       }
     })
-  }, [messages, onCostFetched])
+  }, [messages, onCostFetched, apiKey])
 }
