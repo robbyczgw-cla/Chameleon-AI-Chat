@@ -52,7 +52,8 @@ export interface Message {
   attachments?: Attachment[] // File attachments (images, PDFs, etc.)
   stats?: {
     model?: string
-    cost?: number // in USD
+    cost?: number // in USD (estimated, deprecated)
+    actualCost?: number // Exact cost from OpenRouter API
     responseTime?: number // in seconds
     tokensPerSecond?: number
     firstTokenTime?: number // TTFT in seconds
@@ -60,6 +61,14 @@ export interface Message {
     searchTime?: number // web search time in seconds
     searchResults?: number
     searchProvider?: string
+    // OpenRouter generation API data
+    generationId?: string // For fetching exact costs
+    provider?: string // Which provider served the request (e.g., "Together", "Anthropic")
+    nativeTokensPrompt?: number // Native tokenizer count for input
+    nativeTokensCompletion?: number // Native tokenizer count for output
+    nativeTokensCompletionReasoning?: number // Reasoning/thinking tokens (o1, DeepSeek R1)
+    cacheCreationTokens?: number // Prompt cache tokens created
+    cacheReadTokens?: number // Prompt cache tokens read (savings!)
   }
   streamingHistory?: StreamingHistoryEntry[] // History of streaming phases for verbose display
   branches?: ConversationBranch[] // Alternate conversation paths from this message
@@ -266,6 +275,20 @@ export interface StreamingVisualizationSettings {
   showTimestamps?: boolean // Show timestamps for each event
 }
 
+export interface StatsDisplaySettings {
+  // Which stats sections to show (all default to true)
+  showReasoning?: boolean // 🧠 Reasoning tokens (for o1/DeepSeek R1)
+  showCache?: boolean // 💾 Prompt cache stats
+  showNativeTokens?: boolean // 📏 Native tokenizer counts
+  showPerformance?: boolean // ⚡ Response time, TTFT, tokens/sec
+  showGeneration?: boolean // 🎛️ Model, provider, stop reason
+  showSearch?: boolean // 🔍 Web search stats
+  showEfficiency?: boolean // 📈 Cost per token, chars/token
+  // Default expand state
+  defaultExpandReasoning?: boolean // Auto-expand reasoning section
+  defaultExpandCache?: boolean // Auto-expand cache section
+}
+
 export interface ExperimentalSettings {
   // Response Analysis
   enableResponseAnalysis?: boolean
@@ -279,6 +302,8 @@ export interface ExperimentalSettings {
   enableUrlFetchTool?: boolean // Allow AI to fetch and read URL content
   enableYouTubeTool?: boolean // Allow AI to extract YouTube video transcripts
   enableWeatherTool?: boolean // Allow AI to get weather information and forecasts
+  // Stats Display Settings
+  statsDisplay?: StatsDisplaySettings
 }
 
 export interface AppSettings {
