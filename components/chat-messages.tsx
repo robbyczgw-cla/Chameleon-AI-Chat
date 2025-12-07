@@ -31,6 +31,7 @@ import { RichContentParser } from "@/lib/rich-content-parser"
 import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
 import { MessageStatus, MessageStatusVerbose, StreamingHistoryDisplay } from "@/components/message-status"
 import { userProfileService } from "@/lib/user-profile"
+import { useAutoFetchCosts } from "@/hooks/use-auto-fetch-costs"
 
 // Lazy load heavy syntax highlighter with its style - reduces initial bundle by ~100KB
 const SyntaxHighlighterWithStyle = dynamic(
@@ -256,6 +257,31 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
   // Advanced mode = NOT simple mode (from settings)
   const isAdvancedMode = !settings.simpleMode
 
+  // Automatically fetch exact costs for new messages (runs in background, no slowdown!)
+  const currentChat = chats.find((chat) => chat.id === currentChatId)
+
+  useAutoFetchCosts(
+    currentChat?.messages || [],
+    useCallback((messageId: string, costData: any) => {
+      if (!currentChat) return
+
+      // Update the message with exact cost data
+      const updatedMessages = currentChat.messages.map(msg =>
+        msg.id === messageId
+          ? {
+              ...msg,
+              stats: {
+                ...msg.stats,
+                ...costData,
+              }
+            }
+          : msg
+      )
+
+      updateChat(currentChat.id, { messages: updatedMessages })
+    }, [currentChat, updateChat])
+  )
+
   const toggleReasoning = useCallback((messageId: string) => {
     setExpandedReasoning(prev => {
       const next = new Set(prev)
@@ -279,8 +305,6 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
       return next
     })
   }, [])
-
-  const currentChat = chats.find((chat) => chat.id === currentChatId)
 
   // Get current model name for display
   const currentModelName = currentChat?.model || settings.selectedModel || "AI Model"
