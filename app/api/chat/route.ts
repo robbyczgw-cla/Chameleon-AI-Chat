@@ -531,8 +531,12 @@ async function handleNonStreamingRequest(
       continue
     }
 
-    // No more tool calls, return the final response
-    return NextResponse.json(data)
+    // No more tool calls, return the final response with generation ID
+    // OpenRouter returns the generation ID in the response for exact cost tracking
+    return NextResponse.json({
+      ...data,
+      generation_id: data.id, // Expose generation ID for exact cost tracking
+    })
   }
 
   // Max iterations reached
@@ -602,6 +606,7 @@ async function handleStreamingRequest(
         let accumulatedToolCalls: ToolCall[] = []
         let hasToolCalls = false
         let finishReason = ""
+        let generationId: string | undefined = undefined
 
         // Process the stream
         while (true) {
@@ -618,6 +623,16 @@ async function handleStreamingRequest(
 
             if (data === "[DONE]") {
               if (!hasToolCalls) {
+                // Send generation ID before [DONE] for exact cost tracking
+                if (generationId) {
+                  await writer.write(
+                    encoder.encode(
+                      `data: ${JSON.stringify({
+                        generation_id: generationId,
+                      })}\n\n`
+                    )
+                  )
+                }
                 await writer.write(encoder.encode("data: [DONE]\n\n"))
               }
               continue
@@ -627,6 +642,11 @@ async function handleStreamingRequest(
               const parsed = JSON.parse(data)
               const delta = parsed.choices?.[0]?.delta
               const finish = parsed.choices?.[0]?.finish_reason
+
+              // Capture generation ID from response for exact cost tracking
+              if (parsed.id && !generationId) {
+                generationId = parsed.id
+              }
 
               // Debug: Log delta structure for troubleshooting empty responses
               if (delta && Object.keys(delta).length > 0) {

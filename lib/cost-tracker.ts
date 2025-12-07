@@ -8,9 +8,17 @@ export interface CostEntry {
   inputTokens: number
   outputTokens: number
   totalTokens: number
-  cost: number // in USD
+  cost: number // in USD (estimated or actual)
   searchProvider?: string
   searchCost?: number
+  // Exact cost data from OpenRouter (when available)
+  generationId?: string
+  actualCost?: number // Exact cost from OpenRouter API
+  nativeTokensPrompt?: number // Actual tokens used for billing
+  nativeTokensCompletion?: number
+  provider?: string // Which provider served the request (e.g., "Anthropic", "OpenAI")
+  cacheDiscount?: number // Savings from prompt caching
+  generationTime?: number // Time to generate in ms
 }
 
 export interface CostStats {
@@ -20,6 +28,10 @@ export interface CostStats {
   costByModel: Record<string, number>
   costByDay: Array<{ date: string; cost: number }>
   avgCostPerMessage: number
+  totalActualCost?: number // Sum of all actualCost values (exact billing)
+  totalEstimatedCost?: number // Sum of all estimated costs
+  entriesWithActualCost?: number // How many entries have exact costs
+  totalCacheDiscount?: number // Total savings from prompt caching
 }
 
 // Model pricing (per 1M tokens) - OpenRouter prices as of December 2025
@@ -147,6 +159,22 @@ export class CostTracker {
     this.saveToStorage()
   }
 
+  // Update entry with exact cost data from OpenRouter
+  updateWithExactCost(entryId: string, generationData: GenerationData): void {
+    const entry = this.entries.find((e) => e.id === entryId)
+    if (!entry) return
+
+    entry.generationId = generationData.id
+    entry.actualCost = generationData.total_cost
+    entry.nativeTokensPrompt = generationData.native_tokens_prompt
+    entry.nativeTokensCompletion = generationData.native_tokens_completion
+    entry.provider = generationData.provider
+    entry.cacheDiscount = generationData.cache_discount
+    entry.generationTime = generationData.generation_time
+
+    this.saveToStorage()
+  }
+
   // Get all entries
   getEntries(): CostEntry[] {
     return this.entries
@@ -174,37 +202,61 @@ export class CostTracker {
     const totalTokens = relevantEntries.reduce((sum, entry) => sum + entry.totalTokens, 0)
     const uniqueChats = new Set(relevantEntries.map((entry) => entry.chatId))
 
-    // Cost by model
+    // Calculate actual vs estimated costs
+    const totalActualCost = relevantEntries.reduce(
+      (sum, entry) => sum + (entry.actualCost || 0) + (entry.searchCost || 0),
+      0
+    )
+    const totalEstimatedCost = relevantEntries.reduce(
+      (sum, entry) => sum + entry.cost + (entry.searchCost || 0),
+      0
+    )
+    const entriesWithActualCost = relevantEntries.filter((e) => e.actualCost !== undefined).length
+    const totalCacheDiscount = relevantEntries.reduce((sum, entry) => sum + (entry.cacheDiscount || 0), 0)
+
+    // Cost by model (prefer actual cost)
     const costByModel: Record<string, number> = {}
     relevantEntries.forEach((entry) => {
-      costByModel[entry.model] = (costByModel[entry.model] || 0) + entry.cost
+      const cost = entry.actualCost !== undefined ? entry.actualCost : entry.cost
+      costByModel[entry.model] = (costByModel[entry.model] || 0) + cost
     })
 
-    // Cost by day
+    // Cost by day (prefer actual cost)
     const costByDay: Record<string, number> = {}
     relevantEntries.forEach((entry) => {
       const date = new Date(entry.timestamp).toISOString().split("T")[0]
-      costByDay[date] = (costByDay[date] || 0) + entry.cost + (entry.searchCost || 0)
+      const cost = (entry.actualCost !== undefined ? entry.actualCost : entry.cost) + (entry.searchCost || 0)
+      costByDay[date] = (costByDay[date] || 0) + cost
     })
 
     const costByDayArray = Object.entries(costByDay)
       .map(([date, cost]) => ({ date, cost }))
       .sort((a, b) => a.date.localeCompare(b.date))
 
+    // Use actual cost for totals if we have enough data
+    const finalTotalCost = entriesWithActualCost > relevantEntries.length * 0.5 ? totalActualCost : totalCost
+
     return {
-      totalCost,
+      totalCost: finalTotalCost,
       totalTokens,
       totalChats: uniqueChats.size,
       costByModel,
       costByDay: costByDayArray,
-      avgCostPerMessage: relevantEntries.length > 0 ? totalCost / relevantEntries.length : 0,
+      avgCostPerMessage: relevantEntries.length > 0 ? finalTotalCost / relevantEntries.length : 0,
+      totalActualCost,
+      totalEstimatedCost,
+      entriesWithActualCost,
+      totalCacheDiscount,
     }
   }
 
-  // Get cost for a specific chat
+  // Get cost for a specific chat (prefers actual cost when available)
   getChatCost(chatId: string): number {
     return this.getChatEntries(chatId).reduce(
-      (sum, entry) => sum + entry.cost + (entry.searchCost || 0),
+      (sum, entry) => {
+        const cost = entry.actualCost !== undefined ? entry.actualCost : entry.cost
+        return sum + cost + (entry.searchCost || 0)
+      },
       0,
     )
   }
@@ -273,4 +325,46 @@ export function getCostTracker(): CostTracker {
 // Helper to get search cost
 export function getSearchCost(provider: "tavily" | "serper"): number {
   return SEARCH_PRICING[provider] || 0
+}
+
+// Fetch exact generation data from OpenRouter
+export interface GenerationData {
+  id: string
+  model: string
+  total_cost: number
+  tokens_prompt: number
+  tokens_completion: number
+  native_tokens_prompt: number
+  native_tokens_completion: number
+  generation_time?: number
+  created_at?: number
+  cache_discount?: number
+  provider?: string
+}
+
+export async function fetchGenerationData(
+  generationId: string,
+  apiKey: string
+): Promise<GenerationData | null> {
+  try {
+    const response = await fetch(
+      `https://openrouter.ai/api/v1/generation?id=${generationId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+      }
+    )
+
+    if (!response.ok) {
+      console.error(`[CostTracker] Failed to fetch generation data: ${response.status}`)
+      return null
+    }
+
+    const data = await response.json()
+    return data.data || null
+  } catch (error) {
+    console.error("[CostTracker] Error fetching generation data:", error)
+    return null
+  }
 }
