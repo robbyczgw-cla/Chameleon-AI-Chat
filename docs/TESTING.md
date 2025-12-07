@@ -1,43 +1,39 @@
 # Testing Guide
 
+> **💰 Cost Tracking:** Now using EXACT costs from OpenRouter's generation API!
+> No more estimated pricing - all costs are real billing data.
+
 ## Overview
 
-Chameleon AI Chat uses **Vitest** for automated testing. We have **144 tests** covering critical functionality to ensure code quality and prevent regressions.
+Chameleon AI Chat uses **Vitest** for automated testing. We have **126 tests** covering critical functionality to ensure code quality and prevent regressions.
 
 ### Test Statistics
 
 ```
-✅ 144 tests passing
-⚡ 4.84s runtime
+✅ 126 tests passing
+⚡ 4.62s runtime
 📦 7 test files
 🎯 100% of critical utilities covered
+💰 Exact cost tracking (not estimates!)
 ```
 
 ---
 
 ## What We Test & Why
 
-### 1. Token Tracker (`lib/token-tracker.test.ts`) - 20 tests
+### 1. Token Tracker (`lib/token-tracker.test.ts`) - 12 tests
 
-**What:** Token estimation and cost calculation
+**What:** Token estimation and cost formatting (uses EXACT costs from OpenRouter API)
 
-**Why:** This is **critical for billing** - wrong calculations = wrong costs shown to users.
+**Why:** Token estimation helps predict API usage. Formatting ensures costs display correctly.
 
 **Tests Cover:**
 - ✅ Token estimation from text (4 chars ≈ 1 token)
-- ✅ Cost calculation for different models
 - ✅ Formatting tokens (1500 → "1.5K")
 - ✅ Formatting costs ($0.005 → "$0.5000¢")
 - ✅ Edge cases (zero tokens, huge numbers)
 
-**Real Bug Prevented:**
-```typescript
-// Without tests, this bug could slip through:
-function calculateCost(tokens, model) {
-  return tokens * price  // ❌ Missing /1_000_000
-}
-// Tests catch this immediately!
-```
+**Note:** Cost calculation removed - now using OpenRouter's exact billing data via generation API!
 
 ---
 
