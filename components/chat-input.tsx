@@ -978,11 +978,11 @@ export function ChatInput() {
             completion: completionTokens,
             total: totalTokens,
           },
-          stats: capturedGenerationId
-            ? {
-                generationId: capturedGenerationId,
-              }
-            : undefined,
+          stats: {
+            model,
+            cost: estimatedCost,
+            ...(capturedGenerationId && { generationId: capturedGenerationId }),
+          },
           ...(reasoningContent ? { reasoning: reasoningContent } : {}),
           ...(streamingHistoryForMessage.length > 0 ? { streamingHistory: streamingHistoryForMessage } : {}),
         }
@@ -1013,7 +1013,7 @@ export function ChatInput() {
           return prevChats.map((chat) => {
             if (chat.id !== chatId) return chat
             const updatedMessages = chat.messages.map((m) =>
-              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, reasoning: finalMessage.reasoning, streamingHistory: finalMessage.streamingHistory } : m,
+              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning, streamingHistory: finalMessage.streamingHistory } : m,
             )
             return { ...chat, messages: updatedMessages }
           })
