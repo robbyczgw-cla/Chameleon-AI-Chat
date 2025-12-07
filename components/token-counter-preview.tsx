@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useApp } from "@/contexts/app-context"
-import { estimateTokens, calculateCost } from "@/lib/token-tracker"
+import { estimateTokens } from "@/lib/token-tracker"
 import { Coins, Type } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -29,9 +29,8 @@ export function TokenCounterPreview({ input }: TokenCounterPreviewProps) {
     const tokens = estimateTokens(input)
     setEstimatedTokens(tokens)
 
-    // Estimate cost using current model
-    const cost = calculateCost(tokens, 500, settings.selectedModel) // Assume ~500 output tokens
-    setEstimatedCost(cost)
+    // Cost estimation removed - now using exact costs from OpenRouter API
+    setEstimatedCost(0)
   }, [input, settings.selectedModel])
 
   // Always show character count, even when empty

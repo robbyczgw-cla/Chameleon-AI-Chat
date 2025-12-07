@@ -22,6 +22,7 @@ const AIMemoryHub = lazy(() => import("@/components/ai-memory-hub").then(m => ({
 const ChatAnalytics = lazy(() => import("@/components/chat-analytics").then(m => ({ default: m.ChatAnalytics })))
 const ExperimentalSettings = lazy(() => import("@/components/experimental-settings").then(m => ({ default: m.ExperimentalSettings })))
 const MCPSettings = lazy(() => import("@/components/mcp-settings").then(m => ({ default: m.MCPSettings })))
+const UsageDashboard = lazy(() => import("@/components/usage-dashboard").then(m => ({ default: m.UsageDashboard })))
 
 // Loading fallback for lazy components
 function TabLoadingFallback() {
@@ -1460,13 +1461,13 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
             <TabsContent value="statistics" className="space-y-4 mt-0">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Nutzungsstatistiken</h3>
+                  <h3 className="text-lg font-semibold mb-2">Usage & Costs</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Verfolgen Sie Ihre API-Nutzung, Kosten und Chat-Aktivität im Detail.
+                    Track your exact API costs, token usage, and spending from OpenRouter.
                   </p>
                 </div>
                 <Suspense fallback={<TabLoadingFallback />}>
-                  <UsageStatsWidget />
+                  <UsageDashboard />
                 </Suspense>
               </div>
             </TabsContent>

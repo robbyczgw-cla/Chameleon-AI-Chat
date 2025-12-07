@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest'
-import { CostTracker, MODEL_PRICING, getSearchCost } from './cost-tracker'
+import { CostTracker, getSearchCost } from './cost-tracker'
 
 // Mock localStorage before tests
 const localStorageMock = (() => {
@@ -24,42 +24,8 @@ describe('CostTracker', () => {
     tracker = new CostTracker()
   })
 
-  describe('calculateCost', () => {
-    test('calculates cost for GPT-4', () => {
-      const cost = tracker.calculateCost('openai/gpt-4', 1000, 2000)
-      // 1000/1M * $30 + 2000/1M * $60 = $0.03 + $0.12 = $0.15
-      expect(cost).toBeCloseTo(0.15, 6)
-    })
-
-    test('calculates cost for Claude Sonnet', () => {
-      const cost = tracker.calculateCost('anthropic/claude-4.5-sonnet-20250929', 1000, 2000)
-      // 1000/1M * $3 + 2000/1M * $15 = $0.003 + $0.03 = $0.033
-      expect(cost).toBeCloseTo(0.033, 6)
-    })
-
-    test('calculates cost for free models', () => {
-      const cost = tracker.calculateCost('google/gemini-2.0-flash-exp', 5000, 10000)
-      expect(cost).toBe(0)
-    })
-
-    test('uses fallback pricing for unknown models', () => {
-      const cost = tracker.calculateCost('unknown/model', 1000, 2000)
-      // Fallback is grok-4.1-fast: $0.60 input, $2.0 output
-      // 1000/1M * $0.60 + 2000/1M * $2.0 = $0.0006 + $0.004 = $0.0046
-      expect(cost).toBeCloseTo(0.0046, 6)
-    })
-
-    test('handles zero tokens', () => {
-      const cost = tracker.calculateCost('openai/gpt-4', 0, 0)
-      expect(cost).toBe(0)
-    })
-
-    test('handles large token counts', () => {
-      const cost = tracker.calculateCost('openai/gpt-4', 1_000_000, 500_000)
-      // 1M/1M * $30 + 500k/1M * $60 = $30 + $30 = $60
-      expect(cost).toBeCloseTo(60, 6)
-    })
-  })
+  // NOTE: Cost calculation removed - now using exact costs from OpenRouter API
+  // See fetchGenerationData() for exact cost tracking
 
   describe('trackCost', () => {
     test('tracks a cost entry', () => {
@@ -207,10 +173,23 @@ describe('CostTracker', () => {
       })
     })
 
-    test('calculates total cost', () => {
-      const stats = tracker.getStats()
-      // 0.015 + 0.015 + 0.0165 + 0.001 (search) = 0.0475
-      expect(stats.totalCost).toBeCloseTo(0.0475, 6)
+    test('calculates total cost from actualCost only', () => {
+      // Clear existing data and add entry with actualCost
+      localStorageMock.clear()
+      const freshTracker = new CostTracker()
+
+      freshTracker.trackCost({
+        chatId: 'chat-test',
+        model: 'openai/gpt-4',
+        inputTokens: 100,
+        outputTokens: 200,
+        totalTokens: 300,
+        cost: 0, // Deprecated
+        actualCost: 0.015, // Exact from OpenRouter
+      })
+
+      const stats = freshTracker.getStats()
+      expect(stats.totalCost).toBeCloseTo(0.015, 6)
     })
 
     test('calculates total tokens', () => {
@@ -223,16 +202,50 @@ describe('CostTracker', () => {
       expect(stats.totalChats).toBe(2) // chat-1 and chat-2
     })
 
-    test('groups cost by model', () => {
+    test('groups cost by model with actualCost', () => {
+      // Add entries with actualCost (exact from OpenRouter)
+      tracker.trackCost({
+        chatId: 'chat-3',
+        model: 'openai/gpt-4o',
+        inputTokens: 1000,
+        outputTokens: 2000,
+        totalTokens: 3000,
+        cost: 0, // Deprecated
+        actualCost: 0.025, // Exact from OpenRouter
+      })
+
       const stats = tracker.getStats()
-      expect(stats.costByModel['openai/gpt-4']).toBeCloseTo(0.03, 6)
-      expect(stats.costByModel['anthropic/claude-3.5-sonnet']).toBeCloseTo(0.0165, 6)
+      expect(stats.costByModel['openai/gpt-4o']).toBeCloseTo(0.025, 6)
     })
 
-    test('calculates average cost per message', () => {
-      const stats = tracker.getStats()
-      // 0.0475 / 3 entries = 0.0158333...
-      expect(stats.avgCostPerMessage).toBeCloseTo(0.0158, 4)
+    test('calculates average cost per message with actualCost', () => {
+      // Clear and create fresh tracker with multiple actualCost entries
+      localStorageMock.clear()
+      const freshTracker = new CostTracker()
+
+      freshTracker.trackCost({
+        chatId: 'chat-4',
+        model: 'anthropic/claude-4.5-sonnet-20250929',
+        inputTokens: 1000,
+        outputTokens: 2000,
+        totalTokens: 3000,
+        cost: 0, // Deprecated
+        actualCost: 0.033, // Exact from OpenRouter
+      })
+
+      freshTracker.trackCost({
+        chatId: 'chat-5',
+        model: 'openai/gpt-4o',
+        inputTokens: 500,
+        outputTokens: 1000,
+        totalTokens: 1500,
+        cost: 0, // Deprecated
+        actualCost: 0.015, // Exact from OpenRouter
+      })
+
+      const stats = freshTracker.getStats()
+      // Average of 0.033 and 0.015 = 0.024
+      expect(stats.avgCostPerMessage).toBeCloseTo(0.024, 4)
     })
 
     test('returns zero avg for no entries', () => {
@@ -244,14 +257,15 @@ describe('CostTracker', () => {
   })
 
   describe('getChatCost', () => {
-    test('calculates total cost for a chat', () => {
+    test('calculates total cost for a chat using actualCost', () => {
       tracker.trackCost({
         chatId: 'chat-1',
         model: 'openai/gpt-4',
         inputTokens: 100,
         outputTokens: 200,
         totalTokens: 300,
-        cost: 0.01,
+        cost: 0, // Deprecated
+        actualCost: 0.01, // Exact from OpenRouter
       })
 
       tracker.trackCost({
@@ -260,7 +274,8 @@ describe('CostTracker', () => {
         inputTokens: 100,
         outputTokens: 200,
         totalTokens: 300,
-        cost: 0.02,
+        cost: 0, // Deprecated
+        actualCost: 0.02, // Exact from OpenRouter
         searchCost: 0.001,
       })
 
@@ -350,35 +365,6 @@ describe('CostTracker', () => {
   })
 })
 
-describe('MODEL_PRICING', () => {
-  test('contains pricing for major models', () => {
-    expect(MODEL_PRICING['openai/gpt-4']).toBeDefined()
-    expect(MODEL_PRICING['anthropic/claude-3.5-sonnet']).toBeDefined()
-    expect(MODEL_PRICING['google/gemini-2.5-pro']).toBeDefined()
-    expect(MODEL_PRICING['x-ai/grok-4']).toBeDefined()
-    expect(MODEL_PRICING['deepseek/deepseek-chat']).toBeDefined()
-  })
-
-  test('all models have input and output pricing', () => {
-    Object.entries(MODEL_PRICING).forEach(([model, pricing]) => {
-      expect(pricing.input).toBeGreaterThanOrEqual(0)
-      expect(pricing.output).toBeGreaterThanOrEqual(0)
-      expect(typeof pricing.input).toBe('number')
-      expect(typeof pricing.output).toBe('number')
-    })
-  })
-
-  test('free models have zero pricing', () => {
-    expect(MODEL_PRICING['google/gemini-2.0-flash-exp'].input).toBe(0)
-    expect(MODEL_PRICING['google/gemini-2.0-flash-exp'].output).toBe(0)
-  })
-
-  test('output cost is typically higher than input cost', () => {
-    // Most models charge more for output
-    expect(MODEL_PRICING['openai/gpt-4'].output).toBeGreaterThan(MODEL_PRICING['openai/gpt-4'].input)
-    expect(MODEL_PRICING['anthropic/claude-opus-4.1'].output).toBeGreaterThan(MODEL_PRICING['anthropic/claude-opus-4.1'].input)
-  })
-})
 
 describe('getSearchCost', () => {
   test('returns cost for Tavily', () => {
