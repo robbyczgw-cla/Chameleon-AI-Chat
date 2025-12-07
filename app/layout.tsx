@@ -7,6 +7,7 @@ import "./keyboard-optimizations.css"
 import { Toaster } from "@/components/ui/toaster"
 import { PWARegister } from "@/components/pwa-register"
 import { CookieConsentBanner } from "@/components/cookie-consent-banner"
+import { ChunkErrorHandler } from "@/components/chunk-error-handler"
 
 // Load all font choices
 const inter = Inter({
@@ -80,6 +81,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${roboto.variable} ${jetbrainsMono.variable} ${atkinsonHyperlegible.variable}`}
       >
+        <ChunkErrorHandler />
         <PWARegister />
         {children}
         <Toaster />

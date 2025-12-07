@@ -279,7 +279,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
       )
 
       updateChat(currentChat.id, { messages: updatedMessages })
-    }, [currentChat, updateChat])
+    }, [currentChat, updateChat]),
+    settings.apiKeys?.openRouter // Pass API key for exact cost fetching
   )
 
   const toggleReasoning = useCallback((messageId: string) => {
