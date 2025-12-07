@@ -12,7 +12,7 @@ export function MessageStats({ message }: MessageStatsProps) {
   const { stats, tokens } = message
 
   // Use exact cost from OpenRouter API (no more estimates!)
-  const cost = stats?.cost || null
+  const cost = stats?.actualCost || stats?.cost || null
 
   return (
     <div className="mt-3 p-3 rounded-lg border bg-muted/30 text-xs font-mono space-y-2">
