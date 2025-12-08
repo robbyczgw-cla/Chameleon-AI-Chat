@@ -319,6 +319,7 @@ export interface AppSettings {
     exa?: string
   }
   selectedModel: string
+  defaultModel?: string // User's custom default model for new chats (Advanced Mode setting)
   selectedModels?: string[] // Array of user's selected OpenRouter models (persisted to database)
   selectedPersona?: import("@/lib/personas").Persona // Currently selected persona
   customPersonas?: import("@/lib/personas").Persona[] // User-created custom personas (persisted to database)

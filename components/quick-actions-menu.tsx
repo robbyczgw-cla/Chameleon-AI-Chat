@@ -26,7 +26,20 @@ export function QuickActionsMenu({
   const { chats, currentChatId } = useApp()
   const { toast } = useToast()
   const [linkCopied, setLinkCopied] = useState(false)
-  const currentChat = chats.find((c) => c.id === currentChatId)
+
+  // Find current chat, with fallback to most recent chat with messages if currentChatId doesn't match
+  let currentChat = chats.find((c) => c.id === currentChatId)
+
+  // CRITICAL FIX: If no current chat found but chats exist, use the most recent chat with messages
+  // This prevents export buttons from being greyed out when chat state is out of sync
+  if (!currentChat && chats.length > 0) {
+    // Find most recent chat that has at least one message
+    currentChat = chats.find((c) => c.messages && c.messages.length > 0)
+    // If no chat has messages, use the first chat anyway
+    if (!currentChat) {
+      currentChat = chats[0]
+    }
+  }
 
   const handleExportMarkdown = () => {
     if (!currentChat) return
@@ -234,12 +247,12 @@ export function QuickActionsMenu({
         <DropdownMenuLabel>Export & Share</DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem onClick={handleExportHTML} disabled={!currentChat}>
+        <DropdownMenuItem onClick={handleExportHTML} disabled={!currentChat || !currentChat.messages?.length}>
           <Globe className="h-4 w-4 mr-2" />
           Export as HTML
         </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={handleExportMarkdown} disabled={!currentChat}>
+        <DropdownMenuItem onClick={handleExportMarkdown} disabled={!currentChat || !currentChat.messages?.length}>
           <FileText className="h-4 w-4 mr-2" />
           Export as Markdown
         </DropdownMenuItem>
@@ -249,7 +262,7 @@ export function QuickActionsMenu({
           Export as JSON
         </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={handleCopyShareLink} disabled={!currentChat}>
+        <DropdownMenuItem onClick={handleCopyShareLink} disabled={!currentChat || !currentChat.messages?.length}>
           {linkCopied ? (
             <>
               <Check className="h-4 w-4 mr-2 text-green-500" />

@@ -151,7 +151,8 @@
   --secondary: oklch(0.88 0.015 240);
   --secondary-foreground: oklch(0.22 0.01 240);
   --muted: oklch(0.87 0.02 240);
-  --muted-foreground: oklch(0.36 0.02 240);
+  /* FIX: Increased lightness from 0.36 to 0.48 for better readability in stats */
+  --muted-foreground: oklch(0.48 0.02 240);
   /* Safety orange accent for interactive elements */
   --accent: oklch(0.63 0.24 20);
   --accent-foreground: oklch(0.99 0 0);

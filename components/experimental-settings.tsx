@@ -3,16 +3,33 @@
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useApp } from "@/contexts/app-context"
-import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun, BarChart2 } from "lucide-react"
+import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun, BarChart2, Sparkles } from "lucide-react"
 import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
+import { getUserSelectedModels } from "@/lib/model-preferences"
+import { useEffect, useState } from "react"
 
 export function ExperimentalSettings() {
   const { settings, updateSettings } = useApp()
   const experimental = settings.experimental || {}
   const memorySettings = settings.memorySettings || {}
   const isAdvancedMode = !settings.simpleMode
+  const [availableModels, setAvailableModels] = useState<string[]>([])
+
+  // Load available models from user preferences
+  useEffect(() => {
+    const models = getUserSelectedModels()
+    setAvailableModels(models)
+
+    // Listen for model preference changes
+    const handleModelChange = () => {
+      setAvailableModels(getUserSelectedModels())
+    }
+    window.addEventListener("modelPreferencesChanged", handleModelChange)
+    return () => window.removeEventListener("modelPreferencesChanged", handleModelChange)
+  }, [])
 
   const handleExperimentalChange = (updates: Partial<typeof experimental>) => {
     updateSettings({
@@ -45,6 +62,50 @@ export function ExperimentalSettings() {
           </p>
         </div>
       </div>
+
+      {/* Default Model Selection (Advanced Mode Only) */}
+      {isAdvancedMode && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold">Default Model</h3>
+          </div>
+
+          <div className="space-y-4 pl-7">
+            <div className="p-4 border rounded-lg space-y-3">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">Default Model for New Chats</Label>
+                <p className="text-xs text-muted-foreground">
+                  Choose your preferred model for new conversations. System default: google/gemini-2.5-flash
+                </p>
+              </div>
+              <Select
+                value={settings.defaultModel || ""}
+                onValueChange={(value) => updateSettings({ defaultModel: value || undefined })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Use system default (Gemini 2.5 Flash)" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  <SelectItem value="">Use system default (Gemini 2.5 Flash)</SelectItem>
+                  {availableModels.map((model) => (
+                    <SelectItem key={model} value={model}>
+                      {model}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Info Box */}
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-xs text-blue-800 dark:text-blue-200">
+                <strong>Tip:</strong> Add more models to this list from the Model Management dialog (model icon in chat header). Your custom default is saved and synced across sessions.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Response Analysis Section */}
       <div className="space-y-4">
