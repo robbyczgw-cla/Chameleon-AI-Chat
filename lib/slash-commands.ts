@@ -84,6 +84,12 @@ export const SLASH_COMMANDS: SlashCommand[] = [
 
   // Analysis Commands
   {
+    command: "/perspectives",
+    description: "Explore through multiple expert viewpoints",
+    prompt: "For this question, identify 3-5 relevant expert perspectives (e.g., economist, ethicist, practitioner, critic, historian). Simulate what each would say - capture their actual concerns and reasoning authentically. Note where they agree and where they disagree. End with a synthesis of key insights, but don't flatten legitimate disagreements.\n\nQuestion: ",
+    category: "analysis"
+  },
+  {
     command: "/analyze",
     description: "Analyze in detail",
     prompt: "Please provide a detailed analysis of the following:\n\n",
