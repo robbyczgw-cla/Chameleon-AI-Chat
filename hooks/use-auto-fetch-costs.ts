@@ -48,7 +48,8 @@ export function useAutoFetchCosts(
         const response = await fetch(`/api/generation?id=${generationId}`, { headers })
 
         if (!response.ok) {
-          console.warn(`[AutoFetchCosts] Failed to fetch cost for ${msg.id.slice(0, 8)}:`, response.statusText)
+          const errorBody = await response.text().catch(() => "")
+          console.warn(`[AutoFetchCosts] Failed to fetch cost for ${msg.id.slice(0, 8)}: status=${response.status}, statusText="${response.statusText}", body="${errorBody}", apiKey=${apiKey ? "provided" : "missing"}`)
           return
         }
 
