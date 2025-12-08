@@ -11,6 +11,7 @@ export const MODEL_DESCRIPTIONS: Record<string, string> = {
   // OpenAI Models
   "openai/gpt-5-2025-08-07": "Neuestes GPT mit maximaler Intelligenz",
   "openai/gpt-5.1": "Verbesserte Version, sehr intelligent, empfohlen",
+  "openai/gpt-5.1-codex-mini": "Coding-optimiert, ausführlich, schnell & günstig",
   "openai/gpt-5-mini-2025-08-07": "Kompakt, schnell, smart & günstig",
   "openai/gpt-oss-120b": "Open Source Modell, sehr groß",
   "openai/gpt-oss-20b": "Open Source Modell, mittlere Größe",

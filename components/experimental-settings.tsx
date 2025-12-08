@@ -75,8 +75,8 @@ export function ExperimentalSettings() {
             <div className="p-4 border rounded-lg space-y-3">
               <div className="space-y-1">
                 <Label className="text-sm font-medium">Default Model for New Chats</Label>
-                <p className="text-xs text-muted-foreground">
-                  Choose your preferred model for new conversations. System default: google/gemini-2.5-flash
+<p className="text-xs text-muted-foreground">
+                  Choose your preferred model for new conversations. System default: openai/gpt-5.1-codex-mini
                 </p>
               </div>
               <Select
@@ -84,10 +84,10 @@ export function ExperimentalSettings() {
                 onValueChange={(value) => updateSettings({ defaultModel: value === "__system_default__" ? undefined : value })}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Use system default (Gemini 2.5 Flash)" />
+                  <SelectValue placeholder="Use system default (GPT-5.1 Codex Mini)" />
                 </SelectTrigger>
                 <SelectContent className="max-h-[300px] z-[9999]" position="popper" sideOffset={8} align="start">
-                  <SelectItem value="__system_default__">Use system default (Gemini 2.5 Flash)</SelectItem>
+                  <SelectItem value="__system_default__">Use system default (GPT-5.1 Codex Mini)</SelectItem>
                   {availableModels.map((model) => (
                     <SelectItem key={model} value={model}>
                       {model}
