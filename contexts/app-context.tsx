@@ -610,8 +610,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           console.error("[v0] Failed to save initial settings:", error)
         })
       } else {
-        // CRITICAL FIX: Load localStorage API keys FIRST to use as base
-        // This ensures we never lose API keys during sync
+        // CRITICAL FIX: Load localStorage settings FIRST to use as base
+        // This ensures we never lose API keys, language, or other user preferences during sync
         let baseSettings = { ...DEFAULT_SETTINGS }
         const localStorageSettings = localStorage.getItem("settings")
         if (localStorageSettings) {
@@ -626,6 +626,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 serper: localSettings.apiKeys.serper || "",
                 exa: localSettings.apiKeys.exa || "",
               }
+            }
+            // CRITICAL FIX: Preserve language from localStorage
+            // This prevents language resetting to English on PWA reload
+            if (localSettings.language) {
+              console.log("[v0] Preserving language from localStorage:", localSettings.language)
+              baseSettings.language = localSettings.language
             }
             // CRITICAL FIX: Also preserve memorySettings from localStorage
             // This allows users to override database settings locally
@@ -644,17 +650,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
         // Now merge with database settings (database wins for everything EXCEPT empty API keys)
         let mergedSettings = deepMergeSettings(baseSettings, settingsData)
 
-        // CRITICAL FIX: Restore localStorage memorySettings after merge
-        // This ensures the user's local memory preference isn't overwritten by database
+        // CRITICAL FIX: Restore localStorage preferences after merge
+        // This ensures the user's local preferences aren't overwritten by database
         if (localStorageSettings) {
           try {
             const localSettings = JSON.parse(localStorageSettings)
+            // Restore language preference
+            if (localSettings.language) {
+              console.log("[v0] Restoring localStorage language:", localSettings.language)
+              mergedSettings.language = localSettings.language
+            }
+            // Restore memory settings
             if (localSettings.memorySettings !== undefined) {
               console.log("[v0] Restoring localStorage memorySettings.enabled:", localSettings.memorySettings?.enabled)
               mergedSettings.memorySettings = {
                 ...mergedSettings.memorySettings,
                 ...localSettings.memorySettings,
               }
+            }
+            // Restore simpleMode preference
+            if (localSettings.simpleMode !== undefined) {
+              console.log("[v0] Restoring localStorage simpleMode:", localSettings.simpleMode)
+              mergedSettings.simpleMode = localSettings.simpleMode
+            }
+            // Restore fontSize preference
+            if (localSettings.fontSize) {
+              mergedSettings.fontSize = localSettings.fontSize
             }
           } catch (e) {
             // Already logged above
