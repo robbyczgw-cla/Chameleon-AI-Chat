@@ -91,7 +91,7 @@ export class SupabaseSync {
       chat_id: chatId,
       role: message.role,
       content: message.content,
-      model: message.model || "x-ai/grok-4.1-fast:free",
+      model: message.model || "openai/gpt-5.1-codex-mini",
       created_at: new Date(message.timestamp).toISOString(),
     })
 
