@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { User, Palette, Key, Volume2, Settings2, ChevronRight, Search, Brain, HelpCircle } from "lucide-react"
-import { Sparkles } from "lucide-react"
+import { User, Palette, Key, Volume2, Settings2, ChevronRight, Search, Brain, HelpCircle, Bot } from "lucide-react"
+import { Sparkles, Zap, Shield, DollarSign } from "lucide-react"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { useToast } from "@/hooks/use-toast"
@@ -110,6 +110,23 @@ const translations = {
     save: "Save",
     settingsSaved: "Settings saved!",
     preferencesUpdated: "Your preferences have been updated.",
+    // AI Model section
+    aiModel: "AI Model",
+    chooseAiModel: "Choose Your AI Model",
+    chooseAiModelDesc: "Select which AI brain powers your conversations. Each has different strengths.",
+    modelGemini: "Gemini 2.5 Flash",
+    modelGeminiDesc: "Best all-around choice. Fast, smart, and affordable. Great for everyday tasks.",
+    modelGeminiStrengths: "Fast responses • Great value • Reliable",
+    modelGrok: "Grok 4.1 Fast",
+    modelGrokDesc: "Premium reliability. Best for complex tasks and research that needs precision.",
+    modelGrokStrengths: "Most reliable • Best for research • Premium quality",
+    modelHaiku: "Claude Haiku 4.5",
+    modelHaikuDesc: "Quick and concise. Perfect for simple questions and fast responses.",
+    modelHaikuStrengths: "Ultra fast • Budget friendly • Simple tasks",
+    recommended: "Recommended",
+    premium: "Premium",
+    budget: "Budget",
+    currentModel: "Current model",
   },
   de: {
     settings: "Einstellungen",
@@ -203,6 +220,23 @@ const translations = {
     save: "Speichern",
     settingsSaved: "Einstellungen gespeichert!",
     preferencesUpdated: "Deine Einstellungen wurden aktualisiert.",
+    // AI Model section
+    aiModel: "KI-Modell",
+    chooseAiModel: "Wähle dein KI-Modell",
+    chooseAiModelDesc: "Wähle welches KI-Gehirn deine Gespräche steuert. Jedes hat unterschiedliche Stärken.",
+    modelGemini: "Gemini 2.5 Flash",
+    modelGeminiDesc: "Beste Allround-Wahl. Schnell, intelligent und erschwinglich. Ideal für tägliche Aufgaben.",
+    modelGeminiStrengths: "Schnelle Antworten • Gutes Preis-Leistungs-Verhältnis • Zuverlässig",
+    modelGrok: "Grok 4.1 Fast",
+    modelGrokDesc: "Premium-Zuverlässigkeit. Am besten für komplexe Aufgaben und Recherche mit Präzision.",
+    modelGrokStrengths: "Am zuverlässigsten • Beste Recherche • Premium-Qualität",
+    modelHaiku: "Claude Haiku 4.5",
+    modelHaikuDesc: "Schnell und prägnant. Perfekt für einfache Fragen und schnelle Antworten.",
+    modelHaikuStrengths: "Ultra schnell • Budgetfreundlich • Einfache Aufgaben",
+    recommended: "Empfohlen",
+    premium: "Premium",
+    budget: "Budget",
+    currentModel: "Aktuelles Modell",
   },
   es: {
     settings: "Configuración",
@@ -296,8 +330,53 @@ const translations = {
     save: "Guardar",
     settingsSaved: "¡Configuración guardada!",
     preferencesUpdated: "Tus preferencias han sido actualizadas.",
+    // AI Model section
+    aiModel: "Modelo IA",
+    chooseAiModel: "Elige tu Modelo de IA",
+    chooseAiModelDesc: "Selecciona qué cerebro de IA impulsa tus conversaciones. Cada uno tiene diferentes fortalezas.",
+    modelGemini: "Gemini 2.5 Flash",
+    modelGeminiDesc: "La mejor opción general. Rápido, inteligente y asequible. Ideal para tareas cotidianas.",
+    modelGeminiStrengths: "Respuestas rápidas • Gran valor • Confiable",
+    modelGrok: "Grok 4.1 Fast",
+    modelGrokDesc: "Fiabilidad premium. Mejor para tareas complejas e investigación que necesita precisión.",
+    modelGrokStrengths: "Más confiable • Mejor para investigación • Calidad premium",
+    modelHaiku: "Claude Haiku 4.5",
+    modelHaikuDesc: "Rápido y conciso. Perfecto para preguntas simples y respuestas rápidas.",
+    modelHaikuStrengths: "Ultra rápido • Económico • Tareas simples",
+    recommended: "Recomendado",
+    premium: "Premium",
+    budget: "Económico",
+    currentModel: "Modelo actual",
   },
 }
+
+// Simple Mode curated models with user-friendly descriptions
+const SIMPLE_MODE_MODELS = [
+  {
+    id: "google/gemini-2.5-flash",
+    badge: "recommended",
+    icon: "⚡",
+    color: "from-blue-500 to-cyan-500",
+    borderColor: "border-blue-500",
+    bgColor: "bg-blue-500/10",
+  },
+  {
+    id: "x-ai/grok-4.1-fast",
+    badge: "premium",
+    icon: "🚀",
+    color: "from-purple-500 to-pink-500",
+    borderColor: "border-purple-500",
+    bgColor: "bg-purple-500/10",
+  },
+  {
+    id: "anthropic/claude-haiku-4.5",
+    badge: "budget",
+    icon: "💨",
+    color: "from-green-500 to-emerald-500",
+    borderColor: "border-green-500",
+    bgColor: "bg-green-500/10",
+  },
+]
 
 interface SimpleSettingsDialogProps {
   open: boolean
@@ -416,10 +495,14 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full min-w-0">
-          <TabsList className="grid grid-cols-7 gap-1 w-full">
+          <TabsList className="grid grid-cols-8 gap-1 w-full">
             <TabsTrigger value="profile" className="text-xs gap-1 px-1">
               <User className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.profile}</span>
+            </TabsTrigger>
+            <TabsTrigger value="model" className="text-xs gap-1 px-1">
+              <Bot className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t.aiModel}</span>
             </TabsTrigger>
             <TabsTrigger value="appearance" className="text-xs gap-1 px-1">
               <Palette className="h-3.5 w-3.5" />
@@ -508,6 +591,133 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 <span>{t.editFullProfile}</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
+            </TabsContent>
+
+            {/* AI Model Tab */}
+            <TabsContent value="model" className="space-y-4 mt-0">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                    <Bot className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{t.chooseAiModel}</h3>
+                    <p className="text-xs text-muted-foreground">{t.chooseAiModelDesc}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {/* Gemini 2.5 Flash - Recommended */}
+                <button
+                  type="button"
+                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "google/gemini-2.5-flash" })}
+                  className={cn(
+                    "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
+                    (localSettings.defaultModel === "google/gemini-2.5-flash" || (!localSettings.defaultModel && localSettings.selectedModel === "google/gemini-2.5-flash"))
+                      ? "border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20"
+                      : "border-border/60 hover:border-blue-300 bg-background/50"
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-2xl flex-shrink-0">
+                      ⚡
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold">{t.modelGemini}</span>
+                        <Badge className="bg-blue-500 text-white text-[10px] px-1.5">{t.recommended}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{t.modelGeminiDesc}</p>
+                      <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400">
+                        <Zap className="h-3 w-3" />
+                        <span>{t.modelGeminiStrengths}</span>
+                      </div>
+                    </div>
+                    {(localSettings.defaultModel === "google/gemini-2.5-flash" || (!localSettings.defaultModel && localSettings.selectedModel === "google/gemini-2.5-flash")) && (
+                      <div className="h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                        <div className="h-2 w-2 rounded-full bg-white" />
+                      </div>
+                    )}
+                  </div>
+                </button>
+
+                {/* Grok 4.1 Fast - Premium */}
+                <button
+                  type="button"
+                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "x-ai/grok-4.1-fast" })}
+                  className={cn(
+                    "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
+                    localSettings.defaultModel === "x-ai/grok-4.1-fast"
+                      ? "border-purple-500 bg-purple-500/10 ring-2 ring-purple-500/20"
+                      : "border-border/60 hover:border-purple-300 bg-background/50"
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl flex-shrink-0">
+                      🚀
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold">{t.modelGrok}</span>
+                        <Badge className="bg-purple-500 text-white text-[10px] px-1.5">{t.premium}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{t.modelGrokDesc}</p>
+                      <div className="flex items-center gap-1.5 text-xs text-purple-600 dark:text-purple-400">
+                        <Shield className="h-3 w-3" />
+                        <span>{t.modelGrokStrengths}</span>
+                      </div>
+                    </div>
+                    {localSettings.defaultModel === "x-ai/grok-4.1-fast" && (
+                      <div className="h-5 w-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0">
+                        <div className="h-2 w-2 rounded-full bg-white" />
+                      </div>
+                    )}
+                  </div>
+                </button>
+
+                {/* Claude Haiku 4.5 - Budget */}
+                <button
+                  type="button"
+                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "anthropic/claude-haiku-4.5" })}
+                  className={cn(
+                    "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
+                    localSettings.defaultModel === "anthropic/claude-haiku-4.5"
+                      ? "border-green-500 bg-green-500/10 ring-2 ring-green-500/20"
+                      : "border-border/60 hover:border-green-300 bg-background/50"
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-2xl flex-shrink-0">
+                      💨
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold">{t.modelHaiku}</span>
+                        <Badge className="bg-green-500 text-white text-[10px] px-1.5">{t.budget}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{t.modelHaikuDesc}</p>
+                      <div className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400">
+                        <DollarSign className="h-3 w-3" />
+                        <span>{t.modelHaikuStrengths}</span>
+                      </div>
+                    </div>
+                    {localSettings.defaultModel === "anthropic/claude-haiku-4.5" && (
+                      <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                        <div className="h-2 w-2 rounded-full bg-white" />
+                      </div>
+                    )}
+                  </div>
+                </button>
+              </div>
+
+              {/* Current model info */}
+              <div className="p-3 rounded-lg bg-muted/50 border border-border/40">
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-medium">{t.currentModel}:</span>{" "}
+                  <span className="font-mono">{localSettings.defaultModel || localSettings.selectedModel || "google/gemini-2.5-flash"}</span>
+                </p>
+              </div>
             </TabsContent>
 
             {/* Appearance Tab */}
