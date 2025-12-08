@@ -86,7 +86,7 @@ export function ExperimentalSettings() {
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Use system default (Gemini 2.5 Flash)" />
                 </SelectTrigger>
-                <SelectContent className="max-h-[300px]" position="popper" sideOffset={4}>
+                <SelectContent className="max-h-[300px] z-[9999]" position="popper" sideOffset={8} align="start">
                   <SelectItem value="__system_default__">Use system default (Gemini 2.5 Flash)</SelectItem>
                   {availableModels.map((model) => (
                     <SelectItem key={model} value={model}>

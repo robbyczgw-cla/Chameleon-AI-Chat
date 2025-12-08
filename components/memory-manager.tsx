@@ -478,12 +478,15 @@ export function MemoryManager() {
 
       {/* Add Memory Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-md" style={{ minWidth: '320px' }}>
-          <DialogHeader>
+        <DialogContent
+          className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-md max-h-[90vh] overflow-hidden flex flex-col"
+          style={{ minWidth: '320px' }}
+        >
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>Add New Memory</DialogTitle>
             <DialogDescription>Create a new memory to maintain context across conversations</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Type</label>
               <select
@@ -528,7 +531,7 @@ export function MemoryManager() {
               </select>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-shrink-0">
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
               Cancel
             </Button>
@@ -539,13 +542,16 @@ export function MemoryManager() {
 
       {/* Edit Memory Dialog */}
       <Dialog open={!!editingMemory} onOpenChange={(open) => !open && setEditingMemory(null)}>
-        <DialogContent className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-md" style={{ minWidth: '320px' }}>
-          <DialogHeader>
+        <DialogContent
+          className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-md max-h-[90vh] overflow-hidden flex flex-col"
+          style={{ minWidth: '320px' }}
+        >
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>Edit Memory</DialogTitle>
             <DialogDescription>Update the memory details</DialogDescription>
           </DialogHeader>
           {editingMemory && (
-            <div className="space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Type</label>
                 <select
@@ -589,7 +595,7 @@ export function MemoryManager() {
               </div>
             </div>
           )}
-          <DialogFooter>
+          <DialogFooter className="flex-shrink-0">
             <Button variant="outline" onClick={() => setEditingMemory(null)}>
               Cancel
             </Button>
