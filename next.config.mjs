@@ -1,9 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
+    // TODO: Fix all type errors and set to false
     ignoreBuildErrors: true,
   },
   images: {
+    // Enable modern image formats for 40-60% smaller files
+    formats: ['image/avif', 'image/webp'],
+    // Cache images for 1 year (they have content-based hashes)
+    minimumCacheTTL: 60 * 60 * 24 * 365,
+    // Optimized device sizes for mobile-first
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    // Image sizes for thumbnails and icons
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       {
         protocol: 'https',
@@ -55,7 +64,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net; media-src 'self' blob:; connect-src 'self' https://*.supabase.co https://openrouter.ai https://api.openai.com https://api.tavily.com https://google.serper.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://*.vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; media-src 'self' blob:; connect-src 'self' https://*.supabase.co https://openrouter.ai https://api.openai.com https://api.anthropic.com https://api.tavily.com https://google.serper.dev https://vercel.live https://*.vercel.live wss://*.vercel.live; frame-src https://vercel.live https://*.vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
           },
         ],
       },

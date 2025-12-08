@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.2.0'
+const CACHE_VERSION = 'v2.3.0'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 const SIMPLE_MODE_CACHE = `ai-chat-simple-${CACHE_VERSION}`
@@ -56,11 +56,11 @@ const RUNTIME_PRECACHE = [
   '/placeholder-logo.png',
 ]
 
-// INSTANT timeouts - prefer cached content over slow network
-// This fixes the "page not found" issue on Android after backgrounding
-const NETWORK_TIMEOUT_NAVIGATION = 800   // 0.8 seconds for pages (was 1s)
-const NETWORK_TIMEOUT_ASSET = 400        // 0.4 seconds for assets (was 500ms)
-const NETWORK_TIMEOUT_RESUME = 200       // 0.2 seconds when resuming from background
+// Timeouts - balanced for first load vs cached experience
+// INCREASED: First deployment needs more time for cold start
+const NETWORK_TIMEOUT_NAVIGATION = 3000  // 3 seconds for pages (increased for cold start)
+const NETWORK_TIMEOUT_ASSET = 2000       // 2 seconds for assets (increased for first load)
+const NETWORK_TIMEOUT_RESUME = 500       // 0.5 seconds when resuming from background
 
 // Track if we're resuming from background
 let isResuming = false
@@ -68,7 +68,7 @@ let lastActiveTime = Date.now()
 
 // Install event - precache ALL critical assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker v2.1.3 with aggressive precaching')
+  console.log('[SW] Installing service worker v2.3.0 with improved first-load handling')
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       console.log('[SW] Precaching critical assets...')
@@ -393,7 +393,10 @@ async function handleAsset(event) {
       return createPlaceholderImage()
     }
 
-    return new Response('', { status: 503, statusText: 'Service Unavailable' })
+    // Don't return 503 - let the browser handle the failure and retry
+    // Returning 503 from SW causes cascade failures on first load
+    // Instead, re-throw to let the browser's native fetch handle it
+    throw error
   }
 }
 
@@ -427,6 +430,14 @@ self.addEventListener('fetch', (event) => {
       url.hostname.includes('supabase') ||
       url.hostname.includes('openrouter') ||
       url.hostname.includes('tavily')) {
+    return
+  }
+
+  // CRITICAL: Skip ALL _next/static requests - let browser handle chunks directly
+  // This prevents 503 errors on first load after deployment when cache is cold
+  if (url.pathname.startsWith('/_next/static')) {
+    // Don't intercept Next.js chunks, CSS, or other static assets
+    // Browser will handle these directly with proper retry logic
     return
   }
 
@@ -591,4 +602,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.2.0 loaded - iOS PWA optimized, simple mode support, navigation passthrough')
+console.log('[SW] Service Worker v2.3.0 loaded - Fixed first-load chunk handling, skip _next/static, no 503 errors')
