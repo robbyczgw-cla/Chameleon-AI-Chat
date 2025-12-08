@@ -963,7 +963,11 @@ export function ChatInput() {
       if (messageAdded && assistantContent) {
         const completionTokens = estimateTokens(assistantContent)
         const totalTokens = promptTokens + completionTokens
-        const estimatedCost = 0 // Now using exact costs from OpenRouter API
+        // Simple fallback cost estimate (exact costs fetched async via useAutoFetchCosts)
+        // Use rough pricing: ~$0.50/1M input, ~$1.50/1M output (cheap model average)
+        const inputCost = (promptTokens / 1_000_000) * 0.50
+        const outputCost = (completionTokens / 1_000_000) * 1.50
+        const estimatedCost = inputCost + outputCost
 
         // Get streaming history for verbose display on completed messages
         const streamingHistoryForMessage = getStreamingHistory()
