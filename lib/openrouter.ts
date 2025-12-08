@@ -216,6 +216,8 @@ export async function streamChatMessage(
     onSearchQuery?: (query: string) => void
     // Generation ID callback for exact cost tracking
     onGenerationId?: (generationId: string) => void
+    // Stop reason callback (e.g., "stop", "length", "tool_calls")
+    onStopReason?: (stopReason: string) => void
     // Enhanced streaming details callback (for advanced mode)
     onStreamingDetails?: (details: {
       phase?: string
@@ -259,6 +261,7 @@ export async function streamChatMessage(
     onToolUse,
     onSearchQuery,
     onGenerationId,
+    onStopReason,
     // Enhanced streaming details
     onStreamingDetails,
   } = options
@@ -367,6 +370,10 @@ export async function streamChatMessage(
         }
         if (lastFinishReason === "length") {
           console.warn("[v0] ⚠️ WARNING: Stream ended due to LENGTH limit - maxTokens might be too low!")
+        }
+        // Call stop reason callback if provided
+        if (onStopReason && lastFinishReason) {
+          onStopReason(lastFinishReason)
         }
         break
       }

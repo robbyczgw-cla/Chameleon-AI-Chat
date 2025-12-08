@@ -744,6 +744,7 @@ export function ChatInput() {
       let reasoningContent = ""
       let messageAdded = false
       let capturedGenerationId = "" // For exact cost tracking
+      let capturedStopReason = "" // For stop reason stats
 
       console.log("[v0] Creating assistant message:", assistantMessageId)
 
@@ -788,7 +789,15 @@ export function ChatInput() {
       })
       console.log("[v0] Inspector data captured")
 
+      // Performance tracking
+      const streamStartTime = Date.now()
+      let firstTokenTime: number | null = null
+
       const onChunk = (chunk: string) => {
+        // Track time to first token
+        if (!firstTokenTime) {
+          firstTokenTime = Date.now() - streamStartTime
+        }
         assistantContent += chunk
 
         setChats((prevChats) => {
@@ -921,6 +930,11 @@ export function ChatInput() {
           console.log("[Advanced Chat] 💰 Generation ID captured:", generationId)
           capturedGenerationId = generationId
         },
+        // Capture stop reason for stats
+        onStopReason: (reason) => {
+          console.log("[Advanced Chat] 🛑 Stop reason:", reason)
+          capturedStopReason = reason
+        },
         // Enhanced streaming details for advanced mode
         onStreamingDetails: (details) => {
           // Accumulate reasoning content instead of replacing it
@@ -960,6 +974,9 @@ export function ChatInput() {
 
       console.log("[v0] Stream complete, final content length:", assistantContent.length)
 
+      // Calculate performance stats
+      const responseTime = (Date.now() - streamStartTime) / 1000 // in seconds
+
       if (messageAdded && assistantContent) {
         const completionTokens = estimateTokens(assistantContent)
         const totalTokens = promptTokens + completionTokens
@@ -968,6 +985,9 @@ export function ChatInput() {
         const inputCost = (promptTokens / 1_000_000) * 0.50
         const outputCost = (completionTokens / 1_000_000) * 1.50
         const estimatedCost = inputCost + outputCost
+
+        // Calculate tokens per second
+        const tokensPerSecond = responseTime > 0 ? completionTokens / responseTime : 0
 
         // Get streaming history for verbose display on completed messages
         const streamingHistoryForMessage = getStreamingHistory()
@@ -985,7 +1005,11 @@ export function ChatInput() {
           stats: {
             model,
             cost: estimatedCost,
+            responseTime,
+            tokensPerSecond,
+            ...(firstTokenTime !== null && { firstTokenTime: firstTokenTime / 1000 }), // Convert to seconds
             ...(capturedGenerationId && { generationId: capturedGenerationId }),
+            ...(capturedStopReason && { stopReason: capturedStopReason }),
           },
           ...(reasoningContent ? { reasoning: reasoningContent } : {}),
           ...(streamingHistoryForMessage.length > 0 ? { streamingHistory: streamingHistoryForMessage } : {}),
