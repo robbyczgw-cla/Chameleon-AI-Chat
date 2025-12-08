@@ -995,11 +995,16 @@ export function SimpleChatApp() {
         onProfileUpdate={handleProfileUpdate}
       />
       <Dialog open={isMemoryOpen} onOpenChange={setIsMemoryOpen}>
-        <DialogContent className="max-w-[900px] max-h-[80vh] overflow-hidden">
-          <DialogHeader className="sr-only">
+        <DialogContent
+          className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-[900px] max-h-[90vh] overflow-hidden flex flex-col"
+          style={{ minWidth: '320px' }}
+        >
+          <DialogHeader className="sr-only flex-shrink-0">
             <DialogTitle>Memory System</DialogTitle>
           </DialogHeader>
-          <MemoryManager />
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <MemoryManager />
+          </div>
         </DialogContent>
       </Dialog>
 

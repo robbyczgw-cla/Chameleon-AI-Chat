@@ -27,6 +27,7 @@ const translations = {
     memory: "Memory",
     api: "API",
     help: "Help",
+    advancedSettings: "Settings",
     welcomeBack: "Welcome back",
     setYourName: "Set your name below",
     yourName: "Your Name",
@@ -121,8 +122,8 @@ const translations = {
     modelGrokDesc: "Premium reliability. Best for complex tasks and research that needs precision.",
     modelGrokStrengths: "Most reliable • Best for research • Premium quality",
     modelHaiku: "Claude Haiku 4.5",
-    modelHaikuDesc: "Quick and concise. Perfect for simple questions and fast responses.",
-    modelHaikuStrengths: "Ultra fast • Budget friendly • Simple tasks",
+    modelHaikuDesc: "Fast and smart. Great for everyday tasks, coding, and quick analysis.",
+    modelHaikuStrengths: "Lightning fast • Cost effective • Versatile",
     recommended: "Recommended",
     premium: "Premium",
     budget: "Budget",
@@ -137,6 +138,7 @@ const translations = {
     memory: "Gedächtnis",
     api: "API",
     help: "Hilfe",
+    advancedSettings: "Einstellungen",
     welcomeBack: "Willkommen zurück",
     setYourName: "Gib deinen Namen unten ein",
     yourName: "Dein Name",
@@ -231,8 +233,8 @@ const translations = {
     modelGrokDesc: "Premium-Zuverlässigkeit. Am besten für komplexe Aufgaben und Recherche mit Präzision.",
     modelGrokStrengths: "Am zuverlässigsten • Beste Recherche • Premium-Qualität",
     modelHaiku: "Claude Haiku 4.5",
-    modelHaikuDesc: "Schnell und prägnant. Perfekt für einfache Fragen und schnelle Antworten.",
-    modelHaikuStrengths: "Ultra schnell • Budgetfreundlich • Einfache Aufgaben",
+    modelHaikuDesc: "Schnell und intelligent. Ideal für alltägliche Aufgaben, Programmierung und schnelle Analysen.",
+    modelHaikuStrengths: "Blitzschnell • Kostengünstig • Vielseitig",
     recommended: "Empfohlen",
     premium: "Premium",
     budget: "Budget",
@@ -247,6 +249,7 @@ const translations = {
     memory: "Memoria",
     api: "API",
     help: "Ayuda",
+    advancedSettings: "Configuración",
     welcomeBack: "Bienvenido de nuevo",
     setYourName: "Introduce tu nombre abajo",
     yourName: "Tu Nombre",
@@ -341,8 +344,8 @@ const translations = {
     modelGrokDesc: "Fiabilidad premium. Mejor para tareas complejas e investigación que necesita precisión.",
     modelGrokStrengths: "Más confiable • Mejor para investigación • Calidad premium",
     modelHaiku: "Claude Haiku 4.5",
-    modelHaikuDesc: "Rápido y conciso. Perfecto para preguntas simples y respuestas rápidas.",
-    modelHaikuStrengths: "Ultra rápido • Económico • Tareas simples",
+    modelHaikuDesc: "Rápido e inteligente. Excelente para tareas diarias, programación y análisis rápidos.",
+    modelHaikuStrengths: "Muy rápido • Económico • Versátil",
     recommended: "Recomendado",
     premium: "Premium",
     budget: "Económico",
@@ -495,7 +498,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full min-w-0">
-          <TabsList className="grid grid-cols-8 gap-1 w-full">
+          <TabsList className="grid grid-cols-9 gap-1 w-full">
             <TabsTrigger value="profile" className="text-xs gap-1 px-1">
               <User className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.profile}</span>
@@ -527,6 +530,10 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
             <TabsTrigger value="help" className="text-xs gap-1 px-1">
               <HelpCircle className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.help}</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs gap-1 px-1">
+              <Settings2 className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t.advancedSettings}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -1265,20 +1272,35 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 <p className="text-xs text-muted-foreground">{t.privacyText}</p>
               </div>
             </TabsContent>
+
+            {/* Settings Tab */}
+            <TabsContent value="settings" className="space-y-4 mt-0">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-violet-500/10 border border-purple-500/20">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
+                    <Settings2 className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{t.advancedMode}</h3>
+                    <p className="text-xs text-muted-foreground">{t.canSwitchBack}</p>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                variant="outline"
+                className="w-full justify-between"
+                onClick={switchToAdvancedMode}
+              >
+                <span>{t.switchToAdvanced}</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </TabsContent>
           </div>
         </Tabs>
 
         {/* Footer */}
         <div className="flex flex-col gap-2 pt-3 border-t flex-shrink-0 mt-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="justify-start text-muted-foreground hover:text-foreground"
-            onClick={switchToAdvancedMode}
-          >
-            <Settings2 className="h-4 w-4 mr-2" />
-            {t.switchToAdvanced}
-          </Button>
 
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
