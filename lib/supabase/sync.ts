@@ -259,7 +259,7 @@ export class SupabaseSync {
         frequency_penalty: settings.modelParameters.frequencyPenalty,
         presence_penalty: settings.modelParameters.presencePenalty,
         selected_model: settings.selectedModel,
-        selected_models: settings.selectedModels || ["x-ai/grok-4.1-fast:free"],
+        selected_models: settings.selectedModels || ["openai/gpt-5.1-codex-mini"],
         tavily_search_depth: settings.tavilySettings.searchDepth,
         tavily_max_results: settings.tavilySettings.maxResults,
         tavily_include_images: settings.tavilySettings.includeImages,
@@ -785,8 +785,8 @@ export class SupabaseSync {
         frequencyPenalty: Number.parseFloat(dbSettings.frequency_penalty) || 0.0,
         presencePenalty: Number.parseFloat(dbSettings.presence_penalty) || 0.0,
       },
-      selectedModel: dbSettings.selected_model || "x-ai/grok-4.1-fast:free",
-      selectedModels: dbSettings.selected_models || ["x-ai/grok-4.1-fast:free"],
+      selectedModel: dbSettings.selected_model || "openai/gpt-5.1-codex-mini",
+      selectedModels: dbSettings.selected_models || ["openai/gpt-5.1-codex-mini"],
       apiKeys: {
         // CRITICAL: Return undefined for NULL database values instead of empty strings
         // This allows localStorage keys to be preserved during merge in app-context
