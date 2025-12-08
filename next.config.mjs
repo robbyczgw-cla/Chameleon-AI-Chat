@@ -1,9 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
+    // TODO: Fix all type errors and set to false
     ignoreBuildErrors: true,
   },
   images: {
+    // Enable modern image formats for 40-60% smaller files
+    formats: ['image/avif', 'image/webp'],
+    // Cache images for 1 year (they have content-based hashes)
+    minimumCacheTTL: 60 * 60 * 24 * 365,
+    // Optimized device sizes for mobile-first
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    // Image sizes for thumbnails and icons
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       {
         protocol: 'https',
