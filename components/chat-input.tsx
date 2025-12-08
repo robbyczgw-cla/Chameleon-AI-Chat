@@ -988,7 +988,7 @@ export function ChatInput() {
         }
 
         if (user) {
-          console.log("[v0] Saving final message to Supabase with tokens:", totalTokens)
+          console.log("[v0] Saving final message to Supabase with tokens:", totalTokens, "stats:", JSON.stringify(finalMessage.stats))
           // CRITICAL: Save message FIRST, then track usage (to avoid FK violation)
           supabaseSync
             .createMessage(finalMessage, chatId)
@@ -1009,6 +1009,7 @@ export function ChatInput() {
             })
         }
 
+        console.log("[v0] Updating chat state with stats:", JSON.stringify(finalMessage.stats))
         setChats((prevChats) => {
           return prevChats.map((chat) => {
             if (chat.id !== chatId) return chat
