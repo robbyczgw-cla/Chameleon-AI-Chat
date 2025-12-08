@@ -86,12 +86,24 @@ export class SupabaseSync {
   async createMessage(message: Message, chatId: string): Promise<void> {
     console.log("[v0] supabaseSync.createMessage called:", { chatId, messageId: message.id, role: message.role })
 
+    // Get the actual model used from stats (where it's actually stored in the Message type)
+    const modelUsed = message.stats?.model || null
+
+    // Warn if assistant message is missing model info (shouldn't happen)
+    if (!modelUsed && message.role === "assistant") {
+      console.warn("[v0] ⚠️ Assistant message missing model info!", {
+        messageId: message.id,
+        chatId,
+        hasStats: !!message.stats,
+      })
+    }
+
     const { error } = await this.supabase.from("messages").insert({
       id: message.id, // Use existing UUID from message object
       chat_id: chatId,
       role: message.role,
       content: message.content,
-      model: message.model || "openai/gpt-5.1-codex-mini",
+      model: modelUsed, // Store actual model used, or NULL if unknown (don't lie!)
       created_at: new Date(message.timestamp).toISOString(),
     })
 
@@ -99,7 +111,7 @@ export class SupabaseSync {
       console.error("[v0] ERROR saving message to Supabase:", error)
       throw error
     }
-    console.log("[v0] Message saved successfully to Supabase:", message.id)
+    console.log("[v0] Message saved successfully to Supabase:", message.id, "model:", modelUsed)
   }
 
   async deleteMessage(messageId: string): Promise<void> {
