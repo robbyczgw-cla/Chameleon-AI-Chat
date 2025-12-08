@@ -72,8 +72,8 @@ const DEFAULT_SETTINGS: AppSettings = {
     serper: "",
     exa: "",
   },
-  selectedModel: "z-ai/glm-4.6:exacto",
-  selectedModels: ["z-ai/glm-4.6:exacto"],
+  selectedModel: "google/gemini-2.5-flash",
+  selectedModels: ["google/gemini-2.5-flash"],
   searchProvider: "tavily", // Default to Tavily, can switch to Serper
   modelParameters: {
     temperature: 0.7,
@@ -896,13 +896,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const createChat = useCallback((model?: string): string => {
     const chatId = generateUUID()
 
+    // Use provided model, or user's custom default model (Advanced Mode), or system default
+    const chatModel = model || settings.defaultModel || settings.selectedModel
+
     const newChat: Chat = {
       id: chatId,
       title: "New Chat",
       messages: [],
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      model: model || settings.selectedModel, // Use provided model or default to settings
+      model: chatModel,
     }
 
     setChats((prev) => [newChat, ...prev])
@@ -927,7 +930,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     return newChat.id
-  }, [settings.selectedModel, user])
+  }, [settings.defaultModel, settings.selectedModel, user])
 
   const deleteChat = useCallback((chatId: string) => {
     setChats((prev) => prev.filter((chat) => chat.id !== chatId))

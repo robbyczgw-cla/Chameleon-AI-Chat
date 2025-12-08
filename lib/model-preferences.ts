@@ -4,19 +4,19 @@
  */
 
 const STORAGE_KEY = "user-selected-models"
-const DEFAULT_MODEL = "x-ai/grok-4.1-fast"
+const DEFAULT_MODEL = "google/gemini-2.5-flash" // Best value: Fast, cheap, 98% tool calling success
 const MAX_MODELS = 30
 
-// Default starting models for new users
+// Default starting models for new users - December 2025 optimized
 const DEFAULT_STARTING_MODELS = [
-  "x-ai/grok-4.1-fast", // ALWAYS the default - Fast, reliable, excellent multi-step tool calling
+  "google/gemini-2.5-flash", // ALWAYS the default - Best value, fast, excellent tool calling
+  "x-ai/grok-4.1-fast", // Maximum reliability for agents
+  "anthropic/claude-4.5-sonnet-20250929", // Best coding & long-running tasks
+  "openai/gpt-5.1", // Strong reasoning
+  "google/gemini-3-pro", // Best reasoning benchmarks
+  "anthropic/claude-haiku-4.5", // Fast & cheap
+  "x-ai/grok-4-fast:free", // Free option
   "minimax/m2",
-  "anthropic/claude-haiku-4.5",
-  "google/gemini-2.5-flash",
-  "x-ai/grok-4-fast:free",
-  "anthropic/claude-4.5-sonnet-20250929",
-  "openai/gpt-5.1",
-  "google/gemini-3-pro",
   "moonshotai/kimi-k2-thinking",
   "qwen/qwen3-max",
   "openai/gpt-oss-120b",
