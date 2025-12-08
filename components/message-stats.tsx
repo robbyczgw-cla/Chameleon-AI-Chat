@@ -129,7 +129,7 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
             <StatRow
               label="Rate"
               value={`$${costPerKToken.toFixed(4)}/1K`}
-              valueClass="text-muted-foreground"
+              valueClass="opacity-75"
             />
           )}
         </div>
@@ -211,7 +211,7 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
             <StatRow
               label="Estimate Diff"
               value={`${((stats.nativeTokensPrompt - tokens.prompt) / tokens.prompt * 100).toFixed(1)}%`}
-              valueClass="text-muted-foreground"
+              valueClass="opacity-75"
             />
           )}
         </CollapsibleSection>
@@ -246,7 +246,7 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
             <StatRow
               label="Generation Time"
               value={`${(stats.responseTime - stats.firstTokenTime).toFixed(2)}s`}
-              valueClass="text-muted-foreground"
+              valueClass="opacity-75"
             />
           )}
         </CollapsibleSection>
@@ -277,14 +277,14 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
             <StatRow
               label="Input:Output"
               value={`${inputOutputRatio.toFixed(2)}:1`}
-              valueClass="text-muted-foreground"
+              valueClass="opacity-75"
             />
           )}
           {stats?.generationId && (
             <StatRow
               label="Generation ID"
               value={
-                <span className="truncate block max-w-[120px] text-muted-foreground" title={stats.generationId}>
+                <span className="truncate block max-w-[120px] opacity-75" title={stats.generationId}>
                   {stats.generationId.slice(0, 16)}...
                 </span>
               }
@@ -318,18 +318,18 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
           <StatRow
             label="Cost/Input Token"
             value={`$${(cost / tokens.prompt * 1000000).toFixed(2)}/M`}
-            valueClass="text-muted-foreground"
+            valueClass="opacity-75"
           />
           <StatRow
             label="Cost/Output Token"
             value={`$${(cost / tokens.completion * 1000000).toFixed(2)}/M`}
-            valueClass="text-muted-foreground"
+            valueClass="opacity-75"
           />
           {stats?.tokensPerSecond && stats?.responseTime && (
             <StatRow
               label="Cost/Second"
               value={`$${(cost / stats.responseTime).toFixed(6)}/s`}
-              valueClass="text-muted-foreground"
+              valueClass="opacity-75"
             />
           )}
           <StatRow
