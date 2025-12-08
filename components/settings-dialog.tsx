@@ -146,6 +146,17 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
     }
   }, [open, settings.memorySettings])
 
+  // Sync defaultModel with global changes (e.g., from ExperimentalSettings)
+  // This prevents the Save button from overwriting defaultModel changes
+  useEffect(() => {
+    if (open) {
+      setLocalSettings(prev => ({
+        ...prev,
+        defaultModel: settings.defaultModel
+      }))
+    }
+  }, [open, settings.defaultModel])
+
   useEffect(() => {
     // Load voices - they load asynchronously on most browsers
     const loadVoices = () => {
