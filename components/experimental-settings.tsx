@@ -80,14 +80,14 @@ export function ExperimentalSettings() {
                 </p>
               </div>
               <Select
-                value={settings.defaultModel || ""}
-                onValueChange={(value) => updateSettings({ defaultModel: value || undefined })}
+                value={settings.defaultModel || "__system_default__"}
+                onValueChange={(value) => updateSettings({ defaultModel: value === "__system_default__" ? undefined : value })}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Use system default (Gemini 2.5 Flash)" />
                 </SelectTrigger>
                 <SelectContent className="max-h-[300px]">
-                  <SelectItem value="">Use system default (Gemini 2.5 Flash)</SelectItem>
+                  <SelectItem value="__system_default__">Use system default (Gemini 2.5 Flash)</SelectItem>
                   {availableModels.map((model) => (
                     <SelectItem key={model} value={model}>
                       {model}
