@@ -29,6 +29,12 @@ export function useAutoFetchCosts(
 
     if (messagesToFetch.length === 0) return
 
+    // Skip if no API key available (can't fetch costs without it)
+    if (!apiKey) {
+      console.log("[AutoFetchCosts] Skipping - no API key available")
+      return
+    }
+
     // Fetch costs for each message
     messagesToFetch.forEach(async (msg) => {
       const generationId = msg.stats?.generationId
@@ -38,7 +44,7 @@ export function useAutoFetchCosts(
       fetchedIds.current.add(msg.id)
 
       try {
-        console.log(`[AutoFetchCosts] Fetching exact cost for message ${msg.id.slice(0, 8)}...`)
+        console.log(`[AutoFetchCosts] Fetching exact cost for message ${msg.id.slice(0, 8)} with genId=${generationId}, apiKey=${apiKey?.slice(-4) || "none"}...`)
 
         const headers: Record<string, string> = {}
         if (apiKey) {
