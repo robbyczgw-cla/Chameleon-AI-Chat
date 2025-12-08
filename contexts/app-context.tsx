@@ -72,8 +72,8 @@ const DEFAULT_SETTINGS: AppSettings = {
     serper: "",
     exa: "",
   },
-  selectedModel: "google/gemini-2.5-flash",
-  selectedModels: ["google/gemini-2.5-flash"],
+  selectedModel: "openai/gpt-5.1-codex-mini",
+  selectedModels: ["openai/gpt-5.1-codex-mini"],
   searchProvider: "tavily", // Default to Tavily, can switch to Serper
   modelParameters: {
     temperature: 0.7,
