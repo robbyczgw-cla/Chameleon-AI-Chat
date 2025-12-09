@@ -215,18 +215,28 @@ export const shopifyTool: ToolDefinition = {
   type: "function",
   function: {
     name: "shopify_products",
-    description: `Suche nach Produkten im Shopify Store, prüfe Lagerbestand oder hole Produktdetails. Verwende dieses Tool wenn:
+    description: `Suche nach Produkten im Shopify Store, prüfe Lagerbestand oder hole Produktdetails.
+
+VERFÜGBARE DATEN pro Produkt:
+- Titel, Beschreibung, Produktbild
+- Preis in Euro, Lagerbestand, Verfügbarkeit
+- SKU (Artikelnummer)
+- Direkter LINK zum Produkt im Shop (immer vorhanden!)
+- Varianten (Farben, Größen, etc.)
+
+Verwende dieses Tool wenn:
 - Der Benutzer nach einem Produkt fragt ("Habt ihr...", "Was kostet...", "Zeig mir...")
 - Der Benutzer den Lagerbestand wissen will ("Ist ... auf Lager?", "Wie viele ... habt ihr?")
 - Der Benutzer Produktdetails braucht ("Beschreibung von...", "Varianten von...")
 - Der Benutzer nach Preisen fragt ("Wie teuer ist...", "Preis von...")
+- Der Benutzer den LINK zum Produkt will
 
 Beispiele:
-- "Habt ihr die neue Wanduhr?"
-- "Was kostet der Holztisch?"
-- "Ist die blaue Vase auf Lager?"
-- "Zeig mir alle Lampen"
-- "Wie viele vom Regal sind noch verfügbar?"
+- "Habt ihr den Naim Uniti Atom?"
+- "Was kostet der Arcam Verstärker?"
+- "Ist der Rega Plattenspieler auf Lager?"
+- "Zeig mir alle Lautsprecher"
+- "Link zum Pro-Ject Debut"
 
 NICHT verwenden für:
 - Allgemeine Fragen ohne Produktbezug
