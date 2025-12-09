@@ -119,6 +119,14 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
   // NOTE: isAdvancedMode detection moved to useFeatureFlags() hook
 
+  // HIFI: Auto-disable manual web search toggle (tool calling handles everything)
+  useEffect(() => {
+    if (isHifi && webSearchEnabled) {
+      console.log("[SimpleChatInput] HiFi mode - disabling manual web search toggle (tool calling handles this)")
+      setWebSearchEnabled(false)
+    }
+  }, [isHifi])
+
   // Update command suggestions when input changes (Advanced mode only with feature flag)
   useEffect(() => {
     if (!isAdvancedMode || !features.showSlashCommands) {
@@ -474,22 +482,27 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       // 1. Manual toggle ON → do manual search before streaming (explicit user request)
       // 2. Manual toggle OFF + model supports tool calling → let AI decide via tool calling
       // 3. Manual toggle OFF + no tool calling support → use heuristics fallback
+      //
+      // HIFI MODE: Tool calling is ALWAYS enabled regardless of toggle (for Shopify, etc.)
       const supportsToolCalling = modelSupportsToolCalling(model)
       const searchHeuristics = analyzeQueryForSearch(input.trim())
       const shouldAutoSearchHeuristics = searchHeuristics.shouldSearch && searchHeuristics.confidence >= 0.4
 
       // Only do manual search if explicitly toggled OR (heuristics say yes AND no tool calling support)
-      const performManualSearch = webSearchEnabled || (!supportsToolCalling && shouldAutoSearchHeuristics)
+      // HIFI: Never do manual search - let AI use tool calling for everything
+      const performManualSearch = isHifi ? false : (webSearchEnabled || (!supportsToolCalling && shouldAutoSearchHeuristics))
 
       // Enable AI-driven search via tool calling when not doing manual search
-      const enableToolCallingSearch = !performManualSearch && supportsToolCalling
+      // HIFI: ALWAYS enable tool calling for Shopify and other tools
+      const enableToolCallingSearch = isHifi ? supportsToolCalling : (!performManualSearch && supportsToolCalling)
 
       console.log("[Simple Chat] Web Search strategy:")
+      console.log("[Simple Chat]   - HiFi mode:", isHifi)
       console.log("[Simple Chat]   - Manual toggle:", webSearchEnabled)
       console.log("[Simple Chat]   - Model supports tool calling:", supportsToolCalling)
       console.log("[Simple Chat]   - Heuristics auto-search:", shouldAutoSearchHeuristics)
       console.log("[Simple Chat]   - Perform manual search:", performManualSearch)
-      console.log("[Simple Chat]   - Enable tool calling search:", enableToolCallingSearch)
+      console.log("[Simple Chat]   - Enable tool calling search:", enableToolCallingSearch, isHifi ? "(FORCED ON for HiFi)" : "")
       console.log("[Simple Chat]   - Search Provider:", settings.searchProvider || "tavily")
 
       // Track search stats
