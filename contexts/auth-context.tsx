@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { memoryService } from "@/lib/memory-service"
+import { personaMemoryService } from "@/lib/persona-memory-service"
 
 interface AuthContextType {
   user: any | null
@@ -70,6 +72,10 @@ export function AuthProvider({ children, onUserChange }: AuthProviderProps) {
   }, [onUserChange])
 
   const signOut = async () => {
+    // SECURITY: Clear ALL memories on logout to prevent data leakage
+    memoryService.clearOnLogout()
+    personaMemoryService.clearOnLogout()
+
     if (isGuestMode) {
       localStorage.removeItem("guest-mode")
       document.cookie = "guest-mode=; path=/; max-age=0"

@@ -69,6 +69,7 @@ export function useFeatureFlags() {
     features,
     isSimpleMode,
     isAdvancedMode: !isSimpleMode,
+    isHifi, // Expose HiFi tier status for special handling
     can,
     // Expose mode-specific flag getters for reference
     simpleModeFeatures: getSimpleModeFeatures(),

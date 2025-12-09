@@ -41,7 +41,7 @@ interface SimpleChatInputProps {
 
 export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
   const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration, setStreamingPhase, setCurrentTool, setSearchQuery, currentStreamingDetails, setCurrentStreamingDetails, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
-  const { features, isAdvancedMode } = useFeatureFlags()
+  const { features, isAdvancedMode, isHifi } = useFeatureFlags()
 
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
@@ -405,8 +405,9 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       })
     }
 
-    // Build system prompt: Use persona prompt if provided, otherwise use settings
-    let systemPrompt = selectedPersona?.prompt || settings.systemPrompt
+    /// Build system prompt: Use persona personality/prompt if provided, otherwise use settings
+    // Note: `personality` is the preferred field, `prompt` is deprecated but supported for backwards compatibility
+    let systemPrompt = selectedPersona?.personality || selectedPersona?.prompt || settings.systemPrompt
 
     // Add language instruction based on UI language setting
     const languageInstruction = settings.language === "en"
