@@ -296,6 +296,10 @@ export class SupabaseSync {
         experimental_settings: settings.experimental
           ? JSON.stringify(settings.experimental)
           : '{}',
+        // Shopify settings for HiFi mode
+        shopify_settings: settings.shopifySettings
+          ? JSON.stringify(settings.shopifySettings)
+          : '{}',
         updated_at: new Date().toISOString(),
       }
 
@@ -854,6 +858,17 @@ export class SupabaseSync {
           : {}
 
         console.log("[Supabase] Parsed experimental settings:", parsed)
+        return parsed
+      })(),
+      // Shopify settings for HiFi mode
+      shopifySettings: (() => {
+        if (!dbSettings.shopify_settings) return undefined
+
+        const parsed = typeof dbSettings.shopify_settings === "string"
+          ? JSON.parse(dbSettings.shopify_settings)
+          : dbSettings.shopify_settings
+
+        console.log("[Supabase] Parsed shopifySettings:", parsed?.storeUrl ? "***configured***" : "empty")
         return parsed
       })(),
     }
