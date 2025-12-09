@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useApp } from "@/contexts/app-context"
 import { getCostTracker, type CostEntry, type CostStats, type GenerationData } from "@/lib/cost-tracker"
 import { formatCost, formatTokens } from "@/lib/token-tracker"
+import { streamChatMessage } from "@/lib/openrouter"
 import {
   BarChart3,
   MessageSquare,
@@ -19,11 +20,30 @@ import {
   Download,
   Trash2,
   RefreshCw,
+  Server,
+  Gauge,
+  Brain,
+  Sparkles,
+  Search,
+  Target,
+  Award,
+  Timer,
+  Cpu,
+  Database,
+  Loader2,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
+
+interface AIInsights {
+  summary: string
+  strengths: string[]
+  suggestions: string[]
+  timestamp: number
+}
 
 export function StatsDashboard() {
-  const { chats } = useApp()
+  const { chats, settings } = useApp()
   const { toast } = useToast()
   const [stats, setStats] = useState<CostStats | null>(null)
   const [entries, setEntries] = useState<CostEntry[]>([])
@@ -34,6 +54,8 @@ export function StatsDashboard() {
     usage: number
     label: string
   } | null>(null)
+  const [insights, setInsights] = useState<AIInsights | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   const tracker = getCostTracker()
 
@@ -42,7 +64,19 @@ export function StatsDashboard() {
     loadStats()
     loadEntries()
     loadCredits()
+    loadSavedInsights()
   }, [timeRange])
+
+  const loadSavedInsights = () => {
+    const saved = localStorage.getItem("chameleon-analytics-insights")
+    if (saved) {
+      try {
+        setInsights(JSON.parse(saved))
+      } catch (e) {
+        console.error("Failed to load insights:", e)
+      }
+    }
+  }
 
   const loadStats = () => {
     let range
@@ -173,10 +207,83 @@ export function StatsDashboard() {
     })
   }
 
+  // Generate AI insights about usage patterns
+  const generateAIInsights = async () => {
+    if (chats.length === 0) return
+
+    setIsAnalyzing(true)
+    try {
+      const recentPrompts: string[] = []
+      chats.slice(-5).forEach((chat) => {
+        chat.messages
+          .filter((m) => m.role === "user")
+          .slice(-3)
+          .forEach((m) => recentPrompts.push(m.content))
+      })
+
+      const analysisPrompt = `Analyze the following user prompts and create a brief analysis (max 150 words):
+
+Prompts:
+${recentPrompts.slice(0, 15).join("\n---\n")}
+
+Provide analysis in this JSON format:
+{
+  "summary": "Brief summary of usage patterns",
+  "strengths": ["Strength 1", "Strength 2"],
+  "suggestions": ["Improvement suggestion 1", "Improvement suggestion 2"]
+}`
+
+      let result = ""
+      await streamChatMessage(
+        [{ role: "user", content: analysisPrompt }],
+        settings.selectedModel,
+        {
+          temperature: 0.7,
+          maxTokens: 500,
+          apiKey: settings.apiKeys.openRouter,
+          onChunk: (chunk) => {
+            result += chunk
+          }
+        }
+      )
+
+      try {
+        const jsonMatch = result.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/) || result.match(/(\{[\s\S]*\})/)
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[1])
+          const newInsights: AIInsights = {
+            summary: parsed.summary || "No summary available",
+            strengths: parsed.strengths || [],
+            suggestions: parsed.suggestions || [],
+            timestamp: Date.now()
+          }
+          setInsights(newInsights)
+          localStorage.setItem("chameleon-analytics-insights", JSON.stringify(newInsights))
+        }
+      } catch (parseError) {
+        console.error("Failed to parse AI insights:", parseError)
+      }
+    } catch (error) {
+      console.error("Failed to generate insights:", error)
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
   // Chat activity calculations
   const totalMessages = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
   const totalChats = chats.length
   const avgMessagesPerChat = totalChats > 0 ? (totalMessages / totalChats).toFixed(1) : "0"
+
+  // User vs AI message counts
+  let userMessages = 0
+  let assistantMessages = 0
+  chats.forEach((chat) => {
+    chat.messages.forEach((msg) => {
+      if (msg.role === "user") userMessages++
+      if (msg.role === "assistant") assistantMessages++
+    })
+  })
 
   // Most active time
   const chatsByHour: Record<number, number> = {}
@@ -197,6 +304,37 @@ export function StatsDashboard() {
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5)
 
+  // Provider usage from entries
+  const providerUsage: Record<string, { count: number; cost: number }> = {}
+  entries.forEach((entry) => {
+    if (entry.provider) {
+      if (!providerUsage[entry.provider]) {
+        providerUsage[entry.provider] = { count: 0, cost: 0 }
+      }
+      providerUsage[entry.provider].count++
+      providerUsage[entry.provider].cost += entry.actualCost || 0
+    }
+  })
+  const topProviders = Object.entries(providerUsage)
+    .sort(([, a], [, b]) => b.cost - a.cost)
+    .slice(0, 5)
+
+  // Performance metrics
+  const entriesWithPerformance = entries.filter((e) => e.generationTime && e.generationTime > 0)
+  const avgGenerationTime = entriesWithPerformance.length > 0
+    ? entriesWithPerformance.reduce((sum, e) => sum + (e.generationTime || 0), 0) / entriesWithPerformance.length
+    : 0
+  const avgTokensPerSecond = entriesWithPerformance.length > 0
+    ? entriesWithPerformance.reduce((sum, e) => {
+        const time = e.generationTime || 1
+        const tokens = e.nativeTokensCompletion || e.totalTokens || 0
+        return sum + (tokens / (time / 1000))
+      }, 0) / entriesWithPerformance.length
+    : 0
+
+  // Search provider usage (estimate from settings)
+  const searchProvider = settings.searchProvider || "tavily"
+
   // Cost calculations
   const last7DaysCost = stats?.costByDay.slice(-7).reduce((sum, day) => sum + day.cost, 0) || 0
   const projectedMonthlyCost = last7DaysCost * 4.3
@@ -212,6 +350,12 @@ export function StatsDashboard() {
     (e) => e.generationId && e.actualCost === undefined
   ).length
 
+  // Cache savings calculation
+  const totalCacheDiscount = entries.reduce((sum, e) => sum + (e.cacheDiscount || 0), 0)
+  const cacheHitRate = entries.length > 0
+    ? (entries.filter(e => e.cacheDiscount && e.cacheDiscount > 0).length / entries.length * 100).toFixed(1)
+    : "0"
+
   return (
     <div className="h-full overflow-y-auto">
       <div className="space-y-6 p-4 sm:p-6 max-w-6xl mx-auto">
@@ -222,7 +366,7 @@ export function StatsDashboard() {
               Statistics
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Track your API costs, usage, and chat activity
+              Track your API costs, usage, performance & insights
             </p>
           </div>
 
@@ -253,10 +397,12 @@ export function StatsDashboard() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="costs">Costs</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="providers">Providers</TabsTrigger>
+            <TabsTrigger value="insights">AI Insights</TabsTrigger>
           </TabsList>
 
           {/* OVERVIEW TAB */}
@@ -305,40 +451,60 @@ export function StatsDashboard() {
               <Card className="bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30">
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                    <TrendingUp className="h-4 w-4 text-orange-600" />
-                    {credits ? "Credits Used" : "Avg/Message"}
+                    <Database className="h-4 w-4 text-orange-600" />
+                    Cache Savings
                   </div>
-                  <div className="text-2xl font-bold">
-                    {credits
-                      ? `$${credits.usage.toFixed(2)}`
-                      : formatCost(stats?.avgCostPerMessage || 0)}
-                  </div>
+                  <div className="text-2xl font-bold">{formatCost(totalCacheDiscount)}</div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {credits ? `Limit: $${credits.limit.toFixed(2)}` : "per message"}
+                    {cacheHitRate}% hit rate
                   </p>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Monthly Projection */}
-            {stats && stats.costByDay.length > 0 && (
-              <Card className="bg-muted/30">
-                <CardContent className="pt-4">
-                  <div className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    Monthly Projection
-                  </div>
-                  <div className="text-lg">
-                    Based on last 7 days:{" "}
-                    <span className="font-bold text-primary">${projectedMonthlyCost.toFixed(2)}</span>{" "}
-                    / month
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    ~${(projectedMonthlyCost * 12).toFixed(2)} / year
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            {/* Monthly Projection & Credits */}
+            <div className="grid md:grid-cols-2 gap-4">
+              {stats && stats.costByDay.length > 0 && (
+                <Card className="bg-muted/30">
+                  <CardContent className="pt-4">
+                    <div className="text-sm font-medium mb-2 flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4" />
+                      Monthly Projection
+                    </div>
+                    <div className="text-lg">
+                      Based on last 7 days:{" "}
+                      <span className="font-bold text-primary">${projectedMonthlyCost.toFixed(2)}</span>{" "}
+                      / month
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      ~${(projectedMonthlyCost * 12).toFixed(2)} / year
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {credits && (
+                <Card className="bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30">
+                  <CardContent className="pt-4">
+                    <div className="text-sm font-medium mb-2 flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-indigo-600" />
+                      OpenRouter Credits
+                    </div>
+                    <div className="text-lg">
+                      Used: <span className="font-bold">${credits.usage.toFixed(2)}</span>
+                      {" / "}
+                      <span className="text-muted-foreground">${credits.limit.toFixed(2)}</span>
+                    </div>
+                    <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-indigo-500 to-violet-500"
+                        style={{ width: `${Math.min((credits.usage / credits.limit) * 100, 100)}%` }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
             {/* Actions */}
             <div className="flex gap-2 flex-wrap">
@@ -358,6 +524,45 @@ export function StatsDashboard() {
                 Clear Data
               </Button>
             </div>
+
+            {/* Message Distribution */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Message Distribution
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-blue-600 dark:text-blue-400">Your Messages</span>
+                    <span className="font-medium">{userMessages}</span>
+                  </div>
+                  <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all duration-500"
+                      style={{ width: `${totalMessages > 0 ? (userMessages / totalMessages) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-purple-600 dark:text-purple-400">AI Responses</span>
+                    <span className="font-medium">{assistantMessages}</span>
+                  </div>
+                  <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all duration-500"
+                      style={{ width: `${totalMessages > 0 ? (assistantMessages / totalMessages) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="pt-2 border-t text-sm text-muted-foreground">
+                  Average: {avgMessagesPerChat} messages per chat
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* COSTS TAB */}
@@ -484,64 +689,65 @@ export function StatsDashboard() {
             </Card>
           </TabsContent>
 
-          {/* ACTIVITY TAB */}
-          <TabsContent value="activity" className="space-y-6">
-            {/* Activity Stats */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* PERFORMANCE TAB */}
+          <TabsContent value="performance" className="space-y-6">
+            {/* Performance Metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card>
                 <CardContent className="pt-4">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-lg bg-blue-500/10 p-3">
-                      <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Messages</p>
-                      <p className="text-2xl font-bold">{totalMessages}</p>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <Timer className="h-4 w-4 text-blue-600" />
+                    Avg Response Time
                   </div>
+                  <div className="text-2xl font-bold">
+                    {avgGenerationTime > 0 ? `${(avgGenerationTime / 1000).toFixed(1)}s` : "N/A"}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {entriesWithPerformance.length} samples
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardContent className="pt-4">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-lg bg-purple-500/10 p-3">
-                      <BarChart3 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Chats</p>
-                      <p className="text-2xl font-bold">{totalChats}</p>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <Gauge className="h-4 w-4 text-green-600" />
+                    Tokens/Second
                   </div>
+                  <div className="text-2xl font-bold">
+                    {avgTokensPerSecond > 0 ? avgTokensPerSecond.toFixed(1) : "N/A"}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    avg generation speed
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardContent className="pt-4">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-lg bg-orange-500/10 p-3">
-                      <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Average</p>
-                      <p className="text-2xl font-bold">{avgMessagesPerChat}</p>
-                      <p className="text-xs text-muted-foreground">msg/chat</p>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <Cpu className="h-4 w-4 text-purple-600" />
+                    Avg Cost/Request
                   </div>
+                  <div className="text-2xl font-bold">
+                    {formatCost(stats?.avgCostPerMessage || 0)}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    per API call
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardContent className="pt-4">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-lg bg-green-500/10 p-3">
-                      <Clock className="h-5 w-5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Most Active</p>
-                      <p className="text-2xl font-bold">{mostActiveTimeDisplay}</p>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <Clock className="h-4 w-4 text-orange-600" />
+                    Most Active
                   </div>
+                  <div className="text-2xl font-bold">{mostActiveTimeDisplay}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    peak usage hour
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -577,22 +783,240 @@ export function StatsDashboard() {
               </Card>
             )}
 
-            {/* Cache Savings */}
-            {stats && (stats.totalCacheDiscount || 0) > 0 && (
-              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 text-sm font-medium mb-2">
-                    <Zap className="h-4 w-4 text-purple-600" />
-                    Cache Savings
+            {/* Search Provider Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Search className="h-5 w-5" />
+                  Search Configuration
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className={cn(
+                    "p-4 rounded-lg border-2",
+                    searchProvider === "tavily" ? "border-primary bg-primary/5" : "border-muted"
+                  )}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg">🌐</span>
+                      <span className="font-medium">Tavily</span>
+                      {searchProvider === "tavily" && <Badge>Active</Badge>}
+                    </div>
+                    <p className="text-xs text-muted-foreground">LLM-optimized search ~$0.01/query</p>
                   </div>
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    {formatCost(stats.totalCacheDiscount || 0)}
+                  <div className={cn(
+                    "p-4 rounded-lg border-2",
+                    searchProvider === "serper" ? "border-primary bg-primary/5" : "border-muted"
+                  )}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg">🔍</span>
+                      <span className="font-medium">Serper</span>
+                      {searchProvider === "serper" && <Badge>Active</Badge>}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Google Search ~$0.001/query</p>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Saved through prompt caching
+                  <div className={cn(
+                    "p-4 rounded-lg border-2",
+                    searchProvider === "exa" ? "border-primary bg-primary/5" : "border-muted"
+                  )}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg">🔮</span>
+                      <span className="font-medium">Exa</span>
+                      {searchProvider === "exa" && <Badge>Active</Badge>}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Neural search ~$0.01/query</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* PROVIDERS TAB */}
+          <TabsContent value="providers" className="space-y-6">
+            {/* Provider Usage */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Server className="h-5 w-5" />
+                  OpenRouter Provider Usage
+                </CardTitle>
+                <CardDescription>Which providers are serving your requests</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {topProviders.length > 0 ? (
+                  <div className="space-y-3">
+                    {topProviders.map(([provider, data]) => (
+                      <div key={provider} className="p-3 rounded-lg border">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">{provider}</span>
+                          <div className="flex items-center gap-3">
+                            <Badge variant="outline">{data.count} requests</Badge>
+                            <span className="font-bold text-green-600 dark:text-green-400">
+                              {formatCost(data.cost)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
+                            style={{
+                              width: `${(data.cost / topProviders[0][1].cost) * 100}%`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground p-8 text-center border rounded-lg">
+                    <Server className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>No provider data yet.</p>
+                    <p className="text-xs mt-1">Provider info is collected from exact cost fetches.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Cache Stats */}
+            <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Database className="h-5 w-5 text-purple-600" />
+                  Prompt Caching Stats
+                </CardTitle>
+                <CardDescription>Savings from OpenRouter prompt caching (0.25x input cost)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-white/50 dark:bg-black/20 rounded-lg">
+                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                      {formatCost(totalCacheDiscount)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Total Saved</div>
+                  </div>
+                  <div className="text-center p-4 bg-white/50 dark:bg-black/20 rounded-lg">
+                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                      {cacheHitRate}%
+                    </div>
+                    <div className="text-sm text-muted-foreground">Cache Hit Rate</div>
+                  </div>
+                  <div className="text-center p-4 bg-white/50 dark:bg-black/20 rounded-lg">
+                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                      {entries.filter(e => e.cacheDiscount && e.cacheDiscount > 0).length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Cached Requests</div>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-xs">
+                  <p className="font-medium">💡 How caching works:</p>
+                  <ul className="mt-1 space-y-0.5 list-disc list-inside text-muted-foreground">
+                    <li>Cached tokens cost 0.25x normal input price</li>
+                    <li>Cache TTL is ~3-5 minutes on average</li>
+                    <li>Works best with repeated system prompts</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* AI INSIGHTS TAB */}
+          <TabsContent value="insights" className="space-y-6">
+            {!insights ? (
+              <Card className="p-8 text-center">
+                <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="font-semibold mb-2">AI Analysis of Your Prompts</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Let AI analyze your prompt patterns and suggest improvements
+                </p>
+                <Button onClick={generateAIInsights} disabled={isAnalyzing || chats.length === 0}>
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Generate Insights
+                    </>
+                  )}
+                </Button>
+                {chats.length === 0 && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Start chatting to generate insights
                   </p>
-                </CardContent>
+                )}
               </Card>
+            ) : (
+              <>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Brain className="h-5 w-5" />
+                        Summary
+                      </CardTitle>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={generateAIInsights}
+                        disabled={isAnalyzing}
+                      >
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        Regenerate
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm leading-relaxed">{insights.summary}</p>
+                    <p className="text-xs text-muted-foreground mt-3">
+                      Last updated: {new Date(insights.timestamp).toLocaleString()}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {insights.strengths.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2 text-green-600">
+                        <Award className="h-5 w-5" />
+                        Strengths
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2">
+                        {insights.strengths.map((strength, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm">
+                            <span className="text-green-500 mt-0.5">✓</span>
+                            <span>{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {insights.suggestions.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2 text-blue-600">
+                        <Target className="h-5 w-5" />
+                        Suggestions
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2">
+                        {insights.suggestions.map((suggestion, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm">
+                            <span className="text-blue-500 mt-0.5">→</span>
+                            <span>{suggestion}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
             )}
           </TabsContent>
         </Tabs>

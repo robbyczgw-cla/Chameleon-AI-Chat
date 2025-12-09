@@ -17,12 +17,9 @@ import { languageService } from "@/lib/languages"
 
 // Lazy load heavy components for better initial bundle size
 const SystemPromptsManager = lazy(() => import("@/components/system-prompts-manager").then(m => ({ default: m.SystemPromptsManager })))
-const UsageStatsWidget = lazy(() => import("@/components/usage-stats-widget").then(m => ({ default: m.UsageStatsWidget })))
 const AIMemoryHub = lazy(() => import("@/components/ai-memory-hub").then(m => ({ default: m.AIMemoryHub })))
-const ChatAnalytics = lazy(() => import("@/components/chat-analytics").then(m => ({ default: m.ChatAnalytics })))
 const ExperimentalSettings = lazy(() => import("@/components/experimental-settings").then(m => ({ default: m.ExperimentalSettings })))
 const MCPSettings = lazy(() => import("@/components/mcp-settings").then(m => ({ default: m.MCPSettings })))
-const UsageDashboard = lazy(() => import("@/components/usage-dashboard").then(m => ({ default: m.UsageDashboard })))
 
 // Loading fallback for lazy components
 function TabLoadingFallback() {
@@ -32,7 +29,7 @@ function TabLoadingFallback() {
     </div>
   )
 }
-import { Brain, BarChart3, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, PieChart, Loader2, Puzzle } from "lucide-react"
+import { Brain, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, Loader2, Puzzle } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
 
@@ -250,7 +247,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
         <Tabs defaultValue="general" className="w-full flex-1 flex flex-col overflow-hidden">
           {/* Mobile: horizontal scroll, Desktop: 2 rows grid */}
           <div className="flex-shrink-0 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto sm:overflow-x-visible">
-            <TabsList className="inline-flex w-auto min-w-full h-auto gap-1 justify-start sm:grid sm:grid-cols-5 sm:w-full sm:gap-1.5">
+            <TabsList className="inline-flex w-auto min-w-full h-auto gap-1 justify-start sm:grid sm:grid-cols-4 sm:w-full sm:gap-1.5">
               <TabsTrigger value="general" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <Settings className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 {translations.settings.general}
@@ -258,10 +255,6 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
               <TabsTrigger value="memory" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <Brain className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 Memory
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
-                <BarChart3 className="h-3.5 w-3.5 mr-1.5 inline-block" />
-                Analytics
               </TabsTrigger>
               <TabsTrigger value="api" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <Key className="h-3.5 w-3.5 mr-1.5 inline-block" />
@@ -281,10 +274,6 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   Voice
                 </TabsTrigger>
               )}
-              <TabsTrigger value="statistics" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
-                <PieChart className="h-3.5 w-3.5 mr-1.5 inline-block" />
-                Stats
-              </TabsTrigger>
               <TabsTrigger value="experimental" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
                 <FlaskRound className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 Labs
@@ -480,12 +469,6 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
             <TabsContent value="memory" className="space-y-4 mt-0">
               <Suspense fallback={<TabLoadingFallback />}>
                 <AIMemoryHub />
-              </Suspense>
-            </TabsContent>
-
-            <TabsContent value="analytics" className="space-y-4 mt-0">
-              <Suspense fallback={<TabLoadingFallback />}>
-                <ChatAnalytics />
               </Suspense>
             </TabsContent>
 
@@ -1468,20 +1451,6 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 </div>
               </TabsContent>
             )}
-
-            <TabsContent value="statistics" className="space-y-4 mt-0">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Usage & Costs</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Track your exact API costs, token usage, and spending from OpenRouter.
-                  </p>
-                </div>
-                <Suspense fallback={<TabLoadingFallback />}>
-                  <UsageDashboard />
-                </Suspense>
-              </div>
-            </TabsContent>
 
             <TabsContent value="experimental" className="space-y-4 mt-0">
               <Suspense fallback={<TabLoadingFallback />}>
