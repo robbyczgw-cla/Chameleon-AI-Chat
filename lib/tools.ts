@@ -55,22 +55,26 @@ export const webSearchTool: ToolDefinition = {
   type: "function",
   function: {
     name: "web_search",
-    description: `Search the web for current information, news, events, real-time data, or recent facts. Use this when the user asks about:
-- Current events, news, or recent happenings (e.g., "What happened today?", "Latest news about...")
-- Today's weather, stock prices, sports scores, or live data
-- Recent product releases, updates, or announcements
-- Local events, places, or businesses (concerts, restaurants, etc.)
-- Prices, availability, or shopping comparisons
-- Factual verification of recent claims or rumors
-- Any information that might have changed since your knowledge cutoff
+    description: `Search the web for current information. ALWAYS use this when you need ACCURATE, UP-TO-DATE information.
+
+ALWAYS use web search for:
+- Product prices, specifications, availability (NEVER trust training data for this!)
+- Current events, news, or recent happenings
+- Weather, stock prices, sports scores, or live data
+- Product releases, updates, or announcements
+- Local events, places, or businesses
+- Shopping comparisons or deals
+- Technical specifications of products/devices
+- Any factual claim you're not 100% certain about
+- Anything that might have changed since your knowledge cutoff
 
 DO NOT use for:
-- General knowledge questions (e.g., "What is Python?", "Explain quantum physics")
-- Historical facts (e.g., "When was WW2?", "Who invented the telephone?")
-- Conceptual explanations (e.g., "How does gravity work?", "What is machine learning?")
+- Pure conceptual explanations (e.g., "How does gravity work?")
 - Math calculations or code generation
 - Creative writing or brainstorming
-- Personal opinions or subjective questions`,
+- Personal opinions or subjective questions
+
+IMPORTANT: When in doubt, SEARCH! It's better to verify than to give outdated information.`,
     parameters: {
       type: "object",
       properties: {
