@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useApp } from "@/contexts/app-context"
-import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun, BarChart2, Sparkles } from "lucide-react"
+import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun, BarChart2, Sparkles, Palette, Code2, GitBranch } from "lucide-react"
 import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
 import { getUserSelectedModels } from "@/lib/model-preferences"
@@ -435,6 +435,63 @@ export function ExperimentalSettings() {
           </div>
         </div>
       </div>
+
+      {/* Rich Content Settings (Advanced Mode Only) */}
+      {isAdvancedMode && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Palette className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold">Rich Content Rendering</h3>
+          </div>
+
+          <div className="space-y-4 pl-7">
+            <p className="text-xs text-muted-foreground">
+              Control how AI responses display special content. Polls, timelines, tables, and math are always enabled. These features can be performance-intensive.
+            </p>
+
+            {/* Mermaid Diagrams */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center gap-2">
+                  <GitBranch className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <Label className="text-sm font-medium">Mermaid Diagrams</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Render flowcharts, sequence diagrams, and other Mermaid diagrams. Uses GPU for rendering.
+                </p>
+              </div>
+              <Switch
+                checked={experimental.enableMermaidDiagrams || false}
+                onCheckedChange={(checked) => handleExperimentalChange({ enableMermaidDiagrams: checked })}
+              />
+            </div>
+
+            {/* Code Block Syntax Highlighting */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center gap-2">
+                  <Code2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <Label className="text-sm font-medium">Code Syntax Highlighting</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Show code blocks with syntax highlighting and copy button. Loads ~100KB extra bundle.
+                </p>
+              </div>
+              <Switch
+                checked={experimental.enableCodeBlockHighlighting || false}
+                onCheckedChange={(checked) => handleExperimentalChange({ enableCodeBlockHighlighting: checked })}
+              />
+            </div>
+
+            {/* Info Box */}
+            <div className="p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+              <p className="text-xs text-purple-800 dark:text-purple-200">
+                <strong>Always enabled:</strong> Polls, timelines, progress bars, comparison cards, sortable tables, and LaTeX math rendering. Toggle the above for performance-heavy features.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Memory Intelligence Settings (Only show if memory is enabled) */}
       {memorySettings.enabled && (

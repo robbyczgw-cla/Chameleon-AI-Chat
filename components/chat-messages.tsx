@@ -844,18 +844,34 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                           const language = match ? match[1] : ""
                           const codeString = String(children).replace(/\n$/, "")
 
-                          // Render Mermaid diagrams (already memoized)
+                          // Render Mermaid diagrams (if enabled in experimental settings)
                           if (!inline && language === "mermaid") {
-                            return <MermaidDiagram chart={codeString} />
+                            if (settings.experimental?.enableMermaidDiagrams) {
+                              return <MermaidDiagram chart={codeString} />
+                            }
+                            // Show raw mermaid code as plain code block when disabled
+                            return (
+                              <pre className="bg-muted rounded-lg p-4 overflow-x-auto my-4 text-sm">
+                                <code className="text-muted-foreground">{codeString}</code>
+                              </pre>
+                            )
                           }
 
-                          // Use memoized CodeBlock for syntax highlighting
+                          // Use memoized CodeBlock for syntax highlighting (if enabled in experimental settings)
+                          const useHighlighting = settings.experimental?.enableCodeBlockHighlighting
                           return !inline && match ? (
-                            <CodeBlock
-                              language={language}
-                              code={codeString}
-                              onCopy={handleCopyCode}
-                            />
+                            useHighlighting ? (
+                              <CodeBlock
+                                language={language}
+                                code={codeString}
+                                onCopy={handleCopyCode}
+                              />
+                            ) : (
+                              // Plain code block without syntax highlighting
+                              <pre className="bg-zinc-800 dark:bg-zinc-900 rounded-lg p-4 overflow-x-auto my-4 text-sm">
+                                <code className="text-zinc-100 font-mono whitespace-pre">{codeString}</code>
+                              </pre>
+                            )
                           ) : (
                             <code
                               className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono border border-border break-all inline-block max-w-full"
