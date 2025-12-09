@@ -699,6 +699,10 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         enableUrlFetchTool: settings.experimental?.enableUrlFetchTool !== false,
         enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
         enableWeatherTool: settings.experimental?.enableWeatherTool !== false,
+        // Shopify tool settings (HiFi mode)
+        enableShopifyTool: !!(settings.shopifySettings?.storeUrl && settings.shopifySettings?.accessToken),
+        shopifyStoreUrl: settings.shopifySettings?.storeUrl,
+        shopifyAccessToken: settings.shopifySettings?.accessToken,
         onSearchStart: (query) => {
           console.log("[Simple Chat] 🤖 AI triggered search:", query)
           toast({
@@ -732,7 +736,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           const toolDescriptions: Record<string, string> = {
             web_search: "Searching the internet for information",
             calculator: "Performing mathematical calculations",
-            code_interpreter: "Executing and analyzing code"
+            code_interpreter: "Executing and analyzing code",
+            shopify_products: settings.language === "de" ? "Suche in Shopify Produkten..." : "Searching Shopify products..."
           }
           addStreamingHistoryEntry({
             phase: "tool_use",

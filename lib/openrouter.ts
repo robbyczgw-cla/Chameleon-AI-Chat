@@ -208,6 +208,10 @@ export async function streamChatMessage(
     enableUrlFetchTool?: boolean
     enableYouTubeTool?: boolean
     enableWeatherTool?: boolean
+    // Shopify tool settings (HiFi mode)
+    enableShopifyTool?: boolean
+    shopifyStoreUrl?: string
+    shopifyAccessToken?: string
     onSearchStart?: (query: string) => void
     onSearchComplete?: () => void
     // Phase tracking callbacks for step-by-step visualization
@@ -254,6 +258,10 @@ export async function streamChatMessage(
     enableUrlFetchTool = true,
     enableYouTubeTool = true,
     enableWeatherTool = true,
+    // Shopify tool settings
+    enableShopifyTool = false,
+    shopifyStoreUrl,
+    shopifyAccessToken,
     onSearchStart,
     onSearchComplete,
     // Phase tracking
@@ -311,7 +319,14 @@ export async function streamChatMessage(
     requestBody.enableUrlFetchTool = enableUrlFetchTool
     requestBody.enableYouTubeTool = enableYouTubeTool
     requestBody.enableWeatherTool = enableWeatherTool
-    console.log("[v0] Auto tool use enabled with provider:", searchProvider, "tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool, weather: enableWeatherTool })
+    // Pass Shopify tool settings (HiFi mode)
+    if (enableShopifyTool && shopifyStoreUrl && shopifyAccessToken) {
+      requestBody.enableShopifyTool = true
+      requestBody.shopifyStoreUrl = shopifyStoreUrl
+      requestBody.shopifyAccessToken = shopifyAccessToken
+      console.log("[v0] Shopify tool enabled for store:", shopifyStoreUrl)
+    }
+    console.log("[v0] Auto tool use enabled with provider:", searchProvider, "tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool, weather: enableWeatherTool, shopify: enableShopifyTool })
   }
 
   console.log("[v0] FINAL REQUEST BODY TO /api/chat:", JSON.stringify(requestBody, null, 2))

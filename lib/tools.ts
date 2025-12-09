@@ -206,10 +206,71 @@ DO NOT use for:
 }
 
 /**
- * Get all available tools for the chat API
+ * Shopify Tool Definition
+ *
+ * Search products, check inventory, and get product details from Shopify store
+ * Only available for HiFi tier users with configured Shopify credentials
  */
-export function getAvailableTools(): ToolDefinition[] {
-  return [webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool]
+export const shopifyTool: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "shopify_products",
+    description: `Suche nach Produkten im Shopify Store, prüfe Lagerbestand oder hole Produktdetails. Verwende dieses Tool wenn:
+- Der Benutzer nach einem Produkt fragt ("Habt ihr...", "Was kostet...", "Zeig mir...")
+- Der Benutzer den Lagerbestand wissen will ("Ist ... auf Lager?", "Wie viele ... habt ihr?")
+- Der Benutzer Produktdetails braucht ("Beschreibung von...", "Varianten von...")
+- Der Benutzer nach Preisen fragt ("Wie teuer ist...", "Preis von...")
+
+Beispiele:
+- "Habt ihr die neue Wanduhr?"
+- "Was kostet der Holztisch?"
+- "Ist die blaue Vase auf Lager?"
+- "Zeig mir alle Lampen"
+- "Wie viele vom Regal sind noch verfügbar?"
+
+NICHT verwenden für:
+- Allgemeine Fragen ohne Produktbezug
+- Websuche nach externen Informationen
+- Bestellungen oder Kaufabwicklung (nur Information, kein Verkauf)`,
+    parameters: {
+      type: "object",
+      properties: {
+        action: {
+          type: "string",
+          description: "Die gewünschte Aktion",
+          enum: ["search_products", "list_products", "get_product", "get_inventory"]
+        },
+        query: {
+          type: "string",
+          description: "Suchbegriff für Produktsuche (für search_products). Z.B. 'Wanduhr', 'Holz Tisch', 'Lampe blau'"
+        },
+        product_id: {
+          type: "string",
+          description: "Produkt-ID für get_product Aktion"
+        },
+        limit: {
+          type: "string",
+          description: "Maximale Anzahl der Ergebnisse (Standard: 10, Max: 50)"
+        }
+      },
+      required: ["action"]
+    }
+  }
+}
+
+/**
+ * Get all available tools for the chat API
+ * @param options - Optional settings to control which tools are available
+ */
+export function getAvailableTools(options?: { includeShopify?: boolean }): ToolDefinition[] {
+  const tools = [webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool]
+
+  // Add Shopify tool only if explicitly enabled (for HiFi users)
+  if (options?.includeShopify) {
+    tools.push(shopifyTool)
+  }
+
+  return tools
 }
 
 /**
