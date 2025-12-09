@@ -947,21 +947,24 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 </p>
               </div>
 
-              <div className="flex items-center justify-between py-2">
-                <div>
-                  <Label className="text-sm">{t.autoSearch}</Label>
-                  <p className="text-xs text-muted-foreground">{t.autoSearchDesc}</p>
+              {/* Auto search toggle - hidden for HiFi (tool calling is always enabled) */}
+              {!isHifi && (
+                <div className="flex items-center justify-between py-2">
+                  <div>
+                    <Label className="text-sm">{t.autoSearch}</Label>
+                    <p className="text-xs text-muted-foreground">{t.autoSearchDesc}</p>
+                  </div>
+                  <Switch
+                    checked={localSettings.enableAutoToolUse ?? (isHifi ? false : true)}
+                    onCheckedChange={(checked) =>
+                      setLocalSettings({
+                        ...localSettings,
+                        enableAutoToolUse: checked,
+                      })
+                    }
+                  />
                 </div>
-                <Switch
-                  checked={localSettings.enableAutoToolUse ?? (isHifi ? false : true)}
-                  onCheckedChange={(checked) =>
-                    setLocalSettings({
-                      ...localSettings,
-                      enableAutoToolUse: checked,
-                    })
-                  }
-                />
-              </div>
+              )}
 
               <div className="flex items-center justify-between py-2">
                 <div>
