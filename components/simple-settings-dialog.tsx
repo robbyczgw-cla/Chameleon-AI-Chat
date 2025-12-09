@@ -125,6 +125,10 @@ const translations = {
     modelHaiku: "Claude Haiku 4.5",
     modelHaikuDesc: "Fast and smart. Great for everyday tasks, coding, and quick analysis.",
     modelHaikuStrengths: "Lightning fast • Cost effective • Versatile",
+    modelGrok: "Grok 4.1 Fast",
+    modelGrokDesc: "xAI's fastest model. Real-time web access, great for current events and quick research tasks.",
+    modelGrokStrengths: "Real-time info • Very fast • Web connected",
+    speed: "Speed",
     recommended: "Recommended",
     premium: "Premium",
     budget: "Budget",
@@ -248,6 +252,10 @@ const translations = {
     modelHaiku: "Claude Haiku 4.5",
     modelHaikuDesc: "Schnell und intelligent. Ideal für alltägliche Aufgaben, Programmierung und schnelle Analysen.",
     modelHaikuStrengths: "Blitzschnell • Kostengünstig • Vielseitig",
+    modelGrok: "Grok 4.1 Fast",
+    modelGrokDesc: "xAIs schnellstes Modell. Echtzeit-Webzugriff, ideal für aktuelle Ereignisse und schnelle Recherchen.",
+    modelGrokStrengths: "Echtzeit-Info • Sehr schnell • Web-verbunden",
+    speed: "Schnell",
     recommended: "Empfohlen",
     premium: "Premium",
     budget: "Budget",
@@ -359,6 +367,10 @@ const translations = {
     modelHaiku: "Claude Haiku 4.5",
     modelHaikuDesc: "Rápido e inteligente. Excelente para tareas diarias, programación y análisis rápidos.",
     modelHaikuStrengths: "Muy rápido • Económico • Versátil",
+    modelGrok: "Grok 4.1 Fast",
+    modelGrokDesc: "El modelo más rápido de xAI. Acceso web en tiempo real, ideal para eventos actuales e investigación rápida.",
+    modelGrokStrengths: "Info en tiempo real • Muy rápido • Conectado a web",
+    speed: "Rápido",
     recommended: "Recomendado",
     premium: "Premium",
     budget: "Económico",
@@ -546,10 +558,13 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               <Key className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.api}</span>
             </TabsTrigger>
-            <TabsTrigger value="help" className="text-xs gap-1 px-1">
-              <HelpCircle className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{t.help}</span>
-            </TabsTrigger>
+            {/* Help tab - Hidden for HiFi users (they have dedicated help button) */}
+            {!isHifi && (
+              <TabsTrigger value="help" className="text-xs gap-1 px-1">
+                <HelpCircle className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{t.help}</span>
+              </TabsTrigger>
+            )}
             {/* Shopify tab for HiFi users only */}
             {isHifi && (
               <TabsTrigger value="shopify" className="text-xs gap-1 px-1">
@@ -650,10 +665,10 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 {/* GPT-5.1 Codex Mini - Recommended */}
                 <button
                   type="button"
-                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "openai/gpt-5.1-codex-mini" })}
+                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "openai/gpt-5.1-codex-mini", selectedModel: "openai/gpt-5.1-codex-mini" })}
                   className={cn(
                     "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
-                    (localSettings.defaultModel === "openai/gpt-5.1-codex-mini" || (!localSettings.defaultModel && localSettings.selectedModel === "openai/gpt-5.1-codex-mini"))
+                    (localSettings.defaultModel === "openai/gpt-5.1-codex-mini" || localSettings.selectedModel === "openai/gpt-5.1-codex-mini")
                       ? "border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20"
                       : "border-border/60 hover:border-blue-300 bg-background/50"
                   )}
@@ -673,7 +688,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                         <span>{t.modelCodexStrengths}</span>
                       </div>
                     </div>
-                    {(localSettings.defaultModel === "openai/gpt-5.1-codex-mini" || (!localSettings.defaultModel && localSettings.selectedModel === "openai/gpt-5.1-codex-mini")) && (
+                    {(localSettings.defaultModel === "openai/gpt-5.1-codex-mini" || localSettings.selectedModel === "openai/gpt-5.1-codex-mini") && (
                       <div className="h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
                         <div className="h-2 w-2 rounded-full bg-white" />
                       </div>
@@ -684,10 +699,10 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 {/* Gemini 2.5 Flash - Budget */}
                 <button
                   type="button"
-                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "google/gemini-2.5-flash" })}
+                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "google/gemini-2.5-flash", selectedModel: "google/gemini-2.5-flash" })}
                   className={cn(
                     "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
-                    localSettings.defaultModel === "google/gemini-2.5-flash"
+                    (localSettings.defaultModel === "google/gemini-2.5-flash" || localSettings.selectedModel === "google/gemini-2.5-flash")
                       ? "border-green-500 bg-green-500/10 ring-2 ring-green-500/20"
                       : "border-border/60 hover:border-green-300 bg-background/50"
                   )}
@@ -707,7 +722,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                         <span>{t.modelGeminiStrengths}</span>
                       </div>
                     </div>
-                    {localSettings.defaultModel === "google/gemini-2.5-flash" && (
+                    {(localSettings.defaultModel === "google/gemini-2.5-flash" || localSettings.selectedModel === "google/gemini-2.5-flash") && (
                       <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
                         <div className="h-2 w-2 rounded-full bg-white" />
                       </div>
@@ -718,10 +733,10 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 {/* Claude Haiku 4.5 - Fast */}
                 <button
                   type="button"
-                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "anthropic/claude-haiku-4.5" })}
+                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "anthropic/claude-haiku-4.5", selectedModel: "anthropic/claude-haiku-4.5" })}
                   className={cn(
                     "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
-                    localSettings.defaultModel === "anthropic/claude-haiku-4.5"
+                    (localSettings.defaultModel === "anthropic/claude-haiku-4.5" || localSettings.selectedModel === "anthropic/claude-haiku-4.5")
                       ? "border-purple-500 bg-purple-500/10 ring-2 ring-purple-500/20"
                       : "border-border/60 hover:border-purple-300 bg-background/50"
                   )}
@@ -741,8 +756,42 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                         <span>{t.modelHaikuStrengths}</span>
                       </div>
                     </div>
-                    {localSettings.defaultModel === "anthropic/claude-haiku-4.5" && (
+                    {(localSettings.defaultModel === "anthropic/claude-haiku-4.5" || localSettings.selectedModel === "anthropic/claude-haiku-4.5") && (
                       <div className="h-5 w-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0">
+                        <div className="h-2 w-2 rounded-full bg-white" />
+                      </div>
+                    )}
+                  </div>
+                </button>
+
+                {/* Grok 4.1 Fast - Speed */}
+                <button
+                  type="button"
+                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "x-ai/grok-4.1-fast", selectedModel: "x-ai/grok-4.1-fast" })}
+                  className={cn(
+                    "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
+                    (localSettings.defaultModel === "x-ai/grok-4.1-fast" || localSettings.selectedModel === "x-ai/grok-4.1-fast")
+                      ? "border-orange-500 bg-orange-500/10 ring-2 ring-orange-500/20"
+                      : "border-border/60 hover:border-orange-300 bg-background/50"
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-2xl flex-shrink-0">
+                      🚀
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold">{t.modelGrok}</span>
+                        <Badge className="bg-orange-500 text-white text-[10px] px-1.5">{t.speed}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{t.modelGrokDesc}</p>
+                      <div className="flex items-center gap-1.5 text-xs text-orange-600 dark:text-orange-400">
+                        <Zap className="h-3 w-3" />
+                        <span>{t.modelGrokStrengths}</span>
+                      </div>
+                    </div>
+                    {(localSettings.defaultModel === "x-ai/grok-4.1-fast" || localSettings.selectedModel === "x-ai/grok-4.1-fast") && (
+                      <div className="h-5 w-5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
                         <div className="h-2 w-2 rounded-full bg-white" />
                       </div>
                     )}
@@ -1206,7 +1255,8 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               </div>
             </TabsContent>
 
-            {/* Help Tab */}
+            {/* Help Tab - Hidden for HiFi users (they have dedicated help button) */}
+            {!isHifi && (
             <TabsContent value="help" className="space-y-4 mt-0">
               <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
                 <div className="flex items-center gap-3 mb-2">
@@ -1306,6 +1356,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 <p className="text-xs text-muted-foreground">{t.privacyText}</p>
               </div>
             </TabsContent>
+            )}
 
             {/* Shopify Tab - HiFi users only */}
             {isHifi && (

@@ -260,8 +260,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
   const [editContent, setEditContent] = useState("")
   const { toast } = useToast()
 
-  // Advanced mode = NOT simple mode (from settings)
-  const isAdvancedMode = !settings.simpleMode
+  // Advanced mode = NOT simple mode (from settings) - HiFi users are NEVER in advanced mode
+  const isAdvancedMode = !settings.simpleMode && !isHifi
 
   // Automatically fetch exact costs for new messages (runs in background, no slowdown!)
   const currentChat = chats.find((chat) => chat.id === currentChatId)

@@ -126,7 +126,8 @@ export default function Page() {
         console.log("[v0] Settings don't exist, creating...")
         const { error: settingsError } = await supabase.from("user_settings").insert({
           user_id: signUpData.user.id,
-          selected_model: "deepseek/deepseek-v3.2",
+          // HiFi users get GPT-5.1 Codex Mini, others get DeepSeek
+          selected_model: isTeamEmail ? "openai/gpt-5.1-codex-mini" : "deepseek/deepseek-v3.2",
           temperature: 0.7,
           max_tokens: 16000,
           top_p: 1,
