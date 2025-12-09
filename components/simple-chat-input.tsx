@@ -409,16 +409,24 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     // Note: `personality` is the preferred field, `prompt` is deprecated but supported for backwards compatibility
     let systemPrompt = selectedPersona?.personality || selectedPersona?.prompt || settings.systemPrompt
 
-    // Add language instruction based on UI language setting
-    const languageInstruction = settings.language === "en"
-      ? "\n\nIMPORTANT: Always respond in English."
-      : settings.language === "de"
-      ? "\n\nWICHTIG: Antworte immer auf Deutsch."
-      : settings.language === "es"
-      ? "\n\nIMPORTANTE: Responde siempre en español."
-      : "\n\nIMPORTANT: Always respond in English."
+    // Add language instruction based on mode and settings
+    // HIFI MODE = ALWAYS GERMAN - NO EXCEPTIONS
+    if (isHifi) {
+      // HiFi tier: FORCE GERMAN, always, no matter what
+      systemPrompt = `${systemPrompt}\n\nWICHTIG: Antworte IMMER auf Deutsch (österreichisches Deutsch). NIEMALS auf Englisch antworten.`
+      console.log("[Simple Chat] 🇦🇹 HiFi mode - FORCING GERMAN language")
+    } else {
+      // Non-HiFi: Use user's preferred language from settings
+      const languageInstruction = settings.language === "en"
+        ? "\n\nIMPORTANT: Always respond in English."
+        : settings.language === "de"
+        ? "\n\nWICHTIG: Antworte immer auf Deutsch."
+        : settings.language === "es"
+        ? "\n\nIMPORTANTE: Responde siempre en español."
+        : "\n\nIMPORTANT: Always respond in English."
 
-    systemPrompt = `${systemPrompt}${languageInstruction}`
+      systemPrompt = `${systemPrompt}${languageInstruction}`
+    }
 
     // NOTE: User profile data is NOT injected directly into prompts
     // Profile data is stored in the memory system via memoryService.integrateProfile()
@@ -701,6 +709,18 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
         enableWeatherTool: settings.experimental?.enableWeatherTool !== false,
         // Shopify tool settings (HiFi mode)
+        // DEBUG: Log Shopify settings status
+        ...((() => {
+          const hasStoreUrl = !!settings.shopifySettings?.storeUrl
+          const hasToken = !!settings.shopifySettings?.accessToken
+          console.log("[Simple Chat] 🛒 Shopify settings check:", {
+            hasStoreUrl,
+            hasToken,
+            storeUrl: settings.shopifySettings?.storeUrl ? "***set***" : "EMPTY",
+            enabled: hasStoreUrl && hasToken
+          })
+          return {}
+        })()),
         enableShopifyTool: !!(settings.shopifySettings?.storeUrl && settings.shopifySettings?.accessToken),
         shopifyStoreUrl: settings.shopifySettings?.storeUrl,
         shopifyAccessToken: settings.shopifySettings?.accessToken,
