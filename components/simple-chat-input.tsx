@@ -696,11 +696,34 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
       // Get the appropriate search API key for tool calling
       // Note: API route supports tavily, serper, exa - fallback to tavily if youcom is selected
+      // HIFI: Auto-select provider based on available keys to ensure tool calling works
       const rawSearchProvider = settings.searchProvider || "tavily"
-      const searchProviderForTools = rawSearchProvider === "youcom" ? "tavily" : rawSearchProvider
-      const searchApiKeyForTools = searchProviderForTools === "serper"
+      let searchProviderForTools = rawSearchProvider === "youcom" ? "tavily" : rawSearchProvider
+      let searchApiKeyForTools = searchProviderForTools === "serper"
         ? settings.apiKeys.serper
         : settings.apiKeys.tavily // exa would use tavily key as fallback
+
+      // AUTO-FIX: If selected provider has no key, try to use another available key
+      // This is critical for HiFi mode where tool calling MUST work
+      if (!searchApiKeyForTools) {
+        if (settings.apiKeys.serper) {
+          console.log("[Simple Chat] ⚠️ Auto-switching to Serper (Tavily key missing)")
+          searchProviderForTools = "serper"
+          searchApiKeyForTools = settings.apiKeys.serper
+        } else if (settings.apiKeys.tavily) {
+          console.log("[Simple Chat] ⚠️ Auto-switching to Tavily (Serper key missing)")
+          searchProviderForTools = "tavily"
+          searchApiKeyForTools = settings.apiKeys.tavily
+        } else {
+          console.warn("[Simple Chat] ❌ NO SEARCH API KEY AVAILABLE - Tool calling will NOT work!")
+        }
+      }
+
+      console.log("[Simple Chat] 🔧 Tool calling config:", {
+        provider: searchProviderForTools,
+        hasKey: !!searchApiKeyForTools,
+        enableAutoToolUse: enableToolCallingSearch
+      })
 
       await streamChatMessage(messages, model, onChunk, {
         temperature: settings.temperature || 0.7,
