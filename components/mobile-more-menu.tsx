@@ -15,7 +15,6 @@ import {
   User,
   Brain,
   Columns2,
-  Search,
   FolderOpen,
   Swords,
   FileCode,
@@ -39,7 +38,6 @@ interface MobileMoreMenuProps {
   onProfileClick: () => void
   onMemoryClick: () => void
   onComparisonClick: () => void
-  onSearchClick: () => void
   onDocCollectionsClick: () => void
   onDebateClick: () => void
   onInspectorClick: () => void
@@ -54,7 +52,6 @@ export function MobileMoreMenu({
   onProfileClick,
   onMemoryClick,
   onComparisonClick,
-  onSearchClick,
   onDocCollectionsClick,
   onDebateClick,
   onInspectorClick,
@@ -200,7 +197,6 @@ export function MobileMoreMenu({
               badge={settings.memorySettings?.enabled}
               badgeColor="bg-purple-500"
             />
-            <MenuItem icon={Search} label="Search Chats" onClick={onSearchClick} />
             <MenuItem icon={FolderOpen} label="Documents" onClick={onDocCollectionsClick} />
           </div>
 

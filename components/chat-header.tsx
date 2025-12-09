@@ -17,7 +17,6 @@ import {
   Brain,
   User,
   Wand2,
-  Search,
   PanelLeftClose,
   PanelLeft,
   Music,
@@ -36,7 +35,6 @@ import { AdvancedSettingsDialog } from "@/components/advanced-settings-dialog"
 import { MemoryManager } from "@/components/memory-manager"
 import { UserProfileDialog } from "@/components/user-profile-dialog"
 import { PersonasDialog } from "@/components/personas-dialog"
-import { ChatSearch } from "@/components/chat-search"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ChameleonLogoSimple } from "@/components/chameleon-logo"
 import { cn } from "@/lib/utils"
@@ -59,7 +57,6 @@ export function ChatHeader() {
   const [isMemoryOpen, setIsMemoryOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isPersonasOpen, setIsPersonasOpen] = useState(false)
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMusicPlaying, setIsMusicPlaying] = useState(false)
   const [isDebateOpen, setIsDebateOpen] = useState(false)
   const [isInspectorOpen, setIsInspectorOpen] = useState(false)
@@ -120,14 +117,9 @@ export function ChatHeader() {
     }
   }, [settings.theme, mounted, isMusicPlaying])
 
-  // Add keyboard shortcuts (Ctrl+K for search, Ctrl+Shift+P for prompt helper)
+  // Add keyboard shortcuts (Ctrl+Shift+P for prompt helper)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+K for search
-      if ((e.ctrlKey || e.metaKey) && e.key === "k" && !e.shiftKey) {
-        e.preventDefault()
-        setIsSearchOpen(true)
-      }
       // Ctrl+Shift+P for prompt helper
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "P") {
         e.preventDefault()
@@ -141,7 +133,6 @@ export function ChatHeader() {
 
   // Listen for mobile bottom nav events
   useEffect(() => {
-    const handleOpenSearch = () => setIsSearchOpen(true)
     const handleOpenPersonas = () => setIsPersonasOpen(true)
     const handleOpenSettings = () => setIsSettingsOpen(true)
     const handleOpenDocCollections = () => setIsDocCollectionsOpen(true)
@@ -152,7 +143,6 @@ export function ChatHeader() {
     const handleOpenDebate = () => setIsDebateOpen(true)
     const handleOpenInspector = () => setIsInspectorOpen(true)
 
-    window.addEventListener("openSearch", handleOpenSearch)
     window.addEventListener("openPersonas", handleOpenPersonas)
     window.addEventListener("openSettings", handleOpenSettings)
     window.addEventListener("openDocCollections", handleOpenDocCollections)
@@ -164,7 +154,6 @@ export function ChatHeader() {
     window.addEventListener("openInspector", handleOpenInspector)
 
     return () => {
-      window.removeEventListener("openSearch", handleOpenSearch)
       window.removeEventListener("openPersonas", handleOpenPersonas)
       window.removeEventListener("openSettings", handleOpenSettings)
       window.removeEventListener("openDocCollections", handleOpenDocCollections)
@@ -296,7 +285,6 @@ export function ChatHeader() {
               onProfileClick={() => setIsProfileOpen(true)}
               onMemoryClick={() => setIsMemoryOpen(true)}
               onComparisonClick={toggleComparisonMode}
-              onSearchClick={() => setIsSearchOpen(true)}
               onDocCollectionsClick={() => setIsDocCollectionsOpen(true)}
               onDebateClick={() => setIsDebateOpen(true)}
               onInspectorClick={() => setIsInspectorOpen(true)}
@@ -407,15 +395,6 @@ export function ChatHeader() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setIsSearchOpen(true)}
-            title="Chats durchsuchen (Strg+K)"
-            className="hidden md:flex hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
-          >
-            <Search className="h-4 w-4 md:h-4.5 md:w-4.5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
             onClick={() => setIsDocCollectionsOpen(true)}
             title="Document Collections"
             className="hidden md:flex hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
@@ -518,7 +497,6 @@ export function ChatHeader() {
       </Dialog>
       <UserProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} />
       <PersonasDialog open={isPersonasOpen} onOpenChange={setIsPersonasOpen} />
-      <ChatSearch open={isSearchOpen} onOpenChange={setIsSearchOpen} />
       <Dialog open={isDebateOpen} onOpenChange={setIsDebateOpen}>
         <DialogContent className="sm:max-w-[95vw] lg:max-w-[1200px] max-h-[90vh] overflow-hidden">
           <DialogHeader>
