@@ -219,42 +219,37 @@ export const shopifyTool: ToolDefinition = {
   type: "function",
   function: {
     name: "shopify_products",
-    description: `Suche nach Produkten im Shopify Store, prüfe Lagerbestand oder hole Produktdetails.
+    description: `PRIMÄRE QUELLE für Produktinformationen aus unserem Shop!
+
+⚠️ IMMER ZUERST dieses Tool verwenden für:
+- Preise (unser aktueller Verkaufspreis!)
+- Lagerbestand und Verfügbarkeit
+- Produktdetails aus unserem Sortiment
 
 VERFÜGBARE DATEN pro Produkt:
 - Titel, Beschreibung
-- **PRODUKTBILD** (als Markdown-Bild - IMMER in der Antwort anzeigen!)
-- Preis in Euro mit **UVP/Vergleichspreis** und Rabatt-% falls vorhanden
+- **PRODUKTBILD** (als Markdown-Bild - IMMER anzeigen!)
+- Preis in Euro mit **UVP/Vergleichspreis** und Rabatt-%
 - Lagerbestand, Verfügbarkeit
 - SKU (Artikelnummer)
-- Direkter LINK zum Produkt im Shop (immer vorhanden!)
+- Direkter LINK zum Produkt
 - Varianten (Farben, Größen, etc.)
 
+Verwende dieses Tool wenn:
+- "Habt ihr...?", "Was kostet...?", "Zeig mir..."
+- "Ist ... auf Lager?", "Wie viele ... habt ihr?"
+- "Preis von...", "Link zu..."
+- Jede Frage zu Produkten die wir führen könnten
+
 WICHTIG für die Antwort:
-- IMMER das Produktbild in der Antwort einbinden (Markdown ![alt](url) Format)
-- Bei Angeboten IMMER beide Preise zeigen: "€1599 statt €1799 (-11%)"
+- IMMER Produktbild einbinden (![alt](url))
+- Bei Angeboten beide Preise: "€1599 ~~€1799~~ (-11%)"
 - Link zum Produkt immer angeben
 
-Verwende dieses Tool wenn:
-- Der Benutzer nach einem Produkt fragt ("Habt ihr...", "Was kostet...", "Zeig mir...")
-- Der Benutzer den Lagerbestand wissen will ("Ist ... auf Lager?", "Wie viele ... habt ihr?")
-- Der Benutzer Produktdetails braucht ("Beschreibung von...", "Varianten von...")
-- Der Benutzer nach Preisen fragt ("Wie teuer ist...", "Preis von...")
-- Der Benutzer den LINK zum Produkt will
-- Der Benutzer ein Bild/Foto vom Produkt sehen will
-
-Beispiele:
-- "Habt ihr den Naim Uniti Atom?"
-- "Was kostet der Arcam Verstärker?"
-- "Ist der Rega Plattenspieler auf Lager?"
-- "Zeig mir alle Lautsprecher"
-- "Link zum Pro-Ject Debut"
-- "Zeig mir ein Bild vom Produkt"
-
-NICHT verwenden für:
-- Allgemeine Fragen ohne Produktbezug
-- Websuche nach externen Informationen
-- Bestellungen oder Kaufabwicklung (nur Information, kein Verkauf)`,
+Verwende web_search NUR für:
+- Externe Infos (Testberichte, Reviews, Herstellerdetails)
+- Produkte die wir NICHT führen
+- Preisvergleiche mit anderen Shops`,
     parameters: {
       type: "object",
       properties: {
