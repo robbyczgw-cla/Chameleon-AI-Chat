@@ -162,24 +162,24 @@ export default function Page() {
 
   return (
     <div className="flex min-h-svh w-full flex-col bg-gradient-to-br from-background via-background to-orange-950/5">
-      <div className="flex-1 flex items-center justify-center p-6 md:p-10 pb-32 md:pb-24">
-        <div className="w-full max-w-sm">
-          <div className="flex flex-col gap-6">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-10 pb-32 md:pb-24">
+        <div className="w-full max-w-md min-w-[320px] mx-auto px-2 sm:px-0">
+          <div className="flex flex-col gap-4 sm:gap-6">
             {/* Logo */}
-            <div className="flex justify-center mb-4">
-              <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 shadow-lg shadow-orange-500/20">
-                <Sparkles className="w-8 h-8 text-white" />
+            <div className="flex justify-center mb-2 sm:mb-4">
+              <div className="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 shadow-lg shadow-orange-500/20">
+                <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
               </div>
             </div>
 
             <Card className="border-border/50 shadow-xl">
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl">Registrieren</CardTitle>
+                <CardTitle className="text-xl sm:text-2xl">Registrieren</CardTitle>
                 <CardDescription>Erstelle einen neuen Account</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSignUp}>
-                  <div className="flex flex-col gap-6">
+                  <div className="flex flex-col gap-4 sm:gap-6">
                     <div className="grid gap-2">
                       <Label htmlFor="email">E-Mail</Label>
                       <Input
