@@ -566,6 +566,14 @@ export function SimpleChatApp() {
   // Check if onboarding should be shown (first time Simple Mode user)
   // IMPORTANT: This is designed to prevent duplicate onboarding on iOS PWA where localStorage can be unreliable
   useEffect(() => {
+    // HiFi tier users skip onboarding entirely
+    const userEmail = user?.email?.toLowerCase() || ""
+    const isHifiUser = userEmail.endsWith("@hifiteam.at") || settings.accessTier === "hifi"
+    if (isHifiUser) {
+      localStorage.setItem("simple-mode-onboarding-complete", "true")
+      return
+    }
+
     const onboardingComplete = localStorage.getItem("simple-mode-onboarding-complete")
 
     // Already completed - skip
@@ -614,7 +622,7 @@ export function SimpleChatApp() {
     // Truly new user - show onboarding
     console.log("[Simple Mode] New user detected, showing onboarding")
     setShowOnboarding(true)
-  }, [user, chats.length])
+  }, [user, chats.length, settings.accessTier])
 
   // Handle events from other components
   useEffect(() => {
