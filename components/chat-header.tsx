@@ -29,7 +29,6 @@ import {
 import { useEffect } from "react"
 import { ModelSelector } from "@/components/model-selector"
 import { SettingsDialog } from "@/components/settings-dialog"
-// import { PromptLibraryDialog } from "@/components/prompt-library-dialog" // Hidden for now
 import { DocumentCollectionsDialog } from "@/components/document-collections-dialog"
 import { AdvancedSettingsDialog } from "@/components/advanced-settings-dialog"
 import { MemoryManager } from "@/components/memory-manager"
@@ -51,7 +50,6 @@ export function ChatHeader() {
   const { settings, updateSettings, chats, currentChatId } = useApp()
   const [mounted, setMounted] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  // const [isPromptLibraryOpen, setIsPromptLibraryOpen] = useState(false) // Hidden for now
   const [isDocCollectionsOpen, setIsDocCollectionsOpen] = useState(false)
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false)
   const [isMemoryOpen, setIsMemoryOpen] = useState(false)
