@@ -218,11 +218,18 @@ export const shopifyTool: ToolDefinition = {
     description: `Suche nach Produkten im Shopify Store, prüfe Lagerbestand oder hole Produktdetails.
 
 VERFÜGBARE DATEN pro Produkt:
-- Titel, Beschreibung, Produktbild
-- Preis in Euro, Lagerbestand, Verfügbarkeit
+- Titel, Beschreibung
+- **PRODUKTBILD** (als Markdown-Bild - IMMER in der Antwort anzeigen!)
+- Preis in Euro mit **UVP/Vergleichspreis** und Rabatt-% falls vorhanden
+- Lagerbestand, Verfügbarkeit
 - SKU (Artikelnummer)
 - Direkter LINK zum Produkt im Shop (immer vorhanden!)
 - Varianten (Farben, Größen, etc.)
+
+WICHTIG für die Antwort:
+- IMMER das Produktbild in der Antwort einbinden (Markdown ![alt](url) Format)
+- Bei Angeboten IMMER beide Preise zeigen: "€1599 statt €1799 (-11%)"
+- Link zum Produkt immer angeben
 
 Verwende dieses Tool wenn:
 - Der Benutzer nach einem Produkt fragt ("Habt ihr...", "Was kostet...", "Zeig mir...")
@@ -230,6 +237,7 @@ Verwende dieses Tool wenn:
 - Der Benutzer Produktdetails braucht ("Beschreibung von...", "Varianten von...")
 - Der Benutzer nach Preisen fragt ("Wie teuer ist...", "Preis von...")
 - Der Benutzer den LINK zum Produkt will
+- Der Benutzer ein Bild/Foto vom Produkt sehen will
 
 Beispiele:
 - "Habt ihr den Naim Uniti Atom?"
@@ -237,6 +245,7 @@ Beispiele:
 - "Ist der Rega Plattenspieler auf Lager?"
 - "Zeig mir alle Lautsprecher"
 - "Link zum Pro-Ject Debut"
+- "Zeig mir ein Bild vom Produkt"
 
 NICHT verwenden für:
 - Allgemeine Fragen ohne Produktbezug

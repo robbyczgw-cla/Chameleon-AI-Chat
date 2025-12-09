@@ -229,6 +229,7 @@ async function executeShopify(
                       node {
                         title
                         price
+                        compareAtPrice
                         sku
                         inventoryQuantity
                         availableForSale
@@ -273,6 +274,7 @@ async function executeShopify(
                       node {
                         title
                         price
+                        compareAtPrice
                         sku
                         inventoryQuantity
                         availableForSale
@@ -381,7 +383,17 @@ async function executeShopify(
       formattedResult += `- **Status:** ${product.status === "ACTIVE" ? "Aktiv" : "Inaktiv"}\n`
 
       if (firstVariant) {
-        formattedResult += `- **Preis:** €${firstVariant.price}\n`
+        const price = parseFloat(firstVariant.price)
+        const compareAtPrice = firstVariant.compareAtPrice ? parseFloat(firstVariant.compareAtPrice) : null
+
+        // Format price with UVP and discount if applicable
+        if (compareAtPrice && compareAtPrice > price) {
+          const discountPercent = Math.round((1 - price / compareAtPrice) * 100)
+          formattedResult += `- **Preis:** €${price.toFixed(2)} ~~€${compareAtPrice.toFixed(2)}~~ **(-${discountPercent}%)**\n`
+        } else {
+          formattedResult += `- **Preis:** €${price.toFixed(2)}\n`
+        }
+
         if (firstVariant.inventoryQuantity !== undefined) {
           formattedResult += `- **Lagerbestand:** ${firstVariant.inventoryQuantity} Stück\n`
           formattedResult += `- **Verfügbar:** ${firstVariant.availableForSale ? "Ja" : "Nein"}\n`
