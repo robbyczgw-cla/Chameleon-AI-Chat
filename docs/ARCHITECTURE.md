@@ -194,9 +194,9 @@ Chameleon-AI-Chat/
 │   ├── ai-debate-mode.tsx        # AI discussion feature 💬
 │   ├── memory-manager.tsx        # Memory system UI 🧠
 │   ├── personas-dialog.tsx       # Persona selector 🎭
-│   ├── cost-tracker-dashboard.tsx # Cost analytics 💸
+│   ├── stats-dashboard.tsx       # Unified statistics (5 tabs) 📊💸
 │   ├── export-training-data-dialog.tsx
-│   └── [40+ more components]
+│   └── [35+ more components]
 │
 ├── components_archived_*/        # Archived features
 │   └── simple_mode/              # Old simple mode
@@ -1012,7 +1012,7 @@ Three bugs were fixed to make exact cost tracking work:
 
 ### 9. Legacy Cost Estimation (Fallback)
 
-**Location**: `lib/cost-tracker.ts`, `components/cost-tracker-dashboard.tsx`
+**Location**: `lib/cost-tracker.ts`, `components/stats-dashboard.tsx`
 
 For messages without generation IDs (older messages, non-OpenRouter providers):
 
@@ -2251,6 +2251,7 @@ Added to `app/layout.tsx`:
 
 | File | Purpose | Critical Sections | Lines |
 |------|---------|-------------------|-------|
+| `components/stats-dashboard.tsx` | Unified statistics (5 tabs) | All tabs, AI insights | All |
 | `hooks/use-auto-fetch-costs.ts` | Exact cost fetching | apiKey param | 14-48 |
 | `app/api/generation/route.ts` | OpenRouter generation proxy | data.data unwrap | 43 |
 | `components/message-stats.tsx` | Collapsible stats display | All sections | 65-346 |
@@ -2268,7 +2269,7 @@ Added to `app/layout.tsx`:
 | `lib/cost-tracker.ts` | Cost tracking | Pricing database, calculation | All |
 | `lib/rag-service.ts` | RAG implementation | Chunking, embedding, retrieval | 50-150 |
 | `components/chat-messages.tsx` | Message display | React.memo, useCallback | 1-80 |
-| `components/settings-dialog.tsx` | Settings UI | Lazy loading, TTS provider | 1-50, 1150-1270 |
+| `components/settings-dialog.tsx` | Settings UI (7 tabs) | Lazy loading, TTS provider | 1-50 |
 | `next.config.mjs` | Next.js config | CSP headers, Permissions-Policy | 35-50 |
 
 ---
@@ -2396,16 +2397,122 @@ body: JSON.stringify({
 
 ---
 
-## Recent Changes (Last 3 Days)
+## Recent Changes (Last 7 Days)
 
-*Updated: 2025-12-01*
+*Updated: 2025-12-09*
 
 ### Overview
 
-The last 3 days focused on three major areas:
-1. **Streaming Visualization System** - Real-time feedback during AI responses
-2. **Dialog Viewport Safety** - Preventing modal cutoff on desktop
-3. **Performance & UX Fixes** - Reasoning spam, chat layout, vision models
+Recent work focused on these major areas:
+1. **Unified Statistics Dashboard** - Consolidated all stats into one comprehensive panel (NEW!)
+2. **UI Cleanup** - Removed duplicate search, streamlined settings
+3. **Streaming Visualization System** - Real-time feedback during AI responses
+4. **Dialog Viewport Safety** - Preventing modal cutoff on desktop
+5. **Performance & UX Fixes** - Reasoning spam, chat layout, vision models
+
+---
+
+### 0. Unified Statistics Dashboard (2025-12-09)
+
+**Commits**: Consolidated stats menus, enhanced with LLM nerd features
+
+Merged multiple disparate stats components into one comprehensive Statistics dashboard with 5 tabs.
+
+#### What Was Removed
+
+| Component | Lines | Reason |
+|-----------|-------|--------|
+| `cost-tracker-dashboard.tsx` | 232 | Superseded by new Stats dashboard |
+| `usage-dashboard.tsx` | 257 | Merged into Stats dashboard |
+| `usage-stats-widget.tsx` | 162 | Merged into Stats dashboard |
+| `chat-analytics.tsx` | 395 | AI Insights moved to Stats dashboard |
+| `chat-search.tsx` | 208 | Duplicate (sidebar search remains) |
+| `prompt-library-dialog.tsx` | 195 | Unused/commented out |
+
+**Total removed**: ~1,449 lines of duplicate/orphaned code
+
+#### New Statistics Dashboard Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    STATISTICS DASHBOARD                          │
+│  [7 Days] [30 Days] [All Time]  ← Time Range Selector           │
+├─────────────────────────────────────────────────────────────────┤
+│  Tabs: [Overview] [Costs] [Performance] [Providers] [AI Insights]│
+├─────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  OVERVIEW TAB:                                                   │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
+│  │ Total    │ │ Total    │ │ Messages │ │ Cache    │           │
+│  │ Cost     │ │ Tokens   │ │ & Chats  │ │ Savings  │           │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘           │
+│                                                                   │
+│  Monthly Projection: $X.XX/month (~$XX.XX/year)                 │
+│  OpenRouter Credits: $X.XX / $XX.XX used                        │
+│                                                                   │
+│  [Fetch Exact Costs] [Export Data] [Clear Data]                 │
+│                                                                   │
+│  Message Distribution: You ████████ 45% | AI ██████████ 55%     │
+│                                                                   │
+├─────────────────────────────────────────────────────────────────┤
+│  COSTS TAB:                                                      │
+│  • Cost by Model (top 5)                                        │
+│  • Cost Over Time (14-day bar chart)                            │
+│  • Recent Usage Table (exact costs from OpenRouter API)         │
+│                                                                   │
+├─────────────────────────────────────────────────────────────────┤
+│  PERFORMANCE TAB:                                                │
+│  • Avg Response Time (seconds)                                  │
+│  • Tokens/Second (generation speed)                             │
+│  • Avg Cost/Request                                             │
+│  • Peak Usage Hour                                              │
+│  • Most Used Models                                             │
+│  • Search Provider Config (Tavily/Serper/Exa)                   │
+│                                                                   │
+├─────────────────────────────────────────────────────────────────┤
+│  PROVIDERS TAB:                                                  │
+│  • OpenRouter Provider Usage (which backends serve you)         │
+│  • Prompt Caching Stats (savings, hit rate, how it works)       │
+│                                                                   │
+├─────────────────────────────────────────────────────────────────┤
+│  AI INSIGHTS TAB:                                                │
+│  • AI-generated analysis of your prompts                        │
+│  • Strengths identification                                     │
+│  • Improvement suggestions                                      │
+│  • [Generate Insights] button                                   │
+│                                                                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Key Features
+
+| Feature | Description |
+|---------|-------------|
+| **Exact Costs** | Real billing data from OpenRouter's `/api/v1/generation` endpoint |
+| **Provider Tracking** | See which OpenRouter providers (Anthropic, Together, etc.) serve your requests |
+| **Cache Stats** | Prompt caching savings (0.25x input cost), hit rate, cached request count |
+| **Performance Metrics** | Avg response time, tokens/second, cost/request |
+| **AI Insights** | AI-powered analysis of your prompt patterns with suggestions |
+| **Time Range Filter** | 7 days, 30 days, or all time |
+| **Monthly Projection** | Projected monthly/yearly costs based on recent usage |
+
+#### Settings Dialog Cleanup
+
+Removed from Settings dialog:
+- ❌ Analytics tab (merged into Stats dashboard)
+- ❌ Stats tab (merged into Stats dashboard)
+
+Remaining tabs: General, Memory, API Keys, Search, MCP, Voice, Labs
+
+#### File Changes
+
+| File | Change |
+|------|--------|
+| `components/stats-dashboard.tsx` | Complete rewrite with 5 tabs |
+| `components/settings-dialog.tsx` | Removed Analytics/Stats tabs |
+| `components/chat-header.tsx` | Removed Search button, cleaned imports |
+| `components/mobile-more-menu.tsx` | Removed Search option |
+| `components/advanced-settings-dialog.tsx` | Removed Cost Tracker button, removed Example Prompts |
 
 ---
 
