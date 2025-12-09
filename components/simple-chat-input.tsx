@@ -413,9 +413,21 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       })
     }
 
-    /// Build system prompt: Use persona personality/prompt if provided, otherwise use settings
-    // Note: `personality` is the preferred field, `prompt` is deprecated but supported for backwards compatibility
-    let systemPrompt = selectedPersona?.personality || selectedPersona?.prompt || settings.systemPrompt
+    // Build system prompt: Start with base settings, then append persona personality (like Advanced mode)
+    // This ensures FOLLOWUP instructions from settings.systemPrompt are preserved
+    let systemPrompt = settings.systemPrompt
+
+    if (selectedPersona) {
+      if (selectedPersona.personality) {
+        // Append persona personality to base prompt (preserves FOLLOWUP instructions)
+        systemPrompt = `${systemPrompt}\n\n--- PERSONA PERSONALITY ---\n${selectedPersona.personality}`
+        console.log("[Simple Chat] Using persona with personality:", selectedPersona.name)
+      } else if (selectedPersona.prompt) {
+        // Legacy format: Full prompt (backward compatibility)
+        systemPrompt = selectedPersona.prompt
+        console.log("[Simple Chat] Using persona with legacy prompt:", selectedPersona.name)
+      }
+    }
 
     // Add language instruction based on mode and settings
     // HIFI MODE = ALWAYS GERMAN - NO EXCEPTIONS
