@@ -1051,24 +1051,26 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
             <QuickPersonaPicker />
             {/* Action buttons */}
             <div className="flex items-center gap-0.5 ml-auto">
-              {/* Web search */}
-              <Button
-                type="button"
-                size="icon"
-                variant={webSearchEnabled ? "default" : "ghost"}
-                className={cn(
-                  "h-8 w-8 rounded-lg",
-                  webSearchEnabled
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground"
-                )}
-                onClick={() => {
-                  haptics.trigger('selection')
-                  setWebSearchEnabled(!webSearchEnabled)
-                }}
-              >
-                <Globe className="h-3.5 w-3.5" />
-              </Button>
+              {/* Web search - hidden for HiFi (tool calling handles this automatically) */}
+              {!isHifi && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={webSearchEnabled ? "default" : "ghost"}
+                  className={cn(
+                    "h-8 w-8 rounded-lg",
+                    webSearchEnabled
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground"
+                  )}
+                  onClick={() => {
+                    haptics.trigger('selection')
+                    setWebSearchEnabled(!webSearchEnabled)
+                  }}
+                >
+                  <Globe className="h-3.5 w-3.5" />
+                </Button>
+              )}
               {/* File upload */}
               <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
               {/* Image mode */}
