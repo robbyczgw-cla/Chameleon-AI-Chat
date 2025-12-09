@@ -11,6 +11,7 @@ import { X, Plus, User, Heart, Briefcase, MapPin, Target } from "lucide-react"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { useToast } from "@/hooks/use-toast"
 import { useApp } from "@/contexts/app-context"
+import { isHifiTier } from "@/lib/feature-flags"
 
 interface UserProfileDialogProps {
   open: boolean
@@ -24,6 +25,9 @@ export function UserProfileDialog({ open, onOpenChange, onProfileUpdate }: UserP
   const [newGoal, setNewGoal] = useState("")
   const { toast } = useToast()
   const { user, settings } = useApp()
+
+  // Check if user is in HiFi tier (simplified profile - name only)
+  const isHifi = isHifiTier(settings.accessTier)
 
   useEffect(() => {
     if (open) {
@@ -118,6 +122,51 @@ export function UserProfileDialog({ open, onOpenChange, onProfileUpdate }: UserP
       ...profile,
       goals: (profile.goals || []).filter((_, i) => i !== index),
     })
+  }
+
+  // HiFi mode: Simplified profile with just name
+  if (isHifi) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600">
+                <User className="h-5 w-5 text-white" />
+              </div>
+              Dein Name
+            </DialogTitle>
+            <DialogDescription>
+              Damit ich dich persönlich ansprechen kann
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Wie heißt du?</Label>
+              <Input
+                id="name"
+                placeholder="z.B. Max"
+                value={profile.name || ""}
+                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Abbrechen
+            </Button>
+            <Button
+              onClick={handleSave}
+              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+            >
+              Speichern
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
   }
 
   return (

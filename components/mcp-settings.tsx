@@ -40,6 +40,7 @@ import {
   LayoutGrid,
   Cloud,
   Terminal,
+  ShoppingCart,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
@@ -270,6 +271,17 @@ const PRESET_MCP_SERVERS: Omit<MCPServerConfig, "id" | "status">[] = [
     category: "Utilities",
     enabled: true,
   },
+
+  // Commerce
+  {
+    name: "Shopify",
+    command: "npx",
+    args: "-y @anthropic/mcp-server-shopify",
+    env: { SHOPIFY_STORE_URL: "your-store.myshopify.com", SHOPIFY_ACCESS_TOKEN: "your-access-token" },
+    description: "Access Shopify store products, orders, customers, inventory",
+    category: "Commerce",
+    enabled: true,
+  },
 ]
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -283,6 +295,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Storage: <Cloud className="h-4 w-4" />,
   Productivity: <CheckSquare className="h-4 w-4" />,
   Media: <Video className="h-4 w-4" />,
+  Commerce: <ShoppingCart className="h-4 w-4" />,
 }
 
 const MCP_STORAGE_KEY = "chameleon-mcp-servers"

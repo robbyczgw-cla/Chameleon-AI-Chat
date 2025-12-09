@@ -41,6 +41,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast"
 import { type Persona, PERSONA_EXAMPLE_PROMPTS, getPersonaById } from "@/lib/personas"
 import { useIOSPWA } from "@/hooks/use-ios-pwa"
+import { isHifiTier, getFeatureFlags } from "@/lib/feature-flags"
+import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 
 // Translations for Simple Mode
 const translations = {
@@ -692,11 +694,19 @@ export function SimpleChatApp() {
     }, 100)
   }
 
-  // Default to Cami (friendly persona) if no persona is selected in simple mode
-  const selectedPersona = settings.selectedPersona || getPersonaById("friendly")
+  // Get feature flags based on access tier
+  const isHifi = isHifiTier(settings.accessTier)
+  const featureFlags = getFeatureFlags(true, settings.accessTier) // Always simple mode in SimpleChatApp
 
-  // Get current language translations
-  const lang = settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en"
+  // For HiFi tier: Force HiFi persona, otherwise use selected or default to Cami
+  const selectedPersona = isHifi
+    ? getPersonaById("hifi-berater")
+    : (settings.selectedPersona || getPersonaById("friendly"))
+
+  // For HiFi tier: Force German, otherwise use selected language
+  const lang = isHifi
+    ? "de"
+    : (settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en")
   const t = translations[lang as keyof typeof translations]
 
   // Filter chats based on search query
@@ -952,14 +962,24 @@ export function SimpleChatApp() {
             </div>
 
             <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsPersonasOpen(true)}
-                className="relative h-10 w-10 sm:h-9 sm:w-9"
-              >
-                <Users className="h-5 w-5 sm:h-4 sm:w-4" />
-              </Button>
+              {/* Desktop: Show QuickPersonaPicker in header, Mobile: Show persona button */}
+              {featureFlags.showPersonaPicker && (
+                <>
+                  {/* Desktop persona picker dropdown */}
+                  <div className="hidden md:block">
+                    <QuickPersonaPicker />
+                  </div>
+                  {/* Mobile persona button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsPersonasOpen(true)}
+                    className="md:hidden relative h-10 w-10 sm:h-9 sm:w-9"
+                  >
+                    <Users className="h-5 w-5 sm:h-4 sm:w-4" />
+                  </Button>
+                </>
+              )}
               <Button
                 variant="ghost"
                 size="icon"

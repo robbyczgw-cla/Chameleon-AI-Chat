@@ -306,10 +306,14 @@ export interface ExperimentalSettings {
   statsDisplay?: StatsDisplaySettings
 }
 
+// Access tier determines user privileges and UI restrictions
+export type AccessTier = "standard" | "hifi"
+
 export interface AppSettings {
   theme?: "light" | "dark"
   language?: "en" | "de" | "es" // UI language: English, German, or Spanish
   simpleMode?: boolean // Simple Mode: Clean UI focused on personas & profile
+  accessTier?: AccessTier // Access tier: standard (default) or hifi (team-only)
   enableAutoToolUse?: boolean // Enable automatic tool use (web search, weather, etc.) via tool calling (AI decides when to use tools)
   apiKeys: {
     openRouter?: string

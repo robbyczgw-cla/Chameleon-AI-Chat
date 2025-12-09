@@ -114,6 +114,14 @@ export default function Page() {
         .eq("user_id", signUpData.user.id)
         .single()
 
+      // Check if user is registering with team email for special access
+      const isTeamEmail = email.toLowerCase().endsWith("@hifiteam.at")
+      const accessTier = isTeamEmail ? "hifi" : "standard"
+
+      if (isTeamEmail) {
+        console.log("[v0] Team email detected, setting access tier to hifi")
+      }
+
       if (!existingSettings) {
         console.log("[v0] Settings don't exist, creating...")
         const { error: settingsError } = await supabase.from("user_settings").insert({
@@ -130,6 +138,9 @@ export default function Page() {
           tavily_max_results: 5,
           tavily_include_images: true,
           tavily_include_answer: true,
+          // Team access configuration
+          access_tier: accessTier,
+          simple_mode: isTeamEmail ? true : false, // Team users always start in simple mode
         })
 
         if (settingsError) {
