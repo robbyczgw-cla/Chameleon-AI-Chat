@@ -210,6 +210,18 @@ async function executeShopify(
                   description
                   vendor
                   status
+                  featuredImage {
+                    url
+                    altText
+                  }
+                  images(first: 3) {
+                    edges {
+                      node {
+                        url
+                        altText
+                      }
+                    }
+                  }
                   variants(first: 5) {
                     edges {
                       node {
@@ -240,6 +252,18 @@ async function executeShopify(
                   description
                   vendor
                   status
+                  featuredImage {
+                    url
+                    altText
+                  }
+                  images(first: 3) {
+                    edges {
+                      node {
+                        url
+                        altText
+                      }
+                    }
+                  }
                   variants(first: 5) {
                     edges {
                       node {
@@ -329,6 +353,14 @@ async function executeShopify(
       const firstVariant = variants[0]?.node
 
       formattedResult += `### ${index + 1}. ${product.title}\n`
+
+      // Add product image if available
+      const imageUrl = product.featuredImage?.url || product.images?.edges?.[0]?.node?.url
+      if (imageUrl) {
+        const altText = product.featuredImage?.altText || product.images?.edges?.[0]?.node?.altText || product.title
+        formattedResult += `![${altText}](${imageUrl})\n\n`
+      }
+
       if (product.description) {
         formattedResult += `${product.description.substring(0, 200)}${product.description.length > 200 ? "..." : ""}\n`
       }
@@ -348,6 +380,12 @@ async function executeShopify(
       // Show other variants if available
       if (variants.length > 1) {
         formattedResult += `- **Varianten:** ${variants.length} (${variants.slice(0, 3).map((v: any) => v.node.title).join(", ")}${variants.length > 3 ? "..." : ""})\n`
+      }
+
+      // Show additional images if available
+      const additionalImages = product.images?.edges?.slice(1, 3) || []
+      if (additionalImages.length > 0) {
+        formattedResult += `- **Weitere Bilder:** ${additionalImages.length}\n`
       }
 
       formattedResult += "\n"
