@@ -29,6 +29,7 @@ import {
   ImagePlus,
   Lightbulb,
   Search,
+  HelpCircle,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -41,6 +42,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast"
 import { type Persona, PERSONA_EXAMPLE_PROMPTS, getPersonaById } from "@/lib/personas"
 import { useIOSPWA } from "@/hooks/use-ios-pwa"
+import { isHifiTier, getFeatureFlags } from "@/lib/feature-flags"
+import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 
 // Translations for Simple Mode
 const translations = {
@@ -500,6 +503,7 @@ export function SimpleChatApp() {
   const [isMemoryOpen, setIsMemoryOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [imageMode, setImageMode] = useState(false)
+  const [isHelpOpen, setIsHelpOpen] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState("")
@@ -564,6 +568,14 @@ export function SimpleChatApp() {
   // Check if onboarding should be shown (first time Simple Mode user)
   // IMPORTANT: This is designed to prevent duplicate onboarding on iOS PWA where localStorage can be unreliable
   useEffect(() => {
+    // HiFi tier users skip onboarding entirely
+    const userEmail = user?.email?.toLowerCase() || ""
+    const isHifiUser = userEmail.endsWith("@hifiteam.at") || settings.accessTier === "hifi"
+    if (isHifiUser) {
+      localStorage.setItem("simple-mode-onboarding-complete", "true")
+      return
+    }
+
     const onboardingComplete = localStorage.getItem("simple-mode-onboarding-complete")
 
     // Already completed - skip
@@ -612,7 +624,7 @@ export function SimpleChatApp() {
     // Truly new user - show onboarding
     console.log("[Simple Mode] New user detected, showing onboarding")
     setShowOnboarding(true)
-  }, [user, chats.length])
+  }, [user, chats.length, settings.accessTier])
 
   // Handle events from other components
   useEffect(() => {
@@ -645,7 +657,7 @@ export function SimpleChatApp() {
 
   const handleNewChat = () => {
     try {
-      createChat(settings.selectedModel)
+      createChat(effectiveModel)
       setIsSidebarOpen(false)
     } catch (error) {
       console.error("[Simple Mode] Failed to create new chat:", error)
@@ -664,7 +676,7 @@ export function SimpleChatApp() {
   const handleSelectPersona = (persona: Persona | null) => {
     updateSettings({ selectedPersona: persona || undefined })
     // Create new chat when selecting a persona
-    createChat(settings.selectedModel)
+    createChat(effectiveModel)
     setIsPersonasOpen(false)
   }
 
@@ -684,7 +696,7 @@ export function SimpleChatApp() {
   const handleQuickPrompt = (prompt: string) => {
     // Create a new chat if needed and send the prompt
     if (!currentChat || currentChat.messages.length > 0) {
-      createChat(settings.selectedModel)
+      createChat(effectiveModel)
     }
     // Dispatch event to send the message
     setTimeout(() => {
@@ -692,12 +704,29 @@ export function SimpleChatApp() {
     }, 100)
   }
 
-  // Default to Cami (friendly persona) if no persona is selected in simple mode
-  const selectedPersona = settings.selectedPersona || getPersonaById("friendly")
+  // Get feature flags based on access tier - check BOTH settings AND email directly
+  // Email check is needed because settings may not be synced yet for new users
+  const userEmail = user?.email?.toLowerCase() || ""
+  const isHifiByEmail = userEmail.endsWith("@hifiteam.at")
+  const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
+  const effectiveAccessTier = isHifi ? "hifi" : settings.accessTier
+  const featureFlags = getFeatureFlags(true, effectiveAccessTier) // Always simple mode in SimpleChatApp
 
-  // Get current language translations
-  const lang = settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en"
+  // For HiFi tier: Force HiFi persona, otherwise use selected or default to Cami
+  const selectedPersona = isHifi
+    ? getPersonaById("hifi-berater")
+    : (settings.selectedPersona || getPersonaById("friendly"))
+
+  // For HiFi tier: Force German, otherwise use selected language
+  const lang = isHifi
+    ? "de"
+    : (settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en")
   const t = translations[lang as keyof typeof translations]
+
+  // For HiFi tier: Force proper default model if not set, otherwise use selected model
+  const effectiveModel = isHifi && !settings.defaultModel
+    ? "openai/gpt-5.1-codex-mini"
+    : (settings.defaultModel || settings.selectedModel || "openai/gpt-5.1-codex-mini")
 
   // Filter chats based on search query
   const filteredChats = searchQuery.trim()
@@ -942,7 +971,11 @@ export function SimpleChatApp() {
                     <span className="text-xl shrink-0">{selectedPersona.emoji}</span>
                     <div className="min-w-0">
                       <p className="font-medium text-sm truncate">{selectedPersona.name}</p>
-                      <p className="text-xs text-muted-foreground truncate max-w-[120px] sm:max-w-[200px]">{selectedPersona.description}</p>
+                      {/* HiFi: Show full description, others: truncate */}
+                      <p className={cn(
+                        "text-xs text-muted-foreground",
+                        isHifi ? "max-w-[300px] sm:max-w-[400px]" : "truncate max-w-[120px] sm:max-w-[200px]"
+                      )}>{selectedPersona.description}</p>
                     </div>
                   </div>
                 ) : (
@@ -952,14 +985,36 @@ export function SimpleChatApp() {
             </div>
 
             <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsPersonasOpen(true)}
-                className="relative h-10 w-10 sm:h-9 sm:w-9"
-              >
-                <Users className="h-5 w-5 sm:h-4 sm:w-4" />
-              </Button>
+              {/* Desktop: Show QuickPersonaPicker in header, Mobile: Show persona button */}
+              {featureFlags.showPersonaPicker && (
+                <>
+                  {/* Desktop persona picker dropdown */}
+                  <div className="hidden md:block">
+                    <QuickPersonaPicker />
+                  </div>
+                  {/* Mobile persona button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsPersonasOpen(true)}
+                    className="md:hidden relative h-10 w-10 sm:h-9 sm:w-9"
+                  >
+                    <Users className="h-5 w-5 sm:h-4 sm:w-4" />
+                  </Button>
+                </>
+              )}
+              {/* Help button - only for HiFi users */}
+              {isHifi && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsHelpOpen(true)}
+                  className="h-10 w-10 sm:h-9 sm:w-9"
+                  title="Hilfe"
+                >
+                  <HelpCircle className="h-5 w-5 sm:h-4 sm:w-4" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -1007,6 +1062,90 @@ export function SimpleChatApp() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* HiFi Help Dialog - German only */}
+      {isHifi && (
+        <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
+          <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <HelpCircle className="h-5 w-5 text-primary" />
+                Hilfe - HiFi Berater
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {/* Introduction */}
+              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20">
+                <h3 className="font-semibold mb-2">Willkommen beim HiFi Berater</h3>
+                <p className="text-sm text-muted-foreground">
+                  Dein KI-Assistent für High-End Audio Beratung bei HIFI TEAM Graz.
+                </p>
+              </div>
+
+              {/* What you can ask */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">Was du fragen kannst:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Produktvergleiche (z.B. "Vergleiche Naim Uniti Atom mit Bluesound Powernode")</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Preisanfragen und Verfügbarkeit</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Technische Spezifikationen unserer Marken</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Kombinationsempfehlungen für Anlagen</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Beratung zu Lautsprechern, Verstärkern, Streamern, Plattenspielern</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Brands */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">Unsere Marken:</h4>
+                <p className="text-sm text-muted-foreground">
+                  Naim, Linn, Rega, Arcam, Atoll, Triangle, Dynaudio, Pro-Ject, DOAcoustics, Guru Audio, Lab12, Fezz, Sennheiser, NAD, Bluesound
+                </p>
+              </div>
+
+              {/* Tips */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">Tipps für bessere Antworten:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
+                  <li className="flex gap-2">
+                    <span className="text-green-500">•</span>
+                    <span>Nenne ein Budget für passende Empfehlungen</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-green-500">•</span>
+                    <span>Beschreibe den Raum/Einsatzzweck</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-green-500">•</span>
+                    <span>Frag nach aktuellen Preisen - ich suche im Shop</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Note */}
+              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  Hinweis: Der HiFi Berater nutzt Websuche um aktuelle Preise und Verfügbarkeit von shop.hifiteam.at abzurufen.
+                </p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Onboarding for first-time Simple Mode users */}
       <SimpleModeOnboarding

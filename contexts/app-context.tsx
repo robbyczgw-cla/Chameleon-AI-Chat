@@ -13,6 +13,7 @@ import { sanitizeChatsForStorage, safeSetLocalStorage, getLocalStorageUsage, for
 import { generateChatTitle } from "@/lib/title-generator"
 import { stripImageDataFromContent } from "@/lib/multimodal-utils"
 import { memoryService } from "@/lib/memory-service"
+import { personaMemoryService } from "@/lib/persona-memory-service"
 
 interface AppContextType {
   chats: Chat[]
@@ -271,6 +272,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...defaults.experimental,
         ...(parsed.experimental || {}),
       },
+      // Shopify settings for HiFi mode - must persist across reloads
+      shopifySettings: {
+        ...defaults.shopifySettings,
+        ...(parsed.shopifySettings || {}),
+      },
     }
   }
 
@@ -399,9 +405,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       console.log("[AppContext] Syncing memory settings to memoryService:", settings.memorySettings)
       memoryService.updateSettings(settings.memorySettings)
 
-      // Configure database sync if enabled
+      // SECURITY: Configure user ID for both memory services
       const syncEnabled = settings.memorySettings.syncToDatabase ?? false
       memoryService.configureDatabaseSync(user?.id || null, syncEnabled)
+      personaMemoryService.configureUser(user?.id || null)
 
       // Load from database if sync is enabled and user is logged in
       if (syncEnabled && user?.id) {

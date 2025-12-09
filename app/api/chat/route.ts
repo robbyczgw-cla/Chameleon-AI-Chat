@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { checkRateLimit } from "@/lib/rate-limit"
-import { webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
+import { webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool, shopifyTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
 import { fetchUrlContent, fetchYouTubeTranscript, formatUrlFetchResult, formatYouTubeResult } from "@/lib/url-tools"
 
 export const runtime = "edge"
@@ -55,6 +55,10 @@ interface ChatRequest {
   enableUrlFetchTool?: boolean
   enableYouTubeTool?: boolean
   enableWeatherTool?: boolean
+  // Shopify tool settings (HiFi mode)
+  enableShopifyTool?: boolean
+  shopifyStoreUrl?: string
+  shopifyAccessToken?: string
 }
 
 // Search cache to reduce duplicate searches
@@ -170,6 +174,257 @@ function getAQIDescription(index: number): string {
   if (index === 5) return "(Very unhealthy)"
   if (index === 6) return "(Hazardous)"
   return ""
+}
+
+/**
+ * Execute Shopify API call
+ */
+async function executeShopify(
+  action: string,
+  args: Record<string, any>,
+  storeUrl: string,
+  accessToken: string
+): Promise<string> {
+  console.log(`[Tool] 🛒 Executing shopify_products: "${action}"`, args)
+
+  try {
+    // Clean up store URL
+    const cleanStoreUrl = storeUrl
+      .replace(/^https?:\/\//, "")
+      .replace(/\/$/, "")
+
+    const graphqlEndpoint = `https://${cleanStoreUrl}/admin/api/2024-01/graphql.json`
+
+    let graphqlQuery: string
+    let variables: any
+
+    switch (action) {
+      case "search_products":
+        graphqlQuery = `
+          query searchProducts($query: String!, $first: Int!) {
+            products(first: $first, query: $query) {
+              edges {
+                node {
+                  id
+                  title
+                  handle
+                  description
+                  vendor
+                  status
+                  onlineStoreUrl
+                  featuredImage {
+                    url
+                    altText
+                  }
+                  images(first: 3) {
+                    edges {
+                      node {
+                        url
+                        altText
+                      }
+                    }
+                  }
+                  variants(first: 5) {
+                    edges {
+                      node {
+                        title
+                        price
+                        compareAtPrice
+                        sku
+                        inventoryQuantity
+                        availableForSale
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `
+        variables = { query: args.query || "", first: Math.min(parseInt(args.limit) || 10, 50) }
+        break
+
+      case "list_products":
+        graphqlQuery = `
+          query listProducts($first: Int!) {
+            products(first: $first) {
+              edges {
+                node {
+                  id
+                  title
+                  handle
+                  description
+                  vendor
+                  status
+                  onlineStoreUrl
+                  featuredImage {
+                    url
+                    altText
+                  }
+                  images(first: 3) {
+                    edges {
+                      node {
+                        url
+                        altText
+                      }
+                    }
+                  }
+                  variants(first: 5) {
+                    edges {
+                      node {
+                        title
+                        price
+                        compareAtPrice
+                        sku
+                        inventoryQuantity
+                        availableForSale
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `
+        variables = { first: Math.min(parseInt(args.limit) || 10, 50) }
+        break
+
+      case "get_inventory":
+        graphqlQuery = `
+          query getInventory($first: Int!) {
+            products(first: $first) {
+              edges {
+                node {
+                  title
+                  variants(first: 10) {
+                    edges {
+                      node {
+                        title
+                        sku
+                        inventoryQuantity
+                        availableForSale
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `
+        variables = { first: Math.min(parseInt(args.limit) || 50, 100) }
+        break
+
+      default:
+        return `Unbekannte Shopify-Aktion: ${action}`
+    }
+
+    const response = await fetch(graphqlEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Access-Token": accessToken,
+      },
+      body: JSON.stringify({
+        query: graphqlQuery,
+        variables,
+      }),
+    })
+
+    if (!response.ok) {
+      console.error("[Tool] ❌ Shopify API error:", response.status)
+      return `Shopify API Fehler: ${response.status}. Bitte prüfe die Store-Einstellungen.`
+    }
+
+    const data = await response.json()
+
+    if (data.errors) {
+      console.error("[Tool] ❌ Shopify GraphQL errors:", data.errors)
+      return `Shopify Fehler: ${data.errors[0]?.message || "Unbekannter Fehler"}`
+    }
+
+    // Format results for the AI
+    const products = data.data?.products?.edges || []
+
+    if (products.length === 0) {
+      return action === "search_products"
+        ? `Keine Produkte gefunden für "${args.query}".`
+        : "Keine Produkte im Store gefunden."
+    }
+
+    let formattedResult = `## Shopify Produkte${action === "search_products" ? ` für "${args.query}"` : ""}\n\n`
+
+    // Get public store domain for product links (remove /admin part from URL)
+    const publicStoreDomain = cleanStoreUrl.replace(".myshopify.com", ".myshopify.com").replace(/\/admin.*$/, "")
+
+    products.forEach((edge: any, index: number) => {
+      const product = edge.node
+      const variants = product.variants?.edges || []
+      const firstVariant = variants[0]?.node
+
+      formattedResult += `### ${index + 1}. ${product.title}\n`
+
+      // Add product image if available
+      const imageUrl = product.featuredImage?.url || product.images?.edges?.[0]?.node?.url
+      if (imageUrl) {
+        const altText = product.featuredImage?.altText || product.images?.edges?.[0]?.node?.altText || product.title
+        formattedResult += `![${altText}](${imageUrl})\n\n`
+      }
+
+      if (product.description) {
+        formattedResult += `${product.description.substring(0, 200)}${product.description.length > 200 ? "..." : ""}\n`
+      }
+
+      // Add product link - use onlineStoreUrl if available, otherwise construct from handle
+      const productUrl = product.onlineStoreUrl || (product.handle ? `https://${publicStoreDomain}/products/${product.handle}` : null)
+      if (productUrl) {
+        formattedResult += `- **Link:** [Zum Produkt](${productUrl})\n`
+      }
+
+      formattedResult += `- **Status:** ${product.status === "ACTIVE" ? "Aktiv" : "Inaktiv"}\n`
+
+      if (firstVariant) {
+        const price = parseFloat(firstVariant.price)
+        const compareAtPrice = firstVariant.compareAtPrice ? parseFloat(firstVariant.compareAtPrice) : null
+
+        // Format price with UVP and discount if applicable
+        if (compareAtPrice && compareAtPrice > price) {
+          const discountPercent = Math.round((1 - price / compareAtPrice) * 100)
+          formattedResult += `- **Preis:** €${price.toFixed(2)} ~~€${compareAtPrice.toFixed(2)}~~ **(-${discountPercent}%)**\n`
+        } else {
+          formattedResult += `- **Preis:** €${price.toFixed(2)}\n`
+        }
+
+        if (firstVariant.inventoryQuantity !== undefined) {
+          formattedResult += `- **Lagerbestand:** ${firstVariant.inventoryQuantity} Stück\n`
+          formattedResult += `- **Verfügbar:** ${firstVariant.availableForSale ? "Ja" : "Nein"}\n`
+        }
+        if (firstVariant.sku) {
+          formattedResult += `- **SKU:** ${firstVariant.sku}\n`
+        }
+      }
+
+      // Show other variants if available
+      if (variants.length > 1) {
+        formattedResult += `- **Varianten:** ${variants.length} (${variants.slice(0, 3).map((v: any) => v.node.title).join(", ")}${variants.length > 3 ? "..." : ""})\n`
+      }
+
+      // Show additional images if available
+      const additionalImages = product.images?.edges?.slice(1, 3) || []
+      if (additionalImages.length > 0) {
+        formattedResult += `- **Weitere Bilder:** ${additionalImages.length}\n`
+      }
+
+      formattedResult += "\n"
+    })
+
+    formattedResult += `---\n*${products.length} Produkt${products.length !== 1 ? "e" : ""} gefunden*`
+
+    console.log(`[Tool] ✅ Shopify: ${products.length} products found`)
+    return formattedResult
+  } catch (error) {
+    console.error("[Tool] ❌ Shopify request failed:", error)
+    return `Shopify Fehler: ${error instanceof Error ? error.message : "Unbekannter Fehler"}. Bitte versuche es erneut.`
+  }
 }
 
 /**
@@ -371,6 +626,10 @@ export async function POST(req: NextRequest) {
       enableUrlFetchTool = true,
       enableYouTubeTool = true,
       enableWeatherTool = true,
+      // Shopify tool settings (HiFi mode)
+      enableShopifyTool = false,
+      shopifyStoreUrl,
+      shopifyAccessToken,
     } = body as ChatRequest
 
     const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
@@ -427,6 +686,11 @@ export async function POST(req: NextRequest) {
       if (enableWeatherTool) tools.push(weatherTool)
       if (enableUrlFetchTool) tools.push(urlFetchTool)
       if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
+      // Add Shopify tool for HiFi users with configured store
+      if (enableShopifyTool && shopifyStoreUrl && shopifyAccessToken) {
+        tools.push(shopifyTool)
+        console.log("[Chat] Shopify tool enabled for store:", shopifyStoreUrl)
+      }
       openRouterBody.tools = tools
       openRouterBody.tool_choice = "auto"
       console.log("[Chat] Tools enabled:", tools.map(t => t.function.name).join(", "))
@@ -441,11 +705,11 @@ export async function POST(req: NextRequest) {
 
     // Non-streaming request with tool calling
     if (!stream) {
-      return handleNonStreamingRequest(openRouterBody, apiKey, searchApiKey!, searchProvider, searchSettings)
+      return handleNonStreamingRequest(openRouterBody, apiKey, searchApiKey!, searchProvider, searchSettings, { shopifyStoreUrl, shopifyAccessToken })
     }
 
     // Streaming request - more complex handling for tool calls
-    return handleStreamingRequest(openRouterBody, apiKey, searchApiKey, searchProvider, searchSettings, shouldIncludeTools)
+    return handleStreamingRequest(openRouterBody, apiKey, searchApiKey, searchProvider, searchSettings, shouldIncludeTools, { shopifyStoreUrl, shopifyAccessToken })
   } catch (error) {
     console.error("[Chat] API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
@@ -460,7 +724,8 @@ async function handleNonStreamingRequest(
   apiKey: string,
   searchApiKey: string,
   searchProvider: "tavily" | "serper" | "exa",
-  searchSettings: Record<string, any>
+  searchSettings: Record<string, any>,
+  shopifyConfig?: { shopifyStoreUrl?: string; shopifyAccessToken?: string }
 ) {
   const MAX_ITERATIONS = 3
   let iterations = 0
@@ -504,10 +769,10 @@ async function handleNonStreamingRequest(
       // Execute all tool calls in parallel
       const toolResults = await Promise.all(
         choice.message.tool_calls.map(async (toolCall: ToolCall) => {
-          if (toolCall.function.name === "web_search") {
-            const args = parseToolArguments(toolCall.function.arguments)
-            const result = await executeWebSearch(args.query || "", searchProvider, searchApiKey, searchSettings)
+          const args = parseToolArguments(toolCall.function.arguments)
 
+          if (toolCall.function.name === "web_search") {
+            const result = await executeWebSearch(args.query || "", searchProvider, searchApiKey, searchSettings)
             return {
               tool_call_id: toolCall.id,
               role: "tool" as const,
@@ -515,6 +780,30 @@ async function handleNonStreamingRequest(
               content: result,
             }
           }
+
+          if (toolCall.function.name === "shopify_products") {
+            if (!shopifyConfig?.shopifyStoreUrl || !shopifyConfig?.shopifyAccessToken) {
+              return {
+                tool_call_id: toolCall.id,
+                role: "tool" as const,
+                name: "shopify_products",
+                content: "Shopify ist nicht konfiguriert. Bitte gib Store-URL und Access Token in den Einstellungen ein.",
+              }
+            }
+            const result = await executeShopify(
+              args.action || "list_products",
+              args,
+              shopifyConfig.shopifyStoreUrl,
+              shopifyConfig.shopifyAccessToken
+            )
+            return {
+              tool_call_id: toolCall.id,
+              role: "tool" as const,
+              name: "shopify_products",
+              content: result,
+            }
+          }
+
           return {
             tool_call_id: toolCall.id,
             role: "tool" as const,
@@ -552,7 +841,8 @@ async function handleStreamingRequest(
   searchApiKey: string | undefined,
   searchProvider: "tavily" | "serper" | "exa",
   searchSettings: Record<string, any>,
-  toolsEnabled: boolean
+  toolsEnabled: boolean,
+  shopifyConfig?: { shopifyStoreUrl?: string; shopifyAccessToken?: string }
 ) {
   const encoder = new TextEncoder()
 
@@ -771,6 +1061,10 @@ async function handleStreamingRequest(
             phase = "tool_use"
             action = `Getting YouTube transcript: ${toolArgs.url}`
             toolQuery = toolArgs.url || ""
+          } else if (toolName === "shopify_products") {
+            phase = "tool_use"
+            action = `Shopify: ${toolArgs.action === "search_products" ? `Suche "${toolArgs.query}"` : toolArgs.action === "get_inventory" ? "Lagerbestand abrufen" : "Produkte laden"}`
+            toolQuery = toolArgs.query || toolArgs.action || ""
           }
 
           // Send phase and tool status events with detailed information
@@ -839,6 +1133,30 @@ async function handleStreamingRequest(
                   role: "tool" as const,
                   name: "youtube_transcript",
                   content: formatYouTubeResult(result),
+                }
+              }
+
+              if (toolCall.function.name === "shopify_products") {
+                console.log("[Chat] Executing shopify_products:", args.action)
+                if (!shopifyConfig?.shopifyStoreUrl || !shopifyConfig?.shopifyAccessToken) {
+                  return {
+                    tool_call_id: toolCall.id,
+                    role: "tool" as const,
+                    name: "shopify_products",
+                    content: "Shopify ist nicht konfiguriert. Bitte gib Store-URL und Access Token in den Einstellungen ein.",
+                  }
+                }
+                const result = await executeShopify(
+                  args.action || "list_products",
+                  args,
+                  shopifyConfig.shopifyStoreUrl,
+                  shopifyConfig.shopifyAccessToken
+                )
+                return {
+                  tool_call_id: toolCall.id,
+                  role: "tool" as const,
+                  name: "shopify_products",
+                  content: result,
                 }
               }
 

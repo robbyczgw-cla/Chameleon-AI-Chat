@@ -1,9 +1,10 @@
 /**
  * Persona Memory Service
  * Allows each persona to remember past conversations with the user
+ * SECURITY: All storage is user-scoped to prevent cross-user data leakage
  */
 
-const STORAGE_KEY = "persona-memories"
+const STORAGE_KEY_PREFIX = "persona-memories" // User ID appended for security
 const MAX_CONVERSATIONS_DEFAULT = 10
 const MAX_CONTEXT_LENGTH = 2000 // Max characters to include in context
 
@@ -23,22 +24,132 @@ export interface PersonaMemoryStore {
 
 class PersonaMemoryService {
   private memories: PersonaMemoryStore = {}
+  private userId: string | null = null
 
   constructor() {
-    this.loadMemories()
+    // Don't load memories in constructor - wait for user ID to be set
+    // This prevents showing another user's memories
   }
 
   /**
-   * Load memories from localStorage
+   * Get user-scoped storage key
+   * SECURITY: Each user has their own isolated persona memory storage
+   */
+  private getStorageKey(): string {
+    if (this.userId) {
+      return `${STORAGE_KEY_PREFIX}_${this.userId}`
+    }
+    return `${STORAGE_KEY_PREFIX}_anonymous`
+  }
+
+  /**
+   * Configure user for security isolation
+   * SECURITY: Must be called when user logs in
+   */
+  configureUser(userId: string | null): void {
+    const previousUserId = this.userId
+    this.userId = userId
+
+    // SECURITY: Clear and reload when user changes
+    if (previousUserId !== userId) {
+      console.log("[PersonaMemory] User changed - clearing and reloading memories")
+      this.memories = {}
+
+      // MIGRATION: Check for old non-scoped memories and migrate them
+      if (userId) {
+        this.migrateOldMemories(userId)
+      }
+
+      this.loadMemories()
+    }
+
+    console.log("[PersonaMemory] User configured:", userId ? "***" : null)
+  }
+
+  /**
+   * MIGRATION: Migrate old non-user-scoped persona memories to user-scoped storage
+   * This ensures no memories are lost when upgrading to the secure version
+   */
+  private migrateOldMemories(userId: string): void {
+    if (typeof window === "undefined") return
+
+    const oldKey = STORAGE_KEY_PREFIX // Old key without user ID
+    const newKey = this.getStorageKey() // New key with user ID
+
+    try {
+      const oldData = localStorage.getItem(oldKey)
+
+      if (oldData) {
+        const existingNewData = localStorage.getItem(newKey)
+
+        if (!existingNewData) {
+          // No data in new location - migrate the old data
+          console.log("[PersonaMemory] MIGRATION: Migrating old memories to user-scoped storage")
+          localStorage.setItem(newKey, oldData)
+          console.log("[PersonaMemory] MIGRATION: Successfully migrated memories for user")
+        } else {
+          // Data exists in both - merge (new data takes priority)
+          console.log("[PersonaMemory] MIGRATION: Merging old memories with existing user memories")
+          try {
+            const oldMemories = JSON.parse(oldData) as PersonaMemoryStore
+            const newMemories = JSON.parse(existingNewData) as PersonaMemoryStore
+
+            // Merge persona by persona
+            for (const personaId of Object.keys(oldMemories)) {
+              if (!newMemories[personaId]) {
+                newMemories[personaId] = oldMemories[personaId]
+              } else {
+                // Merge conversations for this persona
+                const existingIds = new Set(newMemories[personaId].map(c => c.id))
+                for (const conv of oldMemories[personaId]) {
+                  if (!existingIds.has(conv.id)) {
+                    newMemories[personaId].push(conv)
+                  }
+                }
+              }
+            }
+
+            localStorage.setItem(newKey, JSON.stringify(newMemories))
+            console.log("[PersonaMemory] MIGRATION: Merged memories successfully")
+          } catch (mergeError) {
+            console.error("[PersonaMemory] MIGRATION: Merge failed, keeping new data:", mergeError)
+          }
+        }
+
+        console.log("[PersonaMemory] MIGRATION: Old key preserved for potential other users")
+      }
+    } catch (error) {
+      console.error("[PersonaMemory] MIGRATION: Failed to migrate old memories:", error)
+    }
+  }
+
+  /**
+   * Clear memories on logout - SECURITY CRITICAL
+   */
+  clearOnLogout(): void {
+    console.log("[PersonaMemory] Clearing memories on logout for security")
+    this.memories = {}
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(`${STORAGE_KEY_PREFIX}_anonymous`)
+    }
+    this.userId = null
+  }
+
+  /**
+   * Load memories from localStorage (user-scoped)
+   * SECURITY: Uses user-specific storage key
    */
   private loadMemories(): void {
     if (typeof window === "undefined") return
 
+    const storageKey = this.getStorageKey()
     try {
-      const stored = localStorage.getItem(STORAGE_KEY)
+      const stored = localStorage.getItem(storageKey)
       if (stored) {
         this.memories = JSON.parse(stored)
-        console.log("[PersonaMemory] Loaded memories for", Object.keys(this.memories).length, "personas")
+        console.log("[PersonaMemory] Loaded memories for", Object.keys(this.memories).length, "personas from", storageKey)
+      } else {
+        console.log("[PersonaMemory] No memories found for", storageKey)
       }
     } catch (error) {
       console.error("[PersonaMemory] Failed to load memories:", error)
@@ -47,13 +158,15 @@ class PersonaMemoryService {
   }
 
   /**
-   * Save memories to localStorage
+   * Save memories to localStorage (user-scoped)
+   * SECURITY: Uses user-specific storage key
    */
   private saveMemories(): void {
     if (typeof window === "undefined") return
 
+    const storageKey = this.getStorageKey()
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.memories))
+      localStorage.setItem(storageKey, JSON.stringify(this.memories))
     } catch (error) {
       console.error("[PersonaMemory] Failed to save memories:", error)
     }

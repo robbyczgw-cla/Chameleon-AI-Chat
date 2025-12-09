@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
 import { SimpleChatApp } from "@/components/simple-chat-app"
 import { ModeSelectionDialog } from "@/components/mode-selection-dialog"
+import { isHifiTier } from "@/lib/feature-flags"
 
 interface ModeWrapperProps {
   children: React.ReactNode
@@ -14,10 +15,24 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
   const [showModeSelection, setShowModeSelection] = useState(false)
   const [hasCheckedModeSelection, setHasCheckedModeSelection] = useState(false)
 
+  // Check if user is in HiFi tier - check BOTH settings AND email directly
+  // Email check is needed because settings may not be synced yet for new users
+  const userEmail = user?.email?.toLowerCase() || ""
+  const isHifiByEmail = userEmail.endsWith("@hifiteam.at")
+  const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
+
   // Check if user needs to select a mode (first-time user)
   // This effect re-runs when user/chats change, so if we detect an existing user later, we hide the dialog
   useEffect(() => {
     if (isLoading) return
+
+    // HiFi tier users skip mode selection - always simple mode
+    if (isHifi) {
+      localStorage.setItem("chameleon-mode-selected", "true")
+      setShowModeSelection(false)
+      setHasCheckedModeSelection(true)
+      return
+    }
 
     const modeSelected = localStorage.getItem("chameleon-mode-selected")
 
@@ -51,7 +66,7 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
     // Truly new user - show mode selection
     setShowModeSelection(true)
     setHasCheckedModeSelection(true)
-  }, [isLoading, user, chats.length])
+  }, [isLoading, user, chats.length, isHifi])
 
   // Handle mode selection
   const handleModeSelection = (simpleMode: boolean) => {
@@ -69,14 +84,19 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
     return null
   }
 
-  // Show mode selection dialog for first-time users
-  if (showModeSelection) {
+  // Show mode selection dialog for first-time users (not for HiFi tier)
+  if (showModeSelection && !isHifi) {
     return (
       <ModeSelectionDialog
         open={showModeSelection}
         onSelectMode={handleModeSelection}
       />
     )
+  }
+
+  // HiFi tier: Always use SimpleChatApp (locked mode)
+  if (isHifi) {
+    return <SimpleChatApp />
   }
 
   // Simple Mode: Clean, persona-focused interface

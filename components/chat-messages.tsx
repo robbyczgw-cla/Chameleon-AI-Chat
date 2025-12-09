@@ -28,6 +28,7 @@ import { type Persona, getPersonaExamplePrompts } from "@/lib/personas"
 import type { MessageContent } from "@/types"
 import { contentToText } from "@/lib/multimodal-utils"
 import { RichContentParser } from "@/lib/rich-content-parser"
+import { isHifiTier } from "@/lib/feature-flags"
 import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
 import { MessageStatus, MessageStatusVerbose, StreamingHistoryDisplay } from "@/components/message-status"
 import { userProfileService } from "@/lib/user-profile"
@@ -245,7 +246,12 @@ const MessageWrapper = memo(function MessageWrapper({ children, className, messa
 })
 
 export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
-  const { chats, currentChatId, addMessage, updateChat, settings, isChatLoading, streamingPhase, currentTool, searchQuery, currentStreamingDetails } = useApp()
+  const { chats, currentChatId, addMessage, updateChat, settings, isChatLoading, streamingPhase, currentTool, searchQuery, currentStreamingDetails, user } = useApp()
+
+  // Check if user is in HiFi tier - check BOTH settings AND email directly
+  const userEmail = user?.email?.toLowerCase() || ""
+  const isHifiByEmail = userEmail.endsWith("@hifiteam.at")
+  const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [speakingId, setSpeakingId] = useState<string | null>(null)
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set())
@@ -254,8 +260,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
   const [editContent, setEditContent] = useState("")
   const { toast } = useToast()
 
-  // Advanced mode = NOT simple mode (from settings)
-  const isAdvancedMode = !settings.simpleMode
+  // Advanced mode = NOT simple mode (from settings) - HiFi users are NEVER in advanced mode
+  const isAdvancedMode = !settings.simpleMode && !isHifi
 
   // Automatically fetch exact costs for new messages (runs in background, no slowdown!)
   const currentChat = chats.find((chat) => chat.id === currentChatId)
@@ -488,8 +494,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
   // Show greeting when no chat selected OR chat is empty
   if (!currentChat || currentChat.messages.length === 0) {
-    // Get language from settings (supports en, de, es, fr)
-    const lang = settings.language || "en"
+    // Get language from settings - HiFi users ALWAYS get German
+    const lang = isHifi ? "de" : (settings.language || "en")
 
     // Get user profile for personalized greeting
     const userProfile = userProfileService.getProfile()
@@ -539,7 +545,11 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                   <span className="text-xl sm:text-2xl flex-shrink-0">{currentPersona.emoji}</span>
                   <span className="text-xs sm:text-sm font-medium text-primary truncate">{currentPersona.name}</span>
                 </div>
-                <p className="text-xs text-muted-foreground max-w-[90%] sm:max-w-md line-clamp-2">{currentPersona.description}</p>
+                {/* For HiFi: Show full description, otherwise limit to 2 lines */}
+                <p className={cn(
+                  "text-xs text-muted-foreground max-w-[90%] sm:max-w-md text-center",
+                  !isHifi && "line-clamp-2"
+                )}>{currentPersona.description}</p>
               </div>
             )}
           </div>

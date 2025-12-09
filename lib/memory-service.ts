@@ -12,7 +12,7 @@ import { generateUUID } from "@/lib/utils"
 import { supabaseSync } from "@/lib/supabase/sync"
 import { generateEmbedding, findSimilar, cosineSimilarity } from "@/lib/embedding-service"
 
-const MEMORY_STORAGE_KEY = "chat_memories"
+const MEMORY_STORAGE_KEY_PREFIX = "chat_memories" // Base key - user ID appended for security
 const EXTRACTION_MODEL = "openai/gpt-oss-20b" // Cheap, fast model for extraction
 const CLASSIFIER_MODEL = "openai/gpt-oss-20b" // Same model for query classification
 
@@ -58,16 +58,125 @@ class MemoryService {
   private syncEnabled: boolean = false
 
   constructor() {
-    this.loadMemories()
+    // Don't load memories in constructor - wait for user ID to be set
+    // This prevents showing another user's memories
   }
 
   /**
-   * Configure database sync
+   * Get the user-scoped storage key for localStorage
+   * SECURITY: Each user has their own isolated memory storage
+   */
+  private getStorageKey(): string {
+    if (this.userId) {
+      return `${MEMORY_STORAGE_KEY_PREFIX}_${this.userId}`
+    }
+    // Fallback for logged-out users - use a session-based key
+    // This is cleared on logout and won't persist across users
+    return `${MEMORY_STORAGE_KEY_PREFIX}_anonymous`
+  }
+
+  /**
+   * Configure database sync and load user-specific memories
+   * SECURITY: This must be called when user logs in to load their isolated memories
    */
   configureDatabaseSync(userId: string | null, syncEnabled: boolean) {
+    const previousUserId = this.userId
     this.userId = userId
     this.syncEnabled = syncEnabled && !!userId
-    console.log("[Memory] Database sync configured:", { userId: userId ? "***" : null, syncEnabled: this.syncEnabled })
+
+    // SECURITY: Clear memories and reload when user changes
+    // This ensures User A's memories are never shown to User B
+    if (previousUserId !== userId) {
+      console.log("[Memory] User changed - clearing and reloading memories")
+      this.memories = [] // Clear immediately
+
+      // MIGRATION: Check for old non-scoped memories and migrate them
+      if (userId) {
+        this.migrateOldMemories(userId)
+      }
+
+      this.loadMemories() // Load new user's memories
+    }
+
+    console.log("[Memory] Database sync configured:", {
+      userId: userId ? "***" : null,
+      syncEnabled: this.syncEnabled,
+      storageKey: this.getStorageKey()
+    })
+  }
+
+  /**
+   * MIGRATION: Migrate old non-user-scoped memories to user-scoped storage
+   * This ensures no memories are lost when upgrading to the secure version
+   */
+  private migrateOldMemories(userId: string): void {
+    if (typeof window === 'undefined') return
+
+    const oldKey = MEMORY_STORAGE_KEY_PREFIX // Old key without user ID (e.g., "chat_memories")
+    const newKey = this.getStorageKey() // New key with user ID (e.g., "chat_memories_abc123")
+
+    try {
+      const oldData = localStorage.getItem(oldKey)
+
+      // If there's old data and no new data yet, migrate it
+      if (oldData) {
+        const existingNewData = localStorage.getItem(newKey)
+
+        if (!existingNewData) {
+          // No data in new location - migrate the old data
+          console.log("[Memory] MIGRATION: Migrating old memories to user-scoped storage")
+          localStorage.setItem(newKey, oldData)
+          console.log("[Memory] MIGRATION: Successfully migrated memories for user")
+        } else {
+          // Data exists in both - merge (new data takes priority, add unique old memories)
+          console.log("[Memory] MIGRATION: Merging old memories with existing user memories")
+          try {
+            const oldMemories = JSON.parse(oldData) as Memory[]
+            const newMemories = JSON.parse(existingNewData) as Memory[]
+            const existingIds = new Set(newMemories.map(m => m.id))
+
+            // Add old memories that don't exist in new storage
+            let addedCount = 0
+            for (const oldMem of oldMemories) {
+              if (!existingIds.has(oldMem.id)) {
+                newMemories.push(oldMem)
+                addedCount++
+              }
+            }
+
+            if (addedCount > 0) {
+              localStorage.setItem(newKey, JSON.stringify(newMemories))
+              console.log("[Memory] MIGRATION: Added", addedCount, "memories from old storage")
+            }
+          } catch (mergeError) {
+            console.error("[Memory] MIGRATION: Merge failed, keeping new data:", mergeError)
+          }
+        }
+
+        // Remove old key ONLY after successful migration to prevent data leakage
+        // IMPORTANT: Keep the old key for now in case other users on shared device need it
+        // We'll remove it only when explicitly clearing on logout
+        console.log("[Memory] MIGRATION: Old key preserved for potential other users on shared device")
+      }
+    } catch (error) {
+      console.error("[Memory] MIGRATION: Failed to migrate old memories:", error)
+      // Don't delete old data on error - safety first
+    }
+  }
+
+  /**
+   * Clear memories on logout - SECURITY CRITICAL
+   * This prevents logged-out users from seeing previous user's data
+   */
+  clearOnLogout() {
+    console.log("[Memory] Clearing memories on logout for security")
+    this.memories = []
+    // Also clear the anonymous key to prevent leakage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(`${MEMORY_STORAGE_KEY_PREFIX}_anonymous`)
+    }
+    this.userId = null
+    this.syncEnabled = false
   }
 
   /**
@@ -119,16 +228,21 @@ class MemoryService {
   }
 
   /**
-   * Load memories from localStorage
+   * Load memories from localStorage (user-scoped)
+   * SECURITY: Uses user-specific storage key
    */
   private loadMemories() {
     // Skip during SSR
     if (typeof window === 'undefined') return
 
+    const storageKey = this.getStorageKey()
     try {
-      const stored = localStorage.getItem(MEMORY_STORAGE_KEY)
+      const stored = localStorage.getItem(storageKey)
       if (stored) {
         this.memories = JSON.parse(stored)
+        console.log("[Memory] Loaded", this.memories.length, "memories from", storageKey)
+      } else {
+        console.log("[Memory] No memories found for", storageKey)
       }
     } catch (error) {
       console.error("[Memory] Load error:", error)
@@ -137,14 +251,16 @@ class MemoryService {
   }
 
   /**
-   * Save memories to localStorage (and optionally to database)
+   * Save memories to localStorage (user-scoped)
+   * SECURITY: Uses user-specific storage key
    */
   private saveMemories() {
     // Skip during SSR
     if (typeof window === 'undefined') return
 
+    const storageKey = this.getStorageKey()
     try {
-      localStorage.setItem(MEMORY_STORAGE_KEY, JSON.stringify(this.memories))
+      localStorage.setItem(storageKey, JSON.stringify(this.memories))
     } catch (error) {
       console.error("[Memory] Save error:", error)
     }

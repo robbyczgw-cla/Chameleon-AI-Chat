@@ -270,6 +270,7 @@ const PRESET_MCP_SERVERS: Omit<MCPServerConfig, "id" | "status">[] = [
     category: "Utilities",
     enabled: true,
   },
+
 ]
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {

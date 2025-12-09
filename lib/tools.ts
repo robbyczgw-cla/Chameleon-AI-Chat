@@ -55,22 +55,26 @@ export const webSearchTool: ToolDefinition = {
   type: "function",
   function: {
     name: "web_search",
-    description: `Search the web for current information, news, events, real-time data, or recent facts. Use this when the user asks about:
-- Current events, news, or recent happenings (e.g., "What happened today?", "Latest news about...")
-- Today's weather, stock prices, sports scores, or live data
-- Recent product releases, updates, or announcements
-- Local events, places, or businesses (concerts, restaurants, etc.)
-- Prices, availability, or shopping comparisons
-- Factual verification of recent claims or rumors
-- Any information that might have changed since your knowledge cutoff
+    description: `Search the web for current information. ALWAYS use this when you need ACCURATE, UP-TO-DATE information.
+
+ALWAYS use web search for:
+- Product prices, specifications, availability (NEVER trust training data for this!)
+- Current events, news, or recent happenings
+- Weather, stock prices, sports scores, or live data
+- Product releases, updates, or announcements
+- Local events, places, or businesses
+- Shopping comparisons or deals
+- Technical specifications of products/devices
+- Any factual claim you're not 100% certain about
+- Anything that might have changed since your knowledge cutoff
 
 DO NOT use for:
-- General knowledge questions (e.g., "What is Python?", "Explain quantum physics")
-- Historical facts (e.g., "When was WW2?", "Who invented the telephone?")
-- Conceptual explanations (e.g., "How does gravity work?", "What is machine learning?")
+- Pure conceptual explanations (e.g., "How does gravity work?")
 - Math calculations or code generation
 - Creative writing or brainstorming
-- Personal opinions or subjective questions`,
+- Personal opinions or subjective questions
+
+IMPORTANT: When in doubt, SEARCH! It's better to verify than to give outdated information.`,
     parameters: {
       type: "object",
       properties: {
@@ -206,10 +210,85 @@ DO NOT use for:
 }
 
 /**
- * Get all available tools for the chat API
+ * Shopify Tool Definition
+ *
+ * Search products, check inventory, and get product details from Shopify store
+ * Only available for HiFi tier users with configured Shopify credentials
  */
-export function getAvailableTools(): ToolDefinition[] {
-  return [webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool]
+export const shopifyTool: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "shopify_products",
+    description: `PRIMÄRE QUELLE für Produktinformationen aus unserem Shop!
+
+⚠️ IMMER ZUERST dieses Tool verwenden für:
+- Preise (unser aktueller Verkaufspreis!)
+- Lagerbestand und Verfügbarkeit
+- Produktdetails aus unserem Sortiment
+
+VERFÜGBARE DATEN pro Produkt:
+- Titel, Beschreibung
+- **PRODUKTBILD** (als Markdown-Bild - IMMER anzeigen!)
+- Preis in Euro mit **UVP/Vergleichspreis** und Rabatt-%
+- Lagerbestand, Verfügbarkeit
+- SKU (Artikelnummer)
+- Direkter LINK zum Produkt
+- Varianten (Farben, Größen, etc.)
+
+Verwende dieses Tool wenn:
+- "Habt ihr...?", "Was kostet...?", "Zeig mir..."
+- "Ist ... auf Lager?", "Wie viele ... habt ihr?"
+- "Preis von...", "Link zu..."
+- Jede Frage zu Produkten die wir führen könnten
+
+WICHTIG für die Antwort:
+- IMMER Produktbild einbinden (![alt](url))
+- Bei Angeboten beide Preise: "€1599 ~~€1799~~ (-11%)"
+- Link zum Produkt immer angeben
+
+Verwende web_search NUR für:
+- Externe Infos (Testberichte, Reviews, Herstellerdetails)
+- Produkte die wir NICHT führen
+- Preisvergleiche mit anderen Shops`,
+    parameters: {
+      type: "object",
+      properties: {
+        action: {
+          type: "string",
+          description: "Die gewünschte Aktion",
+          enum: ["search_products", "list_products", "get_product", "get_inventory"]
+        },
+        query: {
+          type: "string",
+          description: "Suchbegriff für Produktsuche (für search_products). Z.B. 'Wanduhr', 'Holz Tisch', 'Lampe blau'"
+        },
+        product_id: {
+          type: "string",
+          description: "Produkt-ID für get_product Aktion"
+        },
+        limit: {
+          type: "string",
+          description: "Maximale Anzahl der Ergebnisse (Standard: 10, Max: 50)"
+        }
+      },
+      required: ["action"]
+    }
+  }
+}
+
+/**
+ * Get all available tools for the chat API
+ * @param options - Optional settings to control which tools are available
+ */
+export function getAvailableTools(options?: { includeShopify?: boolean }): ToolDefinition[] {
+  const tools = [webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool]
+
+  // Add Shopify tool only if explicitly enabled (for HiFi users)
+  if (options?.includeShopify) {
+    tools.push(shopifyTool)
+  }
+
+  return tools
 }
 
 /**

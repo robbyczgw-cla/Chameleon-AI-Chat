@@ -41,7 +41,7 @@ interface SimpleChatInputProps {
 
 export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
   const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration, setStreamingPhase, setCurrentTool, setSearchQuery, currentStreamingDetails, setCurrentStreamingDetails, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
-  const { features, isAdvancedMode } = useFeatureFlags()
+  const { features, isAdvancedMode, isHifi } = useFeatureFlags()
 
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
@@ -118,6 +118,14 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   }, [webSearchEnabled, reasoningEnabled])
 
   // NOTE: isAdvancedMode detection moved to useFeatureFlags() hook
+
+  // HIFI: Auto-disable manual web search toggle (tool calling handles everything)
+  useEffect(() => {
+    if (isHifi && webSearchEnabled) {
+      console.log("[SimpleChatInput] HiFi mode - disabling manual web search toggle (tool calling handles this)")
+      setWebSearchEnabled(false)
+    }
+  }, [isHifi])
 
   // Update command suggestions when input changes (Advanced mode only with feature flag)
   useEffect(() => {
@@ -405,19 +413,28 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       })
     }
 
-    // Build system prompt: Use persona prompt if provided, otherwise use settings
-    let systemPrompt = selectedPersona?.prompt || settings.systemPrompt
+    /// Build system prompt: Use persona personality/prompt if provided, otherwise use settings
+    // Note: `personality` is the preferred field, `prompt` is deprecated but supported for backwards compatibility
+    let systemPrompt = selectedPersona?.personality || selectedPersona?.prompt || settings.systemPrompt
 
-    // Add language instruction based on UI language setting
-    const languageInstruction = settings.language === "en"
-      ? "\n\nIMPORTANT: Always respond in English."
-      : settings.language === "de"
-      ? "\n\nWICHTIG: Antworte immer auf Deutsch."
-      : settings.language === "es"
-      ? "\n\nIMPORTANTE: Responde siempre en español."
-      : "\n\nIMPORTANT: Always respond in English."
+    // Add language instruction based on mode and settings
+    // HIFI MODE = ALWAYS GERMAN - NO EXCEPTIONS
+    if (isHifi) {
+      // HiFi tier: FORCE GERMAN, always, no matter what
+      systemPrompt = `${systemPrompt}\n\nWICHTIG: Antworte IMMER auf Deutsch (österreichisches Deutsch). NIEMALS auf Englisch antworten.`
+      console.log("[Simple Chat] 🇦🇹 HiFi mode - FORCING GERMAN language")
+    } else {
+      // Non-HiFi: Use user's preferred language from settings
+      const languageInstruction = settings.language === "en"
+        ? "\n\nIMPORTANT: Always respond in English."
+        : settings.language === "de"
+        ? "\n\nWICHTIG: Antworte immer auf Deutsch."
+        : settings.language === "es"
+        ? "\n\nIMPORTANTE: Responde siempre en español."
+        : "\n\nIMPORTANT: Always respond in English."
 
-    systemPrompt = `${systemPrompt}${languageInstruction}`
+      systemPrompt = `${systemPrompt}${languageInstruction}`
+    }
 
     // NOTE: User profile data is NOT injected directly into prompts
     // Profile data is stored in the memory system via memoryService.integrateProfile()
@@ -465,22 +482,27 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       // 1. Manual toggle ON → do manual search before streaming (explicit user request)
       // 2. Manual toggle OFF + model supports tool calling → let AI decide via tool calling
       // 3. Manual toggle OFF + no tool calling support → use heuristics fallback
+      //
+      // HIFI MODE: Tool calling is ALWAYS enabled regardless of toggle (for Shopify, etc.)
       const supportsToolCalling = modelSupportsToolCalling(model)
       const searchHeuristics = analyzeQueryForSearch(input.trim())
       const shouldAutoSearchHeuristics = searchHeuristics.shouldSearch && searchHeuristics.confidence >= 0.4
 
       // Only do manual search if explicitly toggled OR (heuristics say yes AND no tool calling support)
-      const performManualSearch = webSearchEnabled || (!supportsToolCalling && shouldAutoSearchHeuristics)
+      // HIFI: Never do manual search - let AI use tool calling for everything
+      const performManualSearch = isHifi ? false : (webSearchEnabled || (!supportsToolCalling && shouldAutoSearchHeuristics))
 
       // Enable AI-driven search via tool calling when not doing manual search
-      const enableToolCallingSearch = !performManualSearch && supportsToolCalling
+      // HIFI: ALWAYS enable tool calling for Shopify and other tools
+      const enableToolCallingSearch = isHifi ? supportsToolCalling : (!performManualSearch && supportsToolCalling)
 
       console.log("[Simple Chat] Web Search strategy:")
+      console.log("[Simple Chat]   - HiFi mode:", isHifi)
       console.log("[Simple Chat]   - Manual toggle:", webSearchEnabled)
       console.log("[Simple Chat]   - Model supports tool calling:", supportsToolCalling)
       console.log("[Simple Chat]   - Heuristics auto-search:", shouldAutoSearchHeuristics)
       console.log("[Simple Chat]   - Perform manual search:", performManualSearch)
-      console.log("[Simple Chat]   - Enable tool calling search:", enableToolCallingSearch)
+      console.log("[Simple Chat]   - Enable tool calling search:", enableToolCallingSearch, isHifi ? "(FORCED ON for HiFi)" : "")
       console.log("[Simple Chat]   - Search Provider:", settings.searchProvider || "tavily")
 
       // Track search stats
@@ -502,8 +524,28 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           const searchQuery = input.trim()
           let searchResults: SearchResponse
 
-          // Simple Mode uses Tavily, Advanced Mode respects settings.searchProvider
-          const searchProvider = selectedPersona ? (settings.searchProvider || "tavily") : "tavily"
+          // HiFi defaults to Serper (better for products), Simple/Advanced respects settings
+          // AUTO-FIX: If selected provider has no key, use an available one
+          const manualDefaultProvider = isHifi ? "serper" : "tavily"
+          let searchProvider = selectedPersona ? (settings.searchProvider || manualDefaultProvider) : manualDefaultProvider
+
+          // Check if selected provider has a key, otherwise auto-switch
+          const hasSelectedKey = searchProvider === "serper" ? settings.apiKeys.serper :
+                                 searchProvider === "youcom" ? settings.apiKeys.youcom :
+                                 settings.apiKeys.tavily
+
+          if (!hasSelectedKey) {
+            if (settings.apiKeys.serper) {
+              console.log("[Simple Chat] ⚠️ Manual search: Auto-switching to Serper (selected provider has no key)")
+              searchProvider = "serper"
+            } else if (settings.apiKeys.tavily) {
+              console.log("[Simple Chat] ⚠️ Manual search: Auto-switching to Tavily")
+              searchProvider = "tavily"
+            } else if (settings.apiKeys.youcom) {
+              console.log("[Simple Chat] ⚠️ Manual search: Auto-switching to You.com")
+              searchProvider = "youcom"
+            }
+          }
 
           console.log(`[Simple Chat] 🔍 Using search provider: ${searchProvider.toUpperCase()}`)
 
@@ -674,11 +716,35 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
       // Get the appropriate search API key for tool calling
       // Note: API route supports tavily, serper, exa - fallback to tavily if youcom is selected
-      const rawSearchProvider = settings.searchProvider || "tavily"
-      const searchProviderForTools = rawSearchProvider === "youcom" ? "tavily" : rawSearchProvider
-      const searchApiKeyForTools = searchProviderForTools === "serper"
+      // HIFI: Default to Serper (better for product searches), others default to Tavily
+      const defaultProvider = isHifi ? "serper" : "tavily"
+      const rawSearchProvider = settings.searchProvider || defaultProvider
+      let searchProviderForTools = rawSearchProvider === "youcom" ? "tavily" : rawSearchProvider
+      let searchApiKeyForTools = searchProviderForTools === "serper"
         ? settings.apiKeys.serper
         : settings.apiKeys.tavily // exa would use tavily key as fallback
+
+      // AUTO-FIX: If selected provider has no key, try to use another available key
+      // This is critical for HiFi mode where tool calling MUST work
+      if (!searchApiKeyForTools) {
+        if (settings.apiKeys.serper) {
+          console.log("[Simple Chat] ⚠️ Auto-switching to Serper (Tavily key missing)")
+          searchProviderForTools = "serper"
+          searchApiKeyForTools = settings.apiKeys.serper
+        } else if (settings.apiKeys.tavily) {
+          console.log("[Simple Chat] ⚠️ Auto-switching to Tavily (Serper key missing)")
+          searchProviderForTools = "tavily"
+          searchApiKeyForTools = settings.apiKeys.tavily
+        } else {
+          console.warn("[Simple Chat] ❌ NO SEARCH API KEY AVAILABLE - Tool calling will NOT work!")
+        }
+      }
+
+      console.log("[Simple Chat] 🔧 Tool calling config:", {
+        provider: searchProviderForTools,
+        hasKey: !!searchApiKeyForTools,
+        enableAutoToolUse: enableToolCallingSearch
+      })
 
       await streamChatMessage(messages, model, onChunk, {
         temperature: settings.temperature || 0.7,
@@ -699,6 +765,22 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         enableUrlFetchTool: settings.experimental?.enableUrlFetchTool !== false,
         enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
         enableWeatherTool: settings.experimental?.enableWeatherTool !== false,
+        // Shopify tool settings (HiFi mode)
+        // DEBUG: Log Shopify settings status
+        ...((() => {
+          const hasStoreUrl = !!settings.shopifySettings?.storeUrl
+          const hasToken = !!settings.shopifySettings?.accessToken
+          console.log("[Simple Chat] 🛒 Shopify settings check:", {
+            hasStoreUrl,
+            hasToken,
+            storeUrl: settings.shopifySettings?.storeUrl ? "***set***" : "EMPTY",
+            enabled: hasStoreUrl && hasToken
+          })
+          return {}
+        })()),
+        enableShopifyTool: !!(settings.shopifySettings?.storeUrl && settings.shopifySettings?.accessToken),
+        shopifyStoreUrl: settings.shopifySettings?.storeUrl,
+        shopifyAccessToken: settings.shopifySettings?.accessToken,
         onSearchStart: (query) => {
           console.log("[Simple Chat] 🤖 AI triggered search:", query)
           toast({
@@ -732,7 +814,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           const toolDescriptions: Record<string, string> = {
             web_search: "Searching the internet for information",
             calculator: "Performing mathematical calculations",
-            code_interpreter: "Executing and analyzing code"
+            code_interpreter: "Executing and analyzing code",
+            shopify_products: settings.language === "de" ? "Suche in Shopify Produkten..." : "Searching Shopify products..."
           }
           addStreamingHistoryEntry({
             phase: "tool_use",
@@ -966,28 +1049,30 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         <div className="flex flex-col gap-1.5 md:gap-0">
           {/* Mobile: Action buttons row above textarea */}
           <div className="flex md:hidden items-center gap-1 px-0.5 pb-1">
-            {/* Persona picker */}
-            <QuickPersonaPicker />
+            {/* Persona picker - hidden for HiFi (they have dedicated persona) */}
+            {!isHifi && <QuickPersonaPicker />}
             {/* Action buttons */}
             <div className="flex items-center gap-0.5 ml-auto">
-              {/* Web search */}
-              <Button
-                type="button"
-                size="icon"
-                variant={webSearchEnabled ? "default" : "ghost"}
-                className={cn(
-                  "h-8 w-8 rounded-lg",
-                  webSearchEnabled
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground"
-                )}
-                onClick={() => {
-                  haptics.trigger('selection')
-                  setWebSearchEnabled(!webSearchEnabled)
-                }}
-              >
-                <Globe className="h-3.5 w-3.5" />
-              </Button>
+              {/* Web search - hidden for HiFi (tool calling handles this automatically) */}
+              {!isHifi && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={webSearchEnabled ? "default" : "ghost"}
+                  className={cn(
+                    "h-8 w-8 rounded-lg",
+                    webSearchEnabled
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground"
+                  )}
+                  onClick={() => {
+                    haptics.trigger('selection')
+                    setWebSearchEnabled(!webSearchEnabled)
+                  }}
+                >
+                  <Globe className="h-3.5 w-3.5" />
+                </Button>
+              )}
               {/* File upload */}
               <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
               {/* Image mode */}

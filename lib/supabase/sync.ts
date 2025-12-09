@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client"
-import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt, Memory } from "@/types"
+import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt, Memory, AccessTier } from "@/types"
 
 export class SupabaseSync {
   private supabase = createClient()
@@ -252,6 +252,7 @@ export class SupabaseSync {
 
       const settingsData = {
         simple_mode: settings.simpleMode ?? false,
+        access_tier: settings.accessTier || "standard",
         system_prompt: settings.systemPrompt,
         temperature: settings.modelParameters.temperature,
         max_tokens: settings.modelParameters.maxTokens,
@@ -294,6 +295,10 @@ export class SupabaseSync {
           : '[]',
         experimental_settings: settings.experimental
           ? JSON.stringify(settings.experimental)
+          : '{}',
+        // Shopify settings for HiFi mode
+        shopify_settings: settings.shopifySettings
+          ? JSON.stringify(settings.shopifySettings)
           : '{}',
         updated_at: new Date().toISOString(),
       }
@@ -775,6 +780,7 @@ export class SupabaseSync {
 
     return {
       simpleMode: dbSettings.simple_mode ?? false,
+      accessTier: (dbSettings.access_tier as AccessTier) || "standard",
       systemPrompt:
         dbSettings.system_prompt ||
         "You are a helpful, knowledgeable AI assistant. Provide comprehensive, detailed, and well-structured answers. When answering questions, be thorough and explain concepts fully. Use examples where appropriate. Don't cut answers short - complete your thoughts and provide meaningful, substantive responses. Am Ende jeder Antwort schlägst du 2-3 passende next possible User prompts vor im Format: [FOLLOWUP]Frage 1|Frage 2|Frage 3[/FOLLOWUP] , vor diesem follow up schreibst du mir 1-3 anregende Fragen zum fortführen der diskussion wenn es passt. aber formuliere dies immer etwas anders.",
@@ -852,6 +858,17 @@ export class SupabaseSync {
           : {}
 
         console.log("[Supabase] Parsed experimental settings:", parsed)
+        return parsed
+      })(),
+      // Shopify settings for HiFi mode
+      shopifySettings: (() => {
+        if (!dbSettings.shopify_settings) return undefined
+
+        const parsed = typeof dbSettings.shopify_settings === "string"
+          ? JSON.parse(dbSettings.shopify_settings)
+          : dbSettings.shopify_settings
+
+        console.log("[Supabase] Parsed shopifySettings:", parsed?.storeUrl ? "***configured***" : "empty")
         return parsed
       })(),
     }
