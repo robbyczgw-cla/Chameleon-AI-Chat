@@ -694,9 +694,13 @@ export function SimpleChatApp() {
     }, 100)
   }
 
-  // Get feature flags based on access tier
-  const isHifi = isHifiTier(settings.accessTier)
-  const featureFlags = getFeatureFlags(true, settings.accessTier) // Always simple mode in SimpleChatApp
+  // Get feature flags based on access tier - check BOTH settings AND email directly
+  // Email check is needed because settings may not be synced yet for new users
+  const userEmail = user?.email?.toLowerCase() || ""
+  const isHifiByEmail = userEmail.endsWith("@hifiteam.at")
+  const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
+  const effectiveAccessTier = isHifi ? "hifi" : settings.accessTier
+  const featureFlags = getFeatureFlags(true, effectiveAccessTier) // Always simple mode in SimpleChatApp
 
   // For HiFi tier: Force HiFi persona, otherwise use selected or default to Cami
   const selectedPersona = isHifi

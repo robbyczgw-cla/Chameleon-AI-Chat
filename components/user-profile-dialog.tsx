@@ -27,7 +27,10 @@ export function UserProfileDialog({ open, onOpenChange, onProfileUpdate }: UserP
   const { user, settings } = useApp()
 
   // Check if user is in HiFi tier (simplified profile - name only)
-  const isHifi = isHifiTier(settings.accessTier)
+  // Check BOTH settings AND email directly - email check needed for new users before settings sync
+  const userEmail = user?.email?.toLowerCase() || ""
+  const isHifiByEmail = userEmail.endsWith("@hifiteam.at")
+  const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
 
   useEffect(() => {
     if (open) {

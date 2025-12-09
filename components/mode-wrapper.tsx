@@ -15,8 +15,11 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
   const [showModeSelection, setShowModeSelection] = useState(false)
   const [hasCheckedModeSelection, setHasCheckedModeSelection] = useState(false)
 
-  // Check if user is in HiFi tier
-  const isHifi = isHifiTier(settings.accessTier)
+  // Check if user is in HiFi tier - check BOTH settings AND email directly
+  // Email check is needed because settings may not be synced yet for new users
+  const userEmail = user?.email?.toLowerCase() || ""
+  const isHifiByEmail = userEmail.endsWith("@hifiteam.at")
+  const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
 
   // Check if user needs to select a mode (first-time user)
   // This effect re-runs when user/chats change, so if we detect an existing user later, we hide the dialog
