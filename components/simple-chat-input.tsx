@@ -524,9 +524,10 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           const searchQuery = input.trim()
           let searchResults: SearchResponse
 
-          // Simple Mode uses Tavily, Advanced Mode respects settings.searchProvider
+          // HiFi defaults to Serper (better for products), Simple/Advanced respects settings
           // AUTO-FIX: If selected provider has no key, use an available one
-          let searchProvider = selectedPersona ? (settings.searchProvider || "tavily") : "tavily"
+          const manualDefaultProvider = isHifi ? "serper" : "tavily"
+          let searchProvider = selectedPersona ? (settings.searchProvider || manualDefaultProvider) : manualDefaultProvider
 
           // Check if selected provider has a key, otherwise auto-switch
           const hasSelectedKey = searchProvider === "serper" ? settings.apiKeys.serper :
@@ -715,8 +716,9 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
       // Get the appropriate search API key for tool calling
       // Note: API route supports tavily, serper, exa - fallback to tavily if youcom is selected
-      // HIFI: Auto-select provider based on available keys to ensure tool calling works
-      const rawSearchProvider = settings.searchProvider || "tavily"
+      // HIFI: Default to Serper (better for product searches), others default to Tavily
+      const defaultProvider = isHifi ? "serper" : "tavily"
+      const rawSearchProvider = settings.searchProvider || defaultProvider
       let searchProviderForTools = rawSearchProvider === "youcom" ? "tavily" : rawSearchProvider
       let searchApiKeyForTools = searchProviderForTools === "serper"
         ? settings.apiKeys.serper
@@ -1047,8 +1049,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         <div className="flex flex-col gap-1.5 md:gap-0">
           {/* Mobile: Action buttons row above textarea */}
           <div className="flex md:hidden items-center gap-1 px-0.5 pb-1">
-            {/* Persona picker */}
-            <QuickPersonaPicker />
+            {/* Persona picker - hidden for HiFi (they have dedicated persona) */}
+            {!isHifi && <QuickPersonaPicker />}
             {/* Action buttons */}
             <div className="flex items-center gap-0.5 ml-auto">
               {/* Web search - hidden for HiFi (tool calling handles this automatically) */}
