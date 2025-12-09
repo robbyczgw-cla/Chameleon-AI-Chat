@@ -338,6 +338,7 @@ export interface AppSettings {
   exaSettings?: ExaSettings
   comparisonMode?: ComparisonMode
   memorySettings?: MemorySettings
+  shopifySettings?: ShopifySettings // HiFi mode: Shopify store connection
   fontSize?: "small" | "medium" | "large"
   fontFamily?: "inter" | "roboto" | "atkinson" | "opendyslexic" | "jetbrains" | "system"
   messageDensity?: "compact" | "comfortable" | "spacious"
@@ -403,4 +404,9 @@ export interface MemorySettings {
   classificationConfidence?: number // 0.0-1.0, default 0.8 - minimum confidence to trust classification
   minRelevanceScore?: number // 0.0-1.0, default 0.3 - if best match below this, skip all memories
   alwaysRetrieveForPersonas?: boolean // Override classification for persona chats (default true)
+}
+
+export interface ShopifySettings {
+  storeUrl?: string // e.g., "my-store.myshopify.com"
+  accessToken?: string // Shopify Admin API access token
 }

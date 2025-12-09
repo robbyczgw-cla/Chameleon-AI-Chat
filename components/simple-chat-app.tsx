@@ -655,7 +655,7 @@ export function SimpleChatApp() {
 
   const handleNewChat = () => {
     try {
-      createChat(settings.selectedModel)
+      createChat(effectiveModel)
       setIsSidebarOpen(false)
     } catch (error) {
       console.error("[Simple Mode] Failed to create new chat:", error)
@@ -674,7 +674,7 @@ export function SimpleChatApp() {
   const handleSelectPersona = (persona: Persona | null) => {
     updateSettings({ selectedPersona: persona || undefined })
     // Create new chat when selecting a persona
-    createChat(settings.selectedModel)
+    createChat(effectiveModel)
     setIsPersonasOpen(false)
   }
 
@@ -694,7 +694,7 @@ export function SimpleChatApp() {
   const handleQuickPrompt = (prompt: string) => {
     // Create a new chat if needed and send the prompt
     if (!currentChat || currentChat.messages.length > 0) {
-      createChat(settings.selectedModel)
+      createChat(effectiveModel)
     }
     // Dispatch event to send the message
     setTimeout(() => {
@@ -720,6 +720,11 @@ export function SimpleChatApp() {
     ? "de"
     : (settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en")
   const t = translations[lang as keyof typeof translations]
+
+  // For HiFi tier: Force proper default model if not set, otherwise use selected model
+  const effectiveModel = isHifi && !settings.defaultModel
+    ? "openai/gpt-5.1-codex-mini"
+    : (settings.defaultModel || settings.selectedModel || "openai/gpt-5.1-codex-mini")
 
   // Filter chats based on search query
   const filteredChats = searchQuery.trim()

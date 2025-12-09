@@ -9,12 +9,13 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { User, Palette, Key, Volume2, Settings2, ChevronRight, Search, Brain, HelpCircle, Bot } from "lucide-react"
+import { User, Palette, Key, Volume2, Settings2, ChevronRight, Search, Brain, HelpCircle, Bot, ShoppingCart } from "lucide-react"
 import { Sparkles, Zap, Shield, DollarSign } from "lucide-react"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import { isHifiTier } from "@/lib/feature-flags"
 
 // Translations for Simple Settings
 const translations = {
@@ -222,6 +223,18 @@ const translations = {
     save: "Speichern",
     settingsSaved: "Einstellungen gespeichert!",
     preferencesUpdated: "Deine Einstellungen wurden aktualisiert.",
+    // Shopify section (HiFi only)
+    shopify: "Shop",
+    shopifyTitle: "Shopify Verbindung",
+    shopifyDesc: "Verbinde deinen Shopify Store für Produktsuche und Bestandsabfragen",
+    shopifyStoreUrl: "Store URL",
+    shopifyStoreUrlPlaceholder: "dein-shop.myshopify.com",
+    shopifyStoreUrlHelp: "Die URL deines Shopify Stores (ohne https://)",
+    shopifyAccessToken: "Access Token",
+    shopifyAccessTokenPlaceholder: "shpat_...",
+    shopifyAccessTokenHelp: "Erstelle einen Custom App Token in den Shopify Admin Einstellungen",
+    shopifyConnected: "Shopify ist verbunden! Du kannst jetzt nach Produkten fragen.",
+    shopifyNotConnected: "Gib deine Shopify Daten ein um den Store zu verbinden.",
     // AI Model section
     aiModel: "KI-Modell",
     chooseAiModel: "Wähle dein KI-Modell",
@@ -395,8 +408,13 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
   const { toast } = useToast()
 
-  // Get translations based on language
-  const lang = settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en"
+  // Check if user is in HiFi tier - check BOTH settings AND email directly
+  const userEmail = user?.email?.toLowerCase() || ""
+  const isHifiByEmail = userEmail.endsWith("@hifiteam.at")
+  const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
+
+  // Get translations based on language - HiFi users ALWAYS get German
+  const lang = isHifi ? "de" : (settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en")
   const t = translations[lang as keyof typeof translations]
 
   useEffect(() => {
@@ -498,7 +516,8 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full min-w-0">
-          <TabsList className="grid grid-cols-9 gap-1 w-full">
+          {/* HiFi users have 8 tabs (no settings/advanced mode tab) */}
+          <TabsList className={cn("grid gap-1 w-full", isHifi ? "grid-cols-8" : "grid-cols-9")}>
             <TabsTrigger value="profile" className="text-xs gap-1 px-1">
               <User className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.profile}</span>
@@ -531,10 +550,20 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               <HelpCircle className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.help}</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs gap-1 px-1">
-              <Settings2 className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{t.advancedSettings}</span>
-            </TabsTrigger>
+            {/* Shopify tab for HiFi users only */}
+            {isHifi && (
+              <TabsTrigger value="shopify" className="text-xs gap-1 px-1">
+                <ShoppingCart className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{t.shopify}</span>
+              </TabsTrigger>
+            )}
+            {/* Hide settings/advanced mode tab for HiFi users - they cannot switch modes */}
+            {!isHifi && (
+              <TabsTrigger value="settings" className="text-xs gap-1 px-1">
+                <Settings2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{t.advancedSettings}</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <div className="mt-4">
@@ -729,33 +758,35 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
 
             {/* Appearance Tab */}
             <TabsContent value="appearance" className="space-y-4 mt-0">
-              {/* Language Pills */}
-              <div className="space-y-2">
-                <Label className="text-sm">{t.language}</Label>
-                <div className="flex gap-2 flex-wrap">
-                  {[
-                    { value: "en", label: "English", flag: "🇬🇧" },
-                    { value: "de", label: "Deutsch", flag: "🇩🇪" },
-                    { value: "es", label: "Español", flag: "🇪🇸" },
-                  ].map((lang) => (
-                    <button
-                      key={lang.value}
-                      type="button"
-                      onClick={() => setLocalSettings({ ...localSettings, language: lang.value as "en" | "de" | "es" })}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-                        "border border-border/60 hover:border-violet-300",
-                        localSettings.language === lang.value
-                          ? "bg-violet-500 text-white border-violet-500"
-                          : "bg-background/50 hover:bg-violet-500/5"
-                      )}
-                    >
-                      <span>{lang.flag}</span>
-                      <span>{lang.label}</span>
-                    </button>
-                  ))}
+              {/* Language Pills - Hidden for HiFi users (German only) */}
+              {!isHifi && (
+                <div className="space-y-2">
+                  <Label className="text-sm">{t.language}</Label>
+                  <div className="flex gap-2 flex-wrap">
+                    {[
+                      { value: "en", label: "English", flag: "🇬🇧" },
+                      { value: "de", label: "Deutsch", flag: "🇩🇪" },
+                      { value: "es", label: "Español", flag: "🇪🇸" },
+                    ].map((langOption) => (
+                      <button
+                        key={langOption.value}
+                        type="button"
+                        onClick={() => setLocalSettings({ ...localSettings, language: langOption.value as "en" | "de" | "es" })}
+                        className={cn(
+                          "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
+                          "border border-border/60 hover:border-violet-300",
+                          localSettings.language === langOption.value
+                            ? "bg-violet-500 text-white border-violet-500"
+                            : "bg-background/50 hover:bg-violet-500/5"
+                        )}
+                      >
+                        <span>{langOption.flag}</span>
+                        <span>{langOption.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Theme Cards - Blocks Style */}
               <div className="space-y-2">
@@ -1273,29 +1304,109 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               </div>
             </TabsContent>
 
-            {/* Settings Tab */}
-            <TabsContent value="settings" className="space-y-4 mt-0">
-              <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-violet-500/10 border border-purple-500/20">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
-                    <Settings2 className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">{t.advancedMode}</h3>
-                    <p className="text-xs text-muted-foreground">{t.canSwitchBack}</p>
+            {/* Shopify Tab - HiFi users only */}
+            {isHifi && (
+              <TabsContent value="shopify" className="space-y-4 mt-0">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                      <ShoppingCart className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">{t.shopifyTitle}</h3>
+                      <p className="text-xs text-muted-foreground">{t.shopifyDesc}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <Button
-                variant="outline"
-                className="w-full justify-between"
-                onClick={switchToAdvancedMode}
-              >
-                <span>{t.switchToAdvanced}</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </TabsContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="shopify-store-url" className="text-sm font-medium">
+                      {t.shopifyStoreUrl}
+                    </Label>
+                    <Input
+                      id="shopify-store-url"
+                      placeholder={t.shopifyStoreUrlPlaceholder}
+                      value={localSettings.shopifySettings?.storeUrl || ""}
+                      onChange={(e) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          shopifySettings: {
+                            ...localSettings.shopifySettings,
+                            storeUrl: e.target.value,
+                          },
+                        })
+                      }
+                      className="h-10"
+                    />
+                    <p className="text-xs text-muted-foreground">{t.shopifyStoreUrlHelp}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="shopify-access-token" className="text-sm font-medium">
+                      {t.shopifyAccessToken}
+                    </Label>
+                    <Input
+                      id="shopify-access-token"
+                      type="password"
+                      placeholder={t.shopifyAccessTokenPlaceholder}
+                      value={localSettings.shopifySettings?.accessToken || ""}
+                      onChange={(e) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          shopifySettings: {
+                            ...localSettings.shopifySettings,
+                            accessToken: e.target.value,
+                          },
+                        })
+                      }
+                      className="h-10"
+                    />
+                    <p className="text-xs text-muted-foreground">{t.shopifyAccessTokenHelp}</p>
+                  </div>
+                </div>
+
+                {localSettings.shopifySettings?.storeUrl && localSettings.shopifySettings?.accessToken ? (
+                  <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                    <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
+                      <span>✓</span> {t.shopifyConnected}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <p className="text-sm text-amber-600 dark:text-amber-400">
+                      {t.shopifyNotConnected}
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
+            )}
+
+            {/* Settings Tab - Hidden for HiFi users (cannot switch modes) */}
+            {!isHifi && (
+              <TabsContent value="settings" className="space-y-4 mt-0">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-violet-500/10 border border-purple-500/20">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
+                      <Settings2 className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">{t.advancedMode}</h3>
+                      <p className="text-xs text-muted-foreground">{t.canSwitchBack}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  className="w-full justify-between"
+                  onClick={switchToAdvancedMode}
+                >
+                  <span>{t.switchToAdvanced}</span>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </TabsContent>
+            )}
           </div>
         </Tabs>
 
