@@ -525,7 +525,26 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           let searchResults: SearchResponse
 
           // Simple Mode uses Tavily, Advanced Mode respects settings.searchProvider
-          const searchProvider = selectedPersona ? (settings.searchProvider || "tavily") : "tavily"
+          // AUTO-FIX: If selected provider has no key, use an available one
+          let searchProvider = selectedPersona ? (settings.searchProvider || "tavily") : "tavily"
+
+          // Check if selected provider has a key, otherwise auto-switch
+          const hasSelectedKey = searchProvider === "serper" ? settings.apiKeys.serper :
+                                 searchProvider === "youcom" ? settings.apiKeys.youcom :
+                                 settings.apiKeys.tavily
+
+          if (!hasSelectedKey) {
+            if (settings.apiKeys.serper) {
+              console.log("[Simple Chat] ⚠️ Manual search: Auto-switching to Serper (selected provider has no key)")
+              searchProvider = "serper"
+            } else if (settings.apiKeys.tavily) {
+              console.log("[Simple Chat] ⚠️ Manual search: Auto-switching to Tavily")
+              searchProvider = "tavily"
+            } else if (settings.apiKeys.youcom) {
+              console.log("[Simple Chat] ⚠️ Manual search: Auto-switching to You.com")
+              searchProvider = "youcom"
+            }
+          }
 
           console.log(`[Simple Chat] 🔍 Using search provider: ${searchProvider.toUpperCase()}`)
 
