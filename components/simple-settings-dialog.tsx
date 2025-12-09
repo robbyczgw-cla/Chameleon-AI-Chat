@@ -619,14 +619,17 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 </div>
               </div>
 
-              <Button
-                variant="outline"
-                className="w-full justify-between"
-                onClick={() => window.dispatchEvent(new Event("openProfile"))}
-              >
-                <span>{t.editFullProfile}</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              {/* Hide full profile edit for HiFi users - they only need name */}
+              {!isHifi && (
+                <Button
+                  variant="outline"
+                  className="w-full justify-between"
+                  onClick={() => window.dispatchEvent(new Event("openProfile"))}
+                >
+                  <span>{t.editFullProfile}</span>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
             </TabsContent>
 
             {/* AI Model Tab */}

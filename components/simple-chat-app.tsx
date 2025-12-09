@@ -29,6 +29,7 @@ import {
   ImagePlus,
   Lightbulb,
   Search,
+  HelpCircle,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -502,6 +503,7 @@ export function SimpleChatApp() {
   const [isMemoryOpen, setIsMemoryOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [imageMode, setImageMode] = useState(false)
+  const [isHelpOpen, setIsHelpOpen] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState("")
@@ -969,7 +971,11 @@ export function SimpleChatApp() {
                     <span className="text-xl shrink-0">{selectedPersona.emoji}</span>
                     <div className="min-w-0">
                       <p className="font-medium text-sm truncate">{selectedPersona.name}</p>
-                      <p className="text-xs text-muted-foreground truncate max-w-[120px] sm:max-w-[200px]">{selectedPersona.description}</p>
+                      {/* HiFi: Show full description, others: truncate */}
+                      <p className={cn(
+                        "text-xs text-muted-foreground",
+                        isHifi ? "max-w-[300px] sm:max-w-[400px]" : "truncate max-w-[120px] sm:max-w-[200px]"
+                      )}>{selectedPersona.description}</p>
                     </div>
                   </div>
                 ) : (
@@ -996,6 +1002,18 @@ export function SimpleChatApp() {
                     <Users className="h-5 w-5 sm:h-4 sm:w-4" />
                   </Button>
                 </>
+              )}
+              {/* Help button - only for HiFi users */}
+              {isHifi && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsHelpOpen(true)}
+                  className="h-10 w-10 sm:h-9 sm:w-9"
+                  title="Hilfe"
+                >
+                  <HelpCircle className="h-5 w-5 sm:h-4 sm:w-4" />
+                </Button>
               )}
               <Button
                 variant="ghost"
@@ -1044,6 +1062,90 @@ export function SimpleChatApp() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* HiFi Help Dialog - German only */}
+      {isHifi && (
+        <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
+          <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <HelpCircle className="h-5 w-5 text-primary" />
+                Hilfe - HiFi Berater
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {/* Introduction */}
+              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20">
+                <h3 className="font-semibold mb-2">Willkommen beim HiFi Berater</h3>
+                <p className="text-sm text-muted-foreground">
+                  Dein KI-Assistent für High-End Audio Beratung bei HIFI TEAM Graz.
+                </p>
+              </div>
+
+              {/* What you can ask */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">Was du fragen kannst:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Produktvergleiche (z.B. "Vergleiche Naim Uniti Atom mit Bluesound Powernode")</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Preisanfragen und Verfügbarkeit</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Technische Spezifikationen unserer Marken</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Kombinationsempfehlungen für Anlagen</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Beratung zu Lautsprechern, Verstärkern, Streamern, Plattenspielern</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Brands */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">Unsere Marken:</h4>
+                <p className="text-sm text-muted-foreground">
+                  Naim, Linn, Rega, Arcam, Atoll, Triangle, Dynaudio, Pro-Ject, DOAcoustics, Guru Audio, Lab12, Fezz, Sennheiser, NAD, Bluesound
+                </p>
+              </div>
+
+              {/* Tips */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">Tipps für bessere Antworten:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
+                  <li className="flex gap-2">
+                    <span className="text-green-500">•</span>
+                    <span>Nenne ein Budget für passende Empfehlungen</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-green-500">•</span>
+                    <span>Beschreibe den Raum/Einsatzzweck</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-green-500">•</span>
+                    <span>Frag nach aktuellen Preisen - ich suche im Shop</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Note */}
+              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  Hinweis: Der HiFi Berater nutzt Websuche um aktuelle Preise und Verfügbarkeit von shop.hifiteam.at abzurufen.
+                </p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Onboarding for first-time Simple Mode users */}
       <SimpleModeOnboarding
