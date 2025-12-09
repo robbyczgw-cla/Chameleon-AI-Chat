@@ -207,9 +207,11 @@ async function executeShopify(
                 node {
                   id
                   title
+                  handle
                   description
                   vendor
                   status
+                  onlineStoreUrl
                   featuredImage {
                     url
                     altText
@@ -249,9 +251,11 @@ async function executeShopify(
                 node {
                   id
                   title
+                  handle
                   description
                   vendor
                   status
+                  onlineStoreUrl
                   featuredImage {
                     url
                     altText
@@ -347,6 +351,9 @@ async function executeShopify(
 
     let formattedResult = `## Shopify Produkte${action === "search_products" ? ` für "${args.query}"` : ""}\n\n`
 
+    // Get public store domain for product links (remove /admin part from URL)
+    const publicStoreDomain = cleanStoreUrl.replace(".myshopify.com", ".myshopify.com").replace(/\/admin.*$/, "")
+
     products.forEach((edge: any, index: number) => {
       const product = edge.node
       const variants = product.variants?.edges || []
@@ -364,6 +371,13 @@ async function executeShopify(
       if (product.description) {
         formattedResult += `${product.description.substring(0, 200)}${product.description.length > 200 ? "..." : ""}\n`
       }
+
+      // Add product link - use onlineStoreUrl if available, otherwise construct from handle
+      const productUrl = product.onlineStoreUrl || (product.handle ? `https://${publicStoreDomain}/products/${product.handle}` : null)
+      if (productUrl) {
+        formattedResult += `- **Link:** [Zum Produkt](${productUrl})\n`
+      }
+
       formattedResult += `- **Status:** ${product.status === "ACTIVE" ? "Aktiv" : "Inaktiv"}\n`
 
       if (firstVariant) {
