@@ -397,12 +397,15 @@ Provide analysis in this JSON format:
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="costs">Costs</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="providers">Providers</TabsTrigger>
-            <TabsTrigger value="insights">AI Insights</TabsTrigger>
+          <TabsList className="flex w-full overflow-x-auto h-auto gap-1 p-1 scrollbar-hide">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0">Overview</TabsTrigger>
+            <TabsTrigger value="costs" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0">Costs</TabsTrigger>
+            <TabsTrigger value="performance" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0">Perf</TabsTrigger>
+            <TabsTrigger value="providers" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0">Providers</TabsTrigger>
+            <TabsTrigger value="insights" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0 flex items-center gap-1">
+              <Sparkles className="h-3 w-3" />
+              Insights
+            </TabsTrigger>
           </TabsList>
 
           {/* OVERVIEW TAB */}
