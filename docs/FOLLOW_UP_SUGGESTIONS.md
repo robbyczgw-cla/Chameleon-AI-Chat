@@ -49,10 +49,12 @@ The `parseFollowUps()` function extracts these tags:
 
 The `FollowUpSuggestions` component renders:
 - **Categorized rows** - One row per category (quick/deep/related)
-- **Icon + Label** - Visual category indicator
-- **Clickable buttons** - Rounded pills with hover effects
-- **Animated entrance** - Fade-in with staggered delay
+- **Color-coded categories** - Distinct gradient themes per category
+- **Icon + Label** - Pill-style category indicators with icons
+- **Clickable buttons** - Rounded pills with colored hover effects
+- **Animated entrance** - Fade-in with staggered delay (60ms per button)
 - **Arrow on hover** - Visual affordance for clicking
+- **Responsive limits** - 9 on desktop, 6 on mobile (2 per category)
 
 ---
 
@@ -85,38 +87,44 @@ Simple, but loses categorization benefits.
 
 ### UI Components
 
-#### `follow-up-suggestions.tsx`
+#### `follow-up-suggestions.tsx` (v0.10 - Color-Coded Design)
 
-**Categorized Display:**
+**Enhanced Categorized Display:**
 ```tsx
-<div className="mt-3 space-y-2">
-  {/* Quick Questions Row */}
-  <div className="flex flex-wrap gap-2 items-center">
-    <span className="text-xs">⚡ Schnell:</span>
-    <Button>What's useState?</Button>
-    <Button>Show me an example</Button>
-  </div>
+<div className="space-y-3">
+  {/* Each category in its own styled container */}
+  {Object.entries(grouped).map(([category, items]) => (
+    <div className={cn("rounded-xl border p-3", styles.containerBg)}>
+      {/* Category pill with icon */}
+      <div className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full", styles.pillBg)}>
+        <CategoryIcon className="h-3.5 w-3.5" />
+        <span>{styles.label}</span>
+        <div className={cn("h-1 w-6 rounded-full bg-gradient-to-r", styles.gradient)} />
+      </div>
 
-  {/* Deep Questions Row */}
-  <div className="flex flex-wrap gap-2 items-center">
-    <span className="text-xs">🧠 Tiefer:</span>
-    <Button>How does useEffect differ from useLayoutEffect?</Button>
-  </div>
-
-  {/* Related Topics Row */}
-  <div className="flex flex-wrap gap-2 items-center">
-    <span className="text-xs">🔗 Verwandt:</span>
-    <Button>What about Redux?</Button>
-  </div>
+      {/* Suggestion buttons with category-specific colors */}
+      <div className="flex flex-wrap gap-2 mt-2">
+        {items.slice(0, itemsPerCategory).map((item) => (
+          <Button className={cn(styles.buttonBorder, "hover:scale-[1.02]")}>
+            {item.text}
+            <ArrowRight className="opacity-0 group-hover:opacity-100" />
+          </Button>
+        ))}
+      </div>
+    </div>
+  ))}
 </div>
 ```
 
-**Button Styling:**
-- Rounded (`rounded-xl`)
-- Subtle border (`border-primary/20`)
-- Hover effects (border brightens, background tints)
+**Visual Features (v0.10+):**
+- Color-coded containers with gradient backgrounds
+- Pill-style category labels with icons (⚡ Zap, 🧠 Brain, 🔗 Link2)
+- Category-specific button borders and hover colors
+- Mobile responsive (2 per category on <768px, 3 on desktop)
+- Staggered animation (60ms delay per button)
+- Scale transform on hover (1.02x) with shadow elevation
 - Arrow icon appears on hover
-- Staggered animation (50ms delay per button)
+- Dark mode support with inverted color schemes
 
 ### Parsing Logic
 
@@ -300,9 +308,15 @@ Users who don't know the terminology can still explore:
 - Discover related topics they wouldn't have thought to ask
 - Learn the "next questions" experts would ask
 
-### 3. Mobile Efficiency
+### 3. Mobile Efficiency ✅ ENHANCED (v0.10)
 
 Typing on mobile is slow. One-click suggestions are **10x faster** than typing questions.
+
+**Mobile Optimizations:**
+- Limited to 6 suggestions (2 per category) on screens <768px
+- Reduced visual clutter while maintaining category balance
+- Touch-friendly button sizing
+- Responsive grid layout
 
 ### 4. Exploration Mode
 
@@ -400,21 +414,45 @@ if (conversationLength < 3) {
 
 **Benefit:** Most relevant suggestions appear first
 
-### 5. **Visual Differentiation - Use colors/icons more effectively**
+### 5. **Visual Differentiation - Use colors/icons more effectively** ✅ IMPLEMENTED (v0.10)
 
-**Current:** Categories have icons but similar styling
+**Status:** Fully implemented with color-coded categories
 
-**Improvement:**
+**Implementation:**
 ```tsx
-// Color-code by category
-const categoryColors = {
-  quick: 'bg-green-500/10 border-green-500/30 hover:border-green-500',
-  deep: 'bg-purple-500/10 border-purple-500/30 hover:border-purple-500',
-  related: 'bg-blue-500/10 border-blue-500/30 hover:border-blue-500'
+const categoryStyles = {
+  quick: {
+    icon: Zap,
+    label: "Quick",
+    containerBg: "bg-gradient-to-r from-emerald-50/80 to-green-50/50 dark:from-emerald-950/30 dark:to-green-950/20",
+    pillBg: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300",
+    buttonBorder: "border-emerald-200/60 hover:border-emerald-400",
+    gradient: "from-emerald-500 to-green-500"
+  },
+  deep: {
+    icon: Brain,
+    label: "Deep Dive",
+    containerBg: "bg-gradient-to-r from-violet-50/80 to-purple-50/50 dark:from-violet-950/30 dark:to-purple-950/20",
+    pillBg: "bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300",
+    buttonBorder: "border-violet-200/60 hover:border-violet-400",
+    gradient: "from-violet-500 to-purple-500"
+  },
+  related: {
+    icon: Link2,
+    label: "Related",
+    containerBg: "bg-gradient-to-r from-cyan-50/80 to-blue-50/50 dark:from-cyan-950/30 dark:to-blue-950/20",
+    pillBg: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300",
+    buttonBorder: "border-cyan-200/60 hover:border-cyan-400",
+    gradient: "from-cyan-500 to-blue-500"
+  }
 }
 ```
 
-**Benefit:** Easier to scan and identify category at a glance
+**Benefits:**
+- Instant visual category recognition
+- Consistent color theming with dark mode support
+- Gradient accents for modern aesthetic
+- Pill-style labels with category icons
 
 ### 6. **Multi-Level Suggestions - Nested follow-ups**
 
