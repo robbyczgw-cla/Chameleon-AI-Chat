@@ -319,6 +319,28 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
             </div>
           </div>
         )}
+
+        {/* Tool Result Preview - Show search results as they arrive */}
+        {streamingDetails?.searchResultsPreview && (
+          <div className="p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
+            <div className="flex items-center gap-2 mb-2">
+              <FileSearch className="w-4 h-4 text-cyan-500 flex-shrink-0" />
+              <span className="text-xs font-medium text-cyan-600 dark:text-cyan-400">
+                {lang === "de" ? "Suchergebnisse" : lang === "es" ? "Resultados" : "Results Preview"}
+              </span>
+              {streamingDetails.resultCount !== undefined && (
+                <span className="text-xs text-cyan-500/70 ml-auto">
+                  {streamingDetails.resultCount} {streamingDetails.resultCount === 1 ?
+                    (lang === "de" ? "Ergebnis" : lang === "es" ? "resultado" : "result") :
+                    (lang === "de" ? "Ergebnisse" : lang === "es" ? "resultados" : "results")}
+                </span>
+              )}
+            </div>
+            <div className="text-xs text-foreground/80 max-h-32 overflow-y-auto break-words whitespace-pre-wrap pl-6 font-mono bg-cyan-500/5 rounded p-2">
+              {streamingDetails.searchResultsPreview}
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -496,6 +518,28 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
               </div>
               <div className="text-xs text-foreground/80 font-mono max-h-32 overflow-y-auto break-words whitespace-pre-wrap pl-6">
                 {streamingDetails.reasoningContent}
+              </div>
+            </div>
+          )}
+
+          {/* Tool Result Preview - Show search results as they arrive (Detailed Mode) */}
+          {streamingDetails?.searchResultsPreview && (
+            <div className="p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
+              <div className="flex items-center gap-2 mb-2">
+                <FileSearch className="w-4 h-4 text-cyan-500 flex-shrink-0" />
+                <span className="text-xs font-medium text-cyan-600 dark:text-cyan-400">
+                  {lang === "de" ? "Suchergebnisse" : lang === "es" ? "Resultados" : "Results Preview"}
+                </span>
+                {streamingDetails.resultCount !== undefined && (
+                  <span className="text-xs text-cyan-500/70 ml-auto">
+                    {streamingDetails.resultCount} {streamingDetails.resultCount === 1 ?
+                      (lang === "de" ? "Ergebnis" : lang === "es" ? "resultado" : "result") :
+                      (lang === "de" ? "Ergebnisse" : lang === "es" ? "resultados" : "results")}
+                  </span>
+                )}
+              </div>
+              <div className="text-xs text-foreground/80 max-h-40 overflow-y-auto break-words whitespace-pre-wrap pl-6 font-mono bg-cyan-500/5 rounded p-2">
+                {streamingDetails.searchResultsPreview}
               </div>
             </div>
           )}
@@ -901,6 +945,18 @@ export const StreamingHistoryDisplay = memo(function StreamingHistoryDisplay({
                   <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">
                     {entry.resultCount} result{entry.resultCount !== 1 ? 's' : ''}
                   </p>
+                )}
+                {/* Search Results Preview in History */}
+                {entry.searchResultsPreview && (
+                  <details className="mt-1.5 group">
+                    <summary className="text-[10px] text-cyan-600 dark:text-cyan-400 cursor-pointer hover:text-cyan-500 flex items-center gap-1">
+                      <FileSearch className="w-3 h-3" />
+                      <span>{lang === "de" ? "Ergebnisse anzeigen" : lang === "es" ? "Ver resultados" : "View results"}</span>
+                    </summary>
+                    <div className="mt-1 text-[10px] text-foreground/70 max-h-24 overflow-y-auto break-words whitespace-pre-wrap font-mono bg-cyan-500/5 rounded p-1.5 border border-cyan-500/20">
+                      {entry.searchResultsPreview}
+                    </div>
+                  </details>
                 )}
               </div>
 
