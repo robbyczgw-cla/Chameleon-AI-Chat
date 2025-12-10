@@ -154,6 +154,17 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
     }
   }, [open, settings.defaultModel])
 
+  // Sync experimental settings with global changes (from ExperimentalSettings component)
+  // This prevents the Save button from overwriting experimental settings toggles
+  useEffect(() => {
+    if (open && settings.experimental) {
+      setLocalSettings(prev => ({
+        ...prev,
+        experimental: settings.experimental
+      }))
+    }
+  }, [open, settings.experimental])
+
   useEffect(() => {
     // Load voices - they load asynchronously on most browsers
     const loadVoices = () => {
