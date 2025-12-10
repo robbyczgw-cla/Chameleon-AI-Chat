@@ -882,9 +882,9 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                           <span
                             className={cn(
                               "inline-block not-prose",
-                              isHifi ? "max-w-[120px]" : ""
+                              isHifi ? "max-w-[400px]" : ""
                             )}
-                            style={isHifi ? { maxWidth: '120px' } : undefined}
+                            style={isHifi ? { maxWidth: '400px' } : undefined}
                           >
                             <img
                               src={src}
