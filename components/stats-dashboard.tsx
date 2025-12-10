@@ -31,6 +31,15 @@ import {
   Cpu,
   Database,
   Loader2,
+  Wrench,
+  Globe,
+  Youtube,
+  CloudSun,
+  ShoppingCart,
+  Link,
+  FileText,
+  ImageIcon,
+  Bot,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
@@ -356,6 +365,113 @@ Provide analysis in this JSON format:
     ? (entries.filter(e => e.cacheDiscount && e.cacheDiscount > 0).length / entries.length * 100).toFixed(1)
     : "0"
 
+  // Tool Analytics - Extract from streaming history
+  interface ToolUsageData {
+    count: number
+    lastUsed: number
+    searchQueries: string[]
+    providers: Record<string, number>
+  }
+
+  const toolUsage: Record<string, ToolUsageData> = {}
+  const searchProviderUsage: Record<string, number> = {}
+  let totalToolCalls = 0
+  let messagesWithTools = 0
+
+  chats.forEach((chat) => {
+    chat.messages.forEach((msg) => {
+      if (msg.streamingHistory && msg.streamingHistory.length > 0) {
+        let hasToolUse = false
+        msg.streamingHistory.forEach((entry) => {
+          if (entry.phase === "tool_use" && entry.toolName) {
+            hasToolUse = true
+            totalToolCalls++
+            const toolName = entry.toolName
+
+            if (!toolUsage[toolName]) {
+              toolUsage[toolName] = {
+                count: 0,
+                lastUsed: 0,
+                searchQueries: [],
+                providers: {}
+              }
+            }
+
+            toolUsage[toolName].count++
+            toolUsage[toolName].lastUsed = Math.max(toolUsage[toolName].lastUsed, entry.timestamp)
+
+            // Track search queries
+            if (entry.searchQuery) {
+              toolUsage[toolName].searchQueries.push(entry.searchQuery)
+            }
+
+            // Track search providers
+            if (entry.searchProvider) {
+              toolUsage[toolName].providers[entry.searchProvider] =
+                (toolUsage[toolName].providers[entry.searchProvider] || 0) + 1
+              searchProviderUsage[entry.searchProvider] =
+                (searchProviderUsage[entry.searchProvider] || 0) + 1
+            }
+          }
+        })
+        if (hasToolUse) messagesWithTools++
+      }
+
+      // Also check message stats for search info
+      if (msg.stats?.searchProvider) {
+        searchProviderUsage[msg.stats.searchProvider] =
+          (searchProviderUsage[msg.stats.searchProvider] || 0) + 1
+      }
+    })
+  })
+
+  // Sort tools by usage count
+  const sortedToolUsage = Object.entries(toolUsage)
+    .sort(([, a], [, b]) => b.count - a.count)
+
+  // Get tool icon and color
+  const getToolMeta = (toolName: string): { icon: React.ReactNode; color: string; label: string } => {
+    const toolMap: Record<string, { icon: React.ReactNode; color: string; label: string }> = {
+      web_search: { icon: <Globe className="h-4 w-4" />, color: "text-blue-600", label: "Web Search" },
+      search: { icon: <Search className="h-4 w-4" />, color: "text-blue-600", label: "Search" },
+      url_fetch: { icon: <Link className="h-4 w-4" />, color: "text-green-600", label: "URL Fetch" },
+      fetch_url: { icon: <Link className="h-4 w-4" />, color: "text-green-600", label: "URL Fetch" },
+      youtube: { icon: <Youtube className="h-4 w-4" />, color: "text-red-600", label: "YouTube" },
+      youtube_transcript: { icon: <Youtube className="h-4 w-4" />, color: "text-red-600", label: "YouTube Transcript" },
+      weather: { icon: <CloudSun className="h-4 w-4" />, color: "text-yellow-600", label: "Weather" },
+      get_weather: { icon: <CloudSun className="h-4 w-4" />, color: "text-yellow-600", label: "Weather" },
+      shopify_products: { icon: <ShoppingCart className="h-4 w-4" />, color: "text-purple-600", label: "Shopify Products" },
+      shopify: { icon: <ShoppingCart className="h-4 w-4" />, color: "text-purple-600", label: "Shopify" },
+      read_file: { icon: <FileText className="h-4 w-4" />, color: "text-orange-600", label: "Read File" },
+      write_file: { icon: <FileText className="h-4 w-4" />, color: "text-orange-600", label: "Write File" },
+      generate_image: { icon: <ImageIcon className="h-4 w-4" />, color: "text-pink-600", label: "Generate Image" },
+      image_generation: { icon: <ImageIcon className="h-4 w-4" />, color: "text-pink-600", label: "Image Generation" },
+    }
+    return toolMap[toolName.toLowerCase()] || {
+      icon: <Wrench className="h-4 w-4" />,
+      color: "text-gray-600",
+      label: toolName.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+    }
+  }
+
+  // Calculate tool usage rate
+  const toolUsageRate = assistantMessages > 0
+    ? ((messagesWithTools / assistantMessages) * 100).toFixed(1)
+    : "0"
+
+  // Get recent search queries (last 10)
+  const recentSearchQueries: { query: string; tool: string; timestamp: number }[] = []
+  Object.entries(toolUsage).forEach(([tool, data]) => {
+    data.searchQueries.slice(-5).forEach((query, i) => {
+      recentSearchQueries.push({
+        query,
+        tool,
+        timestamp: data.lastUsed - (data.searchQueries.length - i - 1) * 60000
+      })
+    })
+  })
+  recentSearchQueries.sort((a, b) => b.timestamp - a.timestamp)
+
   return (
     <div className="h-full overflow-y-auto">
       <div className="space-y-6 p-4 sm:p-6 max-w-6xl mx-auto">
@@ -400,6 +516,10 @@ Provide analysis in this JSON format:
           <TabsList className="flex w-full overflow-x-auto h-auto gap-1 p-1 scrollbar-hide">
             <TabsTrigger value="overview" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0">Overview</TabsTrigger>
             <TabsTrigger value="costs" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0">Costs</TabsTrigger>
+            <TabsTrigger value="tools" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0 flex items-center gap-1">
+              <Wrench className="h-3 w-3" />
+              Tools
+            </TabsTrigger>
             <TabsTrigger value="performance" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0">Perf</TabsTrigger>
             <TabsTrigger value="providers" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0">Providers</TabsTrigger>
             <TabsTrigger value="insights" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0 flex items-center gap-1">
@@ -690,6 +810,205 @@ Provide analysis in this JSON format:
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* TOOLS TAB */}
+          <TabsContent value="tools" className="space-y-6">
+            {/* Tool Usage Summary Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <Wrench className="h-4 w-4 text-blue-600" />
+                    Total Tool Calls
+                  </div>
+                  <div className="text-2xl font-bold">{totalToolCalls}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {sortedToolUsage.length} tool types
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30">
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <Bot className="h-4 w-4 text-green-600" />
+                    Tool Usage Rate
+                  </div>
+                  <div className="text-2xl font-bold">{toolUsageRate}%</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    of AI responses use tools
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <Search className="h-4 w-4 text-purple-600" />
+                    Search Queries
+                  </div>
+                  <div className="text-2xl font-bold">
+                    {Object.values(toolUsage).reduce((sum, t) => sum + t.searchQueries.length, 0)}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    total searches performed
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30">
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <Globe className="h-4 w-4 text-orange-600" />
+                    Search Providers
+                  </div>
+                  <div className="text-2xl font-bold">{Object.keys(searchProviderUsage).length}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {Object.entries(searchProviderUsage)
+                      .sort(([, a], [, b]) => b - a)
+                      .slice(0, 2)
+                      .map(([p]) => p)
+                      .join(", ") || "None used"}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Tool Usage Breakdown */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Wrench className="h-5 w-5" />
+                  Tool Usage Breakdown
+                </CardTitle>
+                <CardDescription>Tools used by AI to enhance responses</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {sortedToolUsage.length > 0 ? (
+                  <div className="space-y-3">
+                    {sortedToolUsage.map(([toolName, data]) => {
+                      const meta = getToolMeta(toolName)
+                      const maxCount = sortedToolUsage[0][1].count
+                      return (
+                        <div key={toolName} className="p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className={meta.color}>{meta.icon}</span>
+                              <span className="font-medium">{meta.label}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Badge variant="outline">{data.count} calls</Badge>
+                              {data.searchQueries.length > 0 && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {data.searchQueries.length} searches
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className={cn(
+                                "h-full rounded-full transition-all duration-500",
+                                toolName.includes("search") || toolName.includes("web")
+                                  ? "bg-gradient-to-r from-blue-500 to-cyan-500"
+                                  : toolName.includes("youtube")
+                                  ? "bg-gradient-to-r from-red-500 to-pink-500"
+                                  : toolName.includes("weather")
+                                  ? "bg-gradient-to-r from-yellow-500 to-orange-500"
+                                  : toolName.includes("shopify")
+                                  ? "bg-gradient-to-r from-purple-500 to-pink-500"
+                                  : "bg-gradient-to-r from-gray-500 to-gray-400"
+                              )}
+                              style={{ width: `${(data.count / maxCount) * 100}%` }}
+                            />
+                          </div>
+                          {Object.keys(data.providers).length > 0 && (
+                            <div className="mt-2 flex gap-1 flex-wrap">
+                              {Object.entries(data.providers).map(([provider, count]) => (
+                                <Badge key={provider} variant="outline" className="text-xs">
+                                  {provider}: {count}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 border rounded-lg">
+                    <Wrench className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+                    <p className="text-sm text-muted-foreground">No tool usage recorded yet.</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Tools are used when AI performs web searches, fetches URLs, etc.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Recent Search Queries */}
+            {recentSearchQueries.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Search className="h-5 w-5" />
+                    Recent Search Queries
+                  </CardTitle>
+                  <CardDescription>Searches performed by AI tools</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {recentSearchQueries.slice(0, 10).map((item, i) => {
+                      const meta = getToolMeta(item.tool)
+                      return (
+                        <div key={i} className="flex items-start gap-3 p-2 rounded-lg border hover:bg-muted/50">
+                          <span className={cn("mt-0.5", meta.color)}>{meta.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm truncate">{item.query}</p>
+                            <p className="text-xs text-muted-foreground">
+                              via {meta.label}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Search Provider Usage */}
+            {Object.keys(searchProviderUsage).length > 0 && (
+              <Card className="bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Globe className="h-5 w-5 text-indigo-600" />
+                    Search Provider Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {Object.entries(searchProviderUsage)
+                      .sort(([, a], [, b]) => b - a)
+                      .map(([provider, count]) => {
+                        const totalSearches = Object.values(searchProviderUsage).reduce((a, b) => a + b, 0)
+                        const percentage = ((count / totalSearches) * 100).toFixed(1)
+                        return (
+                          <div key={provider} className="text-center p-4 bg-white/50 dark:bg-black/20 rounded-lg">
+                            <div className="text-lg font-semibold capitalize">{provider}</div>
+                            <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+                              {count}
+                            </div>
+                            <div className="text-sm text-muted-foreground">{percentage}%</div>
+                          </div>
+                        )
+                      })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* PERFORMANCE TAB */}
