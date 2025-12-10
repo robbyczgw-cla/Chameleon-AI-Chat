@@ -73,8 +73,8 @@ const DEFAULT_SETTINGS: AppSettings = {
     serper: "",
     exa: "",
   },
-  selectedModel: "openai/gpt-5.1-codex-mini",
-  selectedModels: ["openai/gpt-5.1-codex-mini"],
+  selectedModel: "x-ai/grok-4.1-fast",
+  selectedModels: ["x-ai/grok-4.1-fast"],
   searchProvider: "tavily", // Default to Tavily, can switch to Serper
   modelParameters: {
     temperature: 0.7,
