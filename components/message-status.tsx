@@ -243,7 +243,7 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
     }
 
     return (
-      <div className="space-y-2">
+      <div className="space-y-1.5 sm:space-y-2">
         {/* Current Action Banner - What the AI is doing right now */}
         {(() => {
           // Web Search
@@ -251,13 +251,13 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
             const query = searchQuery || streamingDetails?.searchQuery || toolArgs.query
             if (query) {
               return (
-                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/15 border border-blue-500/30">
-                  <Globe className="w-4 h-4 text-blue-500 flex-shrink-0 animate-pulse" />
+                <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 rounded-lg bg-blue-500/15 border border-blue-500/30">
+                  <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0 animate-pulse" />
                   <div className="flex-1 min-w-0">
-                    <span className="text-xs font-medium text-blue-600 dark:text-blue-400 mr-2">
+                    <span className="text-[11px] sm:text-xs font-medium text-blue-600 dark:text-blue-400 mr-1 sm:mr-2">
                       {lang === "de" ? "Suche:" : lang === "es" ? "Buscando:" : "Searching:"}
                     </span>
-                    <span className="text-sm text-blue-700 dark:text-blue-300 break-words">"{query}"</span>
+                    <span className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 break-words">"{query}"</span>
                   </div>
                 </div>
               )
@@ -267,13 +267,13 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
           // URL Fetch
           if (toolName === "url_fetch" && toolArgs.url) {
             return (
-              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-green-500/15 border border-green-500/30">
-                <Link className="w-4 h-4 text-green-500 flex-shrink-0 animate-pulse" />
+              <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 rounded-lg bg-green-500/15 border border-green-500/30">
+                <Link className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 flex-shrink-0 animate-pulse" />
                 <div className="flex-1 min-w-0">
-                  <span className="text-xs font-medium text-green-600 dark:text-green-400 mr-2">
+                  <span className="text-[11px] sm:text-xs font-medium text-green-600 dark:text-green-400 mr-1 sm:mr-2">
                     {lang === "de" ? "Lade URL:" : lang === "es" ? "Cargando:" : "Fetching:"}
                   </span>
-                  <span className="text-sm text-green-700 dark:text-green-300 break-all">{toolArgs.url}</span>
+                  <span className="text-xs sm:text-sm text-green-700 dark:text-green-300 break-all">{toolArgs.url}</span>
                 </div>
               </div>
             )
@@ -282,11 +282,11 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
           // YouTube Transcript
           if (toolName === "youtube_transcript" && toolArgs.url) {
             return (
-              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/15 border border-red-500/30">
-                <Youtube className="w-4 h-4 text-red-500 flex-shrink-0 animate-pulse" />
+              <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 rounded-lg bg-red-500/15 border border-red-500/30">
+                <Youtube className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 flex-shrink-0 animate-pulse" />
                 <div className="flex-1 min-w-0">
-                  <span className="text-xs font-medium text-red-600 dark:text-red-400 mr-2">YouTube:</span>
-                  <span className="text-sm text-red-700 dark:text-red-300 break-all">{toolArgs.url}</span>
+                  <span className="text-[11px] sm:text-xs font-medium text-red-600 dark:text-red-400 mr-1 sm:mr-2">YouTube:</span>
+                  <span className="text-xs sm:text-sm text-red-700 dark:text-red-300 break-all">{toolArgs.url}</span>
                 </div>
               </div>
             )
@@ -295,9 +295,9 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
           // Generic action
           if (streamingDetails?.action) {
             return (
-              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-primary/15 border border-primary/30">
-                <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-pulse" />
-                <span className="text-sm text-foreground break-words">{streamingDetails.action}</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 rounded-lg bg-primary/15 border border-primary/30">
+                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary flex-shrink-0 animate-pulse" />
+                <span className="text-xs sm:text-sm text-foreground break-words">{streamingDetails.action}</span>
               </div>
             )
           }
@@ -307,15 +307,37 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
 
         {/* Reasoning Content - Streaming thinking tokens */}
         {streamingDetails?.reasoningContent && (
-          <div className="p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
-            <div className="flex items-center gap-2 mb-1.5">
-              <Lightbulb className="w-4 h-4 text-amber-500 flex-shrink-0 animate-pulse" />
-              <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+          <div className="p-2 sm:p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
+            <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5">
+              <Lightbulb className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 flex-shrink-0 animate-pulse" />
+              <span className="text-[11px] sm:text-xs font-medium text-amber-600 dark:text-amber-400">
                 {lang === "de" ? "Denkt nach..." : lang === "es" ? "Pensando..." : "Thinking..."}
               </span>
             </div>
-            <div className="text-xs text-foreground/80 font-mono max-h-40 overflow-y-auto break-words whitespace-pre-wrap pl-6">
+            <div className="text-[11px] sm:text-xs text-foreground/80 font-mono max-h-28 sm:max-h-40 overflow-y-auto break-words whitespace-pre-wrap pl-4 sm:pl-6">
               {streamingDetails.reasoningContent}
+            </div>
+          </div>
+        )}
+
+        {/* Tool Result Preview - Show search results as they arrive */}
+        {streamingDetails?.searchResultsPreview && (
+          <div className="p-2 sm:p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
+            <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+              <FileSearch className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500 flex-shrink-0" />
+              <span className="text-[11px] sm:text-xs font-medium text-cyan-600 dark:text-cyan-400">
+                {lang === "de" ? "Suchergebnisse" : lang === "es" ? "Resultados" : "Results Preview"}
+              </span>
+              {streamingDetails.resultCount !== undefined && (
+                <span className="text-[10px] sm:text-xs text-cyan-500/70 ml-auto">
+                  {streamingDetails.resultCount} {streamingDetails.resultCount === 1 ?
+                    (lang === "de" ? "Ergebnis" : lang === "es" ? "resultado" : "result") :
+                    (lang === "de" ? "Ergebnisse" : lang === "es" ? "resultados" : "results")}
+                </span>
+              )}
+            </div>
+            <div className="text-[11px] sm:text-xs text-foreground/80 max-h-24 sm:max-h-32 overflow-y-auto break-words whitespace-pre-wrap pl-4 sm:pl-6 font-mono bg-cyan-500/5 rounded p-1.5 sm:p-2">
+              {streamingDetails.searchResultsPreview}
             </div>
           </div>
         )}
@@ -496,6 +518,28 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
               </div>
               <div className="text-xs text-foreground/80 font-mono max-h-32 overflow-y-auto break-words whitespace-pre-wrap pl-6">
                 {streamingDetails.reasoningContent}
+              </div>
+            </div>
+          )}
+
+          {/* Tool Result Preview - Show search results as they arrive (Detailed Mode) */}
+          {streamingDetails?.searchResultsPreview && (
+            <div className="p-2 sm:p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                <FileSearch className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500 flex-shrink-0" />
+                <span className="text-[11px] sm:text-xs font-medium text-cyan-600 dark:text-cyan-400">
+                  {lang === "de" ? "Suchergebnisse" : lang === "es" ? "Resultados" : "Results Preview"}
+                </span>
+                {streamingDetails.resultCount !== undefined && (
+                  <span className="text-[10px] sm:text-xs text-cyan-500/70 ml-auto">
+                    {streamingDetails.resultCount} {streamingDetails.resultCount === 1 ?
+                      (lang === "de" ? "Ergebnis" : lang === "es" ? "resultado" : "result") :
+                      (lang === "de" ? "Ergebnisse" : lang === "es" ? "resultados" : "results")}
+                  </span>
+                )}
+              </div>
+              <div className="text-[11px] sm:text-xs text-foreground/80 max-h-28 sm:max-h-40 overflow-y-auto break-words whitespace-pre-wrap pl-4 sm:pl-6 font-mono bg-cyan-500/5 rounded p-1.5 sm:p-2">
+                {streamingDetails.searchResultsPreview}
               </div>
             </div>
           )}
@@ -901,6 +945,18 @@ export const StreamingHistoryDisplay = memo(function StreamingHistoryDisplay({
                   <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">
                     {entry.resultCount} result{entry.resultCount !== 1 ? 's' : ''}
                   </p>
+                )}
+                {/* Search Results Preview in History */}
+                {entry.searchResultsPreview && (
+                  <details className="mt-1.5 group">
+                    <summary className="text-[10px] sm:text-[11px] text-cyan-600 dark:text-cyan-400 cursor-pointer hover:text-cyan-500 flex items-center gap-1 py-0.5 min-h-[28px] sm:min-h-0">
+                      <FileSearch className="w-3 h-3" />
+                      <span>{lang === "de" ? "Ergebnisse anzeigen" : lang === "es" ? "Ver resultados" : "View results"}</span>
+                    </summary>
+                    <div className="mt-1 text-[10px] sm:text-[11px] text-foreground/70 max-h-20 sm:max-h-24 overflow-y-auto break-words whitespace-pre-wrap font-mono bg-cyan-500/5 rounded p-1.5 border border-cyan-500/20">
+                      {entry.searchResultsPreview}
+                    </div>
+                  </details>
                 )}
               </div>
 

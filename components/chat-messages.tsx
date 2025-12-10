@@ -946,7 +946,12 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
               {message.role === "assistant" &&
                isAdvancedMode &&
                settings.experimental?.streamingVisualization?.showDetailedStats !== false && (
-                <div className="hidden md:block">
+                <div className={cn(
+                  // Show on mobile only if experimental showDetailedStats is explicitly enabled
+                  settings.experimental?.streamingVisualization?.showDetailedStats === true
+                    ? "block"
+                    : "hidden md:block"
+                )}>
                   <MessageStats message={message} statsSettings={settings.experimental?.statsDisplay} />
                 </div>
               )}
@@ -1051,8 +1056,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
             </div>
             <div className="flex flex-col gap-2 w-full">
               <div className={cn(
-                "rounded-[20px] rounded-tl-lg px-4 py-3 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container",
-                isAdvancedMode ? "min-w-[360px] sm:min-w-[420px]" : "min-w-[280px]"
+                "rounded-[20px] rounded-tl-lg px-3 py-2.5 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container",
+                isAdvancedMode ? "min-w-[260px] sm:min-w-[360px] md:min-w-[420px]" : "min-w-[240px] sm:min-w-[280px]"
               )}>
                 {/* Step-by-step status visualization - clean default for both modes */}
                 <MessageStatusVerbose
