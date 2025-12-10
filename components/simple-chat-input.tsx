@@ -65,22 +65,18 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   // NOTE: isAdvancedMode is now provided by useFeatureFlags() hook above
 
   // Load web search state from settings context (PERSIST USER PREFERENCE!)
-  // Default is TRUE unless user explicitly disabled it
+  // Default is FALSE - automatic tool use handles web search via AI tool calling
+  // Manual toggle is only for forcing search when auto-detection doesn't trigger
   const [webSearchEnabled, setWebSearchEnabled] = useState(() => {
-    if (typeof window === "undefined") return initialWebSearchEnabled ?? true
+    if (typeof window === "undefined") return initialWebSearchEnabled ?? false
 
-    // Check settings context first (preferred - always enabled by default unless user disables)
-    if (settings.enableAutoToolUse !== undefined) {
-      return settings.enableAutoToolUse
-    }
-
-    // Fallback to old localStorage key for migration
+    // Fallback to localStorage for user preference
     const saved = localStorage.getItem("chameleon-web-search-enabled")
     if (saved !== null) {
       return saved === "true"
     }
 
-    return initialWebSearchEnabled ?? true
+    return initialWebSearchEnabled ?? false
   })
 
   // Load reasoning state from localStorage
