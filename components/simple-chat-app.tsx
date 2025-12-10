@@ -1045,12 +1045,14 @@ export function SimpleChatApp() {
 
           {/* Chat Area - Always use chat view structure, ChatMessages handles empty state */}
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden min-h-0">
               <ChatMessages currentPersona={selectedPersona || undefined} />
             </div>
-            <SimpleChatInput
-              selectedPersona={selectedPersona || undefined}
-            />
+            <div className="flex-shrink-0">
+              <SimpleChatInput
+                selectedPersona={selectedPersona || undefined}
+              />
+            </div>
           </div>
         </main>
       </div>
