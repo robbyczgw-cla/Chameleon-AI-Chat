@@ -3,16 +3,56 @@
 import { useEffect, useRef } from "react"
 import { initPWAPerformance, runWhenIdle, shouldLoadHeavyResources } from "@/lib/pwa-performance"
 
+// Detect Android PWA
+const isAndroidPWA = () => {
+  if (typeof window === "undefined") return false
+  const isAndroid = /Android/.test(navigator.userAgent)
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches
+  return isAndroid && isStandalone
+}
+
 export function PWARegister() {
   const lastVisibleTime = useRef(Date.now())
   const swRegistration = useRef<ServiceWorkerRegistration | null>(null)
+  const hasHydrated = useRef(false)
 
   useEffect(() => {
+    // Mark that we've hydrated successfully
+    hasHydrated.current = true
+
     // Initialize PWA performance optimizations (fast tap, etc.)
     initPWAPerformance()
 
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
       return
+    }
+
+    // ========================================
+    // ANDROID PWA FIX: Force reload on cold start if hydration fails
+    // ========================================
+    if (isAndroidPWA()) {
+      const lastActive = sessionStorage.getItem("pwa-last-active")
+      const now = Date.now()
+
+      if (lastActive) {
+        const timeSince = now - parseInt(lastActive, 10)
+        // If app was closed for more than 2 minutes, this might be a cold start
+        // Check if the DOM is actually rendered
+        setTimeout(() => {
+          const root = document.getElementById("__next") || document.body
+          const hasContent = root && root.children.length > 0 &&
+                            !root.innerHTML.includes("Loading") &&
+                            document.body.clientHeight > 100
+
+          if (!hasContent && timeSince > 120000) {
+            console.log("[PWA] Android cold start detected - forcing reload")
+            window.location.reload()
+          }
+        }, 1500) // Wait 1.5s for hydration
+      }
+
+      // Update last active time
+      sessionStorage.setItem("pwa-last-active", now.toString())
     }
 
     // Helper to send messages to service worker
@@ -83,10 +123,28 @@ export function PWARegister() {
           // Prefetch current page to ensure it's cached
           const currentPath = window.location.pathname
           sendToSW({ type: "PRECACHE_ROUTE", url: currentPath })
+
+          // ANDROID FIX: After long suspension (5+ min), check if page rendered
+          // If not, force reload to fix black screen
+          if (isAndroidPWA() && timeSinceHidden > 300000) {
+            setTimeout(() => {
+              const body = document.body
+              const hasContent = body.clientHeight > 100 && body.innerHTML.length > 1000
+
+              if (!hasContent) {
+                console.log("[PWA] Android resume black screen detected - forcing reload")
+                window.location.reload()
+              }
+            }, 500)
+          }
         }
       } else {
         // Record when app was hidden
         lastVisibleTime.current = Date.now()
+        // Update sessionStorage for cold start detection
+        if (isAndroidPWA()) {
+          sessionStorage.setItem("pwa-last-active", Date.now().toString())
+        }
       }
     }
 

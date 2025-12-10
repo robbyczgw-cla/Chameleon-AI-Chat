@@ -304,6 +304,10 @@ export interface ExperimentalSettings {
   enableWeatherTool?: boolean // Allow AI to get weather information and forecasts
   // Stats Display Settings
   statsDisplay?: StatsDisplaySettings
+  // Rich Content Settings (Advanced Mode only)
+  enableMermaidDiagrams?: boolean // Render Mermaid diagrams in code blocks (default: false)
+  enableCodeBlockHighlighting?: boolean // Syntax highlighting for code blocks (default: false)
+  showInputStats?: boolean // Show token/cost estimate below chat input
 }
 
 // Access tier determines user privileges and UI restrictions
