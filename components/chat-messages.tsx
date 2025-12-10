@@ -879,15 +879,23 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                           )
                         },
                         img: ({ src, alt }) => (
-                          <img
-                            src={src}
-                            alt={alt || "Product image"}
+                          <span
                             className={cn(
-                              "h-auto rounded-lg border border-border",
-                              isHifi ? "max-w-[100px] my-1.5" : "max-w-full sm:max-w-sm md:max-w-md my-4"
+                              "inline-block not-prose",
+                              isHifi ? "max-w-[120px]" : ""
                             )}
-                            loading="lazy"
-                          />
+                            style={isHifi ? { maxWidth: '120px' } : undefined}
+                          >
+                            <img
+                              src={src}
+                              alt={alt || "Product image"}
+                              className={cn(
+                                "h-auto rounded-lg border border-border",
+                                isHifi ? "w-full my-1.5" : "max-w-full sm:max-w-sm md:max-w-md my-4"
+                              )}
+                              loading="lazy"
+                            />
+                          </span>
                         ),
                               }}
                             >
