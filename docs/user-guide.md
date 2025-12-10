@@ -384,10 +384,28 @@ Personas are AI personalities with unique:
 4. **Vibe remembers your feedback** - Tell it what you liked/disliked
 5. **Cogito is genuinely uncertain** - Not pretending, actually exploring
 
-### Follow-Up Suggestions
+### Follow-Up Suggestions ⭐ ENHANCED (v0.10)
 
-After each AI response, you'll see 2-3 clickable questions like:
-> [Tell me more about X] [What about Y?] [How does Z work?]
+After each AI response, you'll see color-coded follow-up suggestions organized by category:
+
+**Three Categories:**
+- ⚡ **Quick** (Emerald/Green) - Fast, surface-level questions
+- 🧠 **Deep Dive** (Violet/Purple) - In-depth technical exploration
+- 🔗 **Related** (Cyan/Blue) - Connected topics, comparisons
+
+**Example Display:**
+```
+┌─────────────────────────────────────────────────┐
+│ ⚡ Quick ═══                                    │
+│   [What's useState?] [Show me an example]       │
+├─────────────────────────────────────────────────┤
+│ 🧠 Deep Dive ═══                                │
+│   [How do hooks work internally?]               │
+├─────────────────────────────────────────────────┤
+│ 🔗 Related ═══                                  │
+│   [Compare to Vue Composition API]              │
+└─────────────────────────────────────────────────┘
+```
 
 **Click these to:**
 - Continue the conversation naturally
@@ -395,9 +413,11 @@ After each AI response, you'll see 2-3 clickable questions like:
 - Dive deeper into the subject
 
 **How it works:**
-- AI generates contextual follow-ups in `[FOLLOWUP]Q1|Q2|Q3[/FOLLOWUP]` format
-- App parses and displays as clickable chips
-- One click inserts the question into your input
+- AI generates follow-ups in `[FOLLOWUP]{"quick":[...], "deep":[...], "related":[...]}[/FOLLOWUP]` format
+- App parses and displays with color-coded category containers
+- Desktop: 9 suggestions (3 per category)
+- Mobile: 6 suggestions (2 per category) for cleaner UX
+- One click sends the question as your next message
 
 ---
 
@@ -1356,12 +1376,22 @@ AI: Since you're using Next.js, Vercel is perfect - made by same team.
 - Simplify with **Herr Müller** (ELI5)
 - Practice with **Dev** (hands-on examples)
 
-### 3. Follow-Up Suggestions Mastery
+### 3. Follow-Up Suggestions Mastery ⭐ ENHANCED
+
+**Color-coded categories help you choose:**
+- ⚡ **Quick (Green)** - Get fast answers, clarifications
+- 🧠 **Deep (Purple)** - Dive into technical details
+- 🔗 **Related (Blue)** - Explore connected topics
 
 **Click follow-ups to:**
 - Branch conversations naturally
 - Discover related topics you didn't consider
 - Keep momentum going
+- Explore at different depths (quick vs deep)
+
+**Mobile optimization:**
+- Only 6 suggestions shown (2 per category)
+- Less scrolling, cleaner interface
 
 **Ignore follow-ups when:**
 - You have a specific next question

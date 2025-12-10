@@ -14,7 +14,7 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
    - Tips & tricks
    - **Start here if you want to master Chameleon!**
 
-2. **[MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md)** 🧠 NEW!
+2. **[MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md)** 🧠
    - Intelligent 4-phase memory retrieval
    - Simple user guide (Quick Start, Best Practices)
    - Advanced user guide (Semantic Search, Embeddings)
@@ -22,9 +22,22 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
    - Database setup (pgvector)
    - **Learn how the AI remembers you!**
 
+3. **[FOLLOW_UP_SUGGESTIONS.md](./FOLLOW_UP_SUGGESTIONS.md)** 💬 ENHANCED!
+   - Color-coded category system (Quick/Deep/Related)
+   - Visual design with gradients and animations
+   - Mobile-responsive limits (6 on mobile, 9 on desktop)
+   - Implementation details and future improvements
+   - **Understand the conversation continuers!**
+
+4. **[LLM_CONTEXT.md](./LLM_CONTEXT.md)** 🤖 NEW!
+   - Comprehensive app summary for other AI systems
+   - Feed this to another LLM's memory system
+   - All core features in one efficient document
+   - **Share Chameleon's context with other AIs!**
+
 ### For Developers
 
-3. **[ARCHITECTURE.md](./ARCHITECTURE.md)** 🏗️
+5. **[ARCHITECTURE.md](./ARCHITECTURE.md)** 🏗️
    - Technical deep dive
    - Technology stack
    - Directory structure
@@ -97,9 +110,39 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
 **...understand the vision**
 → [CHAMELEON_VISION.md](./CHAMELEON_VISION.md)
 
+**...learn about the follow-up suggestions system**
+→ [FOLLOW_UP_SUGGESTIONS.md](./FOLLOW_UP_SUGGESTIONS.md)
+
+**...feed Chameleon's context to another AI**
+→ [LLM_CONTEXT.md](./LLM_CONTEXT.md)
+
 ---
 
 ## Recent Updates
+
+### 2025-12-10
+
+✅ **Enhanced Follow-Up Suggestions (v0.10)**
+- Color-coded categories: Quick (Emerald), Deep (Violet), Related (Cyan)
+- Gradient backgrounds and pill-style category labels
+- Mobile-responsive: 6 suggestions on mobile, 9 on desktop
+- Improved animations with staggered delays
+
+✅ **Tool Analytics Dashboard**
+- New "Tools" tab in Statistics dashboard
+- Track tool usage, search queries, provider distribution
+- Visual breakdowns with progress bars
+
+✅ **Simple Mode Image Upload Fix**
+- Image compression for PWA stability (500KB max)
+- Multimodal content support with buildMultimodalContent()
+- Fixed image handling parity with Advanced Mode
+
+✅ **Architecture Documentation Update**
+- Added Follow-Up Suggestions System section
+- Added Chat Modes (Simple vs Advanced) section
+- Added Tool Analytics Dashboard section
+- Created LLM_CONTEXT.md for feeding to other AI systems
 
 ### 2025-12-02
 
@@ -150,13 +193,16 @@ When contributing documentation:
 
 | Document | Lines | Topics Covered |
 |----------|-------|----------------|
+| ARCHITECTURE.md | ~1600 | Technical details, all core systems |
+| user-guide.md | ~1700 | Complete user documentation |
+| FOLLOW_UP_SUGGESTIONS.md | ~700 | Follow-up system, improvements |
 | MEMORY_SYSTEM.md | ~700 | Memory system guide for simple & advanced users |
 | POWER_USER_GUIDE.md | ~800 | User features, tips, shortcuts |
-| ARCHITECTURE.md | ~800 | Technical details, schema, systems |
 | database.md | ~650 | Complete Supabase schema reference |
 | DATABASE_IMPLEMENTATION_GUIDE.md | ~800 | Step-by-step database implementation guide |
 | FUTURE_FEATURES.md | ~1000 | Implementation guides for new features |
 | CHAMELEON_VISION.md | ~400 | Philosophy, origin story, roadmap |
+| LLM_CONTEXT.md | ~250 | Efficient summary for other AI systems |
 
 ---
 

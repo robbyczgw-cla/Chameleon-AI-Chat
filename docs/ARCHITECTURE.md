@@ -1248,6 +1248,319 @@ Model Context Protocol is a standard for connecting AI models to external servic
 
 ---
 
+### 11. Follow-Up Suggestions System 💬
+
+**Location**: `lib/follow-up-parser.ts`, `components/follow-up-suggestions.tsx`
+
+Intelligent conversation continuers that appear after each AI response, enabling one-click exploration.
+
+#### Architecture Overview
+
+```
+AI Response with [FOLLOWUP] tags
+    ↓
+parseFollowUps() extracts and categorizes
+    ↓
+FollowUpSuggestions component renders
+    ↓
+User clicks → suggestion sent as next message
+```
+
+#### Parsing Pipeline
+
+```typescript
+// Input: AI response with embedded tags
+"Here's info about React hooks.
+
+[FOLLOWUP]{
+  \"quick\": [\"What's useState?\", \"Show example\"],
+  \"deep\": [\"How do hooks work internally?\"],
+  \"related\": [\"Compare to Vue Composition API\"]
+}[/FOLLOWUP]"
+
+// Output: Parsed structure
+{
+  content: "Here's info about React hooks.",
+  categorizedFollowUps: [
+    { category: "quick", text: "What's useState?" },
+    { category: "quick", text: "Show example" },
+    { category: "deep", text: "How do hooks work internally?" },
+    { category: "related", text: "Compare to Vue Composition API" }
+  ]
+}
+```
+
+#### Category System
+
+Three categories with distinct visual theming:
+
+| Category | Purpose | Color Theme | Icon |
+|----------|---------|-------------|------|
+| **⚡ Quick** | Fast, surface-level questions | Emerald/Green gradient | Zap |
+| **🧠 Deep** | In-depth technical exploration | Violet/Purple gradient | Brain |
+| **🔗 Related** | Connected topics, comparisons | Cyan/Blue gradient | Link2 |
+
+#### Visual Design (v0.10+)
+
+**Color-Coded Categories:**
+```tsx
+const categoryStyles = {
+  quick: {
+    containerBg: "from-emerald-50/80 to-green-50/50",
+    pillBg: "bg-emerald-100 text-emerald-700",
+    buttonBorder: "border-emerald-200 hover:border-emerald-400",
+    gradient: "from-emerald-500 to-green-500"
+  },
+  deep: {
+    containerBg: "from-violet-50/80 to-purple-50/50",
+    pillBg: "bg-violet-100 text-violet-700",
+    buttonBorder: "border-violet-200 hover:border-violet-400",
+    gradient: "from-violet-500 to-purple-500"
+  },
+  related: {
+    containerBg: "from-cyan-50/80 to-blue-50/50",
+    pillBg: "bg-cyan-100 text-cyan-700",
+    buttonBorder: "border-cyan-200 hover:border-cyan-400",
+    gradient: "from-cyan-500 to-blue-500"
+  }
+}
+```
+
+**Responsive Limits:**
+- Desktop: 9 suggestions (3 per category)
+- Mobile (<768px): 6 suggestions (2 per category)
+
+**Animation:**
+- Staggered fade-in with slide (60ms delay per button)
+- Hover: Scale 1.02 with shadow elevation
+- Arrow icon appears on hover
+
+#### Format Support
+
+**1. Categorized JSON (Recommended):**
+```
+[FOLLOWUP]{
+  "quick": ["Q1", "Q2", "Q3"],
+  "deep": ["Q4", "Q5"],
+  "related": ["Q6"]
+}[/FOLLOWUP]
+```
+
+**2. Legacy Pipe-Separated:**
+```
+[FOLLOWUP]Q1|Q2|Q3[/FOLLOWUP]
+```
+
+#### Key Files
+
+| File | Purpose |
+|------|---------|
+| `lib/follow-up-parser.ts` | Tag extraction and JSON parsing |
+| `components/follow-up-suggestions.tsx` | Visual rendering with categories |
+| `lib/follow-up-parser.test.ts` | 15+ test cases for parsing |
+
+📚 **Full documentation**: [docs/FOLLOW_UP_SUGGESTIONS.md](./FOLLOW_UP_SUGGESTIONS.md)
+
+---
+
+### 12. Chat Modes (Simple vs Advanced) 🎛️
+
+**Location**: `app/page.tsx`, `components/simple-chat-input.tsx`, `components/chat-input.tsx`
+
+Two distinct interface modes for different user needs.
+
+#### Simple Mode
+
+**Purpose:** Streamlined, distraction-free chat for casual users and mobile.
+
+```
+┌────────────────────────────────────────────┐
+│ Header: Persona Name + Settings            │
+├────────────────────────────────────────────┤
+│                                            │
+│           Chat Messages                    │
+│        (Clean, minimal UI)                 │
+│                                            │
+├────────────────────────────────────────────┤
+│ [Persona] [Web|File|Image|Reason|Voice]   │
+│ ┌──────────────────────────────┐ [Send]   │
+│ │ Type your message...         │          │
+│ └──────────────────────────────┘          │
+└────────────────────────────────────────────┘
+```
+
+**Features:**
+- Single default model (Grok 4.1 Fast)
+- AI-driven web search via tool calling
+- Quick persona selector with emoji + description
+- Theme cards for visual customization
+- Language pills (DE/EN) for one-tap switching
+- Voice input button
+- Reasoning toggle for extended thinking
+- Image compression for PWA stability
+- Multimodal content support (images, files)
+
+**File:** `components/simple-chat-input.tsx`
+
+#### Advanced Mode
+
+**Purpose:** Full-featured interface for power users.
+
+```
+┌────────────────────────────────────────────┐
+│ Header: Model Picker + Persona + Tools     │
+├────────────────────────────────────────────┤
+│                                            │
+│           Chat Messages                    │
+│     (Full stats, streaming viz)            │
+│                                            │
+├────────────────────────────────────────────┤
+│ [Model ▾] [Persona ▾]                      │
+│ ┌──────────────────────────────┐ [Send]   │
+│ │ Type your message...         │          │
+│ └──────────────────────────────┘          │
+│ [Web|Voice|File|Image] [Stats|Branch]      │
+└────────────────────────────────────────────┘
+```
+
+**Features:**
+- 100+ model selection via OpenRouter
+- Full persona customization
+- Advanced settings panel (temperature, max tokens, etc.)
+- Message statistics with 7 collapsible sections
+- Streaming visualization effects
+- MCP server configuration
+- Model comparison mode
+- AI debate mode
+- Cost tracking dashboard
+- Training data export
+- Conversation branching
+
+**File:** `components/chat-input.tsx`
+
+#### Feature Comparison
+
+| Feature | Simple Mode | Advanced Mode |
+|---------|-------------|---------------|
+| Model Selection | Default only | 100+ models |
+| Web Search | AI-driven | Manual + AI toggle |
+| Settings | Theme, language | All parameters |
+| MCP | Not available | Full configuration |
+| Personas | Quick selector | Full customization |
+| Statistics | Basic | 7 collapsible sections |
+| Mobile UX | Optimized | Standard |
+| File Upload | ✅ (compressed) | ✅ |
+| Image Generation | ✅ | ✅ |
+| Voice Input | ✅ | ✅ |
+
+#### Mode Switching
+
+```typescript
+// Access via Settings or URL parameter
+const isSimpleMode = settings.ui.simpleMode || url.searchParams.get('mode') === 'simple'
+
+// Page conditionally renders
+{isSimpleMode ? (
+  <SimpleChatInput ... />
+) : (
+  <ChatInput ... />
+)}
+```
+
+#### Image Handling (Simple Mode)
+
+Simple Mode includes PWA-optimized image handling:
+
+```typescript
+// Compress images before sending (prevents PWA crashes)
+const imageAttachments = attachedFiles.filter(f => getFileCategory(f.name) === "image")
+
+if (imageAttachments.length > 0) {
+  const compressedDataUrls = await compressImages(imageDataUrls, 500) // 500KB max
+  // Replace original with compressed versions
+}
+
+// Build multimodal content for vision models
+const multimodalContent = buildMultimodalContent(messageContent, processedFiles)
+```
+
+---
+
+### 13. Tool Analytics Dashboard 📊
+
+**Location**: `components/stats-dashboard.tsx`
+
+Unified statistics dashboard with 5 tabs including tool usage analytics.
+
+#### Dashboard Tabs
+
+```
+┌─────────────────────────────────────────────────────┐
+│  [Overview] [Models] [Tokens] [Costs] [Tools]       │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│   (Tab content based on selection)                  │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+#### Tools Tab Features
+
+**Summary Cards:**
+- Total Tool Calls (all-time)
+- Usage Rate (% of messages using tools)
+- Search Queries (total web searches)
+- Providers Used (unique search providers)
+
+**Tool Usage Breakdown:**
+```
+web_search      ████████████░░░░  75%
+image_generate  ████░░░░░░░░░░░░  25%
+code_execute    ██░░░░░░░░░░░░░░  12%
+```
+
+**Recent Search Queries:**
+- Last 10 search queries with timestamps
+- Provider badge (Serper/Tavily/Exa)
+
+**Provider Distribution:**
+```
+Serper   ████████████░░░░  60%
+Tavily   ██████░░░░░░░░░░  30%
+Exa      ██░░░░░░░░░░░░░░  10%
+```
+
+#### Data Extraction
+
+Tool usage is extracted from message `streamingHistory`:
+
+```typescript
+// Extract tool calls from messages
+const toolCalls = messages.flatMap(msg => {
+  if (msg.streamingHistory) {
+    return msg.streamingHistory
+      .filter(h => h.toolName)
+      .map(h => ({
+        tool: h.toolName,
+        query: h.searchQuery,
+        provider: h.searchProvider,
+        timestamp: msg.createdAt
+      }))
+  }
+  return []
+})
+```
+
+#### Key Files
+
+| File | Purpose |
+|------|---------|
+| `components/stats-dashboard.tsx` | Unified dashboard with 5 tabs |
+| `app/api/chat/route.ts` | Tool call tracking in stream |
+| `contexts/app-context.tsx` | streamingHistory storage |
+
+---
+
 ## Chat Architecture
 
 ### Conversation Branching
