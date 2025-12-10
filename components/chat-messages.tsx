@@ -884,7 +884,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                             alt={alt || "Product image"}
                             className={cn(
                               "h-auto rounded-lg border border-border",
-                              isHifi ? "max-w-[150px] my-2" : "max-w-full sm:max-w-sm md:max-w-md my-4"
+                              isHifi ? "max-w-[100px] my-1.5" : "max-w-full sm:max-w-sm md:max-w-md my-4"
                             )}
                             loading="lazy"
                           />
