@@ -33,6 +33,7 @@ import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
 import { MessageStatus, MessageStatusVerbose, StreamingHistoryDisplay } from "@/components/message-status"
 import { userProfileService } from "@/lib/user-profile"
 import { useAutoFetchCosts } from "@/hooks/use-auto-fetch-costs"
+import { ChameleonLogo } from "@/components/chameleon-logo"
 
 // Lazy load heavy syntax highlighter with its style - reduces initial bundle by ~100KB
 const SyntaxHighlighterWithStyle = dynamic(
@@ -538,18 +539,21 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
               </p>
             </div>
 
-            {/* Persona info if selected */}
-            {currentPersona && (
+            {/* HiFi mode: Show company logo instead of persona info */}
+            {isHifi && (
+              <div className="flex justify-center mt-4 sm:mt-6 animate-fade-in" style={{ animationDelay: "300ms" }}>
+                <ChameleonLogo size={48} isHifi={true} />
+              </div>
+            )}
+
+            {/* Persona info if selected - only for non-HiFi mode */}
+            {currentPersona && !isHifi && (
               <div className="flex flex-col items-center gap-2 mt-3 sm:mt-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
                 <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20 max-w-[90%]">
                   <span className="text-xl sm:text-2xl flex-shrink-0">{currentPersona.emoji}</span>
                   <span className="text-xs sm:text-sm font-medium text-primary truncate">{currentPersona.name}</span>
                 </div>
-                {/* For HiFi: Show full description, otherwise limit to 2 lines */}
-                <p className={cn(
-                  "text-xs text-muted-foreground max-w-[90%] sm:max-w-md text-center",
-                  !isHifi && "line-clamp-2"
-                )}>{currentPersona.description}</p>
+                <p className="text-xs text-muted-foreground max-w-[90%] sm:max-w-md text-center line-clamp-2">{currentPersona.description}</p>
               </div>
             )}
           </div>

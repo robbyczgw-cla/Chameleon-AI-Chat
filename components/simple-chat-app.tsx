@@ -833,10 +833,16 @@ export function SimpleChatApp() {
             <div className="p-4 border-b border-border/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ChameleonLogo size={32} />
-                  <span className="font-semibold bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">
-                    Chameleon
-                  </span>
+                  {isHifi ? (
+                    <ChameleonLogo size={28} isHifi={true} />
+                  ) : (
+                    <>
+                      <ChameleonLogo size={32} />
+                      <span className="font-semibold bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">
+                        Chameleon
+                      </span>
+                    </>
+                  )}
                 </div>
                 <Button
                   variant="ghost"

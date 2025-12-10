@@ -9,14 +9,34 @@ interface ChameleonLogoProps {
   size?: number
   animated?: boolean
   colorShift?: boolean
+  isHifi?: boolean
 }
 
 export function ChameleonLogo({
   className = "",
   size = 24,
   animated = false,
-  colorShift = false
+  colorShift = false,
+  isHifi = false
 }: ChameleonLogoProps) {
+  // HiFi mode shows HIFI TEAM logo
+  if (isHifi) {
+    return (
+      <Image
+        src="/hifi-team-logo.svg"
+        alt="HIFI TEAM Logo"
+        width={size * 3}
+        height={size}
+        className={cn(
+          "object-contain",
+          className,
+          animated && "animate-pulse"
+        )}
+        priority
+      />
+    )
+  }
+
   return (
     <Image
       src="/chameleon-logo.jpg"
