@@ -2817,6 +2817,45 @@ Removed unnecessary bottom padding on desktop for more chat space.
 
 ---
 
+### 5b. Simple Mode Layout Fix (HiFi Desktop)
+
+**Commit**: `d4ae0f3` (2025-12-10)
+
+Fixed HiFi mode desktop layout where chat input was cut off at the bottom.
+
+**Root Cause**: CSS Grid container had `md:pb-4` padding + missing `min-h-0` on flex/grid children.
+
+**Key Pattern - `min-h-0` for Flex/Grid Children**:
+
+By default, flexbox and grid items have `min-height: auto` which prevents them from shrinking below their content size. This causes overflow issues when content exceeds available space.
+
+```typescript
+// components/simple-chat-app.tsx
+
+// Root container - CSS Grid on desktop
+<div className="h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] md:grid-rows-[1fr] overflow-hidden">
+
+// Sidebar wrapper - needs min-h-0 for grid context
+<div className="md:h-full md:min-h-0">
+  <aside className="h-full min-h-0 overflow-hidden">
+    <div className="flex flex-col h-full min-h-0">
+
+// Main content - needs min-h-0 for both flex and grid
+<main className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden">
+```
+
+**CSS Pattern Reference**:
+```css
+/* For any flex/grid child that should shrink to fit available space: */
+.shrinkable-child {
+  min-height: 0;      /* Allow shrinking below content size */
+  height: 100%;       /* Take full parent height */
+  overflow: hidden;   /* Clip any overflow */
+}
+```
+
+---
+
 ### 6. Vision Model Updates
 
 **Commit**: `4e66952`
