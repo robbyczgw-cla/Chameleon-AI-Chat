@@ -19,7 +19,10 @@ import { supabaseSync } from "@/lib/supabase/sync"
 import { estimateTokens } from "@/lib/token-tracker"
 import { languageService, getTranslation } from "@/lib/languages"
 import { FileUpload } from "@/components/file-upload"
-import { extractTextFromAttachments, type FileAttachment } from "@/lib/file-handler"
+import { extractTextFromAttachments, type FileAttachment, getFileCategory } from "@/lib/file-handler"
+import { buildMultimodalContent } from "@/lib/multimodal-utils"
+import { compressImages, getImageSizeKB } from "@/lib/image-utils"
+import { validateImageForModel } from "@/lib/vision-models"
 import type { Persona } from "@/lib/personas"
 import { getRAGContext } from "@/lib/rag-service"
 import { parseSlashCommand, getCommandSuggestions, buildCommandPrompt, type SlashCommand } from "@/lib/slash-commands"
@@ -277,17 +280,62 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       }
     }
 
-    if (attachedFiles.length > 0) {
-      const fileContext = extractTextFromAttachments(attachedFiles)
-      messageContent = `${messageContent}\n\n${fileContext}`
+    // Compress images before sending to prevent 413 errors and PWA crashes
+    let processedFiles: FileAttachment[] = attachedFiles
+    const imageAttachments = attachedFiles.filter((f: FileAttachment) => getFileCategory(f.name) === "image")
+
+    if (imageAttachments.length > 0) {
+      toast({
+        title: settings.language === "de" ? "🖼️ Bilder komprimieren..." : "🖼️ Compressing images...",
+        description: `${imageAttachments.length} ${settings.language === "de" ? "Bild(er)" : "image(s)"}`,
+      })
+
+      try {
+        // Compress all images to stay under payload limit (critical for mobile PWA)
+        const imageDataUrls = imageAttachments.map((img: FileAttachment) => img.dataUrl || "").filter(Boolean)
+        const compressedDataUrls = await compressImages(imageDataUrls, 500) // 500KB max per image
+
+        // Create new array with compressed images
+        let compressedIndex = 0
+        processedFiles = attachedFiles.map((file: FileAttachment) => {
+          if (getFileCategory(file.name) === "image" && file.dataUrl) {
+            const compressed = compressedDataUrls[compressedIndex++]
+            const originalKB = getImageSizeKB(file.dataUrl)
+            const compressedKB = getImageSizeKB(compressed)
+            console.log(`[Simple Chat] Image ${file.name}: ${originalKB.toFixed(0)}KB → ${compressedKB.toFixed(0)}KB`)
+            return { ...file, dataUrl: compressed }
+          }
+          return file
+        })
+      } catch (error) {
+        console.error("[Simple Chat] Image compression failed:", error)
+        toast({
+          title: settings.language === "de" ? "⚠️ Bildkomprimierung fehlgeschlagen" : "⚠️ Image compression failed",
+          description: settings.language === "de" ? "Verwende Originalbilder" : "Using original images",
+          variant: "destructive",
+        })
+      }
+    }
+
+    // Build multimodal content (properly handles images for vision models)
+    // This is CRITICAL for images to work - simple text extraction doesn't send image data!
+    const multimodalContent = buildMultimodalContent(messageContent, processedFiles)
+
+    // Also extract text context from non-image files (PDFs, etc.)
+    const nonImageFiles = processedFiles.filter((f: FileAttachment) => getFileCategory(f.name) !== "image")
+    if (nonImageFiles.length > 0) {
+      const fileContext = extractTextFromAttachments(nonImageFiles)
+      if (typeof multimodalContent === "string") {
+        messageContent = `${multimodalContent}\n\n${fileContext}`
+      }
     }
 
     const userMessage: Message = {
       id: generateUUID(),
       role: "user",
-      content: messageContent,
+      content: multimodalContent, // Use multimodal content for proper image handling
       timestamp: Date.now(),
-      attachments: attachedFiles.map((f) => ({
+      attachments: processedFiles.map((f: FileAttachment) => ({
         id: f.id,
         name: f.name,
         type: f.type,
@@ -297,9 +345,28 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     }
 
     // Capture attached images BEFORE clearing (for image-to-image generation)
-    const inputImagesForGen = attachedFiles
-      .filter(f => f.type.startsWith('image/'))
-      .map(f => f.base64)
+    // Use processedFiles (compressed) for better PWA performance
+    const inputImagesForGen = processedFiles
+      .filter((f: FileAttachment) => f.type.startsWith('image/'))
+      .map((f: FileAttachment) => f.dataUrl?.split(',')[1]) // Extract base64 from dataUrl
+
+    // Validate image size/count for the model BEFORE adding message
+    if (imageAttachments.length > 0) {
+      const currentModel = overrideModel || settings.selectedModel
+      const visionModel = supportsVision(currentModel) ? currentModel : getRecommendedVisionModel(currentModel)
+      const totalSizeMB = imageAttachments.reduce((sum: number, f: FileAttachment) => sum + (f.size / 1024 / 1024), 0)
+      const validation = validateImageForModel(visionModel, imageAttachments.length, totalSizeMB)
+
+      if (!validation.valid) {
+        toast({
+          title: settings.language === "de" ? "Bildvalidierung fehlgeschlagen" : "Image validation failed",
+          description: validation.error,
+          variant: "destructive",
+        })
+        setIsChatLoading(false)
+        return
+      }
+    }
 
     addMessage(chatId, userMessage)
     console.log("[Simple Chat] Added user message")
@@ -397,7 +464,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     console.log("[Simple Chat] Using model:", model, overrideModel ? "(override)" : "(default)")
 
     // 🖼️ Vision Model Auto-Switching: Check if images are attached
-    const imageAttachments = attachedFiles.filter(f => f.type.startsWith('image/'))
+    // Note: imageAttachments was already defined above during compression
     if (imageAttachments.length > 0 && !supportsVision(model)) {
       const originalModel = model
       model = getRecommendedVisionModel(model)
@@ -457,7 +524,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         role: m.role,
         content: m.content,
       })),
-      { role: "user" as const, content: messageContent },
+      { role: "user" as const, content: multimodalContent }, // Use multimodal content for proper image handling
     ]
 
     try {
