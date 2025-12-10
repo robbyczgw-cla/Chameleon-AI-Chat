@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX, ChevronDown, ChevronRight, Lightbulb, Pencil, X, Save, ZoomIn } from "lucide-react"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { useState, memo, useCallback, useMemo } from "react"
 import dynamic from "next/dynamic"
@@ -881,29 +881,39 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                             </code>
                           )
                         },
-                        img: ({ src, alt }) => (
-                          <span
-                            className={cn(
-                              "inline-block not-prose relative group cursor-pointer",
-                              isHifi ? "max-w-[600px]" : ""
-                            )}
-                            style={isHifi ? { maxWidth: '600px' } : undefined}
-                            onClick={() => src && setLightboxImage(src)}
-                          >
-                            <img
-                              src={src}
-                              alt={alt || "Product image"}
+                        img: ({ src, alt }) => {
+                          const handleImageClick = (e: React.MouseEvent) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            if (src) {
+                              setLightboxImage(src)
+                            }
+                          }
+                          return (
+                            <span
                               className={cn(
-                                "h-auto rounded-lg border border-border transition-opacity group-hover:opacity-90",
-                                isHifi ? "w-full my-1.5" : "max-w-full sm:max-w-sm md:max-w-md my-4"
+                                "inline-block not-prose relative group cursor-pointer",
+                                isHifi ? "max-w-[600px]" : ""
                               )}
-                              loading="lazy"
-                            />
-                            <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-lg">
-                              <ZoomIn className="h-8 w-8 text-white drop-shadow-lg" />
+                              style={isHifi ? { maxWidth: '600px' } : undefined}
+                              onClick={handleImageClick}
+                            >
+                              <img
+                                src={src}
+                                alt={alt || "Product image"}
+                                className={cn(
+                                  "h-auto rounded-lg border border-border transition-opacity group-hover:opacity-90",
+                                  isHifi ? "w-full my-1.5" : "max-w-full sm:max-w-sm md:max-w-md my-4"
+                                )}
+                                loading="lazy"
+                                onClick={handleImageClick}
+                              />
+                              <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-lg pointer-events-none">
+                                <ZoomIn className="h-8 w-8 text-white drop-shadow-lg" />
+                              </span>
                             </span>
-                          </span>
-                        ),
+                          )
+                        },
                               }}
                             >
                               {richContentParsed.content}
@@ -1103,7 +1113,9 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
       <DialogContent
         className="max-w-[95vw] max-h-[95vh] w-auto p-2 bg-black/95 border-none"
         showCloseButton={true}
+        aria-describedby={undefined}
       >
+        <DialogTitle className="sr-only">Image preview</DialogTitle>
         {lightboxImage && (
           <img
             src={lightboxImage}
