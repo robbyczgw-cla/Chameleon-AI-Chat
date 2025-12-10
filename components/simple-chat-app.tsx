@@ -734,10 +734,12 @@ export function SimpleChatApp() {
     : (settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en")
   const t = translations[lang as keyof typeof translations]
 
-  // For HiFi tier: Force proper default model if not set, otherwise use selected model
+  // For HiFi tier: Use Grok 4.1 Fast (best tool calling, super affordable)
+  // $0.20/M input, $0.50/M output - designed for customer support & agentic tasks
+  const HIFI_DEFAULT_MODEL = "x-ai/grok-4.1-fast"
   const effectiveModel = isHifi && !settings.defaultModel
-    ? "openai/gpt-5.1-codex-mini"
-    : (settings.defaultModel || settings.selectedModel || "openai/gpt-5.1-codex-mini")
+    ? HIFI_DEFAULT_MODEL
+    : (settings.defaultModel || settings.selectedModel || HIFI_DEFAULT_MODEL)
 
   // Filter chats based on search query
   const filteredChats = searchQuery.trim()

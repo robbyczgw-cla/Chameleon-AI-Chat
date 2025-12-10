@@ -662,39 +662,74 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               </div>
 
               <div className="space-y-3">
-                {/* GPT-5.1 Codex Mini - Recommended */}
-                <button
-                  type="button"
-                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "openai/gpt-5.1-codex-mini", selectedModel: "openai/gpt-5.1-codex-mini" })}
-                  className={cn(
-                    "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
-                    (localSettings.defaultModel === "openai/gpt-5.1-codex-mini" || localSettings.selectedModel === "openai/gpt-5.1-codex-mini")
-                      ? "border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20"
-                      : "border-border/60 hover:border-blue-300 bg-background/50"
-                  )}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-2xl flex-shrink-0">
-                      🎯
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold">{t.modelCodex}</span>
-                        <Badge className="bg-blue-500 text-white text-[10px] px-1.5">{t.recommended}</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-2">{t.modelCodexDesc}</p>
-                      <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400">
-                        <Sparkles className="h-3 w-3" />
-                        <span>{t.modelCodexStrengths}</span>
-                      </div>
-                    </div>
-                    {(localSettings.defaultModel === "openai/gpt-5.1-codex-mini" || localSettings.selectedModel === "openai/gpt-5.1-codex-mini") && (
-                      <div className="h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
-                        <div className="h-2 w-2 rounded-full bg-white" />
-                      </div>
+                {/* Grok 4.1 Fast - Recommended for HiFi (best tool calling, super cheap) */}
+                {isHifi ? (
+                  <button
+                    type="button"
+                    onClick={() => setLocalSettings({ ...localSettings, defaultModel: "x-ai/grok-4.1-fast", selectedModel: "x-ai/grok-4.1-fast" })}
+                    className={cn(
+                      "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
+                      (localSettings.defaultModel === "x-ai/grok-4.1-fast" || localSettings.selectedModel === "x-ai/grok-4.1-fast")
+                        ? "border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20"
+                        : "border-border/60 hover:border-blue-300 bg-background/50"
                     )}
-                  </div>
-                </button>
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-2xl flex-shrink-0">
+                        🎯
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold">Grok 4.1 Fast</span>
+                          <Badge className="bg-blue-500 text-white text-[10px] px-1.5">{t.recommended}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">Beste Wahl für Produktvergleiche & Shopify-Suche</p>
+                        <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400">
+                          <Sparkles className="h-3 w-3" />
+                          <span>Top Tool-Calling • $0.50/M Output • Schnell</span>
+                        </div>
+                      </div>
+                      {(localSettings.defaultModel === "x-ai/grok-4.1-fast" || localSettings.selectedModel === "x-ai/grok-4.1-fast") && (
+                        <div className="h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                          <div className="h-2 w-2 rounded-full bg-white" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setLocalSettings({ ...localSettings, defaultModel: "openai/gpt-5.1-codex-mini", selectedModel: "openai/gpt-5.1-codex-mini" })}
+                    className={cn(
+                      "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
+                      (localSettings.defaultModel === "openai/gpt-5.1-codex-mini" || localSettings.selectedModel === "openai/gpt-5.1-codex-mini")
+                        ? "border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20"
+                        : "border-border/60 hover:border-blue-300 bg-background/50"
+                    )}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-2xl flex-shrink-0">
+                        🎯
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold">{t.modelCodex}</span>
+                          <Badge className="bg-blue-500 text-white text-[10px] px-1.5">{t.recommended}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{t.modelCodexDesc}</p>
+                        <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400">
+                          <Sparkles className="h-3 w-3" />
+                          <span>{t.modelCodexStrengths}</span>
+                        </div>
+                      </div>
+                      {(localSettings.defaultModel === "openai/gpt-5.1-codex-mini" || localSettings.selectedModel === "openai/gpt-5.1-codex-mini") && (
+                        <div className="h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                          <div className="h-2 w-2 rounded-full bg-white" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                )}
 
                 {/* Gemini 2.5 Flash - Budget */}
                 <button

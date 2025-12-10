@@ -975,6 +975,55 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
             console.error("[Simple Chat] Memory extraction failed:", err)
           })
         }
+      } else if (!assistantContent || assistantContent.trim() === "") {
+        // Handle empty response after tool calls (model exhausted tokens on reasoning)
+        const streamingHistoryForMessage = getStreamingHistory()
+        const hadToolCalls = streamingHistoryForMessage.some(
+          (entry) => entry.phase === "tool_use" || entry.phase === "searching" || entry.toolName
+        )
+
+        console.warn("[Simple Chat] ⚠️ Empty response detected!", {
+          hadToolCalls,
+          streamingHistoryLength: streamingHistoryForMessage.length,
+          reasoningLength: reasoningContent.length
+        })
+
+        if (hadToolCalls) {
+          // Model made tool calls but failed to generate a response
+          const errorContent = isHifi
+            ? "Das Modell konnte leider keine Antwort generieren. Das kann bei komplexen Vergleichen passieren. Bitte versuch es nochmal oder stelle eine spezifischere Frage."
+            : "The model could not generate a response. This can happen with complex comparisons. Please try again or ask a more specific question."
+
+          const errorMessage: Message = {
+            id: assistantMessageId,
+            role: "assistant",
+            content: errorContent,
+            timestamp: Date.now(),
+            streamingHistory: streamingHistoryForMessage,
+          }
+
+          addMessage(chatId, errorMessage)
+
+          toast({
+            title: isHifi ? "Keine Antwort" : "No Response",
+            description: isHifi
+              ? "Das Modell hat zu viele Ressourcen für die Suche verbraucht. Bitte nochmal versuchen."
+              : "The model used too many resources on search. Please try again.",
+            variant: "destructive",
+          })
+        } else {
+          // Empty response without tool calls - generic error
+          const errorMessage: Message = {
+            id: assistantMessageId,
+            role: "assistant",
+            content: isHifi
+              ? "Ups! Es wurde keine Antwort generiert. Bitte versuch es nochmal."
+              : "Oops! No response was generated. Please try again.",
+            timestamp: Date.now(),
+          }
+
+          addMessage(chatId, errorMessage)
+        }
       }
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
