@@ -19,19 +19,20 @@ export function ChameleonLogo({
   colorShift = false,
   isHifi = false
 }: ChameleonLogoProps) {
-  // HiFi mode shows HIFI TEAM logo
+  // HiFi mode shows HIFI TEAM logo - constrained width
   if (isHifi) {
     return (
       <Image
         src="/hifi-team-logo.svg"
         alt="HIFI TEAM Logo"
-        width={size * 3}
+        width={size * 2.5}
         height={size}
         className={cn(
-          "object-contain",
+          "object-contain flex-shrink-0",
           className,
           animated && "animate-pulse"
         )}
+        style={{ maxWidth: `${size * 2.5}px`, height: 'auto' }}
         priority
       />
     )
