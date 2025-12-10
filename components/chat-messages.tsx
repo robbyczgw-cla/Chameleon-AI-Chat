@@ -6,7 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX, ChevronDown, ChevronRight, Lightbulb, Pencil, X, Save, ZoomIn } from "lucide-react"
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { useState, memo, useCallback, useMemo } from "react"
 import dynamic from "next/dynamic"
@@ -260,7 +259,6 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
   const [expandedStreamingHistory, setExpandedStreamingHistory] = useState<Set<string>>(new Set())
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState("")
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null)
   const { toast } = useToast()
 
   // Advanced mode = NOT simple mode (from settings) - HiFi users are NEVER in advanced mode
@@ -589,7 +587,6 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
   }
 
   return (
-  <>
     <ScrollArea className="h-full w-full native-scroll">
       <div className="w-full max-w-5xl mx-auto space-y-4 sm:space-y-6 px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {currentChat.messages.map((message, index) => (
@@ -882,36 +879,34 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                           )
                         },
                         img: ({ src, alt }) => {
-                          const handleImageClick = (e: React.MouseEvent) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            if (src) {
-                              setLightboxImage(src)
-                            }
-                          }
-                          return (
-                            <span
-                              className={cn(
-                                "inline-block not-prose relative group cursor-pointer",
-                                isHifi ? "max-w-[600px]" : ""
-                              )}
-                              style={isHifi ? { maxWidth: '600px' } : undefined}
-                              onClick={handleImageClick}
-                            >
-                              <img
-                                src={src}
-                                alt={alt || "Product image"}
-                                className={cn(
-                                  "h-auto rounded-lg border border-border transition-opacity group-hover:opacity-90",
-                                  isHifi ? "w-full my-1.5" : "max-w-full sm:max-w-sm md:max-w-md my-4"
-                                )}
-                                loading="lazy"
-                                onClick={handleImageClick}
-                              />
-                              <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-lg pointer-events-none">
-                                <ZoomIn className="h-8 w-8 text-white drop-shadow-lg" />
+                          // HiFi mode: clickable images that open in new tab
+                          if (isHifi) {
+                            return (
+                              <span
+                                className="inline-block not-prose relative group cursor-pointer max-w-[600px]"
+                                style={{ maxWidth: '600px' }}
+                                onClick={() => src && window.open(src, '_blank')}
+                              >
+                                <img
+                                  src={src}
+                                  alt={alt || "Product image"}
+                                  className="w-full h-auto rounded-lg border border-border transition-opacity group-hover:opacity-90 my-1.5"
+                                  loading="lazy"
+                                />
+                                <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-lg pointer-events-none">
+                                  <ZoomIn className="h-8 w-8 text-white drop-shadow-lg" />
+                                </span>
                               </span>
-                            </span>
+                            )
+                          }
+                          // Normal mode: no click handling
+                          return (
+                            <img
+                              src={src}
+                              alt={alt || "Image"}
+                              className="max-w-full sm:max-w-sm md:max-w-md h-auto rounded-lg border border-border my-4"
+                              loading="lazy"
+                            />
                           )
                         },
                               }}
@@ -1107,24 +1102,5 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
         )}
       </div>
     </ScrollArea>
-
-    {/* Image Lightbox */}
-    <Dialog open={!!lightboxImage} onOpenChange={(open) => !open && setLightboxImage(null)}>
-      <DialogContent
-        className="max-w-[95vw] max-h-[95vh] w-auto p-2 bg-black/95 border-none"
-        showCloseButton={true}
-        aria-describedby={undefined}
-      >
-        <DialogTitle className="sr-only">Image preview</DialogTitle>
-        {lightboxImage && (
-          <img
-            src={lightboxImage}
-            alt="Full size image"
-            className="max-w-full max-h-[90vh] w-auto h-auto object-contain rounded-lg"
-          />
-        )}
-      </DialogContent>
-    </Dialog>
-  </>
   )
 })
