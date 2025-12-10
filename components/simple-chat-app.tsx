@@ -810,7 +810,7 @@ export function SimpleChatApp() {
       )}
 
       {/* iOS PWA fix: Only apply safe-area-inset-top here, bottom padding is handled by SimpleChatInput */}
-      <div {...swipeHandlers} className="relative z-10 h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] overflow-hidden pt-[env(safe-area-inset-top,0px)] md:pb-4 touch-pan-y">
+      <div {...swipeHandlers} className="relative z-10 h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] md:grid-rows-[1fr] overflow-hidden pt-[env(safe-area-inset-top,0px)] touch-pan-y">
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
@@ -823,12 +823,12 @@ export function SimpleChatApp() {
         {/* Mobile: fixed overlay, Desktop: grid column */}
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-50 w-72 md:relative md:inset-auto md:z-0 md:w-full transition-transform duration-300 ease-out",
+            "fixed inset-y-0 left-0 z-50 w-72 md:relative md:inset-auto md:z-0 md:w-full md:h-full md:min-h-0 transition-transform duration-300 ease-out",
             isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           )}
         >
-          <aside className="h-full w-full bg-background border-r border-border/50">
-          <div className="flex flex-col h-full">
+          <aside className="h-full w-full min-h-0 bg-background border-r border-border/50 overflow-hidden">
+          <div className="flex flex-col h-full min-h-0">
             {/* Sidebar Header */}
             <div className="p-4 border-b border-border/50">
               <div className="flex items-center justify-between">
@@ -958,7 +958,7 @@ export function SimpleChatApp() {
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
+        <main className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
           {/* Header */}
           <header className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 border-b border-border/50 bg-background shrink-0">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
