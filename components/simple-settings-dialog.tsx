@@ -119,15 +119,18 @@ const translations = {
     modelCodex: "GPT-5.1 Codex Mini",
     modelCodexDesc: "Best all-around choice. Detailed answers, great for coding and everyday tasks. Fast and affordable.",
     modelCodexStrengths: "Detailed responses • Versatile • Great value",
-    modelGemini: "Gemini 2.5 Flash",
-    modelGeminiDesc: "Ultra-fast and concise. Best when you want quick, short answers. Very affordable.",
-    modelGeminiStrengths: "Super fast • Brief answers • Budget friendly",
+    modelGemini: "Gemini 2.0 Flash",
+    modelGeminiDesc: "Ultra-fast and proven stable. Best for quick answers. $0.10/$0.40 per 1M tokens.",
+    modelGeminiStrengths: "Super fast • 1M context • Budget friendly",
     modelHaiku: "Claude Haiku 4.5",
     modelHaikuDesc: "Fast and smart. Great for everyday tasks, coding, and quick analysis.",
     modelHaikuStrengths: "Lightning fast • Cost effective • Versatile",
     modelGrok: "Grok 4.1 Fast",
     modelGrokDesc: "xAI's fastest model. Real-time web access, great for current events and quick research tasks.",
     modelGrokStrengths: "Real-time info • Very fast • Web connected",
+    modelDeepseek: "DeepSeek V3.2",
+    modelDeepseekDesc: "China's top open model. Exceptional reasoning and coding. Great value when available.",
+    modelDeepseekStrengths: "Strong reasoning • Great at coding • Open source",
     speed: "Speed",
     recommended: "Recommended",
     premium: "Premium",
@@ -246,15 +249,18 @@ const translations = {
     modelCodex: "GPT-5.1 Codex Mini",
     modelCodexDesc: "Beste Allround-Wahl. Detaillierte Antworten, ideal für Programmierung und tägliche Aufgaben. Schnell und günstig.",
     modelCodexStrengths: "Ausführliche Antworten • Vielseitig • Gutes Preis-Leistungs-Verhältnis",
-    modelGemini: "Gemini 2.5 Flash",
-    modelGeminiDesc: "Ultraschnell und prägnant. Am besten für kurze, schnelle Antworten. Sehr günstig.",
-    modelGeminiStrengths: "Super schnell • Kurze Antworten • Budgetfreundlich",
+    modelGemini: "Gemini 2.0 Flash",
+    modelGeminiDesc: "Ultraschnell und stabil. Am besten für schnelle Antworten. $0.10/$0.40 pro 1M Tokens.",
+    modelGeminiStrengths: "Super schnell • 1M Kontext • Budgetfreundlich",
     modelHaiku: "Claude Haiku 4.5",
     modelHaikuDesc: "Schnell und intelligent. Ideal für alltägliche Aufgaben, Programmierung und schnelle Analysen.",
     modelHaikuStrengths: "Blitzschnell • Kostengünstig • Vielseitig",
     modelGrok: "Grok 4.1 Fast",
     modelGrokDesc: "xAIs schnellstes Modell. Echtzeit-Webzugriff, ideal für aktuelle Ereignisse und schnelle Recherchen.",
     modelGrokStrengths: "Echtzeit-Info • Sehr schnell • Web-verbunden",
+    modelDeepseek: "DeepSeek V3.2",
+    modelDeepseekDesc: "Chinas bestes Open-Source Modell. Hervorragendes Reasoning und Coding. Gutes Preis-Leistungs-Verhältnis.",
+    modelDeepseekStrengths: "Starkes Reasoning • Coding-Profi • Open Source",
     speed: "Schnell",
     recommended: "Empfohlen",
     premium: "Premium",
@@ -361,15 +367,18 @@ const translations = {
     modelCodex: "GPT-5.1 Codex Mini",
     modelCodexDesc: "Mejor opción general. Respuestas detalladas, ideal para programación y tareas diarias. Rápido y económico.",
     modelCodexStrengths: "Respuestas detalladas • Versátil • Gran valor",
-    modelGemini: "Gemini 2.5 Flash",
-    modelGeminiDesc: "Ultrarápido y conciso. Mejor cuando quieres respuestas rápidas y breves. Muy económico.",
-    modelGeminiStrengths: "Súper rápido • Respuestas breves • Económico",
+    modelGemini: "Gemini 2.0 Flash",
+    modelGeminiDesc: "Ultrarápido y estable. Mejor para respuestas rápidas. $0.10/$0.40 por 1M tokens.",
+    modelGeminiStrengths: "Súper rápido • 1M contexto • Económico",
     modelHaiku: "Claude Haiku 4.5",
     modelHaikuDesc: "Rápido e inteligente. Excelente para tareas diarias, programación y análisis rápidos.",
     modelHaikuStrengths: "Muy rápido • Económico • Versátil",
     modelGrok: "Grok 4.1 Fast",
     modelGrokDesc: "El modelo más rápido de xAI. Acceso web en tiempo real, ideal para eventos actuales e investigación rápida.",
     modelGrokStrengths: "Info en tiempo real • Muy rápido • Conectado a web",
+    modelDeepseek: "DeepSeek V3.2",
+    modelDeepseekDesc: "El mejor modelo abierto de China. Razonamiento y programación excepcionales. Gran valor cuando está disponible.",
+    modelDeepseekStrengths: "Razonamiento fuerte • Excelente para código • Código abierto",
     speed: "Rápido",
     recommended: "Recomendado",
     premium: "Premium",
@@ -389,7 +398,7 @@ const SIMPLE_MODE_MODELS = [
     bgColor: "bg-blue-500/10",
   },
   {
-    id: "google/gemini-2.5-flash",
+    id: "google/gemini-2.0-flash-001",
     badge: "budget",
     icon: "⚡",
     color: "from-green-500 to-emerald-500",
@@ -699,10 +708,10 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 {/* Gemini 2.5 Flash - Budget */}
                 <button
                   type="button"
-                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "google/gemini-2.5-flash", selectedModel: "google/gemini-2.5-flash" })}
+                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "google/gemini-2.0-flash-001", selectedModel: "google/gemini-2.0-flash-001" })}
                   className={cn(
                     "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
-                    (localSettings.defaultModel === "google/gemini-2.5-flash" || localSettings.selectedModel === "google/gemini-2.5-flash")
+                    (localSettings.defaultModel === "google/gemini-2.0-flash-001" || localSettings.selectedModel === "google/gemini-2.0-flash-001")
                       ? "border-green-500 bg-green-500/10 ring-2 ring-green-500/20"
                       : "border-border/60 hover:border-green-300 bg-background/50"
                   )}
@@ -722,7 +731,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                         <span>{t.modelGeminiStrengths}</span>
                       </div>
                     </div>
-                    {(localSettings.defaultModel === "google/gemini-2.5-flash" || localSettings.selectedModel === "google/gemini-2.5-flash") && (
+                    {(localSettings.defaultModel === "google/gemini-2.0-flash-001" || localSettings.selectedModel === "google/gemini-2.0-flash-001") && (
                       <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
                         <div className="h-2 w-2 rounded-full bg-white" />
                       </div>
@@ -764,34 +773,34 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   </div>
                 </button>
 
-                {/* Grok 4.1 Fast - Speed */}
+                {/* DeepSeek V3.2 - Strong reasoning */}
                 <button
                   type="button"
-                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "x-ai/grok-4.1-fast", selectedModel: "x-ai/grok-4.1-fast" })}
+                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "deepseek/deepseek-v3.2", selectedModel: "deepseek/deepseek-v3.2" })}
                   className={cn(
                     "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
-                    (localSettings.defaultModel === "x-ai/grok-4.1-fast" || localSettings.selectedModel === "x-ai/grok-4.1-fast")
-                      ? "border-orange-500 bg-orange-500/10 ring-2 ring-orange-500/20"
-                      : "border-border/60 hover:border-orange-300 bg-background/50"
+                    (localSettings.defaultModel === "deepseek/deepseek-v3.2" || localSettings.selectedModel === "deepseek/deepseek-v3.2")
+                      ? "border-emerald-500 bg-emerald-500/10 ring-2 ring-emerald-500/20"
+                      : "border-border/60 hover:border-emerald-300 bg-background/50"
                   )}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-2xl flex-shrink-0">
-                      🚀
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-2xl flex-shrink-0">
+                      🧠
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold">{t.modelGrok}</span>
-                        <Badge className="bg-orange-500 text-white text-[10px] px-1.5">{t.speed}</Badge>
+                        <span className="font-semibold">{t.modelDeepseek}</span>
+                        <Badge className="bg-emerald-500 text-white text-[10px] px-1.5">{t.premium}</Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{t.modelGrokDesc}</p>
-                      <div className="flex items-center gap-1.5 text-xs text-orange-600 dark:text-orange-400">
+                      <p className="text-sm text-muted-foreground mb-2">{t.modelDeepseekDesc}</p>
+                      <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
                         <Zap className="h-3 w-3" />
-                        <span>{t.modelGrokStrengths}</span>
+                        <span>{t.modelDeepseekStrengths}</span>
                       </div>
                     </div>
-                    {(localSettings.defaultModel === "x-ai/grok-4.1-fast" || localSettings.selectedModel === "x-ai/grok-4.1-fast") && (
-                      <div className="h-5 w-5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    {(localSettings.defaultModel === "deepseek/deepseek-v3.2" || localSettings.selectedModel === "deepseek/deepseek-v3.2") && (
+                      <div className="h-5 w-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
                         <div className="h-2 w-2 rounded-full bg-white" />
                       </div>
                     )}
