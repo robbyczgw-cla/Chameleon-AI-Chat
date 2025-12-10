@@ -542,7 +542,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
             {/* HiFi mode: Show company logo instead of persona info */}
             {isHifi && (
               <div className="flex justify-center mt-4 sm:mt-6 animate-fade-in" style={{ animationDelay: "300ms" }}>
-                <ChameleonLogo size={48} isHifi={true} />
+                <ChameleonLogo size={28} isHifi={true} />
               </div>
             )}
 
@@ -889,7 +889,10 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                           <img
                             src={src}
                             alt={alt || "Product image"}
-                            className="max-w-full sm:max-w-sm md:max-w-md h-auto rounded-lg my-4 border border-border"
+                            className={cn(
+                              "h-auto rounded-lg my-2 border border-border",
+                              isHifi ? "max-w-[180px] max-h-[180px] object-contain" : "max-w-full sm:max-w-sm md:max-w-md my-4"
+                            )}
                             loading="lazy"
                           />
                         ),
