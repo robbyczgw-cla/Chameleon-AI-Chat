@@ -6,6 +6,35 @@ This project is in **beta stage** (v0.10-beta). Core features are stable with ex
 
 ---
 
+## [0.10.1-beta] - 2025-12-10
+
+### HiFi Mode Improvements
+
+**Layout Fix - Desktop Chat Input Cut Off**
+- **Symptom:** Chat input completely invisible at bottom in HiFi mode desktop, sidebar overflowing
+- **Root Cause:** CSS Grid container had `md:pb-4` padding + missing `min-h-0` on flex/grid children
+- **Fix:**
+  - Removed `md:pb-4` from root container
+  - Added `min-h-0` to all flex/grid children (critical for shrinking below content size)
+  - Added `md:grid-rows-[1fr]` for explicit grid row definition
+  - Added `overflow-hidden` to sidebar
+- **File:** `components/simple-chat-app.tsx`
+
+**Model Picker Updates**
+- Replaced duplicate Grok 4.1 Fast with DeepSeek V3.2
+- Replaced expensive Gemini 2.5 Flash ($2.50/M) with Gemini 2.0 Flash ($0.40/M) for budget slot
+
+**HiFi System Prompt Update**
+- Clarified that USER is a SELLER/employee, not a customer
+- Updated example prompts to seller perspective (e.g., "Kunde hat €500 Budget...")
+
+**UI Improvements**
+- Added HIFI TEAM logo to sidebar header in HiFi mode
+- Made product images smaller in HiFi mode (max-w-[150px])
+- Removed HiFi logo from empty chat greeting to prevent layout issues
+
+---
+
 ## [0.10-beta] - 2025-12-07
 
 ### 💰 Exact Cost Tracking - Revolutionary Update
