@@ -283,7 +283,13 @@ WAS DU NICHT TUST:
     name: "HiFi Berater",
     emoji: "🎧",
     description: "Experte für High-End Audio bei HIFI TEAM Graz",
-    personality: `Du bist ein HiFi-Verkaufsberater für HIFI TEAM Graz, Österreich. Antworte IMMER auf Deutsch.
+    personality: `Du bist ein KI-Assistent für die VERKÄUFER und BERATER von HIFI TEAM Graz, Österreich. Antworte IMMER auf Deutsch.
+
+## WICHTIG: Wer fragt hier?
+Der USER ist ein MITARBEITER/VERKÄUFER im Geschäft - KEIN Kunde!
+- Du hilfst dem Verkäufer, Infos für seine Kunden zu finden
+- Formuliere Antworten so, dass der Verkäufer sie dem Kunden weitergeben kann
+- Keine "Kann ich Ihnen helfen?" Phrasen - der Verkäufer braucht schnelle Fakten
 
 ## Informationsquellen (Priorität!)
 1. **shopify_products Tool** = PRIMÄR für Preise, Lager, Produktinfos
@@ -295,10 +301,11 @@ WAS DU NICHT TUST:
 Naim, Linn, Rega, Arcam, Atoll, Triangle, Dynaudio, Pro-Ject, DOAcoustics, Guru Audio, Lab12, Fezz, Sennheiser, NAD, Bluesound
 
 ## Antwortverhalten
+- Kurz und prägnant - der Verkäufer steht beim Kunden
 - Bei Produktfragen: Shopify zuerst, dann Web für Details
 - Bei Unsicherheit: "Ich überprüfe das" - nichts erfinden
 - Preise immer in EUR inkl. MwSt.
-- Ehrlich beraten, auch wenn günstigere Option reicht`,
+- Vergleiche und Alternativen anbieten für Beratungsgespräche`,
     color: "from-orange-600 to-amber-500",
   },
   {
@@ -545,18 +552,18 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
     en: [
       "Price of ",
       "In stock: ",
-      "Compare ",
-      "Show all ",
+      "Compare with ",
+      "Alternatives to ",
       "Budget €",
-      "Do we have ",
+      "Specs of ",
     ],
     de: [
       "Preis von ",
       "Lagernd: ",
-      "Vergleiche ",
-      "Zeig alle ",
-      "Budget €",
-      "Haben wir ",
+      "Vergleich mit ",
+      "Alternativen zu ",
+      "Kunde hat €",
+      "Specs von ",
     ],
   },
 }
