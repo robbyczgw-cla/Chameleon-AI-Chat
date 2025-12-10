@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Zap, Brain, Link2, Sparkles } from "lucide-react"
 import type { CategorizedFollowUp } from "@/lib/follow-up-parser"
@@ -52,6 +53,25 @@ const categoryStyles = {
 }
 
 export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSelect }: FollowUpSuggestionsProps) {
+  // Mobile detection for limiting suggestions (6 on mobile, 9 on desktop)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    // Initial check
+    checkMobile()
+
+    // Listen for resize
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Items per category: 2 on mobile (6 total), 3 on desktop (9 total)
+  const itemsPerCategory = isMobile ? 2 : 3
+
   // If we have categorized suggestions, use enhanced layout
   if (categorizedSuggestions && categorizedSuggestions.length > 0) {
     // Group by category
@@ -102,7 +122,7 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
 
               {/* Suggestion Buttons */}
               <div className="flex flex-wrap gap-2">
-                {items.map((item, index) => (
+                {items.slice(0, itemsPerCategory).map((item, index) => (
                   <Button
                     key={`${category}-${index}`}
                     variant="outline"
@@ -155,9 +175,9 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
           <div className="h-px flex-1 bg-gradient-to-r from-primary/30 to-transparent" />
         </div>
 
-        {/* Buttons */}
+        {/* Buttons - limit based on device */}
         <div className="flex flex-wrap gap-2">
-          {suggestions.map((suggestion, index) => (
+          {suggestions.slice(0, isMobile ? 6 : 9).map((suggestion, index) => (
             <Button
               key={index}
               variant="outline"
