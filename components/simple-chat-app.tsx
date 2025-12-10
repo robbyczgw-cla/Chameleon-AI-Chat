@@ -734,10 +734,10 @@ export function SimpleChatApp() {
     : (settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en")
   const t = translations[lang as keyof typeof translations]
 
-  // For HiFi tier: Force proper default model if not set, otherwise use selected model
-  const effectiveModel = isHifi && !settings.defaultModel
-    ? "openai/gpt-5.1-codex-mini"
-    : (settings.defaultModel || settings.selectedModel || "openai/gpt-5.1-codex-mini")
+  // Default model for all users: Grok 4.1 Fast (best tool calling, super affordable)
+  // $0.20/M input, $0.50/M output - designed for agentic tasks
+  const DEFAULT_MODEL = "x-ai/grok-4.1-fast"
+  const effectiveModel = settings.defaultModel || settings.selectedModel || DEFAULT_MODEL
 
   // Filter chats based on search query
   const filteredChats = searchQuery.trim()
@@ -982,10 +982,10 @@ export function SimpleChatApp() {
                     <span className="text-xl shrink-0">{selectedPersona.emoji}</span>
                     <div className="min-w-0">
                       <p className="font-medium text-sm truncate">{selectedPersona.name}</p>
-                      {/* HiFi: Show full description, others: truncate */}
+                      {/* HiFi: Show description on single line, others: truncate */}
                       <p className={cn(
-                        "text-xs text-muted-foreground",
-                        isHifi ? "max-w-[300px] sm:max-w-[400px]" : "truncate max-w-[120px] sm:max-w-[200px]"
+                        "text-xs text-muted-foreground whitespace-nowrap",
+                        isHifi ? "overflow-hidden text-ellipsis max-w-[250px] sm:max-w-[350px]" : "truncate max-w-[120px] sm:max-w-[200px]"
                       )}>{selectedPersona.description}</p>
                     </div>
                   </div>
