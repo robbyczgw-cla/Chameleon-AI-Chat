@@ -539,13 +539,6 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
               </p>
             </div>
 
-            {/* HiFi mode: Show company logo instead of persona info */}
-            {isHifi && (
-              <div className="flex justify-center mt-4 sm:mt-6 animate-fade-in" style={{ animationDelay: "300ms" }}>
-                <ChameleonLogo size={28} isHifi={true} />
-              </div>
-            )}
-
             {/* Persona info if selected - only for non-HiFi mode */}
             {currentPersona && !isHifi && (
               <div className="flex flex-col items-center gap-2 mt-3 sm:mt-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
