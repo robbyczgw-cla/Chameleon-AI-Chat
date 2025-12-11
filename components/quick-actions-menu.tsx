@@ -9,20 +9,16 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
-import { MoreVertical, Music, VolumeX, Download, FileText, Share2, Globe, Link, Check } from "lucide-react"
+import { MoreVertical, Download, FileText, Share2, Globe, Link, Check } from "lucide-react"
 import { useApp } from "@/contexts/app-context"
 import { useToast } from "@/hooks/use-toast"
 import { useState } from "react"
 
 interface QuickActionsMenuProps {
-  isMusicPlaying: boolean
-  onMusicToggle: () => void
   onShareClick?: () => void
 }
 
 export function QuickActionsMenu({
-  isMusicPlaying,
-  onMusicToggle,
   onShareClick,
 }: QuickActionsMenuProps) {
   const { chats, currentChatId } = useApp()
@@ -281,22 +277,6 @@ export function QuickActionsMenu({
             <>
               <Link className="h-4 w-4 mr-2" />
               Copy Chat Link (URL)
-            </>
-          )}
-        </DropdownMenuItem>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem onClick={onMusicToggle} className="md:hidden">
-          {isMusicPlaying ? (
-            <>
-              <Music className="h-4 w-4 mr-2 text-green-500" />
-              <span>Turn Off Music</span>
-            </>
-          ) : (
-            <>
-              <VolumeX className="h-4 w-4 mr-2" />
-              <span>Ambient Music</span>
             </>
           )}
         </DropdownMenuItem>

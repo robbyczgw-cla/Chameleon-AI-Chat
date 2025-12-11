@@ -19,8 +19,6 @@ import {
   Swords,
   FileCode,
   BarChart3,
-  Music,
-  VolumeX,
   Moon,
   Sun,
   MoreHorizontal,
@@ -36,7 +34,6 @@ import {
 import { useApp } from "@/contexts/app-context"
 import { cn } from "@/lib/utils"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
-import { ambientMusicService } from "@/lib/ambient-music"
 import { haptics } from "@/lib/haptics"
 import { useToast } from "@/hooks/use-toast"
 
@@ -74,9 +71,6 @@ export function MobileMoreMenu({
   const { toast } = useToast()
   const [open, setOpen] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
-  const [isMusicPlaying, setIsMusicPlaying] = useState(
-    localStorage.getItem("chameleon-ambient-music") === "enabled"
-  )
 
   // Find current chat for export functions
   let currentChat = chats.find((c) => c.id === currentChatId)
@@ -90,26 +84,6 @@ export function MobileMoreMenu({
     updateSettings({ theme: newTheme })
     document.documentElement.classList.toggle("dark", newTheme === "dark")
     haptics.trigger("selection")
-  }
-
-  const toggleMusic = async () => {
-    const currentTheme = localStorage.getItem("chameleon-theme") || "light"
-    haptics.trigger("selection")
-
-    if (isMusicPlaying) {
-      ambientMusicService.stop()
-      setIsMusicPlaying(false)
-      localStorage.setItem("chameleon-ambient-music", "disabled")
-    } else {
-      try {
-        await ambientMusicService.play(currentTheme)
-        setIsMusicPlaying(true)
-        localStorage.setItem("chameleon-ambient-music", "enabled")
-      } catch (error) {
-        console.error("Failed to start music:", error)
-        setIsMusicPlaying(false)
-      }
-    }
   }
 
   // Export functions
@@ -261,7 +235,7 @@ export function MobileMoreMenu({
           <SheetDescription>Access advanced features and settings</SheetDescription>
         </SheetHeader>
         <div className="mt-6 space-y-1">
-          {/* Theme & Music */}
+          {/* Theme */}
           <div className="mb-4 space-y-1">
             <Button
               variant="ghost"
@@ -274,18 +248,6 @@ export function MobileMoreMenu({
                 <Moon className="h-5 w-5 text-blue-500" />
               )}
               <span>{settings.theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start h-12 text-base gap-3"
-              onClick={toggleMusic}
-            >
-              {isMusicPlaying ? (
-                <VolumeX className="h-5 w-5 text-green-500" />
-              ) : (
-                <Music className="h-5 w-5" />
-              )}
-              <span>{isMusicPlaying ? "Stop Music" : "Play Music"}</span>
             </Button>
           </div>
 
