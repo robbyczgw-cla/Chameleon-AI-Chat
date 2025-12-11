@@ -87,10 +87,10 @@ BEGIN
     RETURN;
   END IF;
 
-  -- Increment view count
-  UPDATE chat_shares
-  SET view_count = view_count + 1, updated_at = NOW()
-  WHERE id = v_share.id;
+  -- Increment view count (fully qualified to avoid ambiguity with return column)
+  UPDATE chat_shares cs2
+  SET view_count = cs2.view_count + 1, updated_at = NOW()
+  WHERE cs2.id = v_share.id;
 
   -- Return the shared chat data
   RETURN QUERY
