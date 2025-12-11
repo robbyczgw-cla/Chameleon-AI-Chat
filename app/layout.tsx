@@ -81,6 +81,77 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${roboto.variable} ${jetbrainsMono.variable} ${atkinsonHyperlegible.variable}`}
       >
+        {/* CRITICAL: Immediate loading screen for Android PWA cold start */}
+        {/* This shows BEFORE React hydrates, preventing black screen */}
+        <div
+          id="pwa-loading-screen"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#0a0a0a',
+            zIndex: 99999,
+            transition: 'opacity 0.3s ease-out',
+          }}
+        >
+          <div style={{ textAlign: 'center' }}>
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                border: '3px solid #333',
+                borderTopColor: '#22c55e',
+                borderRadius: '50%',
+                animation: 'pwa-spin 1s linear infinite',
+                margin: '0 auto 16px',
+              }}
+            />
+            <div style={{ color: '#22c55e', fontSize: 18, fontWeight: 600 }}>
+              Chameleon AI
+            </div>
+          </div>
+        </div>
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes pwa-spin { to { transform: rotate(360deg); } }
+          #pwa-loading-screen.loaded { opacity: 0; pointer-events: none; }
+        `}} />
+        <script dangerouslySetInnerHTML={{ __html: `
+          // Hide loading screen once React hydrates
+          var hideLoader = function() {
+            var loader = document.getElementById('pwa-loading-screen');
+            if (loader) {
+              loader.classList.add('loaded');
+              setTimeout(function() { loader.remove(); }, 300);
+            }
+            window.__reactLoaded = true;
+          };
+          window.__hideLoader = hideLoader;
+          window.__reactLoaded = false;
+
+          // If React hasn't loaded after 8 seconds, something is wrong
+          // Try to recover by reloading (but only once to prevent loop)
+          setTimeout(function() {
+            if (!window.__reactLoaded) {
+              var reloadAttempted = sessionStorage.getItem('pwa-reload-attempted');
+              if (!reloadAttempted) {
+                sessionStorage.setItem('pwa-reload-attempted', 'true');
+                console.log('[PWA] React failed to load - forcing reload');
+                location.reload();
+              } else {
+                // Already tried reload, show error message
+                var loader = document.getElementById('pwa-loading-screen');
+                if (loader) {
+                  loader.innerHTML = '<div style="text-align:center;padding:20px"><div style="color:#ef4444;font-size:18px;margin-bottom:12px">Failed to load</div><button onclick="sessionStorage.clear();location.reload()" style="background:#22c55e;color:#000;border:none;padding:12px 24px;border-radius:8px;font-size:16px;cursor:pointer">Retry</button></div>';
+                }
+              }
+            } else {
+              // Clear the reload flag on successful load
+              sessionStorage.removeItem('pwa-reload-attempted');
+            }
+          }, 8000);
+        `}} />
         <ChunkErrorHandler />
         <PWARegister />
         {children}

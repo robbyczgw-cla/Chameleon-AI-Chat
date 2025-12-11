@@ -20,6 +20,12 @@ export function PWARegister() {
     // Mark that we've hydrated successfully
     hasHydrated.current = true
 
+    // CRITICAL: Hide the loading screen now that React has hydrated
+    // This prevents black screen on Android PWA cold start
+    if (typeof window !== "undefined" && (window as any).__hideLoader) {
+      (window as any).__hideLoader()
+    }
+
     // Initialize PWA performance optimizations (fast tap, etc.)
     initPWAPerformance()
 
