@@ -118,17 +118,39 @@ export default function RootLayout({
           #pwa-loading-screen.loaded { opacity: 0; pointer-events: none; }
         `}} />
         <script dangerouslySetInnerHTML={{ __html: `
-          // Hide loading screen once React hydrates (or after 5s max)
+          // Hide loading screen once React hydrates
           var hideLoader = function() {
             var loader = document.getElementById('pwa-loading-screen');
             if (loader) {
               loader.classList.add('loaded');
               setTimeout(function() { loader.remove(); }, 300);
             }
+            window.__reactLoaded = true;
           };
-          // React will call this, or fallback after 5s
           window.__hideLoader = hideLoader;
-          setTimeout(hideLoader, 5000);
+          window.__reactLoaded = false;
+
+          // If React hasn't loaded after 8 seconds, something is wrong
+          // Try to recover by reloading (but only once to prevent loop)
+          setTimeout(function() {
+            if (!window.__reactLoaded) {
+              var reloadAttempted = sessionStorage.getItem('pwa-reload-attempted');
+              if (!reloadAttempted) {
+                sessionStorage.setItem('pwa-reload-attempted', 'true');
+                console.log('[PWA] React failed to load - forcing reload');
+                location.reload();
+              } else {
+                // Already tried reload, show error message
+                var loader = document.getElementById('pwa-loading-screen');
+                if (loader) {
+                  loader.innerHTML = '<div style="text-align:center;padding:20px"><div style="color:#ef4444;font-size:18px;margin-bottom:12px">Failed to load</div><button onclick="sessionStorage.clear();location.reload()" style="background:#22c55e;color:#000;border:none;padding:12px 24px;border-radius:8px;font-size:16px;cursor:pointer">Retry</button></div>';
+                }
+              }
+            } else {
+              // Clear the reload flag on successful load
+              sessionStorage.removeItem('pwa-reload-attempted');
+            }
+          }, 8000);
         `}} />
         <ChunkErrorHandler />
         <PWARegister />
