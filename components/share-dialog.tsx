@@ -190,14 +190,17 @@ export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDial
   if (isGuestMode || !user) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+        <DialogContent
+        className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-md max-h-[90vh] overflow-hidden flex flex-col"
+        style={{ minWidth: '320px' }}
+      >
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <Share2 className="h-5 w-5 text-primary" />
               Share Chat
             </DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center py-8 text-center">
             <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">
               Sign in to share
@@ -216,8 +219,11 @@ export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent
+        className="!w-[calc(100vw-2rem)] sm:!w-auto sm:!max-w-lg max-h-[90vh] overflow-hidden flex flex-col"
+        style={{ minWidth: '320px' }}
+      >
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="h-5 w-5 text-primary" />
             Share Chat
@@ -227,7 +233,7 @@ export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDial
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-6 py-4">
           {/* Chat Info */}
           <div className="p-3 rounded-lg bg-muted/50 border border-border/50">
             <p className="text-sm font-medium text-foreground line-clamp-1">
