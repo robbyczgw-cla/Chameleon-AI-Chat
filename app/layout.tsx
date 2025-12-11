@@ -81,6 +81,55 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${roboto.variable} ${jetbrainsMono.variable} ${atkinsonHyperlegible.variable}`}
       >
+        {/* CRITICAL: Immediate loading screen for Android PWA cold start */}
+        {/* This shows BEFORE React hydrates, preventing black screen */}
+        <div
+          id="pwa-loading-screen"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#0a0a0a',
+            zIndex: 99999,
+            transition: 'opacity 0.3s ease-out',
+          }}
+        >
+          <div style={{ textAlign: 'center' }}>
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                border: '3px solid #333',
+                borderTopColor: '#22c55e',
+                borderRadius: '50%',
+                animation: 'pwa-spin 1s linear infinite',
+                margin: '0 auto 16px',
+              }}
+            />
+            <div style={{ color: '#22c55e', fontSize: 18, fontWeight: 600 }}>
+              Chameleon AI
+            </div>
+          </div>
+        </div>
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes pwa-spin { to { transform: rotate(360deg); } }
+          #pwa-loading-screen.loaded { opacity: 0; pointer-events: none; }
+        `}} />
+        <script dangerouslySetInnerHTML={{ __html: `
+          // Hide loading screen once React hydrates (or after 5s max)
+          var hideLoader = function() {
+            var loader = document.getElementById('pwa-loading-screen');
+            if (loader) {
+              loader.classList.add('loaded');
+              setTimeout(function() { loader.remove(); }, 300);
+            }
+          };
+          // React will call this, or fallback after 5s
+          window.__hideLoader = hideLoader;
+          setTimeout(hideLoader, 5000);
+        `}} />
         <ChunkErrorHandler />
         <PWARegister />
         {children}
