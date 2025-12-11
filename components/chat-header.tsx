@@ -19,8 +19,6 @@ import {
   Wand2,
   PanelLeftClose,
   PanelLeft,
-  Music,
-  VolumeX,
   Swords,
   FileCode,
   Mic,
@@ -38,7 +36,6 @@ import { PersonasDialog } from "@/components/personas-dialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ChameleonLogoSimple } from "@/components/chameleon-logo"
 import { cn } from "@/lib/utils"
-import { ambientMusicService } from "@/lib/ambient-music"
 import { AIDebateMode } from "@/components/ai-debate-mode"
 import { QuickActionsMenu } from "@/components/quick-actions-menu"
 import { PromptInspector } from "@/components/prompt-inspector"
@@ -57,7 +54,6 @@ export function ChatHeader() {
   const [isMemoryOpen, setIsMemoryOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isPersonasOpen, setIsPersonasOpen] = useState(false)
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false)
   const [isDebateOpen, setIsDebateOpen] = useState(false)
   const [isInspectorOpen, setIsInspectorOpen] = useState(false)
   const [isPromptHelperOpen, setIsPromptHelperOpen] = useState(false)
@@ -86,37 +82,7 @@ export function ChatHeader() {
     if (settings.theme === "dark") {
       document.documentElement.classList.add("dark")
     }
-
-    // Load music state from localStorage (default: off)
-    const savedMusicState = localStorage.getItem("chameleon-ambient-music")
-    if (savedMusicState === "enabled") {
-      const currentTheme = localStorage.getItem("chameleon-theme") || "light"
-      console.log("[ChatHeader] Auto-starting music on mount, theme:", currentTheme)
-
-      ambientMusicService.play(currentTheme).then(() => {
-        if (ambientMusicService.getIsPlaying()) {
-          setIsMusicPlaying(true)
-          console.log("[ChatHeader] Music auto-started successfully")
-        } else {
-          console.warn("[ChatHeader] Music auto-start failed")
-          setIsMusicPlaying(false)
-          localStorage.setItem("chameleon-ambient-music", "disabled")
-        }
-      }).catch((error) => {
-        console.error("[ChatHeader] Music auto-start error:", error)
-        setIsMusicPlaying(false)
-        localStorage.setItem("chameleon-ambient-music", "disabled")
-      })
-    }
   }, [settings.theme])
-
-  // Update music theme when theme changes
-  useEffect(() => {
-    if (isMusicPlaying && mounted) {
-      const currentTheme = localStorage.getItem("chameleon-theme") || "light"
-      ambientMusicService.play(currentTheme)
-    }
-  }, [settings.theme, mounted, isMusicPlaying])
 
   // Add keyboard shortcuts (Ctrl+Shift+P for prompt helper)
   useEffect(() => {
@@ -187,38 +153,6 @@ export function ChatHeader() {
 
   const toggleDesktopSidebar = () => {
     window.dispatchEvent(new CustomEvent("toggleDesktopSidebar"))
-  }
-
-  const toggleMusic = async () => {
-    const currentTheme = localStorage.getItem("chameleon-theme") || "light"
-    console.log("[ChatHeader] Toggling music, current theme:", currentTheme)
-
-    if (isMusicPlaying) {
-      ambientMusicService.stop()
-      setIsMusicPlaying(false)
-      localStorage.setItem("chameleon-ambient-music", "disabled")
-      console.log("[ChatHeader] Music stopped")
-    } else {
-      try {
-        await ambientMusicService.play(currentTheme)
-        setIsMusicPlaying(true)
-        localStorage.setItem("chameleon-ambient-music", "enabled")
-        console.log("[ChatHeader] Music enabled")
-
-        // Check if actually playing after a short delay
-        setTimeout(() => {
-          if (!ambientMusicService.getIsPlaying()) {
-            console.warn("[ChatHeader] Music failed to start - check browser console for details")
-            setIsMusicPlaying(false)
-            localStorage.setItem("chameleon-ambient-music", "disabled")
-          }
-        }, 1000)
-      } catch (error) {
-        console.error("[ChatHeader] Failed to start music:", error)
-        setIsMusicPlaying(false)
-        localStorage.setItem("chameleon-ambient-music", "disabled")
-      }
-    }
   }
 
   if (!mounted) return null
@@ -464,8 +398,6 @@ export function ChatHeader() {
           </Button>
           {/* Quick Actions Menu */}
           <QuickActionsMenu
-            isMusicPlaying={isMusicPlaying}
-            onMusicToggle={toggleMusic}
             onShareClick={() => setIsShareOpen(true)}
           />
           {/* Model Selector - Desktop only */}
