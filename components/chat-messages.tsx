@@ -126,6 +126,14 @@ const getSubGreeting = (lang: string): string => {
   return langSubs[Math.floor(Math.random() * langSubs.length)]
 }
 
+const formatTimestamp = (timestamp?: number) => {
+  if (!timestamp) return "Just now"
+  return new Date(timestamp).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  })
+}
+
 interface ChatMessagesProps {
   currentPersona?: Persona
 }
@@ -595,64 +603,95 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
             messageId={message.id}
             className={cn(
               "group w-full animate-slide-in-up",
-              message.role === "user" ? "flex gap-2 sm:gap-4 justify-end" : "flex flex-col gap-2"
+              message.role === "user"
+                ? "flex items-start gap-2 sm:gap-4 justify-end"
+                : "flex items-start gap-3 sm:gap-4"
             )}
           >
-            {message.role === "assistant" && (
-              <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/20 shrink-0 shadow-md smooth-transition ring-2 ring-background">
-                  {currentPersona?.avatarUrl ? (
-                    <>
-                      <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                        <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
-                      </AvatarFallback>
-                    </>
-                  ) : currentPersona?.emoji ? (
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                      <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
-                    </AvatarFallback>
-                  ) : (
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                      <Bot className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <span className="text-sm font-medium text-muted-foreground">{currentPersona?.name || "AI Assistant"}</span>
-              </div>
-            )}
-
             <div className={cn(
-              "flex flex-col gap-2 min-w-0",
+              "group/message relative flex flex-col gap-2 min-w-0",
+              message.role === "user" ? "items-end" : "items-start",
               message.role === "user"
-                ? "w-fit max-w-[80%] sm:max-w-[70%] md:max-w-[60%]"
-                : "w-full"
+                ? "w-full max-w-[88%] sm:max-w-[80%] md:max-w-[72%] lg:max-w-[66%]"
+                : "w-full max-w-[96%] sm:max-w-[92%] md:max-w-[88%] lg:max-w-[82%]",
             )}>
-              {message.attachments && message.attachments.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
-                  {message.attachments.map((attachment) => (
-                    <FilePreviewInline
-                      key={attachment.id}
-                      file={attachment as FileAttachment}
-                      showRemove={false}
-                      compact={false}
-                    />
-                  ))}
-                </div>
-              )}
-
               <div
                 className={cn(
                   "text-sm sm:text-base smooth-transition relative overflow-hidden",
+                  "rounded-2xl border shadow-lg",
                   message.role === "user"
-                    ? "message-bubble-user rounded-[20px] rounded-br-lg px-4 py-3 sm:px-5 sm:py-3.5 text-primary-foreground shadow-lg shadow-primary/20 w-fit"
-                    : "message-bubble-ai rounded-[20px] rounded-tl-lg px-4 py-3 sm:px-5 sm:py-3.5 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm w-full",
+                    ? "message-bubble-user text-primary-foreground bg-gradient-to-br from-primary/90 via-primary to-accent/90 backdrop-blur-md border-white/10 shadow-primary/25"
+                    : "message-bubble-ai bg-gradient-to-br from-primary/10 via-card to-card backdrop-blur-sm border-border/50 shadow-xl",
                 )}
               >
                 {/* Glass shine effect for user messages */}
                 {message.role === "user" && (
-                  <div className="absolute inset-0 rounded-[20px] rounded-br-lg bg-gradient-to-tr from-white/0 via-white/15 to-white/5 pointer-events-none" />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-white/5 via-white/10 to-white/0 pointer-events-none" />
                 )}
+                <div className="relative z-10 flex flex-col gap-3 p-4 sm:p-5">
+                  <div className="flex items-center gap-3 text-xs sm:text-sm text-muted-foreground">
+                    <Avatar className="h-8 w-8 border border-border/40">
+                      {message.role === "assistant" ? (
+                        currentPersona?.avatarUrl ? (
+                          <>
+                            <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
+                            <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                              <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
+                            </AvatarFallback>
+                          </>
+                        ) : currentPersona?.emoji ? (
+                          <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                            <span className="text-base sm:text-lg">{currentPersona.emoji}</span>
+                          </AvatarFallback>
+                        ) : (
+                          <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                            <Bot className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+                          </AvatarFallback>
+                        )
+                      ) : (
+                        <AvatarFallback className="bg-gradient-to-br from-secondary to-muted text-secondary-foreground">
+                          <User className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2 min-w-0">
+                      <span className="font-semibold text-foreground truncate">
+                        {message.role === "assistant" ? currentPersona?.name || "AI Assistant" : "You"}
+                      </span>
+                      <div className="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs text-muted-foreground/80">
+                        <span>{formatTimestamp(message.timestamp)}</span>
+                        <span className="inline-flex items-center rounded-full border border-border/60 bg-background/60 px-2 py-0.5 uppercase tracking-wide text-[10px] sm:text-[11px]">
+                          {message.role === "assistant" ? "Responded" : "Sent"}
+                        </span>
+                        {message.stats?.model && (
+                          <span className="text-[10px] sm:text-[11px] text-muted-foreground/70">{message.stats.model}</span>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 opacity-0 transition-opacity duration-200 hover:bg-white/10 hover:text-foreground [@media(hover:hover)]:group-hover/message:opacity-100"
+                      onClick={() => handleCopy(message.content, message.id)}
+                      title="Copy message"
+                    >
+                      {copiedId === message.id ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                    </Button>
+                  </div>
+
+                  {message.attachments && message.attachments.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                      {message.attachments.map((attachment) => (
+                        <FilePreviewInline
+                          key={attachment.id}
+                          file={attachment as FileAttachment}
+                          showRemove={false}
+                          compact={false}
+                        />
+                      ))}
+                    </div>
+                  )}
+
                 {/* Edit mode for user messages */}
                 {editingMessageId === message.id && message.role === "user" ? (
                   <div className="space-y-2 w-full">
@@ -1038,14 +1077,6 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                 </Button>
               </div>
             </div>
-
-            {message.role === "user" && (
-              <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/10 shrink-0 shadow-md smooth-transition ring-2 ring-background">
-                <AvatarFallback className="bg-gradient-to-br from-secondary to-muted text-secondary-foreground">
-                  <User className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
-                </AvatarFallback>
-              </Avatar>
-            )}
           </MessageWrapper>
         ))}
 
