@@ -1,13 +1,17 @@
 "use client"
 
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 import { useApp } from "@/contexts/app-context"
 import type { ModelParameters } from "@/types"
 import { ModelManagement } from "@/components/model-management"
+import { ShareDialog } from "@/components/share-dialog"
+import { Share2 } from "lucide-react"
 
 interface AdvancedSettingsDialogProps {
   open: boolean
@@ -15,7 +19,10 @@ interface AdvancedSettingsDialogProps {
 }
 
 export function AdvancedSettingsDialog({ open, onOpenChange }: AdvancedSettingsDialogProps) {
-  const { settings, updateSettings } = useApp()
+  const { settings, updateSettings, chats, currentChatId } = useApp()
+  const [isShareOpen, setIsShareOpen] = useState(false)
+
+  const currentChat = chats.find((chat) => chat.id === currentChatId)
 
   const params: ModelParameters = settings.modelParameters || {
     temperature: 0.7,
@@ -42,9 +49,10 @@ export function AdvancedSettingsDialog({ open, onOpenChange }: AdvancedSettingsD
         </DialogHeader>
 
         <Tabs defaultValue="parameters" className="flex-1 flex flex-col min-h-0">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="parameters">Parameters</TabsTrigger>
             <TabsTrigger value="models">Models</TabsTrigger>
+            <TabsTrigger value="share">Share</TabsTrigger>
           </TabsList>
 
           <TabsContent value="parameters" className="flex-1 overflow-y-auto mt-3 space-y-3 pb-4">
@@ -166,7 +174,44 @@ export function AdvancedSettingsDialog({ open, onOpenChange }: AdvancedSettingsD
           <TabsContent value="models" className="flex-1 overflow-y-auto mt-3">
             <ModelManagement />
           </TabsContent>
+
+          <TabsContent value="share" className="flex-1 overflow-y-auto mt-3">
+            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+              <div className="p-4 rounded-full bg-primary/10">
+                <Share2 className="h-8 w-8 text-primary" />
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-semibold">Share This Chat</h3>
+                <p className="text-sm text-muted-foreground max-w-sm">
+                  Create a public link to share this conversation with others
+                </p>
+              </div>
+              {currentChat && currentChat.messages && currentChat.messages.length > 0 ? (
+                <Button
+                  onClick={() => setIsShareOpen(true)}
+                  className="gap-2"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share Chat
+                </Button>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Start a conversation first to share it
+                </p>
+              )}
+            </div>
+          </TabsContent>
         </Tabs>
+
+        {/* Share Dialog */}
+        {currentChat && (
+          <ShareDialog
+            open={isShareOpen}
+            onOpenChange={setIsShareOpen}
+            chatId={currentChat.id}
+            chatTitle={currentChat.title}
+          />
+        )}
       </DialogContent>
     </Dialog>
   )
