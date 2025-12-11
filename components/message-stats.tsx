@@ -228,12 +228,26 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
         <CollapsibleSection
           title="Performance"
           icon="⚡"
-          badge={stats?.tokensPerSecond ? `${Math.round(stats.tokensPerSecond)} t/s` : undefined}
+          badge={stats?.actualTokensPerSecond
+            ? `${Math.round(stats.actualTokensPerSecond)} t/s`
+            : stats?.tokensPerSecond
+              ? `~${Math.round(stats.tokensPerSecond)} t/s`
+              : undefined}
         >
-          {stats?.firstTokenTime && (
+          {/* Actual TTFT from OpenRouter (priority) */}
+          {stats?.actualFirstTokenLatency && (
             <StatRow
               label="Time to First Token"
-              value={`${stats.firstTokenTime.toFixed(2)}s`}
+              value={`${stats.actualFirstTokenLatency.toFixed(2)}s`}
+              valueClass="text-blue-600 dark:text-blue-400"
+            />
+          )}
+          {/* Fallback to our measured TTFT if no actual */}
+          {!stats?.actualFirstTokenLatency && stats?.firstTokenTime && (
+            <StatRow
+              label="Time to First Token"
+              value={`~${stats.firstTokenTime.toFixed(2)}s`}
+              valueClass="opacity-75"
             />
           )}
           {stats?.responseTime && (
@@ -242,10 +256,29 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
               value={`${stats.responseTime.toFixed(2)}s`}
             />
           )}
-          {stats?.tokensPerSecond && (
+          {/* Actual TPS from OpenRouter (priority) */}
+          {stats?.actualTokensPerSecond && (
             <StatRow
               label="Generation Speed"
-              value={`${Math.round(stats.tokensPerSecond)} tokens/sec`}
+              value={`${stats.actualTokensPerSecond.toFixed(1)} t/s`}
+              valueClass="text-green-600 dark:text-green-400"
+            />
+          )}
+          {/* Fallback to our estimate if no actual */}
+          {!stats?.actualTokensPerSecond && stats?.tokensPerSecond && (
+            <StatRow
+              label="Generation Speed"
+              value={`~${Math.round(stats.tokensPerSecond)} t/s (est)`}
+              valueClass="opacity-75"
+            />
+          )}
+          {/* Tool call TPS if different from final response */}
+          {stats?.toolCallTokensPerSecond && stats.actualTokensPerSecond &&
+           Math.abs(stats.toolCallTokensPerSecond - stats.actualTokensPerSecond) > 5 && (
+            <StatRow
+              label="Tool Call Speed"
+              value={`${stats.toolCallTokensPerSecond.toFixed(1)} t/s`}
+              valueClass="text-orange-600 dark:text-orange-400"
             />
           )}
           {stats?.responseTime && stats?.firstTokenTime && (

@@ -28,6 +28,12 @@ interface GenerationData {
   provider_name?: string
   cache_creation_tokens?: number
   cache_read_tokens?: number
+  // Performance metrics from OpenRouter (raw)
+  generation_time?: number // Total generation time in ms
+  latency?: number // First token latency in ms
+  finish_reason?: string
+  // OpenRouter field names (they use 'usage' not 'total_cost' in some responses)
+  usage?: number
 }
 
 async function fetchWithRetry(
@@ -151,11 +157,29 @@ export function useAutoFetchCosts(
         const toolCallTokensPrompt = toolCallGenerations.reduce((sum, r) => sum + (r.native_tokens_prompt || 0), 0)
         const toolCallTokensCompletion = toolCallGenerations.reduce((sum, r) => sum + (r.native_tokens_completion || 0), 0)
 
-        // Get provider from last generation (the final response)
+        // Get provider and performance from last generation (the final response)
         const lastResult = validResults[validResults.length - 1]
         const provider = lastResult?.provider_name
 
-        console.log(`[AutoFetchCosts] ✅ Fetched ${validResults.length}/${idsToFetch.length} generations for ${msg.id.slice(0, 8)}: $${totalCost.toFixed(6)} total ($${toolCallCost.toFixed(6)} from tool calls)`)
+        // Calculate actual TPS from OpenRouter data: native_tokens_completion / (generation_time / 1000)
+        const calculateTPS = (r: GenerationData) => {
+          if (r.generation_time && r.native_tokens_completion && r.generation_time > 0) {
+            return r.native_tokens_completion / (r.generation_time / 1000)
+          }
+          return undefined
+        }
+
+        const actualTokensPerSecond = calculateTPS(lastResult)
+        // Latency is in ms, convert to seconds
+        const actualFirstTokenLatency = lastResult?.latency ? lastResult.latency / 1000 : undefined
+
+        // Get tool call TPS (average if multiple tool calls)
+        const toolCallTPSValues = toolCallGenerations.map(r => calculateTPS(r)).filter((v): v is number => v !== undefined)
+        const toolCallTPS = toolCallTPSValues.length > 0
+          ? toolCallTPSValues.reduce((sum, v) => sum + v, 0) / toolCallTPSValues.length
+          : undefined
+
+        console.log(`[AutoFetchCosts] ✅ Fetched ${validResults.length}/${idsToFetch.length} generations for ${msg.id.slice(0, 8)}: $${totalCost.toFixed(6)} total, ${actualTokensPerSecond?.toFixed(1) || 'N/A'} t/s`)
 
         // Call the callback to update the message
         onCostFetched(msg.id, {
@@ -166,12 +190,16 @@ export function useAutoFetchCosts(
           provider,
           cacheCreationTokens: totalCacheCreation > 0 ? totalCacheCreation : undefined,
           cacheReadTokens: totalCacheRead > 0 ? totalCacheRead : undefined,
-          // Tool calling specific costs
+          // Actual TPS from OpenRouter (not our estimate)
+          ...(actualTokensPerSecond && { actualTokensPerSecond }),
+          ...(actualFirstTokenLatency && { actualFirstTokenLatency }),
+          // Tool calling specific costs and performance
           ...(toolCallCost > 0 && {
             toolCallCost,
             toolCallTokensPrompt,
             toolCallTokensCompletion,
           }),
+          ...(toolCallTPS && { toolCallTokensPerSecond: toolCallTPS }),
         })
       } catch (error) {
         console.error(`[AutoFetchCosts] Error fetching costs for ${msg.id.slice(0, 8)}:`, error)

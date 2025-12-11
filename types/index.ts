@@ -71,10 +71,14 @@ export interface Message {
     nativeTokensCompletionReasoning?: number // Reasoning/thinking tokens (o1, DeepSeek R1)
     cacheCreationTokens?: number // Prompt cache tokens created
     cacheReadTokens?: number // Prompt cache tokens read (savings!)
+    // Actual performance from OpenRouter (not our estimate)
+    actualTokensPerSecond?: number // Real TPS from OpenRouter for final response
+    actualFirstTokenLatency?: number // Real TTFT from OpenRouter in seconds
     // Tool calling cost breakdown (sum of all generations)
     toolCallCost?: number // Total cost from tool call iterations
     toolCallTokensPrompt?: number // Total input tokens from tool calls
     toolCallTokensCompletion?: number // Total output tokens from tool calls
+    toolCallTokensPerSecond?: number // Average TPS for tool call generations
   }
   streamingHistory?: StreamingHistoryEntry[] // History of streaming phases for verbose display
   branches?: ConversationBranch[] // Alternate conversation paths from this message
