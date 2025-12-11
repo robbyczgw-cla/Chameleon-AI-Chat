@@ -93,7 +93,7 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
   const hasReasoningTokens = stats?.nativeTokensCompletionReasoning && stats.nativeTokensCompletionReasoning > 0
 
   // Performance stats
-  const hasPerformance = stats?.responseTime || stats?.tokensPerSecond || stats?.firstTokenTime
+  const hasPerformance = stats?.responseTime || stats?.actualTokensPerSecond || stats?.actualFirstTokenLatency
 
   // Search stats
   const hasSearch = stats?.searchProvider || stats?.searchResults !== undefined
@@ -230,24 +230,14 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
           icon="⚡"
           badge={stats?.actualTokensPerSecond
             ? `${Math.round(stats.actualTokensPerSecond)} t/s`
-            : stats?.tokensPerSecond
-              ? `~${Math.round(stats.tokensPerSecond)} t/s`
-              : undefined}
+            : undefined}
         >
-          {/* Actual TTFT from OpenRouter (priority) */}
+          {/* TTFT from OpenRouter */}
           {stats?.actualFirstTokenLatency && (
             <StatRow
               label="Time to First Token"
               value={`${stats.actualFirstTokenLatency.toFixed(2)}s`}
               valueClass="text-blue-600 dark:text-blue-400"
-            />
-          )}
-          {/* Fallback to our measured TTFT if no actual */}
-          {!stats?.actualFirstTokenLatency && stats?.firstTokenTime && (
-            <StatRow
-              label="Time to First Token"
-              value={`~${stats.firstTokenTime.toFixed(2)}s`}
-              valueClass="opacity-75"
             />
           )}
           {stats?.responseTime && (
@@ -256,20 +246,12 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
               value={`${stats.responseTime.toFixed(2)}s`}
             />
           )}
-          {/* Actual TPS from OpenRouter (priority) */}
+          {/* TPS from OpenRouter */}
           {stats?.actualTokensPerSecond && (
             <StatRow
               label="Generation Speed"
               value={`${stats.actualTokensPerSecond.toFixed(1)} t/s`}
               valueClass="text-green-600 dark:text-green-400"
-            />
-          )}
-          {/* Fallback to our estimate if no actual */}
-          {!stats?.actualTokensPerSecond && stats?.tokensPerSecond && (
-            <StatRow
-              label="Generation Speed"
-              value={`~${Math.round(stats.tokensPerSecond)} t/s (est)`}
-              valueClass="opacity-75"
             />
           )}
           {/* Tool call TPS if different from final response */}
@@ -279,13 +261,6 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
               label="Tool Call Speed"
               value={`${stats.toolCallTokensPerSecond.toFixed(1)} t/s`}
               valueClass="text-orange-600 dark:text-orange-400"
-            />
-          )}
-          {stats?.responseTime && stats?.firstTokenTime && (
-            <StatRow
-              label="Generation Time"
-              value={`${(stats.responseTime - stats.firstTokenTime).toFixed(2)}s`}
-              valueClass="opacity-75"
             />
           )}
         </CollapsibleSection>
