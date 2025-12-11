@@ -220,6 +220,8 @@ export async function streamChatMessage(
     onSearchQuery?: (query: string) => void
     // Generation ID callback for exact cost tracking
     onGenerationId?: (generationId: string) => void
+    // All generation IDs callback (for tool calling which creates multiple generations)
+    onAllGenerationIds?: (generationIds: string[], toolCallCount: number) => void
     // Stop reason callback (e.g., "stop", "length", "tool_calls")
     onStopReason?: (stopReason: string) => void
     // Enhanced streaming details callback (for advanced mode)
@@ -269,6 +271,7 @@ export async function streamChatMessage(
     onToolUse,
     onSearchQuery,
     onGenerationId,
+    onAllGenerationIds,
     onStopReason,
     // Enhanced streaming details
     onStreamingDetails,
@@ -421,6 +424,13 @@ export async function streamChatMessage(
             if (parsed.generation_id && onGenerationId) {
               console.log("[v0] 💰 Generation ID received:", parsed.generation_id)
               onGenerationId(parsed.generation_id)
+            }
+
+            // Handle all generation IDs (for tool calling which creates multiple generations)
+            if (parsed.all_generation_ids && onAllGenerationIds) {
+              const toolCallCount = parsed.tool_call_count || 0
+              console.log(`[v0] 💰 All generation IDs received: ${parsed.all_generation_ids.length} (${toolCallCount} tool calls)`)
+              onAllGenerationIds(parsed.all_generation_ids, toolCallCount)
             }
 
             // Handle phase change events for step-by-step visualization

@@ -62,13 +62,19 @@ export interface Message {
     searchResults?: number
     searchProvider?: string
     // OpenRouter generation API data
-    generationId?: string // For fetching exact costs
+    generationId?: string // For fetching exact costs (last generation ID, backwards compatible)
+    allGenerationIds?: string[] // All generation IDs (for tool calling which creates multiple generations)
+    toolCallCount?: number // Number of tool call iterations (0 = no tools, 1 = one tool call, etc.)
     provider?: string // Which provider served the request (e.g., "Together", "Anthropic")
     nativeTokensPrompt?: number // Native tokenizer count for input
     nativeTokensCompletion?: number // Native tokenizer count for output
     nativeTokensCompletionReasoning?: number // Reasoning/thinking tokens (o1, DeepSeek R1)
     cacheCreationTokens?: number // Prompt cache tokens created
     cacheReadTokens?: number // Prompt cache tokens read (savings!)
+    // Tool calling cost breakdown (sum of all generations)
+    toolCallCost?: number // Total cost from tool call iterations
+    toolCallTokensPrompt?: number // Total input tokens from tool calls
+    toolCallTokensCompletion?: number // Total output tokens from tool calls
   }
   streamingHistory?: StreamingHistoryEntry[] // History of streaming phases for verbose display
   branches?: ConversationBranch[] // Alternate conversation paths from this message

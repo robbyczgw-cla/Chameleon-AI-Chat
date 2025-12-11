@@ -740,6 +740,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       let reasoningContent = ""
       let messageAdded = false
       let capturedGenerationId = "" // For exact cost tracking
+      let capturedAllGenerationIds: string[] = [] // All generation IDs for tool calling
+      let capturedToolCallCount = 0 // Number of tool call iterations
 
       console.log("[Simple Chat] Creating assistant message:", assistantMessageId)
 
@@ -913,6 +915,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           console.log("[Simple Chat] 💰 Generation ID captured:", generationId)
           capturedGenerationId = generationId
         },
+        // Capture all generation IDs for tool calling cost tracking
+        onAllGenerationIds: (generationIds, toolCallCount) => {
+          console.log(`[Simple Chat] 💰 All generation IDs captured: ${generationIds.length} (${toolCallCount} tool calls)`)
+          capturedAllGenerationIds = generationIds
+          capturedToolCallCount = toolCallCount
+        },
         // Enhanced streaming details for advanced mode
         onStreamingDetails: (details) => {
           // Accumulate reasoning content instead of replacing it
@@ -976,6 +984,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
             model,
             cost: estimatedCost,
             ...(capturedGenerationId && { generationId: capturedGenerationId }),
+            ...(capturedAllGenerationIds.length > 0 && { allGenerationIds: capturedAllGenerationIds }),
+            ...(capturedToolCallCount > 0 && { toolCallCount: capturedToolCallCount }),
             ...(searchStats && {
               searchProvider: searchStats.provider,
               searchResults: searchStats.results,

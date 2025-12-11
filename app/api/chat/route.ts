@@ -858,6 +858,7 @@ async function handleStreamingRequest(
       const MAX_ITERATIONS = 3
       let hasStartedResponding = false
       let hasStartedReasoning = false // Track if we've sent the initial reasoning phase
+      let allGenerationIds: string[] = [] // Track ALL generation IDs for tool calling cost tracking
 
       // Send initial thinking phase
       await writer.write(
@@ -913,15 +914,19 @@ async function handleStreamingRequest(
 
             if (data === "[DONE]") {
               if (!hasToolCalls) {
-                // Send generation ID before [DONE] for exact cost tracking
-                if (generationId) {
+                // Send ALL generation IDs before [DONE] for exact cost tracking
+                // Tool calling creates multiple generations, each with its own cost
+                if (allGenerationIds.length > 0) {
                   await writer.write(
                     encoder.encode(
                       `data: ${JSON.stringify({
-                        generation_id: generationId,
+                        generation_id: generationId, // Last generation ID (for backwards compatibility)
+                        all_generation_ids: allGenerationIds, // All IDs for complete cost tracking
+                        tool_call_count: allGenerationIds.length - 1, // Number of tool call iterations
                       })}\n\n`
                     )
                   )
+                  console.log(`[Chat] Sent ${allGenerationIds.length} generation IDs for cost tracking`)
                 }
                 await writer.write(encoder.encode("data: [DONE]\n\n"))
               }
@@ -934,8 +939,11 @@ async function handleStreamingRequest(
               const finish = parsed.choices?.[0]?.finish_reason
 
               // Capture generation ID from response for exact cost tracking
+              // Each API call (including tool call iterations) gets its own generation ID
               if (parsed.id && !generationId) {
                 generationId = parsed.id
+                allGenerationIds.push(parsed.id) // Track all generation IDs for total cost
+                console.log(`[Chat] Captured generation ID #${allGenerationIds.length}: ${parsed.id}`)
               }
 
               // Debug: Log delta structure for troubleshooting empty responses

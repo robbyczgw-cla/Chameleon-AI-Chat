@@ -98,6 +98,12 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
   // Search stats
   const hasSearch = stats?.searchProvider || stats?.searchResults !== undefined
 
+  // Tool calling stats
+  const hasToolCallCosts = stats?.toolCallCost !== undefined && stats.toolCallCost > 0
+  const toolCallCostPercent = hasToolCallCosts && cost
+    ? ((stats.toolCallCost! / cost) * 100)
+    : null
+
   // Derived metrics
   const costPerKToken = cost && tokens?.total ? ((cost / tokens.total) * 1000) : null
   const inputOutputRatio = tokens && tokens.completion > 0 ? (tokens.prompt / tokens.completion) : null
@@ -308,6 +314,53 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
           )}
           {stats?.searchTime && (
             <StatRow label="Search Time" value={`${stats.searchTime.toFixed(2)}s`} />
+          )}
+        </CollapsibleSection>
+      )}
+
+      {/* 🔧 Tool Calling Costs */}
+      {hasToolCallCosts && (
+        <CollapsibleSection
+          title="Tool Calling"
+          icon="🔧"
+          badge={`$${stats.toolCallCost!.toFixed(6)}`}
+          badgeColor="bg-orange-500/20 text-orange-600 dark:text-orange-400"
+        >
+          <StatRow
+            label="Tool Call Cost"
+            value={`$${stats.toolCallCost!.toFixed(6)}`}
+            valueClass="text-orange-600 dark:text-orange-400"
+          />
+          {toolCallCostPercent && (
+            <StatRow
+              label="% of Total Cost"
+              value={`${toolCallCostPercent.toFixed(1)}%`}
+            />
+          )}
+          {stats?.toolCallTokensPrompt && (
+            <StatRow
+              label="Tool Input Tokens"
+              value={stats.toolCallTokensPrompt.toLocaleString()}
+            />
+          )}
+          {stats?.toolCallTokensCompletion && (
+            <StatRow
+              label="Tool Output Tokens"
+              value={stats.toolCallTokensCompletion.toLocaleString()}
+            />
+          )}
+          {stats?.toolCallCount && (
+            <StatRow
+              label="Tool Iterations"
+              value={stats.toolCallCount}
+            />
+          )}
+          {stats?.allGenerationIds && stats.allGenerationIds.length > 1 && (
+            <StatRow
+              label="API Calls"
+              value={`${stats.allGenerationIds.length} generations`}
+              valueClass="opacity-75"
+            />
           )}
         </CollapsibleSection>
       )}
