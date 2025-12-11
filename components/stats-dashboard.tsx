@@ -377,6 +377,8 @@ Provide analysis in this JSON format:
   const searchProviderUsage: Record<string, number> = {}
   let totalToolCalls = 0
   let messagesWithTools = 0
+  let totalToolCallingCost = 0 // Sum of toolCallCost from all messages
+  let totalToolCallTokens = 0 // Sum of tool call tokens
 
   chats.forEach((chat) => {
     chat.messages.forEach((msg) => {
@@ -421,6 +423,17 @@ Provide analysis in this JSON format:
       if (msg.stats?.searchProvider) {
         searchProviderUsage[msg.stats.searchProvider] =
           (searchProviderUsage[msg.stats.searchProvider] || 0) + 1
+      }
+
+      // Track tool calling costs from message stats
+      if (msg.stats?.toolCallCost) {
+        totalToolCallingCost += msg.stats.toolCallCost
+      }
+      if (msg.stats?.toolCallTokensPrompt) {
+        totalToolCallTokens += msg.stats.toolCallTokensPrompt
+      }
+      if (msg.stats?.toolCallTokensCompletion) {
+        totalToolCallTokens += msg.stats.toolCallTokensCompletion
       }
     })
   })
@@ -815,7 +828,7 @@ Provide analysis in this JSON format:
           {/* TOOLS TAB */}
           <TabsContent value="tools" className="space-y-6">
             {/* Tool Usage Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
@@ -870,6 +883,21 @@ Provide analysis in this JSON format:
                       .slice(0, 2)
                       .map(([p]) => p)
                       .join(", ") || "None used"}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <DollarSign className="h-4 w-4 text-red-600" />
+                    Tool Call Costs
+                  </div>
+                  <div className="text-2xl font-bold text-red-600">
+                    {formatCost(totalToolCallingCost)}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {totalToolCallTokens > 0 ? `${totalToolCallTokens.toLocaleString()} tokens` : "overhead from tools"}
                   </p>
                 </CardContent>
               </Card>
