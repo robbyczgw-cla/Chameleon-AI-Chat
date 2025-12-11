@@ -106,7 +106,6 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
 
   // Derived metrics
   const costPerKToken = cost && tokens?.total ? ((cost / tokens.total) * 1000) : null
-  const inputOutputRatio = tokens && tokens.completion > 0 ? (tokens.prompt / tokens.completion) : null
   const reasoningPercentage = hasReasoningTokens && tokens?.completion
     ? ((stats.nativeTokensCompletionReasoning! / tokens.completion) * 100)
     : null
@@ -134,7 +133,7 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
           {costPerKToken && (
             <StatRow
               label="Rate"
-              value={`$${costPerKToken.toFixed(4)}/1K`}
+              value={`$${(costPerKToken * 1000).toFixed(2)}/M`}
               valueClass="opacity-75"
             />
           )}
@@ -213,13 +212,6 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
               value={stats.nativeTokensCompletion.toLocaleString()}
             />
           )}
-          {stats?.nativeTokensPrompt && tokens?.prompt && stats.nativeTokensPrompt !== tokens.prompt && (
-            <StatRow
-              label="Estimate Diff"
-              value={`${((stats.nativeTokensPrompt - tokens.prompt) / tokens.prompt * 100).toFixed(1)}%`}
-              valueClass="opacity-75"
-            />
-          )}
         </CollapsibleSection>
       )}
 
@@ -267,7 +259,7 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
       )}
 
       {/* 🎛️ Generation Info */}
-      {showGeneration && (stats?.model || stats?.provider || stats?.stopReason || stats?.generationId) && (
+      {showGeneration && (stats?.model || stats?.provider || stats?.stopReason) && (
         <CollapsibleSection title="Generation" icon="🎛️">
           {stats?.model && (
             <StatRow
@@ -280,29 +272,6 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
           )}
           {stats?.stopReason && (
             <StatRow label="Stop Reason" value={stats.stopReason} />
-          )}
-          {tokens && (
-            <StatRow
-              label="Output Ratio"
-              value={`${((tokens.completion / tokens.total) * 100).toFixed(0)}%`}
-            />
-          )}
-          {inputOutputRatio && (
-            <StatRow
-              label="Input:Output"
-              value={`${inputOutputRatio.toFixed(2)}:1`}
-              valueClass="opacity-75"
-            />
-          )}
-          {stats?.generationId && (
-            <StatRow
-              label="Generation ID"
-              value={
-                <span className="truncate block max-w-[120px] opacity-75" title={stats.generationId}>
-                  {stats.generationId.slice(0, 16)}...
-                </span>
-              }
-            />
           )}
         </CollapsibleSection>
       )}
