@@ -25,6 +25,7 @@ import {
   FileCode,
   Mic,
   MoreHorizontal,
+  Share2,
 } from "lucide-react"
 import { useEffect } from "react"
 import { ModelSelector } from "@/components/model-selector"
@@ -254,8 +255,23 @@ export function ChatHeader() {
             </h1>
           </div>
 
-          {/* Right: Settings, Tune, More */}
+          {/* Right: Share, Settings, Tune, More */}
           <div className="flex items-center gap-0.5">
+            {/* Share button - visible when chat has messages */}
+            {currentChat && currentChat.messages && currentChat.messages.length > 0 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all"
+                onClick={() => {
+                  haptics.trigger('selection')
+                  setIsShareOpen(true)
+                }}
+                title="Share"
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
