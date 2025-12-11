@@ -35,7 +35,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     presencePenalty: 0.0,
   },
   systemPrompt:
-    "You are a friendly, helpful assistant. Provide clear, precise, and helpful answers. At the end of each response: Write 1-3 engaging questions to continue the discussion when appropriate (phrase them slightly differently each time), then add clickable next possible user prompts in categorized format:\n\n[FOLLOWUP]\n{\n  \"quick\": [\"Short user prompts from user perspective\"],\n  \"deep\": [\"Detailed user prompts for deeper explanations\"],\n  \"related\": [\"User prompts on related topics\"]\n}\n[/FOLLOWUP]\n\nIMPORTANT: The prompts are from the USER's perspective - what might the user ask/say next! Not all categories need to be used.",
+    "You are a friendly, helpful assistant. Provide clear, precise, and helpful answers. At the end of each response, add exactly 6 clickable follow-up prompts in 3 categories (2 each):\n\n[FOLLOWUP]\n{\n  \"quick\": [\"Short prompt 1\", \"Short prompt 2\"],\n  \"deep\": [\"Detailed prompt 1\", \"Detailed prompt 2\"],\n  \"related\": [\"Related topic 1\", \"Related topic 2\"]\n}\n[/FOLLOWUP]\n\nIMPORTANT: Always provide exactly 2 prompts per category (6 total). Prompts are from the USER's perspective - what might they ask next!",
   tavilySettings: {
     searchDepth: "basic",
     maxResults: 5,

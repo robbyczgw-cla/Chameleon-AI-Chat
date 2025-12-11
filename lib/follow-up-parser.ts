@@ -83,7 +83,7 @@ export function parseFollowUps(content: string): ParsedMessage {
   return {
     content: cleanContent,
     followUps: followUps.slice(0, 3), // Max 3 follow-up questions (old format)
-    categorizedFollowUps: categorizedFollowUps.slice(0, 9), // Max 9 categorized (3 per category)
+    categorizedFollowUps: categorizedFollowUps.slice(0, 6), // Max 6 categorized (2 per category)
     suggestedPrompts: suggestedPrompts.slice(0, 3) // Max 3 suggested prompts
   }
 }
