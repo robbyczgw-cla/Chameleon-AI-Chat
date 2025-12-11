@@ -44,6 +44,7 @@ import { PromptInspector } from "@/components/prompt-inspector"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { PromptHelperDialog } from "@/components/prompt-helper-dialog"
 import { MobileMoreMenu } from "@/components/mobile-more-menu"
+import { ShareDialog } from "@/components/share-dialog"
 import { haptics } from "@/lib/haptics"
 
 export function ChatHeader() {
@@ -59,6 +60,7 @@ export function ChatHeader() {
   const [isDebateOpen, setIsDebateOpen] = useState(false)
   const [isInspectorOpen, setIsInspectorOpen] = useState(false)
   const [isPromptHelperOpen, setIsPromptHelperOpen] = useState(false)
+  const [isShareOpen, setIsShareOpen] = useState(false)
   const { inspectorData } = usePromptInspectorStore()
 
   const currentChat = chats.find((chat) => chat.id === currentChatId)
@@ -289,6 +291,7 @@ export function ChatHeader() {
               onStatsClick={toggleStatsPanel}
               onPersonasClick={() => setIsPersonasOpen(true)}
               onPromptHelperClick={() => setIsPromptHelperOpen(true)}
+              onShareClick={() => setIsShareOpen(true)}
             />
           </div>
         </div>
@@ -447,6 +450,7 @@ export function ChatHeader() {
           <QuickActionsMenu
             isMusicPlaying={isMusicPlaying}
             onMusicToggle={toggleMusic}
+            onShareClick={() => setIsShareOpen(true)}
           />
           {/* Model Selector - Desktop only */}
           <div className="hidden md:block">
@@ -522,6 +526,14 @@ export function ChatHeader() {
         onOpenChange={setIsInspectorOpen}
         data={inspectorData}
       />
+      {currentChat && (
+        <ShareDialog
+          open={isShareOpen}
+          onOpenChange={setIsShareOpen}
+          chatId={currentChat.id}
+          chatTitle={currentChat.title}
+        />
+      )}
     </>
   )
 }

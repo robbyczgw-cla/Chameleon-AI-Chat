@@ -9,6 +9,7 @@ import { SimpleChatInput } from "@/components/simple-chat-input"
 import { SimpleSettingsDialog } from "@/components/simple-settings-dialog"
 import { PersonasDialog } from "@/components/personas-dialog"
 import { UserProfileDialog } from "@/components/user-profile-dialog"
+import { ShareDialog } from "@/components/share-dialog"
 import { SimpleModeOnboarding } from "@/components/simple-mode-onboarding"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { MemoryManager } from "@/components/memory-manager"
@@ -30,6 +31,7 @@ import {
   Lightbulb,
   Search,
   HelpCircle,
+  Share2,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -504,6 +506,7 @@ export function SimpleChatApp() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [imageMode, setImageMode] = useState(false)
   const [isHelpOpen, setIsHelpOpen] = useState(false)
+  const [isShareOpen, setIsShareOpen] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState("")
@@ -1032,6 +1035,18 @@ export function SimpleChatApp() {
                   <HelpCircle className="h-5 w-5 sm:h-4 sm:w-4" />
                 </Button>
               )}
+              {/* Share button - only when there's a chat with messages */}
+              {currentChat && currentChat.messages && currentChat.messages.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsShareOpen(true)}
+                  className="h-10 w-10 sm:h-9 sm:w-9"
+                  title="Share"
+                >
+                  <Share2 className="h-5 w-5 sm:h-4 sm:w-4" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -1081,6 +1096,16 @@ export function SimpleChatApp() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Share Dialog */}
+      {currentChat && (
+        <ShareDialog
+          open={isShareOpen}
+          onOpenChange={setIsShareOpen}
+          chatId={currentChat.id}
+          chatTitle={currentChat.title}
+        />
+      )}
 
       {/* HiFi Help Dialog - German only */}
       {isHifi && (
