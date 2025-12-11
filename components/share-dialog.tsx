@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/contexts/auth-context"
+import { useApp } from "@/contexts/app-context"
 import {
   Share2,
   Copy,
@@ -41,7 +41,7 @@ interface ShareData {
 }
 
 export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDialogProps) {
-  const { user, isGuestMode } = useAuth()
+  const { user } = useApp()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [shares, setShares] = useState<ShareData[]>([])
@@ -49,12 +49,15 @@ export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDial
   const [creating, setCreating] = useState(false)
   const [customTitle, setCustomTitle] = useState("")
 
+  // Guest mode = no user logged in
+  const isGuestMode = !user
+
   // Fetch existing shares when dialog opens
   useEffect(() => {
-    if (open && user && !isGuestMode) {
+    if (open && user) {
       fetchShares()
     }
-  }, [open, user, isGuestMode, chatId])
+  }, [open, user, chatId])
 
   const fetchShares = async () => {
     setLoading(true)
