@@ -17,11 +17,13 @@ import { useState } from "react"
 interface QuickActionsMenuProps {
   isMusicPlaying: boolean
   onMusicToggle: () => void
+  onShareClick?: () => void
 }
 
 export function QuickActionsMenu({
   isMusicPlaying,
   onMusicToggle,
+  onShareClick,
 }: QuickActionsMenuProps) {
   const { chats, currentChatId } = useApp()
   const { toast } = useToast()
@@ -262,6 +264,13 @@ export function QuickActionsMenu({
           Export as JSON
         </DropdownMenuItem>
 
+        {onShareClick && (
+          <DropdownMenuItem onClick={onShareClick} disabled={!currentChat || !currentChat.messages?.length}>
+            <Share2 className="h-4 w-4 mr-2" />
+            Share Online
+          </DropdownMenuItem>
+        )}
+
         <DropdownMenuItem onClick={handleCopyShareLink} disabled={!currentChat || !currentChat.messages?.length}>
           {linkCopied ? (
             <>
@@ -271,7 +280,7 @@ export function QuickActionsMenu({
           ) : (
             <>
               <Link className="h-4 w-4 mr-2" />
-              Copy Chat Link
+              Copy Chat Link (URL)
             </>
           )}
         </DropdownMenuItem>

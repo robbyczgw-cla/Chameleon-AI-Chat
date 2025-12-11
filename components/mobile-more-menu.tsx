@@ -31,6 +31,7 @@ import {
   Globe,
   Link,
   Check,
+  Share2,
 } from "lucide-react"
 import { useApp } from "@/contexts/app-context"
 import { cn } from "@/lib/utils"
@@ -50,6 +51,7 @@ interface MobileMoreMenuProps {
   onStatsClick: () => void
   onPersonasClick: () => void
   onPromptHelperClick: () => void
+  onShareClick?: () => void
   compact?: boolean // For header usage
 }
 
@@ -64,6 +66,7 @@ export function MobileMoreMenu({
   onStatsClick,
   onPersonasClick,
   onPromptHelperClick,
+  onShareClick,
   compact = true,
 }: MobileMoreMenuProps) {
   const { settings, updateSettings, chats, currentChatId } = useApp()
@@ -347,6 +350,21 @@ export function MobileMoreMenu({
               <Download className="h-4 w-4" />
               <span>Export as JSON</span>
             </Button>
+            {onShareClick && (
+              <Button
+                variant="ghost"
+                className="w-full justify-start h-11 text-sm gap-3"
+                onClick={() => {
+                  haptics.trigger("selection")
+                  onShareClick()
+                  setOpen(false)
+                }}
+                disabled={!currentChat || !currentChat.messages?.length}
+              >
+                <Share2 className="h-4 w-4" />
+                <span>Share Online</span>
+              </Button>
+            )}
             <Button
               variant="ghost"
               className="w-full justify-start h-11 text-sm gap-3"
@@ -361,7 +379,7 @@ export function MobileMoreMenu({
               ) : (
                 <>
                   <Link className="h-4 w-4" />
-                  <span>Copy Chat Link</span>
+                  <span>Copy Chat Link (URL)</span>
                 </>
               )}
             </Button>

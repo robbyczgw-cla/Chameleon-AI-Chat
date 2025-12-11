@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client"
-import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt, Memory, AccessTier } from "@/types"
+import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt, Memory, AccessTier, ChatShare, SharedChatData } from "@/types"
 
 export class SupabaseSync {
   private supabase = createClient()
@@ -727,6 +727,187 @@ export class SupabaseSync {
       ...this.mapMemoryFromDB(item),
       similarity: item.similarity,
     }))
+  }
+
+  // ===== Chat Shares =====
+
+  /**
+   * Generate a unique share token
+   */
+  private generateShareToken(): string {
+    // Generate a URL-safe random token (12 characters)
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    let token = ''
+    for (let i = 0; i < 12; i++) {
+      token += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return token
+  }
+
+  /**
+   * Create a new share for a chat
+   */
+  async createShare(userId: string, chatId: string, options?: { title?: string; expiresAt?: Date }): Promise<ChatShare> {
+    console.log("[Supabase] Creating share for chat:", chatId)
+
+    const shareToken = this.generateShareToken()
+    const now = new Date().toISOString()
+
+    const { data, error } = await this.supabase
+      .from("chat_shares")
+      .insert({
+        chat_id: chatId,
+        owner_id: userId,
+        share_token: shareToken,
+        title: options?.title || null,
+        expires_at: options?.expiresAt?.toISOString() || null,
+        is_active: true,
+        view_count: 0,
+        created_at: now,
+        updated_at: now,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error("[Supabase] Error creating share:", error)
+      throw error
+    }
+
+    console.log("[Supabase] Share created successfully:", data.share_token)
+    return this.mapShareFromDB(data)
+  }
+
+  /**
+   * Get all shares for a user
+   */
+  async getShares(userId: string): Promise<ChatShare[]> {
+    const { data, error } = await this.supabase
+      .from("chat_shares")
+      .select("*")
+      .eq("owner_id", userId)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("[Supabase] Error fetching shares:", error)
+      throw error
+    }
+
+    return data.map(this.mapShareFromDB)
+  }
+
+  /**
+   * Get shares for a specific chat
+   */
+  async getSharesForChat(userId: string, chatId: string): Promise<ChatShare[]> {
+    const { data, error } = await this.supabase
+      .from("chat_shares")
+      .select("*")
+      .eq("owner_id", userId)
+      .eq("chat_id", chatId)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("[Supabase] Error fetching shares for chat:", error)
+      throw error
+    }
+
+    return data.map(this.mapShareFromDB)
+  }
+
+  /**
+   * Update a share (e.g., toggle active status, update title)
+   */
+  async updateShare(userId: string, shareId: string, updates: { title?: string; isActive?: boolean; expiresAt?: Date | null }): Promise<void> {
+    const updateData: any = { updated_at: new Date().toISOString() }
+
+    if (updates.title !== undefined) updateData.title = updates.title
+    if (updates.isActive !== undefined) updateData.is_active = updates.isActive
+    if (updates.expiresAt !== undefined) updateData.expires_at = updates.expiresAt?.toISOString() || null
+
+    const { error } = await this.supabase
+      .from("chat_shares")
+      .update(updateData)
+      .eq("id", shareId)
+      .eq("owner_id", userId)
+
+    if (error) {
+      console.error("[Supabase] Error updating share:", error)
+      throw error
+    }
+
+    console.log("[Supabase] Share updated:", shareId)
+  }
+
+  /**
+   * Delete a share
+   */
+  async deleteShare(userId: string, shareId: string): Promise<void> {
+    const { error } = await this.supabase
+      .from("chat_shares")
+      .delete()
+      .eq("id", shareId)
+      .eq("owner_id", userId)
+
+    if (error) {
+      console.error("[Supabase] Error deleting share:", error)
+      throw error
+    }
+
+    console.log("[Supabase] Share deleted:", shareId)
+  }
+
+  /**
+   * Get shared chat data by share token (public access - uses RPC function)
+   */
+  async getSharedChat(shareToken: string): Promise<SharedChatData | null> {
+    console.log("[Supabase] Fetching shared chat:", shareToken)
+
+    const { data, error } = await this.supabase
+      .rpc("get_shared_chat", { p_share_token: shareToken })
+
+    if (error) {
+      console.error("[Supabase] Error fetching shared chat:", error)
+      throw error
+    }
+
+    if (!data || data.length === 0) {
+      console.log("[Supabase] Shared chat not found or expired")
+      return null
+    }
+
+    const row = data[0]
+    return {
+      shareId: row.share_id,
+      chatId: row.chat_id,
+      shareTitle: row.share_title || undefined,
+      chatTitle: row.chat_title,
+      ownerId: row.owner_id,
+      viewCount: row.view_count,
+      createdAt: new Date(row.created_at).getTime(),
+      messages: (row.messages || []).map((m: any) => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        model: m.model || undefined,
+        createdAt: new Date(m.created_at).getTime(),
+      })),
+    }
+  }
+
+  private mapShareFromDB(dbShare: any): ChatShare {
+    return {
+      id: dbShare.id,
+      chatId: dbShare.chat_id,
+      ownerId: dbShare.owner_id,
+      shareToken: dbShare.share_token,
+      title: dbShare.title || undefined,
+      expiresAt: dbShare.expires_at ? new Date(dbShare.expires_at).getTime() : undefined,
+      isActive: dbShare.is_active,
+      viewCount: dbShare.view_count,
+      createdAt: new Date(dbShare.created_at).getTime(),
+      updatedAt: new Date(dbShare.updated_at).getTime(),
+    }
   }
 
   // ===== Mappers =====

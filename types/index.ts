@@ -424,3 +424,39 @@ export interface ShopifySettings {
   storeUrl?: string // e.g., "my-store.myshopify.com"
   accessToken?: string // Shopify Admin API access token
 }
+
+/**
+ * Chat Sharing Types
+ * For creating shareable read-only links to chats
+ */
+export interface ChatShare {
+  id: string
+  chatId: string
+  ownerId: string
+  shareToken: string
+  title?: string // Optional custom title for the shared version
+  expiresAt?: number // Optional expiration timestamp
+  isActive: boolean
+  viewCount: number
+  createdAt: number
+  updatedAt: number
+}
+
+export interface SharedChatData {
+  shareId: string
+  chatId: string
+  shareTitle?: string
+  chatTitle: string
+  ownerId: string
+  viewCount: number
+  createdAt: number
+  messages: SharedMessage[]
+}
+
+export interface SharedMessage {
+  id: string
+  role: "user" | "assistant" | "system"
+  content: string
+  model?: string
+  createdAt: number
+}
