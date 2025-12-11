@@ -1,6 +1,6 @@
 "use client"
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useState, useEffect, useRef, type ChangeEvent, lazy, Suspense } from "react"
 import { useApp } from "@/contexts/app-context"
@@ -251,9 +251,12 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle>{translations.settings.title}</DialogTitle>
-        </DialogHeader>
+        <DialogHeader
+          className="flex-shrink-0"
+          icon={<Settings className="h-5 w-5" />}
+          title={translations.settings.title}
+          subtitle="Tune preferences, integrations, and AI behaviors for your workspace."
+        />
 
         <Tabs defaultValue="general" className="w-full flex-1 flex flex-col overflow-hidden">
           {/* Mobile: horizontal scroll, Desktop: 2 rows grid */}

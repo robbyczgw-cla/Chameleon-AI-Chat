@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { History, Trash2, Download, AlertCircle } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
@@ -60,15 +60,12 @@ export function ComparisonHistoryDialog({ open, onOpenChange, onLoadSession }: C
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] sm:max-w-xl lg:max-w-2xl max-h-[85vh] flex flex-col">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <History className="h-4 w-4 sm:h-5 sm:w-5" />
-            Vergleichs-Historie
-          </DialogTitle>
-          <DialogDescription className="text-xs sm:text-sm">
-            Gespeicherte Modellvergleiche laden oder löschen
-          </DialogDescription>
-        </DialogHeader>
+        <DialogHeader
+          className="flex-shrink-0"
+          icon={<History className="h-5 w-5" />}
+          title="Vergleichs-Historie"
+          subtitle="Gespeicherte Modellvergleiche laden oder löschen"
+        />
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 flex-shrink-0">
           <p className="text-xs sm:text-sm text-muted-foreground">
