@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Zap, Brain, Link2, Sparkles } from "lucide-react"
 import type { CategorizedFollowUp } from "@/lib/follow-up-parser"
@@ -53,23 +52,8 @@ const categoryStyles = {
 }
 
 export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSelect }: FollowUpSuggestionsProps) {
-  // Mobile detection for limiting suggestions (6 on mobile, 9 on desktop)
-  // Default to desktop (3 per category) to avoid flash of limited content
-  const [itemsPerCategory, setItemsPerCategory] = useState(3)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      const isMobile = window.innerWidth < 768
-      setItemsPerCategory(isMobile ? 2 : 3)
-    }
-
-    // Initial check
-    checkMobile()
-
-    // Listen for resize
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  // Always show 2 items per category (6 total)
+  const itemsPerCategory = 2
 
   // If we have categorized suggestions, use enhanced layout
   if (categorizedSuggestions && categorizedSuggestions.length > 0) {
