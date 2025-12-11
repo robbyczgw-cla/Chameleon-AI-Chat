@@ -744,6 +744,8 @@ export function ChatInput() {
       let reasoningContent = ""
       let messageAdded = false
       let capturedGenerationId = "" // For exact cost tracking
+      let capturedAllGenerationIds: string[] = [] // All generation IDs for tool calling
+      let capturedToolCallCount = 0 // Number of tool call iterations
       let capturedStopReason = "" // For stop reason stats
 
       console.log("[v0] Creating assistant message:", assistantMessageId)
@@ -930,6 +932,12 @@ export function ChatInput() {
           console.log("[Advanced Chat] 💰 Generation ID captured:", generationId)
           capturedGenerationId = generationId
         },
+        // Capture all generation IDs for tool calling cost tracking
+        onAllGenerationIds: (generationIds, toolCallCount) => {
+          console.log(`[Advanced Chat] 💰 All generation IDs captured: ${generationIds.length} (${toolCallCount} tool calls)`)
+          capturedAllGenerationIds = generationIds
+          capturedToolCallCount = toolCallCount
+        },
         // Capture stop reason for stats
         onStopReason: (reason) => {
           console.log("[Advanced Chat] 🛑 Stop reason:", reason)
@@ -1009,6 +1017,8 @@ export function ChatInput() {
             tokensPerSecond,
             ...(firstTokenTime !== null && { firstTokenTime: firstTokenTime / 1000 }), // Convert to seconds
             ...(capturedGenerationId && { generationId: capturedGenerationId }),
+            ...(capturedAllGenerationIds.length > 0 && { allGenerationIds: capturedAllGenerationIds }),
+            ...(capturedToolCallCount > 0 && { toolCallCount: capturedToolCallCount }),
             ...(capturedStopReason && { stopReason: capturedStopReason }),
           },
           ...(reasoningContent ? { reasoning: reasoningContent } : {}),
