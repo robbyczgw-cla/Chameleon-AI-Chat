@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.3.0'
+const CACHE_VERSION = 'v2.4.0'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 const SIMPLE_MODE_CACHE = `ai-chat-simple-${CACHE_VERSION}`
@@ -68,7 +68,7 @@ let lastActiveTime = Date.now()
 
 // Install event - precache ALL critical assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker v2.3.0 with improved first-load handling')
+  console.log('[SW] Installing service worker v2.4.0 with Android black screen fix')
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       console.log('[SW] Precaching critical assets...')
@@ -450,17 +450,35 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // DON'T intercept navigation requests - let browser handle them
-  // This completely avoids all redirect issues
+  // Navigation requests with TIMEOUT to prevent black screen on Android
+  // Android PWA can hang indefinitely if network is slow/stuck
   if (event.request.mode === 'navigate') {
-    // Only respond if we're offline and have a cached version
+    const NAVIGATION_TIMEOUT = 5000 // 5 seconds max wait
+
     event.respondWith(
-      fetch(event.request).catch(async () => {
-        console.log('[SW] Navigation failed, trying cache')
+      Promise.race([
+        fetch(event.request),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Navigation timeout')), NAVIGATION_TIMEOUT)
+        )
+      ]).catch(async (error) => {
+        console.log('[SW] Navigation failed/timeout:', error.message, '- trying cache')
+
+        // Try exact URL from cache
         const cached = await caches.match(event.request)
-        if (cached) return cached
+        if (cached) {
+          console.log('[SW] Serving cached navigation')
+          return cached
+        }
+
+        // Try home page as fallback
         const home = await caches.match('/')
-        if (home) return home
+        if (home) {
+          console.log('[SW] Serving cached home as fallback')
+          return home
+        }
+
+        // Last resort: offline page with auto-retry
         return createOfflinePage()
       })
     )
@@ -602,4 +620,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.3.0 loaded - Fixed first-load chunk handling, skip _next/static, no 503 errors')
+console.log('[SW] Service Worker v2.4.0 loaded - Added navigation timeout to fix Android PWA black screen')
