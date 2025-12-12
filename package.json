@@ -32,6 +32,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
+    "pwa:check": "node scripts/pwa-smoke-check.mjs",
     "generate-icons": "node scripts/generate-icons.js"
   },
   "dependencies": {
