@@ -663,6 +663,7 @@
       height: 100dvh !important;
       position: fixed !important;
       overscroll-behavior: none !important;
+      background-attachment: scroll !important;
     }
   }
 
@@ -865,6 +866,19 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .performance-mode body {
+    background-image: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   /* Ultra Performance Mode - Disable GPU-intensive effects for maximum performance */
@@ -1835,16 +1849,19 @@
    FONT SYSTEM
    ======================================== */
 
-/* Font Family CSS Variables - loaded via Next.js font loader in layout.tsx */
-/* Variables --font-inter, --font-roboto, --font-jetbrains, --font-atkinson are auto-generated */
+/* Font Family CSS Variables - use system stacks to keep builds offline */
 
 /* Define fallback variables for fonts not loaded via Next.js */
 :root {
+  --font-inter: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-roboto: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-atkinson: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-jetbrains: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --font-opendyslexic: 'OpenDyslexic', monospace;
   --font-system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Default: Inter (from Next.js font loader) */
+/* Default: Inter-like system stack */
 body {
   font-family: var(--font-inter);
 }

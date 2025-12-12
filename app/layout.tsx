@@ -1,6 +1,5 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Inter, Roboto, JetBrains_Mono, Atkinson_Hyperlegible } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import "./keyboard-optimizations.css"
@@ -9,34 +8,8 @@ import { PWARegister } from "@/components/pwa-register"
 import { CookieConsentBanner } from "@/components/cookie-consent-banner"
 import { ChunkErrorHandler } from "@/components/chunk-error-handler"
 
-// Load all font choices
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-})
-
-const roboto = Roboto({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
-  variable: "--font-roboto",
-  display: "swap",
-})
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains",
-  display: "swap",
-})
-
-const atkinsonHyperlegible = Atkinson_Hyperlegible({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-atkinson",
-  display: "swap",
-})
-
 // Note: OpenDyslexic loaded via @font-face in globals.css (not available in Google Fonts)
+// Note: Google Fonts disabled to allow offline builds; we use system stacks via CSS vars.
 
 export const metadata: Metadata = {
   title: "Chameleon AI Chat - Adapt to Any Conversation",
@@ -78,9 +51,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${roboto.variable} ${jetbrainsMono.variable} ${atkinsonHyperlegible.variable}`}
-      >
+      <body>
         {/* CRITICAL: Immediate loading screen for Android PWA cold start */}
         {/* This shows BEFORE React hydrates, preventing black screen */}
         <div
