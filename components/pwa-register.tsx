@@ -34,38 +34,62 @@ export function PWARegister() {
     }
 
     // ========================================
-    // ANDROID PWA FIX: Force reload on cold start if hydration fails
+    // ANDROID PWA FIX: Use localStorage instead of sessionStorage
+    // sessionStorage gets cleared when Android kills the app
     // ========================================
     if (isAndroidPWA()) {
-      const lastActive = sessionStorage.getItem("pwa-last-active")
+      const lastActive = localStorage.getItem("pwa-last-active")
       const now = Date.now()
 
       if (lastActive) {
         const timeSince = now - parseInt(lastActive, 10)
-        // If app was closed for more than 2 minutes, this might be a cold start
+        // If app was closed for more than 1 minute, this might be a cold start
         // Check if the DOM is actually rendered
-        setTimeout(() => {
-          const root = document.getElementById("__next") || document.body
-          const hasContent = root && root.children.length > 0 &&
-                            !root.innerHTML.includes("Loading") &&
-                            document.body.clientHeight > 100
+        if (timeSince > 60000) {
+          console.log(`[PWA] Android cold start detected - was idle for ${Math.round(timeSince / 1000)}s`)
+          setTimeout(() => {
+            const root = document.getElementById("__next") || document.body
+            const hasContent = root && root.children.length > 0 &&
+                              !root.innerHTML.includes("Loading") &&
+                              document.body.clientHeight > 100
 
-          if (!hasContent && timeSince > 120000) {
-            console.log("[PWA] Android cold start detected - forcing reload")
-            window.location.reload()
-          }
-        }, 1500) // Wait 1.5s for hydration
+            if (!hasContent) {
+              console.log("[PWA] Android cold start - DOM not rendered, forcing reload")
+              window.location.reload()
+            }
+          }, 2000) // Wait 2s for hydration
+        }
       }
 
       // Update last active time
-      sessionStorage.setItem("pwa-last-active", now.toString())
+      localStorage.setItem("pwa-last-active", now.toString())
     }
 
-    // Helper to send messages to service worker
+    // Helper to send messages to service worker with fallback
     const sendToSW = (message: any) => {
+      // Try to send to controller first
       if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage(message)
+        try {
+          navigator.serviceWorker.controller.postMessage(message)
+          return true
+        } catch (e) {
+          console.warn("[PWA] Failed to message SW controller:", e)
+        }
       }
+
+      // Fallback: try to get registration and message through it
+      navigator.serviceWorker.ready.then((registration) => {
+        if (registration.active) {
+          try {
+            registration.active.postMessage(message)
+            return true
+          } catch (e) {
+            console.warn("[PWA] Failed to message SW via registration:", e)
+          }
+        }
+      }).catch(() => {})
+
+      return false
     }
 
     // Register service worker
@@ -105,9 +129,23 @@ export function PWARegister() {
         console.log("[PWA] Service Worker registration failed:", error.message)
       })
 
-    // Listen for controller change
+    // Listen for controller change - important for recovery scenarios
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       console.log("[PWA] Controller changed - new service worker is now active")
+      // On Android, if we get a new controller, we may need to reload
+      // to ensure the page is properly served
+      if (isAndroidPWA()) {
+        const lastActive = localStorage.getItem("pwa-last-active")
+        if (lastActive) {
+          const timeSince = Date.now() - parseInt(lastActive, 10)
+          // If it's been more than 5 minutes, the SW probably died and restarted
+          // Reload to ensure everything is properly initialized
+          if (timeSince > 300000) {
+            console.log("[PWA] SW controller recovered after long idle - reloading")
+            window.location.reload()
+          }
+        }
+      }
     })
 
     // ========================================
@@ -147,9 +185,9 @@ export function PWARegister() {
       } else {
         // Record when app was hidden
         lastVisibleTime.current = Date.now()
-        // Update sessionStorage for cold start detection
+        // Update localStorage for cold start detection (survives app kill)
         if (isAndroidPWA()) {
-          sessionStorage.setItem("pwa-last-active", Date.now().toString())
+          localStorage.setItem("pwa-last-active", Date.now().toString())
         }
       }
     }

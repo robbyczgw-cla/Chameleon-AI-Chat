@@ -1,6 +1,6 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.4.0'
+const CACHE_VERSION = 'v2.5.0'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 const SIMPLE_MODE_CACHE = `ai-chat-simple-${CACHE_VERSION}`
@@ -68,7 +68,7 @@ let lastActiveTime = Date.now()
 
 // Install event - precache ALL critical assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker v2.4.0 with Android black screen fix')
+  console.log('[SW] Installing service worker v2.5.0 with Android PWA cold start fix')
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       console.log('[SW] Precaching critical assets...')
@@ -497,6 +497,18 @@ self.addEventListener('message', (event) => {
         self.skipWaiting()
         break
 
+      case 'HEALTH_CHECK':
+        // ANDROID PWA FIX: Respond to health checks from the client
+        // This allows the client to detect if the SW is responsive
+        console.log('[SW] Health check received - responding')
+        // If we have a port, send response back
+        if (event.ports && event.ports[0]) {
+          event.ports[0].postMessage({ status: 'healthy', version: CACHE_VERSION })
+        }
+        // Also claim clients to ensure we're controlling the page
+        self.clients.claim()
+        break
+
       case 'CACHE_URLS':
         if (event.data.urls && Array.isArray(event.data.urls)) {
           caches.open(RUNTIME_CACHE).then((cache) => {
@@ -620,4 +632,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.4.0 loaded - Added navigation timeout to fix Android PWA black screen')
+console.log('[SW] Service Worker v2.5.0 loaded - Added health check and cold start recovery for Android PWA')
