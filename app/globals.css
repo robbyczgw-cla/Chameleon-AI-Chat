@@ -1234,7 +1234,7 @@
 
   /* DISABLED: Infinite animations cause constant GPU usage */
   .ai-loading-skeleton {
-    background: hsl(var(--muted));
+    background: var(--muted);
     border-radius: 4px;
     /* animation: skeleton-shimmer 2s ease-in-out infinite; */
   }
@@ -1242,7 +1242,7 @@
   .ai-loading-bar {
     height: 12px;
     border-radius: 6px;
-    background: hsl(var(--muted));
+    background: var(--muted);
     /* animation: skeleton-shimmer 1.5s ease-in-out infinite; */
   }
 
@@ -1258,9 +1258,9 @@
   /* Gradient border animation - disabled for GPU performance */
   .gradient-border-animated {
     background: linear-gradient(90deg,
-        hsl(var(--primary)),
-        hsl(var(--accent)),
-        hsl(var(--primary)));
+        var(--primary),
+        var(--accent),
+        var(--primary));
     background-size: 200% 200%;
     /* animation: gradient-flow 3s ease infinite; */
   }
@@ -1833,18 +1833,20 @@ pre,
 }
 
 .message-bubble-user {
-  background: linear-gradient(135deg,
-    hsl(var(--primary)) 0%,
-    hsl(var(--primary) / 0.9) 50%,
-    hsl(var(--primary)) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    color-mix(in oklch, var(--primary) 88%, transparent) 50%,
+    var(--primary) 100%
+  );
   background-size: 200% 100%;
-  color: hsl(var(--primary-foreground)) !important;
+  color: var(--primary-foreground) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Ensure all text inside user bubbles has correct color */
 .message-bubble-user * {
-  color: hsl(var(--primary-foreground)) !important;
+  color: var(--primary-foreground) !important;
 }
 
 /* Only animate on hover - not constantly! */
@@ -2165,10 +2167,13 @@ html {
 
 /* Modern Message Bubbles - Enhanced */
 .message-bubble-user {
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     var(--primary) 0%,
-    color-mix(in oklch, var(--primary) 85%, var(--accent)) 100%);
-  background-size: 100% 100%;
+    color-mix(in oklch, var(--primary) 88%, var(--accent)) 50%,
+    var(--primary) 100%
+  );
+  background-size: 200% 100%;
 }
 
 .message-bubble-ai {

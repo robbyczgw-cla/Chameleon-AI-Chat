@@ -72,7 +72,7 @@ function DialogContent({
         )}
         style={{
           willChange: 'transform, opacity',
-          backgroundColor: 'hsl(var(--background))',
+          backgroundColor: 'var(--background)',
           opacity: 1,
         }}
         {...props}

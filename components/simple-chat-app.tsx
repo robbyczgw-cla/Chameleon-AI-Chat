@@ -841,7 +841,7 @@ export function SimpleChatApp() {
                   ) : (
                     <>
                       <ChameleonLogo size={32} />
-                      <span className="font-semibold bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">
+                      <span className="font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Chameleon
                       </span>
                     </>
@@ -862,7 +862,7 @@ export function SimpleChatApp() {
             <div className="p-3 flex gap-2">
               <Button
                 onClick={handleNewChat}
-                className="flex-1 gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+                className="flex-1 gap-2 bg-gradient-to-r from-primary to-accent text-primary-foreground hover:brightness-95 active:brightness-90"
               >
                 <MessageSquarePlus className="h-4 w-4" />
                 {t.newChat}
@@ -918,7 +918,7 @@ export function SimpleChatApp() {
                       className={cn(
                         "group flex items-center gap-2 rounded-lg p-2.5 cursor-pointer transition-colors",
                         chat.id === currentChatId
-                          ? "bg-violet-500/10 text-violet-600 dark:text-violet-400"
+                          ? "bg-primary/10 text-primary"
                           : "hover:bg-muted/50"
                       )}
                       onClick={() => {
@@ -1119,7 +1119,7 @@ export function SimpleChatApp() {
             </DialogHeader>
             <div className="space-y-4">
               {/* Introduction */}
-              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
                 <h3 className="font-semibold mb-2">Willkommen beim HiFi Berater</h3>
                 <p className="text-sm text-muted-foreground">
                   Dein KI-Assistent für High-End Audio Beratung bei HIFI TEAM Graz.
