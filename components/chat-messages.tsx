@@ -645,14 +645,10 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                 className={cn(
                   "text-sm sm:text-base smooth-transition relative overflow-hidden",
                   message.role === "user"
-                    ? "message-bubble-user rounded-[20px] rounded-br-lg px-4 py-3 sm:px-5 sm:py-3.5 text-primary-foreground shadow-lg shadow-primary/20 w-fit"
-                    : "message-bubble-ai rounded-[20px] rounded-tl-lg px-4 py-3 sm:px-5 sm:py-3.5 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm w-full",
+                    ? "message-bubble-user rounded-[20px] rounded-br-lg px-4 py-3 sm:px-5 sm:py-3.5 w-fit"
+                    : "message-bubble-ai rounded-[20px] rounded-tl-lg px-4 py-3 sm:px-5 sm:py-3.5 w-full",
                 )}
               >
-                {/* Glass shine effect for user messages */}
-                {message.role === "user" && (
-                  <div className="absolute inset-0 rounded-[20px] rounded-br-lg bg-gradient-to-tr from-white/0 via-white/15 to-white/5 pointer-events-none" />
-                )}
                 {/* Edit mode for user messages */}
                 {editingMessageId === message.id && message.role === "user" ? (
                   <div className="space-y-2 w-full">
@@ -1076,7 +1072,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
             </div>
             <div className="flex flex-col gap-2 w-full">
               <div className={cn(
-                "rounded-[20px] rounded-tl-lg px-3 py-2.5 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container",
+                "message-bubble-ai rounded-[20px] rounded-tl-lg px-3 py-2.5 sm:px-5 sm:py-4 thinking-container",
                 isAdvancedMode ? "min-w-[260px] sm:min-w-[360px] md:min-w-[420px]" : "min-w-[240px] sm:min-w-[280px]"
               )}>
                 {/* Step-by-step status visualization - clean default for both modes */}

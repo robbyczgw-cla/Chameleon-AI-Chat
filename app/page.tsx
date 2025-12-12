@@ -242,10 +242,14 @@ function ChatApp() {
           <div className="mesh-layer" />
           <div className="grid-layer" />
           <div className="noise-layer" />
+          <div className="chameleon-scales" />
         </>
       )}
 
-      <div {...swipeHandlers} className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 gap-0 touch-pan-y">
+      <div
+        {...swipeHandlers}
+        className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 gap-0 touch-pan-y"
+      >
         <PersonaLevelUpNotifier />
         {isMobileSidebarOpen && (
           <div
@@ -264,7 +268,12 @@ function ChatApp() {
           <ChatSidebar onClose={() => setIsMobileSidebarOpen(false)} />
         </div>
 
-        <div className={cn("flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl", settings.theme === "blueprint" && "animate-[rise_0.6s_ease-out]")}>
+        <div
+          className={cn(
+            "flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-hairline shadow-none",
+            settings.theme === "blueprint" && "animate-[rise_0.6s_ease-out]",
+          )}
+        >
           <ChatHeader />
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-2 md:px-4">
             {showStatsPanel ? (
@@ -284,7 +293,7 @@ function ChatApp() {
             ) : (
               /* Normal layout with messages */
               <>
-                <div className="flex-1 overflow-hidden">
+                <div className="flex-1 overflow-hidden chat-stage">
                   <ChatMessages currentPersona={settings.selectedPersona} />
                 </div>
                 <div className="flex-shrink-0">

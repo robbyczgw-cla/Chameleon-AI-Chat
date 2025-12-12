@@ -2,6 +2,8 @@
 
 Welcome to the Chameleon AI Chat documentation! This directory contains comprehensive guides for users, developers, and contributors.
 
+Note: UI theming is implemented via CSS variables and `<html>` theme classes in `app/globals.css` (including the new Chameleon (Light) theme).
+
 ## 📖 Table of Contents
 
 ### For Users

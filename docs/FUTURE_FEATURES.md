@@ -68,6 +68,24 @@ useEffect(() => {
 
 ---
 
+### 1.5 2025 Distinctive UI (Chameleon Skin)
+
+**Concept**: Make the UI feel “alive” like a chameleon without harming readability.
+
+**Ideas (practical, shippable)**:
+- **Adaptive accent drift**: slowly shift `--accent` within a safe range based on conversation “mood” (calm → teal, intense → lime, creative → aqua-violet), with an explicit user toggle.
+- **Per‑persona micro‑identity**: persona chip + avatar ring use a persona palette (still obeys theme tokens) so you *feel* the persona without repainting the whole UI.
+- **Context “heatmap” meter**: a tiny, tasteful context‑window meter that lives near the composer and responds to token usage (no dashboard needed).
+- **Ambient focus mode**: 1‑tap mode that reduces chrome (sidebar collapses, blur off, larger line-height) for long reading/writing.
+- **Texture layers**: optional, ultra-light layers (e.g. “scales” for chameleon) that auto-disable in `performance-mode`.
+
+**Implementation hooks**:
+- `app/globals.css`: token-safe palettes + optional texture layers
+- `contexts/app-context.tsx`: store user toggle + last mood state
+- `lib/theme-adaptation.ts`: compute mood safely (keyword baseline + optional LLM)
+
+---
+
 ### 2. Adaptive UI Density
 
 **Concept**: UI automatically adjusts information density based on task.

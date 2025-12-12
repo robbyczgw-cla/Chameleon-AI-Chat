@@ -531,7 +531,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
       <DialogContent className="w-[min(96vw,900px)] sm:max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-violet-500" />
+              <Sparkles className="h-5 w-5 text-primary" />
               {t.settings}
             </DialogTitle>
           </DialogHeader>
@@ -593,9 +593,9 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
           <div className="mt-4">
             {/* Profile Tab */}
             <TabsContent value="profile" className="space-y-4 mt-0">
-              <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-lg font-bold">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground text-lg font-bold">
                     {profile.name?.[0]?.toUpperCase() || "?"}
                   </div>
                   <div>
@@ -658,10 +658,10 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
 
             {/* AI Model Tab */}
             <TabsContent value="model" className="space-y-4 mt-0">
-              <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                    <Bot className="h-5 w-5 text-white" />
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                    <Bot className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <div>
                     <h3 className="font-semibold">{t.chooseAiModel}</h3>
@@ -835,10 +835,10 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                         onClick={() => setLocalSettings({ ...localSettings, language: langOption.value as "en" | "de" | "es" })}
                         className={cn(
                           "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-                          "border border-border/60 hover:border-violet-300",
+                          "border border-border/60 hover:border-primary/40",
                           localSettings.language === langOption.value
-                            ? "bg-violet-500 text-white border-violet-500"
-                            : "bg-background/50 hover:bg-violet-500/5"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background/50 hover:bg-primary/5"
                         )}
                       >
                         <span>{langOption.flag}</span>
@@ -858,6 +858,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                     { value: "dark", label: "Dark", bg: "bg-gray-900", border: "border-gray-700" },
                     { value: "soft-sunrise", label: "Sunrise 🌅", bg: "bg-gradient-to-br from-orange-100 via-rose-100 to-purple-100", border: "border-orange-300" },
                     { value: "modern-light", label: "Modern", bg: "bg-gradient-to-br from-slate-50 to-gray-100", border: "border-slate-300" },
+                    { value: "chameleon", label: "Chameleon 🦎", bg: "bg-gradient-to-br from-emerald-100 via-teal-100 to-lime-50", border: "border-emerald-300" },
                     { value: "girly-violet", label: "Violet", bg: "bg-gradient-to-br from-pink-100 to-purple-200", border: "border-pink-300" },
                     { value: "kawaii-pink", label: "Kawaii 💖", bg: "bg-gradient-to-br from-pink-200 via-pink-100 to-purple-100", border: "border-pink-400" },
                     { value: "aurora", label: "Aurora ✨", bg: "bg-gradient-to-br from-violet-100 via-indigo-50 to-orange-50", border: "border-violet-400" },
@@ -872,8 +873,8 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                         "flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all",
                         "border-2 hover:scale-105",
                         currentTheme === theme.value
-                          ? "border-violet-500 ring-2 ring-violet-500/20"
-                          : "border-transparent hover:border-violet-300/50"
+                          ? "border-primary ring-2 ring-primary/20"
+                          : "border-transparent hover:border-primary/30"
                       )}
                     >
                       <div className={cn(
@@ -902,11 +903,11 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                       onClick={() => setLocalSettings({ ...localSettings, fontSize: size.value as "small" | "medium" | "large" })}
                       className={cn(
                         "flex-1 px-3 py-2 rounded-lg text-center font-medium transition-all",
-                        "border border-border/60 hover:border-violet-300",
+                        "border border-border/60 hover:border-primary/40",
                         size.size,
                         localSettings.fontSize === size.value
-                          ? "bg-violet-500 text-white border-violet-500"
-                          : "bg-background/50 hover:bg-violet-500/5"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background/50 hover:bg-primary/5"
                       )}
                     >
                       {size.label}
@@ -1158,8 +1159,8 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                         className={cn(
                           "w-full p-3 rounded-lg border text-left transition-all",
                           !localSettings.memorySettings?.syncToDatabase
-                            ? "border-violet-500 bg-violet-500/10"
-                            : "border-border bg-muted/30 hover:border-violet-300"
+                            ? "border-primary bg-primary/10"
+                            : "border-border bg-muted/30 hover:border-primary/40"
                         )}
                       >
                         <div className="flex items-center justify-between">
@@ -1168,7 +1169,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                             <div className="text-xs text-muted-foreground">{t.localStorageDesc}</div>
                           </div>
                           {!localSettings.memorySettings?.syncToDatabase && (
-                            <div className="h-4 w-4 rounded-full bg-violet-500 flex items-center justify-center">
+                            <div className="h-4 w-4 rounded-full bg-primary flex items-center justify-center">
                               <div className="h-2 w-2 rounded-full bg-white" />
                             </div>
                           )}
@@ -1188,8 +1189,8 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                         className={cn(
                           "w-full p-3 rounded-lg border text-left transition-all",
                           localSettings.memorySettings?.syncToDatabase
-                            ? "border-violet-500 bg-violet-500/10"
-                            : "border-border bg-muted/30 hover:border-violet-300"
+                            ? "border-primary bg-primary/10"
+                            : "border-border bg-muted/30 hover:border-primary/40"
                         )}
                       >
                         <div className="flex items-center justify-between">
@@ -1198,7 +1199,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                             <div className="text-xs text-muted-foreground">{t.supabaseStorageDesc}</div>
                           </div>
                           {localSettings.memorySettings?.syncToDatabase && (
-                            <div className="h-4 w-4 rounded-full bg-violet-500 flex items-center justify-center">
+                            <div className="h-4 w-4 rounded-full bg-primary flex items-center justify-center">
                               <div className="h-2 w-2 rounded-full bg-white" />
                             </div>
                           )}
@@ -1298,23 +1299,23 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 <h4 className="font-semibold text-sm">{t.chatTipsTitle}</h4>
                 <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
                   <li className="flex gap-2">
-                    <span className="text-violet-500">•</span>
+                    <span className="text-primary">•</span>
                     <span>{t.chatTip1}</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="text-violet-500">•</span>
+                    <span className="text-primary">•</span>
                     <span>{t.chatTip2}</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="text-violet-500">•</span>
+                    <span className="text-primary">•</span>
                     <span>{t.chatTip3}</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="text-violet-500">•</span>
+                    <span className="text-primary">•</span>
                     <span>{t.chatTip4}</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="text-violet-500">•</span>
+                    <span className="text-primary">•</span>
                     <span>{t.chatTip5}</span>
                   </li>
                 </ul>
@@ -1483,7 +1484,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               {t.cancel}
             </Button>
-            <Button onClick={handleSave} className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700">
+            <Button onClick={handleSave} className="bg-gradient-to-r from-primary to-accent text-primary-foreground hover:brightness-95 active:brightness-90">
               {t.save}
             </Button>
           </div>

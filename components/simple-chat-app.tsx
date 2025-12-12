@@ -809,11 +809,15 @@ export function SimpleChatApp() {
           <div className="mesh-layer" />
           <div className="grid-layer" />
           <div className="noise-layer" />
+          <div className="chameleon-scales" />
         </>
       )}
 
       {/* iOS PWA fix: Only apply safe-area-inset-top here, bottom padding is handled by SimpleChatInput */}
-      <div {...swipeHandlers} className="relative z-10 h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] md:grid-rows-[1fr] overflow-hidden pt-[env(safe-area-inset-top,0px)] touch-pan-y">
+      <div
+        {...swipeHandlers}
+        className="relative z-10 h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] md:grid-rows-[1fr] overflow-hidden pt-[env(safe-area-inset-top,0px)] touch-pan-y"
+      >
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
@@ -830,7 +834,7 @@ export function SimpleChatApp() {
             isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           )}
         >
-          <aside className="h-full w-full min-h-0 bg-background border-r border-border/50 overflow-hidden">
+          <aside className="h-full w-full min-h-0 bg-background/60 backdrop-blur-xl border-r border-hairline shadow-none overflow-hidden">
           <div className="flex flex-col h-full min-h-0">
             {/* Sidebar Header */}
             <div className="p-4 border-b border-border/50">
@@ -841,7 +845,7 @@ export function SimpleChatApp() {
                   ) : (
                     <>
                       <ChameleonLogo size={32} />
-                      <span className="font-semibold bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">
+                      <span className="font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Chameleon
                       </span>
                     </>
@@ -862,7 +866,7 @@ export function SimpleChatApp() {
             <div className="p-3 flex gap-2">
               <Button
                 onClick={handleNewChat}
-                className="flex-1 gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+                className="flex-1 gap-2 bg-gradient-to-r from-primary to-accent text-primary-foreground hover:brightness-95 active:brightness-90"
               >
                 <MessageSquarePlus className="h-4 w-4" />
                 {t.newChat}
@@ -918,7 +922,7 @@ export function SimpleChatApp() {
                       className={cn(
                         "group flex items-center gap-2 rounded-lg p-2.5 cursor-pointer transition-colors",
                         chat.id === currentChatId
-                          ? "bg-violet-500/10 text-violet-600 dark:text-violet-400"
+                          ? "bg-primary/10 text-primary"
                           : "hover:bg-muted/50"
                       )}
                       onClick={() => {
@@ -961,9 +965,9 @@ export function SimpleChatApp() {
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
+        <main className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-hairline shadow-none bg-background/60 backdrop-blur-xl">
           {/* Header */}
-          <header className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 border-b border-border/50 bg-background shrink-0">
+          <header className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 border-b border-hairline bg-background/70 backdrop-blur-xl shadow-apple-1 shrink-0">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               <Button
                 variant="ghost"
@@ -1059,7 +1063,7 @@ export function SimpleChatApp() {
           </header>
 
           {/* Chat Area - Always use chat view structure, ChatMessages handles empty state */}
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden chat-stage">
             <div className="flex-1 overflow-hidden min-h-0">
               <ChatMessages currentPersona={selectedPersona || undefined} />
             </div>
@@ -1119,7 +1123,7 @@ export function SimpleChatApp() {
             </DialogHeader>
             <div className="space-y-4">
               {/* Introduction */}
-              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
                 <h3 className="font-semibold mb-2">Willkommen beim HiFi Berater</h3>
                 <p className="text-sm text-muted-foreground">
                   Dein KI-Assistent für High-End Audio Beratung bei HIFI TEAM Graz.
