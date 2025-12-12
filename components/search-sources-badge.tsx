@@ -73,15 +73,30 @@ export function SearchSourcesBadge({
           {results.length}
         </span>
 
-        {/* Domain badges */}
+        {/* Domain favicon badges */}
         <div className="flex items-center gap-1 ml-1">
           {uniqueDomains.slice(0, 3).map((domain, i) => (
             <div
               key={i}
-              className="flex items-center justify-center w-5 h-5 rounded-full bg-cyan-500/20 text-[10px] font-medium overflow-hidden"
+              className="flex items-center justify-center w-5 h-5 rounded-full bg-white dark:bg-zinc-800 border border-cyan-500/20 overflow-hidden"
               title={domain}
             >
-              {domain.charAt(0).toUpperCase()}
+              <img
+                src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
+                alt={domain}
+                className="w-4 h-4 object-contain"
+                loading="lazy"
+                onError={(e) => {
+                  // Fallback to first letter if favicon fails to load
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
+                  const parent = target.parentElement
+                  if (parent) {
+                    parent.classList.add('bg-cyan-500/20', 'text-[10px]', 'font-medium')
+                    parent.textContent = domain.charAt(0).toUpperCase()
+                  }
+                }}
+              />
             </div>
           ))}
           {uniqueDomains.length > 3 && (
