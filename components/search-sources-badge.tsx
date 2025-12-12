@@ -65,9 +65,6 @@ export function SearchSourcesBadge({
         <Search className="w-3.5 h-3.5" />
         <span className="font-medium">{l.sources}</span>
 
-        {/* Provider icon */}
-        <span className="text-sm">{providerIcon}</span>
-
         {/* Result count */}
         <span className="px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-semibold">
           {results.length}
