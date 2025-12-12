@@ -1182,7 +1182,6 @@ export function ChatInput() {
     <div
       className={cn(
         "bg-background/55 backdrop-blur-xl p-2 md:p-4 border-t border-hairline smooth-transition pb-[env(safe-area-inset-bottom,4px)] md:pb-4",
-        "md:rounded-3xl md:border md:border-hairline md:shadow-apple-2 md:mx-2 md:mb-2",
         isEmpty ? "shadow-apple-2" : "shadow-apple-1"
       )}
     >

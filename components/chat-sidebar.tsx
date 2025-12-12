@@ -263,7 +263,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
 
   return (
     <div
-      className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[300px] max-w-[300px] flex-col rounded-none md:rounded-none border border-hairline shadow-apple-2 bg-background/60 backdrop-blur-xl overflow-y-auto overflow-x-hidden"
+      className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[300px] max-w-[300px] flex-col rounded-none md:rounded-none border border-hairline shadow-none bg-background/60 backdrop-blur-xl overflow-y-auto overflow-x-hidden"
       style={{ width: '300px', maxWidth: '300px' }}
     >
       <div className="flex items-center gap-3 border-b border-hairline p-4 md:p-5 bg-background/50 backdrop-blur-xl">
@@ -272,7 +272,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             <X className="h-5 w-5" />
           </Button>
         )}
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 via-accent/10 to-primary/5 shadow-apple-1 border border-hairline shrink-0">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/18 via-accent/10 to-primary/6 border border-hairline shrink-0">
           <ChameleonLogo
             className="text-primary"
             size={28}
@@ -281,10 +281,10 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
           />
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground truncate">
             Chameleon AI
           </h2>
-          <p className="text-xs text-muted-foreground/90 font-medium truncate">Adapt to Any Conversation</p>
+          <p className="text-xs text-muted-foreground/90 font-medium truncate">Adaptive chat, polished.</p>
         </div>
       </div>
 
@@ -338,13 +338,13 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
       </div>
 
       <div className="p-3 md:p-4">
-        <div className="relative">
+        <div className="relative surface-subtle rounded-2xl p-2">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
           <Input
             placeholder="Search titles & messages..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 rounded-xl"
+            className="pl-9 rounded-xl border-0 shadow-none bg-transparent focus-visible:shadow-none"
           />
           {searchQuery.length >= 3 && filteredChats.length > 0 && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">

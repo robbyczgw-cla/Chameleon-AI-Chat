@@ -760,6 +760,30 @@
     backdrop-filter: none !important;
   }
 
+  /* Conversation stage (adds depth without "floating windows") */
+  .chat-stage {
+    background:
+      linear-gradient(
+        to bottom,
+        color-mix(in oklch, var(--surface-subtle) 92%, transparent),
+        transparent 65%
+      );
+  }
+
+  .chat-stage {
+    border-top: 1px solid var(--hairline);
+  }
+
+  @media (min-width: 768px) {
+    .chat-stage {
+      border-top: 1px solid var(--hairline);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+    .dark .chat-stage {
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+  }
+
   .mesh-layer,
   .grid-layer,
   .noise-layer {
