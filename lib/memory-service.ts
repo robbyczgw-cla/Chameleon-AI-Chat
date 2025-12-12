@@ -294,7 +294,7 @@ class MemoryService {
   }
 
   /**
-   * Load deleted memories from localStorage
+   * Load deleted memories from localStorage and optionally merge with database
    */
   private loadDeletedMemories() {
     if (typeof window === 'undefined') return
@@ -304,13 +304,53 @@ class MemoryService {
       const stored = localStorage.getItem(storageKey)
       if (stored) {
         this.deletedMemories = JSON.parse(stored)
-        console.log("[Memory] Loaded", this.deletedMemories.length, "deleted memories from archive")
+        console.log("[Memory] Loaded", this.deletedMemories.length, "deleted memories from local archive")
       } else {
         this.deletedMemories = []
+      }
+
+      // If sync is enabled, also fetch from database and merge
+      if (this.syncEnabled && this.userId) {
+        this.syncDeletedMemoriesFromDatabase()
       }
     } catch (error) {
       console.error("[Memory] Load deleted memories error:", error)
       this.deletedMemories = []
+    }
+  }
+
+  /**
+   * Sync deleted memories from database and merge with local
+   */
+  private async syncDeletedMemoriesFromDatabase() {
+    if (!this.syncEnabled || !this.userId) return
+
+    try {
+      const dbDeletedMemories = await supabaseSync.syncDeletedMemories(this.userId)
+      console.log("[Memory] Fetched", dbDeletedMemories.length, "deleted memories from database")
+
+      // Merge: database takes priority, add any local-only items
+      const dbIds = new Set(dbDeletedMemories.map(m => m.id))
+      const localOnlyMemories = this.deletedMemories.filter(m => !dbIds.has(m.id))
+
+      // Combine: DB memories + local-only memories
+      this.deletedMemories = [...dbDeletedMemories, ...localOnlyMemories]
+
+      // If there were local-only memories, sync them to database
+      for (const localMemory of localOnlyMemories) {
+        supabaseSync.createDeletedMemory(this.userId!, localMemory).catch(err => {
+          console.error("[Memory] Failed to sync local deleted memory to database:", err)
+        })
+      }
+
+      this.saveDeletedMemories()
+      console.log("[Memory] Merged deleted memories:", {
+        fromDB: dbDeletedMemories.length,
+        localOnly: localOnlyMemories.length,
+        total: this.deletedMemories.length
+      })
+    } catch (error) {
+      console.error("[Memory] Failed to sync deleted memories from database:", error)
     }
   }
 
@@ -414,10 +454,15 @@ class MemoryService {
       expiresAt: new Date(deletedMemory.expiresAt).toISOString()
     })
 
-    // Sync deletion to database if enabled
+    // Sync to database if enabled
     if (this.syncEnabled && this.userId) {
+      // Delete from active memories table
       supabaseSync.deleteMemory(this.userId, id).catch(err => {
         console.error("[Memory] Failed to sync memory deletion to database:", err)
+      })
+      // Add to deleted memories archive table
+      supabaseSync.createDeletedMemory(this.userId, deletedMemory).catch(err => {
+        console.error("[Memory] Failed to sync deleted memory to database:", err)
       })
     }
 
@@ -458,8 +503,13 @@ class MemoryService {
 
     console.log("[Memory] Restored memory:", restoredMemory.content.substring(0, 40))
 
-    // Sync restored memory to database if enabled
+    // Sync to database if enabled
     if (this.syncEnabled && this.userId) {
+      // Remove from deleted memories table
+      supabaseSync.removeDeletedMemory(this.userId, id).catch(err => {
+        console.error("[Memory] Failed to remove deleted memory from database:", err)
+      })
+      // Add back to active memories table
       supabaseSync.createMemory(this.userId, restoredMemory).catch(err => {
         console.error("[Memory] Failed to sync restored memory to database:", err)
       })
@@ -481,6 +531,13 @@ class MemoryService {
     if (removedCount > 0) {
       this.saveDeletedMemories()
       console.log("[Memory] Permanently removed", removedCount, "expired memories from archive")
+
+      // Sync cleanup to database if enabled
+      if (this.syncEnabled && this.userId) {
+        supabaseSync.cleanupExpiredDeletedMemories(this.userId).catch(err => {
+          console.error("[Memory] Failed to cleanup expired memories in database:", err)
+        })
+      }
     }
 
     return removedCount
@@ -517,6 +574,13 @@ class MemoryService {
     this.deletedMemories = []
     this.saveDeletedMemories()
     console.log("[Memory] Cleared all deleted memories")
+
+    // Sync to database if enabled
+    if (this.syncEnabled && this.userId) {
+      supabaseSync.clearDeletedMemories(this.userId).catch(err => {
+        console.error("[Memory] Failed to clear deleted memories in database:", err)
+      })
+    }
   }
 
   /**
@@ -877,6 +941,14 @@ class MemoryService {
     this.saveDeletedMemories()
 
     console.log("[Memory] Permanently deleted memory from archive:", id.substring(0, 8))
+
+    // Sync to database if enabled
+    if (this.syncEnabled && this.userId) {
+      supabaseSync.removeDeletedMemory(this.userId, id).catch(err => {
+        console.error("[Memory] Failed to remove deleted memory from database:", err)
+      })
+    }
+
     return true
   }
 
