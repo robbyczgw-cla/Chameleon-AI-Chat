@@ -245,7 +245,10 @@ function ChatApp() {
         </>
       )}
 
-      <div {...swipeHandlers} className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 gap-0 touch-pan-y">
+      <div
+        {...swipeHandlers}
+        className="relative z-10 flex h-[100dvh] overflow-hidden px-0 gap-0 touch-pan-y md:p-4 md:gap-4 lg:p-6 lg:gap-6"
+      >
         <PersonaLevelUpNotifier />
         {isMobileSidebarOpen && (
           <div
@@ -256,7 +259,7 @@ function ChatApp() {
 
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-50 md:relative md:z-0 transition-transform duration-300 ease-in-out",
+            "fixed inset-y-0 left-0 z-50 md:relative md:z-0 transition-transform duration-300 ease-in-out md:py-4 md:pl-4",
             isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
             !showSidebar && "md:hidden",
           )}
@@ -264,7 +267,12 @@ function ChatApp() {
           <ChatSidebar onClose={() => setIsMobileSidebarOpen(false)} />
         </div>
 
-        <div className={cn("flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl", settings.theme === "blueprint" && "animate-[rise_0.6s_ease-out]")}>
+        <div
+          className={cn(
+            "flex flex-1 flex-col min-w-0 overflow-hidden rounded-none md:rounded-3xl panel-elevated main-bridge-left border border-hairline shadow-apple-2",
+            settings.theme === "blueprint" && "animate-[rise_0.6s_ease-out]",
+          )}
+        >
           <ChatHeader />
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-2 md:px-4">
             {showStatsPanel ? (

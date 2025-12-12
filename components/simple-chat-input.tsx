@@ -1177,7 +1177,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   const hasContent = input.trim().length > 0 || attachedFiles.length > 0
 
   return (
-    <div className="bg-background p-2 md:p-4 border-t border-border/30 pb-[env(safe-area-inset-bottom,4px)] md:pb-4">
+    <div className="bg-background/55 backdrop-blur-xl p-2 md:p-4 border-t border-hairline pb-[env(safe-area-inset-bottom,4px)] md:pb-4 md:rounded-3xl md:border md:border-hairline md:shadow-apple-2 md:mx-2 md:mb-2">
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
         {/* Main Input Container */}
         <div className="flex flex-col gap-1.5 md:gap-0">
@@ -1217,7 +1217,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
                 className={cn(
                   "h-8 w-8 rounded-lg relative",
                   imageMode !== "off"
-                    ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white"
+                    ? "bg-gradient-to-br from-primary to-accent text-primary-foreground"
                     : "text-muted-foreground"
                 )}
                 onClick={() => {

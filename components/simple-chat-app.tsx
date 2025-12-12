@@ -813,7 +813,10 @@ export function SimpleChatApp() {
       )}
 
       {/* iOS PWA fix: Only apply safe-area-inset-top here, bottom padding is handled by SimpleChatInput */}
-      <div {...swipeHandlers} className="relative z-10 h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] md:grid-rows-[1fr] overflow-hidden pt-[env(safe-area-inset-top,0px)] touch-pan-y">
+      <div
+        {...swipeHandlers}
+        className="relative z-10 h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] md:grid-rows-[1fr] overflow-hidden pt-[env(safe-area-inset-top,0px)] touch-pan-y md:p-4 md:gap-4 lg:p-6 lg:gap-6"
+      >
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
@@ -826,11 +829,11 @@ export function SimpleChatApp() {
         {/* Mobile: fixed overlay, Desktop: grid column */}
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-50 w-72 md:relative md:inset-auto md:z-0 md:w-full md:h-full md:min-h-0 transition-transform duration-300 ease-out",
+            "fixed inset-y-0 left-0 z-50 w-72 md:relative md:inset-auto md:z-0 md:w-full md:h-full md:min-h-0 transition-transform duration-300 ease-out md:py-4 md:pl-4",
             isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           )}
         >
-          <aside className="h-full w-full min-h-0 bg-background/70 backdrop-blur-xl border-r border-hairline shadow-apple-1 overflow-hidden">
+          <aside className="h-full w-full min-h-0 bg-background/60 backdrop-blur-xl border border-hairline shadow-apple-2 overflow-hidden md:rounded-3xl">
           <div className="flex flex-col h-full min-h-0">
             {/* Sidebar Header */}
             <div className="p-4 border-b border-border/50">
@@ -961,7 +964,7 @@ export function SimpleChatApp() {
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
+        <main className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden rounded-none md:rounded-3xl panel-elevated main-bridge-left border border-hairline shadow-apple-2 bg-background/60 backdrop-blur-xl">
           {/* Header */}
           <header className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 border-b border-hairline bg-background/70 backdrop-blur-xl shadow-apple-1 shrink-0">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
