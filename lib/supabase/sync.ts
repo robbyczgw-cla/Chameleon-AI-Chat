@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client"
-import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt, Memory, AccessTier, ChatShare, SharedChatData } from "@/types"
+import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt, Memory, DeletedMemory, AccessTier, ChatShare, SharedChatData } from "@/types"
 
 export class SupabaseSync {
   private supabase = createClient()
@@ -727,6 +727,173 @@ export class SupabaseSync {
       ...this.mapMemoryFromDB(item),
       similarity: item.similarity,
     }))
+  }
+
+  // ===== Deleted Memories =====
+
+  /**
+   * Sync deleted memories from database
+   */
+  async syncDeletedMemories(userId: string): Promise<DeletedMemory[]> {
+    const { data, error } = await this.supabase
+      .from("deleted_memories")
+      .select("*")
+      .eq("user_id", userId)
+      .order("deleted_at", { ascending: false })
+
+    if (error) {
+      // Table might not exist yet
+      if (error.code === "42P01") {
+        console.warn("[Supabase] deleted_memories table not found - run migration 045")
+        return []
+      }
+      console.error("[Supabase] Error syncing deleted memories:", error)
+      throw error
+    }
+
+    console.log("[Supabase] Synced", data.length, "deleted memories from database")
+    return data.map(this.mapDeletedMemoryFromDB)
+  }
+
+  /**
+   * Create a deleted memory in database (archive)
+   */
+  async createDeletedMemory(userId: string, deletedMemory: DeletedMemory): Promise<void> {
+    console.log("[Supabase] Archiving memory:", deletedMemory.content.substring(0, 40))
+
+    // Verify authentication
+    const { data: { user: authUser }, error: authError } = await this.supabase.auth.getUser()
+
+    if (!authUser) {
+      console.error("[Supabase] Cannot archive memory: No authenticated user")
+      throw new Error("Not authenticated - please log in again")
+    }
+
+    const actualUserId = authUser.id
+
+    const { error } = await this.supabase.from("deleted_memories").insert({
+      id: deletedMemory.id,
+      user_id: actualUserId,
+      original_memory_id: deletedMemory.id, // Same as id since we're archiving the original
+      type: deletedMemory.type,
+      content: deletedMemory.content,
+      category: deletedMemory.category || null,
+      importance: deletedMemory.importance,
+      original_importance: deletedMemory.originalImportance || null,
+      source: deletedMemory.source || null,
+      metadata: deletedMemory.metadata || {},
+      access_count: deletedMemory.accessCount,
+      created_at: new Date(deletedMemory.createdAt).toISOString(),
+      deleted_at: new Date(deletedMemory.deletedAt).toISOString(),
+      expires_at: new Date(deletedMemory.expiresAt).toISOString(),
+      deletion_reason: deletedMemory.deletionReason,
+    })
+
+    if (error) {
+      // Ignore duplicate key errors
+      if (error.code === "23505") {
+        console.log("[Supabase] Deleted memory already exists, skipping:", deletedMemory.id)
+        return
+      }
+      // Table might not exist
+      if (error.code === "42P01") {
+        console.warn("[Supabase] deleted_memories table not found - run migration 045")
+        return
+      }
+      console.error("[Supabase] Error archiving memory:", error)
+      throw error
+    }
+
+    console.log("[Supabase] Memory archived successfully:", deletedMemory.id)
+  }
+
+  /**
+   * Delete a memory from the deleted archive (restore or permanent delete)
+   */
+  async removeDeletedMemory(userId: string, memoryId: string): Promise<void> {
+    const { error } = await this.supabase
+      .from("deleted_memories")
+      .delete()
+      .eq("id", memoryId)
+      .eq("user_id", userId)
+
+    if (error) {
+      // Table might not exist
+      if (error.code === "42P01") {
+        console.warn("[Supabase] deleted_memories table not found - run migration 045")
+        return
+      }
+      console.error("[Supabase] Error removing deleted memory:", error)
+      throw error
+    }
+
+    console.log("[Supabase] Deleted memory removed from archive:", memoryId)
+  }
+
+  /**
+   * Delete all memories from the deleted archive
+   */
+  async clearDeletedMemories(userId: string): Promise<void> {
+    const { error } = await this.supabase
+      .from("deleted_memories")
+      .delete()
+      .eq("user_id", userId)
+
+    if (error) {
+      if (error.code === "42P01") {
+        console.warn("[Supabase] deleted_memories table not found")
+        return
+      }
+      console.error("[Supabase] Error clearing deleted memories:", error)
+      throw error
+    }
+
+    console.log("[Supabase] All deleted memories cleared for user")
+  }
+
+  /**
+   * Cleanup expired deleted memories (removes those past expires_at)
+   */
+  async cleanupExpiredDeletedMemories(userId: string): Promise<number> {
+    const { data, error } = await this.supabase
+      .from("deleted_memories")
+      .delete()
+      .eq("user_id", userId)
+      .lt("expires_at", new Date().toISOString())
+      .select("id")
+
+    if (error) {
+      if (error.code === "42P01") {
+        return 0
+      }
+      console.error("[Supabase] Error cleaning up expired memories:", error)
+      throw error
+    }
+
+    const count = data?.length || 0
+    if (count > 0) {
+      console.log("[Supabase] Cleaned up", count, "expired deleted memories")
+    }
+    return count
+  }
+
+  private mapDeletedMemoryFromDB(dbMemory: any): DeletedMemory {
+    return {
+      id: dbMemory.id,
+      type: dbMemory.type,
+      content: dbMemory.content,
+      category: dbMemory.category || undefined,
+      importance: dbMemory.importance,
+      originalImportance: dbMemory.original_importance || undefined,
+      source: dbMemory.source || undefined,
+      metadata: dbMemory.metadata || undefined,
+      accessCount: dbMemory.access_count || 0,
+      createdAt: new Date(dbMemory.created_at).getTime(),
+      lastAccessedAt: new Date(dbMemory.created_at).getTime(), // Use created_at as fallback
+      deletedAt: new Date(dbMemory.deleted_at).getTime(),
+      expiresAt: new Date(dbMemory.expires_at).getTime(),
+      deletionReason: dbMemory.deletion_reason,
+    }
   }
 
   // ===== Chat Shares =====

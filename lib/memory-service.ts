@@ -7,14 +7,20 @@
  * Supports optional cloud sync to Supabase for cross-device access.
  */
 
-import type { Memory, MemorySettings } from "@/types"
+import type { Memory, MemorySettings, DeletedMemory } from "@/types"
 import { generateUUID } from "@/lib/utils"
 import { supabaseSync } from "@/lib/supabase/sync"
 import { generateEmbedding, findSimilar, cosineSimilarity } from "@/lib/embedding-service"
 
 const MEMORY_STORAGE_KEY_PREFIX = "chat_memories" // Base key - user ID appended for security
+const DELETED_MEMORY_STORAGE_KEY_PREFIX = "chat_deleted_memories" // Archived memories storage
 const EXTRACTION_MODEL = "openai/gpt-oss-20b" // Cheap, fast model for extraction
 const CLASSIFIER_MODEL = "openai/gpt-oss-20b" // Same model for query classification
+
+// Expiration constants
+const DEFAULT_EXPIRATION_DAYS = 7 // Days without access before expiration
+const DEFAULT_ARCHIVE_RETENTION_DAYS = 14 // Days to keep deleted memories
+const MS_PER_DAY = 24 * 60 * 60 * 1000
 
 // Query classification result
 export interface QueryClassification {
@@ -36,6 +42,10 @@ const DEFAULT_SETTINGS: MemorySettings = {
   classificationConfidence: 0.8, // Trust classification if confidence >= this
   minRelevanceScore: 0.3, // Skip memories if best match below this
   alwaysRetrieveForPersonas: true, // Always retrieve for persona chats
+  // Memory expiration settings
+  expirationEnabled: true, // Enable automatic memory expiration
+  expirationDays: DEFAULT_EXPIRATION_DAYS, // Days without access before expiration
+  archiveRetentionDays: DEFAULT_ARCHIVE_RETENTION_DAYS, // Days to keep deleted memories
 }
 
 // Memory retrieval decision - explains why memories were/weren't retrieved
@@ -53,6 +63,7 @@ export interface MemoryRetrievalDecision {
 
 class MemoryService {
   private memories: Memory[] = []
+  private deletedMemories: DeletedMemory[] = []
   private settings: MemorySettings = DEFAULT_SETTINGS
   private userId: string | null = null
   private syncEnabled: boolean = false
@@ -76,6 +87,16 @@ class MemoryService {
   }
 
   /**
+   * Get the user-scoped storage key for deleted/archived memories
+   */
+  private getDeletedStorageKey(): string {
+    if (this.userId) {
+      return `${DELETED_MEMORY_STORAGE_KEY_PREFIX}_${this.userId}`
+    }
+    return `${DELETED_MEMORY_STORAGE_KEY_PREFIX}_anonymous`
+  }
+
+  /**
    * Configure database sync and load user-specific memories
    * SECURITY: This must be called when user logs in to load their isolated memories
    */
@@ -89,6 +110,7 @@ class MemoryService {
     if (previousUserId !== userId) {
       console.log("[Memory] User changed - clearing and reloading memories")
       this.memories = [] // Clear immediately
+      this.deletedMemories = [] // Clear deleted memories too
 
       // MIGRATION: Check for old non-scoped memories and migrate them
       if (userId) {
@@ -96,6 +118,11 @@ class MemoryService {
       }
 
       this.loadMemories() // Load new user's memories
+      this.loadDeletedMemories() // Load deleted memories archive
+
+      // Run expiration check on load
+      this.checkAndExpireMemories()
+      this.cleanupExpiredArchive()
     }
 
     console.log("[Memory] Database sync configured:", {
@@ -263,6 +290,296 @@ class MemoryService {
       localStorage.setItem(storageKey, JSON.stringify(this.memories))
     } catch (error) {
       console.error("[Memory] Save error:", error)
+    }
+  }
+
+  /**
+   * Load deleted memories from localStorage and optionally merge with database
+   */
+  private loadDeletedMemories() {
+    if (typeof window === 'undefined') return
+
+    const storageKey = this.getDeletedStorageKey()
+    try {
+      const stored = localStorage.getItem(storageKey)
+      if (stored) {
+        this.deletedMemories = JSON.parse(stored)
+        console.log("[Memory] Loaded", this.deletedMemories.length, "deleted memories from local archive")
+      } else {
+        this.deletedMemories = []
+      }
+
+      // If sync is enabled, also fetch from database and merge
+      if (this.syncEnabled && this.userId) {
+        this.syncDeletedMemoriesFromDatabase()
+      }
+    } catch (error) {
+      console.error("[Memory] Load deleted memories error:", error)
+      this.deletedMemories = []
+    }
+  }
+
+  /**
+   * Sync deleted memories from database and merge with local
+   */
+  private async syncDeletedMemoriesFromDatabase() {
+    if (!this.syncEnabled || !this.userId) return
+
+    try {
+      const dbDeletedMemories = await supabaseSync.syncDeletedMemories(this.userId)
+      console.log("[Memory] Fetched", dbDeletedMemories.length, "deleted memories from database")
+
+      // Merge: database takes priority, add any local-only items
+      const dbIds = new Set(dbDeletedMemories.map(m => m.id))
+      const localOnlyMemories = this.deletedMemories.filter(m => !dbIds.has(m.id))
+
+      // Combine: DB memories + local-only memories
+      this.deletedMemories = [...dbDeletedMemories, ...localOnlyMemories]
+
+      // If there were local-only memories, sync them to database
+      for (const localMemory of localOnlyMemories) {
+        supabaseSync.createDeletedMemory(this.userId!, localMemory).catch(err => {
+          console.error("[Memory] Failed to sync local deleted memory to database:", err)
+        })
+      }
+
+      this.saveDeletedMemories()
+      console.log("[Memory] Merged deleted memories:", {
+        fromDB: dbDeletedMemories.length,
+        localOnly: localOnlyMemories.length,
+        total: this.deletedMemories.length
+      })
+    } catch (error) {
+      console.error("[Memory] Failed to sync deleted memories from database:", error)
+    }
+  }
+
+  /**
+   * Save deleted memories to localStorage
+   */
+  private saveDeletedMemories() {
+    if (typeof window === 'undefined') return
+
+    const storageKey = this.getDeletedStorageKey()
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(this.deletedMemories))
+    } catch (error) {
+      console.error("[Memory] Save deleted memories error:", error)
+    }
+  }
+
+  /**
+   * Check for expired memories and archive/demote them
+   * High importance (3) memories get demoted to 2 first
+   * Other memories get archived directly
+   */
+  checkAndExpireMemories(): { expired: number; demoted: number } {
+    if (!this.settings.expirationEnabled) {
+      return { expired: 0, demoted: 0 }
+    }
+
+    const expirationDays = this.settings.expirationDays ?? DEFAULT_EXPIRATION_DAYS
+    const archiveRetentionDays = this.settings.archiveRetentionDays ?? DEFAULT_ARCHIVE_RETENTION_DAYS
+    const expirationThreshold = Date.now() - (expirationDays * MS_PER_DAY)
+
+    let expiredCount = 0
+    let demotedCount = 0
+    const memoriesToArchive: Memory[] = []
+    const memoriesToDemote: Memory[] = []
+
+    for (const memory of this.memories) {
+      if (memory.lastAccessedAt < expirationThreshold) {
+        if (memory.importance === 3) {
+          // High importance memories get demoted to level 2 first
+          memoriesToDemote.push(memory)
+        } else {
+          // Other memories get archived
+          memoriesToArchive.push(memory)
+        }
+      }
+    }
+
+    // Demote high importance memories
+    for (const memory of memoriesToDemote) {
+      memory.importance = 2
+      // Reset lastAccessedAt to give it another week
+      memory.lastAccessedAt = Date.now()
+      demotedCount++
+      console.log("[Memory] Demoted high-importance memory:", memory.content.substring(0, 40))
+    }
+
+    // Archive other expired memories
+    for (const memory of memoriesToArchive) {
+      this.archiveMemory(memory.id, "expired")
+      expiredCount++
+    }
+
+    if (demotedCount > 0 || expiredCount > 0) {
+      this.saveMemories()
+      console.log("[Memory] Expiration check:", { expired: expiredCount, demoted: demotedCount })
+    }
+
+    return { expired: expiredCount, demoted: demotedCount }
+  }
+
+  /**
+   * Archive a memory (move to deleted memories)
+   */
+  archiveMemory(id: string, reason: DeletedMemory["deletionReason"]): boolean {
+    const memoryIndex = this.memories.findIndex(m => m.id === id)
+    if (memoryIndex === -1) return false
+
+    const memory = this.memories[memoryIndex]
+    const archiveRetentionDays = this.settings.archiveRetentionDays ?? DEFAULT_ARCHIVE_RETENTION_DAYS
+
+    const deletedMemory: DeletedMemory = {
+      ...memory,
+      deletedAt: Date.now(),
+      expiresAt: Date.now() + (archiveRetentionDays * MS_PER_DAY),
+      deletionReason: reason,
+      originalImportance: reason === "demoted" ? 3 : memory.importance,
+    }
+
+    // Remove from active memories
+    this.memories.splice(memoryIndex, 1)
+    this.saveMemories()
+
+    // Add to deleted memories archive
+    this.deletedMemories.push(deletedMemory)
+    this.saveDeletedMemories()
+
+    console.log("[Memory] Archived memory:", {
+      id: id.substring(0, 8),
+      reason,
+      expiresAt: new Date(deletedMemory.expiresAt).toISOString()
+    })
+
+    // Sync to database if enabled
+    if (this.syncEnabled && this.userId) {
+      // Delete from active memories table
+      supabaseSync.deleteMemory(this.userId, id).catch(err => {
+        console.error("[Memory] Failed to sync memory deletion to database:", err)
+      })
+      // Add to deleted memories archive table
+      supabaseSync.createDeletedMemory(this.userId, deletedMemory).catch(err => {
+        console.error("[Memory] Failed to sync deleted memory to database:", err)
+      })
+    }
+
+    return true
+  }
+
+  /**
+   * Restore a deleted memory back to active memories
+   */
+  restoreMemory(id: string): boolean {
+    const deletedIndex = this.deletedMemories.findIndex(m => m.id === id)
+    if (deletedIndex === -1) return false
+
+    const deletedMemory = this.deletedMemories[deletedIndex]
+
+    // Create a restored memory (remove deleted metadata)
+    const restoredMemory: Memory = {
+      id: deletedMemory.id,
+      type: deletedMemory.type,
+      content: deletedMemory.content,
+      category: deletedMemory.category,
+      importance: deletedMemory.originalImportance || deletedMemory.importance,
+      createdAt: deletedMemory.createdAt,
+      lastAccessedAt: Date.now(), // Reset access time
+      accessCount: deletedMemory.accessCount,
+      source: deletedMemory.source,
+      metadata: deletedMemory.metadata,
+      embedding: deletedMemory.embedding,
+    }
+
+    // Remove from deleted memories
+    this.deletedMemories.splice(deletedIndex, 1)
+    this.saveDeletedMemories()
+
+    // Add back to active memories
+    this.memories.push(restoredMemory)
+    this.saveMemories()
+
+    console.log("[Memory] Restored memory:", restoredMemory.content.substring(0, 40))
+
+    // Sync to database if enabled
+    if (this.syncEnabled && this.userId) {
+      // Remove from deleted memories table
+      supabaseSync.removeDeletedMemory(this.userId, id).catch(err => {
+        console.error("[Memory] Failed to remove deleted memory from database:", err)
+      })
+      // Add back to active memories table
+      supabaseSync.createMemory(this.userId, restoredMemory).catch(err => {
+        console.error("[Memory] Failed to sync restored memory to database:", err)
+      })
+    }
+
+    return true
+  }
+
+  /**
+   * Permanently remove memories from archive that have passed their expiration
+   */
+  cleanupExpiredArchive(): number {
+    const now = Date.now()
+    const initialCount = this.deletedMemories.length
+
+    this.deletedMemories = this.deletedMemories.filter(m => m.expiresAt > now)
+
+    const removedCount = initialCount - this.deletedMemories.length
+    if (removedCount > 0) {
+      this.saveDeletedMemories()
+      console.log("[Memory] Permanently removed", removedCount, "expired memories from archive")
+
+      // Sync cleanup to database if enabled
+      if (this.syncEnabled && this.userId) {
+        supabaseSync.cleanupExpiredDeletedMemories(this.userId).catch(err => {
+          console.error("[Memory] Failed to cleanup expired memories in database:", err)
+        })
+      }
+    }
+
+    return removedCount
+  }
+
+  /**
+   * Get all deleted memories
+   */
+  getDeletedMemories(): DeletedMemory[] {
+    return [...this.deletedMemories].sort((a, b) => b.deletedAt - a.deletedAt)
+  }
+
+  /**
+   * Get deleted memory statistics
+   */
+  getDeletedStats() {
+    return {
+      total: this.deletedMemories.length,
+      byReason: {
+        expired: this.deletedMemories.filter(m => m.deletionReason === "expired").length,
+        manual: this.deletedMemories.filter(m => m.deletionReason === "manual").length,
+        demoted: this.deletedMemories.filter(m => m.deletionReason === "demoted").length,
+      },
+      expiringWithin24h: this.deletedMemories.filter(m =>
+        m.expiresAt - Date.now() < MS_PER_DAY
+      ).length,
+    }
+  }
+
+  /**
+   * Clear all deleted memories permanently
+   */
+  clearDeletedMemories() {
+    this.deletedMemories = []
+    this.saveDeletedMemories()
+    console.log("[Memory] Cleared all deleted memories")
+
+    // Sync to database if enabled
+    if (this.syncEnabled && this.userId) {
+      supabaseSync.clearDeletedMemories(this.userId).catch(err => {
+        console.error("[Memory] Failed to clear deleted memories in database:", err)
+      })
     }
   }
 
@@ -584,9 +901,19 @@ class MemoryService {
   }
 
   /**
-   * Delete a memory
+   * Delete a memory (archives it to deleted memories for potential restoration)
    */
   deleteMemory(id: string): boolean {
+    // Archive the memory instead of permanently deleting
+    // This allows users to restore it within the archive retention period
+    return this.archiveMemory(id, "manual")
+  }
+
+  /**
+   * Permanently delete a memory without archiving
+   * Use this for immediate permanent deletion (bypasses archive)
+   */
+  permanentlyDeleteMemory(id: string): boolean {
     const index = this.memories.findIndex(m => m.id === id)
     if (index === -1) return false
 
@@ -597,6 +924,28 @@ class MemoryService {
     if (this.syncEnabled && this.userId) {
       supabaseSync.deleteMemory(this.userId, id).catch(err => {
         console.error("[Memory] Failed to sync memory deletion to database:", err)
+      })
+    }
+
+    return true
+  }
+
+  /**
+   * Permanently delete a memory from the archive
+   */
+  permanentlyDeleteFromArchive(id: string): boolean {
+    const index = this.deletedMemories.findIndex(m => m.id === id)
+    if (index === -1) return false
+
+    this.deletedMemories.splice(index, 1)
+    this.saveDeletedMemories()
+
+    console.log("[Memory] Permanently deleted memory from archive:", id.substring(0, 8))
+
+    // Sync to database if enabled
+    if (this.syncEnabled && this.userId) {
+      supabaseSync.removeDeletedMemory(this.userId, id).catch(err => {
+        console.error("[Memory] Failed to remove deleted memory from database:", err)
       })
     }
 

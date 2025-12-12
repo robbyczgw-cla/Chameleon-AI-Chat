@@ -22,9 +22,13 @@ import {
   Shield,
   Cloud,
   AlertTriangle,
+  RotateCcw,
+  Clock,
+  Archive,
+  Timer,
 } from "lucide-react"
 import { memoryService } from "@/lib/memory-service"
-import type { Memory } from "@/types"
+import type { Memory, DeletedMemory } from "@/types"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
@@ -35,11 +39,14 @@ export function AIMemoryHub() {
   const { t, translations } = useTranslation(currentLanguage)
   const { toast } = useToast()
   const [memories, setMemories] = useState<Memory[]>([])
+  const [deletedMemories, setDeletedMemories] = useState<DeletedMemory[]>([])
   const [isEnabled, setIsEnabled] = useState(settings.memorySettings?.enabled ?? false)
   const [syncToDatabase, setSyncToDatabase] = useState(settings.memorySettings?.syncToDatabase ?? false)
   const [autoExtract, setAutoExtract] = useState(settings.memorySettings?.autoExtract ?? true)
-  const [activeTab, setActiveTab] = useState<Memory["type"]>("preference")
+  const [expirationEnabled, setExpirationEnabled] = useState(settings.memorySettings?.expirationEnabled ?? true)
+  const [activeTab, setActiveTab] = useState<Memory["type"] | "deleted">("preference")
   const [stats, setStats] = useState(memoryService.getStats())
+  const [deletedStats, setDeletedStats] = useState(memoryService.getDeletedStats())
 
   useEffect(() => {
     loadMemories()
@@ -50,12 +57,15 @@ export function AIMemoryHub() {
     setIsEnabled(settings.memorySettings?.enabled ?? false)
     setSyncToDatabase(settings.memorySettings?.syncToDatabase ?? false)
     setAutoExtract(settings.memorySettings?.autoExtract ?? true)
-  }, [settings.memorySettings?.enabled, settings.memorySettings?.syncToDatabase, settings.memorySettings?.autoExtract])
+    setExpirationEnabled(settings.memorySettings?.expirationEnabled ?? true)
+  }, [settings.memorySettings?.enabled, settings.memorySettings?.syncToDatabase, settings.memorySettings?.autoExtract, settings.memorySettings?.expirationEnabled])
 
   const loadMemories = () => {
     const allMemories = memoryService.getAllMemories()
     setMemories(allMemories)
     setStats(memoryService.getStats())
+    setDeletedMemories(memoryService.getDeletedMemories())
+    setDeletedStats(memoryService.getDeletedStats())
   }
 
   const toggleMemorySystem = (enabled: boolean) => {
@@ -129,10 +139,85 @@ export function AIMemoryHub() {
     }
   }
 
+  const toggleExpiration = (enabled: boolean) => {
+    console.log("[AIMemoryHub] Expiration toggled:", enabled)
+    setExpirationEnabled(enabled)
+
+    updateSettings({
+      memorySettings: {
+        ...settings.memorySettings,
+        expirationEnabled: enabled,
+      },
+    })
+
+    if (enabled) {
+      toast({
+        title: "Auto-Cleanup Enabled",
+        description: "Unused memories will be archived after 7 days.",
+        duration: 3000,
+      })
+    } else {
+      toast({
+        title: "Auto-Cleanup Disabled",
+        description: "Memories will persist indefinitely until manually deleted.",
+        duration: 3000,
+      })
+    }
+  }
+
   const deleteMemory = (id: string) => {
     if (confirm(translations.memory.deleteConfirm)) {
       memoryService.deleteMemory(id)
       loadMemories()
+      toast({
+        title: "Memory archived",
+        description: "You can restore it from the Deleted tab within 2 weeks.",
+        duration: 3000,
+      })
+    }
+  }
+
+  const restoreMemory = (id: string) => {
+    memoryService.restoreMemory(id)
+    loadMemories()
+    toast({
+      title: "Memory restored",
+      description: "The memory has been restored to your active memories.",
+      duration: 2000,
+    })
+  }
+
+  const permanentlyDeleteFromArchive = (id: string) => {
+    if (confirm("Permanently delete this memory? This cannot be undone.")) {
+      memoryService.permanentlyDeleteFromArchive(id)
+      loadMemories()
+      toast({
+        title: "Memory permanently deleted",
+        description: "The memory has been permanently removed.",
+        duration: 2000,
+      })
+    }
+  }
+
+  const formatTimeRemaining = (expiresAt: number) => {
+    const now = Date.now()
+    const remaining = expiresAt - now
+    if (remaining <= 0) return "Expiring soon"
+
+    const days = Math.floor(remaining / (1000 * 60 * 60 * 24))
+    const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+
+    if (days > 0) return `${days}d ${hours}h left`
+    if (hours > 0) return `${hours}h left`
+    return "< 1h left"
+  }
+
+  const getDeletionReasonLabel = (reason: DeletedMemory["deletionReason"]) => {
+    switch (reason) {
+      case "expired": return "Auto-expired"
+      case "manual": return "Manually deleted"
+      case "demoted": return "Demoted & expired"
+      default: return reason
     }
   }
 
@@ -255,7 +340,7 @@ export function AIMemoryHub() {
     return "bg-green-500"
   }
 
-  const filteredMemories = memories.filter((m) => m.type === activeTab)
+  const filteredMemories = activeTab === "deleted" ? [] : memories.filter((m) => m.type === activeTab)
 
   return (
     <div className="space-y-4">
@@ -344,6 +429,44 @@ export function AIMemoryHub() {
         </div>
       )}
 
+      {/* Auto-Cleanup / Expiration Toggle */}
+      {isEnabled && (
+        <div className="p-4 rounded-lg border bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className={cn(
+                "h-10 w-10 rounded-lg shadow-lg flex items-center justify-center",
+                expirationEnabled
+                  ? "bg-gradient-to-br from-rose-500 to-pink-500"
+                  : "bg-gradient-to-br from-gray-400 to-gray-500"
+              )}>
+                <Timer className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-sm flex items-center gap-2">
+                  Auto-Cleanup
+                  {expirationEnabled && (
+                    <Badge variant="outline" className="text-[10px] border-rose-500 text-rose-600">
+                      7 days
+                    </Badge>
+                  )}
+                </h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {expirationEnabled
+                    ? "Unused memories are archived after 7 days. High-importance memories get demoted first."
+                    : "Memories persist indefinitely until manually deleted."
+                  }
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={expirationEnabled}
+              onCheckedChange={toggleExpiration}
+            />
+          </div>
+        </div>
+      )}
+
       {!isEnabled && (
         <Card className="p-6 text-center bg-muted/30 border-dashed">
           <Brain className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
@@ -412,8 +535,8 @@ export function AIMemoryHub() {
           </Card>
 
           {/* Memory Tabs */}
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Memory["type"])}>
-            <TabsList className="w-full grid grid-cols-5">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Memory["type"] | "deleted")}>
+            <TabsList className="w-full grid grid-cols-6">
               <TabsTrigger value="preference" className="text-xs">
                 {getTypeIcon("preference")}
                 <span className="ml-1.5 hidden sm:inline">{translations.memory.preferences}</span>
@@ -434,70 +557,167 @@ export function AIMemoryHub() {
                 {getTypeIcon("goal")}
                 <span className="ml-1.5 hidden sm:inline">{translations.memory.goals}</span>
               </TabsTrigger>
+              <TabsTrigger value="deleted" className="text-xs relative">
+                <Archive className="h-4 w-4" />
+                <span className="ml-1.5 hidden sm:inline">Deleted</span>
+                {deletedStats.total > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-rose-500 text-[10px] text-white flex items-center justify-center">
+                    {deletedStats.total}
+                  </span>
+                )}
+              </TabsTrigger>
             </TabsList>
 
-            {/* Memory List */}
-            <TabsContent value={activeTab} className="mt-4">
-              {filteredMemories.length === 0 ? (
+            {/* Memory List - Active Memories */}
+            {activeTab !== "deleted" && (
+              <TabsContent value={activeTab} className="mt-4">
+                {filteredMemories.length === 0 ? (
+                  <Card className="p-6 text-center bg-muted/30 border-dashed">
+                    <div className="flex justify-center mb-3">
+                      {getTypeIcon(activeTab as Memory["type"])}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {translations.memory.noMemories}
+                    </p>
+                  </Card>
+                ) : (
+                  <ScrollArea className="h-[400px] pr-4">
+                    <div className="space-y-2">
+                      {filteredMemories.map((memory) => (
+                        <Card key={memory.id} className="p-3 hover:bg-muted/50 transition-colors">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <div className="flex items-center gap-1.5">
+                                  {getTypeIcon(memory.type)}
+                                  <span className="text-xs font-medium">{getTypeLabel(memory.type)}</span>
+                                </div>
+                                {memory.category && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {memory.category}
+                                  </Badge>
+                                )}
+                                <div className="flex gap-1">
+                                  {[1, 2, 3].map((level) => (
+                                    <button
+                                      key={level}
+                                      onClick={() => updateMemoryImportance(memory.id, level as 1 | 2 | 3)}
+                                      className={cn(
+                                        "h-1.5 w-1.5 rounded-full transition-all",
+                                        level <= memory.importance ? getImportanceColor(memory.importance) : "bg-muted"
+                                      )}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-sm">{memory.content}</p>
+                              <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                                <span>
+                                  {new Date(memory.createdAt).toLocaleDateString(currentLanguage === "de" ? "de-DE" : "en-US")}
+                                </span>
+                                <span>• {memory.accessCount} {translations.memory.usedTimes}</span>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteMemory(memory.id)}
+                              className="h-8 w-8 p-0 shrink-0"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                )}
+              </TabsContent>
+            )}
+
+            {/* Deleted Memories Tab */}
+            <TabsContent value="deleted" className="mt-4">
+              {deletedMemories.length === 0 ? (
                 <Card className="p-6 text-center bg-muted/30 border-dashed">
-                  <div className="flex justify-center mb-3">
-                    {getTypeIcon(activeTab)}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {translations.memory.noMemories}
+                  <Archive className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+                  <p className="text-sm text-muted-foreground mb-2">
+                    No deleted memories
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Deleted memories can be restored here for up to 2 weeks.
                   </p>
                 </Card>
               ) : (
-                <ScrollArea className="h-[400px] pr-4">
-                  <div className="space-y-2">
-                    {filteredMemories.map((memory) => (
-                      <Card key={memory.id} className="p-3 hover:bg-muted/50 transition-colors">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <div className="flex items-center gap-1.5">
-                                {getTypeIcon(memory.type)}
-                                <span className="text-xs font-medium">{getTypeLabel(memory.type)}</span>
-                              </div>
-                              {memory.category && (
-                                <Badge variant="outline" className="text-xs">
-                                  {memory.category}
+                <>
+                  {/* Info banner */}
+                  <Card className="p-3 mb-4 bg-amber-50 dark:bg-amber-950/20 border-amber-500/30">
+                    <div className="flex items-start gap-2">
+                      <Clock className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                      <div className="text-xs">
+                        <p className="font-medium text-amber-700 dark:text-amber-400">
+                          {deletedStats.total} deleted {deletedStats.total === 1 ? "memory" : "memories"}
+                        </p>
+                        <p className="text-muted-foreground">
+                          Restore within 2 weeks or they will be permanently removed.
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <ScrollArea className="h-[350px] pr-4">
+                    <div className="space-y-2">
+                      {deletedMemories.map((memory) => (
+                        <Card key={memory.id} className="p-3 hover:bg-muted/50 transition-colors border-dashed opacity-80">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <div className="flex items-center gap-1.5 text-muted-foreground">
+                                  {getTypeIcon(memory.type)}
+                                  <span className="text-xs font-medium">{getTypeLabel(memory.type)}</span>
+                                </div>
+                                <Badge variant="outline" className="text-[10px] border-amber-500/50 text-amber-600 dark:text-amber-400">
+                                  <Clock className="h-2.5 w-2.5 mr-1" />
+                                  {formatTimeRemaining(memory.expiresAt)}
                                 </Badge>
-                              )}
-                              <div className="flex gap-1">
-                                {[1, 2, 3].map((level) => (
-                                  <button
-                                    key={level}
-                                    onClick={() => updateMemoryImportance(memory.id, level as 1 | 2 | 3)}
-                                    className={cn(
-                                      "h-1.5 w-1.5 rounded-full transition-all",
-                                      level <= memory.importance ? getImportanceColor(memory.importance) : "bg-muted"
-                                    )}
-                                  />
-                                ))}
+                                <Badge variant="secondary" className="text-[10px]">
+                                  {getDeletionReasonLabel(memory.deletionReason)}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">{memory.content}</p>
+                              <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                                <span>
+                                  Deleted {new Date(memory.deletedAt).toLocaleDateString(currentLanguage === "de" ? "de-DE" : "en-US")}
+                                </span>
+                                {memory.originalImportance && memory.originalImportance !== memory.importance && (
+                                  <span>• Was importance {memory.originalImportance}</span>
+                                )}
                               </div>
                             </div>
-                            <p className="text-sm">{memory.content}</p>
-                            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                              <span>
-                                {new Date(memory.createdAt).toLocaleDateString(currentLanguage === "de" ? "de-DE" : "en-US")}
-                              </span>
-                              <span>• {memory.accessCount} {translations.memory.usedTimes}</span>
+                            <div className="flex gap-1 shrink-0">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => restoreMemory(memory.id)}
+                                className="h-8 px-2 text-green-600 border-green-500/50 hover:bg-green-50 dark:hover:bg-green-950/30"
+                              >
+                                <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                                Restore
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => permanentlyDeleteFromArchive(memory.id)}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteMemory(memory.id)}
-                            className="h-8 w-8 p-0 shrink-0"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                </ScrollArea>
+                        </Card>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </>
               )}
             </TabsContent>
           </Tabs>

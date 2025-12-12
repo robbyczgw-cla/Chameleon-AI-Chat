@@ -418,6 +418,20 @@ export interface MemorySettings {
   classificationConfidence?: number // 0.0-1.0, default 0.8 - minimum confidence to trust classification
   minRelevanceScore?: number // 0.0-1.0, default 0.3 - if best match below this, skip all memories
   alwaysRetrieveForPersonas?: boolean // Override classification for persona chats (default true)
+  // Memory expiration settings
+  expirationEnabled?: boolean // Enable automatic memory expiration (default true)
+  expirationDays?: number // Days without access before expiration (default 7)
+  archiveRetentionDays?: number // Days to keep deleted memories before permanent removal (default 14)
+}
+
+/**
+ * Deleted memory - archived memory awaiting permanent deletion or restoration
+ */
+export interface DeletedMemory extends Memory {
+  deletedAt: number // Timestamp when memory was deleted/archived
+  expiresAt: number // Timestamp when memory will be permanently removed
+  deletionReason: "expired" | "manual" | "demoted" // Why the memory was deleted
+  originalImportance?: 1 | 2 | 3 // Original importance before demotion (for high importance memories)
 }
 
 export interface ShopifySettings {
