@@ -2207,7 +2207,7 @@ html {
 }
 
 .chameleon [data-slot="dialog-content"] {
-  background-color: #0f1a14 !important;
+  background-color: #f7fffb !important;
 }
 
 /* Chameleon: subtle iridescent focus polish */
@@ -2290,7 +2290,7 @@ html {
 }
 
 .chameleon [data-slot="alert-dialog-content"] {
-  background-color: #0f1a14 !important;
+  background-color: #f7fffb !important;
 }
 
 .soft-sunrise [data-slot="alert-dialog-content"] {
