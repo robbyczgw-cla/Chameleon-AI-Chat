@@ -53,6 +53,24 @@ interface Translations {
     deleteConfirm: string
     noMemories: string
     usedTimes: string
+    // Expiration/Deleted memories
+    deleted: string
+    noDeletedMemories: string
+    deletedMemoriesInfo: string
+    restore: string
+    restored: string
+    restoredDescription: string
+    archived: string
+    archivedDescription: string
+    permanentDeleteConfirm: string
+    permanentlyDeleted: string
+    autoCleanup: string
+    autoCleanupEnabled: string
+    autoCleanupDisabled: string
+    expiresIn: string
+    autoExpired: string
+    manuallyDeleted: string
+    demotedExpired: string
   }
 
   // Advanced Settings
@@ -150,6 +168,24 @@ const translations: Record<Language, Translations> = {
       deleteConfirm: "Really delete memory?",
       noMemories: "No memories available",
       usedTimes: "times used",
+      // Expiration/Deleted memories
+      deleted: "Deleted",
+      noDeletedMemories: "No deleted memories",
+      deletedMemoriesInfo: "Deleted memories can be restored here for up to 2 weeks.",
+      restore: "Restore",
+      restored: "Memory restored",
+      restoredDescription: "The memory has been restored to your active memories.",
+      archived: "Memory archived",
+      archivedDescription: "You can restore it from the Deleted tab within 2 weeks.",
+      permanentDeleteConfirm: "Permanently delete this memory? This cannot be undone.",
+      permanentlyDeleted: "Memory permanently deleted",
+      autoCleanup: "Auto-Cleanup",
+      autoCleanupEnabled: "Unused memories are archived after 7 days. High-importance memories get demoted first.",
+      autoCleanupDisabled: "Memories persist indefinitely until manually deleted.",
+      expiresIn: "left",
+      autoExpired: "Auto-expired",
+      manuallyDeleted: "Manually deleted",
+      demotedExpired: "Demoted & expired",
     },
     advancedSettings: {
       title: "Advanced Settings",
@@ -235,6 +271,24 @@ const translations: Record<Language, Translations> = {
       deleteConfirm: "Memory wirklich löschen?",
       noMemories: "Keine Memories vorhanden",
       usedTimes: "mal verwendet",
+      // Expiration/Deleted memories
+      deleted: "Gelöscht",
+      noDeletedMemories: "Keine gelöschten Memories",
+      deletedMemoriesInfo: "Gelöschte Memories können hier innerhalb von 2 Wochen wiederhergestellt werden.",
+      restore: "Wiederherstellen",
+      restored: "Memory wiederhergestellt",
+      restoredDescription: "Die Memory wurde zu deinen aktiven Memories wiederhergestellt.",
+      archived: "Memory archiviert",
+      archivedDescription: "Du kannst sie innerhalb von 2 Wochen im Tab 'Gelöscht' wiederherstellen.",
+      permanentDeleteConfirm: "Memory endgültig löschen? Dies kann nicht rückgängig gemacht werden.",
+      permanentlyDeleted: "Memory endgültig gelöscht",
+      autoCleanup: "Auto-Bereinigung",
+      autoCleanupEnabled: "Ungenutzte Memories werden nach 7 Tagen archiviert. Hochpriorisierte Memories werden zuerst herabgestuft.",
+      autoCleanupDisabled: "Memories bleiben unbegrenzt erhalten, bis sie manuell gelöscht werden.",
+      expiresIn: "verbleibend",
+      autoExpired: "Automatisch abgelaufen",
+      manuallyDeleted: "Manuell gelöscht",
+      demotedExpired: "Herabgestuft & abgelaufen",
     },
     advancedSettings: {
       title: "Erweiterte Einstellungen",
