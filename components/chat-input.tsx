@@ -957,7 +957,7 @@ export function ChatInput() {
                 reasoningContent: (prev?.reasoningContent || '') + details.reasoningContent
               }
             }
-            // For other details (search query, action, etc.), merge with previous
+            // For other details (search query, action, searchResults, etc.), merge with previous
             return {
               ...prev,
               ...details
@@ -976,6 +976,7 @@ export function ChatInput() {
               action: details.action,
               resultCount: details.resultCount,
               searchResultsPreview: details.searchResultsPreview,
+              searchResults: details.searchResults, // Add full results for history display
               description: details.resultSummary || details.action || (details.searchQuery ? `Searching: "${details.searchQuery}"` : undefined)
             })
           }

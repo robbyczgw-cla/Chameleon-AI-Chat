@@ -322,13 +322,14 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
           </div>
         )}
 
-        {/* Tool Result Preview - Show rich search results as they arrive */}
+        {/* Tool Result Preview - Show rich search results as they arrive (limited to 3 during streaming) */}
         {streamingDetails?.searchResults && streamingDetails.searchResults.length > 0 && (
           <SearchResultsCard
             results={streamingDetails.searchResults}
             provider={streamingDetails.searchProvider}
             query={streamingDetails.searchQuery}
             language={lang}
+            maxResults={3}
             className="mt-2"
           />
         )}
