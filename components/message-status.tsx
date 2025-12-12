@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useApp } from "@/contexts/app-context"
+import { SearchResultsCard } from "./search-results-card"
 
 export type StreamingPhase = "idle" | "thinking" | "searching" | "tool_use" | "responding" | "done"
 
@@ -43,6 +44,7 @@ export interface MessageStatusProps {
     resultCount?: number
     resultSummary?: string
     searchResultsPreview?: string
+    searchResults?: any[] // Full search results array (SearchResult[] from search/types.ts)
     reasoningContent?: string
     reasoningTokens?: number
   }
@@ -320,26 +322,15 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
           </div>
         )}
 
-        {/* Tool Result Preview - Show search results as they arrive */}
-        {streamingDetails?.searchResultsPreview && (
-          <div className="p-2 sm:p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
-            <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-              <FileSearch className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500 flex-shrink-0" />
-              <span className="text-[11px] sm:text-xs font-medium text-cyan-600 dark:text-cyan-400">
-                {lang === "de" ? "Suchergebnisse" : lang === "es" ? "Resultados" : "Results Preview"}
-              </span>
-              {streamingDetails.resultCount !== undefined && (
-                <span className="text-[10px] sm:text-xs text-cyan-500/70 ml-auto">
-                  {streamingDetails.resultCount} {streamingDetails.resultCount === 1 ?
-                    (lang === "de" ? "Ergebnis" : lang === "es" ? "resultado" : "result") :
-                    (lang === "de" ? "Ergebnisse" : lang === "es" ? "resultados" : "results")}
-                </span>
-              )}
-            </div>
-            <div className="text-[11px] sm:text-xs text-foreground/80 max-h-24 sm:max-h-32 overflow-y-auto break-words whitespace-pre-wrap pl-4 sm:pl-6 font-mono bg-cyan-500/5 rounded p-1.5 sm:p-2">
-              {streamingDetails.searchResultsPreview}
-            </div>
-          </div>
+        {/* Tool Result Preview - Show rich search results as they arrive */}
+        {streamingDetails?.searchResults && streamingDetails.searchResults.length > 0 && (
+          <SearchResultsCard
+            results={streamingDetails.searchResults}
+            provider={streamingDetails.searchProvider}
+            query={streamingDetails.searchQuery}
+            language={lang}
+            className="mt-2"
+          />
         )}
       </div>
     )
@@ -946,17 +937,16 @@ export const StreamingHistoryDisplay = memo(function StreamingHistoryDisplay({
                     {entry.resultCount} result{entry.resultCount !== 1 ? 's' : ''}
                   </p>
                 )}
-                {/* Search Results Preview in History */}
-                {entry.searchResultsPreview && (
-                  <details className="mt-1.5 group">
-                    <summary className="text-[10px] sm:text-[11px] text-cyan-600 dark:text-cyan-400 cursor-pointer hover:text-cyan-500 flex items-center gap-1 py-0.5 min-h-[28px] sm:min-h-0">
-                      <FileSearch className="w-3 h-3" />
-                      <span>{lang === "de" ? "Ergebnisse anzeigen" : lang === "es" ? "Ver resultados" : "View results"}</span>
-                    </summary>
-                    <div className="mt-1 text-[10px] sm:text-[11px] text-foreground/70 max-h-20 sm:max-h-24 overflow-y-auto break-words whitespace-pre-wrap font-mono bg-cyan-500/5 rounded p-1.5 border border-cyan-500/20">
-                      {entry.searchResultsPreview}
-                    </div>
-                  </details>
+                {/* Search Results - Rich Display */}
+                {entry.searchResults && entry.searchResults.length > 0 && (
+                  <div className="mt-2">
+                    <SearchResultsCard
+                      results={entry.searchResults}
+                      provider={entry.searchProvider}
+                      query={entry.searchQuery}
+                      language={lang}
+                    />
+                  </div>
                 )}
               </div>
 

@@ -429,13 +429,14 @@ async function executeShopify(
 
 /**
  * Execute web search using the specified provider
+ * Returns both formatted text and raw search results for UI display
  */
 async function executeWebSearch(
   query: string,
   provider: "tavily" | "serper" | "exa",
   apiKey: string,
   settings: Record<string, any> = {}
-): Promise<string> {
+): Promise<{ content: string; results: any[] }> {
   console.log(`[Tool] 🔍 Executing web_search: "${query}" via ${provider}`)
 
   // Check cache
@@ -506,7 +507,7 @@ async function executeWebSearch(
         break
 
       default:
-        return `Search failed: Unknown provider "${provider}"`
+        return { content: `Search failed: Unknown provider "${provider}"`, results: [] }
     }
 
     const response = await fetch(searchUrl, {
@@ -518,18 +519,25 @@ async function executeWebSearch(
     if (!response.ok) {
       const errorText = await response.text()
       console.error(`[Tool] ❌ Search API error:`, response.status, errorText)
-      return `Search failed: ${response.status} - ${errorText.substring(0, 200)}`
+      return { content: `Search failed: ${response.status} - ${errorText.substring(0, 200)}`, results: [] }
     }
 
     const data = await response.json()
     let formattedResults: string
+    let rawResults: any[] = []
 
     // Format results based on provider
     switch (provider) {
       case "tavily": {
         const results = data.results || []
-        formattedResults = results
-          .slice(0, 8)
+        rawResults = results.slice(0, 8).map((r: any) => ({
+          title: r.title || "",
+          url: r.url || "",
+          content: r.content || "",
+          score: r.score || 0,
+          publishedDate: r.published_date,
+        }))
+        formattedResults = rawResults
           .map((r: any, i: number) => `${i + 1}. **${r.title}**\n   ${r.content}\n   Source: ${r.url}`)
           .join("\n\n")
         if (data.answer) {
@@ -540,9 +548,14 @@ async function executeWebSearch(
 
       case "serper": {
         const results = data.organic || []
-        formattedResults = results
-          .slice(0, 8)
-          .map((r: any, i: number) => `${i + 1}. **${r.title}**\n   ${r.snippet}\n   Source: ${r.link}`)
+        rawResults = results.slice(0, 8).map((r: any) => ({
+          title: r.title || "",
+          url: r.link || "",
+          content: r.snippet || "",
+          score: r.position || 0,
+        }))
+        formattedResults = rawResults
+          .map((r: any, i: number) => `${i + 1}. **${r.title}**\n   ${r.content}\n   Source: ${r.url}`)
           .join("\n\n")
         if (data.answerBox?.answer) {
           formattedResults = `**Quick Answer:** ${data.answerBox.answer}\n\n---\n\n${formattedResults}`
@@ -554,14 +567,23 @@ async function executeWebSearch(
 
       case "exa": {
         const results = data.results || []
-        formattedResults = results
-          .slice(0, 8)
+        rawResults = results.slice(0, 8).map((r: any) => ({
+          title: r.title || "",
+          url: r.url || "",
+          content: r.text || "",
+          score: r.score || 0,
+          publishedDate: r.publishedDate,
+          highlights: r.highlights || [],
+          image: r.image,
+          author: r.author,
+        }))
+        formattedResults = rawResults
           .map((r: any, i: number) => {
             let content = ""
             if (r.highlights?.length) {
               content = r.highlights.slice(0, 2).join(" ... ")
-            } else if (r.text) {
-              content = r.text.substring(0, 300) + (r.text.length > 300 ? "..." : "")
+            } else if (r.content) {
+              content = r.content.substring(0, 300) + (r.content.length > 300 ? "..." : "")
             }
             return `${i + 1}. **${r.title}**\n   ${content}\n   Source: ${r.url}`
           })
@@ -573,16 +595,17 @@ async function executeWebSearch(
       }
     }
 
-    const result = `## Web Search Results for "${query}"\n\n${formattedResults}\n\n---\n*Search provider: ${provider}*`
+    const content = `## Web Search Results for "${query}"\n\n${formattedResults}\n\n---\n*Search provider: ${provider}*`
+    const result = { content, results: rawResults }
 
     // Cache the result
     searchCache.set(cacheKey, { result, timestamp: Date.now() })
 
-    console.log(`[Tool] ✅ Search completed: ${(data.results || data.organic || []).length} results`)
+    console.log(`[Tool] ✅ Search completed: ${rawResults.length} results`)
     return result
   } catch (error) {
     console.error("[Tool] ❌ Search failed:", error)
-    return `Search failed: ${error instanceof Error ? error.message : "Unknown error"}. Please try rephrasing or continue without search.`
+    return { content: `Search failed: ${error instanceof Error ? error.message : "Unknown error"}. Please try rephrasing or continue without search.`, results: [] }
   }
 }
 
@@ -772,12 +795,13 @@ async function handleNonStreamingRequest(
           const args = parseToolArguments(toolCall.function.arguments)
 
           if (toolCall.function.name === "web_search") {
-            const result = await executeWebSearch(args.query || "", searchProvider, searchApiKey, searchSettings)
+            const searchResult = await executeWebSearch(args.query || "", searchProvider, searchApiKey, searchSettings)
             return {
               tool_call_id: toolCall.id,
               role: "tool" as const,
               name: "web_search",
-              content: result,
+              content: searchResult.content,
+              searchResults: searchResult.results, // Store raw results for frontend
             }
           }
 
@@ -1111,14 +1135,16 @@ async function handleStreamingRequest(
                     role: "tool" as const,
                     name: "web_search",
                     content: "Error: No search API key configured",
+                    searchResults: [],
                   }
                 }
-                const result = await executeWebSearch(args.query || "", searchProvider, searchApiKey, searchSettings)
+                const searchResult = await executeWebSearch(args.query || "", searchProvider, searchApiKey, searchSettings)
                 return {
                   tool_call_id: toolCall.id,
                   role: "tool" as const,
                   name: "web_search",
-                  content: result,
+                  content: searchResult.content,
+                  searchResults: searchResult.results, // Store raw results for frontend
                 }
               }
 
@@ -1190,7 +1216,10 @@ async function handleStreamingRequest(
 
           currentMessages.push(...toolResults)
 
-          // Extract preview from search results
+          // Extract search results from tool results
+          const searchResults = toolResults.length > 0 && toolResults[0].searchResults
+            ? toolResults[0].searchResults
+            : []
           const searchResultsPreview = toolResults.length > 0
             ? toolResults[0].content.substring(0, 500) + (toolResults[0].content.length > 500 ? '...' : '')
             : ''
@@ -1201,9 +1230,10 @@ async function handleStreamingRequest(
               `data: ${JSON.stringify({
                 choices: [{ delta: {
                   searchComplete: true,
-                  searchResultCount: toolResults.length,
-                  resultSummary: `Found ${toolResults.length} result${toolResults.length !== 1 ? 's' : ''} from ${searchProvider}`,
-                  searchResultsPreview: searchResultsPreview
+                  searchResultCount: searchResults.length,
+                  resultSummary: `Found ${searchResults.length} result${searchResults.length !== 1 ? 's' : ''} from ${searchProvider}`,
+                  searchResultsPreview: searchResultsPreview,
+                  searchResults: searchResults // Send full results array for rich UI display
                 } }],
               })}\n\n`
             )

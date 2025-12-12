@@ -620,6 +620,7 @@ export function ChatInput() {
             resultCount: searchResponse.results.length,
             resultSummary: `${searchResponse.results.length} results${imageCount > 0 ? ` + ${imageCount} images` : ''} found`,
             searchResultsPreview: searchResponse.results.slice(0, 3).map(r => r.title || r.url).join(", "),
+            searchResults: searchResponse.results, // Full search results array for rich display
           }))
 
           // Add to streaming history
@@ -628,6 +629,7 @@ export function ChatInput() {
             searchQuery: input.trim(),
             searchProvider: searchProvider,
             resultCount: searchResponse.results.length,
+            searchResults: searchResponse.results, // Store full results for history display
             action: `Searched ${searchProvider}: "${input.trim()}"`,
             description: `Found ${searchResponse.results.length} results`,
           })
