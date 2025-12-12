@@ -58,6 +58,16 @@
   --sidebar-accent-foreground: oklch(0.2 0.01 240);
   --sidebar-border: oklch(0.9 0.01 250);
   --sidebar-ring: oklch(0.58 0.21 240);
+
+  /* Apple-ish premium surfaces */
+  --hairline: color-mix(in oklch, var(--border) 60%, transparent);
+  --hairline-strong: color-mix(in oklch, var(--border) 85%, transparent);
+  --surface: color-mix(in oklch, var(--card) 72%, transparent);
+  --surface-strong: color-mix(in oklch, var(--card) 86%, transparent);
+  --surface-subtle: color-mix(in oklch, var(--background) 86%, transparent);
+  --shadow-1: 0 1px 1px rgba(0, 0, 0, 0.04), 0 18px 40px -26px rgba(0, 0, 0, 0.22);
+  --shadow-2: 0 1px 1px rgba(0, 0, 0, 0.06), 0 28px 70px -42px rgba(0, 0, 0, 0.34);
+  --shadow-press: 0 0 0 rgba(0, 0, 0, 0), 0 10px 22px -18px rgba(0, 0, 0, 0.25);
 }
 
 .dark {
@@ -94,6 +104,16 @@
   --sidebar-accent-foreground: oklch(0.93 0.01 260);
   --sidebar-border: oklch(0.24 0.012 260);
   --sidebar-ring: oklch(0.73 0.18 240);
+
+  /* Apple-ish premium surfaces (dark) */
+  --hairline: color-mix(in oklch, var(--border) 75%, transparent);
+  --hairline-strong: color-mix(in oklch, var(--border) 92%, transparent);
+  --surface: color-mix(in oklch, var(--card) 78%, transparent);
+  --surface-strong: color-mix(in oklch, var(--card) 88%, transparent);
+  --surface-subtle: color-mix(in oklch, var(--background) 82%, transparent);
+  --shadow-1: 0 1px 1px rgba(0, 0, 0, 0.32), 0 18px 44px -28px rgba(0, 0, 0, 0.75);
+  --shadow-2: 0 1px 1px rgba(0, 0, 0, 0.38), 0 30px 80px -50px rgba(0, 0, 0, 0.9);
+  --shadow-press: 0 0 0 rgba(0, 0, 0, 0), 0 14px 30px -22px rgba(0, 0, 0, 0.85);
 }
 
 .aurora {
@@ -567,6 +587,10 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(1200px circle at 20% -10%, color-mix(in oklch, var(--primary) 14%, transparent) 0%, transparent 55%),
+      radial-gradient(900px circle at 90% 0%, color-mix(in oklch, var(--accent) 10%, transparent) 0%, transparent 60%);
+    background-attachment: fixed;
   }
 
   /* =========================================================================
@@ -682,6 +706,57 @@
       radial-gradient(600px circle at 80% 10%, color-mix(in oklch, var(--accent) 20%, transparent) 0%, transparent 50%),
       var(--background);
     isolation: isolate;
+  }
+
+  /* Apple-ish surfaces */
+  .border-hairline {
+    border-color: var(--hairline) !important;
+  }
+
+  .shadow-apple-1 {
+    box-shadow: var(--shadow-1);
+  }
+
+  .shadow-apple-2 {
+    box-shadow: var(--shadow-2);
+  }
+
+  .shadow-press {
+    box-shadow: var(--shadow-press);
+  }
+
+  .surface-subtle {
+    background: var(--surface-subtle);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-1);
+  }
+
+  .surface {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-1);
+  }
+
+  .surface-strong {
+    background: var(--surface-strong);
+    border: 1px solid var(--hairline-strong);
+    box-shadow: var(--shadow-2);
+  }
+
+  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .surface-subtle,
+    .surface,
+    .surface-strong {
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      backdrop-filter: blur(18px) saturate(180%);
+    }
+  }
+
+  .performance-mode .surface-subtle,
+  .performance-mode .surface,
+  .performance-mode .surface-strong {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 
   .mesh-layer,
@@ -922,11 +997,9 @@
   }
 
   .panel-elevated {
-    background: color-mix(in oklch, var(--card) 95%, var(--primary) 5%);
-    border: 1px solid color-mix(in oklch, var(--border) 75%, var(--primary) 25%);
-    box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.15);
-    /* DISABLED: backdrop-filter is GPU intensive */
-    /* backdrop-filter: blur(6px); */
+    background: var(--surface-strong);
+    border: 1px solid var(--hairline-strong);
+    box-shadow: var(--shadow-2);
   }
 
   .pill-nav {
@@ -962,45 +1035,57 @@
 
   /* GPU-OPTIMIZED: Glass effects without backdrop-filter (very GPU intensive) */
   .glass {
-    background: rgba(255, 255, 255, 0.92);
-    /* DISABLED: backdrop-filter is GPU intensive */
-    /* backdrop-filter: blur(6px) saturate(150%); */
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-1);
   }
 
   .dark .glass {
-    background: rgba(25, 25, 28, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-1);
   }
 
   .glass-strong {
-    background: rgba(255, 255, 255, 0.95);
-    /* DISABLED: backdrop-filter is GPU intensive */
-    /* backdrop-filter: blur(8px) saturate(160%); */
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.15);
+    background: var(--surface-strong);
+    border: 1px solid var(--hairline-strong);
+    box-shadow: var(--shadow-2);
   }
 
   .dark .glass-strong {
-    background: rgba(25, 25, 28, 0.97);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.4);
+    background: var(--surface-strong);
+    border: 1px solid var(--hairline-strong);
+    box-shadow: var(--shadow-2);
   }
 
   .glass-subtle {
-    background: rgba(255, 255, 255, 0.88);
-    /* DISABLED: backdrop-filter is GPU intensive */
-    /* backdrop-filter: blur(4px) saturate(130%); */
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05);
+    background: var(--surface-subtle);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-1);
   }
 
   .dark .glass-subtle {
-    background: rgba(25, 25, 28, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
+    background: var(--surface-subtle);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-1);
+  }
+
+  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .glass,
+    .glass-strong,
+    .glass-subtle,
+    .panel-elevated {
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      backdrop-filter: blur(18px) saturate(180%);
+    }
+  }
+
+  .performance-mode .glass,
+  .performance-mode .glass-strong,
+  .performance-mode .glass-subtle,
+  .performance-mode .panel-elevated {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 
   /* Modern glow effects */
@@ -1801,29 +1886,41 @@ pre,
 }
 
 /* =========================================================================
-   Message Bubble Glow Effects & Enhanced Animations
+   Apple-ish Message Bubbles (depth + hairlines)
    ========================================================================= */
 
-/* AI Message Bubble Glow */
-@keyframes message-glow {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3),
-                0 0 30px rgba(99, 102, 241, 0.15);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(99, 102, 241, 0.4),
-                0 0 50px rgba(99, 102, 241, 0.2);
-  }
-}
-
 .message-bubble-ai {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  isolation: isolate;
+  background: var(--surface-subtle);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-1);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
 }
 
-/* Only animate on hover - not constantly! */
+.message-bubble-ai::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0) 42%
+  );
+  opacity: 0.35;
+  mix-blend-mode: soft-light;
+}
+
+.dark .message-bubble-ai::before {
+  opacity: 0.18;
+}
+
 .message-bubble-ai:hover {
-  animation: message-glow 2s ease-in-out 3;
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+  transform: translateY(-1px);
+  border-color: var(--hairline-strong);
 }
 
 /* User Message Bubble - gradient shimmer */
@@ -1833,14 +1930,16 @@ pre,
 }
 
 .message-bubble-user {
-  background: linear-gradient(
-    135deg,
-    var(--primary) 0%,
-    color-mix(in oklch, var(--primary) 88%, transparent) 50%,
-    var(--primary) 100%
-  );
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(135deg,
+    color-mix(in oklch, var(--primary) 92%, var(--accent)) 0%,
+    var(--primary) 55%,
+    color-mix(in oklch, var(--primary) 86%, var(--accent)) 100%);
   background-size: 200% 100%;
   color: var(--primary-foreground) !important;
+  border: 1px solid color-mix(in oklch, var(--primary) 40%, var(--hairline));
+  box-shadow: var(--shadow-1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1851,9 +1950,28 @@ pre,
 
 /* Only animate on hover - not constantly! */
 .message-bubble-user:hover {
-  animation: user-bubble-shimmer 3s linear 2;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  animation: user-bubble-shimmer 1.6s linear 1;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
+}
+
+.message-bubble-user::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.34),
+    rgba(255, 255, 255, 0) 46%
+  );
+  opacity: 0.6;
+  mix-blend-mode: overlay;
+}
+
+.dark .message-bubble-user::before {
+  opacity: 0.28;
 }
 
 /* Enhanced Typing Indicator */
@@ -2138,13 +2256,13 @@ html {
 
 /* Mobile Navigation Glass Effect */
 .mobile-nav-glass {
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--surface-subtle);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .dark .mobile-nav-glass {
-  background: rgba(15, 15, 20, 0.85);
+  background: var(--surface-subtle);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
@@ -2157,11 +2275,11 @@ html {
 
 @media (max-width: 768px) {
   .mobile-header-glass {
-    background: rgba(255, 255, 255, 0.85);
+    background: var(--surface-subtle);
   }
 
   .dark .mobile-header-glass {
-    background: rgba(10, 10, 15, 0.9);
+    background: var(--surface-subtle);
   }
 }
 

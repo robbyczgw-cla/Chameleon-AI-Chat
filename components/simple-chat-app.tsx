@@ -830,7 +830,7 @@ export function SimpleChatApp() {
             isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           )}
         >
-          <aside className="h-full w-full min-h-0 bg-background border-r border-border/50 overflow-hidden">
+          <aside className="h-full w-full min-h-0 bg-background/70 backdrop-blur-xl border-r border-hairline shadow-apple-1 overflow-hidden">
           <div className="flex flex-col h-full min-h-0">
             {/* Sidebar Header */}
             <div className="p-4 border-b border-border/50">
@@ -963,7 +963,7 @@ export function SimpleChatApp() {
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden rounded-none md:rounded-none panel-elevated main-bridge-left border border-border/60 shadow-xl bg-background/80">
           {/* Header */}
-          <header className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 border-b border-border/50 bg-background shrink-0">
+          <header className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 border-b border-hairline bg-background/70 backdrop-blur-xl shadow-apple-1 shrink-0">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               <Button
                 variant="ghost"

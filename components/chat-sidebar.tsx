@@ -263,39 +263,39 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
 
   return (
     <div
-      className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[300px] max-w-[300px] flex-col rounded-none md:rounded-none border border-border/60 shadow-xl md:shadow-lg bg-card overflow-y-auto overflow-x-hidden"
+      className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[300px] max-w-[300px] flex-col rounded-none md:rounded-none border border-hairline shadow-apple-2 bg-background/60 backdrop-blur-xl overflow-y-auto overflow-x-hidden"
       style={{ width: '300px', maxWidth: '300px' }}
     >
-      <div className="flex items-center gap-3 border-b border-border/30 p-4 md:p-5 bg-card">
+      <div className="flex items-center gap-3 border-b border-hairline p-4 md:p-5 bg-background/50 backdrop-blur-xl">
         {onClose && (
           <Button variant="ghost" size="icon" className="md:hidden h-10 w-10 hover-scale smooth-transition rounded-xl shrink-0 hover:bg-primary/10" onClick={onClose} title="Close">
             <X className="h-5 w-5" />
           </Button>
         )}
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-500/10 shadow-xl border border-primary/10 shrink-0 hover-glow smooth-transition">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 via-accent/10 to-primary/5 shadow-apple-1 border border-hairline shrink-0">
           <ChameleonLogo
-            className="text-green-600"
+            className="text-primary"
             size={28}
             animated={!settings.experimental?.performanceMode}
             colorShift={!settings.experimental?.performanceMode}
           />
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="text-lg font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
+          <h2 className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate">
             Chameleon AI
           </h2>
           <p className="text-xs text-muted-foreground/90 font-medium truncate">Adapt to Any Conversation</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 border-b border-border/30 p-4 md:p-5">
-        <Button onClick={handleNewChat} className="flex-1 gap-2 shadow-md hover:shadow-xl h-10 md:h-11 font-semibold rounded-xl smooth-transition hover-scale gradient-premium glow-subtle" size="sm">
+      <div className="flex items-center gap-2 border-b border-hairline p-4 md:p-5">
+        <Button onClick={handleNewChat} className="flex-1 gap-2 h-10 md:h-11 font-semibold" size="sm">
           <MessageSquarePlus className="h-4 w-4" />
           <span>New Chat</span>
         </Button>
         <Dialog open={isNewFolderOpen} onOpenChange={setIsNewFolderOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="icon" className="h-10 w-10 md:h-11 md:w-11 shadow-md hover:shadow-xl hover-scale smooth-transition rounded-xl border-border/40" title="New Folder">
+            <Button variant="outline" size="icon" className="h-10 w-10 md:h-11 md:w-11" title="New Folder">
               <FolderPlus className="h-4 w-4" />
             </Button>
           </DialogTrigger>
@@ -328,7 +328,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         <Button
           variant="outline"
           size="icon"
-          className="h-10 w-10 md:h-11 md:w-11 shadow-md hover:shadow-xl text-destructive hover:text-destructive hover:bg-destructive/15 hover-scale smooth-transition rounded-xl border-border/40"
+          className="h-10 w-10 md:h-11 md:w-11 text-destructive hover:text-destructive hover:bg-destructive/15"
           onClick={() => setIsDeleteAllOpen(true)}
           title="Delete All Chats"
           disabled={chats.length === 0}
@@ -344,7 +344,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             placeholder="Search titles & messages..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 shadow-md rounded-xl border-border/40 hover-lift smooth-transition"
+            className="pl-9 rounded-xl"
           />
           {searchQuery.length >= 3 && filteredChats.length > 0 && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
@@ -408,7 +408,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
       {/* User profile section at bottom */}
       {user && (
         <div className="border-t p-3">
-          <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+          <div className="flex items-center gap-3 rounded-xl surface-subtle p-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
               <User className="h-4 w-4 text-primary" />
             </div>
