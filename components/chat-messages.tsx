@@ -1072,7 +1072,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
             </div>
             <div className="flex flex-col gap-2 w-full">
               <div className={cn(
-                "rounded-[20px] rounded-tl-lg px-3 py-2.5 sm:px-5 sm:py-4 bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm thinking-container",
+                "message-bubble-ai rounded-[20px] rounded-tl-lg px-3 py-2.5 sm:px-5 sm:py-4 thinking-container",
                 isAdvancedMode ? "min-w-[260px] sm:min-w-[360px] md:min-w-[420px]" : "min-w-[240px] sm:min-w-[280px]"
               )}>
                 {/* Step-by-step status visualization - clean default for both modes */}
