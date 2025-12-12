@@ -31,7 +31,7 @@
 - 🔍 **Smart Web Search** - AI decides when to search (3 providers: Serper, Tavily, Exa)
 - 📱 **Mobile-First UI** - WhatsApp-style bottom nav, iPad-optimized, safe-area support
 - 🌍 **Multi-language** - German, English, Spanish
-- 🎨 **Dark/Light Themes** - Beautiful gradients with seamless switching
+- 🎨 **Premium Themes** - Light/Dark + Chameleon (Light) iridescent UI with subtle scale texture
 
 **New Features:**
 - ✨ **Prompt Engineering Helper** - AI-powered prompt improvement with 10 tips & 6 templates (Ctrl+Shift+P)

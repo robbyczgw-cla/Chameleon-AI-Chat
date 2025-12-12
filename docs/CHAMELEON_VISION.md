@@ -87,7 +87,7 @@ The interface itself is a chameleon:
 - **Simple Mode**: Clean, minimal, for focused conversation
 - **Advanced Mode**: Power-user dashboard with all tools visible
 - **Mobile-First PWA**: Install as app, works offline, syncs seamlessly
-- **Dark/Light Themes**: Ambient music themes that match your mood
+- **Dark/Light Themes**: Includes Chameleon (Light) — iridescent greens + aqua with subtle “scale” texture
 - **Responsive Everywhere**: From phone to ultrawide monitor
 
 ### Performance Philosophy

@@ -85,6 +85,9 @@ Chameleon is a **Next.js 16** Progressive Web App (PWA) that provides a sophisti
 **Tailwind CSS 4.1**
 - Utility-first styling
 - Custom theme (dark/light + custom themes)
+  - Theme tokens live in `app/globals.css` as CSS variables (OKLCH-first)
+  - Theme selection applies a class on `<html>` (e.g. `dark`, `chameleon`, `aurora`)
+  - Some themes add lightweight “texture layers” (e.g. Chameleon (Light) scales); these auto-disable in `performance-mode`
 - Responsive design
 - Gradient system
 

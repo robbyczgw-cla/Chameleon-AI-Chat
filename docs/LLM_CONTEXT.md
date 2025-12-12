@@ -199,9 +199,10 @@ AI response with [FOLLOWUP] → parseFollowUps() → Group by category → Follo
 ## UI/UX Patterns
 
 ### Color Themes
-- Multiple themes: Default, Dark, Cyberpunk, etc.
+- Multiple themes via `<html>` classes (light/dark + named themes in `app/globals.css`)
+- Includes **Chameleon (Light)**: iridescent green + aqua palette with subtle “scale” texture layer
 - Follow-up categories: Emerald (quick), Violet (deep), Cyan (related)
-- Gradient accents throughout
+- Performance mode disables heavy visual effects (blur, textures, animations)
 
 ### Mobile Optimizations
 - Bottom-fixed chat input
