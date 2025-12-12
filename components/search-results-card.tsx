@@ -11,6 +11,7 @@ interface SearchResultsCardProps {
   query?: string
   language?: "en" | "de" | "es"
   className?: string
+  maxResults?: number // Limit number of results shown (for live streaming)
 }
 
 export function SearchResultsCard({
@@ -18,7 +19,8 @@ export function SearchResultsCard({
   provider,
   query,
   language = "en",
-  className
+  className,
+  maxResults
 }: SearchResultsCardProps) {
   const [isExpanded, setIsExpanded] = useState(true)
   const [showImages, setShowImages] = useState(false)
@@ -27,7 +29,10 @@ export function SearchResultsCard({
     return null
   }
 
-  const hasImages = results.some(r => r.image)
+  // Limit results if maxResults is specified (for live streaming)
+  const displayResults = maxResults ? results.slice(0, maxResults) : results
+  const hasMore = maxResults && results.length > maxResults
+  const hasImages = displayResults.some(r => r.image)
 
   const labels = {
     en: {
@@ -35,21 +40,24 @@ export function SearchResultsCard({
       from: "from",
       results: results.length === 1 ? "result" : "results",
       showImages: "Show images",
-      hideImages: "Hide images"
+      hideImages: "Hide images",
+      showingOf: "Showing {count} of {total}"
     },
     de: {
       title: "Suchergebnisse",
       from: "von",
       results: results.length === 1 ? "Ergebnis" : "Ergebnisse",
       showImages: "Bilder anzeigen",
-      hideImages: "Bilder ausblenden"
+      hideImages: "Bilder ausblenden",
+      showingOf: "{count} von {total} angezeigt"
     },
     es: {
       title: "Resultados de búsqueda",
       from: "de",
       results: results.length === 1 ? "resultado" : "resultados",
       showImages: "Mostrar imágenes",
-      hideImages: "Ocultar imágenes"
+      hideImages: "Ocultar imágenes",
+      showingOf: "Mostrando {count} de {total}"
     }
   }
 
@@ -82,7 +90,9 @@ export function SearchResultsCard({
           )}
         </div>
         <span className="text-xs text-cyan-500/70">
-          {results.length} {l.results}
+          {hasMore
+            ? l.showingOf.replace('{count}', displayResults.length.toString()).replace('{total}', results.length.toString())
+            : `${results.length} ${l.results}`}
           {provider && ` ${l.from} ${provider}`}
         </span>
       </button>
@@ -105,7 +115,7 @@ export function SearchResultsCard({
 
           {/* Results */}
           <div className="max-h-96 overflow-y-auto">
-            {results.map((result, index) => (
+            {displayResults.map((result, index) => (
               <div
                 key={`${result.url}-${index}`}
                 className="p-2.5 sm:p-3 border-b border-cyan-500/10 last:border-b-0 hover:bg-cyan-500/5 transition-colors"
