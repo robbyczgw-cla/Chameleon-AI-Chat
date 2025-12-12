@@ -809,6 +809,7 @@ export function SimpleChatApp() {
           <div className="mesh-layer" />
           <div className="grid-layer" />
           <div className="noise-layer" />
+          <div className="chameleon-scales" />
         </>
       )}
 

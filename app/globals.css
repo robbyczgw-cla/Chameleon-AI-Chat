@@ -354,42 +354,44 @@
 }
 
 .chameleon {
-  /* Chameleon theme - Adaptive greens, blues, and purples like a chameleon */
-  --background: oklch(0.09 0.02 150);
-  --foreground: oklch(0.98 0.06 150);
-  --card: oklch(0.14 0.04 150);
-  --card-foreground: oklch(0.98 0.06 150);
-  --popover: oklch(0.15 0.05 150);
-  --popover-foreground: oklch(0.98 0.06 150);
-  /* Vibrant green primary - chameleon's signature color */
-  --primary: oklch(0.72 0.24 145);
-  --primary-foreground: oklch(0.09 0.02 150);
-  --secondary: oklch(0.19 0.05 150);
-  --secondary-foreground: oklch(0.98 0.06 150);
-  --muted: oklch(0.17 0.03 150);
-  --muted-foreground: oklch(0.73 0.08 150);
-  /* Blue-purple accent - color-shifting effect */
-  --accent: oklch(0.68 0.22 260);
-  --accent-foreground: oklch(0.09 0.02 150);
-  --destructive: oklch(0.67 0.28 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.28 0.12 150);
-  --input: oklch(0.28 0.12 150);
-  --ring: oklch(0.72 0.24 145);
-  /* Chart colors - gradient from green to blue to purple */
-  --chart-1: oklch(0.72 0.24 145);
-  --chart-2: oklch(0.7 0.22 200);
-  --chart-3: oklch(0.68 0.22 260);
-  --chart-4: oklch(0.66 0.2 290);
-  --chart-5: oklch(0.73 0.18 170);
-  --sidebar: oklch(0.12 0.03 150);
-  --sidebar-foreground: oklch(0.98 0.06 150);
-  --sidebar-primary: oklch(0.72 0.24 145);
-  --sidebar-primary-foreground: oklch(0.09 0.02 150);
-  --sidebar-accent: oklch(0.19 0.05 150);
-  --sidebar-accent-foreground: oklch(0.98 0.06 150);
-  --sidebar-border: oklch(0.28 0.12 150);
-  --sidebar-ring: oklch(0.72 0.24 145);
+  /* Chameleon (Light) - iridescent greens + aqua + sunlit highlights */
+  --background: oklch(0.985 0.014 150);
+  --foreground: oklch(0.18 0.02 155);
+  --card: oklch(0.995 0.01 150);
+  --card-foreground: oklch(0.18 0.02 155);
+  --popover: oklch(0.995 0.01 155);
+  --popover-foreground: oklch(0.18 0.02 155);
+  /* Signature chameleon green */
+  --primary: oklch(0.67 0.19 145);
+  --primary-foreground: oklch(0.99 0 0);
+  /* Cool supporting surface */
+  --secondary: oklch(0.955 0.02 165);
+  --secondary-foreground: oklch(0.22 0.02 155);
+  --muted: oklch(0.95 0.015 155);
+  --muted-foreground: oklch(0.48 0.02 155);
+  /* Iridescent aqua accent (feels "alive" without being neon) */
+  --accent: oklch(0.72 0.12 200);
+  --accent-foreground: oklch(0.12 0.02 155);
+  --destructive: oklch(0.58 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.89 0.02 155);
+  --input: oklch(0.89 0.02 155);
+  --ring: oklch(0.67 0.19 145);
+  /* Charts: green → aqua → violet shimmer */
+  --chart-1: oklch(0.67 0.19 145);
+  --chart-2: oklch(0.72 0.12 200);
+  --chart-3: oklch(0.66 0.16 260);
+  --chart-4: oklch(0.74 0.14 85);
+  --chart-5: oklch(0.62 0.18 25);
+  --radius: 1.1rem;
+  --sidebar: oklch(0.992 0.01 150);
+  --sidebar-foreground: oklch(0.18 0.02 155);
+  --sidebar-primary: oklch(0.67 0.19 145);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.955 0.02 165);
+  --sidebar-accent-foreground: oklch(0.22 0.02 155);
+  --sidebar-border: oklch(0.89 0.02 155);
+  --sidebar-ring: oklch(0.67 0.19 145);
 }
 
 
@@ -768,6 +770,42 @@
         color-mix(in oklch, var(--surface-subtle) 92%, transparent),
         transparent 65%
       );
+  }
+
+  /* Chameleon light theme: subtle "scale" texture layer */
+  .chameleon-scales {
+    display: none;
+  }
+
+  .chameleon .chameleon-scales {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.22;
+    background:
+      radial-gradient(900px circle at 18% 10%, color-mix(in oklch, var(--primary) 22%, transparent) 0%, transparent 55%),
+      radial-gradient(700px circle at 78% 18%, color-mix(in oklch, var(--accent) 22%, transparent) 0%, transparent 60%),
+      repeating-radial-gradient(
+        circle at 12px 14px,
+        color-mix(in oklch, var(--foreground) 10%, transparent) 0px,
+        color-mix(in oklch, var(--foreground) 10%, transparent) 1px,
+        transparent 11px,
+        transparent 18px
+      );
+    mask-image: radial-gradient(circle at 50% 25%, rgba(0, 0, 0, 0.65), transparent 72%);
+    -webkit-mask-image: radial-gradient(circle at 50% 25%, rgba(0, 0, 0, 0.65), transparent 72%);
+    mix-blend-mode: multiply;
+  }
+
+  .dark .chameleon .chameleon-scales {
+    display: none;
+  }
+
+  .performance-mode .chameleon-scales,
+  .ultra-performance-mode .chameleon-scales {
+    display: none !important;
   }
 
   .chat-stage {
@@ -2170,6 +2208,15 @@ html {
 
 .chameleon [data-slot="dialog-content"] {
   background-color: #0f1a14 !important;
+}
+
+/* Chameleon: subtle iridescent focus polish */
+.chameleon :focus-visible {
+  outline-color: color-mix(in oklch, var(--ring) 70%, var(--accent)) !important;
+}
+
+.chameleon ::selection {
+  background: color-mix(in oklch, var(--primary) 30%, transparent);
 }
 
 .soft-sunrise [data-slot="dialog-content"] {
