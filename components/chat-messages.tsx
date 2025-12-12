@@ -928,6 +928,10 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
               {/* Search Sources Badge - Shows after message content with animation */}
               {message.role === "assistant" && (() => {
+                // Only show if experimental setting is enabled (defaults to true)
+                const showSearchResults = settings.experimental?.statsDisplay?.showSearchResults ?? true
+                if (!showSearchResults) return null
+
                 // Extract search results from streaming history
                 const searchEntry = message.streamingHistory?.find(entry =>
                   entry.searchResults && entry.searchResults.length > 0
