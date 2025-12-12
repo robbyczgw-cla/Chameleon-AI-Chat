@@ -2015,6 +2015,27 @@ pre,
   border-color: var(--hairline-strong);
 }
 
+/* Mobile: Remove AI message bubbles for minimalist ChatGPT/Claude-style look */
+@media (max-width: 768px) {
+  .message-bubble-ai {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .message-bubble-ai::before {
+    display: none !important;
+  }
+
+  .message-bubble-ai:hover {
+    box-shadow: none !important;
+    transform: none !important;
+    border-color: transparent !important;
+  }
+}
+
 /* User Message Bubble - gradient shimmer */
 @keyframes user-bubble-shimmer {
   0% { background-position: 200% center; }
