@@ -236,6 +236,7 @@ export async function streamChatMessage(
       resultCount?: number
       resultSummary?: string
       searchResultsPreview?: string
+      searchResults?: any[] // Full search results array (SearchResult[] from search/types.ts)
       reasoningContent?: string
       reasoningTokens?: number
     }) => void
@@ -460,7 +461,7 @@ export async function streamChatMessage(
             }
 
             // Handle enhanced streaming details (for advanced mode visualization)
-            if (onStreamingDetails && (delta?.searchQuery || delta?.toolArguments || delta?.searchProvider || delta?.action || delta?.resultCount || delta?.resultSummary || delta?.searchResultsPreview)) {
+            if (onStreamingDetails && (delta?.searchQuery || delta?.toolArguments || delta?.searchProvider || delta?.action || delta?.resultCount || delta?.resultSummary || delta?.searchResultsPreview || delta?.searchResults)) {
               const details = {
                 phase: delta.phase,
                 toolName: delta.toolName,
@@ -472,6 +473,7 @@ export async function streamChatMessage(
                 resultCount: delta.resultCount || delta.searchResultCount,
                 resultSummary: delta.resultSummary,
                 searchResultsPreview: delta.searchResultsPreview,
+                searchResults: delta.searchResults, // Full search results array for rich UI display
               }
               console.log("[v0] 📊 Enhanced streaming details:", details)
               onStreamingDetails(details)

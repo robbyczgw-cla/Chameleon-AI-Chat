@@ -44,6 +44,7 @@ export interface MessageStatusProps {
     resultCount?: number
     resultSummary?: string
     searchResultsPreview?: string
+    searchResults?: any[] // Full search results array (SearchResult[] from search/types.ts)
     reasoningContent?: string
     reasoningTokens?: number
   }
