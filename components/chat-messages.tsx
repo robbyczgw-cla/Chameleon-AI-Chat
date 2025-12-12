@@ -22,6 +22,7 @@ import { parseFollowUps } from "@/lib/follow-up-parser"
 import { MessageStats } from "@/components/message-stats"
 import { FilePreviewInline } from "@/components/file-preview-inline"
 import { ResponseAnalysisPanel } from "@/components/response-analysis-panel"
+import { SearchSourcesBadge } from "@/components/search-sources-badge"
 import { ResponseAnalyzer } from "@/lib/response-analyzer"
 import type { FileAttachment } from "@/lib/file-handler"
 import { type Persona, getPersonaExamplePrompts } from "@/lib/personas"
@@ -924,6 +925,28 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                   </div>
                 )}
               </div>
+
+              {/* Search Sources Badge - Shows after message content with animation */}
+              {message.role === "assistant" && (() => {
+                // Extract search results from streaming history
+                const searchEntry = message.streamingHistory?.find(entry =>
+                  entry.searchResults && entry.searchResults.length > 0
+                )
+
+                if (searchEntry?.searchResults) {
+                  return (
+                    <div className="animate-slide-in-up">
+                      <SearchSourcesBadge
+                        results={searchEntry.searchResults}
+                        provider={searchEntry.searchProvider}
+                        query={searchEntry.searchQuery}
+                        language={settings.language as "en" | "de" | "es"}
+                      />
+                    </div>
+                  )
+                }
+                return null
+              })()}
 
               {/* Suggested prompts and follow-up questions for assistant messages (last message only) */}
               {message.role === "assistant" && index === currentChat.messages.length - 1 && (() => {
