@@ -154,6 +154,11 @@ function ChatApp() {
     if (savedTheme !== "light") {
       html.classList.add(savedTheme)
     }
+    // Dark-based themes need the "dark" class for Tailwind dark: variants to work
+    const darkThemes = ["dark", "claude-grey"]
+    if (darkThemes.includes(savedTheme)) {
+      html.classList.add("dark")
+    }
 
     // Apply performance mode from settings context (preferred) or fallback to localStorage
     const savedPerformanceMode = settings.experimental?.performanceMode ??

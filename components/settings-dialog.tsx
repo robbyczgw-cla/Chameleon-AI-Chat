@@ -220,6 +220,11 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
     if (theme !== "light") {
       html.classList.add(theme)
     }
+    // Dark-based themes need the "dark" class for Tailwind dark: variants
+    const darkThemes = ["dark", "claude-grey"]
+    if (darkThemes.includes(theme)) {
+      html.classList.add("dark")
+    }
     // Save to localStorage
     localStorage.setItem("chameleon-theme", theme)
   }
