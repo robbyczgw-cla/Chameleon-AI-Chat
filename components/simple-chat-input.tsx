@@ -722,11 +722,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
           console.log("[Simple Chat] Web search context added to messages (length:", searchContext.length, "chars)")
 
+          // Toast removed - SearchSourcesBadge provides feedback
           const imageCount = searchResults.images?.length || 0
-          toast({
-            title: "✅ Suche abgeschlossen",
-            description: `${searchResults.results.length} Ergebnisse${imageCount > 0 ? ` + ${imageCount} Bilder` : ''} via ${searchProvider.charAt(0).toUpperCase() + searchProvider.slice(1)}`,
-          })
         } catch (searchError) {
           console.error("[Simple Chat] ❌ Web search error:", searchError)
           toast({
@@ -870,17 +867,11 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         shopifyAccessToken: settings.shopifySettings?.accessToken,
         onSearchStart: (query) => {
           console.log("[Simple Chat] 🤖 AI triggered search:", query)
-          toast({
-            title: settings.language === "de" ? "🤖 AI sucht im Web..." : "🤖 AI is searching the web...",
-            description: query || (settings.language === "de" ? "Sammle aktuelle Informationen" : "Gathering current information"),
-          })
+          // Toast removed - SearchSourcesBadge provides feedback
         },
         onSearchComplete: () => {
           console.log("[Simple Chat] ✅ AI search complete")
-          toast({
-            title: settings.language === "de" ? "✅ Suche abgeschlossen" : "✅ Search complete",
-            description: settings.language === "de" ? "AI hat Informationen gefunden" : "AI found relevant information",
-          })
+          // Toast removed - SearchSourcesBadge provides feedback
         },
         // Phase tracking for step-by-step visualization
         onPhaseChange: (phase) => {
