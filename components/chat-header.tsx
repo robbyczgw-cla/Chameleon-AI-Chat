@@ -252,7 +252,7 @@ export function ChatHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="flex-shrink-0 h-10 w-10 hover:bg-primary/10 hover:scale-105 transition-all rounded-xl"
+            className="flex-shrink-0 h-10 w-10 hover:bg-accent hover:text-accent-foreground hover:scale-105 transition-all rounded-xl"
             onClick={toggleDesktopSidebar}
             title="Toggle Sidebar"
           >
@@ -278,7 +278,7 @@ export function ChatHeader() {
             size="icon"
             onClick={toggleTheme}
             title={settings.theme === "dark" ? "Hell-Modus" : "Dunkel-Modus"}
-            className="hidden sm:flex hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
+            className="hidden sm:flex hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             {settings.theme === "dark" ? (
               <Sun className="h-4 w-4 md:h-4.5 md:w-4.5 text-primary" />
@@ -291,7 +291,7 @@ export function ChatHeader() {
             size="icon"
             onClick={() => setIsProfileOpen(true)}
             title="Profil"
-            className="hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
+            className="hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             <User className="h-4 w-4 md:h-4.5 md:w-4.5 text-primary" />
           </Button>
@@ -301,7 +301,7 @@ export function ChatHeader() {
             onClick={() => setIsMemoryOpen(true)}
             title="Memory System"
             className={cn(
-              "hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg relative",
+              "hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg relative",
               settings.memorySettings?.enabled && "text-purple-500"
             )}
           >
@@ -318,7 +318,7 @@ export function ChatHeader() {
             size="icon"
             onClick={toggleComparisonMode}
             title="Modellvergleich"
-            className="hidden md:flex hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
+            className="hidden md:flex hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             <Columns2 className="h-4 w-4 md:h-4.5 md:w-4.5" />
           </Button>
@@ -339,7 +339,7 @@ export function ChatHeader() {
             size="icon"
             onClick={() => setIsPersonasOpen(true)}
             title="Personas Manager"
-            className="hidden md:flex hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
+            className="hidden md:flex hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             <Wand2 className="h-4 w-4 md:h-4.5 md:w-4.5" />
           </Button>
@@ -348,7 +348,7 @@ export function ChatHeader() {
             size="icon"
             onClick={() => setIsDocCollectionsOpen(true)}
             title="Document Collections"
-            className="hidden md:flex hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
+            className="hidden md:flex hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             <FolderOpen className="h-4 w-4 md:h-4.5 md:w-4.5" />
           </Button>
@@ -357,7 +357,7 @@ export function ChatHeader() {
             size="icon"
             onClick={() => setIsPromptHelperOpen(true)}
             title="Prompt Helper (Strg+Shift+P)"
-            className="hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
+            className="hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             <Sparkles className="h-4 w-4 md:h-4.5 md:w-4.5 text-yellow-500" />
           </Button>
@@ -366,7 +366,7 @@ export function ChatHeader() {
             size="icon"
             onClick={() => setIsAdvancedSettingsOpen(true)}
             title="Erweiterte Parameter"
-            className="hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
+            className="hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             <Sliders className="h-4 w-4 md:h-4.5 md:w-4.5" />
           </Button>
@@ -376,7 +376,7 @@ export function ChatHeader() {
             size="icon"
             onClick={() => setIsDebateOpen(true)}
             title="AI Debate Mode"
-            className="hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
+            className="hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             <Swords className="h-4 w-4 md:h-4.5 md:w-4.5" />
           </Button>
@@ -387,7 +387,7 @@ export function ChatHeader() {
             onClick={() => setIsInspectorOpen(true)}
             title="Prompt Inspector"
             className={cn(
-              "hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg relative",
+              "hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg relative",
               inspectorData && "text-blue-500"
             )}
           >
@@ -409,7 +409,7 @@ export function ChatHeader() {
             size="icon"
             onClick={() => setIsSettingsOpen(true)}
             title="Einstellungen"
-            className="hover:bg-primary/10 h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
+            className="hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             <Settings className="h-4 w-4 md:h-4.5 md:w-4.5" />
           </Button>

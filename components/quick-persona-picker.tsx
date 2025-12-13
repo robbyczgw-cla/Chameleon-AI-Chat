@@ -90,14 +90,16 @@ export function QuickPersonaPicker() {
           onClick={handleClearPersona}
           className={cn(
             "flex items-center gap-2 py-2.5 cursor-pointer transition-colors",
+            "hover:bg-accent hover:text-accent-foreground",
+            "[&:hover_span]:text-accent-foreground [&:focus_span]:text-accent-foreground",
             !currentPersona && "bg-primary/10"
           )}
         >
           {!currentPersona && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
           <User className="h-4 w-4 opacity-60" />
           <span className={cn(
-            "font-medium text-sm",
-            !currentPersona && "text-primary"
+            "font-medium text-sm transition-colors",
+            !currentPersona ? "text-primary" : "text-foreground"
           )}>
             Standard (no persona)
           </span>
@@ -115,6 +117,8 @@ export function QuickPersonaPicker() {
               onClick={() => handlePersonaChange(persona)}
               className={cn(
                 "flex flex-col items-start gap-1 py-2.5 cursor-pointer transition-colors",
+                "hover:bg-accent hover:text-accent-foreground",
+                "[&:hover_span]:text-accent-foreground [&:focus_span]:text-accent-foreground",
                 isSelected && "bg-primary/10"
               )}
             >
@@ -129,14 +133,14 @@ export function QuickPersonaPicker() {
                     <span className="text-base shrink-0">{persona.emoji}</span>
                   )}
                   <span className={cn(
-                    "font-medium text-sm truncate",
-                    isSelected && "text-primary"
+                    "font-medium text-sm truncate transition-colors",
+                    isSelected ? "text-primary" : "text-foreground"
                   )}>
                     {persona.name}
                   </span>
                 </div>
               </div>
-              <span className="text-xs text-muted-foreground/80 leading-tight pl-5">
+              <span className="text-xs text-foreground/60 leading-tight pl-5 transition-colors">
                 {getPersonaDescription(persona.id, settings.language)}
               </span>
             </DropdownMenuItem>
