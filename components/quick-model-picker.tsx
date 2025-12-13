@@ -122,17 +122,17 @@ export function QuickModelPicker() {
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   {isSelected && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
                   <span className={cn(
-                    "font-medium text-sm truncate group-hover:text-accent-foreground group-focus:text-accent-foreground",
+                    "font-medium text-sm truncate group-hover:!text-accent-foreground",
                     isSelected ? "text-primary" : "text-foreground"
                   )}>
                     {model.name}
                   </span>
                 </div>
-                <span className="text-xs px-2 py-0.5 rounded bg-muted/80 text-foreground/70 font-medium shrink-0 group-hover:text-accent-foreground group-focus:text-accent-foreground">
+                <span className="text-xs px-2 py-0.5 rounded bg-muted/80 font-medium shrink-0 text-foreground/70 group-hover:!text-accent-foreground group-hover:!bg-transparent">
                   {category}
                 </span>
               </div>
-              <span className="text-xs text-muted-foreground leading-tight pl-5 group-hover:text-accent-foreground group-focus:text-accent-foreground">
+              <span className="text-xs leading-tight pl-5 text-muted-foreground group-hover:!text-accent-foreground">
                 {description}
               </span>
             </DropdownMenuItem>
