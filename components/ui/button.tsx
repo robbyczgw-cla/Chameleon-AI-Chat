@@ -5,7 +5,8 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive active:translate-y-px",
+  // GPU-OPTIMIZED: Changed transition-all to specific properties to prevent GPU spikes on hover
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-colors transition-shadow duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive active:translate-y-px",
   {
     variants: {
       variant: {
@@ -14,9 +15,11 @@ const buttonVariants = cva(
         destructive:
           'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
         outline:
-          'border border-hairline bg-background/60 backdrop-blur-md shadow-apple-1 hover:bg-accent/10 hover:text-accent-foreground hover:shadow-apple-2 dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
+          // GPU-OPTIMIZED: Removed backdrop-blur-md to reduce GPU load
+          'border border-hairline bg-background/80 shadow-apple-1 hover:bg-accent/10 hover:text-accent-foreground hover:shadow-apple-2 dark:bg-input/40 dark:border-input dark:hover:bg-input/50',
         secondary:
-          'bg-secondary/70 backdrop-blur-md text-secondary-foreground shadow-apple-1 hover:bg-secondary/60 hover:shadow-apple-2',
+          // GPU-OPTIMIZED: Removed backdrop-blur-md to reduce GPU load
+          'bg-secondary/80 text-secondary-foreground shadow-apple-1 hover:bg-secondary/70 hover:shadow-apple-2',
         ghost:
           'hover:bg-accent/10 hover:text-accent-foreground dark:hover:bg-accent/20',
         link: 'text-primary underline-offset-4 hover:underline',
