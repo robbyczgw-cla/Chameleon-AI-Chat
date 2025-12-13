@@ -89,7 +89,7 @@ export function SearchResultsCard({
           <ChevronRight className="w-4 h-4 text-cyan-500 flex-shrink-0" />
         )}
         <FileSearch className="w-4 h-4 text-cyan-500 flex-shrink-0" />
-        <div className="flex-1 text-left min-w-0">
+        <div className="flex-1 text-left min-w-0 truncate">
           <span className="text-xs sm:text-sm font-medium text-cyan-600 dark:text-cyan-400">
             {l.title}
           </span>
@@ -100,42 +100,38 @@ export function SearchResultsCard({
           )}
         </div>
 
-        {/* Domain favicon badges - visible on all screens */}
-        {uniqueDomains.length > 0 && (
-          <div className="flex items-center gap-1 flex-shrink-0">
-            {uniqueDomains.slice(0, 3).map((domain, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-center w-5 h-5 rounded-full bg-white dark:bg-zinc-800 border border-cyan-500/20 overflow-hidden flex-shrink-0"
-                title={domain}
-              >
-                <img
-                  src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
-                  alt={domain}
-                  className="w-4 h-4 object-contain"
-                  loading="lazy"
-                  onError={(e) => {
-                    // Fallback to first letter if favicon fails to load
-                    const target = e.target as HTMLImageElement
-                    target.style.display = 'none'
-                    const parent = target.parentElement
-                    if (parent) {
-                      parent.classList.add('bg-cyan-500/20', 'text-[10px]', 'font-medium', 'text-cyan-600', 'dark:text-cyan-400')
-                      parent.textContent = domain.charAt(0).toUpperCase()
-                    }
-                  }}
-                />
-              </div>
-            ))}
-            {uniqueDomains.length > 3 && (
-              <span className="text-cyan-500/70 text-[10px] flex-shrink-0">
-                +{uniqueDomains.length - 3}
-              </span>
-            )}
-          </div>
-        )}
+        {/* Domain favicon badges in top right */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {uniqueDomains.slice(0, 3).map((domain, i) => (
+            <div
+              key={i}
+              className="w-5 h-5 rounded-full bg-white dark:bg-zinc-800 border border-cyan-500/20 overflow-hidden flex items-center justify-center"
+              title={domain}
+            >
+              <img
+                src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
+                alt={domain}
+                className="w-4 h-4"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
+                  const parent = target.parentElement
+                  if (parent) {
+                    parent.classList.add('bg-cyan-500/20', 'text-[10px]', 'font-medium', 'text-cyan-600')
+                    parent.textContent = domain.charAt(0).toUpperCase()
+                  }
+                }}
+              />
+            </div>
+          ))}
+          {uniqueDomains.length > 3 && (
+            <span className="text-cyan-500/70 text-[10px]">
+              +{uniqueDomains.length - 3}
+            </span>
+          )}
+        </div>
 
-        <span className="text-xs text-cyan-500/70 flex-shrink-0 hidden sm:inline">
+        <span className="text-xs text-cyan-500/70 ml-2 flex-shrink-0">
           {hasMore
             ? l.showingOf.replace('{count}', displayResults.length.toString()).replace('{total}', results.length.toString())
             : `${results.length} ${l.results}`}
