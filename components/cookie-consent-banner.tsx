@@ -12,8 +12,7 @@ export function CookieConsentBanner() {
       enableDeclineButton
       cookieName="chameleon-cookie-consent"
       style={{
-        background: "rgba(0, 0, 0, 0.95)",
-        backdropFilter: "blur(12px)",
+        background: "rgba(0, 0, 0, 0.98)", // GPU-OPTIMIZED: Increased opacity, removed blur
         padding: "20px",
         alignItems: "center",
         gap: "16px",

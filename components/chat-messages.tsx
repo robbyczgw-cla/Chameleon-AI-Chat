@@ -930,17 +930,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
               {message.role === "assistant" && (() => {
                 // Only show if experimental setting is enabled (defaults to true)
                 const showSearchResults = settings.experimental?.statsDisplay?.showSearchResults ?? true
-                console.log("[ChatMessages] 🐛 DEBUG - SearchSourcesBadge check:", {
-                  messageId: message.id,
-                  showSearchResults,
-                  experimentalSetting: settings.experimental?.statsDisplay?.showSearchResults,
-                  hasStreamingHistory: !!message.streamingHistory,
-                  streamingHistoryLength: message.streamingHistory?.length || 0,
-                  streamingHistory: message.streamingHistory
-                })
 
                 if (!showSearchResults) {
-                  console.log("[ChatMessages] 🐛 DEBUG - showSearchResults is false, not displaying badge")
                   return null
                 }
 
@@ -949,18 +940,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                   entry.searchResults && entry.searchResults.length > 0
                 )
 
-                console.log("[ChatMessages] 🐛 DEBUG - Search entry found:", {
-                  found: !!searchEntry,
-                  searchEntry,
-                  hasSearchResults: searchEntry?.searchResults?.length || 0
-                })
-
                 if (searchEntry?.searchResults) {
-                  console.log("[ChatMessages] 🐛 DEBUG - Rendering SearchSourcesBadge with:", {
-                    resultsCount: searchEntry.searchResults.length,
-                    provider: searchEntry.searchProvider,
-                    query: searchEntry.searchQuery
-                  })
                   return (
                     <div className="animate-slide-in-up">
                       <SearchSourcesBadge
@@ -972,7 +952,6 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                     </div>
                   )
                 }
-                console.log("[ChatMessages] 🐛 DEBUG - No search entry found, not rendering badge")
                 return null
               })()}
 
@@ -1100,8 +1079,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
         {isChatLoading && (
           <div className="flex flex-col gap-2 animate-slide-in-up">
             <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/30 shrink-0 relative shadow-md ring-2 ring-background">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-primary animate-spin-slow opacity-30" />
+              {/* GPU-OPTIMIZED: Removed animate-spin-slow - uses static gradient ring */}
+              <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/30 shrink-0 relative shadow-md ring-2 ring-primary/20">
                 {currentPersona?.avatarUrl ? (
                   <>
                     <AvatarImage src={currentPersona.avatarUrl} alt={currentPersona.name} className="object-cover" />
@@ -1136,11 +1115,12 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                   streamingDetails={currentStreamingDetails || undefined}
                 />
                 {/* Skeleton content preview when responding (simple mode only) */}
+                {/* GPU-OPTIMIZED: Removed animate-pulse - uses static opacity instead */}
                 {!isAdvancedMode && streamingPhase === "responding" && (
                   <div className="space-y-2.5 mt-3 pt-3 border-t border-border/20">
-                    <div className="h-3 rounded-full bg-muted/60 w-full animate-pulse" />
-                    <div className="h-3 rounded-full bg-muted/40 w-4/5 animate-pulse" style={{ animationDelay: "150ms" }} />
-                    <div className="h-3 rounded-full bg-muted/30 w-3/5 animate-pulse" style={{ animationDelay: "300ms" }} />
+                    <div className="h-3 rounded-full bg-muted/60 w-full opacity-80" />
+                    <div className="h-3 rounded-full bg-muted/40 w-4/5 opacity-70" />
+                    <div className="h-3 rounded-full bg-muted/30 w-3/5 opacity-60" />
                   </div>
                 )}
               </div>

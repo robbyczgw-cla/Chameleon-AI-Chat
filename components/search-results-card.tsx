@@ -1,9 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { ChevronDown, ChevronRight, ExternalLink, FileSearch, Image as ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { SearchResult } from "@/lib/search/types"
+
+// Memoized hostname extractor - avoids creating new URL objects on every render
+const getHostname = (url: string): string => {
+  try {
+    return new URL(url).hostname.replace('www.', '')
+  } catch {
+    return url
+  }
+}
+
+// Date formatter cache to avoid repeated locale operations
+const formatDate = (date: string, language: string): string => {
+  try {
+    return new Date(date).toLocaleDateString(language)
+  } catch {
+    return date
+  }
+}
 
 interface SearchResultsCardProps {
   results: SearchResult[]
@@ -143,13 +161,7 @@ export function SearchResultsCard({
                   {/* Favicon */}
                   <div className="w-4 h-4 rounded flex-shrink-0 mt-0.5 overflow-hidden bg-white dark:bg-zinc-800 border border-cyan-500/10 flex items-center justify-center">
                     <img
-                      src={`https://www.google.com/s2/favicons?domain=${(() => {
-                        try {
-                          return new URL(result.url).hostname.replace('www.', '')
-                        } catch {
-                          return result.url
-                        }
-                      })()}&sz=16`}
+                      src={`https://www.google.com/s2/favicons?domain=${getHostname(result.url)}&sz=16`}
                       alt=""
                       className="w-3.5 h-3.5"
                       loading="lazy"
@@ -167,9 +179,9 @@ export function SearchResultsCard({
 
                 {/* Result URL */}
                 <div className="text-xs text-muted-foreground mb-1 truncate">
-                  {new URL(result.url).hostname}
+                  {getHostname(result.url)}
                   {result.publishedDate && (
-                    <span className="ml-2">• {new Date(result.publishedDate).toLocaleDateString(language)}</span>
+                    <span className="ml-2">• {formatDate(result.publishedDate, language)}</span>
                   )}
                 </div>
 
