@@ -1077,14 +1077,15 @@
     z-index: 0;
   }
 
-  .paper-mint-noise {
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.74' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
-    mix-blend-mode: soft-light;
-    opacity: 0.28;
-    z-index: 0;
-  }
+	  .paper-mint-noise {
+	    position: absolute;
+	    inset: 0;
+	    /* GPU-OPTIMIZED: Disabled feTurbulence SVG noise (can cause continuous GPU work) */
+	    background-image: none;
+	    mix-blend-mode: normal;
+	    opacity: 0.28;
+	    z-index: 0;
+	  }
 
   .panel-elevated {
     background: var(--surface-strong);
@@ -1473,10 +1474,12 @@
     transform: scale(1.05);
   }
 
-  /* Smooth transitions for all interactive elements */
-  .smooth-transition {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+	  /* Smooth transitions for all interactive elements */
+	  .smooth-transition {
+	    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
+	    transition-duration: 0.3s;
+	    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	  }
 
   /* Custom animations for login page */
   @keyframes blob {
@@ -2051,10 +2054,12 @@ pre,
     color-mix(in oklch, var(--primary) 86%, var(--accent)) 100%);
   background-size: 200% 100%;
   color: var(--primary-foreground) !important;
-  border: 1px solid color-mix(in oklch, var(--primary) 40%, var(--hairline));
-  box-shadow: var(--shadow-1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+	  border: 1px solid color-mix(in oklch, var(--primary) 40%, var(--hairline));
+	  box-shadow: var(--shadow-1);
+	  transition-property: box-shadow, transform;
+	  transition-duration: 0.3s;
+	  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	}
 
 /* Ensure all text inside user bubbles has correct color */
 .message-bubble-user * {
@@ -2129,10 +2134,12 @@ pre,
   animation: avatar-pulse-glow 2.5s ease-in-out 2;
 }
 
-/* Card Hover with Lift */
-.card-interactive {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+	/* Card Hover with Lift */
+	.card-interactive {
+	  transition-property: box-shadow, transform;
+	  transition-duration: 0.3s;
+	  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	}
 
 .card-interactive:hover {
   transform: translateY(-4px);
@@ -2492,7 +2499,9 @@ html {
 
 /* Smooth State Transitions */
 .smooth-all {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Modern Input Styling for Mobile */
