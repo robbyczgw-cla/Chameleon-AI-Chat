@@ -2015,25 +2015,23 @@ pre,
   border-color: var(--hairline-strong);
 }
 
-/* Mobile: Remove AI message bubbles for minimalist ChatGPT/Claude-style look */
-@media (max-width: 768px) {
-  .message-bubble-ai {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
+/* Remove AI message bubbles for minimalist ChatGPT/Claude-style look (mobile + desktop) */
+.message-bubble-ai {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
 
-  .message-bubble-ai::before {
-    display: none !important;
-  }
+.message-bubble-ai::before {
+  display: none !important;
+}
 
-  .message-bubble-ai:hover {
-    box-shadow: none !important;
-    transform: none !important;
-    border-color: transparent !important;
-  }
+.message-bubble-ai:hover {
+  box-shadow: none !important;
+  transform: none !important;
+  border-color: transparent !important;
 }
 
 /* User Message Bubble - gradient shimmer */
@@ -2416,15 +2414,7 @@ html {
   background-size: 200% 100%;
 }
 
-.message-bubble-ai {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.dark .message-bubble-ai {
-  background: rgba(30, 30, 40, 0.7);
-}
+/* AI bubbles removed for minimalist look - styles moved to line 2018 */
 
 /* Slow spin animation for loading avatar */
 @keyframes spin-slow {
