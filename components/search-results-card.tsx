@@ -63,15 +63,6 @@ export function SearchResultsCard({
 
   const l = labels[language]
 
-  // Get unique source domains for favicon display (use full results, not displayResults)
-  const uniqueDomains = Array.from(new Set(results.map(r => {
-    try {
-      return new URL(r.url).hostname.replace('www.', '')
-    } catch {
-      return r.url
-    }
-  }))).slice(0, 5) // Show max 5 unique domains
-
   return (
     <div className={cn(
       "rounded-lg border border-cyan-500/30 bg-cyan-500/10 overflow-hidden",
@@ -89,7 +80,7 @@ export function SearchResultsCard({
           <ChevronRight className="w-4 h-4 text-cyan-500 flex-shrink-0" />
         )}
         <FileSearch className="w-4 h-4 text-cyan-500 flex-shrink-0" />
-        <div className="flex-1 text-left min-w-0">
+        <div className="flex-1 text-left">
           <span className="text-xs sm:text-sm font-medium text-cyan-600 dark:text-cyan-400">
             {l.title}
           </span>
@@ -99,43 +90,7 @@ export function SearchResultsCard({
             </span>
           )}
         </div>
-
-        {/* Domain favicon badges - visible on all screens */}
-        {uniqueDomains.length > 0 && (
-          <div className="flex items-center gap-1 flex-shrink-0">
-            {uniqueDomains.slice(0, 3).map((domain, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-center w-5 h-5 rounded-full bg-white dark:bg-zinc-800 border border-cyan-500/20 overflow-hidden flex-shrink-0"
-                title={domain}
-              >
-                <img
-                  src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
-                  alt={domain}
-                  className="w-4 h-4 object-contain"
-                  loading="lazy"
-                  onError={(e) => {
-                    // Fallback to first letter if favicon fails to load
-                    const target = e.target as HTMLImageElement
-                    target.style.display = 'none'
-                    const parent = target.parentElement
-                    if (parent) {
-                      parent.classList.add('bg-cyan-500/20', 'text-[10px]', 'font-medium', 'text-cyan-600', 'dark:text-cyan-400')
-                      parent.textContent = domain.charAt(0).toUpperCase()
-                    }
-                  }}
-                />
-              </div>
-            ))}
-            {uniqueDomains.length > 3 && (
-              <span className="text-cyan-500/70 text-[10px] flex-shrink-0">
-                +{uniqueDomains.length - 3}
-              </span>
-            )}
-          </div>
-        )}
-
-        <span className="text-xs text-cyan-500/70 flex-shrink-0 hidden sm:inline">
+        <span className="text-xs text-cyan-500/70">
           {hasMore
             ? l.showingOf.replace('{count}', displayResults.length.toString()).replace('{total}', results.length.toString())
             : `${results.length} ${l.results}`}
@@ -178,14 +133,33 @@ export function SearchResultsCard({
                   </div>
                 )}
 
-                {/* Result Title */}
+                {/* Result Title with Favicon */}
                 <a
                   href={result.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex items-start gap-1.5 mb-0.5"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:underline line-clamp-2">
+                  {/* Favicon */}
+                  <div className="w-4 h-4 rounded flex-shrink-0 mt-0.5 overflow-hidden bg-white dark:bg-zinc-800 border border-cyan-500/10 flex items-center justify-center">
+                    <img
+                      src={`https://www.google.com/s2/favicons?domain=${(() => {
+                        try {
+                          return new URL(result.url).hostname.replace('www.', '')
+                        } catch {
+                          return result.url
+                        }
+                      })()}&sz=16`}
+                      alt=""
+                      className="w-3.5 h-3.5"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                      }}
+                    />
+                  </div>
+                  <span className="text-sm font-medium text-foreground group-hover:underline line-clamp-2 flex-1">
                     {result.title}
                   </span>
                   <ExternalLink className="w-3 h-3 text-cyan-500/50 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
