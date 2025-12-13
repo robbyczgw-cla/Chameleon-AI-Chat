@@ -134,7 +134,7 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
       {files.length > 0 && (
         <div
           className={cn(
-            "absolute bottom-full left-0 right-0 mb-3 p-3 bg-background/95 backdrop-blur-xl border border-border/60 rounded-xl shadow-lg transition-all",
+            "absolute bottom-full left-0 right-0 mb-3 p-3 bg-background/95 border border-border/60 rounded-xl shadow-lg transition-all",
             isDragging && "border-primary/50 bg-primary/5"
           )}
           onDrop={handleDrop}
