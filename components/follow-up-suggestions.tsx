@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Zap, Brain, Link2, Sparkles } from "lucide-react"
 import type { CategorizedFollowUp } from "@/lib/follow-up-parser"
 import { cn } from "@/lib/utils"
-import { useSettings } from "@/contexts/settings-context"
+// NOTE: We pass settings as a prop from the parent (ChatMessages) to avoid
+// context issues that can crash the component during fast re-renders
 
 interface FollowUpSuggestionsProps {
   suggestions?: string[]
   categorizedSuggestions?: CategorizedFollowUp[]
   onSelect: (suggestion: string) => void
+  showCategorized?: boolean // Pass from parent to avoid useSettings context issues
 }
 
 // Category-specific styling configuration
@@ -52,9 +54,8 @@ const categoryStyles = {
   },
 }
 
-export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSelect }: FollowUpSuggestionsProps) {
-  const { settings } = useSettings()
-  const showCategorized = settings.experimental?.showCategorizedFollowUps ?? false
+export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSelect, showCategorized = false }: FollowUpSuggestionsProps) {
+  // showCategorized is passed as a prop from parent to avoid useSettings() context crashes
 
   // Always show 2 items per category (6 total)
   const itemsPerCategory = 2

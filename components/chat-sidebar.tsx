@@ -73,12 +73,20 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
     }
   }, [chats])
 
-  // Build search index when chats change
+  // Build search index when chat count changes (NOT on content changes)
+  // CRITICAL FIX: Only rebuild when number of chats changes, not when streaming updates content
+  // This prevents massive CPU usage during streaming (was rebuilding 50+ times/second)
+  const chatCount = chats.length
+  const chatIds = useMemo(() => chats.map(c => c.id).join(','), [chats])
   useEffect(() => {
-    if (chats.length > 0) {
-      searchService.buildIndex(chats)
+    if (chatCount > 0) {
+      // Debounce index rebuild to prevent rapid rebuilds
+      const timer = setTimeout(() => {
+        searchService.buildIndex(chats)
+      }, 500) // Wait 500ms after last change before rebuilding
+      return () => clearTimeout(timer)
     }
-  }, [chats])
+  }, [chatIds, chatCount]) // Only trigger on chat add/remove, not content updates
 
   // Enhanced search: title + message content
   const filteredChats = useMemo(() => {
