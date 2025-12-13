@@ -2639,7 +2639,13 @@ html {
    Fixes 100% GPU utilization caused by infinite animations
    ========================================================================= */
 
-/* Special animation for loading indicators - NOT disabled because it's critical UX feedback */
+/* ==========================================================================
+   MESSAGE STATUS ANIMATIONS - CRITICAL UX FEEDBACK
+   These animations are NEVER disabled because they show the user something
+   is happening. All use !important to prevent any override.
+   ========================================================================== */
+
+/* Old status-blink - kept for compatibility */
 @keyframes status-blink {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.3; transform: scale(0.85); }
@@ -2647,6 +2653,93 @@ html {
 
 .animate-status-blink {
   animation: status-blink 0.8s ease-in-out infinite !important;
+}
+
+/* NEW: Message status container pulse - subtle border glow */
+@keyframes message-status-pulse {
+  0%, 100% {
+    border-color: hsl(var(--primary) / 0.25);
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+  50% {
+    border-color: hsl(var(--primary) / 0.5);
+    box-shadow: 0 0 12px 2px hsl(var(--primary) / 0.2);
+  }
+}
+
+.animate-message-status-pulse {
+  animation: message-status-pulse 1.5s ease-in-out infinite !important;
+  will-change: border-color, box-shadow !important;
+}
+
+/* NEW: Message status icon - rotation + scale bounce */
+@keyframes message-status-icon {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-15deg) scale(1.2); }
+  50% { transform: rotate(0deg) scale(1); }
+  75% { transform: rotate(15deg) scale(1.2); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+.animate-message-status-icon {
+  animation: message-status-icon 0.8s ease-in-out infinite !important;
+  will-change: transform !important;
+}
+
+/* NEW: Message status text - opacity pulse */
+@keyframes message-status-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-message-status-text {
+  animation: message-status-text 1s ease-in-out infinite !important;
+  will-change: opacity !important;
+}
+
+/* NEW: Message status dots - bouncing dots like typing indicator */
+@keyframes message-status-dot {
+  0%, 80%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-6px) scale(1.2);
+    opacity: 1;
+  }
+}
+
+.animate-message-status-dot {
+  animation: message-status-dot 1s ease-in-out infinite !important;
+  will-change: transform, opacity !important;
+}
+
+/* FORCE animations to work even with prefers-reduced-motion */
+/* Message status is CRITICAL UX - user MUST see something is happening */
+@media (prefers-reduced-motion: reduce) {
+  .animate-message-status-pulse,
+  .animate-message-status-icon,
+  .animate-message-status-text,
+  .animate-message-status-dot {
+    /* Keep animations but make them slower for reduced motion preference */
+    animation-duration: 2s !important;
+  }
+}
+
+/* FORCE animations on desktop too - never disable these */
+@media (min-width: 769px) {
+  .animate-message-status-pulse {
+    animation: message-status-pulse 1.5s ease-in-out infinite !important;
+  }
+  .animate-message-status-icon {
+    animation: message-status-icon 0.8s ease-in-out infinite !important;
+  }
+  .animate-message-status-text {
+    animation: message-status-text 1s ease-in-out infinite !important;
+  }
+  .animate-message-status-dot {
+    animation: message-status-dot 1s ease-in-out infinite !important;
+  }
 }
 
 /* Disable expensive infinite animations by default on desktop */

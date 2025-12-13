@@ -261,20 +261,19 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
       const phaseText = phaseMessages[currentPhase]?.[lang] || phaseMessages.thinking[lang]
 
       return (
-        <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-primary/10 border border-primary/25">
-          {/* Animated icon - uses custom animation class that's NOT disabled by GPU overrides */}
-          <Zap className={cn("w-4 h-4 text-primary flex-shrink-0", enableAnimations && "animate-status-blink")} />
-          <span className="text-sm text-foreground font-medium">
+        <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-primary/10 border border-primary/25 animate-message-status-pulse">
+          {/* Animated icon - ALWAYS animated with rotation */}
+          <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-message-status-icon" />
+          {/* Animated text - pulses to show activity */}
+          <span className="text-sm text-foreground font-medium animate-message-status-text">
             {phaseText}
           </span>
-          {/* Animated dots with staggered animation */}
-          {enableAnimations && (
-            <span className="flex gap-1 ml-auto">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-status-blink" />
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-status-blink" style={{ animationDelay: '0.33s' }} />
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-status-blink" style={{ animationDelay: '0.66s' }} />
-            </span>
-          )}
+          {/* Animated dots - ALWAYS shown, no condition */}
+          <span className="flex gap-1 ml-auto">
+            <span className="w-2 h-2 rounded-full bg-primary animate-message-status-dot" />
+            <span className="w-2 h-2 rounded-full bg-primary animate-message-status-dot" style={{ animationDelay: '0.2s' }} />
+            <span className="w-2 h-2 rounded-full bg-primary animate-message-status-dot" style={{ animationDelay: '0.4s' }} />
+          </span>
         </div>
       )
     }

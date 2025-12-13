@@ -1185,7 +1185,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   const hasContent = input.trim().length > 0 || attachedFiles.length > 0
 
   return (
-    <div className="bg-background p-2 md:p-4 border-t border-border/30 pb-[env(safe-area-inset-bottom,4px)] md:pb-4">
+    <div className="bg-background/80 backdrop-blur-sm p-2 md:p-4 border-t border-border/20 pb-[env(safe-area-inset-bottom,4px)] md:pb-4">
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
         {/* Main Input Container */}
         <div className="flex flex-col gap-1.5 md:gap-0">
@@ -1333,11 +1333,11 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
                 className={cn(
                   "min-h-[44px] md:min-h-[52px] max-h-[120px] md:max-h-[200px] resize-none text-sm sm:text-base rounded-xl",
                   "pr-3 md:pr-32",
-                  "bg-muted/20 border border-border/40",
+                  "bg-background border border-border/30",
                   "focus:border-primary/50 focus:ring-1 focus:ring-primary/20",
                   "transition-all duration-200",
                   "py-2.5 pl-3 md:pt-3 md:pb-3 md:pl-4",
-                  hasContent && "border-primary/30"
+                  hasContent && "border-primary/40"
                 )}
                 disabled={isChatLoading}
               />
