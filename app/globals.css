@@ -2641,12 +2641,12 @@ html {
 
 /* Special animation for loading indicators - NOT disabled because it's critical UX feedback */
 @keyframes status-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.85); }
 }
 
 .animate-status-blink {
-  animation: status-blink 1s ease-in-out infinite !important;
+  animation: status-blink 0.8s ease-in-out infinite !important;
 }
 
 /* Disable expensive infinite animations by default on desktop */
