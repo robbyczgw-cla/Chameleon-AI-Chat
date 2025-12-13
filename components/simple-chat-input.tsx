@@ -35,6 +35,7 @@ import { useFeatureFlags } from "@/hooks/use-feature-flags"
 import { haptics } from "@/lib/haptics"
 import { voiceService } from "@/lib/voice"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
+import { QuickModelPicker } from "@/components/quick-model-picker"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
