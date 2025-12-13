@@ -29,10 +29,10 @@ function CollapsibleSection({
   const [isOpen, setIsOpen] = useState(defaultOpen)
 
   return (
-    <div className="pt-2 border-t border-border/50">
+    <div className="pt-2 border-t border-border/50 overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center gap-1.5 text-left font-semibold text-muted-foreground mb-1 hover:text-foreground transition-colors"
+        className="w-full flex items-center gap-1.5 text-left font-semibold text-muted-foreground mb-1 hover:text-foreground transition-colors overflow-hidden"
       >
         {isOpen ? <ChevronDown className="h-3 w-3 shrink-0" /> : <ChevronRight className="h-3 w-3 shrink-0" />}
         <span className="flex items-center gap-2">
@@ -45,7 +45,7 @@ function CollapsibleSection({
         </span>
       </button>
       {isOpen && (
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 pl-5 animate-in fade-in-0 slide-in-from-top-1 duration-200">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 pl-5 animate-in fade-in-0 slide-in-from-top-1 duration-200 overflow-hidden">
           {children}
         </div>
       )}
@@ -114,8 +114,8 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
     : null
 
   return (
-    <div className="mt-3 p-3 rounded-lg border bg-muted/30 text-xs font-mono space-y-1">
-      <div className="font-semibold text-muted-foreground mb-2 flex items-center justify-between">
+    <div className="mt-3 p-3 rounded-lg border bg-muted/30 text-xs font-mono space-y-1 w-full max-w-full overflow-hidden">
+      <div className="font-semibold text-muted-foreground mb-2 flex items-center justify-between overflow-hidden">
         <span>📊 Detailed Stats</span>
         {cost && (
           <span className="text-green-600 dark:text-green-400 font-bold">
@@ -126,7 +126,7 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
 
       {/* Basic Token & Cost - Always visible */}
       {tokens && (
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 overflow-hidden">
           <StatRow label="Input" value={`${tokens.prompt.toLocaleString()} tokens`} />
           <StatRow label="Output" value={`${tokens.completion.toLocaleString()} tokens`} />
           <StatRow label="Total" value={`${tokens.total.toLocaleString()} tokens`} />

@@ -51,7 +51,7 @@ export function SearchSourcesBadge({
   }))).slice(0, 5) // Show max 5 unique domains
 
   return (
-    <div className="mt-3">
+    <div className="mt-3 w-full max-w-full overflow-hidden">
       {/* Compact badge - clickable to expand */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
@@ -59,7 +59,8 @@ export function SearchSourcesBadge({
           "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs",
           "bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30",
           "text-cyan-700 dark:text-cyan-300 transition-colors",
-          "active:scale-95"
+          "active:scale-95",
+          "max-w-full overflow-hidden"
         )}
       >
         <Search className="w-3.5 h-3.5" />

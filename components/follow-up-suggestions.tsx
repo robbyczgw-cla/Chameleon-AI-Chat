@@ -69,7 +69,7 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
     const categoryOrder: Array<'quick' | 'deep' | 'related'> = ['quick', 'deep', 'related']
 
     return (
-      <div className="mt-4 space-y-3">
+      <div className="mt-4 space-y-3 w-full max-w-full overflow-hidden">
         {categoryOrder.map((category, categoryIndex) => {
           const items = grouped[category]
           if (!items || items.length === 0) return null
@@ -82,6 +82,7 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
               key={category}
               className={cn(
                 "rounded-xl p-3 border border-transparent",
+                "w-full max-w-full overflow-hidden",
                 styles.containerBg,
                 "animate-in fade-in-50 slide-in-from-bottom-2"
               )}
@@ -147,8 +148,8 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
   if (!suggestions || suggestions.length === 0) return null
 
   return (
-    <div className="mt-4">
-      <div className="rounded-xl p-3 bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 border border-primary/10">
+    <div className="mt-4 w-full max-w-full overflow-hidden">
+      <div className="rounded-xl p-3 bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 border border-primary/10 w-full max-w-full overflow-hidden">
         {/* Header */}
         <div className="flex items-center gap-2 mb-2.5">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
