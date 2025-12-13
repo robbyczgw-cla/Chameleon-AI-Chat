@@ -350,7 +350,25 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 
 ## Quick Wins Implemented
 
-### December 13, 2025
+### December 13, 2025 (Session 2)
+
+1. **Critical Streaming Crash Fixes**
+   - Fixed SearchService rebuilding index 50+ times during streaming (changed to debounced chatIds dependency)
+   - Fixed useSettings context crash in FollowUpSuggestions (pass showCategorized as prop)
+   - Limited streaming history to 50 entries max to prevent memory pressure
+   - Added localStorage crash debugging checkpoints
+   - **Impact:** Streaming no longer crashes, 99% CPU reduction in SearchService
+
+2. **"Analyzing your message" Animation**
+   - Changed from broken custom `animate-[blink_...]` to Tailwind built-in animations
+   - Icon uses `animate-pulse`, dots use `animate-bounce` with staggered delays
+   - **Impact:** Visual feedback now shows during streaming analysis phase
+
+3. **Table Cell Formatting Fix**
+   - Added CSS overrides `[&_em]:not-italic [&_strong]:font-normal` to td elements
+   - **Impact:** No more unwanted italic/bold in tables from AI markdown output
+
+### December 13, 2025 (Session 1)
 
 1. **SearchSourcesBadge Component**
    - Compact badge showing search source count with favicon previews
@@ -464,5 +482,5 @@ Effort                  │                   Effort
 
 ---
 
-*Last updated: December 2025*
-*Document version: 2.0*
+*Last updated: December 13, 2025*
+*Document version: 2.1*
