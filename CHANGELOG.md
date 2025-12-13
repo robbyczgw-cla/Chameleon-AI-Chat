@@ -6,6 +6,44 @@ This project is in **beta stage** (v0.10-beta). Core features are stable with ex
 
 ---
 
+## [0.10.2-beta] - 2025-12-13
+
+### Search UI Enhancements
+
+**SearchSourcesBadge Component (NEW!)**
+- **Compact Badge** - Shows search source count with favicon previews in chat messages
+- **Click-to-Expand** - Opens detailed SearchResultsCard with all results
+- **Mobile-Optimized** - Reduced padding (`p-2 sm:p-3`) to prevent overflow on mobile
+- **Visual Feedback** - Cyan accent colors with hover effects
+- Files: `components/search-sources-badge.tsx`, `components/search-results-card.tsx`
+
+**Search Results Improvements:**
+- **Individual Favicons** - Each search result now displays its domain favicon (16x16px) next to the title
+- **Better Text Contrast** - Changed from cyan-tinted text to semantic colors (`text-foreground`, `text-muted-foreground`)
+- **Tighter Spacing** - Reduced spacing between title and URL (`mb-1` → `mb-0.5`)
+- **Mobile Overflow Fix** - Added `w-full max-w-full overflow-hidden` constraints
+- **Reduced Padding** - Header padding `p-2.5 sm:p-3` → `p-2 sm:p-2.5` for mobile
+
+**Search Toast Removal:**
+- Removed 5 redundant search toast notifications across 2 files:
+  - `simple-chat-input.tsx`: Removed manual search start/complete toasts (lines 590, 726, 870, 877)
+  - `chat-input.tsx`: Removed provider-specific search toast (line 568)
+- SearchSourcesBadge now provides all search feedback
+
+**Favicon Integration:**
+- Uses Google's favicon service API (`https://www.google.com/s2/favicons?domain=${domain}&sz=16`)
+- Graceful fallback when favicons fail to load
+- Inline domain extraction with error handling
+- Displays next to each individual search result (not in header)
+
+**Mobile UI Optimizations:**
+- **Overflow Fixes** - All bubble components (search results, streaming history, follow-ups, stats) now fit properly on mobile
+- **Reduced Padding** - Changed from `p-3` to `p-2 sm:p-3` across multiple components
+- **Overflow Constraints** - Added `overflow-hidden` to prevent horizontal scroll
+- Files: `components/message-status.tsx`, `components/follow-up-suggestions.tsx`, `components/message-stats.tsx`
+
+---
+
 ## [0.10.1-beta] - 2025-12-10
 
 ### HiFi Mode Improvements
