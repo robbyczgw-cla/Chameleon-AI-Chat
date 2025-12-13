@@ -159,7 +159,7 @@ export function ChatHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-14 md:h-16 items-center justify-between border-b border-hairline bg-background/70 backdrop-blur-xl px-3 sm:px-4 md:px-5 shadow-apple-1 mobile-header-glass">
+      <header className="sticky top-0 z-30 flex h-14 md:h-16 items-center justify-between border-b border-hairline bg-background/92 px-3 sm:px-4 md:px-5 shadow-apple-1 mobile-header-glass">
         {/* Mobile: Modern minimalistic header */}
         <div className="flex md:hidden items-center justify-between w-full">
           {/* Left: Sidebar toggle */}

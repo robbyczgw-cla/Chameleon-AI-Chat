@@ -52,7 +52,7 @@ export function MobileBottomNav({
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 md:hidden">
       {/* Solid bottom navigation - connected to bottom edge */}
-      <div className="relative flex items-center justify-around px-2 py-2 bg-background/95 backdrop-blur-xl border-t border-border/50 pb-[max(8px,env(safe-area-inset-bottom))]">
+      <div className="relative flex items-center justify-around px-2 py-2 bg-background/95 border-t border-border/50 pb-[max(8px,env(safe-area-inset-bottom))]">
 
         {/* Chats */}
         <button

@@ -2376,28 +2376,25 @@ html {
    Modern Mobile UI - Glassmorphism & 2024/2025 Design Trends
    ========================================================================= */
 
-/* Mobile Navigation Glass Effect - GPU-OPTIMIZED: Reduced blur */
-.mobile-nav-glass {
-  background: var(--surface-subtle);
-  backdrop-filter: blur(10px) saturate(140%);
-  -webkit-backdrop-filter: blur(10px) saturate(140%);
-}
-
-.dark .mobile-nav-glass {
-  background: var(--surface-subtle);
-  backdrop-filter: blur(10px) saturate(140%);
-  -webkit-backdrop-filter: blur(10px) saturate(140%);
-}
-
-/* Mobile Header Glass Effect - GPU-OPTIMIZED: Reduced blur */
-.mobile-header-glass {
-  backdrop-filter: blur(10px) saturate(140%);
-  -webkit-backdrop-filter: blur(10px) saturate(140%);
-}
-
 @media (max-width: 768px) {
+  /* Mobile Navigation Glass Effect - GPU-OPTIMIZED: Reduced blur */
+  .mobile-nav-glass {
+    background: var(--surface-subtle);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+  }
+
+  .dark .mobile-nav-glass {
+    background: var(--surface-subtle);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+  }
+
+  /* Mobile Header Glass Effect - GPU-OPTIMIZED: Reduced blur */
   .mobile-header-glass {
     background: var(--surface-subtle);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
   }
 
   .dark .mobile-header-glass {

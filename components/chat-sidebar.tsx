@@ -263,10 +263,10 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
 
   return (
     <div
-      className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[300px] max-w-[300px] flex-col rounded-none md:rounded-none border border-hairline shadow-none bg-background/60 backdrop-blur-xl overflow-y-auto overflow-x-hidden"
+      className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[300px] max-w-[300px] flex-col rounded-none md:rounded-none border border-hairline shadow-none bg-background/92 overflow-y-auto overflow-x-hidden"
       style={{ width: '300px', maxWidth: '300px' }}
     >
-      <div className="flex items-center gap-3 border-b border-hairline p-4 md:p-5 bg-background/50 backdrop-blur-xl">
+      <div className="flex items-center gap-3 border-b border-hairline p-4 md:p-5 bg-background/92">
         {onClose && (
           <Button variant="ghost" size="icon" className="md:hidden h-10 w-10 hover-scale smooth-transition rounded-xl shrink-0 hover:bg-primary/10" onClick={onClose} title="Close">
             <X className="h-5 w-5" />
