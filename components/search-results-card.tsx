@@ -66,12 +66,13 @@ export function SearchResultsCard({
   return (
     <div className={cn(
       "rounded-lg border border-cyan-500/30 bg-cyan-500/10 overflow-hidden",
+      "w-full max-w-full", // Prevent mobile overflow
       className
     )}>
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center gap-2 p-2.5 sm:p-3 hover:bg-cyan-500/20 transition-colors"
+        className="w-full flex items-center gap-2 p-2.5 sm:p-3 hover:bg-cyan-500/20 transition-colors overflow-hidden"
       >
         {isExpanded ? (
           <ChevronDown className="w-4 h-4 text-cyan-500 flex-shrink-0" />
@@ -114,11 +115,11 @@ export function SearchResultsCard({
           )}
 
           {/* Results */}
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto overflow-x-hidden">
             {displayResults.map((result, index) => (
               <div
                 key={`${result.url}-${index}`}
-                className="p-2.5 sm:p-3 border-b border-cyan-500/10 last:border-b-0 hover:bg-cyan-500/5 transition-colors"
+                className="p-2.5 sm:p-3 border-b border-cyan-500/10 last:border-b-0 hover:bg-cyan-500/5 transition-colors overflow-hidden"
               >
                 {/* Result Image */}
                 {showImages && result.image && (
