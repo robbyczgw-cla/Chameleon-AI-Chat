@@ -114,7 +114,7 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
     : null
 
   return (
-    <div className="mt-3 p-3 rounded-lg border bg-muted/30 text-xs font-mono space-y-1 w-full max-w-full overflow-hidden">
+    <div className="mt-3 p-2 sm:p-3 rounded-lg border bg-muted/30 text-xs font-mono space-y-1 w-full max-w-full overflow-hidden">
       <div className="font-semibold text-muted-foreground mb-2 flex items-center justify-between overflow-hidden">
         <span>📊 Detailed Stats</span>
         {cost && (
