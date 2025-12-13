@@ -260,22 +260,19 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
       }
       const phaseText = phaseMessages[currentPhase]?.[lang] || phaseMessages.thinking[lang]
 
-      // FIXED: Use correct animation classes from globals.css
-      // - animate-message-status-pulse = border glow (for container)
-      // - animate-message-status-text = opacity pulse (for text/icon)
-      // - animate-message-status-icon = rotation bounce (for icon)
-      // - animate-message-status-dot = bouncing dots
+      // SIMPLE: Just a visually distinct box - NO animation, just solid colors
+      // The colored background and border clearly show the AI is working
       return (
-        <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-primary/10 border border-primary/25 animate-message-status-pulse">
-          <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-message-status-icon" />
-          <span className="text-sm text-foreground font-medium animate-message-status-text">
+        <div className="flex items-center gap-2.5 p-3 rounded-xl bg-amber-500/20 border-2 border-amber-500/50 shadow-lg">
+          <div className="w-3 h-3 rounded-full bg-amber-500" />
+          <span className="text-sm text-foreground font-semibold">
             {phaseText}
           </span>
-          <span className="flex gap-1 ml-auto">
-            <span className="w-2 h-2 rounded-full bg-primary animate-message-status-dot" />
-            <span className="w-2 h-2 rounded-full bg-primary animate-message-status-dot" style={{ animationDelay: '0.2s' }} />
-            <span className="w-2 h-2 rounded-full bg-primary animate-message-status-dot" style={{ animationDelay: '0.4s' }} />
-          </span>
+          <div className="flex gap-1.5 ml-auto">
+            <div className="w-2 h-2 rounded-full bg-amber-500/80" />
+            <div className="w-2 h-2 rounded-full bg-amber-500/60" />
+            <div className="w-2 h-2 rounded-full bg-amber-500/40" />
+          </div>
         </div>
       )
     }

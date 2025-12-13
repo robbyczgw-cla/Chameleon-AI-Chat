@@ -96,7 +96,7 @@ export function QuickPersonaPicker() {
           {!currentPersona && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
           <User className="h-4 w-4 opacity-60 group-hover:opacity-100" />
           <span className={cn(
-            "font-medium text-sm group-hover:text-accent-foreground group-focus:text-accent-foreground",
+            "font-medium text-sm group-hover:!text-accent-foreground",
             !currentPersona ? "text-primary" : "text-foreground"
           )}>
             Standard (no persona)
@@ -129,14 +129,14 @@ export function QuickPersonaPicker() {
                     <span className="text-base shrink-0">{persona.emoji}</span>
                   )}
                   <span className={cn(
-                    "font-medium text-sm truncate group-hover:text-accent-foreground group-focus:text-accent-foreground",
+                    "font-medium text-sm truncate group-hover:!text-accent-foreground",
                     isSelected ? "text-primary" : "text-foreground"
                   )}>
                     {persona.name}
                   </span>
                 </div>
               </div>
-              <span className="text-xs text-muted-foreground leading-tight pl-5 group-hover:text-accent-foreground group-focus:text-accent-foreground">
+              <span className="text-xs leading-tight pl-5 text-muted-foreground group-hover:!text-accent-foreground">
                 {getPersonaDescription(persona.id, settings.language)}
               </span>
             </DropdownMenuItem>

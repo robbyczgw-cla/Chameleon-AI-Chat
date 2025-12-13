@@ -566,87 +566,86 @@
 }
 
 /* ============================================================================
-   CLAUDE GREY THEME - Modern slate grey dark theme
-   Sophisticated slate tones with subtle blue undertones for elegant chat bubbles
+   CLAUDE GREY THEME - Simple neutral grey dark theme
+   Pure grey tones - NO blue, NO tint, just clean grey
    ============================================================================ */
 .claude-grey {
-  /* Deep slate background - modern and sleek */
-  --background: #0F172A;
-  --foreground: #F8FAFC;
-  /* Slightly lighter slate for cards */
-  --card: #1E293B;
-  --card-foreground: #F8FAFC;
-  --popover: #1E293B;
-  --popover-foreground: #F8FAFC;
-  /* Slate blue-grey primary - elegant with subtle color for chat bubbles */
-  --primary: #64748B;
-  --primary-foreground: #F8FAFC;
-  --secondary: #334155;
-  --secondary-foreground: #F8FAFC;
-  --muted: #1E293B;
-  --muted-foreground: #94A3B8;
-  /* Subtle blue accent for gradients - makes user bubbles more interesting */
-  --accent: #475569;
-  --accent-foreground: #F8FAFC;
+  /* Pure dark grey background - simple and clean */
+  --background: #1A1A1A;
+  --foreground: #F5F5F5;
+  /* Slightly lighter grey for cards */
+  --card: #262626;
+  --card-foreground: #F5F5F5;
+  --popover: #262626;
+  --popover-foreground: #F5F5F5;
+  /* Neutral grey primary - for chat bubbles */
+  --primary: #737373;
+  --primary-foreground: #FFFFFF;
+  --secondary: #333333;
+  --secondary-foreground: #F5F5F5;
+  --muted: #262626;
+  --muted-foreground: #A3A3A3;
+  /* Grey accent */
+  --accent: #404040;
+  --accent-foreground: #F5F5F5;
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  /* Subtle slate borders */
-  --border: #334155;
-  --input: #334155;
-  --ring: #64748B;
-  /* Chart colors - muted but colorful palette */
-  --chart-1: #64748B;
+  /* Grey borders */
+  --border: #404040;
+  --input: #404040;
+  --ring: #737373;
+  /* Chart colors */
+  --chart-1: #737373;
   --chart-2: #6EE7B7;
   --chart-3: #93C5FD;
   --chart-4: #C4B5FD;
   --chart-5: #FCD34D;
-  /* Sidebar - matching slate tones */
-  --sidebar: #0F172A;
-  --sidebar-foreground: #F8FAFC;
-  --sidebar-primary: #64748B;
-  --sidebar-primary-foreground: #F8FAFC;
-  --sidebar-accent: #334155;
-  --sidebar-accent-foreground: #F8FAFC;
-  --sidebar-border: #334155;
-  --sidebar-ring: #64748B;
+  /* Sidebar - matching grey */
+  --sidebar: #1A1A1A;
+  --sidebar-foreground: #F5F5F5;
+  --sidebar-primary: #737373;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #333333;
+  --sidebar-accent-foreground: #F5F5F5;
+  --sidebar-border: #404040;
+  --sidebar-ring: #737373;
 }
 
-/* Claude Grey Light variant - soft slate-tinted light theme */
+/* Claude Grey Light variant - simple light grey */
 .claude-grey.light,
 .light .claude-grey {
-  /* Subtle slate-tinted cream background - NOT pure white */
-  --background: #F8FAFC;
-  --foreground: #1E293B;
+  --background: #F5F5F5;
+  --foreground: #1A1A1A;
   --card: #FFFFFF;
-  --card-foreground: #1E293B;
+  --card-foreground: #1A1A1A;
   --popover: #FFFFFF;
-  --popover-foreground: #1E293B;
-  --primary: #475569;
-  --primary-foreground: #F8FAFC;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #1E293B;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #E2E8F0;
-  --accent-foreground: #1E293B;
+  --popover-foreground: #1A1A1A;
+  --primary: #525252;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E5E5E5;
+  --secondary-foreground: #1A1A1A;
+  --muted: #E5E5E5;
+  --muted-foreground: #737373;
+  --accent: #D4D4D4;
+  --accent-foreground: #1A1A1A;
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  --border: #E2E8F0;
-  --input: #E2E8F0;
-  --ring: #94A3B8;
-  --chart-1: #475569;
+  --border: #D4D4D4;
+  --input: #D4D4D4;
+  --ring: #A3A3A3;
+  --chart-1: #525252;
   --chart-2: #10B981;
   --chart-3: #3B82F6;
   --chart-4: #8B5CF6;
   --chart-5: #F59E0B;
-  --sidebar: #F8FAFC;
-  --sidebar-foreground: #1E293B;
-  --sidebar-primary: #475569;
-  --sidebar-primary-foreground: #F8FAFC;
-  --sidebar-accent: #F1F5F9;
-  --sidebar-accent-foreground: #1E293B;
-  --sidebar-border: #E2E8F0;
-  --sidebar-ring: #94A3B8;
+  --sidebar: #F5F5F5;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #525252;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #E5E5E5;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #D4D4D4;
+  --sidebar-ring: #A3A3A3;
 }
 
 @theme inline {
@@ -2674,6 +2673,17 @@ html {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
   transition-duration: 0.3s;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* GLOBAL: Ensure form elements use correct theme colors */
+input, textarea, select, option {
+  color: var(--foreground) !important;
+  background-color: var(--background) !important;
+}
+
+select option {
+  background-color: var(--popover) !important;
+  color: var(--popover-foreground) !important;
 }
 
 /* Modern Input Styling for Mobile */
