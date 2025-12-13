@@ -6,6 +6,42 @@ This project is in **beta stage** (v0.10-beta). Core features are stable with ex
 
 ---
 
+## [0.10.4-beta] - 2025-12-13
+
+### 🚨 Streaming Crash Fix (Critical)
+
+**Root Cause #1: SearchService rebuilding 50+ times per response**
+- Every streaming chunk updated `chats` state, triggering full index rebuild
+- Fixed by changing dependency from `[chats]` to `[chatIds, chatCount]` with 500ms debounce
+- **File:** `components/chat-sidebar.tsx`
+
+**Root Cause #2: useSettings context crash during fast re-renders**
+- `FollowUpSuggestions` used `useSettings()` which crashed when React unmounted/remounted rapidly
+- Fixed by passing `showCategorized` as prop from parent instead of using hook
+- **Files:** `components/follow-up-suggestions.tsx`, `components/chat-messages.tsx`
+
+**Root Cause #3: Streaming history memory pressure**
+- Unlimited history entries grew large during long responses
+- Limited to 50 entries max and wrapped `setChats` in try-catch
+- Added localStorage crash debugging checkpoints
+- **File:** `components/chat-input.tsx`
+
+### ✨ UI Enhancements
+
+**"Analyzing your message" Animation**
+- Added subtle animation to streaming indicator
+- Uses Tailwind's built-in `animate-pulse` (icon) and `animate-bounce` (staggered dots)
+- GPU-friendly opacity-only animations
+- **File:** `components/message-status.tsx`
+
+**Table Cell Formatting Fix**
+- Disabled italic/bold formatting inside table cells
+- AI models sometimes output `*text*` which rendered as unwanted italics
+- Added CSS overrides: `[&_em]:not-italic [&_strong]:font-normal`
+- **File:** `components/chat-messages.tsx`
+
+---
+
 ## [0.10.3-beta] - 2025-12-13
 
 ### 🚨 Critical Performance & Crash Fixes
