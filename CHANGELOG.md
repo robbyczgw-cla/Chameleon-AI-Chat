@@ -6,6 +6,60 @@ This project is in **beta stage** (v0.10-beta). Core features are stable with ex
 
 ---
 
+## [0.10.3-beta] - 2025-12-13
+
+### 🚨 Critical Performance & Crash Fixes
+
+**GPU Utilization Fix (90%+ → <10%)**
+- **CRITICAL:** Disabled ALL backdrop-blur effects on desktop (was 10px, still too heavy)
+- Mobile retains blur (8px) where it's hardware-accelerated
+- Affects: `.surface`, `.surface-subtle`, `.surface-strong`, `.glass`, `.glass-*`, `.panel-elevated`
+- **File:** `app/globals.css`
+
+**Animation Crash Fixes:**
+- Disabled `animate-spin` on desktop (was causing GPU layer creation during streaming)
+- Disabled `animate-pulse` and `animate-ping` on desktop
+- Removed spinning gradient ring from loading avatar
+- Removed `animate-pulse` from streaming skeleton
+- **Files:** `app/globals.css`, `components/chat-messages.tsx`
+
+**Hover Transform Fixes:**
+- Disabled ALL hover transforms on desktop that cause GPU layer creation
+- Affected classes: `.hover-lift`, `.hover-glow`, `.hover-scale`, `.card-interactive`
+- Disabled message bubble hover transforms (`.message-bubble-user`, `.message-bubble-ai`)
+- Disabled `.tap-scale`, `.persona-avatar-glow` animations
+- Removed `transform` from `.smooth-transition` transition-property
+- **File:** `app/globals.css`
+
+**Inline Backdrop-Filter Removal:**
+- Removed `blur(12px)` from cookie consent banner
+- Removed `backdrop-blur` from legal footer
+- **Files:** `components/cookie-consent-banner.tsx`, `components/legal-footer.tsx`
+
+---
+
+### 🚨 Streaming Crash Fix (Critical)
+
+**Root Cause:** App crashed during streaming because React state was updated on every token (50-100+ times/second), causing memory pressure, render queue overflow, and GPU overload.
+
+**Throttled State Updates (chat-input.tsx):**
+- Reduced state updates from 100+/sec to max 20/sec (every 50ms)
+- Content accumulates in variable, only flushes periodically
+- Final flush on stream complete ensures no content lost
+- This is the main crash fix
+
+**Removed Crash-Causing Console.log (chat-messages.tsx):**
+- Removed 5 `console.log` statements that logged entire `streamingHistory` arrays
+- `streamingHistory` can be 1000+ entries during long responses
+- Logging large objects crashes some browsers (caused "console.log(...) is not a function" error)
+
+**Memoized URL/Date Parsing (search-results-card.tsx):**
+- Added `getHostname()` and `formatDate()` helper functions
+- Previously created new `URL`/`Date` objects on every render
+- With 8+ search results and rapid streaming updates = 24+ allocations/render
+
+---
+
 ## [0.10.2-beta] - 2025-12-13
 
 ### Search UI Enhancements
