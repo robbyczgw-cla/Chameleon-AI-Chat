@@ -4,7 +4,7 @@ import Link from "next/link"
 
 export function LegalFooter() {
   return (
-    <footer className="relative border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
+    <footer className="relative border-t bg-background z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">

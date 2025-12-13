@@ -746,13 +746,26 @@
     box-shadow: var(--shadow-2);
   }
 
-  /* GPU-OPTIMIZED: Reduced blur from 18px to 10px, saturate from 180% to 140% */
+  /* GPU-OPTIMIZED: Backdrop-blur DISABLED on desktop - causes 90%+ GPU usage */
+  /* Mobile-only blur (mobile has hardware-accelerated blur) */
   @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
     .surface-subtle,
     .surface,
     .surface-strong {
-      -webkit-backdrop-filter: blur(10px) saturate(140%);
-      backdrop-filter: blur(10px) saturate(140%);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /* Only enable blur on mobile where it's hardware-accelerated */
+  @media (max-width: 768px) {
+    @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+      .surface-subtle,
+      .surface,
+      .surface-strong {
+        -webkit-backdrop-filter: blur(8px) saturate(130%);
+        backdrop-filter: blur(8px) saturate(130%);
+      }
     }
   }
 
@@ -1161,14 +1174,28 @@
     box-shadow: var(--shadow-1);
   }
 
-  /* GPU-OPTIMIZED: Reduced blur from 18px to 10px, saturate from 180% to 140% */
+  /* GPU-OPTIMIZED: Backdrop-blur DISABLED on desktop - causes 90%+ GPU usage */
+  /* Mobile-only blur (mobile has hardware-accelerated blur) */
   @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
     .glass,
     .glass-strong,
     .glass-subtle,
     .panel-elevated {
-      -webkit-backdrop-filter: blur(10px) saturate(140%);
-      backdrop-filter: blur(10px) saturate(140%);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /* Only enable blur on mobile where it's hardware-accelerated */
+  @media (max-width: 768px) {
+    @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+      .glass,
+      .glass-strong,
+      .glass-subtle,
+      .panel-elevated {
+        -webkit-backdrop-filter: blur(8px) saturate(130%);
+        backdrop-filter: blur(8px) saturate(130%);
+      }
     }
   }
 
@@ -2616,8 +2643,17 @@ html {
     opacity: 0;
   }
 
-  /* Keep animate-spin but limit to when truly loading */
-  /* Spinner still works, but ping/pulse don't run continuously */
+  /* GPU-CRITICAL: Disable animate-spin on desktop to prevent streaming crashes */
+  /* Spinners use GPU compositing layers and cause crashes during rapid streaming */
+  .animate-spin {
+    animation: none !important;
+  }
+
+  /* Static indicator for loaders instead of spinning */
+  .animate-spin::before {
+    content: "";
+    opacity: 0.7;
+  }
 }
 
 /* Performance mode - disable ALL animations */
@@ -2696,6 +2732,36 @@ html {
   .hover\:scale-105:hover,
   .hover\:scale-110:hover,
   .hover\:scale-\[1\.02\]:hover {
+    transform: none !important;
+  }
+
+  /* GPU-CRITICAL: Disable ALL hover transforms that cause GPU layer creation */
+  .hover-lift:hover,
+  .hover-glow:hover,
+  .hover-scale:hover,
+  .card-interactive:hover {
+    transform: none !important;
+  }
+
+  /* GPU-CRITICAL: Disable message bubble hover transforms */
+  .message-bubble-user:hover,
+  .message-bubble-ai:hover {
+    transform: none !important;
+    animation: none !important;
+  }
+
+  /* GPU-CRITICAL: Disable persona avatar glow animation on desktop */
+  .persona-avatar-glow:hover {
+    animation: none !important;
+  }
+
+  /* GPU-CRITICAL: Remove transform from smooth-transition */
+  .smooth-transition {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow !important;
+  }
+
+  /* GPU-CRITICAL: Disable tap-scale on desktop */
+  .tap-scale:active {
     transform: none !important;
   }
 }
