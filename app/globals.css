@@ -2889,3 +2889,103 @@ html {
   transition-property: color, background-color, opacity !important;
   transition-duration: 100ms !important;
 }
+
+/* ==========================================================================
+   CRITICAL: FINAL OVERRIDE FOR MESSAGE STATUS ANIMATIONS
+   This MUST be at the very end of the file to override ALL other rules
+   including the global * selector and prefers-reduced-motion rules.
+   These animations are ESSENTIAL UX feedback - users MUST see activity.
+   ========================================================================== */
+
+/* Override the global * animation killer */
+.animate-message-status-pulse,
+.animate-message-status-icon,
+.animate-message-status-text,
+.animate-message-status-dot {
+  animation-duration: 1s !important;
+  animation-iteration-count: infinite !important;
+  animation-timing-function: ease-in-out !important;
+  animation-play-state: running !important;
+}
+
+.animate-message-status-pulse {
+  animation-name: message-status-pulse !important;
+  animation-duration: 1.5s !important;
+}
+
+.animate-message-status-icon {
+  animation-name: message-status-icon !important;
+  animation-duration: 0.8s !important;
+}
+
+.animate-message-status-text {
+  animation-name: message-status-text !important;
+  animation-duration: 1s !important;
+}
+
+.animate-message-status-dot {
+  animation-name: message-status-dot !important;
+  animation-duration: 1s !important;
+}
+
+/* FORCE override even with prefers-reduced-motion - this is critical UX */
+@media (prefers-reduced-motion: reduce) {
+  .animate-message-status-pulse,
+  .animate-message-status-icon,
+  .animate-message-status-text,
+  .animate-message-status-dot {
+    animation-duration: 2s !important;
+    animation-iteration-count: infinite !important;
+    animation-play-state: running !important;
+  }
+
+  .animate-message-status-pulse {
+    animation-name: message-status-pulse !important;
+  }
+
+  .animate-message-status-icon {
+    animation-name: message-status-icon !important;
+  }
+
+  .animate-message-status-text {
+    animation-name: message-status-text !important;
+  }
+
+  .animate-message-status-dot {
+    animation-name: message-status-dot !important;
+  }
+}
+
+/* FORCE override in performance-mode too */
+.performance-mode .animate-message-status-pulse,
+.performance-mode .animate-message-status-icon,
+.performance-mode .animate-message-status-text,
+.performance-mode .animate-message-status-dot,
+.ultra-performance-mode .animate-message-status-pulse,
+.ultra-performance-mode .animate-message-status-icon,
+.ultra-performance-mode .animate-message-status-text,
+.ultra-performance-mode .animate-message-status-dot {
+  animation-duration: 1.5s !important;
+  animation-iteration-count: infinite !important;
+  animation-play-state: running !important;
+}
+
+.performance-mode .animate-message-status-pulse,
+.ultra-performance-mode .animate-message-status-pulse {
+  animation-name: message-status-pulse !important;
+}
+
+.performance-mode .animate-message-status-icon,
+.ultra-performance-mode .animate-message-status-icon {
+  animation-name: message-status-icon !important;
+}
+
+.performance-mode .animate-message-status-text,
+.ultra-performance-mode .animate-message-status-text {
+  animation-name: message-status-text !important;
+}
+
+.performance-mode .animate-message-status-dot,
+.ultra-performance-mode .animate-message-status-dot {
+  animation-name: message-status-dot !important;
+}
