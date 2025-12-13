@@ -565,6 +565,90 @@
   --sidebar-ring: #E8956E;
 }
 
+/* ============================================================================
+   CLAUDE GREY THEME - Modern slate grey dark theme
+   Sophisticated slate tones with subtle blue undertones for elegant chat bubbles
+   ============================================================================ */
+.claude-grey {
+  /* Deep slate background - modern and sleek */
+  --background: #0F172A;
+  --foreground: #F8FAFC;
+  /* Slightly lighter slate for cards */
+  --card: #1E293B;
+  --card-foreground: #F8FAFC;
+  --popover: #1E293B;
+  --popover-foreground: #F8FAFC;
+  /* Slate blue-grey primary - elegant with subtle color for chat bubbles */
+  --primary: #64748B;
+  --primary-foreground: #F8FAFC;
+  --secondary: #334155;
+  --secondary-foreground: #F8FAFC;
+  --muted: #1E293B;
+  --muted-foreground: #94A3B8;
+  /* Subtle blue accent for gradients - makes user bubbles more interesting */
+  --accent: #475569;
+  --accent-foreground: #F8FAFC;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  /* Subtle slate borders */
+  --border: #334155;
+  --input: #334155;
+  --ring: #64748B;
+  /* Chart colors - muted but colorful palette */
+  --chart-1: #64748B;
+  --chart-2: #6EE7B7;
+  --chart-3: #93C5FD;
+  --chart-4: #C4B5FD;
+  --chart-5: #FCD34D;
+  /* Sidebar - matching slate tones */
+  --sidebar: #0F172A;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #64748B;
+  --sidebar-primary-foreground: #F8FAFC;
+  --sidebar-accent: #334155;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: #334155;
+  --sidebar-ring: #64748B;
+}
+
+/* Claude Grey Light variant - soft slate-tinted light theme */
+.claude-grey.light,
+.light .claude-grey {
+  /* Subtle slate-tinted cream background - NOT pure white */
+  --background: #F8FAFC;
+  --foreground: #1E293B;
+  --card: #FFFFFF;
+  --card-foreground: #1E293B;
+  --popover: #FFFFFF;
+  --popover-foreground: #1E293B;
+  --primary: #475569;
+  --primary-foreground: #F8FAFC;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #1E293B;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #E2E8F0;
+  --accent-foreground: #1E293B;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #94A3B8;
+  --chart-1: #475569;
+  --chart-2: #10B981;
+  --chart-3: #3B82F6;
+  --chart-4: #8B5CF6;
+  --chart-5: #F59E0B;
+  --sidebar: #F8FAFC;
+  --sidebar-foreground: #1E293B;
+  --sidebar-primary: #475569;
+  --sidebar-primary-foreground: #F8FAFC;
+  --sidebar-accent: #F1F5F9;
+  --sidebar-accent-foreground: #1E293B;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #94A3B8;
+}
+
 @theme inline {
   --font-sans: "Inter", "SF Pro Display", -apple-system, "Public Sans", "Neue Haas Grotesk", "Satoshi", "Geist", "Geist Fallback", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "IBM Plex Mono", "Soehne Mono Buch", "Fira Code", "Geist Mono", "Geist Mono Fallback", monospace;

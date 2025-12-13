@@ -89,16 +89,14 @@ export function QuickPersonaPicker() {
         <DropdownMenuItem
           onClick={handleClearPersona}
           className={cn(
-            "flex items-center gap-2 py-2.5 cursor-pointer transition-colors",
-            "hover:bg-accent hover:text-accent-foreground",
-            "[&:hover_span]:text-accent-foreground [&:focus_span]:text-accent-foreground",
+            "group flex items-center gap-2 py-2.5 cursor-pointer",
             !currentPersona && "bg-primary/10"
           )}
         >
           {!currentPersona && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
-          <User className="h-4 w-4 opacity-60" />
+          <User className="h-4 w-4 opacity-60 group-hover:opacity-100" />
           <span className={cn(
-            "font-medium text-sm transition-colors",
+            "font-medium text-sm group-hover:text-accent-foreground group-focus:text-accent-foreground",
             !currentPersona ? "text-primary" : "text-foreground"
           )}>
             Standard (no persona)
@@ -116,7 +114,7 @@ export function QuickPersonaPicker() {
               key={persona.id}
               onClick={() => handlePersonaChange(persona)}
               className={cn(
-                "flex flex-col items-start gap-1 py-2.5 cursor-pointer",
+                "group flex flex-col items-start gap-1 py-2.5 cursor-pointer",
                 isSelected && "bg-primary/10"
               )}
             >
@@ -131,14 +129,14 @@ export function QuickPersonaPicker() {
                     <span className="text-base shrink-0">{persona.emoji}</span>
                   )}
                   <span className={cn(
-                    "font-medium text-sm truncate",
+                    "font-medium text-sm truncate group-hover:text-accent-foreground group-focus:text-accent-foreground",
                     isSelected ? "text-primary" : "text-foreground"
                   )}>
                     {persona.name}
                   </span>
                 </div>
               </div>
-              <span className="text-xs text-muted-foreground leading-tight pl-5">
+              <span className="text-xs text-muted-foreground leading-tight pl-5 group-hover:text-accent-foreground group-focus:text-accent-foreground">
                 {getPersonaDescription(persona.id, settings.language)}
               </span>
             </DropdownMenuItem>
