@@ -260,17 +260,20 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
       const phaseText = phaseMessages[currentPhase]?.[lang] || phaseMessages.thinking[lang]
 
       return (
-        <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/15 border border-primary/30">
-          {/* GPU-friendly blink animation using opacity only */}
-          <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-pulse" />
-          <span className="text-sm text-foreground">
+        <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-primary/10 border border-primary/25">
+          {/* Animated icon container with subtle glow */}
+          <div className="relative flex-shrink-0">
+            <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" style={{ animationDuration: '1.5s' }} />
+            <Zap className="relative w-4 h-4 text-primary animate-pulse" style={{ animationDuration: '0.8s' }} />
+          </div>
+          <span className="text-sm text-foreground font-medium">
             {phaseText}
           </span>
-          {/* Small pulsing dots to indicate activity */}
+          {/* Animated dots with staggered fade */}
           <span className="flex gap-1 ml-auto">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }} />
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms', animationDuration: '1s' }} />
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms', animationDuration: '1s' }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-primary/80 animate-pulse" style={{ animationDelay: '0ms', animationDuration: '0.6s' }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-primary/80 animate-pulse" style={{ animationDelay: '200ms', animationDuration: '0.6s' }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-primary/80 animate-pulse" style={{ animationDelay: '400ms', animationDuration: '0.6s' }} />
           </span>
         </div>
       )

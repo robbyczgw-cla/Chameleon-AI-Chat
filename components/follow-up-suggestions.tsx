@@ -99,18 +99,19 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
                 onClick={() => onSelect(suggestion)}
                 className={cn(
                   "group h-auto py-2 px-3.5 rounded-xl",
-                  "bg-background/80 dark:bg-background/40",
-                  "border-border/40 hover:border-primary/50",
-                  "hover:bg-accent hover:scale-[1.02] hover:shadow-md",
+                  "bg-muted/30 dark:bg-muted/20",
+                  "border border-border/50 hover:border-primary/40",
+                  "hover:bg-primary/5 dark:hover:bg-primary/10",
+                  "shadow-sm hover:shadow-md",
                   "transition-all duration-200 ease-out",
                   "animate-in fade-in-50 slide-in-from-left-3"
                 )}
                 style={{ animationDelay: `${index * 60}ms` }}
               >
-                <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                <span className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">
                   {suggestion}
                 </span>
-                <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-primary opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-primary/50 group-hover:text-primary opacity-60 -translate-x-0.5 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
               </Button>
             ))}
           </div>
@@ -177,7 +178,7 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
                     className={cn(
                       "group h-auto py-2 px-3.5 rounded-xl bg-white/80 dark:bg-black/20",
                       "transition-all duration-200 ease-out",
-                      "hover:scale-[1.02] hover:shadow-md",
+                      "shadow-sm hover:shadow-md",
                       "animate-in fade-in-50 slide-in-from-left-3",
                       styles.buttonBorder,
                       styles.buttonHover
@@ -186,14 +187,14 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
                   >
                     <span className={cn(
                       "text-xs font-medium transition-colors",
-                      "text-muted-foreground group-hover:text-foreground",
+                      "text-foreground",
                       `group-hover:${styles.buttonText}`
                     )}>
                       {item.text}
                     </span>
                     <ArrowRight className={cn(
                       "ml-1.5 h-3.5 w-3.5 transition-all duration-200",
-                      "opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0",
+                      "opacity-50 -translate-x-0.5 group-hover:opacity-100 group-hover:translate-x-0",
                       styles.iconColor
                     )} />
                   </Button>
@@ -233,16 +234,16 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
                 "group h-auto py-2 px-3.5 rounded-xl",
                 "bg-white/80 dark:bg-black/20",
                 "border-primary/20 hover:border-primary/50",
-                "hover:bg-primary/5 hover:scale-[1.02] hover:shadow-md",
+                "hover:bg-primary/5 shadow-sm hover:shadow-md",
                 "transition-all duration-200 ease-out",
                 "animate-in fade-in-50 slide-in-from-left-3"
               )}
               style={{ animationDelay: `${index * 60}ms` }}
             >
-              <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+              <span className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">
                 {suggestion}
               </span>
-              <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-primary opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+              <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-primary/50 group-hover:text-primary opacity-50 -translate-x-0.5 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
             </Button>
           ))}
         </div>
