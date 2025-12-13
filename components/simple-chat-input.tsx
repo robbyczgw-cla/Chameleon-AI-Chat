@@ -685,6 +685,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           console.log("[Simple Chat] 🔍 Full search response:", JSON.stringify(searchResults, null, 2))
 
           // Add search results to streaming history for SearchSourcesBadge display
+          console.log("[Simple Chat] 🐛 DEBUG - Adding searchResults to streaming history:", {
+            searchQuery: input.trim(),
+            searchProvider: searchProvider,
+            resultsCount: searchResults.results.length,
+            results: searchResults.results
+          })
           addStreamingHistoryEntry({
             phase: "searching",
             searchQuery: input.trim(),
@@ -693,6 +699,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
             resultCount: searchResults.results.length,
             description: `Found ${searchResults.results.length} results via ${searchProvider}`
           })
+          console.log("[Simple Chat] 🐛 DEBUG - After addStreamingHistoryEntry, check if it was added")
 
           let searchContext = `Websuchergebnisse für: "${input.trim()}"\n\n`
 

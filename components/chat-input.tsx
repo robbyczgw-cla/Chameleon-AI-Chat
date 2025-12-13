@@ -965,7 +965,8 @@ export function ChatInput() {
           })
           // Only add to streaming history for significant events (NOT every reasoning chunk)
           // Reasoning content updates the live display but doesn't spam history
-          if (details.phase || details.searchQuery || details.toolName) {
+          // CRITICAL: Also check for searchResults to capture the final search results data
+          if (details.phase || details.searchQuery || details.toolName || details.searchResults) {
             addStreamingHistoryEntry({
               phase: details.phase as any || "searching",
               toolName: details.toolName,
