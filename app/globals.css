@@ -2376,23 +2376,23 @@ html {
    Modern Mobile UI - Glassmorphism & 2024/2025 Design Trends
    ========================================================================= */
 
-/* Mobile Navigation Glass Effect */
+/* Mobile Navigation Glass Effect - GPU-OPTIMIZED: Reduced blur */
 .mobile-nav-glass {
   background: var(--surface-subtle);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
 }
 
 .dark .mobile-nav-glass {
   background: var(--surface-subtle);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
 }
 
-/* Mobile Header Glass Effect */
+/* Mobile Header Glass Effect - GPU-OPTIMIZED: Reduced blur */
 .mobile-header-glass {
-  backdrop-filter: blur(16px) saturate(150%);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
 }
 
 @media (max-width: 768px) {
@@ -2669,4 +2669,38 @@ html {
     backdrop-filter: blur(4px) !important;
     -webkit-backdrop-filter: blur(4px) !important;
   }
+}
+
+/* =========================================================================
+   TRANSITION-ALL OPTIMIZATION
+   The "transition-all" class causes GPU to monitor ALL CSS properties
+   for changes on every hover. This override limits it to common properties.
+   ========================================================================= */
+
+@media (min-width: 769px) {
+  /* Override Tailwind's transition-all to only transition common properties */
+  .transition-all {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow !important;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition-duration: 150ms !important;
+  }
+
+  /* Disable hover:scale effects on desktop - they cause GPU layer creation on every hover */
+  /* Scale effects are more suited for touch interfaces */
+  .hover\:scale-105:hover,
+  .hover\:scale-110:hover,
+  .hover\:scale-\[1\.02\]:hover {
+    transform: none !important;
+  }
+}
+
+/* Performance mode - disable hover scale effects entirely */
+.performance-mode .hover\:scale-105:hover,
+.performance-mode .hover\:scale-110:hover {
+  transform: none !important;
+}
+
+.performance-mode .transition-all {
+  transition-property: color, background-color, opacity !important;
+  transition-duration: 100ms !important;
 }
