@@ -344,6 +344,11 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
     if (theme !== "light") {
       html.classList.add(theme)
     }
+    // Dark-based themes need the "dark" class for Tailwind dark: variants
+    const darkThemes = ["dark", "claude-grey"]
+    if (darkThemes.includes(theme)) {
+      html.classList.add("dark")
+    }
     localStorage.setItem("chameleon-theme", theme)
   }
 
