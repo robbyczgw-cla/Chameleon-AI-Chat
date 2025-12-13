@@ -1185,240 +1185,159 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   const hasContent = input.trim().length > 0 || attachedFiles.length > 0
 
   return (
-    <div className="bg-background/80 backdrop-blur-sm p-2 md:p-4 border-t border-border/20 pb-[env(safe-area-inset-bottom,4px)] md:pb-4">
+    <div className="p-3 md:p-4 pb-[env(safe-area-inset-bottom,8px)] md:pb-4">
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
-        {/* Main Input Container */}
-        <div className="flex flex-col gap-1.5 md:gap-0">
-          {/* Mobile: Action buttons row above textarea */}
-          <div className="flex md:hidden items-center gap-1 px-0.5 pb-1">
-            {/* Persona picker - hidden for HiFi (they have dedicated persona) */}
-            {!isHifi && <QuickPersonaPicker />}
-            {/* Action buttons */}
-            <div className="flex items-center gap-0.5 ml-auto">
-              {/* Web search - hidden for HiFi (tool calling handles this automatically) */}
-              {!isHifi && (
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={webSearchEnabled ? "default" : "ghost"}
-                  className={cn(
-                    "h-8 w-8 rounded-lg",
-                    webSearchEnabled
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground"
-                  )}
-                  onClick={() => {
-                    haptics.trigger('selection')
-                    setWebSearchEnabled(!webSearchEnabled)
-                  }}
-                >
-                  <Globe className="h-3.5 w-3.5" />
-                </Button>
-              )}
+        {/* Unified Input Container - Clean dark rounded box */}
+        <div className="bg-muted/50 dark:bg-muted/30 rounded-2xl border border-border/40 overflow-hidden">
+          {/* Slash Command Suggestions */}
+          {isAdvancedMode && features.showSlashCommands && commandSuggestions.length > 0 && (
+            <div className="absolute bottom-full left-0 mb-2 w-full max-w-md bg-popover border border-border rounded-lg shadow-lg overflow-hidden z-50">
+              <div className="p-2 border-b border-border bg-muted/50">
+                <div className="text-xs font-medium text-muted-foreground">
+                  Slash Commands ({commandSuggestions.length})
+                </div>
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {commandSuggestions.map((cmd, index) => (
+                  <button
+                    key={cmd.command}
+                    type="button"
+                    onClick={() => selectCommand(cmd)}
+                    className={cn(
+                      "w-full text-left px-3 py-2 hover:bg-accent transition-colors",
+                      index === selectedSuggestionIndex && "bg-accent"
+                    )}
+                  >
+                    <div className="font-mono font-medium text-sm">{cmd.command}</div>
+                    <div className="text-xs text-muted-foreground">{cmd.description}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Textarea - Clean, no border */}
+          <Textarea
+            ref={textareaRef}
+            id="simple-chat-input"
+            name="message"
+            autoComplete="off"
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value)
+              saveDraft(e.target.value)
+            }}
+            onKeyDown={handleKeyDown}
+            placeholder={getTranslation("inputPlaceholder", language)}
+            className="min-h-[44px] max-h-[200px] resize-none text-base bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-3"
+            disabled={isChatLoading}
+          />
+
+          {/* Bottom Toolbar */}
+          <div className="flex items-center justify-between px-2 pb-2 pt-1">
+            {/* Left: Action buttons */}
+            <div className="flex items-center gap-1">
               {/* File upload */}
               <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-              {/* Image mode */}
+
+              {/* Settings/toggles button */}
               <Button
                 type="button"
                 size="icon"
-                variant={imageMode !== "off" ? "default" : "ghost"}
+                variant="ghost"
                 className={cn(
-                  "h-8 w-8 rounded-lg relative",
-                  imageMode !== "off"
-                    ? "bg-gradient-to-br from-primary to-accent text-primary-foreground"
-                    : "text-muted-foreground"
+                  "h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted",
+                  (webSearchEnabled || reasoningEnabled || imageMode !== "off") && "text-primary"
                 )}
                 onClick={() => {
                   haptics.trigger('selection')
-                  const nextState = imageMode === "off" ? "normal" : imageMode === "normal" ? "high" : "off"
-                  setImageMode(nextState)
+                  // Toggle web search as primary action
+                  setWebSearchEnabled(!webSearchEnabled)
                 }}
+                title={webSearchEnabled ? "Web search ON" : "Web search OFF"}
               >
-                <Image className="h-3.5 w-3.5" />
-                {imageMode === "high" && (
-                  <span className="absolute -top-0.5 -right-0.5 text-[7px] font-bold bg-yellow-400 text-yellow-900 rounded-full w-3 h-3 flex items-center justify-center">+</span>
-                )}
+                <Globe className="h-4 w-4" />
               </Button>
-              {/* Reasoning (if supported) */}
-              {modelSupportsReasoning && (
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={reasoningEnabled ? "default" : "ghost"}
-                  className={cn(
-                    "h-8 w-8 rounded-lg",
-                    reasoningEnabled
-                      ? "bg-amber-500 text-white"
-                      : "text-muted-foreground"
-                  )}
-                  onClick={() => {
-                    haptics.trigger('selection')
-                    setReasoningEnabled(!reasoningEnabled)
-                  }}
-                >
-                  <Lightbulb className="h-3.5 w-3.5" />
-                </Button>
-              )}
-              {/* Voice input */}
+
+              {/* Voice/Mic */}
               <Button
                 type="button"
                 size="icon"
-                variant={isListening ? "default" : "ghost"}
+                variant="ghost"
                 className={cn(
-                  "h-8 w-8 rounded-lg",
+                  "h-9 w-9 rounded-lg",
                   isListening
-                    ? "bg-red-500 text-white animate-pulse"
-                    : "text-muted-foreground"
+                    ? "bg-red-500 text-white"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
                 onClick={handleVoice}
               >
-                {isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+                {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              </Button>
+
+              {/* Image mode (optional) */}
+              {imageMode !== "off" && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="h-9 w-9 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white"
+                  onClick={() => setImageMode("off")}
+                >
+                  <Image className="h-4 w-4" />
+                </Button>
+              )}
+
+              {/* Reasoning indicator (if enabled) */}
+              {reasoningEnabled && modelSupportsReasoning && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="h-9 w-9 rounded-lg bg-amber-500 text-white"
+                  onClick={() => setReasoningEnabled(false)}
+                >
+                  <Lightbulb className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+
+            {/* Right: Model picker + Send button */}
+            <div className="flex items-center gap-2">
+              {/* Model picker - compact */}
+              {!isHifi && <QuickModelPicker />}
+
+              {/* Send Button - Rounded square with arrow */}
+              <Button
+                type={isChatLoading ? "button" : "submit"}
+                onClick={isChatLoading ? stopGeneration : undefined}
+                disabled={!isChatLoading && !hasContent}
+                className={cn(
+                  "h-9 w-9 rounded-lg transition-all duration-200 flex-shrink-0",
+                  isChatLoading
+                    ? "bg-red-500 hover:bg-red-600 text-white"
+                    : hasContent
+                      ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+                      : "bg-muted/80 text-muted-foreground",
+                  "active:scale-95"
+                )}
+                size="icon"
+              >
+                {isChatLoading ? (
+                  <Square className="h-4 w-4" />
+                ) : (
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 19V5M5 12l7-7 7 7" />
+                  </svg>
+                )}
               </Button>
             </div>
           </div>
-
-          {/* Input row with send button */}
-          <div className="flex items-end gap-2 md:gap-3">
-            <div className="flex-1 min-w-0 relative">
-              {/* Slash Command Suggestions (Advanced Mode Only with feature flag) */}
-              {isAdvancedMode && features.showSlashCommands && commandSuggestions.length > 0 && (
-                <div className="absolute bottom-full left-0 mb-2 w-full max-w-md bg-popover border border-border rounded-lg shadow-lg overflow-hidden z-50">
-                  <div className="p-2 border-b border-border bg-muted/50">
-                    <div className="text-xs font-medium text-muted-foreground">
-                      Slash Commands ({commandSuggestions.length})
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      Tab/Enter to select • Esc to dismiss
-                    </div>
-                  </div>
-                  <div className="max-h-64 overflow-y-auto">
-                    {commandSuggestions.map((cmd, index) => (
-                      <button
-                        key={cmd.command}
-                        type="button"
-                        onClick={() => selectCommand(cmd)}
-                        className={cn(
-                          "w-full text-left px-3 py-2 hover:bg-accent transition-colors",
-                          index === selectedSuggestionIndex && "bg-accent"
-                        )}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="font-mono font-medium text-sm">{cmd.command}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                              {cmd.description}
-                            </div>
-                          </div>
-                          <div className="text-xs text-muted-foreground px-2 py-0.5 bg-muted rounded">
-                            {cmd.category}
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <Textarea
-                ref={textareaRef}
-                id="simple-chat-input"
-                name="message"
-                autoComplete="off"
-                value={input}
-                onChange={(e) => {
-                  setInput(e.target.value)
-                  saveDraft(e.target.value) // Auto-save draft
-                }}
-                onKeyDown={handleKeyDown}
-                placeholder={getTranslation("inputPlaceholder", language)}
-                className={cn(
-                  "min-h-[44px] md:min-h-[52px] max-h-[120px] md:max-h-[200px] resize-none text-sm sm:text-base rounded-xl",
-                  "pr-3 md:pr-32",
-                  "bg-background border border-border/30",
-                  "focus:border-primary/50 focus:ring-1 focus:ring-primary/20",
-                  "transition-all duration-200",
-                  "py-2.5 pl-3 md:pt-3 md:pb-3 md:pl-4",
-                  hasContent && "border-primary/40"
-                )}
-                disabled={isChatLoading}
-              />
-              {/* Desktop: Action Buttons inside textarea - hidden on mobile */}
-              <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 right-3 items-center gap-2">
-                <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-                {modelSupportsReasoning && (
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant={reasoningEnabled ? "default" : "ghost"}
-                    className={cn(
-                      "h-8 w-8 rounded-lg transition-all",
-                      reasoningEnabled ? "bg-amber-500 hover:bg-amber-600 text-white" : "text-muted-foreground hover:text-foreground"
-                    )}
-                    onClick={() => setReasoningEnabled(!reasoningEnabled)}
-                    title={reasoningEnabled ? "Reasoning enabled" : "Enable reasoning"}
-                  >
-                    <Lightbulb className="h-4 w-4" />
-                  </Button>
-                )}
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={webSearchEnabled ? "default" : "ghost"}
-                  className={cn(
-                    "h-8 w-8 rounded-lg transition-all",
-                    webSearchEnabled ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                  )}
-                  onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                  title={webSearchEnabled ? getTranslation("webSearchEnabled", language) : getTranslation("webSearchDisabled", language)}
-                >
-                  <Globe className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={imageMode !== "off" ? "default" : "ghost"}
-                  className={cn(
-                    "h-8 w-8 rounded-lg transition-all relative",
-                    imageMode !== "off"
-                      ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                  onClick={() => {
-                    haptics.trigger('selection')
-                    const nextState = imageMode === "off" ? "normal" : imageMode === "normal" ? "high" : "off"
-                    setImageMode(nextState)
-                  }}
-                  title={imageMode === "off" ? "Enable image generation" : imageMode === "normal" ? "Click for high quality" : "Disable image mode"}
-                >
-                  <Image className="h-4 w-4" />
-                  {imageMode === "high" && (
-                    <span className="absolute -top-0.5 -right-0.5 text-[8px] font-bold bg-yellow-400 text-yellow-900 rounded-full w-3.5 h-3.5 flex items-center justify-center">+</span>
-                  )}
-                </Button>
-              </div>
-            </div>
-            {/* Send Button */}
-            <Button
-              type={isChatLoading ? "button" : "submit"}
-              onClick={isChatLoading ? stopGeneration : undefined}
-              disabled={!isChatLoading && !hasContent}
-              className={cn(
-                "h-10 w-10 md:h-12 md:w-12 rounded-xl transition-all duration-200 flex-shrink-0",
-                isChatLoading
-                  ? "bg-red-500 hover:bg-red-600 text-white animate-pulse"
-                  : hasContent
-                    ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                    : "bg-muted text-muted-foreground",
-                "active:scale-95"
-              )}
-              size="icon"
-            >
-              {isChatLoading ? <Square className="h-4 w-4 md:h-5 md:w-5" /> : <Send className="h-4 w-4 md:h-5 md:w-5" />}
-            </Button>
-          </div>
         </div>
+
         {/* Context Window Meter - Only show in advanced mode */}
         {features.showContextMeter && (
-          <div className="mt-1.5 flex justify-end">
+          <div className="mt-2 flex justify-end">
             <ContextWindowMeter compact />
           </div>
         )}
