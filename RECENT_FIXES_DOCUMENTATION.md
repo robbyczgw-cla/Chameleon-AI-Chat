@@ -999,5 +999,298 @@ lib/
 
 ---
 
+## 9. Chat Input Redesign (Claude-Style)
+
+**Commit**: `ecfc00e`
+
+**Problem**: Chat input had separate textarea and buttons, didn't match modern chat UI patterns.
+
+**Solution**: Unified container design inspired by Claude's interface.
+
+### Design Changes
+
+#### Before
+```
+┌──────────────────────────────────────┐
+│ [Persona] [Model]     [🌐] [📎] [🎤] │  <- Row above
+├──────────────────────────────────────┤
+│ Message...              [icons] [➤] │  <- Textarea with embedded buttons
+└──────────────────────────────────────┘
+```
+
+#### After
+```
+┌──────────────────────────────────────┐
+│ Message...                           │  <- Clean textarea, no border
+├──────────────────────────────────────┤
+│ [+] [🌐] [🎤]        [Model ▼] [↑]  │  <- Bottom toolbar
+└──────────────────────────────────────┘
+```
+
+### Files Changed
+
+#### `components/simple-chat-input.tsx`
+
+**Container**: Changed from separate border-top area to unified rounded box:
+```tsx
+// BEFORE:
+<div className="bg-background/80 backdrop-blur-sm p-2 md:p-4 border-t border-border/20">
+  <Textarea className="bg-background border border-border/30 rounded-xl" />
+
+// AFTER:
+<div className="p-3 md:p-4 pb-[env(safe-area-inset-bottom,8px)] md:pb-4">
+  <div className="bg-muted/50 dark:bg-muted/30 rounded-2xl border border-border/40 overflow-hidden">
+    <Textarea className="bg-transparent border-0 focus:ring-0 focus:outline-none" />
+```
+
+**Toolbar Layout**: Moved from embedded buttons to bottom row:
+```tsx
+{/* Bottom Toolbar */}
+<div className="flex items-center justify-between px-2 pb-2 pt-1">
+  {/* Left: Action buttons */}
+  <div className="flex items-center gap-1">
+    <FileUpload />           {/* + icon */}
+    <Button><Globe /></Button> {/* Web search */}
+    <Button><Mic /></Button>   {/* Voice */}
+  </div>
+
+  {/* Right: Model picker + Send */}
+  <div className="flex items-center gap-2">
+    <QuickModelPicker />
+    <Button>↑</Button>  {/* Send arrow */}
+  </div>
+</div>
+```
+
+**Send Button**: Changed from `<Send>` icon to up-arrow SVG:
+```tsx
+// Custom up-arrow icon matching Claude's style
+<svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+  <path d="M12 19V5M5 12l7-7 7 7" />
+</svg>
+```
+
+#### `components/file-upload.tsx`
+
+**Icon Change**: Paperclip → Plus:
+```tsx
+// BEFORE:
+import { Paperclip, Upload, Loader2 } from "lucide-react"
+<Paperclip className="h-3.5 w-3.5" />
+
+// AFTER:
+import { Plus, Upload, Loader2 } from "lucide-react"
+<Plus className="h-4 w-4" />
+```
+
+**Button Style**: Added border:
+```tsx
+className="h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all border border-border/50"
+```
+
+---
+
+## 10. Claude Theme Implementation
+
+**Commit**: `ecfc00e`
+
+**Problem**: No warm, professional theme option. "Modern Light" was too cold/blue.
+
+**Solution**: Created "Claude" theme with warm terracotta/cream colors.
+
+### Theme Definition
+
+#### `app/globals.css` (Lines 479-566)
+
+**Light Mode**:
+```css
+.claude {
+  /* Warm cream background */
+  --background: #FAF9F7;
+  --foreground: #1A1612;
+
+  /* Signature Terracotta */
+  --primary: #D97756;
+  --primary-foreground: #FFFFFF;
+
+  /* Warm grey secondaries */
+  --secondary: #F5F3F0;
+  --muted: #F0EDEA;
+  --muted-foreground: #78716C;
+
+  /* Subtle warm grey borders */
+  --border: #E7E5E4;
+  --ring: #D97756;
+}
+```
+
+**Dark Mode**:
+```css
+.claude.dark, .dark .claude {
+  /* Deep warm charcoal */
+  --background: #1C1917;
+  --foreground: #F5F5F4;
+
+  /* Lighter terracotta for dark */
+  --primary: #E8956E;
+  --primary-foreground: #1C1917;
+
+  /* Warm grey surfaces */
+  --card: #262220;
+  --muted: #292524;
+  --border: #3D3835;
+}
+```
+
+### Color Palette
+
+| Element | Light | Dark |
+|---------|-------|------|
+| Background | `#FAF9F7` (warm cream) | `#1C1917` (warm charcoal) |
+| Foreground | `#1A1612` (dark warm grey) | `#F5F5F4` (light warm grey) |
+| Primary | `#D97756` (terracotta) | `#E8956E` (lighter terracotta) |
+| Muted | `#F0EDEA` | `#292524` |
+| Border | `#E7E5E4` | `#3D3835` |
+
+### Theme References Updated
+
+**Files changed to replace `modern-light` with `claude`**:
+- `app/page.tsx` (line 153)
+- `components/settings-dialog.tsx` (lines 218, 413)
+- `components/simple-settings-dialog.tsx` (lines 471, 860)
+- `components/simple-mode-onboarding.tsx` (lines 302, 343, 453)
+
+---
+
+## 11. Message Status Animation Fix (SIMPLIFIED)
+
+**Commit**: `ecfc00e`
+
+**Problem**: CSS animations for "Analyzing your message..." status were being overridden by global animation killers in `globals.css`:
+- `.performance-mode * { animation-duration: 0.01ms !important; }`
+- `@media (prefers-reduced-motion) { * { animation-duration: 0.01ms !important; } }`
+
+**Previous attempts**: Added `!important` overrides, `:not()` selectors, media query re-enables - all failed due to CSS cascade complexity.
+
+**Solution**: Inject CSS keyframes directly into the component using a `<style>` tag. This bypasses all external CSS overrides.
+
+### Implementation
+
+#### `components/message-status.tsx` (Lines 263-282)
+
+```tsx
+// Simple inline animation using CSS keyframes injected directly
+return (
+  <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-primary/10 border border-primary/25">
+    {/* Inline keyframes - can't be overridden by external CSS */}
+    <style>{`
+      @keyframes statusPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+      @keyframes statusBounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
+      .status-pulse { animation: statusPulse 1.5s ease-in-out infinite; }
+      .status-dot { animation: statusBounce 1.2s ease-in-out infinite; }
+    `}</style>
+
+    {/* Icon with pulse */}
+    <Zap className="w-4 h-4 text-primary flex-shrink-0 status-pulse" />
+
+    {/* Text with pulse */}
+    <span className="text-sm text-foreground font-medium status-pulse">
+      {phaseText}
+    </span>
+
+    {/* Bouncing dots */}
+    <span className="flex gap-1 ml-auto">
+      <span className="w-2 h-2 rounded-full bg-primary status-dot" />
+      <span className="w-2 h-2 rounded-full bg-primary status-dot" style={{ animationDelay: '0.2s' }} />
+      <span className="w-2 h-2 rounded-full bg-primary status-dot" style={{ animationDelay: '0.4s' }} />
+    </span>
+  </div>
+)
+```
+
+### Why This Works
+
+1. **Inline `<style>` tag** creates a new stylesheet in the DOM
+2. **Class names** (`status-pulse`, `status-dot`) are unique and not targeted by global overrides
+3. **Keyframes** are defined locally, not in globals.css
+4. **No external CSS specificity battles** - the animations are self-contained
+5. **Works with `prefers-reduced-motion`** - the style tag is always rendered
+
+### Alternative: Modify Global Selectors
+
+If you prefer keeping animations in globals.css, add `:not()` exclusions:
+
+```css
+/* In globals.css - exclude status animation classes */
+.performance-mode *:not(.status-pulse):not(.status-dot) {
+  animation-duration: 0.01ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *:not(.status-pulse):not(.status-dot) {
+    animation-duration: 0.01ms !important;
+  }
+}
+```
+
+---
+
+## 12. Dropdown Menu Hover Text Visibility
+
+**Commit**: `ecfc00e`
+
+**Problem**: Text in dropdown menu items was becoming unreadable when hovered (light text on light background).
+
+**Solution**: Added explicit hover text color overrides to dropdown-menu.tsx.
+
+### Files Changed
+
+#### `components/ui/dropdown-menu.tsx`
+
+**DropdownMenuItem** (Lines 76-91):
+```tsx
+className={cn(
+  // Base styles
+  "relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none",
+
+  // Hover and focus states - EXPLICIT text color
+  "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+
+  // Force ALL nested text to be readable
+  "[&:hover_span]:!text-accent-foreground [&:focus_span]:!text-accent-foreground",
+  "[&:hover_p]:!text-accent-foreground [&:focus_p]:!text-accent-foreground",
+
+  // SVG icons also change color
+  "[&_svg:not([class*='text-'])]:text-muted-foreground",
+  "[&:hover_svg:not([class*='text-'])]:!text-accent-foreground",
+
+  className,
+)}
+```
+
+**Key selectors**:
+- `[&:hover_span]:!text-accent-foreground` - All `<span>` children turn accent-foreground on hover
+- `[&:hover_p]:!text-accent-foreground` - All `<p>` children too
+- `[&:hover_svg:not([class*='text-'])]:!text-accent-foreground` - SVGs without explicit text color
+
+**Same pattern applied to**:
+- `DropdownMenuCheckboxItem`
+- `DropdownMenuRadioItem`
+- `DropdownMenuSubTrigger`
+
+---
+
+## Summary of All Changes in This Session
+
+| Feature | File(s) | Solution |
+|---------|---------|----------|
+| Chat Input Redesign | `simple-chat-input.tsx`, `file-upload.tsx` | Unified container, bottom toolbar, up-arrow send |
+| Claude Theme | `globals.css`, 5 component files | Warm terracotta (#D97756) + cream colors |
+| Status Animation | `message-status.tsx` | Inline `<style>` tag with keyframes |
+| Dropdown Hover | `dropdown-menu.tsx` | `[&:hover_span]:!text-accent-foreground` selectors |
+| File Upload Icon | `file-upload.tsx` | Changed Paperclip → Plus |
+
+---
+
 *Last updated: 2025-12-13*
-*Commits: 39130ef, ecfcedf, e9cc4c7, bfc7339, ecd2190, e784dd6, 5372d9f, 1a9bd3a, 3dd01f4*
+*Commits: 39130ef, ecfcedf, e9cc4c7, bfc7339, ecd2190, e784dd6, 5372d9f, 1a9bd3a, 3dd01f4, ecfc00e*
