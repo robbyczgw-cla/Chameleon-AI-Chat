@@ -2639,6 +2639,16 @@ html {
    Fixes 100% GPU utilization caused by infinite animations
    ========================================================================= */
 
+/* Special animation for loading indicators - NOT disabled because it's critical UX feedback */
+@keyframes status-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-status-blink {
+  animation: status-blink 1s ease-in-out infinite !important;
+}
+
 /* Disable expensive infinite animations by default on desktop */
 @media (min-width: 769px) {
   /* Override Tailwind's animate-pulse - use subtle opacity instead of continuous */

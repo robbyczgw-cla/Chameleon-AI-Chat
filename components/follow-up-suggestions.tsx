@@ -98,20 +98,21 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
                 size="sm"
                 onClick={() => onSelect(suggestion)}
                 className={cn(
-                  "group h-auto py-2 px-3.5 rounded-xl",
+                  "h-auto py-2 px-3.5 rounded-xl",
                   "bg-muted/30 dark:bg-muted/20",
                   "border border-border/50 hover:border-primary/40",
                   "hover:bg-primary/5 dark:hover:bg-primary/10",
                   "shadow-sm hover:shadow-md",
                   "transition-all duration-200 ease-out",
-                  "animate-in fade-in-50 slide-in-from-left-3"
+                  "animate-in fade-in-50 slide-in-from-left-3",
+                  "[&:hover_span]:text-primary [&:hover_svg]:text-primary [&:hover_svg]:opacity-100 [&:hover_svg]:translate-x-0"
                 )}
                 style={{ animationDelay: `${index * 60}ms` }}
               >
-                <span className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">
+                <span className="text-xs font-medium text-foreground transition-colors">
                   {suggestion}
                 </span>
-                <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-primary/50 group-hover:text-primary opacity-60 -translate-x-0.5 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-primary/50 opacity-60 -translate-x-0.5 transition-all duration-200" />
               </Button>
             ))}
           </div>
@@ -176,25 +177,22 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
                     size="sm"
                     onClick={() => onSelect(item.text)}
                     className={cn(
-                      "group h-auto py-2 px-3.5 rounded-xl bg-white/80 dark:bg-black/20",
+                      "h-auto py-2 px-3.5 rounded-xl bg-white/80 dark:bg-black/20",
                       "transition-all duration-200 ease-out",
                       "shadow-sm hover:shadow-md",
                       "animate-in fade-in-50 slide-in-from-left-3",
+                      "[&:hover_span]:text-current [&:hover_svg]:opacity-100 [&:hover_svg]:translate-x-0",
                       styles.buttonBorder,
                       styles.buttonHover
                     )}
                     style={{ animationDelay: `${(categoryIndex * 100) + (index * 60)}ms` }}
                   >
-                    <span className={cn(
-                      "text-xs font-medium transition-colors",
-                      "text-foreground",
-                      `group-hover:${styles.buttonText}`
-                    )}>
+                    <span className="text-xs font-medium text-foreground transition-colors">
                       {item.text}
                     </span>
                     <ArrowRight className={cn(
                       "ml-1.5 h-3.5 w-3.5 transition-all duration-200",
-                      "opacity-50 -translate-x-0.5 group-hover:opacity-100 group-hover:translate-x-0",
+                      "opacity-50 -translate-x-0.5",
                       styles.iconColor
                     )} />
                   </Button>
@@ -231,19 +229,20 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
               size="sm"
               onClick={() => onSelect(suggestion)}
               className={cn(
-                "group h-auto py-2 px-3.5 rounded-xl",
+                "h-auto py-2 px-3.5 rounded-xl",
                 "bg-white/80 dark:bg-black/20",
                 "border-primary/20 hover:border-primary/50",
                 "hover:bg-primary/5 shadow-sm hover:shadow-md",
                 "transition-all duration-200 ease-out",
-                "animate-in fade-in-50 slide-in-from-left-3"
+                "animate-in fade-in-50 slide-in-from-left-3",
+                "[&:hover_span]:text-primary [&:hover_svg]:text-primary [&:hover_svg]:opacity-100 [&:hover_svg]:translate-x-0"
               )}
               style={{ animationDelay: `${index * 60}ms` }}
             >
-              <span className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">
+              <span className="text-xs font-medium text-foreground transition-colors">
                 {suggestion}
               </span>
-              <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-primary/50 group-hover:text-primary opacity-50 -translate-x-0.5 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+              <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-primary/50 opacity-50 -translate-x-0.5 transition-all duration-200" />
             </Button>
           ))}
         </div>
