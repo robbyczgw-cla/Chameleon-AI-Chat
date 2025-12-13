@@ -476,44 +476,93 @@
   --sidebar-ring: #E8786B;
 }
 
-.modern-light {
-  /* Modern Light - Clean, airy, and soft with high readability */
-  --background: #F8FAFC;
-  --foreground: #0F172A;
+/* ============================================================================
+   CLAUDE THEME - Sophisticated warm greys with terracotta accent
+   Inspired by Claude's elegant, approachable design language
+   ============================================================================ */
+.claude {
+  /* Warm cream background - inviting and easy on the eyes */
+  --background: #FAF9F7;
+  --foreground: #1A1612;
+  /* Cards slightly warmer than background */
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
+  --card-foreground: #1A1612;
   --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
-  /* Soft Indigo Primary */
-  --primary: #6366F1;
+  --popover-foreground: #1A1612;
+  /* Signature Terracotta - warm, sophisticated, distinctive */
+  --primary: #D97756;
   --primary-foreground: #FFFFFF;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  /* Rose Accent */
-  --accent: #F43F5E;
+  /* Warm grey secondaries */
+  --secondary: #F5F3F0;
+  --secondary-foreground: #292524;
+  --muted: #F0EDEA;
+  --muted-foreground: #78716C;
+  /* Terracotta accent for highlights */
+  --accent: #D97756;
   --accent-foreground: #FFFFFF;
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+  /* Subtle warm grey borders */
+  --border: #E7E5E4;
+  --input: #E7E5E4;
+  --ring: #D97756;
+  /* Chart colors - warm palette */
+  --chart-1: #D97756;
+  --chart-2: #059669;
+  --chart-3: #2563EB;
+  --chart-4: #9333EA;
+  --chart-5: #CA8A04;
+  --radius: 0.75rem;
+  /* Sidebar - slightly warmer */
+  --sidebar: #FAF9F7;
+  --sidebar-foreground: #1A1612;
+  --sidebar-primary: #D97756;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F5F3F0;
+  --sidebar-accent-foreground: #292524;
+  --sidebar-border: #E7E5E4;
+  --sidebar-ring: #D97756;
+}
+
+/* Claude Dark - Deep warm charcoal with the same terracotta soul */
+.claude.dark,
+.dark .claude {
+  /* Deep warm charcoal - rich but not harsh */
+  --background: #1C1917;
+  --foreground: #F5F5F4;
+  --card: #262220;
+  --card-foreground: #F5F5F4;
+  --popover: #262220;
+  --popover-foreground: #F5F5F4;
+  /* Terracotta stays warm in dark mode */
+  --primary: #E8956E;
+  --primary-foreground: #1C1917;
+  --secondary: #2D2926;
+  --secondary-foreground: #E7E5E4;
+  --muted: #292524;
+  --muted-foreground: #A8A29E;
+  --accent: #E8956E;
+  --accent-foreground: #1C1917;
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  --border: #E2E8F0;
-  --input: #E2E8F0;
-  --ring: #6366F1;
-  /* Chart colors */
-  --chart-1: #6366F1;
-  --chart-2: #F43F5E;
-  --chart-3: #10B981;
-  --chart-4: #F59E0B;
-  --chart-5: #8B5CF6;
-  --radius: 0.75rem;
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #0F172A;
-  --sidebar-primary: #6366F1;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F1F5F9;
-  --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: #E2E8F0;
-  --sidebar-ring: #6366F1;
+  /* Subtle borders in dark */
+  --border: #3D3835;
+  --input: #3D3835;
+  --ring: #E8956E;
+  /* Chart colors adjusted for dark */
+  --chart-1: #E8956E;
+  --chart-2: #34D399;
+  --chart-3: #60A5FA;
+  --chart-4: #A78BFA;
+  --chart-5: #FBBF24;
+  --sidebar: #1C1917;
+  --sidebar-foreground: #F5F5F4;
+  --sidebar-primary: #E8956E;
+  --sidebar-primary-foreground: #1C1917;
+  --sidebar-accent: #2D2926;
+  --sidebar-accent-foreground: #E7E5E4;
+  --sidebar-border: #3D3835;
+  --sidebar-ring: #E8956E;
 }
 
 @theme inline {
@@ -2292,7 +2341,7 @@ html {
   background-color: #ffffff !important;
 }
 
-.modern-light [data-slot="dialog-content"] {
+.claude [data-slot="dialog-content"] {
   background-color: #ffffff !important;
 }
 
@@ -2366,7 +2415,7 @@ html {
   background-color: #ffffff !important;
 }
 
-.modern-light [data-slot="alert-dialog-content"] {
+.claude [data-slot="alert-dialog-content"] {
   background-color: #ffffff !important;
 }
 

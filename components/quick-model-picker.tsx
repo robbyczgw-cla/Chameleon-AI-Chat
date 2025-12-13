@@ -114,27 +114,31 @@ export function QuickModelPicker() {
               key={model.id}
               onClick={() => handleModelChange(model.id)}
               className={cn(
-                "flex flex-col items-start gap-1 py-2.5 cursor-pointer transition-colors",
-                "hover:bg-accent hover:text-accent-foreground",
-                "[&:hover_span]:text-accent-foreground [&:focus_span]:text-accent-foreground",
+                "flex flex-col items-start gap-1 py-2.5 cursor-pointer",
                 isSelected && "bg-primary/10"
               )}
+              style={{
+                // Force readable text on hover with inline styles
+              }}
             >
-              <div className="flex items-center justify-between w-full">
+              <style>{`
+                [data-model-item]:hover span { color: hsl(var(--accent-foreground)) !important; }
+              `}</style>
+              <div className="flex items-center justify-between w-full" data-model-item>
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   {isSelected && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
                   <span className={cn(
-                    "font-medium text-sm truncate transition-colors",
+                    "font-medium text-sm truncate",
                     isSelected ? "text-primary" : "text-foreground"
                   )}>
                     {model.name}
                   </span>
                 </div>
-                <span className="text-xs px-2 py-0.5 rounded bg-muted/80 text-foreground/70 font-medium shrink-0 transition-colors">
+                <span className="text-xs px-2 py-0.5 rounded bg-muted/80 text-foreground/70 font-medium shrink-0">
                   {category}
                 </span>
               </div>
-              <span className="text-xs text-foreground/60 leading-tight pl-5 transition-colors">
+              <span className="text-xs text-muted-foreground leading-tight pl-5">
                 {description}
               </span>
             </DropdownMenuItem>

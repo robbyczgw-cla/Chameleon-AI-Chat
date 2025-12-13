@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useRef, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Paperclip, Upload, Loader2 } from "lucide-react"
+import { Plus, Upload, Loader2 } from "lucide-react"
 import { processFile, type FileAttachment } from "@/lib/file-handler"
 import { useToast } from "@/hooks/use-toast"
 import { FilePreviewInline } from "@/components/file-preview-inline"
@@ -119,15 +119,15 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
         type="button"
         size="icon"
         variant="ghost"
-        className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground transition-all"
+        className="h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all border border-border/50"
         onClick={() => fileInputRef.current?.click()}
         disabled={isProcessing}
         title="Attach files"
       >
         {isProcessing ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
-          <Paperclip className="h-3.5 w-3.5" />
+          <Plus className="h-4 w-4" />
         )}
       </Button>
 

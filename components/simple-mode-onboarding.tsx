@@ -299,7 +299,7 @@ const themes = [
   { id: "light", icon: Sun, gradient: "from-amber-400 to-orange-500" },
   { id: "dark", icon: Moon, gradient: "from-slate-600 to-slate-800" },
   { id: "soft-sunrise", icon: Sun, gradient: "from-orange-300 to-rose-300" },
-  { id: "modern-light", icon: Sparkles, gradient: "from-blue-400 to-cyan-400" },
+  { id: "claude", icon: Sparkles, gradient: "from-orange-400 to-amber-300" },
   { id: "girly-violet", icon: Heart, gradient: "from-pink-400 to-violet-500" },
   { id: "kawaii-pink", icon: Heart, gradient: "from-pink-300 to-pink-500" },
   { id: "aurora", icon: Sparkles, gradient: "from-violet-400 to-orange-300" },
@@ -340,7 +340,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
 
   const applyTheme = (theme: string) => {
     const html = document.documentElement
-    html.classList.remove("dark", "girly-violet", "kawaii-pink", "aurora", "hifi-team", "ocean-breeze", "paper-mint", "clean-slate", "modern-light", "chameleon", "soft-sunrise")
+    html.classList.remove("dark", "girly-violet", "kawaii-pink", "aurora", "hifi-team", "ocean-breeze", "paper-mint", "clean-slate", "claude", "chameleon", "soft-sunrise")
     if (theme !== "light") {
       html.classList.add(theme)
     }
@@ -450,7 +450,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
       case "light": return t.themeLight
       case "dark": return t.themeDark
       case "soft-sunrise": return "Soft Sunrise 🌅"
-      case "modern-light": return t.themeModernLight
+      case "claude": return "Claude 🧡"
       case "girly-violet": return t.themeGirlyViolet
       case "kawaii-pink": return "Kawaii Pink"
       case "aurora": return "Aurora ✨"

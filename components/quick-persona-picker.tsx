@@ -116,9 +116,7 @@ export function QuickPersonaPicker() {
               key={persona.id}
               onClick={() => handlePersonaChange(persona)}
               className={cn(
-                "flex flex-col items-start gap-1 py-2.5 cursor-pointer transition-colors",
-                "hover:bg-accent hover:text-accent-foreground",
-                "[&:hover_span]:text-accent-foreground [&:focus_span]:text-accent-foreground",
+                "flex flex-col items-start gap-1 py-2.5 cursor-pointer",
                 isSelected && "bg-primary/10"
               )}
             >
@@ -133,14 +131,14 @@ export function QuickPersonaPicker() {
                     <span className="text-base shrink-0">{persona.emoji}</span>
                   )}
                   <span className={cn(
-                    "font-medium text-sm truncate transition-colors",
+                    "font-medium text-sm truncate",
                     isSelected ? "text-primary" : "text-foreground"
                   )}>
                     {persona.name}
                   </span>
                 </div>
               </div>
-              <span className="text-xs text-foreground/60 leading-tight pl-5 transition-colors">
+              <span className="text-xs text-muted-foreground leading-tight pl-5">
                 {getPersonaDescription(persona.id, settings.language)}
               </span>
             </DropdownMenuItem>
