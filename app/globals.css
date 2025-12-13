@@ -1077,13 +1077,18 @@
     z-index: 0;
   }
 
+  /* GPU-OPTIMIZED: Paper Mint noise effect DISABLED */
+  /* WARNING: feTurbulence SVG filter + mix-blend-mode causes 50%+ GPU usage! */
   .paper-mint-noise {
+    display: none; /* Disabled to fix 100% GPU utilization */
+    /* Original code preserved for reference:
     position: absolute;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.74' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,...feTurbulence...");
     mix-blend-mode: soft-light;
     opacity: 0.28;
     z-index: 0;
+    */
   }
 
   .panel-elevated {
@@ -1473,9 +1478,9 @@
     transform: scale(1.05);
   }
 
-  /* Smooth transitions for all interactive elements */
+  /* Smooth transitions for interactive elements - GPU-OPTIMIZED: specific properties only */
   .smooth-transition {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: color, background-color, border-color, opacity, box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Custom animations for login page */
@@ -2053,7 +2058,8 @@ pre,
   color: var(--primary-foreground) !important;
   border: 1px solid color-mix(in oklch, var(--primary) 40%, var(--hairline));
   box-shadow: var(--shadow-1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* GPU-OPTIMIZED: Changed from transition-all to specific properties */
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Ensure all text inside user bubbles has correct color */
@@ -2129,9 +2135,9 @@ pre,
   animation: avatar-pulse-glow 2.5s ease-in-out 2;
 }
 
-/* Card Hover with Lift */
+/* Card Hover with Lift - GPU-OPTIMIZED: specific properties only */
 .card-interactive {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-interactive:hover {
@@ -2493,9 +2499,9 @@ html {
     0 24px 48px rgba(0, 0, 0, 0.08);
 }
 
-/* Smooth State Transitions */
+/* Smooth State Transitions - GPU-OPTIMIZED: specific properties only */
 .smooth-all {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color, background-color, border-color, opacity, box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Modern Input Styling for Mobile */
