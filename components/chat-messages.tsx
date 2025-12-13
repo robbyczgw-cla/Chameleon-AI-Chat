@@ -815,7 +815,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                           </th>
                         ),
                         td: ({ children }) => (
-                          <td className="px-3 py-2.5 border-r border-border last:border-r-0 text-xs sm:text-sm align-top">
+                          <td className="px-3 py-2.5 border-r border-border last:border-r-0 text-xs sm:text-sm align-top [&_em]:not-italic [&_strong]:font-normal">
                             {children}
                           </td>
                         ),

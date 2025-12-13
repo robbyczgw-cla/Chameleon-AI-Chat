@@ -261,16 +261,16 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
 
       return (
         <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/15 border border-primary/30">
-          {/* GPU-friendly blink animation using opacity only (no transforms) */}
-          <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-[blink_1.5s_ease-in-out_infinite]" />
+          {/* GPU-friendly blink animation using opacity only */}
+          <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-pulse" />
           <span className="text-sm text-foreground">
             {phaseText}
           </span>
           {/* Small pulsing dots to indicate activity */}
-          <span className="flex gap-0.5 ml-auto">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-[blink_1s_ease-in-out_infinite]" />
-            <span className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-[blink_1s_ease-in-out_infinite_200ms]" style={{ animationDelay: '200ms' }} />
-            <span className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-[blink_1s_ease-in-out_infinite_400ms]" style={{ animationDelay: '400ms' }} />
+          <span className="flex gap-1 ml-auto">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms', animationDuration: '1s' }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms', animationDuration: '1s' }} />
           </span>
         </div>
       )
