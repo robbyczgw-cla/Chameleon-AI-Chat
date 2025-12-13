@@ -930,17 +930,8 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
               {message.role === "assistant" && (() => {
                 // Only show if experimental setting is enabled (defaults to true)
                 const showSearchResults = settings.experimental?.statsDisplay?.showSearchResults ?? true
-                console.log("[ChatMessages] 🐛 DEBUG - SearchSourcesBadge check:", {
-                  messageId: message.id,
-                  showSearchResults,
-                  experimentalSetting: settings.experimental?.statsDisplay?.showSearchResults,
-                  hasStreamingHistory: !!message.streamingHistory,
-                  streamingHistoryLength: message.streamingHistory?.length || 0,
-                  streamingHistory: message.streamingHistory
-                })
 
                 if (!showSearchResults) {
-                  console.log("[ChatMessages] 🐛 DEBUG - showSearchResults is false, not displaying badge")
                   return null
                 }
 
@@ -949,18 +940,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                   entry.searchResults && entry.searchResults.length > 0
                 )
 
-                console.log("[ChatMessages] 🐛 DEBUG - Search entry found:", {
-                  found: !!searchEntry,
-                  searchEntry,
-                  hasSearchResults: searchEntry?.searchResults?.length || 0
-                })
-
                 if (searchEntry?.searchResults) {
-                  console.log("[ChatMessages] 🐛 DEBUG - Rendering SearchSourcesBadge with:", {
-                    resultsCount: searchEntry.searchResults.length,
-                    provider: searchEntry.searchProvider,
-                    query: searchEntry.searchQuery
-                  })
                   return (
                     <div className="animate-slide-in-up">
                       <SearchSourcesBadge
@@ -972,7 +952,6 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                     </div>
                   )
                 }
-                console.log("[ChatMessages] 🐛 DEBUG - No search entry found, not rendering badge")
                 return null
               })()}
 

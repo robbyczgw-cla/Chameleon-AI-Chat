@@ -791,13 +791,14 @@ export function ChatInput() {
       const streamStartTime = Date.now()
       let firstTokenTime: number | null = null
 
-      const onChunk = (chunk: string) => {
-        // Track time to first token
-        if (!firstTokenTime) {
-          firstTokenTime = Date.now() - streamStartTime
-        }
-        assistantContent += chunk
+      // CRITICAL FIX: Throttle state updates to prevent crashes
+      // Previous code updated state on every token (50-100+ times/sec) causing GPU overload
+      let lastUpdateTime = 0
+      let pendingUpdate = false
+      const UPDATE_INTERVAL = 50 // Only update UI every 50ms
 
+      const flushUpdate = () => {
+        pendingUpdate = false
         setChats((prevChats) => {
           return prevChats.map((chat) => {
             if (chat.id !== chatId) return chat
@@ -832,6 +833,30 @@ export function ChatInput() {
             }
           })
         })
+      }
+
+      const onChunk = (chunk: string) => {
+        // Track time to first token
+        if (!firstTokenTime) {
+          firstTokenTime = Date.now() - streamStartTime
+        }
+        assistantContent += chunk
+
+        // Throttle state updates - only update every UPDATE_INTERVAL ms
+        const now = Date.now()
+        if (now - lastUpdateTime >= UPDATE_INTERVAL) {
+          lastUpdateTime = now
+          flushUpdate()
+        } else if (!pendingUpdate) {
+          // Schedule an update for the end of the interval
+          pendingUpdate = true
+          setTimeout(() => {
+            if (pendingUpdate) {
+              lastUpdateTime = Date.now()
+              flushUpdate()
+            }
+          }, UPDATE_INTERVAL - (now - lastUpdateTime))
+        }
       }
 
       const onReasoning = (chunk: string) => {
@@ -979,6 +1004,12 @@ export function ChatInput() {
       })
 
       console.log("[v0] Stream complete, final content length:", assistantContent.length)
+
+      // Flush any pending throttled update to ensure final content is displayed
+      if (pendingUpdate) {
+        pendingUpdate = false
+        flushUpdate()
+      }
 
       // Calculate performance stats
       const responseTime = (Date.now() - streamStartTime) / 1000 // in seconds
