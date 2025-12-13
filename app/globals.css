@@ -568,47 +568,48 @@
 /* ============================================================================
    CLAUDE GREY THEME - Simple neutral grey dark theme
    Pure grey tones - NO blue, NO tint, just clean grey
+   Higher contrast for better readability (inspired by dark theme)
    ============================================================================ */
 .claude-grey {
-  /* Pure dark grey background - simple and clean */
-  --background: #1A1A1A;
-  --foreground: #F5F5F5;
-  /* Slightly lighter grey for cards */
-  --card: #262626;
-  --card-foreground: #F5F5F5;
-  --popover: #262626;
-  --popover-foreground: #F5F5F5;
+  /* Dark grey background */
+  --background: #171717;
+  --foreground: #FAFAFA;
+  /* Lighter grey for cards/dialogs - more contrast */
+  --card: #292929;
+  --card-foreground: #FAFAFA;
+  --popover: #2E2E2E;
+  --popover-foreground: #FAFAFA;
   /* Neutral grey primary - for chat bubbles */
-  --primary: #737373;
+  --primary: #808080;
   --primary-foreground: #FFFFFF;
-  --secondary: #333333;
-  --secondary-foreground: #F5F5F5;
-  --muted: #262626;
-  --muted-foreground: #A3A3A3;
-  /* Grey accent */
-  --accent: #404040;
-  --accent-foreground: #F5F5F5;
+  --secondary: #3D3D3D;
+  --secondary-foreground: #FAFAFA;
+  --muted: #2E2E2E;
+  --muted-foreground: #B3B3B3;
+  /* Grey accent - lighter for better hover visibility */
+  --accent: #4A4A4A;
+  --accent-foreground: #FAFAFA;
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  /* Grey borders */
-  --border: #404040;
-  --input: #404040;
-  --ring: #737373;
+  /* Grey borders - more visible */
+  --border: #4A4A4A;
+  --input: #3D3D3D;
+  --ring: #808080;
   /* Chart colors */
-  --chart-1: #737373;
+  --chart-1: #808080;
   --chart-2: #6EE7B7;
   --chart-3: #93C5FD;
   --chart-4: #C4B5FD;
   --chart-5: #FCD34D;
   /* Sidebar - matching grey */
-  --sidebar: #1A1A1A;
-  --sidebar-foreground: #F5F5F5;
-  --sidebar-primary: #737373;
+  --sidebar: #171717;
+  --sidebar-foreground: #FAFAFA;
+  --sidebar-primary: #808080;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #333333;
-  --sidebar-accent-foreground: #F5F5F5;
-  --sidebar-border: #404040;
-  --sidebar-ring: #737373;
+  --sidebar-accent: #3D3D3D;
+  --sidebar-accent-foreground: #FAFAFA;
+  --sidebar-border: #4A4A4A;
+  --sidebar-ring: #808080;
 }
 
 /* Claude Grey Light variant - simple light grey */
@@ -2676,9 +2677,10 @@ html {
 }
 
 /* GLOBAL: Ensure form elements use correct theme colors */
-input, textarea, select, option {
+input, textarea, select {
   color: var(--foreground) !important;
-  background-color: var(--background) !important;
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
 }
 
 select option {
