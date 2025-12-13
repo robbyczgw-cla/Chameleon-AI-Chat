@@ -1,21 +1,378 @@
 # Recent Fixes & Enhancements - Complete Guide
 
-Complete documentation of the last 10 commits for rebuilding in other projects.
+Complete documentation of recent commits for rebuilding in other projects.
 
-**Date Range**: 2025-12-01
-**Branch**: claude/fix-model-dialog-cutoff-011B38hRDFwgTnKW6g5MjFGQ
+**Date Range**: 2025-12-01 to 2025-12-13
+**Branch**: claude/update-roadmap-docs-0166jyPXFcNrRb911zQCmGN8
 
 ---
 
 ## Table of Contents
-1. [Dialog Viewport Cutoff Fix](#1-dialog-viewport-cutoff-fix)
-2. [User Profile Context in System Prompt](#2-user-profile-context-in-system-prompt)
-3. [Stop Phase Change Spam During Reasoning](#3-stop-phase-change-spam-during-reasoning)
-4. [Chat Input Bottom Position on Desktop](#4-chat-input-bottom-position-on-desktop)
+1. [SearchSourcesBadge Implementation](#1-searchsourcesbadge-implementation)
+2. [Mobile Overflow Fixes](#2-mobile-overflow-fixes)
+3. [Search Toast Removal](#3-search-toast-removal)
+4. [Favicon Integration](#4-favicon-integration)
+5. [Dialog Viewport Cutoff Fix](#5-dialog-viewport-cutoff-fix)
+6. [User Profile Context in System Prompt](#6-user-profile-context-in-system-prompt)
+7. [Stop Phase Change Spam During Reasoning](#7-stop-phase-change-spam-during-reasoning)
+8. [Chat Input Bottom Position on Desktop](#8-chat-input-bottom-position-on-desktop)
 
 ---
 
-## 1. Dialog Viewport Cutoff Fix
+## 1. SearchSourcesBadge Implementation
+
+**Commits**:
+- `faa6223` - Make favicons visible in SearchResultsCard and remove last search toast
+- `9ad324d` - Add domain favicons to SearchResultsCard header
+- `a83a5cf` - Add favicon next to each individual search result title
+- `ab3d951` - Ensure favicons always display in SearchResultsCard header
+
+**Problem**: No visual indicator when AI uses web search, search results hard to distinguish, unclear which sources were used.
+
+**Solution**: Created SearchSourcesBadge component that displays as a compact badge in chat messages and expands to show detailed search results.
+
+### Files Created
+
+#### `components/search-sources-badge.tsx`
+
+**Purpose**: Compact badge showing search source count with click-to-expand functionality
+
+**Key Features**:
+- Shows source count (e.g., "5 sources")
+- Displays up to 3 domain favicon previews
+- Click to expand SearchResultsCard
+- Mobile-optimized padding (`p-2 sm:p-3`)
+- Cyan accent colors matching app theme
+
+**Implementation**:
+```tsx
+'use client'
+
+import { useState } from 'react'
+import { ExternalLink } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { SearchResultsCard } from './search-results-card'
+
+interface SearchResult {
+  title: string
+  url: string
+  content: string
+}
+
+interface SearchSourcesBadgeProps {
+  results: SearchResult[]
+  className?: string
+}
+
+export function SearchSourcesBadge({ results, className }: SearchSourcesBadgeProps) {
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  if (!results || results.length === 0) return null
+
+  // Extract unique domains for favicon preview
+  const uniqueDomains = Array.from(
+    new Set(
+      results.map(r => {
+        try {
+          return new URL(r.url).hostname.replace('www.', '')
+        } catch {
+          return null
+        }
+      }).filter(Boolean)
+    )
+  ).slice(0, 3)
+
+  return (
+    <div className={cn("inline-block w-full max-w-full", className)}>
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className={cn(
+          "inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full text-xs",
+          "bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30",
+          "text-cyan-700 dark:text-cyan-300 transition-colors",
+          "active:scale-95",
+          "max-w-full overflow-hidden"
+        )}
+      >
+        <ExternalLink className="w-3 h-3 flex-shrink-0" />
+        <span className="font-medium whitespace-nowrap">{results.length} sources</span>
+        {uniqueDomains.length > 0 && (
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            {uniqueDomains.map((domain, idx) => (
+              <img
+                key={idx}
+                src={`https://www.google.com/s2/favicons?domain=${domain}&sz=16`}
+                alt=""
+                className="w-3.5 h-3.5 rounded-sm"
+                loading="lazy"
+              />
+            ))}
+          </div>
+        )}
+      </button>
+
+      {isExpanded && (
+        <div className="mt-2 w-full max-w-full overflow-hidden">
+          <SearchResultsCard results={results} />
+        </div>
+      )}
+    </div>
+  )
+}
+```
+
+### Files Modified
+
+#### `components/search-results-card.tsx`
+
+**Changes**:
+1. **Added individual favicons** - Each result now shows favicon next to title
+2. **Improved text colors** - Changed to semantic colors for better contrast
+3. **Reduced spacing** - Tighter layout for mobile
+4. **Mobile padding** - Reduced from `p-3` to `p-2 sm:p-2.5`
+
+**Before**:
+```tsx
+<a href={result.url} className="...">
+  <span className="text-sm font-medium text-cyan-700 dark:text-cyan-300">
+    {result.title}
+  </span>
+</a>
+<p className="text-xs text-cyan-600/60 dark:text-cyan-400/60 mb-1">
+  {new URL(result.url).hostname}
+</p>
+```
+
+**After**:
+```tsx
+{/* Result Title with Favicon */}
+<a
+  href={result.url}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="group flex items-start gap-1.5 mb-0.5"
+>
+  {/* Favicon */}
+  <div className="w-4 h-4 rounded flex-shrink-0 mt-0.5 overflow-hidden bg-white dark:bg-zinc-800 border border-cyan-500/10 flex items-center justify-center">
+    <img
+      src={`https://www.google.com/s2/favicons?domain=${(() => {
+        try {
+          return new URL(result.url).hostname.replace('www.', '')
+        } catch {
+          return result.url
+        }
+      })()}&sz=16`}
+      alt=""
+      className="w-3.5 h-3.5"
+      loading="lazy"
+      onError={(e) => {
+        const target = e.target as HTMLImageElement
+        target.style.display = 'none'
+      }}
+    />
+  </div>
+  <span className="text-sm font-medium text-foreground group-hover:underline line-clamp-2 flex-1">
+    {result.title}
+  </span>
+  <ExternalLink className="w-3 h-3 text-cyan-500/50 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+</a>
+<p className="text-xs text-muted-foreground mb-0.5">
+  {new URL(result.url).hostname}
+</p>
+```
+
+**Key changes**:
+- Favicon extracted inline with proper error handling
+- Uses semantic colors: `text-foreground`, `text-muted-foreground`
+- Reduced spacing: `mb-1` → `mb-0.5`
+- Added external link icon on hover
+- `flex-shrink-0` prevents favicon from being hidden
+
+### Integration
+
+#### Usage in chat messages:
+
+```tsx
+// In chat-messages.tsx or similar
+{message.searchResults && (
+  <SearchSourcesBadge
+    results={message.searchResults}
+    className="mt-2"
+  />
+)}
+```
+
+---
+
+## 2. Mobile Overflow Fixes
+
+**Problem**: All bubble components (search results, streaming history, follow-ups, stats) were overflowing ~5% on the right side on mobile.
+
+**Root Cause**: Components using `p-3` padding on mobile with no overflow constraints.
+
+**Solution**: Reduced mobile padding and added overflow constraints.
+
+### Files Changed
+
+#### `components/search-results-card.tsx`
+```tsx
+// Header padding
+className="p-2 sm:p-2.5 border-b border-border/20"  // Was: p-2.5 sm:p-3
+```
+
+#### `components/search-sources-badge.tsx`
+```tsx
+className="px-2 sm:px-3 py-1.5"  // Responsive padding
+```
+
+#### `components/message-status.tsx`
+```tsx
+// Line item
+className="w-full flex items-center gap-2 px-2 sm:px-3 py-2"
+
+// Expanded content
+<div className="border-t border-border/30 px-2 sm:px-3 py-2 space-y-1.5 overflow-hidden">
+```
+
+#### `components/follow-up-suggestions.tsx`
+```tsx
+className={cn(
+  "rounded-xl p-2 sm:p-3 border border-transparent",
+  "w-full max-w-full overflow-hidden"
+)}
+```
+
+#### `components/message-stats.tsx`
+```tsx
+<div className="mt-3 p-2 sm:p-3 rounded-lg border bg-muted/30 w-full max-w-full overflow-hidden">
+```
+
+### Pattern
+
+**Consistent mobile-first approach**:
+```tsx
+// Mobile: p-2 (8px)
+// Desktop: p-3 (12px)
+className="p-2 sm:p-3"
+
+// Always add overflow constraints
+className="w-full max-w-full overflow-hidden"
+```
+
+---
+
+## 3. Search Toast Removal
+
+**Problem**: Multiple redundant search toast notifications appearing alongside SearchSourcesBadge.
+
+**Solution**: Removed all 5 search-related toast notifications across 2 files.
+
+### Files Changed
+
+#### `components/simple-chat-input.tsx`
+
+**Removed 4 toasts**:
+
+**Line 590** - Manual search start toast:
+```tsx
+// REMOVED
+toast({
+  title: "Searching the web...",
+  description: "Finding relevant information",
+})
+```
+
+**Line 726** - Manual search complete toast:
+```tsx
+// REMOVED
+toast({
+  title: "Search complete",
+  description: `Found ${searchResults.results?.length || 0} results`,
+})
+```
+
+**Line 870** - AI search start toast:
+```tsx
+// REMOVED
+toast({
+  title: "AI is searching the web...",
+  description: "The AI decided this query needs current information",
+})
+```
+
+**Line 877** - AI search complete toast:
+```tsx
+// REMOVED
+toast({
+  title: "Search complete",
+  description: `AI found ${searchResults.results?.length || 0} sources`,
+})
+```
+
+#### `components/chat-input.tsx`
+
+**Line 568** - Provider-specific search toast:
+```tsx
+// REMOVED
+toast({
+  title: `Searching with ${searchProvider}...`,
+  description: "Finding relevant sources",
+})
+```
+
+### Replacement
+
+All search feedback now provided by SearchSourcesBadge:
+- Badge appears in message when search used
+- Shows source count
+- Click to expand for details
+- No disruptive toast notifications
+
+---
+
+## 4. Favicon Integration
+
+**Technology**: Google's favicon service API
+
+**Implementation pattern**:
+
+```tsx
+// Inline domain extraction with error handling
+const faviconUrl = `https://www.google.com/s2/favicons?domain=${(() => {
+  try {
+    return new URL(result.url).hostname.replace('www.', '')
+  } catch {
+    return result.url
+  }
+})()}&sz=16`
+
+// With fallback
+<img
+  src={faviconUrl}
+  alt=""
+  className="w-3.5 h-3.5"
+  loading="lazy"
+  onError={(e) => {
+    const target = e.target as HTMLImageElement
+    target.style.display = 'none'
+  }}
+/>
+```
+
+**Key features**:
+- Extracts domain from URL at render time
+- Handles malformed URLs gracefully
+- Uses 16x16 favicon size
+- Falls back silently on error (hides image)
+- Lazy loading for performance
+
+**Where used**:
+- SearchSourcesBadge (up to 3 previews)
+- SearchResultsCard (next to each individual result)
+
+---
+
+## 5. Dialog Viewport Cutoff Fix
 
 **Commits**:
 - `1a9bd3a` - Initial fix for add model dialog
@@ -23,6 +380,8 @@ Complete documentation of the last 10 commits for rebuilding in other projects.
 - `e03d6cb` - Documentation
 
 **Problem**: Dialogs were being cut off at top/bottom when content exceeded viewport height.
+
+**Solution**: Added viewport-safe height caps to dialogs.
 
 ### Files Changed
 
@@ -85,7 +444,7 @@ fixed left-[50%] top-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[calc(
 
 ---
 
-## 2. User Profile Context in System Prompt
+## 6. User Profile Context in System Prompt
 
 **Commit**: `5372d9f`
 
@@ -134,7 +493,7 @@ Requires `lib/user-profile.ts` with:
 
 ---
 
-## 3. Stop Phase Change Spam During Reasoning
+## 7. Stop Phase Change Spam During Reasoning
 
 **Commit**: `e784dd6`
 
@@ -250,7 +609,7 @@ onStreamingDetails({
 
 ---
 
-## 4. Chat Input Bottom Position on Desktop
+## 8. Chat Input Bottom Position on Desktop
 
 **Commit**: `ecd2190`
 

@@ -193,6 +193,8 @@ Chameleon-AI-Chat/
 │   ├── chat-input.tsx            # Message input with voice 🎙️
 │   ├── chat-sidebar.tsx          # Conversation history
 │   ├── chat-message.tsx          # Message rendering
+│   ├── search-sources-badge.tsx  # Search results badge (NEW v0.10.2) 🔍
+│   ├── search-results-card.tsx   # Detailed search results 🔍
 │   ├── model-comparison.tsx      # Multi-model comparison 📊
 │   ├── ai-debate-mode.tsx        # AI discussion feature 💬
 │   ├── memory-manager.tsx        # Memory system UI 🧠
@@ -1172,25 +1174,51 @@ export function modelSupportsToolCalling(modelId: string): boolean {
    d. Results returned to AI
    e. AI incorporates results into response
       ↓
-4. Show toast notifications:
-   - "🤖 AI is searching the web..."
-   - "✅ Search complete"
+4. Display SearchSourcesBadge (NEW v0.10.2):
+   - Compact badge below AI response
+   - Shows source count (e.g., "5 sources")
+   - Displays favicon previews of top 3 domains
+   - Click to expand SearchResultsCard with:
+     * Individual favicons next to each result
+     * Better text contrast (semantic colors)
+     * External link icons on hover
+     * Mobile-optimized layout
       ↓
 5. Stream final response with search results
 ```
 
+**Components:**
+- `components/search-sources-badge.tsx` - Compact badge with click-to-expand
+- `components/search-results-card.tsx` - Detailed results view with favicons
+
 #### Search Providers
 
-**Tavily:**
-- Purpose-built for AI/LLM
-- Extracts direct answers
-- Advanced/basic depth modes
-- $1 per 1K searches
+**Serper (Recommended for Production):**
+- Real Google Search results via official API
+- Fastest: 1.0-1.5s average response time
+- Most reliable: 99%+ success rate with tool calling
+- $5 per 1K queries
+- Country/language targeting, image search
+- Best for: Automatic search, real-time data, localized content
 
-**Serper:**
-- Real Google Search API
-- Country/language targeting
-- **$0.20 per 1K searches (5x cheaper!)**
+**Tavily (Best Value):**
+- Purpose-built for AI/LLM integration
+- Fast: 1.5-2s response time
+- Reliable: 98% success rate
+- $1 per 1K queries (5x cheaper!)
+- AI-native with direct answer extraction
+- Advanced/basic depth modes
+- Best for: Budget projects, general knowledge
+
+**Exa (Manual Research Only):**
+- Neural semantic search engine
+- Slower: 2-5s (requires optimized settings)
+- $5 per 1K queries + content fetch costs
+- Full-text retrieval with AI highlights
+- Best for: Research papers, technical docs, semantic queries
+- ⚠️ Not recommended for automatic search (see SEARCH-PROVIDERS-GUIDE.md)
+
+📚 **Detailed comparison**: [docs/SEARCH-PROVIDERS-GUIDE.md](./SEARCH-PROVIDERS-GUIDE.md)
 
 ---
 

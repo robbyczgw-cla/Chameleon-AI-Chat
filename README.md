@@ -52,8 +52,18 @@
 - 🖼️ **Image Optimization** - Next.js automatic WebP conversion and resizing
 - 👆 **Mobile-First Buttons** - Action buttons always visible on touch devices
 
-**Latest Features (v0.10-beta):**
-- 💰 **Exact Cost Tracking (NEW!)** - Real billing data from OpenRouter's generation API
+**Latest Features (v0.10.2-beta):**
+- 🔍 **SearchSourcesBadge (NEW!)** - Compact badge showing search source count with click-to-expand
+  - ✅ Displays in chat messages next to AI responses with search results
+  - ✅ Shows favicon previews of top domains
+  - ✅ Click to expand full SearchResultsCard with all results
+  - ✅ Mobile-optimized with reduced padding to prevent overflow
+- 🌐 **Individual Favicons** - Each search result shows its domain favicon (Google-style)
+- 🎨 **Improved Search UI** - Better contrast, tighter spacing, mobile overflow fixes
+- 🔕 **Removed Search Toasts** - SearchSourcesBadge replaces 5 redundant toast notifications
+
+**Previous Features (v0.10-beta):**
+- 💰 **Exact Cost Tracking** - Real billing data from OpenRouter's generation API
   - ✅ Actual costs, not estimates (matches openrouter.ai/activity exactly)
   - ✅ Native token counts used for billing
   - ✅ Provider transparency (see which backend served your request)
@@ -327,7 +337,7 @@ Perfect for:
 - Per-chat drafts (each chat has its own draft)
 - Clear on successful send
 
-### 🔍 Full-Text Search
+### 🔍 Full-Text Search & Web Search UI
 
 **Lightning-Fast Chat Search:**
 - Search across ALL chat content (not just titles!)
@@ -336,6 +346,20 @@ Perfect for:
 - Combines title and message content results
 - Relevance scoring (title matches rank higher)
 - Real-time results as you type
+
+**Web Search Results Display (NEW!):**
+- **SearchSourcesBadge** - Compact badge showing search source count
+  - Displays next to AI responses when web search was used
+  - Shows favicon previews of top 3 domains
+  - Click to expand detailed SearchResultsCard
+  - Mobile-optimized with responsive padding
+- **SearchResultsCard** - Detailed search results view
+  - Each result displays domain favicon (16x16px) next to title
+  - Better text contrast with semantic colors
+  - Tighter spacing for cleaner mobile layout
+  - External link icons on hover
+  - Graceful favicon fallback handling
+- **No More Search Toasts** - Replaced with integrated badge UI
 
 ### 🤖 AI-Powered Chat Titles
 

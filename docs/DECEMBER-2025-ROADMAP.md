@@ -350,7 +350,27 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 
 ## Quick Wins Implemented
 
-### This Session
+### December 13, 2025
+
+1. **SearchSourcesBadge Component**
+   - Compact badge showing search source count with favicon previews
+   - Click-to-expand functionality for detailed results
+   - Mobile-optimized padding and overflow handling
+   - **Impact:** Better search result visibility, cleaner UI
+
+2. **Mobile UI Optimizations**
+   - Fixed overflow on all bubble components (search, history, follow-ups, stats)
+   - Reduced padding from `p-3` to `p-2 sm:p-3` for mobile
+   - Added overflow constraints to prevent horizontal scroll
+   - **Impact:** 100% mobile viewport fit, no overflow issues
+
+3. **Search UX Improvements**
+   - Removed 5 redundant search toast notifications
+   - Added individual favicons to each search result
+   - Improved text contrast with semantic colors
+   - **Impact:** Cleaner UX, better readability
+
+### Previous Sessions
 
 1. **Image Optimization (next.config.mjs)**
    - Added AVIF/WebP formats
