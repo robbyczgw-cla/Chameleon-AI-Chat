@@ -1242,7 +1242,7 @@ export function ChatInput() {
   return (
     <div
       className={cn(
-        "bg-background p-2 md:p-4 border-t border-border/30 smooth-transition pb-[env(safe-area-inset-bottom,4px)] md:pb-4",
+        "bg-background/80 backdrop-blur-sm p-2 md:p-4 border-t border-border/20 smooth-transition pb-[env(safe-area-inset-bottom,4px)] md:pb-4",
         isEmpty ? "shadow-apple-2" : "shadow-apple-1"
       )}
     >
@@ -1310,11 +1310,11 @@ export function ChatInput() {
                 className={cn(
                   "min-h-[44px] md:min-h-[52px] max-h-[120px] md:max-h-[200px] resize-none text-sm sm:text-base rounded-xl",
                   "pr-3 md:pr-44", // Minimal padding on mobile, desktop keeps inline buttons
-                  "bg-muted/20 border border-border/40",
+                  "bg-background border border-border/30",
                   "focus:border-primary/50 focus:ring-1 focus:ring-primary/20",
                   "transition-all duration-200",
                   "py-2.5 pl-3 md:pt-3 md:pb-3 md:pl-4",
-                  hasContent && "border-primary/30"
+                  hasContent && "border-primary/40"
                 )}
                 disabled={isLoading}
               />
