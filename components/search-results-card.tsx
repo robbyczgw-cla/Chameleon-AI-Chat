@@ -138,16 +138,16 @@ export function SearchResultsCard({
                   href={result.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-start gap-1.5 mb-1"
+                  className="group flex items-start gap-1.5 mb-0.5"
                 >
-                  <span className="text-sm font-medium text-cyan-700 dark:text-cyan-300 group-hover:underline line-clamp-2">
+                  <span className="text-sm font-medium text-foreground group-hover:underline line-clamp-2">
                     {result.title}
                   </span>
                   <ExternalLink className="w-3 h-3 text-cyan-500/50 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </a>
 
                 {/* Result URL */}
-                <div className="text-xs text-cyan-600/60 dark:text-cyan-400/60 mb-1.5 truncate">
+                <div className="text-xs text-muted-foreground mb-1.5 truncate">
                   {new URL(result.url).hostname}
                   {result.publishedDate && (
                     <span className="ml-2">• {new Date(result.publishedDate).toLocaleDateString(language)}</span>

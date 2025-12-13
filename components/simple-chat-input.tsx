@@ -587,14 +587,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         try {
           const searchStartTime = performance.now()
           console.log("[Simple Chat] 🔍 Starting manual web search for query:", input.trim())
-          toast({
-            title: settings.language === "de" ? "🔍 Suche im Web..." : "🔍 Searching the web...",
-            description: shouldAutoSearchHeuristics && !webSearchEnabled
-              ? (settings.language === "de"
-                ? `Automatisch erkannt: ${searchHeuristics.detectedKeywords?.join(", ") || "Echtzeit-Info benötigt"}`
-                : `Auto-detected: ${searchHeuristics.detectedKeywords?.join(", ") || "real-time info needed"}`)
-              : (settings.language === "de" ? "Sammle aktuelle Informationen" : "Gathering current information"),
-          })
+          // Toast removed - SearchSourcesBadge now provides search feedback
 
           const searchQuery = input.trim()
           let searchResults: SearchResponse
