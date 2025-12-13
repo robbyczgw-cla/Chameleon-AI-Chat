@@ -1261,8 +1261,10 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
           {/* Bottom Toolbar */}
           <div className="flex items-center justify-between px-2 pb-2 pt-1">
-            {/* Left: Action buttons */}
+            {/* Left: File upload + Action buttons */}
             <div className="flex items-center gap-1">
+              {/* File upload - leftmost */}
+              <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
 
               {/* Settings/toggles button */}
               <Button
@@ -1326,11 +1328,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               )}
             </div>
 
-            {/* Right: File upload + Persona picker */}
+            {/* Right: Persona picker only */}
             <div className="flex items-center gap-1">
-              {/* File upload */}
-              <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
-
               {/* Persona picker - compact */}
               <QuickPersonaPicker />
             </div>
