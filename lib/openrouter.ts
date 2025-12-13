@@ -333,7 +333,7 @@ export async function streamChatMessage(
     console.log("[v0] Auto tool use enabled with provider:", searchProvider, "tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool, weather: enableWeatherTool, shopify: enableShopifyTool })
   }
 
-  console.log("[v0] FINAL REQUEST BODY TO /api/chat:", JSON.stringify(requestBody, null, 2))
+  // REMOVED: Large console.log of full request body was causing memory pressure during streaming
 
   const response = await fetch("/api/chat", {
     method: "POST",

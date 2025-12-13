@@ -400,8 +400,14 @@ export function ChatInput() {
     setIsChatLoading(true) // Triggers loading animation in ChatMessages
     // Set initial streaming phase immediately for step-by-step visualization
     setStreamingPhase("thinking")
-    // CRITICAL: Clear streaming details from previous chat to prevent stale reasoning
-    setCurrentStreamingDetails(null)
+    // CRITICAL FIX: Set initial streaming details with action text instead of null
+    // This prevents the static "Processing..." state that looks buggy
+    setCurrentStreamingDetails({
+      phase: "thinking",
+      action: settings.language === "de" ? "Analysiere Nachricht..." :
+              settings.language === "es" ? "Analizando mensaje..." :
+              "Analyzing your message..."
+    })
     // Clear and start streaming history for verbose display
     clearStreamingHistory()
     addStreamingHistoryEntry({
@@ -1055,7 +1061,8 @@ export function ChatInput() {
         }
 
         if (user) {
-          console.log("[v0] Saving final message to Supabase with tokens:", totalTokens, "stats:", JSON.stringify(finalMessage.stats))
+          // OPTIMIZED: Removed JSON.stringify(finalMessage.stats) - was causing memory pressure
+          console.log("[v0] Saving final message to Supabase with tokens:", totalTokens)
           // CRITICAL: Save message FIRST, then track usage (to avoid FK violation)
           supabaseSync
             .createMessage(finalMessage, chatId)

@@ -376,8 +376,14 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     setIsChatLoading(true)
     // Set initial streaming phase immediately for step-by-step visualization
     setStreamingPhase("thinking")
-    // CRITICAL: Clear streaming details from previous chat to prevent stale reasoning
-    setCurrentStreamingDetails(null)
+    // CRITICAL FIX: Set initial streaming details with action text instead of null
+    // This prevents the static "Processing..." state that looks buggy
+    setCurrentStreamingDetails({
+      phase: "thinking",
+      action: settings.language === "de" ? "Analysiere Nachricht..." :
+              settings.language === "es" ? "Analizando mensaje..." :
+              "Analyzing your message..."
+    })
     // Clear and start streaming history
     clearStreamingHistory()
     addStreamingHistoryEntry({
