@@ -233,12 +233,37 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                        streamingDetails?.reasoningContent || toolName
 
     if (!hasContent) {
-      // Just show a simple loading indicator
+      // IMPROVED: Show phase-based message instead of generic "Processing..."
+      // This makes the UI more informative and less static-looking
+      const phaseMessages = {
+        thinking: {
+          en: "Analyzing your message...",
+          de: "Analysiere Nachricht...",
+          es: "Analizando mensaje..."
+        },
+        searching: {
+          en: "Preparing search...",
+          de: "Suche wird vorbereitet...",
+          es: "Preparando búsqueda..."
+        },
+        tool_use: {
+          en: "Using tools...",
+          de: "Werkzeuge werden verwendet...",
+          es: "Usando herramientas..."
+        },
+        responding: {
+          en: "Generating response...",
+          de: "Antwort wird generiert...",
+          es: "Generando respuesta..."
+        }
+      }
+      const phaseText = phaseMessages[currentPhase]?.[lang] || phaseMessages.thinking[lang]
+
       return (
-        <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/30">
-          <Loader2 className="w-4 h-4 animate-spin text-primary" />
-          <span className="text-sm text-muted-foreground">
-            {lang === "de" ? "Verarbeite..." : lang === "es" ? "Procesando..." : "Processing..."}
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/15 border border-primary/30">
+          <Zap className="w-4 h-4 text-primary flex-shrink-0" />
+          <span className="text-sm text-foreground">
+            {phaseText}
           </span>
         </div>
       )

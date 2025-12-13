@@ -211,6 +211,19 @@ AI response with [FOLLOWUP] → parseFollowUps() → Group by category → Follo
 - Reduced follow-ups (6 vs 9)
 - Image compression (500KB max)
 
+### Desktop Performance Optimizations (v0.10.3)
+**GPU optimizations to prevent 90%+ GPU usage:**
+- All `backdrop-blur` effects disabled on desktop (enabled on mobile where hardware-accelerated)
+- All `animate-*` classes disabled on desktop (`animate-spin`, `animate-pulse`, `animate-ping`)
+- All hover transforms disabled on desktop (`.hover-lift`, `.hover-glow`, `.hover-scale`, `.card-interactive`)
+- Message bubble hover effects disabled on desktop
+
+**Streaming crash prevention:**
+- State updates throttled to max 20/sec (every 50ms) during streaming
+- Previously updated on every token (50-100+/sec) causing crashes
+- Content accumulates in variable, flushes periodically
+- Removed large object console.log statements that crashed browsers
+
 ### Accessibility
 - Keyboard navigation
 - Screen reader support
