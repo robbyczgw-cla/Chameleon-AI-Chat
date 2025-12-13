@@ -260,23 +260,21 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
       }
       const phaseText = phaseMessages[currentPhase]?.[lang] || phaseMessages.thinking[lang]
 
-      // Simple inline animation using CSS keyframes injected directly
+      // FIXED: Use correct animation classes from globals.css
+      // - animate-message-status-pulse = border glow (for container)
+      // - animate-message-status-text = opacity pulse (for text/icon)
+      // - animate-message-status-icon = rotation bounce (for icon)
+      // - animate-message-status-dot = bouncing dots
       return (
-        <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-primary/10 border border-primary/25">
-          <style>{`
-            @keyframes statusPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-            @keyframes statusBounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
-            .status-pulse { animation: statusPulse 1.5s ease-in-out infinite; }
-            .status-dot { animation: statusBounce 1.2s ease-in-out infinite; }
-          `}</style>
-          <Zap className="w-4 h-4 text-primary flex-shrink-0 status-pulse" />
-          <span className="text-sm text-foreground font-medium status-pulse">
+        <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-primary/10 border border-primary/25 animate-message-status-pulse">
+          <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-message-status-icon" />
+          <span className="text-sm text-foreground font-medium animate-message-status-text">
             {phaseText}
           </span>
           <span className="flex gap-1 ml-auto">
-            <span className="w-2 h-2 rounded-full bg-primary status-dot" />
-            <span className="w-2 h-2 rounded-full bg-primary status-dot" style={{ animationDelay: '0.2s' }} />
-            <span className="w-2 h-2 rounded-full bg-primary status-dot" style={{ animationDelay: '0.4s' }} />
+            <span className="w-2 h-2 rounded-full bg-primary animate-message-status-dot" />
+            <span className="w-2 h-2 rounded-full bg-primary animate-message-status-dot" style={{ animationDelay: '0.2s' }} />
+            <span className="w-2 h-2 rounded-full bg-primary animate-message-status-dot" style={{ animationDelay: '0.4s' }} />
           </span>
         </div>
       )

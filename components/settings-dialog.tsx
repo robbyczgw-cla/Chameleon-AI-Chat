@@ -215,7 +215,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const applyTheme = (theme: string) => {
     const html = document.documentElement
     // Remove all theme classes
-    html.classList.remove("dark", "girly-violet", "kawaii-pink", "aurora", "hifi-team", "ocean-breeze", "paper-mint", "clean-slate", "claude", "chameleon", "soft-sunrise")
+    html.classList.remove("dark", "girly-violet", "kawaii-pink", "aurora", "hifi-team", "ocean-breeze", "paper-mint", "clean-slate", "claude", "claude-grey", "chameleon", "soft-sunrise")
     // Add the selected theme
     if (theme !== "light") {
       html.classList.add(theme)
@@ -411,6 +411,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   <option value="dark">🌙 Dark - Dark & Modern</option>
                   <option value="soft-sunrise">🌅 Soft Sunrise - Warm Peach & Lavender</option>
                   <option value="claude">🧡 Claude - Warm Terracotta & Cream</option>
+                  <option value="claude-grey">🩶 Claude Grey - Modern Neutral Dark</option>
                   <option value="clean-slate">🧼 Clean Slate - Minimal & Neutral</option>
                   <option value="chameleon">🦎 Chameleon (Light) - Iridescent Green & Aqua</option>
                   <option value="girly-violet">💜 Girly Violet - Soft & Purple</option>
