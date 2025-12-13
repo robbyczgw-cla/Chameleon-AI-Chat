@@ -559,13 +559,7 @@ export function ChatInput() {
             action: `Searching ${searchProvider}: "${input.trim()}"`,
           })
 
-          // Show provider-specific toast
-          const toastMessages = {
-            exa: { title: "🔮 Exa Neural Search...", description: "Semantische Suche mit AI-Verständnis" },
-            serper: { title: "🔍 Google Search (Serper)...", description: "Suche via Google" },
-            tavily: { title: "🌐 Tavily Search...", description: "Sammle Informationen aus dem Internet" },
-          }
-          toast(toastMessages[searchProvider])
+          // Toast removed - SearchSourcesBadge provides feedback
 
           // Build provider-specific options
           const searchOptions = searchProvider === "exa" ? {
