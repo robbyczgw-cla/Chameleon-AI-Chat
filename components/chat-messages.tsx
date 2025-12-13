@@ -967,6 +967,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
                         <FollowUpSuggestions
                           categorizedSuggestions={parsed.categorizedFollowUps}
                           onSelect={handleFollowUpSelect}
+                          showCategorized={settings.experimental?.showCategorizedFollowUps ?? false}
                         />
                       </div>
                     )}
