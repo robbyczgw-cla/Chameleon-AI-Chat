@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Zap, Brain, Link2, Sparkles } from "lucide-react"
 import type { CategorizedFollowUp } from "@/lib/follow-up-parser"
 import { cn } from "@/lib/utils"
+import { useSettings } from "@/contexts/settings-context"
 
 interface FollowUpSuggestionsProps {
   suggestions?: string[]
@@ -52,11 +53,71 @@ const categoryStyles = {
 }
 
 export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSelect }: FollowUpSuggestionsProps) {
+  const { settings } = useSettings()
+  const showCategorized = settings.experimental?.showCategorizedFollowUps ?? false
+
   // Always show 2 items per category (6 total)
   const itemsPerCategory = 2
 
-  // If we have categorized suggestions, use enhanced layout
+  // If we have categorized suggestions and user wants categorized view
   if (categorizedSuggestions && categorizedSuggestions.length > 0) {
+    // If minimalistic mode (default), flatten all suggestions
+    if (!showCategorized) {
+      // Flatten categorized suggestions into a simple list, preserving order
+      const allSuggestions: string[] = []
+      const categoryOrder: Array<'quick' | 'deep' | 'related'> = ['quick', 'deep', 'related']
+
+      // Group by category
+      const grouped = categorizedSuggestions.reduce((acc, item) => {
+        if (!acc[item.category]) {
+          acc[item.category] = []
+        }
+        acc[item.category].push(item)
+        return acc
+      }, {} as Record<string, CategorizedFollowUp[]>)
+
+      // Collect suggestions in order: 2 quick, 2 deep, 2 related
+      categoryOrder.forEach(category => {
+        const items = grouped[category]
+        if (items && items.length > 0) {
+          items.slice(0, itemsPerCategory).forEach(item => {
+            allSuggestions.push(item.text)
+          })
+        }
+      })
+
+      // Show minimalistic view (no category labels)
+      return (
+        <div className="mt-4 w-full max-w-full overflow-hidden">
+          <div className="flex flex-wrap gap-2">
+            {allSuggestions.map((suggestion, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                onClick={() => onSelect(suggestion)}
+                className={cn(
+                  "group h-auto py-2 px-3.5 rounded-xl",
+                  "bg-background/80 dark:bg-background/40",
+                  "border-border/40 hover:border-primary/50",
+                  "hover:bg-accent hover:scale-[1.02] hover:shadow-md",
+                  "transition-all duration-200 ease-out",
+                  "animate-in fade-in-50 slide-in-from-left-3"
+                )}
+                style={{ animationDelay: `${index * 60}ms` }}
+              >
+                <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                  {suggestion}
+                </span>
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-primary opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+              </Button>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    // Categorized view (Advanced Mode with toggle enabled)
     // Group by category
     const grouped = categorizedSuggestions.reduce((acc, item) => {
       if (!acc[item.category]) {

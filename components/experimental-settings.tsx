@@ -483,6 +483,23 @@ export function ExperimentalSettings() {
               />
             </div>
 
+            {/* Categorized Follow-up Suggestions */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                  <Label className="text-sm font-medium">Categorized Follow-up Suggestions</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Show category labels (Quick/Deep Dive/Related) for follow-up suggestions. Default: minimalistic view.
+                </p>
+              </div>
+              <Switch
+                checked={experimental.showCategorizedFollowUps || false}
+                onCheckedChange={(checked) => handleExperimentalChange({ showCategorizedFollowUps: checked })}
+              />
+            </div>
+
             {/* Info Box */}
             <div className="p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg">
               <p className="text-xs text-purple-800 dark:text-purple-200">

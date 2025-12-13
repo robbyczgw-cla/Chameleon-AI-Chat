@@ -319,6 +319,8 @@ export interface ExperimentalSettings {
   enableMermaidDiagrams?: boolean // Render Mermaid diagrams in code blocks (default: false)
   enableCodeBlockHighlighting?: boolean // Syntax highlighting for code blocks (default: false)
   showInputStats?: boolean // Show token/cost estimate below chat input
+  // Follow-up Suggestions (Advanced Mode only)
+  showCategorizedFollowUps?: boolean // Show category labels (Quick/Deep Dive/Related) in follow-up suggestions (default: false for minimalistic look)
 }
 
 // Access tier determines user privileges and UI restrictions
