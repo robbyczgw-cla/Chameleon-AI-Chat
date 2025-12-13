@@ -938,7 +938,8 @@
     -webkit-backdrop-filter: none !important;
   }
 
-  .performance-mode * {
+  /* Performance mode - kill animations EXCEPT critical message status ones */
+  .performance-mode *:not(.animate-message-status-pulse):not(.animate-message-status-icon):not(.animate-message-status-text):not(.animate-message-status-dot) {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -948,8 +949,9 @@
     background-image: none !important;
   }
 
+  /* Reduced motion - EXCEPT critical message status animations */
   @media (prefers-reduced-motion: reduce) {
-    * {
+    *:not(.animate-message-status-pulse):not(.animate-message-status-icon):not(.animate-message-status-text):not(.animate-message-status-dot) {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
