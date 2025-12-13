@@ -2460,6 +2460,16 @@ html {
   /* animation: spin-slow 3s linear infinite; */
 }
 
+/* GPU-friendly blink animation - uses opacity only (no transforms, no GPU compositor) */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-blink {
+  animation: blink 1.5s ease-in-out infinite;
+}
+
 /* Modern Touch Feedback - Micro-interactions */
 @media (max-width: 768px) {
   /* Enhanced tap feedback for mobile */
