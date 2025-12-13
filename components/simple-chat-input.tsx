@@ -35,7 +35,6 @@ import { useFeatureFlags } from "@/hooks/use-feature-flags"
 import { haptics } from "@/lib/haptics"
 import { voiceService } from "@/lib/voice"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
-import { QuickModelPicker } from "@/components/quick-model-picker"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
@@ -1217,22 +1216,48 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
             </div>
           )}
 
-          {/* Textarea - Clean, no border */}
-          <Textarea
-            ref={textareaRef}
-            id="simple-chat-input"
-            name="message"
-            autoComplete="off"
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value)
-              saveDraft(e.target.value)
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder={getTranslation("inputPlaceholder", language)}
-            className="min-h-[44px] max-h-[200px] resize-none text-base bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-3"
-            disabled={isChatLoading}
-          />
+          {/* Textarea with Send button inside */}
+          <div className="relative">
+            <Textarea
+              ref={textareaRef}
+              id="simple-chat-input"
+              name="message"
+              autoComplete="off"
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value)
+                saveDraft(e.target.value)
+              }}
+              onKeyDown={handleKeyDown}
+              placeholder={getTranslation("inputPlaceholder", language)}
+              className="min-h-[44px] max-h-[200px] resize-none text-base bg-transparent border-0 focus:ring-0 focus:outline-none pl-4 pr-12 py-3"
+              disabled={isChatLoading}
+            />
+            {/* Send Button - Inside input field */}
+            <Button
+              type={isChatLoading ? "button" : "submit"}
+              onClick={isChatLoading ? stopGeneration : undefined}
+              disabled={!isChatLoading && !hasContent}
+              className={cn(
+                "absolute right-2 bottom-2 h-8 w-8 rounded-lg transition-all duration-200 flex-shrink-0",
+                isChatLoading
+                  ? "bg-red-500 hover:bg-red-600 text-white"
+                  : hasContent
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+                    : "bg-muted/80 text-muted-foreground",
+                "active:scale-95"
+              )}
+              size="icon"
+            >
+              {isChatLoading ? (
+                <Square className="h-4 w-4" />
+              ) : (
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 19V5M5 12l7-7 7 7" />
+                </svg>
+              )}
+            </Button>
+          </div>
 
           {/* Bottom Toolbar */}
           <div className="flex items-center justify-between px-2 pb-2 pt-1">
@@ -1301,38 +1326,13 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               )}
             </div>
 
-            {/* Right: File upload + Model picker + Send button */}
-            <div className="flex items-center gap-2">
+            {/* Right: File upload + Persona picker */}
+            <div className="flex items-center gap-1">
               {/* File upload */}
               <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
 
-              {/* Model picker - compact */}
-              {!isHifi && <QuickModelPicker />}
-
-              {/* Send Button - Rounded square with arrow */}
-              <Button
-                type={isChatLoading ? "button" : "submit"}
-                onClick={isChatLoading ? stopGeneration : undefined}
-                disabled={!isChatLoading && !hasContent}
-                className={cn(
-                  "h-9 w-9 rounded-lg transition-all duration-200 flex-shrink-0",
-                  isChatLoading
-                    ? "bg-red-500 hover:bg-red-600 text-white"
-                    : hasContent
-                      ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                      : "bg-muted/80 text-muted-foreground",
-                  "active:scale-95"
-                )}
-                size="icon"
-              >
-                {isChatLoading ? (
-                  <Square className="h-4 w-4" />
-                ) : (
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 19V5M5 12l7-7 7 7" />
-                  </svg>
-                )}
-              </Button>
+              {/* Persona picker - compact */}
+              <QuickPersonaPicker />
             </div>
           </div>
         </div>
