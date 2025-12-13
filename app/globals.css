@@ -746,12 +746,13 @@
     box-shadow: var(--shadow-2);
   }
 
+  /* GPU-OPTIMIZED: Reduced blur from 18px to 10px, saturate from 180% to 140% */
   @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
     .surface-subtle,
     .surface,
     .surface-strong {
-      -webkit-backdrop-filter: blur(18px) saturate(180%);
-      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+      backdrop-filter: blur(10px) saturate(140%);
     }
   }
 
@@ -783,7 +784,7 @@
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.22;
+    opacity: 0.18;
     background:
       radial-gradient(900px circle at 18% 10%, color-mix(in oklch, var(--primary) 22%, transparent) 0%, transparent 55%),
       radial-gradient(700px circle at 78% 18%, color-mix(in oklch, var(--accent) 22%, transparent) 0%, transparent 60%),
@@ -796,7 +797,7 @@
       );
     mask-image: radial-gradient(circle at 50% 25%, rgba(0, 0, 0, 0.65), transparent 72%);
     -webkit-mask-image: radial-gradient(circle at 50% 25%, rgba(0, 0, 0, 0.65), transparent 72%);
-    mix-blend-mode: multiply;
+    /* GPU-OPTIMIZED: Removed mix-blend-mode: multiply - forces GPU compositing */
   }
 
   .dark .chameleon .chameleon-scales {
@@ -1159,13 +1160,14 @@
     box-shadow: var(--shadow-1);
   }
 
+  /* GPU-OPTIMIZED: Reduced blur from 18px to 10px, saturate from 180% to 140% */
   @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
     .glass,
     .glass-strong,
     .glass-subtle,
     .panel-elevated {
-      -webkit-backdrop-filter: blur(18px) saturate(180%);
-      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+      backdrop-filter: blur(10px) saturate(140%);
     }
   }
 
@@ -2078,7 +2080,7 @@ pre,
     rgba(255, 255, 255, 0) 46%
   );
   opacity: 0.6;
-  mix-blend-mode: overlay;
+  /* GPU-OPTIMIZED: Removed mix-blend-mode: overlay - forces GPU compositing */
 }
 
 .dark .message-bubble-user::before {
@@ -2416,14 +2418,15 @@ html {
 
 /* AI bubbles removed for minimalist look - styles moved to line 2018 */
 
-/* Slow spin animation for loading avatar */
+/* Slow spin animation for loading avatar - GPU-OPTIMIZED: Only active when in-view */
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
+/* DISABLED by default to reduce GPU load - enable via JS when needed */
 .animate-spin-slow {
-  animation: spin-slow 3s linear infinite;
+  /* animation: spin-slow 3s linear infinite; */
 }
 
 /* Modern Touch Feedback - Micro-interactions */
@@ -2585,5 +2588,85 @@ html {
 
   .animate-spin-slow {
     animation: none;
+  }
+}
+
+/* =========================================================================
+   GPU OPTIMIZATION OVERRIDES
+   Fixes 100% GPU utilization caused by infinite animations
+   ========================================================================= */
+
+/* Disable expensive infinite animations by default on desktop */
+@media (min-width: 769px) {
+  /* Override Tailwind's animate-pulse - use subtle opacity instead of continuous */
+  .animate-pulse {
+    animation: none !important;
+    opacity: 0.85;
+  }
+
+  /* Override Tailwind's animate-ping - this is VERY GPU intensive */
+  .animate-ping {
+    animation: none !important;
+    opacity: 0;
+  }
+
+  /* Keep animate-spin but limit to when truly loading */
+  /* Spinner still works, but ping/pulse don't run continuously */
+}
+
+/* Performance mode - disable ALL animations */
+.performance-mode .animate-spin,
+.performance-mode .animate-pulse,
+.performance-mode .animate-ping,
+.performance-mode .animate-bounce {
+  animation: none !important;
+}
+
+.performance-mode .animate-spin-slow {
+  animation: none !important;
+}
+
+/* Disable mix-blend-mode in performance mode (forces GPU compositing) */
+.performance-mode .message-bubble-ai::before,
+.performance-mode .message-bubble-user::before,
+.performance-mode .chameleon-scales {
+  mix-blend-mode: normal !important;
+}
+
+/* Ultra performance mode - remove all visual effects */
+.ultra-performance-mode .backdrop-filter,
+.ultra-performance-mode [class*="backdrop-filter"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.ultra-performance-mode .animate-spin,
+.ultra-performance-mode .animate-pulse,
+.ultra-performance-mode .animate-ping,
+.ultra-performance-mode .animate-bounce,
+.ultra-performance-mode .animate-spin-slow {
+  animation: none !important;
+}
+
+/* Reduce motion preference - strongest override */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin,
+  .animate-pulse,
+  .animate-ping,
+  .animate-bounce,
+  .animate-spin-slow {
+    animation: none !important;
+  }
+
+  /* Also reduce backdrop blur for reduced motion users */
+  .surface-subtle,
+  .surface,
+  .surface-strong,
+  .glass,
+  .glass-strong,
+  .glass-subtle,
+  .panel-elevated {
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
   }
 }
