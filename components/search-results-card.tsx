@@ -72,7 +72,7 @@ export function SearchResultsCard({
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center gap-2 p-2.5 sm:p-3 hover:bg-cyan-500/20 transition-colors overflow-hidden"
+        className="w-full flex items-center gap-2 p-2 sm:p-2.5 hover:bg-cyan-500/20 transition-colors overflow-hidden"
       >
         {isExpanded ? (
           <ChevronDown className="w-4 h-4 text-cyan-500 flex-shrink-0" />
@@ -103,7 +103,7 @@ export function SearchResultsCard({
         <div className="border-t border-cyan-500/20">
           {/* Image Toggle */}
           {hasImages && (
-            <div className="px-3 py-2 border-b border-cyan-500/20">
+            <div className="px-2 sm:px-3 py-1.5 border-b border-cyan-500/20">
               <button
                 onClick={() => setShowImages(!showImages)}
                 className="flex items-center gap-2 text-xs text-cyan-600 dark:text-cyan-400 hover:underline"
@@ -147,7 +147,7 @@ export function SearchResultsCard({
                 </a>
 
                 {/* Result URL */}
-                <div className="text-xs text-muted-foreground mb-1.5 truncate">
+                <div className="text-xs text-muted-foreground mb-1 truncate">
                   {new URL(result.url).hostname}
                   {result.publishedDate && (
                     <span className="ml-2">• {new Date(result.publishedDate).toLocaleDateString(language)}</span>
