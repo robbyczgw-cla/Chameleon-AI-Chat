@@ -1237,8 +1237,6 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           <div className="flex items-center justify-between px-2 pb-2 pt-1">
             {/* Left: Action buttons */}
             <div className="flex items-center gap-1">
-              {/* File upload */}
-              <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
 
               {/* Settings/toggles button */}
               <Button
@@ -1302,8 +1300,11 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               )}
             </div>
 
-            {/* Right: Model picker + Send button */}
+            {/* Right: File upload + Model picker + Send button */}
             <div className="flex items-center gap-2">
+              {/* File upload */}
+              <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
+
               {/* Model picker - compact */}
               {!isHifi && <QuickModelPicker />}
 
