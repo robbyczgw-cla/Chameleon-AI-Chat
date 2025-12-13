@@ -1110,9 +1110,16 @@ The AI now decides when to search automatically using **tool calling**!
 4. Search results are fetched and returned to AI
 5. AI incorporates results into its response
 
-**Toast Notifications:**
-- "🤖 AI is searching the web..." - When AI triggers search
-- "✅ Search complete" - When results are ready
+**SearchSourcesBadge (v0.10.2) ⭐ NEW:**
+When AI uses web search, a compact **SearchSourcesBadge** appears below the response:
+- Shows source count (e.g., "5 sources")
+- Displays favicon previews of top 3 domains
+- Click to expand full SearchResultsCard with:
+  - Individual favicons next to each result (Google-style)
+  - Better text contrast with semantic colors
+  - External link icons on hover
+  - Mobile-optimized layout
+- No more toast notifications - badge provides all feedback
 
 **Supported Models:**
 - Grok 4.x (default in simple mode)
@@ -1140,17 +1147,30 @@ The AI now decides when to search automatically using **tool calling**!
 
 ### Search Providers
 
-**Tavily:**
-- Comprehensive search
-- $1 per 1,000 searches
-- Advanced/basic depth modes
-- Direct answer extraction
-
-**Serper (Recommended):**
+**Serper (Recommended for Production):**
 - Real Google Search results
-- $0.2 per 1,000 searches (5x cheaper!)
+- Fastest: 1.0-1.5s response time
+- Most reliable: 99%+ success rate
+- Cost: $5/1,000 queries
 - Country/language targeting
-- Image search included
+- Best for: Automatic search, real-time data, localized content
+
+**Tavily (Best Value):**
+- AI-powered search with answer extraction
+- Fast: 1.5-2s response time
+- Reliable: 98% success rate
+- Cost: $1/1,000 queries (5x cheaper!)
+- Advanced/basic depth modes
+- Best for: Budget projects, general knowledge
+
+**Exa (Manual Research Only):**
+- Neural semantic search
+- Slower: 2-5s (optimized settings required)
+- Cost: $5/1,000 queries + content costs
+- Best for: Research papers, technical docs
+- ⚠️ Not recommended for automatic search
+
+📚 **Full comparison**: [docs/SEARCH-PROVIDERS-GUIDE.md](./SEARCH-PROVIDERS-GUIDE.md)
 
 ### Enabling Web Search
 
