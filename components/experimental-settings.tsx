@@ -149,6 +149,20 @@ export function ExperimentalSettings() {
         </div>
 
         <div className="space-y-4 pl-7">
+          {/* Enable Animations */}
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="space-y-1">
+              <Label className="text-sm font-medium">Enable Animations</Label>
+              <p className="text-xs text-muted-foreground">
+                Show animated loading indicators (e.g. "Analyzing your message" blinking icon)
+              </p>
+            </div>
+            <Switch
+              checked={experimental.enableAnimations !== false}
+              onCheckedChange={(checked) => handleExperimentalChange({ enableAnimations: checked })}
+            />
+          </div>
+
           {/* Enable Performance Mode */}
           <div className="flex items-center justify-between p-4 border rounded-lg">
             <div className="space-y-1">
