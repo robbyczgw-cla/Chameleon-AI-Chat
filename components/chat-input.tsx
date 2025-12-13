@@ -1010,6 +1010,14 @@ export function ChatInput() {
       })
 
       console.log("[v0] Stream complete, final content length:", assistantContent.length)
+      // CRASH DEBUG: Save checkpoint to localStorage before potentially crashing operations
+      try {
+        localStorage.setItem('_crash_debug_checkpoint', JSON.stringify({
+          time: Date.now(),
+          step: 'stream_complete',
+          contentLength: assistantContent.length
+        }))
+      } catch (e) { /* ignore */ }
 
       // Flush any pending throttled update to ensure final content is displayed
       if (pendingUpdate) {
@@ -1032,8 +1040,19 @@ export function ChatInput() {
         // Calculate tokens per second
         const tokensPerSecond = responseTime > 0 ? completionTokens / responseTime : 0
 
+        // CRASH DEBUG: Save checkpoint
+        try {
+          localStorage.setItem('_crash_debug_checkpoint', JSON.stringify({
+            time: Date.now(),
+            step: 'before_streaming_history',
+            tokens: totalTokens
+          }))
+        } catch (e) { /* ignore */ }
+
         // Get streaming history for verbose display on completed messages
-        const streamingHistoryForMessage = getStreamingHistory()
+        // SAFETY: Limit to 50 entries max to prevent memory issues
+        const rawHistory = getStreamingHistory()
+        const streamingHistoryForMessage = rawHistory.slice(-50)
 
         const finalMessage: Message = {
           id: assistantMessageId,
@@ -1083,15 +1102,31 @@ export function ChatInput() {
             })
         }
 
-        console.log("[v0] Updating chat state with stats:", JSON.stringify(finalMessage.stats))
+        // CRASH DEBUG: Checkpoint before state update (most likely crash point)
+        try {
+          localStorage.setItem('_crash_debug_checkpoint', JSON.stringify({
+            time: Date.now(),
+            step: 'before_setChats',
+            historyLength: finalMessage.streamingHistory?.length || 0
+          }))
+        } catch (e) { /* ignore */ }
+
+        // SAFETY: Avoid JSON.stringify on stats (can fail with large objects)
+        console.log("[v0] Updating chat state with stats - tokens:", finalMessage.tokens?.total)
         setChats((prevChats) => {
-          return prevChats.map((chat) => {
-            if (chat.id !== chatId) return chat
-            const updatedMessages = chat.messages.map((m) =>
-              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning, streamingHistory: finalMessage.streamingHistory } : m,
-            )
-            return { ...chat, messages: updatedMessages }
-          })
+          try {
+            return prevChats.map((chat) => {
+              if (chat.id !== chatId) return chat
+              const updatedMessages = chat.messages.map((m) =>
+                m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning, streamingHistory: finalMessage.streamingHistory } : m,
+              )
+              return { ...chat, messages: updatedMessages }
+            })
+          } catch (e) {
+            console.error("[v0] CRASH in setChats:", e)
+            localStorage.setItem('_crash_debug_error', String(e))
+            return prevChats // Return unchanged to prevent crash
+          }
         })
 
         // Save conversation to persona memory and learn preferences if enabled
