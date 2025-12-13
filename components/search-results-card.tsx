@@ -119,7 +119,7 @@ export function SearchResultsCard({
             {displayResults.map((result, index) => (
               <div
                 key={`${result.url}-${index}`}
-                className="p-2.5 sm:p-3 border-b border-cyan-500/10 last:border-b-0 hover:bg-cyan-500/5 transition-colors overflow-hidden"
+                className="p-2 sm:p-2.5 md:p-3 border-b border-cyan-500/10 last:border-b-0 hover:bg-cyan-500/5 transition-colors overflow-hidden"
               >
                 {/* Result Image */}
                 {showImages && result.image && (

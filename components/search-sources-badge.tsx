@@ -56,7 +56,7 @@ export function SearchSourcesBadge({
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className={cn(
-          "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs",
+          "inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full text-xs",
           "bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30",
           "text-cyan-700 dark:text-cyan-300 transition-colors",
           "active:scale-95",

@@ -861,7 +861,7 @@ export const StreamingHistoryDisplay = memo(function StreamingHistoryDisplay({
       {/* Collapsible header */}
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted/40 transition-colors overflow-hidden"
+        className="w-full flex items-center gap-2 px-2 sm:px-3 py-2 hover:bg-muted/40 transition-colors overflow-hidden"
       >
         <div className="flex items-center gap-1.5 text-muted-foreground">
           {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -891,7 +891,7 @@ export const StreamingHistoryDisplay = memo(function StreamingHistoryDisplay({
 
       {/* Expanded content */}
       {!collapsed && (
-        <div className="border-t border-border/30 px-3 py-2 space-y-1.5 overflow-hidden">
+        <div className="border-t border-border/30 px-2 sm:px-3 py-2 space-y-1.5 overflow-hidden">
           {history.map((entry, idx) => (
             <div
               key={idx}
