@@ -634,13 +634,7 @@ export function ChatInput() {
             description: `Found ${searchResponse.results.length} results`,
           })
 
-          // Show success toast
-          toast({
-            title: searchProvider === "exa" ? "🔮 Exa Search abgeschlossen" :
-                   searchProvider === "serper" ? "🔍 Serper abgeschlossen" :
-                   "🌐 Suche abgeschlossen",
-            description: `${searchResponse.results.length} Ergebnisse${imageCount > 0 ? ` + ${imageCount} Bilder` : ''} gefunden`,
-          })
+          // Toast removed - SearchSourcesBadge provides visual feedback
 
         } catch (searchError) {
           console.error("[v0] Search error:", searchError)
@@ -906,16 +900,12 @@ export function ChatInput() {
         enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
         enableWeatherTool: settings.experimental?.enableWeatherTool !== false,
         onSearchStart: (query) => {
-          toast({
-            title: "🔍 AI is searching the web...",
-            description: query ? `"${query}"` : "Searching...",
-          })
+          // Toast removed - MessageStatus provides real-time feedback
+          console.log("[Advanced Chat] 🔍 AI search started:", query)
         },
         onSearchComplete: () => {
-          toast({
-            title: "✅ Search complete",
-            description: "Processing results...",
-          })
+          // Toast removed - SearchSourcesBadge shows results visually
+          console.log("[Advanced Chat] ✅ AI search complete")
         },
         // Phase tracking for step-by-step visualization
         onPhaseChange: (phase) => {
