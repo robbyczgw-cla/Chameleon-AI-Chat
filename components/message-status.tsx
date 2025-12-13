@@ -566,7 +566,8 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
                 <div className="relative flex-shrink-0">
                   {isActive ? (
                     <div className="relative">
-                      <div className="absolute inset-0 animate-ping rounded-full bg-primary/40" />
+                      {/* GPU-OPTIMIZED: Replaced animate-ping with subtle ring glow */}
+                      <div className="absolute -inset-0.5 rounded-full bg-primary/20 ring-2 ring-primary/40" />
                       <div className="relative p-2 rounded-full bg-primary/20 text-primary">{step.icon}</div>
                     </div>
                   ) : isCompleted ? (
@@ -731,7 +732,8 @@ export const MessageStatus = memo(function MessageStatus({
           <div className="relative flex-shrink-0">
             {step.status === "active" ? (
               <div className="relative">
-                <div className="absolute inset-0 animate-ping rounded-full bg-primary/30" />
+                {/* GPU-OPTIMIZED: Replaced animate-ping with subtle ring glow */}
+                <div className="absolute -inset-0.5 rounded-full bg-primary/20 ring-2 ring-primary/30" />
                 <div className="relative p-1.5 rounded-full bg-primary/20 text-primary">
                   {step.icon}
                 </div>
