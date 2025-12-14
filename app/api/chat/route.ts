@@ -62,7 +62,7 @@ interface ChatRequest {
 }
 
 // Search cache to reduce duplicate searches
-const searchCache = new Map<string, { result: string; timestamp: number }>()
+const searchCache = new Map<string, { result: { content: string; results: any[] }; timestamp: number }>()
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
 // Weather cache
@@ -667,8 +667,8 @@ export async function POST(req: NextRequest) {
     const dateContext = `\n\n[CURRENT DATE: ${currentDate}. When searching for "current", "latest", or "recent" information, use ${new Date().getFullYear()} as the year, not previous years.]`
 
     // Add date context to the first system message
-    const messagesWithDate = messages.map((msg: { role: string; content: string }, index: number) => {
-      if (msg.role === "system" && index === 0) {
+    const messagesWithDate = messages.map((msg: Message, index: number) => {
+      if (msg.role === "system" && index === 0 && typeof msg.content === "string") {
         return { ...msg, content: msg.content + dateContext }
       }
       return msg
@@ -732,7 +732,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Streaming request - more complex handling for tool calls
-    return handleStreamingRequest(openRouterBody, apiKey, searchApiKey, searchProvider, searchSettings, shouldIncludeTools, { shopifyStoreUrl, shopifyAccessToken })
+    return handleStreamingRequest(openRouterBody, apiKey, searchApiKey, searchProvider, searchSettings, Boolean(shouldIncludeTools), { shopifyStoreUrl, shopifyAccessToken })
   } catch (error) {
     console.error("[Chat] API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
