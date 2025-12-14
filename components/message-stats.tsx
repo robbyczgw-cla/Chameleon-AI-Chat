@@ -32,13 +32,14 @@ function CollapsibleSection({
     <div className="pt-2 border-t border-border/50 overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center gap-1.5 text-left font-semibold text-muted-foreground mb-1 hover:text-foreground transition-colors overflow-hidden"
+        className="w-full flex items-center gap-1.5 text-left font-semibold text-muted-foreground mb-1 hover:text-foreground transition-colors min-w-0"
       >
         {isOpen ? <ChevronDown className="h-3 w-3 shrink-0" /> : <ChevronRight className="h-3 w-3 shrink-0" />}
-        <span className="flex items-center gap-2">
-          {icon} {title}
+        <span className="flex items-center gap-2 min-w-0 truncate">
+          <span className="shrink-0">{icon}</span>
+          <span className="truncate">{title}</span>
           {badge !== undefined && (
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${badgeColor}`}>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full shrink-0 ${badgeColor}`}>
               {badge}
             </span>
           )}
@@ -114,11 +115,11 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
     : null
 
   return (
-    <div className="mt-3 p-2 sm:p-3 rounded-lg border bg-muted/30 text-xs font-mono space-y-1 w-full max-w-full overflow-hidden">
-      <div className="font-semibold text-muted-foreground mb-2 flex items-center justify-between overflow-hidden">
-        <span>📊 Detailed Stats</span>
+    <div className="mt-3 p-2 sm:p-3 rounded-lg border bg-muted/30 text-xs font-mono space-y-1 w-full max-w-full overflow-x-hidden box-border">
+      <div className="font-semibold text-muted-foreground mb-2 flex items-center justify-between gap-2 min-w-0">
+        <span className="truncate">📊 Detailed Stats</span>
         {cost && (
-          <span className="text-green-600 dark:text-green-400 font-bold">
+          <span className="text-green-600 dark:text-green-400 font-bold shrink-0 text-[11px]">
             ${cost.toFixed(6)}
           </span>
         )}
@@ -300,7 +301,7 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
         <CollapsibleSection
           title="Tool Calling"
           icon="🔧"
-          badge={`$${stats.toolCallCost!.toFixed(6)}`}
+          badge={`$${stats.toolCallCost!.toFixed(4)}`}
           badgeColor="bg-orange-500/20 text-orange-600 dark:text-orange-400"
         >
           <StatRow
