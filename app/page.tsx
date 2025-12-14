@@ -280,14 +280,14 @@ function ChatApp() {
           )}
         >
           <ChatHeader />
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-2 md:px-4">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {showStatsPanel ? (
               <StatsDashboard />
             ) : isComparisonMode ? (
               <ModelComparison />
             ) : isEmpty ? (
               /* Centered layout for empty state */
-              <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-6 overflow-hidden">
+              <div className="flex-1 flex flex-col items-center justify-center px-2 py-4 md:p-6 overflow-hidden">
                 <div className="w-full max-w-4xl mx-auto flex flex-col gap-6">
                   <ChatMessages currentPersona={settings.selectedPersona} />
                   <div className="w-full">
