@@ -612,6 +612,14 @@
   --sidebar-ring: #808080;
 }
 
+/* Claude Grey: Make chat input blend with background for cleaner look */
+.claude-grey .chat-input-container {
+  background: var(--background) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-top-color: var(--border) !important;
+}
+
 /* Claude Grey Light variant - simple light grey */
 .claude-grey.light,
 .light .claude-grey {
