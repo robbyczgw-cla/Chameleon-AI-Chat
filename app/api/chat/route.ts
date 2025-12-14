@@ -116,7 +116,7 @@ async function executeWeather(
       const location = data.location
       const forecast = data.forecast.forecastday
 
-      let forecastText = forecast.map((day: any) => {
+      const forecastText = forecast.map((day: any) => {
         return `**${day.date}**
 - Condition: ${day.day.condition.text}
 - Temperature: ${day.day.maxtemp_c}°C / ${day.day.mintemp_c}°C
@@ -450,7 +450,7 @@ async function executeWebSearch(
   try {
     let searchUrl: string
     let requestBody: Record<string, any>
-    let headers: Record<string, string> = { "Content-Type": "application/json" }
+    const headers: Record<string, string> = { "Content-Type": "application/json" }
 
     switch (provider) {
       case "tavily":
@@ -752,7 +752,7 @@ async function handleNonStreamingRequest(
 ) {
   const MAX_ITERATIONS = 3
   let iterations = 0
-  let currentMessages = [...openRouterBody.messages]
+  const currentMessages = [...openRouterBody.messages]
 
   while (iterations < MAX_ITERATIONS) {
     iterations++
@@ -877,12 +877,12 @@ async function handleStreamingRequest(
   // Handle the streaming in the background
   ;(async () => {
     try {
-      let currentMessages = [...openRouterBody.messages]
+      const currentMessages = [...openRouterBody.messages]
       let iterations = 0
       const MAX_ITERATIONS = 3
       let hasStartedResponding = false
       let hasStartedReasoning = false // Track if we've sent the initial reasoning phase
-      let allGenerationIds: string[] = [] // Track ALL generation IDs for tool calling cost tracking
+      const allGenerationIds: string[] = [] // Track ALL generation IDs for tool calling cost tracking
 
       // Send initial thinking phase
       await writer.write(
@@ -918,7 +918,7 @@ async function handleStreamingRequest(
 
         const decoder = new TextDecoder()
         let buffer = ""
-        let accumulatedToolCalls: ToolCall[] = []
+        const accumulatedToolCalls: ToolCall[] = []
         let hasToolCalls = false
         let finishReason = ""
         let generationId: string | undefined = undefined
@@ -1055,7 +1055,7 @@ async function handleStreamingRequest(
                   )
                 }
                 // Forward original line with proper SSE format (double newline)
-                await writer.write(encoder.encode(line + "\n\n"))
+                await writer.write(encoder.encode(`${line  }\n\n`))
               }
             } catch (e) {
               // Log parse errors for debugging - don't silently swallow them
@@ -1104,13 +1104,13 @@ async function handleStreamingRequest(
             encoder.encode(
               `data: ${JSON.stringify({
                 choices: [{ delta: {
-                  phase: phase,
-                  toolName: toolName,
+                  phase,
+                  toolName,
                   searchQuery: toolQuery,
                   toolArguments: toolArgs,
                   searchProvider: toolName === "web_search" ? searchProvider : undefined,
                   searchParameters: toolName === "web_search" ? searchSettings : undefined,
-                  action: action
+                  action
                 } }],
               })}\n\n`
             )
@@ -1232,8 +1232,8 @@ async function handleStreamingRequest(
                   searchComplete: true,
                   searchResultCount: searchResults.length,
                   resultSummary: `Found ${searchResults.length} result${searchResults.length !== 1 ? 's' : ''} from ${searchProvider}`,
-                  searchResultsPreview: searchResultsPreview,
-                  searchResults: searchResults // Send full results array for rich UI display
+                  searchResultsPreview,
+                  searchResults // Send full results array for rich UI display
                 } }],
               })}\n\n`
             )

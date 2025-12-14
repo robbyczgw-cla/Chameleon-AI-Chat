@@ -173,7 +173,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
         ? lastMessage.content
         : lastMessage.content?.[0]?.text || "..."
       : "No messages yet"
-    const messagePreview = rawPreview.length > 60 ? rawPreview.substring(0, 60) + "..." : rawPreview
+    const messagePreview = rawPreview.length > 60 ? `${rawPreview.substring(0, 60)  }...` : rawPreview
 
     // Format timestamp
     const timestamp = new Date(chat.updatedAt).toLocaleDateString("en-US", {

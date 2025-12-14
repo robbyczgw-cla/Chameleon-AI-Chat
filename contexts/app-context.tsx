@@ -619,7 +619,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } else {
         // CRITICAL FIX: Load localStorage settings FIRST to use as base
         // This ensures we never lose API keys, language, or other user preferences during sync
-        let baseSettings = { ...DEFAULT_SETTINGS }
+        const baseSettings = { ...DEFAULT_SETTINGS }
         const localStorageSettings = localStorage.getItem("settings")
         if (localStorageSettings) {
           try {
@@ -655,7 +655,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
 
         // Now merge with database settings (database wins for everything EXCEPT empty API keys)
-        let mergedSettings = deepMergeSettings(baseSettings, settingsData)
+        const mergedSettings = deepMergeSettings(baseSettings, settingsData)
 
         // CRITICAL FIX: Restore localStorage preferences after merge
         // This ensures the user's local preferences aren't overwritten by database

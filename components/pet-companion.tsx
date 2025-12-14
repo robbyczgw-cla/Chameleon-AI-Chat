@@ -775,7 +775,7 @@ export function PetWidget({ onOpenAdopt, lang, onChatWithPet }: PetWidgetProps) 
         {showMessage && message && (
           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-background border rounded-xl shadow-lg text-sm whitespace-nowrap animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
             <span>{message.text}</span>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-background border-r border-b"></div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-background border-r border-b" />
           </div>
         )}
       </div>

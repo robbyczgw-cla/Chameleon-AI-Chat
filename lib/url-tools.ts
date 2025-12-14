@@ -131,7 +131,7 @@ export async function fetchUrlContent(url: string): Promise<{
     // Limit content length
     const maxLength = 15000
     const truncatedContent = content.length > maxLength
-      ? content.substring(0, maxLength) + '... [content truncated]'
+      ? `${content.substring(0, maxLength)  }... [content truncated]`
       : content
 
     console.log(`[URL Fetch] Success: ${title || url} (${truncatedContent.length} chars)`)
@@ -297,7 +297,7 @@ export async function fetchYouTubeTranscript(url: string): Promise<{
     // Limit transcript length
     const maxLength = 15000
     const truncatedTranscript = transcript.length > maxLength
-      ? transcript.substring(0, maxLength) + '... [transcript truncated]'
+      ? `${transcript.substring(0, maxLength)  }... [transcript truncated]`
       : transcript
 
     console.log(`[YouTube] Success: ${title} (${truncatedTranscript.length} chars)`)

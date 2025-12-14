@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           model: 'tts-1',
           input: truncatedText,
-          voice: voice,
-          speed: speed,
+          voice,
+          speed,
           response_format: 'mp3',
         }),
         signal: controller.signal,

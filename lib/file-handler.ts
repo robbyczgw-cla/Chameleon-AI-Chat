@@ -241,7 +241,7 @@ export function formatFileSize(bytes: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB"]
   const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i]
+  return `${Math.round((bytes / Math.pow(k, i)) * 100) / 100  } ${  sizes[i]}`
 }
 
 export function extractTextFromAttachments(attachments: FileAttachment[]): string {

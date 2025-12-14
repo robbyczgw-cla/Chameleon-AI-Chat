@@ -57,7 +57,7 @@ describe('Follow-up Parser', () => {
       expect(result.followUps).toEqual(['Q1', 'Q2', 'Q3'])
     })
 
-    test('limits categorized follow-ups to 9', () => {
+    test('limits categorized follow-ups to 6 (2 per category)', () => {
       const content = `Answer.
 [FOLLOWUP]{
   "quick": ["Q1", "Q2", "Q3", "Q4"],
@@ -67,7 +67,7 @@ describe('Follow-up Parser', () => {
 
       const result = parseFollowUps(content)
 
-      expect(result.categorizedFollowUps).toHaveLength(9)
+      expect(result.categorizedFollowUps).toHaveLength(6)
     })
 
     test('extracts suggested prompts from SUGGESTED tags', () => {

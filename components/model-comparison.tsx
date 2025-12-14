@@ -38,7 +38,7 @@ function getModelDetails(modelId: string): ModelOption {
   return {
     id: modelId,
     name: rest.join("/"),
-    provider: provider,
+    provider,
   }
 }
 
@@ -382,7 +382,7 @@ export function ModelComparison() {
 
     setPanels(
       session.models.map((model, index) => ({
-        model: model,
+        model,
         messages: session.messages?.slice(index * messagesPerModel, (index + 1) * messagesPerModel) || [],
         isLoading: false,
       })),

@@ -209,7 +209,7 @@ URL: ${result.url}`
       // Add full content
       if (result.content && result.content !== result.highlights?.join(" ")) {
         const contentPreview = result.content.length > 1500
-          ? result.content.substring(0, 1500) + "..."
+          ? `${result.content.substring(0, 1500)  }...`
           : result.content
         formatted += `\nContent: ${contentPreview}`
       }

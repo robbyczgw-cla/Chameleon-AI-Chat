@@ -232,7 +232,7 @@ export function ChatInput() {
 
   // Select a slash command from suggestions
   const selectCommand = useCallback((command: typeof SLASH_COMMANDS[0]) => {
-    setInput(command.command + ' ')
+    setInput(`${command.command  } `)
     setShowCommandMenu(false)
     textareaRef.current?.focus()
   }, [])
@@ -561,7 +561,7 @@ export function ChatInput() {
           setCurrentStreamingDetails({
             phase: "searching",
             searchQuery: input.trim(),
-            searchProvider: searchProvider,
+            searchProvider,
             action: `Searching ${searchProvider}: "${input.trim()}"`,
           })
 
@@ -627,7 +627,7 @@ export function ChatInput() {
           addStreamingHistoryEntry({
             phase: "searching",
             searchQuery: input.trim(),
-            searchProvider: searchProvider,
+            searchProvider,
             resultCount: searchResponse.results.length,
             searchResults: searchResponse.results, // Store full results for history display
             action: `Searched ${searchProvider}: "${input.trim()}"`,
@@ -770,13 +770,13 @@ export function ChatInput() {
 
       // Capture data for Prompt Inspector
       setInspectorData({
-        systemPrompt: systemPrompt,
+        systemPrompt,
         messages: messages.map((m) => ({
           role: m.role,
           content: m.content,
         })),
         modelParams: {
-          model: model,
+          model,
           temperature: modelParams.temperature,
           maxTokens: modelParams.maxTokens,
           topP: modelParams.topP,

@@ -231,7 +231,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           setInput(text)
           setIsListening(false)
           toast({
-            title: "✓ " + (settings.language === "de" ? "Transkribiert" : "Transcribed"),
+            title: `✓ ${  settings.language === "de" ? "Transkribiert" : "Transcribed"}`,
             description: `"${text.substring(0, 50)}${text.length > 50 ? '...' : ''}"`,
           })
         },
@@ -409,7 +409,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           title: settings.language === "de" ? "🎨 Generiere Bild..." : "🎨 Generating image...",
           description: inputImagesForGen.length > 0
             ? (settings.language === "de" ? "Bearbeite hochgeladenes Bild..." : "Editing uploaded image...")
-            : (settings.language === "de" ? "Verwende" : "Using") + " Gemini 3 Pro",
+            : `${settings.language === "de" ? "Verwende" : "Using"  } Gemini 3 Pro`,
         })
 
         const response = await fetch('/api/generate-image', {
@@ -686,14 +686,14 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           // Add search results to streaming history for SearchSourcesBadge display
           console.log("[Simple Chat] 🐛 DEBUG - Adding searchResults to streaming history:", {
             searchQuery: input.trim(),
-            searchProvider: searchProvider,
+            searchProvider,
             resultsCount: searchResults.results.length,
             results: searchResults.results
           })
           addStreamingHistoryEntry({
             phase: "searching",
             searchQuery: input.trim(),
-            searchProvider: searchProvider,
+            searchProvider,
             searchResults: searchResults.results,
             resultCount: searchResults.results.length,
             description: `Found ${searchResults.results.length} results via ${searchProvider}`
@@ -1158,7 +1158,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       if (e.key === "Tab" || (e.key === "Enter" && commandSuggestions.length > 0)) {
         e.preventDefault()
         const selected = commandSuggestions[selectedSuggestionIndex]
-        setInput(selected.command + " ")
+        setInput(`${selected.command  } `)
         setCommandSuggestions([])
         return
       }
@@ -1177,7 +1177,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   }
 
   const selectCommand = (command: SlashCommand) => {
-    setInput(command.command + " ")
+    setInput(`${command.command  } `)
     setCommandSuggestions([])
   }
 

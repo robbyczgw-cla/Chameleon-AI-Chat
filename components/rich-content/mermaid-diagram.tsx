@@ -61,7 +61,7 @@ function isDiagramComplete(chart: string): boolean {
   return true
 }
 
-export const MermaidDiagram = memo(function MermaidDiagram({ chart, className }: MermaidDiagramProps) {
+export const MermaidDiagram = memo(({ chart, className }: MermaidDiagramProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [svg, setSvg] = useState<string>("")
   const [error, setError] = useState<string>("")

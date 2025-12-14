@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
   const apiKey = request.headers.get("x-api-key") || process.env.OPENROUTER_API_KEY
 
-  console.log(`[Generation] Request for ID: ${generationId}, apiKey: ${apiKey ? "provided (" + apiKey.slice(-4) + ")" : "missing"}`)
+  console.log(`[Generation] Request for ID: ${generationId}, apiKey: ${apiKey ? `provided (${  apiKey.slice(-4)  })` : "missing"}`)
 
   if (!apiKey) {
     console.error(`[Generation] Missing API key - header: ${request.headers.get("x-api-key") ? "present" : "absent"}, env: ${process.env.OPENROUTER_API_KEY ? "present" : "absent"}`)

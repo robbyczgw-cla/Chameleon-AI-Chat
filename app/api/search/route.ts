@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       include_images: includeImages,
       include_answer: true,
       include_raw_content: includeRawContent,
-      topic: topic,
+      topic,
     }
 
     // Add domain filters if provided
