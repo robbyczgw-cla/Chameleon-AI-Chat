@@ -62,7 +62,7 @@ interface ChatRequest {
 }
 
 // Search cache to reduce duplicate searches
-const searchCache = new Map<string, { result: string; timestamp: number }>()
+const searchCache = new Map<string, { result: { content: string; results: any[] }; timestamp: number }>()
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
 // Weather cache
@@ -116,7 +116,7 @@ async function executeWeather(
       const location = data.location
       const forecast = data.forecast.forecastday
 
-      let forecastText = forecast.map((day: any) => {
+      const forecastText = forecast.map((day: any) => {
         return `**${day.date}**
 - Condition: ${day.day.condition.text}
 - Temperature: ${day.day.maxtemp_c}°C / ${day.day.mintemp_c}°C
@@ -450,7 +450,7 @@ async function executeWebSearch(
   try {
     let searchUrl: string
     let requestBody: Record<string, any>
-    let headers: Record<string, string> = { "Content-Type": "application/json" }
+    const headers: Record<string, string> = { "Content-Type": "application/json" }
 
     switch (provider) {
       case "tavily":
@@ -667,8 +667,8 @@ export async function POST(req: NextRequest) {
     const dateContext = `\n\n[CURRENT DATE: ${currentDate}. When searching for "current", "latest", or "recent" information, use ${new Date().getFullYear()} as the year, not previous years.]`
 
     // Add date context to the first system message
-    const messagesWithDate = messages.map((msg: { role: string; content: string }, index: number) => {
-      if (msg.role === "system" && index === 0) {
+    const messagesWithDate = messages.map((msg: Message, index: number) => {
+      if (msg.role === "system" && index === 0 && typeof msg.content === "string") {
         return { ...msg, content: msg.content + dateContext }
       }
       return msg
@@ -732,7 +732,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Streaming request - more complex handling for tool calls
-    return handleStreamingRequest(openRouterBody, apiKey, searchApiKey, searchProvider, searchSettings, shouldIncludeTools, { shopifyStoreUrl, shopifyAccessToken })
+    return handleStreamingRequest(openRouterBody, apiKey, searchApiKey, searchProvider, searchSettings, Boolean(shouldIncludeTools), { shopifyStoreUrl, shopifyAccessToken })
   } catch (error) {
     console.error("[Chat] API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
@@ -752,7 +752,7 @@ async function handleNonStreamingRequest(
 ) {
   const MAX_ITERATIONS = 3
   let iterations = 0
-  let currentMessages = [...openRouterBody.messages]
+  const currentMessages = [...openRouterBody.messages]
 
   while (iterations < MAX_ITERATIONS) {
     iterations++
@@ -877,12 +877,12 @@ async function handleStreamingRequest(
   // Handle the streaming in the background
   ;(async () => {
     try {
-      let currentMessages = [...openRouterBody.messages]
+      const currentMessages = [...openRouterBody.messages]
       let iterations = 0
       const MAX_ITERATIONS = 3
       let hasStartedResponding = false
       let hasStartedReasoning = false // Track if we've sent the initial reasoning phase
-      let allGenerationIds: string[] = [] // Track ALL generation IDs for tool calling cost tracking
+      const allGenerationIds: string[] = [] // Track ALL generation IDs for tool calling cost tracking
 
       // Send initial thinking phase
       await writer.write(
@@ -918,7 +918,7 @@ async function handleStreamingRequest(
 
         const decoder = new TextDecoder()
         let buffer = ""
-        let accumulatedToolCalls: ToolCall[] = []
+        const accumulatedToolCalls: ToolCall[] = []
         let hasToolCalls = false
         let finishReason = ""
         let generationId: string | undefined = undefined
@@ -1055,7 +1055,7 @@ async function handleStreamingRequest(
                   )
                 }
                 // Forward original line with proper SSE format (double newline)
-                await writer.write(encoder.encode(line + "\n\n"))
+                await writer.write(encoder.encode(`${line  }\n\n`))
               }
             } catch (e) {
               // Log parse errors for debugging - don't silently swallow them
@@ -1104,13 +1104,13 @@ async function handleStreamingRequest(
             encoder.encode(
               `data: ${JSON.stringify({
                 choices: [{ delta: {
-                  phase: phase,
-                  toolName: toolName,
+                  phase,
+                  toolName,
                   searchQuery: toolQuery,
                   toolArguments: toolArgs,
                   searchProvider: toolName === "web_search" ? searchProvider : undefined,
                   searchParameters: toolName === "web_search" ? searchSettings : undefined,
-                  action: action
+                  action
                 } }],
               })}\n\n`
             )
@@ -1232,8 +1232,8 @@ async function handleStreamingRequest(
                   searchComplete: true,
                   searchResultCount: searchResults.length,
                   resultSummary: `Found ${searchResults.length} result${searchResults.length !== 1 ? 's' : ''} from ${searchProvider}`,
-                  searchResultsPreview: searchResultsPreview,
-                  searchResults: searchResults // Send full results array for rich UI display
+                  searchResultsPreview,
+                  searchResults // Send full results array for rich UI display
                 } }],
               })}\n\n`
             )

@@ -190,7 +190,7 @@ function formatTime(seconds: number): string {
  * By default: Shows only current action + reasoning tokens
  * With showDetailedStreaming: Shows full step-by-step progress
  */
-export const MessageStatusVerbose = memo(function MessageStatusVerbose({
+export const MessageStatusVerbose = memo(({
   currentPhase,
   currentTool,
   searchQuery,
@@ -198,7 +198,7 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
   language = "en",
   modelName,
   streamingDetails,
-}: MessageStatusProps) {
+}: MessageStatusProps) => {
   const { settings } = useApp()
   const elapsed = useElapsedTime(currentPhase !== "idle" && currentPhase !== "done")
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set(["thinking"]))
@@ -692,13 +692,13 @@ export const MessageStatusVerbose = memo(function MessageStatusVerbose({
 /**
  * Simple MessageStatus component for basic mode
  */
-export const MessageStatus = memo(function MessageStatus({
+export const MessageStatus = memo(({
   currentPhase,
   currentTool,
   searchQuery,
   reasoningVisible = false,
   language = "en",
-}: MessageStatusProps) {
+}: MessageStatusProps) => {
   // Don't render if idle or done
   if (currentPhase === "idle" || currentPhase === "done") {
     return null
@@ -829,12 +829,12 @@ export interface StreamingHistoryDisplayProps {
   onToggle?: () => void
 }
 
-export const StreamingHistoryDisplay = memo(function StreamingHistoryDisplay({
+export const StreamingHistoryDisplay = memo(({
   history,
   language = "en",
   collapsed = true,
   onToggle,
-}: StreamingHistoryDisplayProps) {
+}: StreamingHistoryDisplayProps) => {
   if (!history || history.length === 0) return null
 
   const lang = language as "en" | "de" | "es"
@@ -1029,12 +1029,12 @@ export const StreamingHistoryDisplay = memo(function StreamingHistoryDisplay({
 /**
  * Compact inline status badge
  */
-export const MessageStatusInline = memo(function MessageStatusInline({
+export const MessageStatusInline = memo(({
   currentPhase,
   currentTool,
   searchQuery,
   language = "en",
-}: Omit<MessageStatusProps, "reasoningVisible" | "verbose" | "modelName">) {
+}: Omit<MessageStatusProps, "reasoningVisible" | "verbose" | "modelName">) => {
   if (currentPhase === "idle" || currentPhase === "done") {
     return null
   }

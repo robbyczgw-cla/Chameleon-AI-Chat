@@ -135,7 +135,7 @@ interface ChatMessagesProps {
  * Helper component to render multimodal message content
  * Handles both text-only and text+image messages
  */
-const RenderMessageContent = memo(function RenderMessageContent({ content }: { content: MessageContent }) {
+const RenderMessageContent = memo(({ content }: { content: MessageContent }) => {
   // If it's a string, return it directly
   if (typeof content === "string") {
     return <>{content}</>
@@ -176,7 +176,7 @@ interface CodeBlockProps {
   onCopy: (code: string) => void
 }
 
-const CodeBlock = memo(function CodeBlock({ language, code, onCopy }: CodeBlockProps) {
+const CodeBlock = memo(({ language, code, onCopy }: CodeBlockProps) => {
   return (
     <div className="relative group/code my-4 rounded-lg w-full max-w-full overflow-hidden">
       <div className="flex items-center justify-between bg-zinc-800 px-4 py-2 rounded-t-lg w-full">
@@ -229,7 +229,7 @@ interface MessageWrapperProps {
   messageId: string
 }
 
-const MessageWrapper = memo(function MessageWrapper({ children, className, messageId }: MessageWrapperProps) {
+const MessageWrapper = memo(({ children, className, messageId }: MessageWrapperProps) => {
   const [hasAnimated, setHasAnimated] = useState(false)
 
   const handleAnimationEnd = useCallback(() => {
@@ -247,7 +247,7 @@ const MessageWrapper = memo(function MessageWrapper({ children, className, messa
   )
 })
 
-export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatMessagesProps = {}) {
+export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) => {
   const { chats, currentChatId, addMessage, updateChat, settings, isChatLoading, streamingPhase, currentTool, searchQuery, currentStreamingDetails, user } = useApp()
 
   // Check if user is in HiFi tier - check BOTH settings AND email directly
@@ -515,7 +515,7 @@ export const ChatMessages = memo(function ChatMessages({ currentPersona }: ChatM
 
     // Truncate very long names to prevent cutoffs
     const displayName = userName && userName.length > 20
-      ? userName.substring(0, 20) + "…"
+      ? `${userName.substring(0, 20)  }…`
       : userName
 
     return (

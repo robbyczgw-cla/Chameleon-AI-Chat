@@ -226,7 +226,7 @@ export function AIDebateMode() {
     const opposingModel = message.model === model1 ? model2 : model1
 
     // Determine argument type
-    let type: "claim" | "counter" | "evidence" = message.round === 1 ? "claim" : "counter"
+    const type: "claim" | "counter" | "evidence" = message.round === 1 ? "claim" : "counter"
 
     // Check if this references previous arguments
     const lastOpposingMsg = previousMessages.filter((m) => m.model === opposingModel && m.round < message.round).pop()
@@ -238,7 +238,7 @@ export function AIDebateMode() {
       modelName: message.modelName,
       round: message.round,
       type,
-      content: message.content.slice(0, 100) + "...",
+      content: `${message.content.slice(0, 100)  }...`,
       parentId,
     }
 

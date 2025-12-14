@@ -122,6 +122,13 @@ export interface ChatFolder {
   createdAt: number
 }
 
+export interface Folder {
+  id: string
+  name: string
+  createdAt: number
+  updatedAt: number
+}
+
 export interface Attachment {
   id: string
   name: string

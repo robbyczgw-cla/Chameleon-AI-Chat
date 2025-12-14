@@ -364,7 +364,7 @@ export function initPWAPerformance(): void {
   }
 
   // Re-apply fast tap when new elements are added (debounced to avoid performance issues)
-  let pendingElements: HTMLElement[] = []
+  const pendingElements: HTMLElement[] = []
   let debounceTimeout: NodeJS.Timeout | null = null
 
   const processPendingElements = () => {

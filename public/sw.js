@@ -1,16 +1,21 @@
 // Service Worker for AI Chat Interface PWA
 // Version increment to clear old caches (increment on every fix that needs cache bust)
-const CACHE_VERSION = 'v2.5.0'
+const CACHE_VERSION = 'v2.6.0'
 const CACHE_NAME = `ai-chat-${CACHE_VERSION}`
 const RUNTIME_CACHE = `ai-chat-runtime-${CACHE_VERSION}`
 const SIMPLE_MODE_CACHE = `ai-chat-simple-${CACHE_VERSION}`
 
-// iOS PWA DETECTION: Detect if running as iOS PWA
+// Platform detection
+const isAndroid = () => /Android/i.test(navigator?.userAgent || '')
 const isIOSPWA = () => {
   const isIOS = /iPhone|iPad|iPod/.test(navigator?.userAgent || '')
   const isStandalone = self.registration?.scope && !navigator?.userAgent?.includes('Safari')
   return isIOS || isStandalone
 }
+
+// ANDROID FIX: Track if SW just activated (cold start)
+let justActivated = false
+let activationTime = 0
 
 // AGGRESSIVE PRECACHING: All critical routes and assets
 // This ensures the app works instantly even after being backgrounded
@@ -68,7 +73,7 @@ let lastActiveTime = Date.now()
 
 // Install event - precache ALL critical assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker v2.5.0 with Android PWA cold start fix')
+  console.log('[SW] Installing service worker v2.6.0 with improved Android PWA stability')
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       console.log('[SW] Precaching critical assets...')
@@ -114,6 +119,12 @@ self.addEventListener('install', (event) => {
 // Activate event - clean up old caches and claim all clients
 self.addEventListener('activate', (event) => {
   console.log('[SW] Activating service worker')
+
+  // ANDROID FIX: Track activation for cold start handling
+  justActivated = true
+  activationTime = Date.now()
+  setTimeout(() => { justActivated = false }, 10000) // 10 second window for cold start
+
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -453,34 +464,60 @@ self.addEventListener('fetch', (event) => {
   // Navigation requests with TIMEOUT to prevent black screen on Android
   // Android PWA can hang indefinitely if network is slow/stuck
   if (event.request.mode === 'navigate') {
-    const NAVIGATION_TIMEOUT = 5000 // 5 seconds max wait
+    // ANDROID FIX: Use longer timeout on cold start, shorter when cached
+    const isColdStart = justActivated || (Date.now() - activationTime < 10000)
+    const NAVIGATION_TIMEOUT = isColdStart ? 8000 : 5000 // 8s cold start, 5s normal
+
+    console.log('[SW] Navigation request:', event.request.url, isColdStart ? '(cold start)' : '')
 
     event.respondWith(
-      Promise.race([
-        fetch(event.request),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Navigation timeout')), NAVIGATION_TIMEOUT)
-        )
-      ]).catch(async (error) => {
-        console.log('[SW] Navigation failed/timeout:', error.message, '- trying cache')
-
-        // Try exact URL from cache
-        const cached = await caches.match(event.request)
-        if (cached) {
-          console.log('[SW] Serving cached navigation')
-          return cached
+      (async () => {
+        // ANDROID FIX: On cold start, try cache first while network loads
+        if (isColdStart && isAndroid()) {
+          const cached = await caches.match(event.request)
+          if (cached) {
+            console.log('[SW] Android cold start - serving cache immediately')
+            // Update cache in background
+            fetch(event.request).then(async (response) => {
+              if (response && response.ok && !response.redirected) {
+                const cache = await caches.open(RUNTIME_CACHE)
+                cache.put(event.request, response).catch(() => {})
+              }
+            }).catch(() => {})
+            return cached
+          }
         }
 
-        // Try home page as fallback
-        const home = await caches.match('/')
-        if (home) {
-          console.log('[SW] Serving cached home as fallback')
-          return home
-        }
+        // Normal navigation with timeout
+        try {
+          const response = await Promise.race([
+            fetch(event.request),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Navigation timeout')), NAVIGATION_TIMEOUT)
+            )
+          ])
+          return response
+        } catch (error) {
+          console.log('[SW] Navigation failed/timeout:', error.message, '- trying cache')
 
-        // Last resort: offline page with auto-retry
-        return createOfflinePage()
-      })
+          // Try exact URL from cache
+          const cached = await caches.match(event.request)
+          if (cached) {
+            console.log('[SW] Serving cached navigation')
+            return cached
+          }
+
+          // Try home page as fallback
+          const home = await caches.match('/')
+          if (home) {
+            console.log('[SW] Serving cached home as fallback')
+            return home
+          }
+
+          // Last resort: offline page with auto-retry
+          return createOfflinePage()
+        }
+      })()
     )
     return
   }
@@ -632,4 +669,4 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-console.log('[SW] Service Worker v2.5.0 loaded - Added health check and cold start recovery for Android PWA')
+console.log('[SW] Service Worker v2.6.0 loaded - Improved Android PWA cold start with cache-first strategy')

@@ -141,7 +141,7 @@ export default function Page() {
           tavily_include_answer: true,
           // Team access configuration
           access_tier: accessTier,
-          simple_mode: isTeamEmail ? true : false, // Team users always start in simple mode
+          simple_mode: !!isTeamEmail, // Team users always start in simple mode
         })
 
         if (settingsError) {

@@ -274,10 +274,10 @@ class PersonaMemoryService {
 
     // Limit context length
     if (context.length > MAX_CONTEXT_LENGTH) {
-      context = context.substring(0, MAX_CONTEXT_LENGTH) + "...(truncated)"
+      context = `${context.substring(0, MAX_CONTEXT_LENGTH)  }...(truncated)`
     }
 
-    return context + "\nPlease reference these past conversations when relevant, showing continuity and memory."
+    return `${context  }\nPlease reference these past conversations when relevant, showing continuity and memory.`
   }
 
   /**

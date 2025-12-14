@@ -195,11 +195,11 @@ export class SupabaseSync {
     try {
       // DEBUG: Log API keys being saved
       console.log("[Supabase] Saving API keys:", {
-        openRouter: settings.apiKeys?.openRouter ? "***" + settings.apiKeys.openRouter.slice(-4) : "empty",
-        openAI: settings.apiKeys?.openAI ? "***" + settings.apiKeys.openAI.slice(-4) : "empty",
-        tavily: settings.apiKeys?.tavily ? "***" + settings.apiKeys.tavily.slice(-4) : "empty",
-        serper: settings.apiKeys?.serper ? "***" + settings.apiKeys.serper.slice(-4) : "empty",
-        exa: settings.apiKeys?.exa ? "***" + settings.apiKeys.exa.slice(-4) : "empty",
+        openRouter: settings.apiKeys?.openRouter ? `***${  settings.apiKeys.openRouter.slice(-4)}` : "empty",
+        openAI: settings.apiKeys?.openAI ? `***${  settings.apiKeys.openAI.slice(-4)}` : "empty",
+        tavily: settings.apiKeys?.tavily ? `***${  settings.apiKeys.tavily.slice(-4)}` : "empty",
+        serper: settings.apiKeys?.serper ? `***${  settings.apiKeys.serper.slice(-4)}` : "empty",
+        exa: settings.apiKeys?.exa ? `***${  settings.apiKeys.exa.slice(-4)}` : "empty",
       })
 
       // DEBUG: Log memory settings being saved
@@ -243,28 +243,28 @@ export class SupabaseSync {
       }
 
       console.log("[Supabase] Final API keys being saved to DB:", {
-        openRouter: openRouterKey ? "***" + openRouterKey.slice(-4) : "NULL",
-        openAI: openAIKey ? "***" + openAIKey.slice(-4) : "NULL",
-        tavily: tavilyKey ? "***" + tavilyKey.slice(-4) : "NULL",
-        serper: serperKey ? "***" + serperKey.slice(-4) : "NULL",
-        exa: exaKey ? "***" + exaKey.slice(-4) : "NULL",
+        openRouter: openRouterKey ? `***${  openRouterKey.slice(-4)}` : "NULL",
+        openAI: openAIKey ? `***${  openAIKey.slice(-4)}` : "NULL",
+        tavily: tavilyKey ? `***${  tavilyKey.slice(-4)}` : "NULL",
+        serper: serperKey ? `***${  serperKey.slice(-4)}` : "NULL",
+        exa: exaKey ? `***${  exaKey.slice(-4)}` : "NULL",
       })
 
       const settingsData = {
         simple_mode: settings.simpleMode ?? false,
         access_tier: settings.accessTier || "standard",
         system_prompt: settings.systemPrompt,
-        temperature: settings.modelParameters.temperature,
-        max_tokens: settings.modelParameters.maxTokens,
-        top_p: settings.modelParameters.topP,
-        frequency_penalty: settings.modelParameters.frequencyPenalty,
-        presence_penalty: settings.modelParameters.presencePenalty,
+        temperature: settings.modelParameters?.temperature,
+        max_tokens: settings.modelParameters?.maxTokens,
+        top_p: settings.modelParameters?.topP,
+        frequency_penalty: settings.modelParameters?.frequencyPenalty,
+        presence_penalty: settings.modelParameters?.presencePenalty,
         selected_model: settings.selectedModel,
         selected_models: settings.selectedModels || ["openai/gpt-5.1-codex-mini"],
-        tavily_search_depth: settings.tavilySettings.searchDepth,
-        tavily_max_results: settings.tavilySettings.maxResults,
-        tavily_include_images: settings.tavilySettings.includeImages,
-        tavily_include_answer: settings.tavilySettings.includeAnswer,
+        tavily_search_depth: settings.tavilySettings?.searchDepth,
+        tavily_max_results: settings.tavilySettings?.maxResults,
+        tavily_include_images: settings.tavilySettings?.includeImages,
+        tavily_include_answer: settings.tavilySettings?.includeAnswer,
         openrouter_api_key: openRouterKey,
         openai_api_key: openAIKey,
         tavily_api_key: tavilyKey,
@@ -1097,7 +1097,6 @@ export class SupabaseSync {
       role: dbMessage.role,
       content: dbMessage.content,
       timestamp: new Date(dbMessage.created_at).getTime(),
-      model: dbMessage.model || undefined,
     }
   }
 
@@ -1113,11 +1112,11 @@ export class SupabaseSync {
   private mapSettingsFromDB(dbSettings: any): AppSettings {
     // DEBUG: Log API keys being loaded
     console.log("[Supabase] Loading API keys from DB:", {
-      openRouter: dbSettings.openrouter_api_key ? "***" + dbSettings.openrouter_api_key.slice(-4) : "NULL/empty",
-      openAI: dbSettings.openai_api_key ? "***" + dbSettings.openai_api_key.slice(-4) : "NULL/empty",
-      tavily: dbSettings.tavily_api_key ? "***" + dbSettings.tavily_api_key.slice(-4) : "NULL/empty",
-      serper: dbSettings.serper_api_key ? "***" + dbSettings.serper_api_key.slice(-4) : "NULL/empty",
-      exa: dbSettings.exa_api_key ? "***" + dbSettings.exa_api_key.slice(-4) : "NULL/empty",
+      openRouter: dbSettings.openrouter_api_key ? `***${  dbSettings.openrouter_api_key.slice(-4)}` : "NULL/empty",
+      openAI: dbSettings.openai_api_key ? `***${  dbSettings.openai_api_key.slice(-4)}` : "NULL/empty",
+      tavily: dbSettings.tavily_api_key ? `***${  dbSettings.tavily_api_key.slice(-4)}` : "NULL/empty",
+      serper: dbSettings.serper_api_key ? `***${  dbSettings.serper_api_key.slice(-4)}` : "NULL/empty",
+      exa: dbSettings.exa_api_key ? `***${  dbSettings.exa_api_key.slice(-4)}` : "NULL/empty",
     })
 
     // DEBUG: Log memory settings being loaded
@@ -1170,6 +1169,7 @@ export class SupabaseSync {
         includeFullText: dbSettings.exa_include_full_text ?? true,
         includeHighlights: dbSettings.exa_include_highlights ?? true,
         includeSummary: dbSettings.exa_include_summary ?? false,
+        includeImages: dbSettings.exa_include_images ?? false,
         highlightsPerResult: dbSettings.exa_highlights_per_result || 3,
         maxTextCharacters: dbSettings.exa_max_text_characters || 3000,
         livecrawl: dbSettings.exa_livecrawl || "fallback",

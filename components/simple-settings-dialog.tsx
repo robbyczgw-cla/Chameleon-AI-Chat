@@ -970,7 +970,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                     <p className="text-xs text-muted-foreground">{t.autoSearchDesc}</p>
                   </div>
                   <Switch
-                    checked={localSettings.enableAutoToolUse ?? (isHifi ? false : true)}
+                    checked={localSettings.enableAutoToolUse ?? (!isHifi)}
                     onCheckedChange={(checked) =>
                       setLocalSettings({
                         ...localSettings,
@@ -1104,7 +1104,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   <p className="text-xs text-muted-foreground">{t.letAiRemember}</p>
                 </div>
                 <Switch
-                  checked={localSettings.memorySettings?.enabled ?? (isHifi ? false : true)}
+                  checked={localSettings.memorySettings?.enabled ?? (!isHifi)}
                   onCheckedChange={(checked) =>
                     setLocalSettings({
                       ...localSettings,

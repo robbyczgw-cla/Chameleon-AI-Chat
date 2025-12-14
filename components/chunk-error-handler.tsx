@@ -49,7 +49,7 @@ export function ChunkErrorHandler() {
     const handleScriptError = (event: Event) => {
       const target = event.target as HTMLScriptElement
       if (target?.tagName === "SCRIPT" && target?.src?.includes("/_next/static/chunks/")) {
-        triggerReload("Script chunk failed to load: " + target.src)
+        triggerReload(`Script chunk failed to load: ${  target.src}`)
       }
     }
 
@@ -59,7 +59,7 @@ export function ChunkErrorHandler() {
       const errorName = event.error?.name || ""
 
       if (isChunkError(message, filename) || errorName === "ChunkLoadError") {
-        triggerReload("Error: " + message)
+        triggerReload(`Error: ${  message}`)
       }
     }
 
@@ -70,7 +70,7 @@ export function ChunkErrorHandler() {
       const errorName = reason?.name || ""
 
       if (isChunkError(message) || errorName === "ChunkLoadError") {
-        triggerReload("Rejection: " + message)
+        triggerReload(`Rejection: ${  message}`)
       }
     }
 

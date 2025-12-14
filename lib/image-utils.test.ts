@@ -4,7 +4,7 @@ import { getImageSizeKB, needsCompression } from './image-utils'
 describe('Image Utils', () => {
   describe('getImageSizeKB', () => {
     test('calculates size in KB for data URL', () => {
-      const dataUrl = 'data:image/png;base64,' + 'A'.repeat(1024) // ~1KB
+      const dataUrl = `data:image/png;base64,${  'A'.repeat(1024)}` // ~1KB
       const size = getImageSizeKB(dataUrl)
       expect(size).toBeGreaterThan(1)
       expect(size).toBeLessThan(2)
@@ -16,9 +16,9 @@ describe('Image Utils', () => {
     })
 
     test('calculates size correctly for various sizes', () => {
-      const small = 'data:image/png;base64,' + 'A'.repeat(512) // ~0.5KB
-      const medium = 'data:image/png;base64,' + 'A'.repeat(10240) // ~10KB
-      const large = 'data:image/png;base64,' + 'A'.repeat(102400) // ~100KB
+      const small = `data:image/png;base64,${  'A'.repeat(512)}` // ~0.5KB
+      const medium = `data:image/png;base64,${  'A'.repeat(10240)}` // ~10KB
+      const large = `data:image/png;base64,${  'A'.repeat(102400)}` // ~100KB
 
       expect(getImageSizeKB(small)).toBeLessThan(1)
       expect(getImageSizeKB(medium)).toBeGreaterThan(10)
@@ -29,7 +29,7 @@ describe('Image Utils', () => {
 
     test('size increases with data URL length', () => {
       const small = 'data:image/png;base64,AAAA'
-      const large = 'data:image/png;base64,' + 'A'.repeat(1000)
+      const large = `data:image/png;base64,${  'A'.repeat(1000)}`
 
       expect(getImageSizeKB(large)).toBeGreaterThan(getImageSizeKB(small))
     })
@@ -37,24 +37,24 @@ describe('Image Utils', () => {
 
   describe('needsCompression', () => {
     test('returns true when image exceeds default 800KB', () => {
-      const largeImage = 'data:image/png;base64,' + 'A'.repeat(820 * 1024) // > 800KB
+      const largeImage = `data:image/png;base64,${  'A'.repeat(820 * 1024)}` // > 800KB
       expect(needsCompression(largeImage)).toBe(true)
     })
 
     test('returns false when image is under default 800KB', () => {
-      const smallImage = 'data:image/png;base64,' + 'A'.repeat(500 * 1024) // < 800KB
+      const smallImage = `data:image/png;base64,${  'A'.repeat(500 * 1024)}` // < 800KB
       expect(needsCompression(smallImage)).toBe(false)
     })
 
     test('respects custom maxSizeKB parameter', () => {
-      const image = 'data:image/png;base64,' + 'A'.repeat(600 * 1024) // ~600KB
+      const image = `data:image/png;base64,${  'A'.repeat(600 * 1024)}` // ~600KB
 
       expect(needsCompression(image, 500)).toBe(true) // > 500KB
       expect(needsCompression(image, 700)).toBe(false) // < 700KB
     })
 
     test('handles boundary case at exact size', () => {
-      const image = 'data:image/png;base64,' + 'A'.repeat(800 * 1024) // Exactly 800KB
+      const image = `data:image/png;base64,${  'A'.repeat(800 * 1024)}` // Exactly 800KB
       const size = getImageSizeKB(image)
 
       // Should be very close to 800KB
@@ -74,7 +74,7 @@ describe('Image Utils', () => {
 
   describe('integration: size and compression check', () => {
     test('small image does not need compression', () => {
-      const small = 'data:image/png;base64,' + 'A'.repeat(100 * 1024) // 100KB
+      const small = `data:image/png;base64,${  'A'.repeat(100 * 1024)}` // 100KB
       const size = getImageSizeKB(small)
 
       expect(size).toBeLessThan(800)
@@ -82,7 +82,7 @@ describe('Image Utils', () => {
     })
 
     test('large image needs compression', () => {
-      const large = 'data:image/png;base64,' + 'A'.repeat(1000 * 1024) // 1000KB
+      const large = `data:image/png;base64,${  'A'.repeat(1000 * 1024)}` // 1000KB
       const size = getImageSizeKB(large)
 
       expect(size).toBeGreaterThan(800)
@@ -90,7 +90,7 @@ describe('Image Utils', () => {
     })
 
     test('threshold calculation is consistent', () => {
-      const image = 'data:image/png;base64,' + 'A'.repeat(900 * 1024)
+      const image = `data:image/png;base64,${  'A'.repeat(900 * 1024)}`
       const size = getImageSizeKB(image)
       const needs = needsCompression(image, size - 1) // Just below threshold
 
@@ -102,7 +102,7 @@ describe('Image Utils', () => {
   describe('default parameters', () => {
     test('needsCompression uses 800KB as default', () => {
       // Create image slightly over 800KB
-      const image = 'data:image/png;base64,' + 'A'.repeat(810 * 1024)
+      const image = `data:image/png;base64,${  'A'.repeat(810 * 1024)}`
 
       // Should need compression with default
       expect(needsCompression(image)).toBe(true)

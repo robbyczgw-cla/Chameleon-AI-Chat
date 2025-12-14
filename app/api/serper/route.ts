@@ -40,8 +40,8 @@ export async function POST(req: NextRequest) {
       gl: country, // Country code (at, de, etc.)
       hl: language, // Language code (de, en, etc.)
       num: maxResults,
-      page: page,
-      autocorrect: autocorrect,
+      page,
+      autocorrect,
     }
 
     // Add time-based search filter (tbs parameter)

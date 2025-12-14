@@ -525,7 +525,7 @@ export async function streamChatMessage(
               // (phase change is already sent separately once)
               if (onStreamingDetails) {
                 onStreamingDetails({
-                  reasoningContent: reasoningContent,
+                  reasoningContent,
                   action: "Extended reasoning in progress..."
                 })
               }
