@@ -38,6 +38,20 @@ interface SharedChatViewProps {
 const remarkPlugins = [remarkGfm, remarkMath]
 const rehypePlugins = [rehypeSanitize, rehypeKatex]
 
+// Normalize Unicode characters that look like markdown syntax but aren't
+// This fixes AI models sometimes outputting Unicode asterisks instead of regular ones
+const normalizeMarkdownChars = (text: string): string => {
+  return text
+    // Asterisks: U+2217 (∗), U+2731 (✱), U+FE61 (﹡), U+FF0A (＊) -> U+002A (*)
+    .replace(/[\u2217\u2731\uFE61\uFF0A]/g, '*')
+    // Underscores: U+FF3F (＿), U+FE4D (﹍) -> U+005F (_)
+    .replace(/[\uFF3F\uFE4D]/g, '_')
+    // Backticks: U+2018 ('), U+2019 ('), U+0060 is regular backtick -> U+0060 (`)
+    .replace(/[\u2018\u2019]/g, '`')
+    // Tildes: U+FF5E (～), U+223C (∼) -> U+007E (~)
+    .replace(/[\uFF5E\u223C]/g, '~')
+}
+
 export function SharedChatView({ chat, shareToken }: SharedChatViewProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -217,7 +231,7 @@ export function SharedChatView({ chat, shareToken }: SharedChatViewProps) {
                         ),
                       }}
                     >
-                      {message.content}
+                      {normalizeMarkdownChars(message.content)}
                     </ReactMarkdown>
                   )}
                 </div>

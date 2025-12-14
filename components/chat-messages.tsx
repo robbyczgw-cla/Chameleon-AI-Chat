@@ -56,6 +56,20 @@ const SyntaxHighlighterWithStyle = dynamic(
 const remarkPlugins = [remarkGfm, remarkMath]
 const rehypePlugins = [rehypeSanitize, rehypeKatex]
 
+// Normalize Unicode characters that look like markdown syntax but aren't
+// This fixes AI models sometimes outputting Unicode asterisks instead of regular ones
+const normalizeMarkdownChars = (text: string): string => {
+  return text
+    // Asterisks: U+2217 (∗), U+2731 (✱), U+FE61 (﹡), U+FF0A (＊) -> U+002A (*)
+    .replace(/[\u2217\u2731\uFE61\uFF0A]/g, '*')
+    // Underscores: U+FF3F (＿), U+FE4D (﹍) -> U+005F (_)
+    .replace(/[\uFF3F\uFE4D]/g, '_')
+    // Backticks: U+2018 ('), U+2019 ('), U+0060 is regular backtick -> U+0060 (`)
+    .replace(/[\u2018\u2019]/g, '`')
+    // Tildes: U+FF5E (～), U+223C (∼) -> U+007E (~)
+    .replace(/[\uFF5E\u223C]/g, '~')
+}
+
 // Time-of-day greetings in different languages
 const getTimeGreeting = (lang: string): string => {
   const hour = new Date().getHours()
@@ -737,7 +751,8 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                     )}
                     {(() => {
                       const raw = typeof message.content === "string" ? message.content : contentToText(message.content)
-                      const followUpsParsed = parseFollowUps(raw)
+                      const normalized = normalizeMarkdownChars(raw)
+                      const followUpsParsed = parseFollowUps(normalized)
                       const richContentParsed = RichContentParser.parseAll(followUpsParsed.content)
 
                       return (
@@ -815,7 +830,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                           </th>
                         ),
                         td: ({ children }) => (
-                          <td className="px-3 py-2.5 border-r border-border last:border-r-0 text-xs sm:text-sm align-top [&_em]:not-italic [&_strong]:font-normal">
+                          <td className="px-3 py-2.5 border-r border-border last:border-r-0 text-xs sm:text-sm align-top">
                             {children}
                           </td>
                         ),
