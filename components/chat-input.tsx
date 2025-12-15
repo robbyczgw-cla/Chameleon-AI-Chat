@@ -980,11 +980,12 @@ export function ChatInput() {
           })
           // Only add to streaming history for significant events (NOT every reasoning chunk)
           // Reasoning content updates the live display but doesn't spam history
-          // CRITICAL: Also check for searchResults to capture the final search results data
-          if (details.phase || details.searchQuery || details.toolName || details.searchResults) {
+          // CRITICAL: Also check for searchResults and toolInput to capture tool usage data
+          if (details.phase || details.searchQuery || details.toolName || details.toolInput || details.searchResults) {
             addStreamingHistoryEntry({
-              phase: details.phase as any || "searching",
+              phase: details.phase as any || "tool_use",
               toolName: details.toolName,
+              toolInput: details.toolInput, // Generic tool input (location, URL, query)
               toolArguments: details.toolArguments,
               searchQuery: details.searchQuery,
               searchProvider: details.searchProvider,
@@ -993,7 +994,7 @@ export function ChatInput() {
               resultCount: details.resultCount,
               searchResultsPreview: details.searchResultsPreview,
               searchResults: details.searchResults, // Add full results for history display
-              description: details.resultSummary || details.action || (details.searchQuery ? `Searching: "${details.searchQuery}"` : undefined)
+              description: details.resultSummary || details.action || (details.searchQuery ? `Searching: "${details.searchQuery}"` : details.toolInput ? `Using ${details.toolName}: "${details.toolInput}"` : undefined)
             })
           }
         },

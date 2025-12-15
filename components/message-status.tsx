@@ -4,7 +4,7 @@ import { memo, useState, useEffect } from "react"
 import {
   Loader2, Brain, MessageSquare, CheckCircle2, Globe, Wrench,
   Zap, Cpu, Network, FileSearch, Sparkles, Clock, ChevronDown, ChevronRight,
-  Activity, BarChart3, Lightbulb, Link, Youtube
+  Activity, BarChart3, Lightbulb, Link, Youtube, CloudSun
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useApp } from "@/contexts/app-context"
@@ -36,10 +36,11 @@ export interface MessageStatusProps {
   streamingDetails?: {
     phase?: string
     toolName?: string
+    toolInput?: string  // Generic tool input (location, URL, query) for any tool
     toolArguments?: Record<string, any>
     searchProvider?: string
     searchParameters?: Record<string, any>
-    searchQuery?: string  // The actual search query being executed
+    searchQuery?: string  // The actual search query being executed (web_search only)
     action?: string
     resultCount?: number
     resultSummary?: string
@@ -327,6 +328,24 @@ export const MessageStatusVerbose = memo(({
             )
           }
 
+          // Weather Tool - show location being queried
+          if (toolName === "get_weather") {
+            const location = streamingDetails?.toolInput || toolArgs.location
+            if (location) {
+              return (
+                <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
+                  <CloudSun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 flex-shrink-0 animate-pulse" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-[11px] sm:text-xs font-medium text-amber-600 dark:text-amber-400 mr-1 sm:mr-2">
+                      {lang === "de" ? "Wetter:" : lang === "es" ? "Clima:" : "Weather:"}
+                    </span>
+                    <span className="text-xs sm:text-sm text-amber-700 dark:text-amber-300 break-words">{location}</span>
+                  </div>
+                </div>
+              )
+            }
+          }
+
           // Generic action
           if (streamingDetails?.action) {
             return (
@@ -521,6 +540,24 @@ export const MessageStatusVerbose = memo(({
                   </div>
                 </div>
               )
+            }
+
+            // Weather Tool - show location being queried (Detailed Mode)
+            if (toolName === "get_weather") {
+              const location = streamingDetails?.toolInput || toolArgs.location
+              if (location) {
+                return (
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
+                    <CloudSun className="w-4 h-4 text-amber-500 flex-shrink-0 animate-pulse" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-medium text-amber-600 dark:text-amber-400 mr-2">
+                        {lang === "de" ? "Wetter:" : lang === "es" ? "Clima:" : "Weather:"}
+                      </span>
+                      <span className="text-sm text-amber-700 dark:text-amber-300 break-words">{location}</span>
+                    </div>
+                  </div>
+                )
+              }
             }
 
             return null

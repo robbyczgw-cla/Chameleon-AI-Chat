@@ -25,6 +25,7 @@ export interface StreamingHistoryEntry {
 
   // Enhanced detailed information (like Claude.ai/Claude Code)
   toolName?: string // Specific tool being used (e.g., "web_search", "read_file", "write_file")
+  toolInput?: string // Generic tool input (location, URL, query) for any tool
   toolArguments?: Record<string, any> // Actual arguments passed to the tool
   action?: string // Specific action being performed (e.g., "Reading file: src/app.tsx")
   files?: string[] // File paths being accessed/modified

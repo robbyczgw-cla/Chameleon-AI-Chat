@@ -228,7 +228,8 @@ export async function streamChatMessage(
     onStreamingDetails?: (details: {
       phase?: string
       toolName?: string
-      searchQuery?: string  // The actual search query being executed
+      searchQuery?: string  // The actual search query being executed (web_search only)
+      toolInput?: string  // Generic tool input (location, URL, query) for any tool
       toolArguments?: Record<string, any>
       searchProvider?: string
       searchParameters?: Record<string, any>
@@ -461,11 +462,12 @@ export async function streamChatMessage(
             }
 
             // Handle enhanced streaming details (for advanced mode visualization)
-            if (onStreamingDetails && (delta?.searchQuery || delta?.toolArguments || delta?.searchProvider || delta?.action || delta?.resultCount || delta?.resultSummary || delta?.searchResultsPreview || delta?.searchResults)) {
+            if (onStreamingDetails && (delta?.searchQuery || delta?.toolInput || delta?.toolArguments || delta?.searchProvider || delta?.action || delta?.resultCount || delta?.resultSummary || delta?.searchResultsPreview || delta?.searchResults)) {
               const details = {
                 phase: delta.phase,
                 toolName: delta.toolName,
-                searchQuery: delta.searchQuery,  // Include the actual search query
+                searchQuery: delta.searchQuery,  // Include the actual search query (web_search only)
+                toolInput: delta.toolInput,  // Generic tool input (location, URL, etc.)
                 toolArguments: delta.toolArguments,
                 searchProvider: delta.searchProvider,
                 searchParameters: delta.searchParameters,

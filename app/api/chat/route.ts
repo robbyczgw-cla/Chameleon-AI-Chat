@@ -1120,6 +1120,8 @@ async function handleStreamingRequest(
                   toolName,
                   // Only send searchQuery for web_search to avoid confusing the frontend
                   ...(toolName === "web_search" && { searchQuery: toolQuery }),
+                  // Send toolInput for all tools so frontend can show what's being processed
+                  toolInput: toolQuery,
                   toolArguments: toolArgs,
                   searchProvider: toolName === "web_search" ? searchProvider : undefined,
                   searchParameters: toolName === "web_search" ? searchSettings : undefined,
