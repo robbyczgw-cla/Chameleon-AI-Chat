@@ -321,7 +321,7 @@ export interface BackgroundAIModelsSettings {
   personaGeneration?: string // Default: x-ai/grok-4.1-fast
   personalityAnalysis?: string // Default: x-ai/grok-4.1-fast
   conversationInsights?: string // Default: x-ai/grok-4.1-fast
-  contextCompression?: string // Default: x-ai/grok-4.1-fast:free
+  contextCompression?: string // Default: x-ai/grok-4.1-fast
   // Image generation tasks
   imageGenNormal?: string // Default: google/gemini-2.5-flash-image
   imageGenHigh?: string // Default: google/gemini-3-pro-image-preview

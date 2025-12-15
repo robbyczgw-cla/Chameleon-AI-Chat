@@ -22,7 +22,7 @@ export const DEFAULT_BACKGROUND_MODELS: Required<BackgroundAIModelsSettings> = {
   personaGeneration: "x-ai/grok-4.1-fast",
   personalityAnalysis: "x-ai/grok-4.1-fast",
   conversationInsights: "x-ai/grok-4.1-fast",
-  contextCompression: "x-ai/grok-4.1-fast:free",
+  contextCompression: "x-ai/grok-4.1-fast",
   imageGenNormal: "google/gemini-2.5-flash-image",
   imageGenHigh: "google/gemini-3-pro-image-preview",
   embeddings: "openai/text-embedding-3-small",
