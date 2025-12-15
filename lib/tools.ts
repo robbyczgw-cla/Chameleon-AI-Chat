@@ -60,7 +60,7 @@ export const webSearchTool: ToolDefinition = {
 ALWAYS use web search for:
 - Product prices, specifications, availability (NEVER trust training data for this!)
 - Current events, news, or recent happenings
-- Weather, stock prices, sports scores, or live data
+- Stock prices, sports scores, or live data
 - Product releases, updates, or announcements
 - Local events, places, or businesses
 - Shopping comparisons or deals
@@ -69,6 +69,7 @@ ALWAYS use web search for:
 - Anything that might have changed since your knowledge cutoff
 
 DO NOT use for:
+- Weather (use the get_weather tool instead!)
 - Pure conceptual explanations (e.g., "How does gravity work?")
 - Math calculations or code generation
 - Creative writing or brainstorming
