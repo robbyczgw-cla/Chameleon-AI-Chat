@@ -1004,9 +1004,21 @@ async function handleStreamingRequest(
                 }
               }
 
-              // Forward reasoning content (o1, DeepSeek R1, thinking models)
-              // Check for reasoning_content, reasoning, or thinking fields
-              const reasoningContent = delta?.reasoning_content || delta?.reasoning || delta?.thinking
+              // Forward reasoning content (o1, DeepSeek R1, Grok, thinking models)
+              // Check for reasoning_content, reasoning, thinking fields AND reasoning_details array
+              let reasoningContent = delta?.reasoning_content || delta?.reasoning || delta?.thinking
+
+              // Handle reasoning_details array format (OpenRouter standard for Grok, newer models)
+              if (!reasoningContent && delta?.reasoning_details && Array.isArray(delta.reasoning_details)) {
+                for (const detail of delta.reasoning_details) {
+                  if (detail.type === "reasoning.text" && detail.text) {
+                    reasoningContent = detail.text
+                  } else if (detail.type === "reasoning.summary" && detail.summary) {
+                    reasoningContent = detail.summary
+                  }
+                }
+              }
+
               if (reasoningContent && !hasToolCalls) {
                 // Only send phase change ONCE when reasoning starts (not for every token!)
                 if (!hasStartedReasoning) {

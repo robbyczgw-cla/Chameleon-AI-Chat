@@ -298,7 +298,7 @@ export function getAvailableTools(options?: { includeShopify?: boolean }): ToolD
 export function modelSupportsToolCalling(modelId: string): boolean {
   const modelLower = modelId.toLowerCase()
 
-  // Models known to support tool calling well (November 2025)
+  // Models known to support tool calling well (December 2025)
   const supportedPatterns = [
     // OpenAI (2025)
     'gpt-5', 'gpt-5-mini', 'gpt-4o', 'gpt-4-turbo',
@@ -317,6 +317,8 @@ export function modelSupportsToolCalling(modelId: string): boolean {
     'qwen3', 'qwen3-max', 'qwen3-coder', 'qwen3-235b',
     // Mistral (2025)
     'codestral-2025', 'mistral-large', 'mixtral',
+    // MoonShot Kimi (2025) - excellent free tool calling
+    'kimi-k2',
     // Others
     'glm-4', 'minimax-m2', 'command-r',
   ]
