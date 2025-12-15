@@ -1118,7 +1118,8 @@ async function handleStreamingRequest(
                 choices: [{ delta: {
                   phase,
                   toolName,
-                  searchQuery: toolQuery,
+                  // Only send searchQuery for web_search to avoid confusing the frontend
+                  ...(toolName === "web_search" && { searchQuery: toolQuery }),
                   toolArguments: toolArgs,
                   searchProvider: toolName === "web_search" ? searchProvider : undefined,
                   searchParameters: toolName === "web_search" ? searchSettings : undefined,
