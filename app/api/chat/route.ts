@@ -1231,28 +1231,31 @@ async function handleStreamingRequest(
 
           currentMessages.push(...toolResults)
 
-          // Extract search results from tool results
-          const searchResults = toolResults.length > 0 && toolResults[0].searchResults
+          // Extract search results from tool results (only for web_search)
+          const firstToolName = accumulatedToolCalls[0]?.function.name
+          const searchResults = firstToolName === "web_search" && toolResults.length > 0 && toolResults[0].searchResults
             ? toolResults[0].searchResults
             : []
-          const searchResultsPreview = toolResults.length > 0
+          const searchResultsPreview = firstToolName === "web_search" && toolResults.length > 0
             ? toolResults[0].content.substring(0, 500) + (toolResults[0].content.length > 500 ? '...' : '')
             : ''
 
-          // Send search complete event with detailed results
-          await writer.write(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                choices: [{ delta: {
-                  searchComplete: true,
-                  searchResultCount: searchResults.length,
-                  resultSummary: `Found ${searchResults.length} result${searchResults.length !== 1 ? 's' : ''} from ${searchProvider}`,
-                  searchResultsPreview,
-                  searchResults // Send full results array for rich UI display
-                } }],
-              })}\n\n`
+          // Send search complete event with detailed results (only for web_search)
+          if (firstToolName === "web_search") {
+            await writer.write(
+              encoder.encode(
+                `data: ${JSON.stringify({
+                  choices: [{ delta: {
+                    searchComplete: true,
+                    searchResultCount: searchResults.length,
+                    resultSummary: `Found ${searchResults.length} result${searchResults.length !== 1 ? 's' : ''} from ${searchProvider}`,
+                    searchResultsPreview,
+                    searchResults // Send full results array for rich UI display
+                  } }],
+                })}\n\n`
+              )
             )
-          )
+          }
 
           // Continue to get the final response
           continue

@@ -231,8 +231,9 @@ export const MessageStatusVerbose = memo(({
   if (!showDetailedStreaming) {
     const toolName = streamingDetails?.toolName
     const toolArgs = streamingDetails?.toolArguments || {}
+    const toolInput = streamingDetails?.toolInput
     const hasContent = searchQuery || streamingDetails?.searchQuery || streamingDetails?.action ||
-                       streamingDetails?.reasoningContent || toolName
+                       streamingDetails?.reasoningContent || toolName || toolInput
 
     if (!hasContent) {
       // IMPROVED: Show phase-based message instead of generic "Processing..."
@@ -330,7 +331,7 @@ export const MessageStatusVerbose = memo(({
 
           // Weather Tool - show location being queried
           if (toolName === "get_weather") {
-            const location = streamingDetails?.toolInput || toolArgs.location
+            const location = toolInput || toolArgs.location
             if (location) {
               return (
                 <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
@@ -493,11 +494,12 @@ export const MessageStatusVerbose = memo(({
       </div>
 
       {/* Current Activity Banner - Always visible summary */}
-      {(searchQuery || streamingDetails?.searchQuery || streamingDetails?.action || streamingDetails?.reasoningContent || streamingDetails?.toolName) && (
+      {(searchQuery || streamingDetails?.searchQuery || streamingDetails?.action || streamingDetails?.reasoningContent || streamingDetails?.toolName || streamingDetails?.toolInput) && (
         <div className="mb-3 space-y-2">
           {/* Tool-specific banners */}
           {(() => {
             const toolName = streamingDetails?.toolName
+            const toolInput = streamingDetails?.toolInput
             const toolArgs = streamingDetails?.toolArguments || {}
 
             if (toolName === "web_search" || searchQuery || streamingDetails?.searchQuery) {
@@ -544,7 +546,7 @@ export const MessageStatusVerbose = memo(({
 
             // Weather Tool - show location being queried (Detailed Mode)
             if (toolName === "get_weather") {
-              const location = streamingDetails?.toolInput || toolArgs.location
+              const location = toolInput || toolArgs.location
               if (location) {
                 return (
                   <div className="flex items-center gap-2 p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
