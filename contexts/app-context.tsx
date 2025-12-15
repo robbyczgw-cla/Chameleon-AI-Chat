@@ -14,6 +14,7 @@ import { generateChatTitle } from "@/lib/title-generator"
 import { stripImageDataFromContent } from "@/lib/multimodal-utils"
 import { memoryService } from "@/lib/memory-service"
 import { personaMemoryService } from "@/lib/persona-memory-service"
+import { getBackgroundModel } from "@/components/experimental-settings"
 
 interface AppContextType {
   chats: Chat[]
@@ -405,6 +406,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       console.log("[AppContext] Syncing memory settings to memoryService:", settings.memorySettings)
       memoryService.updateSettings(settings.memorySettings)
 
+      // Configure memory service models from experimental settings
+      const backgroundModels = settings.experimental?.backgroundAIModels
+      if (backgroundModels) {
+        memoryService.setModels({
+          extractionModel: backgroundModels.memoryExtraction,
+          classifierModel: backgroundModels.queryClassification,
+        })
+      }
+
       // SECURITY: Configure user ID for both memory services
       const syncEnabled = settings.memorySettings.syncToDatabase ?? false
       memoryService.configureDatabaseSync(user?.id || null, syncEnabled)
@@ -417,7 +427,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })
       }
     }
-  }, [settings.memorySettings, user?.id])
+  }, [settings.memorySettings, settings.experimental?.backgroundAIModels, user?.id])
 
   // Sync model preference changes back to app settings
   useEffect(() => {
@@ -1029,7 +1039,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     if (isFirstUserMessage && settings.apiKeys.openRouter && textContent.length >= 10) {
       // Generate title in background (don't block UI)
-      generateChatTitle(textContent, settings.apiKeys.openRouter)
+      const titleModel = getBackgroundModel('titleGeneration', settings.experimental?.backgroundAIModels)
+      generateChatTitle(textContent, settings.apiKeys.openRouter, { model: titleModel })
         .then(({ title: aiTitle, success }) => {
           if (success) {
             // Update chat with AI-generated title and timestamp for animation

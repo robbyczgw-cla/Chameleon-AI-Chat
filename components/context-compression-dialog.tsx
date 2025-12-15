@@ -12,6 +12,7 @@ import { contextWindowService, type CompressionResult } from "@/lib/context-wind
 import { streamChatMessage } from "@/lib/openrouter"
 import { cn } from "@/lib/utils"
 import { Shrink, Loader2, Check, AlertTriangle, Sparkles, FileText } from "lucide-react"
+import { getBackgroundModel, DEFAULT_BACKGROUND_MODELS } from "@/components/experimental-settings"
 
 interface ContextCompressionDialogProps {
   open: boolean
@@ -65,8 +66,8 @@ export function ContextCompressionDialog({ open, onOpenChange }: ContextCompress
         return
       }
 
-      // Use grok-4.1-fast for compression (fast, cheap, 2M context)
-      const compressionModel = "x-ai/grok-4.1-fast:free"
+      // Get the configured model from settings, falling back to default
+      const compressionModel = getBackgroundModel('contextCompression', settings.experimental?.backgroundAIModels)
       let generatedSummary = ""
 
       await streamChatMessage(

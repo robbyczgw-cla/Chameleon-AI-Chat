@@ -308,6 +308,27 @@ export interface StatsDisplaySettings {
   defaultExpandCache?: boolean // Auto-expand cache section
 }
 
+/**
+ * Background AI Models Settings
+ * Configure which models to use for various background tasks (Advanced Mode only)
+ */
+export interface BackgroundAIModelsSettings {
+  // Text generation tasks
+  titleGeneration?: string // Default: openai/gpt-oss-20b
+  memoryExtraction?: string // Default: openai/gpt-oss-20b
+  queryClassification?: string // Default: openai/gpt-oss-20b
+  promptHelper?: string // Default: x-ai/grok-4.1-fast
+  personaGeneration?: string // Default: x-ai/grok-4.1-fast
+  personalityAnalysis?: string // Default: x-ai/grok-4.1-fast
+  conversationInsights?: string // Default: x-ai/grok-4.1-fast
+  contextCompression?: string // Default: x-ai/grok-4.1-fast:free
+  // Image generation tasks
+  imageGenNormal?: string // Default: google/gemini-2.5-flash-image
+  imageGenHigh?: string // Default: google/gemini-3-pro-image-preview
+  // Embedding tasks
+  embeddings?: string // Default: openai/text-embedding-3-small
+}
+
 export interface ExperimentalSettings {
   // Response Analysis
   enableResponseAnalysis?: boolean
@@ -329,6 +350,10 @@ export interface ExperimentalSettings {
   showInputStats?: boolean // Show token/cost estimate below chat input
   // Follow-up Suggestions (Advanced Mode only)
   showCategorizedFollowUps?: boolean // Show category labels (Quick/Deep Dive/Related) in follow-up suggestions (default: false for minimalistic look)
+  // Background AI Models (Advanced Mode only)
+  backgroundAIModels?: BackgroundAIModelsSettings // Configure models for background tasks
+  // Animation Settings
+  enableAnimations?: boolean // Enable animated loading indicators
 }
 
 // Access tier determines user privileges and UI restrictions

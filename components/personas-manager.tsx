@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { getBackgroundModel, DEFAULT_BACKGROUND_MODELS } from "@/components/experimental-settings"
 
 export function PersonasManager() {
   const [personas, setPersonas] = useState<Persona[]>([])
@@ -164,6 +165,9 @@ Die Persönlichkeits-Beschreibung wird zu einem Basis-System-Prompt HINZUGEFÜGT
 
 WICHTIG: Schreibe NUR die Persönlichkeits-Beschreibung, keine Erklärungen davor oder danach. Die Beschreibung sollte in der "Du"-Form geschrieben sein und direkt an die KI gerichtet. Füge KEINE Follow-Up-Strukturen hinzu (die sind im Basis-Prompt).`
 
+      // Get the configured persona generation model from settings, falling back to default
+      const personaModel = getBackgroundModel('personaGeneration', settings.experimental?.backgroundAIModels)
+
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -172,7 +176,7 @@ WICHTIG: Schreibe NUR die Persönlichkeits-Beschreibung, keine Erklärungen davo
           'HTTP-Referer': window.location.origin,
         },
         body: JSON.stringify({
-          model: settings.selectedModel || 'anthropic/claude-3.5-sonnet',
+          model: personaModel,
           messages: [
             { role: 'user', content: personalityTemplate }
           ],

@@ -3,9 +3,9 @@ import { checkRateLimit } from '@/lib/rate-limit'
 
 export const runtime = 'edge'
 
-// Image generation models
-const IMAGE_MODEL_NORMAL = 'google/gemini-2.5-flash-image'
-const IMAGE_MODEL_HIGH = 'google/gemini-3-pro-image-preview'
+// Default image generation models (can be overridden via request body)
+export const DEFAULT_IMAGE_MODEL_NORMAL = 'google/gemini-2.5-flash-image'
+export const DEFAULT_IMAGE_MODEL_HIGH = 'google/gemini-3-pro-image-preview'
 
 /**
  * Generate images using Gemini 2.5 Flash Image
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { prompt, apiKey, inputImages, quality } = await req.json()
+    const { prompt, apiKey, inputImages, quality, customModel } = await req.json()
 
     if (!prompt) {
       return NextResponse.json(
@@ -48,9 +48,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Select model based on quality setting
-    const IMAGE_MODEL = quality === 'high' ? IMAGE_MODEL_HIGH : IMAGE_MODEL_NORMAL
-    console.log(`[Image Gen] Using model: ${IMAGE_MODEL} (quality: ${quality || 'normal'})`)
+    // Select model - use custom model if provided, otherwise select based on quality
+    let IMAGE_MODEL: string
+    if (customModel) {
+      IMAGE_MODEL = customModel
+    } else {
+      IMAGE_MODEL = quality === 'high' ? DEFAULT_IMAGE_MODEL_HIGH : DEFAULT_IMAGE_MODEL_NORMAL
+    }
+    console.log(`[Image Gen] Using model: ${IMAGE_MODEL} (quality: ${quality || 'normal'}, custom: ${!!customModel})`)
 
     // Build message content - include input images for image-to-image if provided
     let messageContent: string | Array<{ type: string; text?: string; image_url?: { url: string } }> = prompt

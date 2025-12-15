@@ -3,7 +3,8 @@
  * Uses OpenRouter to generate embeddings via OpenAI's text-embedding-3-small model
  */
 
-const EMBEDDING_MODEL = "openai/text-embedding-3-small"
+// Default embedding model (can be overridden)
+export const DEFAULT_EMBEDDING_MODEL = "openai/text-embedding-3-small"
 const EMBEDDING_DIMENSIONS = 1536
 
 interface EmbeddingResponse {
@@ -17,13 +18,19 @@ interface EmbeddingResponse {
   }
 }
 
+interface EmbeddingOptions {
+  model?: string // Override the default embedding model
+}
+
 /**
  * Generate embeddings for one or more texts using OpenRouter
  */
 export async function generateEmbeddings(
   texts: string[],
-  apiKey: string
+  apiKey: string,
+  options?: EmbeddingOptions
 ): Promise<number[][]> {
+  const model = options?.model || DEFAULT_EMBEDDING_MODEL
   if (!apiKey) {
     throw new Error("OpenRouter API key required for embeddings")
   }
@@ -44,7 +51,7 @@ export async function generateEmbeddings(
         "X-Title": "Chameleon AI Chat",
       },
       body: JSON.stringify({
-        model: EMBEDDING_MODEL,
+        model: model,
         input: texts,
       }),
     })
@@ -79,9 +86,10 @@ export async function generateEmbeddings(
  */
 export async function generateEmbedding(
   text: string,
-  apiKey: string
+  apiKey: string,
+  options?: EmbeddingOptions
 ): Promise<number[]> {
-  const embeddings = await generateEmbeddings([text], apiKey)
+  const embeddings = await generateEmbeddings([text], apiKey, options)
   return embeddings[0]
 }
 
@@ -135,4 +143,7 @@ export function findSimilar<T extends { embedding?: number[] }>(
     .slice(0, maxResults)
 }
 
-export { EMBEDDING_MODEL, EMBEDDING_DIMENSIONS }
+export { DEFAULT_EMBEDDING_MODEL, EMBEDDING_DIMENSIONS }
+
+// Backwards compatibility alias
+export const EMBEDDING_MODEL = DEFAULT_EMBEDDING_MODEL
