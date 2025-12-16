@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Sparkles, Copy, Send, Lightbulb, BookOpen, CheckCircle2, XCircle } from "lucide-react"
 import { PROMPT_ENGINEERING_TIPS, PROMPT_TEMPLATES, improvePrompt } from "@/lib/prompt-engineering"
 import { useApp } from "@/contexts/app-context"
+import { getBackgroundModel } from "@/components/experimental-settings"
 
 interface PromptHelperDialogProps {
   open: boolean
@@ -38,7 +39,8 @@ export function PromptHelperDialog({ open, onOpenChange, onUsePrompt }: PromptHe
         throw new Error("OpenRouter API key not configured. Please add your API key in Settings → API Keys")
       }
 
-      const improved = await improvePrompt(draftPrompt, apiKey)
+      const promptModel = getBackgroundModel('promptHelper', settings.experimental?.backgroundAIModels)
+      const improved = await improvePrompt(draftPrompt, apiKey, { model: promptModel })
       setImprovedPrompt(improved)
     } catch (err) {
       console.error("[PromptHelper] Failed to improve prompt:", err)

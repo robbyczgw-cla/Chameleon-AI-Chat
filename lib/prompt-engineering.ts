@@ -538,10 +538,22 @@ export function getRandomTip() {
   return PROMPT_ENGINEERING_TIPS[Math.floor(Math.random() * PROMPT_ENGINEERING_TIPS.length)]
 }
 
+// Default model for prompt improvement
+export const DEFAULT_PROMPT_HELPER_MODEL = "x-ai/grok-4.1-fast"
+
+interface ImprovePromptOptions {
+  model?: string // Override the default model
+}
+
 /**
  * Improve a prompt using AI
  */
-export async function improvePrompt(originalPrompt: string, apiKey: string): Promise<string> {
+export async function improvePrompt(
+  originalPrompt: string,
+  apiKey: string,
+  options?: ImprovePromptOptions
+): Promise<string> {
+  const model = options?.model || DEFAULT_PROMPT_HELPER_MODEL
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -551,7 +563,7 @@ export async function improvePrompt(originalPrompt: string, apiKey: string): Pro
       "X-Title": "Chameleon Chat - Prompt Helper",
     },
     body: JSON.stringify({
-      model: "x-ai/grok-4-fast:free", // Fast and cheap for this task
+      model: model,
       messages: [
         {
           role: "system",

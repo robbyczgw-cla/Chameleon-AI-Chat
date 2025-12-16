@@ -3,12 +3,16 @@
  * Uses a small, cheap open-source model to generate concise titles from user messages
  */
 
-// Use open-source model for privacy
-const TITLE_MODEL = "openai/gpt-oss-20b"
+// Default model for title generation
+export const DEFAULT_TITLE_MODEL = "openai/gpt-oss-20b"
 
 interface TitleGenerationResult {
   title: string
   success: boolean
+}
+
+interface TitleGenerationOptions {
+  model?: string // Override the default model
 }
 
 /**
@@ -17,8 +21,10 @@ interface TitleGenerationResult {
  */
 export async function generateChatTitle(
   userMessage: string,
-  apiKey: string
+  apiKey: string,
+  options?: TitleGenerationOptions
 ): Promise<TitleGenerationResult> {
+  const model = options?.model || DEFAULT_TITLE_MODEL
   // Fallback title (truncated message)
   const fallbackTitle = userMessage.slice(0, 50) + (userMessage.length > 50 ? "..." : "")
 
@@ -42,7 +48,7 @@ export async function generateChatTitle(
         "X-Title": "Chameleon AI Chat",
       },
       body: JSON.stringify({
-        model: TITLE_MODEL,
+        model: model,
         messages: [
           {
             role: "system",

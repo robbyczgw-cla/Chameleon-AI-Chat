@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Brain, Sparkles, Loader2 } from "lucide-react"
 import { streamChatMessage } from "@/lib/openrouter"
+import { getBackgroundModel, DEFAULT_BACKGROUND_MODELS } from "@/components/experimental-settings"
 
 interface PersonalityAnalysis {
   analysis: string
@@ -93,9 +94,12 @@ Erstelle eine strukturierte Persönlichkeitsanalyse mit folgenden Punkten:
 
       let fullAnalysis = ""
 
+      // Get the configured model from settings, falling back to default
+      const analysisModel = getBackgroundModel('personalityAnalysis', settings.experimental?.backgroundAIModels)
+
       await streamChatMessage(
         [{ role: "user", content: analysisPrompt }],
-        "x-ai/grok-4-fast:free",
+        analysisModel,
         (chunk) => {
           fullAnalysis += chunk
         },

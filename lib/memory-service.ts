@@ -14,8 +14,10 @@ import { generateEmbedding, findSimilar, cosineSimilarity } from "@/lib/embeddin
 
 const MEMORY_STORAGE_KEY_PREFIX = "chat_memories" // Base key - user ID appended for security
 const DELETED_MEMORY_STORAGE_KEY_PREFIX = "chat_deleted_memories" // Archived memories storage
-const EXTRACTION_MODEL = "openai/gpt-oss-20b" // Cheap, fast model for extraction
-const CLASSIFIER_MODEL = "openai/gpt-oss-20b" // Same model for query classification
+
+// Default models for memory tasks (can be overridden via settings)
+export const DEFAULT_EXTRACTION_MODEL = "openai/gpt-oss-20b" // Cheap, fast model for extraction
+export const DEFAULT_CLASSIFIER_MODEL = "openai/gpt-oss-20b" // Same model for query classification
 
 // Expiration constants
 const DEFAULT_EXPIRATION_DAYS = 7 // Days without access before expiration
@@ -67,10 +69,35 @@ class MemoryService {
   private settings: MemorySettings = DEFAULT_SETTINGS
   private userId: string | null = null
   private syncEnabled: boolean = false
+  // Configurable models (can be set from UI settings)
+  private extractionModel: string = DEFAULT_EXTRACTION_MODEL
+  private classifierModel: string = DEFAULT_CLASSIFIER_MODEL
 
   constructor() {
     // Don't load memories in constructor - wait for user ID to be set
     // This prevents showing another user's memories
+  }
+
+  /**
+   * Set custom models for memory tasks (from UI settings)
+   */
+  setModels(options: { extractionModel?: string; classifierModel?: string }) {
+    if (options.extractionModel) {
+      this.extractionModel = options.extractionModel
+    }
+    if (options.classifierModel) {
+      this.classifierModel = options.classifierModel
+    }
+  }
+
+  /**
+   * Get current model configuration
+   */
+  getModels() {
+    return {
+      extractionModel: this.extractionModel,
+      classifierModel: this.classifierModel,
+    }
   }
 
   /**
@@ -1040,7 +1067,7 @@ Return ONLY the JSON array, no other text.`
           "HTTP-Referer": typeof window !== "undefined" ? window.location.href : "https://chameleon-ai.chat",
         },
         body: JSON.stringify({
-          model: EXTRACTION_MODEL,
+          model: this.extractionModel,
           messages: [
             { role: "user", content: prompt }
           ],
@@ -1404,7 +1431,7 @@ Return ONLY a valid JSON array (no markdown, no explanation):
 importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
 
     try {
-      console.log("[Memory] Starting LLM extraction with model:", EXTRACTION_MODEL)
+      console.log("[Memory] Starting LLM extraction with model:", this.extractionModel)
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -1413,7 +1440,7 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
         },
         body: JSON.stringify({
           messages: [{ role: "user", content: extractionPrompt }],
-          model: EXTRACTION_MODEL,
+          model: this.extractionModel,
           temperature: 0.3, // Low temp for consistent extraction
           maxTokens: 500,
           stream: false,
@@ -1615,7 +1642,7 @@ Respond with ONLY valid JSON (no markdown):
         },
         body: JSON.stringify({
           messages: [{ role: "user", content: classificationPrompt }],
-          model: CLASSIFIER_MODEL,
+          model: this.classifierModel,
           temperature: 0.1, // Very low temp for consistent classification
           maxTokens: 100, // Classification is tiny
           stream: false,

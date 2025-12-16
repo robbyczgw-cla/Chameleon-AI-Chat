@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { streamChatMessage } from "@/lib/openrouter"
 import { cn } from "@/lib/utils"
+import { getBackgroundModel, DEFAULT_BACKGROUND_MODELS } from "@/components/experimental-settings"
 
 interface ConversationInsight {
   summary: string
@@ -87,9 +88,12 @@ Antworte NUR mit dem JSON-Objekt, ohne zusätzlichen Text.`
 
       let fullResponse = ""
 
+      // Get the configured model from settings, falling back to default
+      const insightsModel = getBackgroundModel('conversationInsights', settings.experimental?.backgroundAIModels)
+
       await streamChatMessage(
         [{ role: "user", content: analysisPrompt }],
-        "x-ai/grok-4-fast:free",
+        insightsModel,
         (chunk) => {
           fullResponse += chunk
         },
