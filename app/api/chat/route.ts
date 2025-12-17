@@ -915,9 +915,17 @@ async function handleStreamingRequest(
           const lastThree = currentMessages.slice(-3)
           lastThree.forEach((msg, i) => {
             const msgIndex = currentMessages.length - 3 + i
+            const msgAny = msg as any
             console.log(`[Chat] Message[${msgIndex}]: role=${msg.role}, hasContent=${!!msg.content}, contentLength=${(msg.content as string)?.length || 0}`)
             if (msg.tool_calls) {
               console.log(`[Chat] Message[${msgIndex}]: has tool_calls=${msg.tool_calls.length}`)
+            }
+            // Log thought signature presence (critical for Gemini 3)
+            if (msgAny.thought_signature) {
+              console.log(`[Chat] Message[${msgIndex}]: has thought_signature ✓`)
+            }
+            if (msgAny.reasoning_details) {
+              console.log(`[Chat] Message[${msgIndex}]: has reasoning_details (${msgAny.reasoning_details.length} items) ✓`)
             }
           })
         }
@@ -951,6 +959,10 @@ async function handleStreamingRequest(
         let hasToolCalls = false
         let finishReason = ""
         let generationId: string | undefined = undefined
+        // Gemini 3 thought signatures - MUST be preserved for multi-turn tool calling
+        // See: https://ai.google.dev/gemini-api/docs/thought-signatures
+        let accumulatedReasoningDetails: any[] = []
+        let thoughtSignature: string | undefined = undefined
 
         // Process the stream
         while (true) {
@@ -1030,6 +1042,38 @@ async function handleStreamingRequest(
                   if (tc.id) accumulatedToolCalls[index].id = tc.id
                   if (tc.function?.name) accumulatedToolCalls[index].function.name = tc.function.name
                   if (tc.function?.arguments) accumulatedToolCalls[index].function.arguments += tc.function.arguments
+                }
+              }
+
+              // Capture Gemini 3 thought signatures for multi-turn tool calling
+              // These MUST be preserved and passed back, otherwise Gemini 3 returns 400 error
+              // See: https://ai.google.dev/gemini-api/docs/thought-signatures
+              if (delta?.thought_signature) {
+                thoughtSignature = delta.thought_signature
+                console.log("[Chat] Captured thought_signature for Gemini 3")
+              }
+              // Also check parsed level (OpenRouter may put it at choice level)
+              if (parsed.choices?.[0]?.thought_signature) {
+                thoughtSignature = parsed.choices[0].thought_signature
+                console.log("[Chat] Captured thought_signature from choice level")
+              }
+              // Capture reasoning_details array (OpenRouter format for reasoning tokens)
+              if (delta?.reasoning_details && Array.isArray(delta.reasoning_details)) {
+                accumulatedReasoningDetails.push(...delta.reasoning_details)
+                // Check if any reasoning detail contains a thought signature
+                for (const detail of delta.reasoning_details) {
+                  if (detail.thought_signature) {
+                    thoughtSignature = detail.thought_signature
+                    console.log("[Chat] Captured thought_signature from reasoning_details")
+                  }
+                }
+              }
+              // Also check at message level
+              if (parsed.choices?.[0]?.message?.reasoning_details) {
+                const msgReasoningDetails = parsed.choices[0].message.reasoning_details
+                if (Array.isArray(msgReasoningDetails)) {
+                  accumulatedReasoningDetails = msgReasoningDetails
+                  console.log("[Chat] Captured reasoning_details from message level:", msgReasoningDetails.length)
                 }
               }
 
@@ -1166,11 +1210,25 @@ async function handleStreamingRequest(
           )
 
           // Add assistant message with tool calls
-          currentMessages.push({
+          // CRITICAL: For Gemini 3, we MUST include thought_signature and reasoning_details
+          // Otherwise the model returns 400 error or empty response on the next turn
+          // See: https://ai.google.dev/gemini-api/docs/thought-signatures
+          const assistantMessage: any = {
             role: "assistant",
             content: "",
             tool_calls: accumulatedToolCalls,
-          })
+          }
+          // Include thought signature if captured (required for Gemini 3)
+          if (thoughtSignature) {
+            assistantMessage.thought_signature = thoughtSignature
+            console.log("[Chat] Including thought_signature in assistant message")
+          }
+          // Include reasoning_details if captured (OpenRouter format)
+          if (accumulatedReasoningDetails.length > 0) {
+            assistantMessage.reasoning_details = accumulatedReasoningDetails
+            console.log("[Chat] Including reasoning_details in assistant message:", accumulatedReasoningDetails.length)
+          }
+          currentMessages.push(assistantMessage)
 
           // Execute tool calls
           const toolResults = await Promise.all(
