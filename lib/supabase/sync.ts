@@ -1,6 +1,12 @@
 import { createClient } from "@/lib/supabase/client"
 import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt, Memory, DeletedMemory, AccessTier, ChatShare, SharedChatData } from "@/types"
 
+// Types for secure API key storage
+export interface SecureApiKey {
+  keyType: 'openRouter' | 'openAI' | 'tavily' | 'serper' | 'exa'
+  keyValue: string
+}
+
 export class SupabaseSync {
   private supabase = createClient()
 
