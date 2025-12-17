@@ -883,6 +883,7 @@ async function handleStreamingRequest(
       let hasStartedResponding = false
       let hasStartedReasoning = false // Track if we've sent the initial reasoning phase
       const allGenerationIds: string[] = [] // Track ALL generation IDs for tool calling cost tracking
+      let lastToolCallIteration = 0 // Track which iteration had tool calls (for fallback logic)
 
       // Send initial thinking phase
       await writer.write(
@@ -895,6 +896,31 @@ async function handleStreamingRequest(
 
       while (iterations < MAX_ITERATIONS) {
         iterations++
+        console.log(`[Chat] ===== Iteration ${iterations} of ${MAX_ITERATIONS} =====`)
+        console.log(`[Chat] Current messages count: ${currentMessages.length}`)
+
+        // Log the last message to debug tool result format
+        const lastMsg = currentMessages[currentMessages.length - 1]
+        if (lastMsg) {
+          console.log(`[Chat] Last message role: ${lastMsg.role}, has content: ${!!lastMsg.content}`)
+          if (lastMsg.role === "tool") {
+            console.log(`[Chat] Tool result name: ${(lastMsg as any).name}, content length: ${(lastMsg as any).content?.length || 0}`)
+          }
+        }
+
+        // Log the request being sent (for debugging tool call issues)
+        if (iterations > 1) {
+          console.log(`[Chat] Second iteration - sending ${currentMessages.length} messages to OpenRouter`)
+          // Log the last few messages to see tool result format
+          const lastThree = currentMessages.slice(-3)
+          lastThree.forEach((msg, i) => {
+            const msgIndex = currentMessages.length - 3 + i
+            console.log(`[Chat] Message[${msgIndex}]: role=${msg.role}, hasContent=${!!msg.content}, contentLength=${(msg.content as string)?.length || 0}`)
+            if (msg.tool_calls) {
+              console.log(`[Chat] Message[${msgIndex}]: has tool_calls=${msg.tool_calls.length}`)
+            }
+          })
+        }
 
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
@@ -907,8 +933,11 @@ async function handleStreamingRequest(
           body: JSON.stringify({ ...openRouterBody, messages: currentMessages }),
         })
 
+        console.log(`[Chat] OpenRouter response status: ${response.status}`)
+
         if (!response.ok) {
           const errorText = await response.text()
+          console.error(`[Chat] OpenRouter error response: ${errorText.substring(0, 500)}`)
           await writer.write(encoder.encode(`data: ${JSON.stringify({ error: errorText })}\n\n`))
           break
         }
@@ -1076,9 +1105,14 @@ async function handleStreamingRequest(
           }
         }
 
+        // Debug: Log stream completion summary
+        console.log(`[Chat] Stream ${iterations} complete - hasToolCalls: ${hasToolCalls}, finishReason: ${finishReason}, generationId: ${generationId}`)
+        console.log(`[Chat] Accumulated tool calls: ${accumulatedToolCalls.length}`)
+
         // Handle tool calls
         if (hasToolCalls && accumulatedToolCalls.length > 0 && toolsEnabled) {
           console.log("[Chat] Processing tool calls:", accumulatedToolCalls.length)
+          lastToolCallIteration = iterations // Track this iteration had tool calls
 
           // Parse the tool call arguments
           const toolArgs = parseToolArguments(accumulatedToolCalls[0]?.function.arguments || "{}")
@@ -1230,6 +1264,8 @@ async function handleStreamingRequest(
           )
 
           currentMessages.push(...toolResults)
+          console.log(`[Chat] Added ${toolResults.length} tool results to messages. Total messages: ${currentMessages.length}`)
+          console.log(`[Chat] Tool result content length: ${toolResults[0]?.content?.length || 0}`)
 
           // Extract search results from tool results (only for web_search)
           const firstToolName = accumulatedToolCalls[0]?.function.name
@@ -1262,6 +1298,52 @@ async function handleStreamingRequest(
         }
 
         // No more tool calls, we're done
+        // Check if we got content in this iteration (after tool use)
+        if (iterations > 1 && !hasStartedResponding && lastToolCallIteration > 0) {
+          console.warn(`[Chat] ⚠️ Iteration ${iterations}: No content received after tool execution in iteration ${lastToolCallIteration}!`)
+          console.warn(`[Chat] finishReason: ${finishReason}, hasToolCalls: ${hasToolCalls}, model: ${openRouterBody.model}`)
+          console.warn(`[Chat] Model may not support multi-turn tool calling properly through OpenRouter`)
+
+          // FALLBACK: If we have tool results but no model response, send the tool result directly
+          // This ensures users at least see the tool output even if the model can't synthesize it
+          const toolResultMessages = currentMessages.filter(m => m.role === "tool")
+          if (toolResultMessages.length > 0) {
+            console.log(`[Chat] 🔄 FALLBACK: Sending ${toolResultMessages.length} tool results directly to user`)
+
+            // Send responding phase first
+            await writer.write(
+              encoder.encode(
+                `data: ${JSON.stringify({
+                  choices: [{ delta: { phase: "responding" } }],
+                })}\n\n`
+              )
+            )
+
+            // Format and send tool results as markdown content
+            for (const toolResult of toolResultMessages) {
+              const resultContent = (toolResult as any).content || "No result available"
+              const toolName = (toolResult as any).name || "tool"
+
+              // Send the tool result as content chunks
+              const fallbackMessage = `\n\n**${toolName === "get_weather" ? "🌤️ Weather" : toolName === "web_search" ? "🔍 Search Results" : "📋 Tool Result"}:**\n\n${resultContent}\n\n*Note: Model could not synthesize this result, showing raw tool output.*`
+
+              // Send in chunks to simulate streaming
+              const chunkSize = 50
+              for (let i = 0; i < fallbackMessage.length; i += chunkSize) {
+                const chunk = fallbackMessage.slice(i, i + chunkSize)
+                await writer.write(
+                  encoder.encode(
+                    `data: ${JSON.stringify({
+                      choices: [{ delta: { content: chunk } }],
+                    })}\n\n`
+                  )
+                )
+              }
+            }
+
+            await writer.write(encoder.encode("data: [DONE]\n\n"))
+          }
+        }
         break
       }
 
