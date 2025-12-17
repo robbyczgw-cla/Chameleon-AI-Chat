@@ -7,14 +7,14 @@
  * Compatible models:
  * - GPT-4, GPT-4 Turbo, GPT-4o, GPT-5 (OpenAI)
  * - Claude 3.5 Sonnet, Claude 3 Opus, Claude 4 (Anthropic)
- * - Gemini 2.5 Flash, Gemini 2.0 Flash, Gemini Pro (Google)
+ * - Gemini 3 Flash, Gemini 2.5 Flash, Gemini 2.0 Flash, Gemini Pro (Google)
  * - DeepSeek V3, DeepSeek Chat (DeepSeek)
  * - Qwen 3, Qwen 2.5 72B+ (Alibaba)
  * - Grok 4 (xAI)
  *
- * EXCLUDED models (built-in tools conflict):
- * - Gemini 3 Flash/Pro - has built-in Google Search, URL Context, Code Execution
- *   that cannot be combined with custom function calling (Dec 2025)
+ * Note: Gemini 3 supports custom function calling but NOT combined with
+ * built-in tools (Google Search, Code Execution, etc.)
+ * See: https://ai.google.dev/gemini-api/docs/gemini-3
  */
 
 export interface ToolDefinition {
@@ -304,23 +304,6 @@ export function getAvailableTools(options?: { includeShopify?: boolean }): ToolD
 export function modelSupportsToolCalling(modelId: string): boolean {
   const modelLower = modelId.toLowerCase()
 
-  // EXCLUSIONS: Models that technically support tools but have issues
-  // Gemini 3 has built-in tools (Google Search, URL Context, Code Execution)
-  // that CONFLICT with custom function calling - Google docs state:
-  // "Combining built-in tools with function calling is not yet supported"
-  // See: https://ai.google.dev/gemini-api/docs/gemini-3
-  const excludedPatterns = [
-    'gemini-3',           // Gemini 3 Flash/Pro - built-in tools conflict
-    'gemini-3-flash',     // Explicit exclusion
-    'gemini-3-pro',       // Explicit exclusion
-  ]
-
-  // Check exclusions first
-  if (excludedPatterns.some(pattern => modelLower.includes(pattern))) {
-    console.log(`[Tools] Model ${modelId} excluded from tool calling - built-in tools conflict`)
-    return false
-  }
-
   // Models known to support tool calling well (December 2025)
   const supportedPatterns = [
     // OpenAI (2025)
@@ -328,8 +311,10 @@ export function modelSupportsToolCalling(modelId: string): boolean {
     // Anthropic (2025)
     'claude-4', 'claude-opus-4', 'claude-sonnet-4', 'claude-haiku-4',
     'claude-3.5', 'claude-3-opus',
-    // Google (2025) - Gemini 2.x works great, Gemini 3 excluded above
-    'gemini-2.5', 'gemini-2', 'gemini-pro', 'gemini-flash',
+    // Google (2025) - Gemini 3 supports custom function calling (just not combined with built-in tools)
+    // See: https://ai.google.dev/gemini-api/docs/gemini-3
+    // "It also supports standard Function Calling for your own custom tools (but not with built-in tools)"
+    'gemini-3', 'gemini-2.5', 'gemini-2', 'gemini-pro', 'gemini-flash',
     // xAI (2025)
     'grok-4', 'grok-code',
     // DeepSeek (2025)
