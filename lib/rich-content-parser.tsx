@@ -1,5 +1,6 @@
-import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
-import { MathRenderer } from "@/components/rich-content/math-renderer"
+// Note: MermaidDiagram and MathRenderer were removed - they're not used here
+// Mermaid is rendered via LazyMermaid in chat-messages.tsx
+// Math is rendered via rehypeKatex in the ReactMarkdown pipeline
 import { Poll, type PollData } from "@/components/rich-content/poll"
 import { Timeline, type TimelineEvent } from "@/components/rich-content/timeline"
 import { ProgressBar } from "@/components/rich-content/progress-bar"
