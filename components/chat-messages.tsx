@@ -30,7 +30,8 @@ import type { MessageContent } from "@/types"
 import { contentToText } from "@/lib/multimodal-utils"
 import { RichContentParser } from "@/lib/rich-content-parser"
 import { isHifiTier } from "@/lib/feature-flags"
-import { MermaidDiagram } from "@/components/rich-content/mermaid-diagram"
+// Lazy load Mermaid to avoid ~400KB in initial bundle
+import { LazyMermaid } from "@/components/rich-content/lazy-mermaid"
 import { MessageStatus, MessageStatusVerbose, StreamingHistoryDisplay } from "@/components/message-status"
 import { userProfileService } from "@/lib/user-profile"
 import { useAutoFetchCosts } from "@/hooks/use-auto-fetch-costs"
@@ -55,6 +56,80 @@ const SyntaxHighlighterWithStyle = dynamic(
 // Memoize markdown plugins to prevent recreation on every render
 const remarkPlugins = [remarkGfm, remarkMath]
 const rehypePlugins = [rehypeSanitize, rehypeKatex]
+
+// Static markdown components that don't depend on props - extracted to module level
+// This prevents recreation on every render (significant performance improvement)
+const staticMarkdownComponents = {
+  h1: ({ children }: any) => (
+    <h1 className="text-2xl font-bold mt-6 mb-4 first:mt-0 scroll-m-20">{children}</h1>
+  ),
+  h2: ({ children }: any) => (
+    <h2 className="text-xl font-semibold mt-5 mb-3 first:mt-0 scroll-m-20">{children}</h2>
+  ),
+  h3: ({ children }: any) => (
+    <h3 className="text-lg font-semibold mt-4 mb-2 first:mt-0 scroll-m-20">{children}</h3>
+  ),
+  h4: ({ children }: any) => (
+    <h4 className="text-base font-semibold mt-3 mb-2 first:mt-0">{children}</h4>
+  ),
+  ul: ({ children }: any) => <ul className="list-disc pl-6 my-4 space-y-2">{children}</ul>,
+  ol: ({ children }: any) => <ol className="list-decimal pl-6 my-4 space-y-2">{children}</ol>,
+  li: ({ children }: any) => <li className="leading-7">{children}</li>,
+  strong: ({ children }: any) => <strong className="font-semibold">{children}</strong>,
+  em: ({ children }: any) => <em className="italic">{children}</em>,
+  blockquote: ({ children }: any) => (
+    <blockquote className="border-l-4 border-primary pl-4 italic my-4 text-muted-foreground">
+      {children}
+    </blockquote>
+  ),
+  hr: () => <hr className="my-6 border-border" />,
+  a: ({ href, children }: any) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-primary underline underline-offset-4 hover:text-primary/80"
+    >
+      {children}
+    </a>
+  ),
+  table: ({ children }: any) => (
+    <div className="my-4 overflow-x-auto rounded-lg border border-border">
+      <table className="w-full min-w-full border-collapse">{children}</table>
+    </div>
+  ),
+  thead: ({ children }: any) => <thead className="bg-muted/70">{children}</thead>,
+  tbody: ({ children }: any) => <tbody className="divide-y divide-border">{children}</tbody>,
+  tr: ({ children }: any) => (
+    <tr className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+      {children}
+    </tr>
+  ),
+  th: ({ children }: any) => (
+    <th className="px-3 py-2.5 text-left font-semibold border-r border-border last:border-r-0 text-xs sm:text-sm whitespace-nowrap">
+      {children}
+    </th>
+  ),
+  td: ({ children }: any) => (
+    <td className="px-3 py-2.5 border-r border-border last:border-r-0 text-xs sm:text-sm align-top">
+      {children}
+    </td>
+  ),
+  input: ({ checked, type, ...props }: any) => {
+    if (type === "checkbox") {
+      return (
+        <input
+          type="checkbox"
+          checked={checked}
+          disabled
+          className="mr-2 align-middle"
+          {...props}
+        />
+      )
+    }
+    return <input type={type} {...props} />
+  },
+}
 
 // Normalize Unicode characters that look like markdown syntax but aren't
 // This fixes AI models sometimes outputting Unicode asterisks instead of regular ones
@@ -761,6 +836,9 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                             remarkPlugins={remarkPlugins}
                             rehypePlugins={rehypePlugins}
                             components={{
+                              // Use static components (extracted to module level for performance)
+                              ...staticMarkdownComponents,
+                              // Dynamic components that depend on this message's parsed content
                               p: ({ children }) => {
                                 // Check if paragraph contains placeholders
                                 const text = String(children)
@@ -779,76 +857,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                                 }
                                 return <p className="mb-4 last:mb-0 leading-7">{children}</p>
                               },
-                        h1: ({ children }) => (
-                          <h1 className="text-2xl font-bold mt-6 mb-4 first:mt-0 scroll-m-20">{children}</h1>
-                        ),
-                        h2: ({ children }) => (
-                          <h2 className="text-xl font-semibold mt-5 mb-3 first:mt-0 scroll-m-20">{children}</h2>
-                        ),
-                        h3: ({ children }) => (
-                          <h3 className="text-lg font-semibold mt-4 mb-2 first:mt-0 scroll-m-20">{children}</h3>
-                        ),
-                        h4: ({ children }) => (
-                          <h4 className="text-base font-semibold mt-3 mb-2 first:mt-0">{children}</h4>
-                        ),
-                        ul: ({ children }) => <ul className="list-disc pl-6 my-4 space-y-2">{children}</ul>,
-                        ol: ({ children }) => <ol className="list-decimal pl-6 my-4 space-y-2">{children}</ol>,
-                        li: ({ children }) => <li className="leading-7">{children}</li>,
-                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                        em: ({ children }) => <em className="italic">{children}</em>,
-                        blockquote: ({ children }) => (
-                          <blockquote className="border-l-4 border-primary pl-4 italic my-4 text-muted-foreground">
-                            {children}
-                          </blockquote>
-                        ),
-                        hr: () => <hr className="my-6 border-border" />,
-                        a: ({ href, children }) => (
-                          <a
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary underline underline-offset-4 hover:text-primary/80"
-                          >
-                            {children}
-                          </a>
-                        ),
-                        table: ({ children }) => (
-                          <div className="my-4 overflow-x-auto rounded-lg border border-border">
-                            <table className="w-full min-w-full border-collapse">{children}</table>
-                          </div>
-                        ),
-                        thead: ({ children }) => <thead className="bg-muted/70">{children}</thead>,
-                        tbody: ({ children }) => <tbody className="divide-y divide-border">{children}</tbody>,
-                        tr: ({ children }) => (
-                          <tr className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                            {children}
-                          </tr>
-                        ),
-                        th: ({ children }) => (
-                          <th className="px-3 py-2.5 text-left font-semibold border-r border-border last:border-r-0 text-xs sm:text-sm whitespace-nowrap">
-                            {children}
-                          </th>
-                        ),
-                        td: ({ children }) => (
-                          <td className="px-3 py-2.5 border-r border-border last:border-r-0 text-xs sm:text-sm align-top">
-                            {children}
-                          </td>
-                        ),
-                        input: ({ checked, type, ...props }) => {
-                          if (type === "checkbox") {
-                            return (
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                disabled
-                                className="mr-2 align-middle"
-                                {...props}
-                              />
-                            )
-                          }
-                          return <input type={type} {...props} />
-                        },
-                        code({ node, inline, className, children, ...props }: any) {
+                              code({ node, inline, className, children, ...props }: any) {
                           const match = /language-(\w+)/.exec(className || "")
                           const language = match ? match[1] : ""
                           const codeString = String(children).replace(/\n$/, "")
@@ -856,7 +865,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                           // Render Mermaid diagrams (if enabled in experimental settings)
                           if (!inline && language === "mermaid") {
                             if (settings.experimental?.enableMermaidDiagrams) {
-                              return <MermaidDiagram chart={codeString} />
+                              return <LazyMermaid chart={codeString} />
                             }
                             // Show raw mermaid code as plain code block when disabled
                             return (
