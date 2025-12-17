@@ -286,11 +286,11 @@ function ChatApp() {
             ) : isComparisonMode ? (
               <ModelComparison />
             ) : isEmpty ? (
-              /* Centered layout for empty state */
-              <div className="flex-1 flex flex-col items-center justify-center px-2 py-4 md:p-6 overflow-hidden">
-                <div className="w-full max-w-4xl mx-auto flex flex-col gap-6">
+              /* Centered layout for empty state - on mobile push to bottom, on desktop center */
+              <div className="flex-1 flex flex-col items-center justify-end md:justify-center px-2 py-4 md:p-6 overflow-hidden">
+                <div className="w-full max-w-4xl mx-auto flex flex-col gap-4 md:gap-6">
                   <ChatMessages currentPersona={settings.selectedPersona} />
-                  <div className="w-full">
+                  <div className="w-full pb-safe">
                     <ChatInput />
                   </div>
                 </div>
