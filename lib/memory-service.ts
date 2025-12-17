@@ -399,10 +399,13 @@ class MemoryService {
    * Check for expired memories and archive/demote them
    * High importance (3) memories get demoted to 2 first
    * Other memories get archived directly
+   *
+   * EXCEPTION: Profile-based memories (source: "profile" or category: "personal_info")
+   * are NEVER expired automatically - they represent permanent user information
    */
-  checkAndExpireMemories(): { expired: number; demoted: number } {
+  checkAndExpireMemories(): { expired: number; demoted: number; skippedProfile: number } {
     if (!this.settings.expirationEnabled) {
-      return { expired: 0, demoted: 0 }
+      return { expired: 0, demoted: 0, skippedProfile: 0 }
     }
 
     const expirationDays = this.settings.expirationDays ?? DEFAULT_EXPIRATION_DAYS
@@ -411,11 +414,22 @@ class MemoryService {
 
     let expiredCount = 0
     let demotedCount = 0
+    let skippedProfileCount = 0
     const memoriesToArchive: Memory[] = []
     const memoriesToDemote: Memory[] = []
 
     for (const memory of this.memories) {
       if (memory.lastAccessedAt < expirationThreshold) {
+        // NEVER expire profile-based memories - they represent permanent user info
+        // This includes memories from profile integration OR memories about personal_info
+        if (memory.source === "profile" || memory.category === "personal_info") {
+          skippedProfileCount++
+          console.log("[Memory] Skipping decay for profile memory:", memory.content.substring(0, 40))
+          // Refresh the lastAccessedAt to prevent repeated checks
+          memory.lastAccessedAt = Date.now()
+          continue
+        }
+
         if (memory.importance === 3) {
           // High importance memories get demoted to level 2 first
           memoriesToDemote.push(memory)
@@ -441,12 +455,16 @@ class MemoryService {
       expiredCount++
     }
 
-    if (demotedCount > 0 || expiredCount > 0) {
+    if (demotedCount > 0 || expiredCount > 0 || skippedProfileCount > 0) {
       this.saveMemories()
-      console.log("[Memory] Expiration check:", { expired: expiredCount, demoted: demotedCount })
+      console.log("[Memory] Expiration check:", {
+        expired: expiredCount,
+        demoted: demotedCount,
+        skippedProfile: skippedProfileCount
+      })
     }
 
-    return { expired: expiredCount, demoted: demotedCount }
+    return { expired: expiredCount, demoted: demotedCount, skippedProfile: skippedProfileCount }
   }
 
   /**
@@ -1183,13 +1201,17 @@ Return ONLY the JSON array, no other text.`
    * Uses multiple strategies to detect duplicates:
    * 1. Exact match (case-insensitive)
    * 2. Key-value pattern matching (e.g., "name is X", "age is Y")
-   * 3. High substring overlap (>80% similar)
+   * 3. Same key type with high value overlap (catches "John Smith" vs "John")
+   * 4. High substring overlap (>75% similar)
    */
   isMemoryDuplicate(newContent: string, existingMemories: Memory[]): boolean {
     if (!newContent || existingMemories.length === 0) return false
 
     const newContentLower = newContent.toLowerCase().trim()
     const newContentNormalized = this.normalizeMemoryContent(newContentLower)
+
+    // Extract key-value from new content once
+    const newKeyValue = this.extractKeyValue(newContentLower)
 
     for (const existing of existingMemories) {
       const existingLower = existing.content.toLowerCase().trim()
@@ -1202,26 +1224,81 @@ Return ONLY the JSON array, no other text.`
       }
 
       // Strategy 2: Key-value pattern matching (for profile-like data)
-      // Detect patterns like "user's name is X", "name: X", "age is Y"
-      const newKeyValue = this.extractKeyValue(newContentLower)
       const existingKeyValue = this.extractKeyValue(existingLower)
-      if (newKeyValue && existingKeyValue &&
-          newKeyValue.key === existingKeyValue.key &&
-          newKeyValue.value === existingKeyValue.value) {
-        console.log("[Memory] Duplicate: same key-value pair", newKeyValue)
-        return true
+      if (newKeyValue && existingKeyValue && newKeyValue.key === existingKeyValue.key) {
+        // Same key type - check if values match or overlap significantly
+        if (newKeyValue.value === existingKeyValue.value) {
+          console.log("[Memory] Duplicate: same key-value pair", newKeyValue.key, "=", newKeyValue.value)
+          return true
+        }
+
+        // For name/age/location, check if one value contains the other
+        // This catches: "John" vs "John Smith" or "35" vs "35 years"
+        if (MemoryService.CRITICAL_KEYS.includes(newKeyValue.key)) {
+          const newVal = newKeyValue.value
+          const existingVal = existingKeyValue.value
+
+          // Check containment (one is substring of other)
+          if (newVal.includes(existingVal) || existingVal.includes(newVal)) {
+            console.log("[Memory] Duplicate: same key with overlapping value",
+              newKeyValue.key, ":", existingVal, "~=", newVal)
+            return true
+          }
+
+          // For age specifically, check if numeric values match
+          if (newKeyValue.key === "age") {
+            const newAge = newVal.match(/\d+/)?.[0]
+            const existingAge = existingVal.match(/\d+/)?.[0]
+            if (newAge && existingAge && newAge === existingAge) {
+              console.log("[Memory] Duplicate: same age value", newAge)
+              return true
+            }
+          }
+
+          // Check high similarity between values of same key
+          const valueSimilarity = this.calculateSimilarity(newVal, existingVal)
+          if (valueSimilarity > 0.7) {
+            console.log("[Memory] Duplicate: same key with similar value",
+              newKeyValue.key, valueSimilarity.toFixed(2))
+            return true
+          }
+        }
       }
 
       // Strategy 3: High substring overlap (for longer content)
+      // Lowered from 0.85 to 0.75 to catch more variations
       const similarity = this.calculateSimilarity(newContentNormalized, existingNormalized)
-      if (similarity > 0.85) {
+      if (similarity > 0.75) {
         console.log("[Memory] Duplicate: high similarity", similarity.toFixed(2))
         return true
+      }
+
+      // Strategy 4: Check if both memories contain the same core information
+      // e.g., both mention "Vienna" for location, or both mention "developer" for occupation
+      if (newKeyValue && existingKeyValue &&
+          newKeyValue.key === existingKeyValue.key &&
+          MemoryService.CRITICAL_KEYS.includes(newKeyValue.key)) {
+        // Extract core words (3+ chars) and check overlap
+        const newWords = new Set(newKeyValue.value.split(/\s+/).filter(w => w.length >= 3))
+        const existingWords = new Set(existingKeyValue.value.split(/\s+/).filter(w => w.length >= 3))
+
+        if (newWords.size > 0 && existingWords.size > 0) {
+          const intersection = [...newWords].filter(w => existingWords.has(w))
+          // If any significant word overlaps, consider it a duplicate
+          if (intersection.length > 0) {
+            console.log("[Memory] Duplicate: same key with shared core word",
+              newKeyValue.key, ":", intersection.join(", "))
+            return true
+          }
+        }
       }
     }
 
     return false
   }
+
+  // Helper constant for critical keys used in duplicate detection
+  private static readonly CRITICAL_KEYS = ["name", "age", "location", "occupation"]
 
   /**
    * Normalize memory content for comparison
@@ -1238,34 +1315,86 @@ Return ONLY the JSON array, no other text.`
 
   /**
    * Extract key-value pattern from memory content
-   * Handles patterns like: "name is John", "user's age: 35", "location: Vienna"
+   * Handles many variations like: "name is John", "user's age: 35", "location: Vienna"
+   * Also extracts the raw value for comparison
    */
-  private extractKeyValue(content: string): { key: string; value: string } | null {
-    // Common profile fields
-    const patterns = [
-      /(?:name|called|named)\s*(?:is|:)?\s*(.+)/i,
-      /(?:age|years old)\s*(?:is|:)?\s*(\d+)/i,
-      /(?:lives? in|location|from|city)\s*(?:is|:)?\s*(.+)/i,
-      /(?:works? as|job|occupation|profession)\s*(?:is|:)?\s*(.+)/i,
-      /(?:interested? in|interests?|hobbies?)\s*(?:is|are|:)?\s*(.+)/i,
-      /(?:goals?|wants? to)\s*(?:is|are|:)?\s*(.+)/i,
+  private extractKeyValue(content: string): { key: string; value: string; rawValue: string } | null {
+    // Comprehensive patterns for common profile fields
+    // Each pattern group maps to a specific key
+    const patternGroups: Array<{ key: string; patterns: RegExp[] }> = [
+      {
+        key: "name",
+        patterns: [
+          /(?:user'?s?\s+)?name\s*(?:is|:)\s*(.+)/i,
+          /(?:called|named)\s+(.+)/i,
+          /(?:goes by|known as)\s+(.+)/i,
+          /(.+?)\s+is\s+(?:the\s+)?(?:user'?s?\s+)?name/i,
+        ]
+      },
+      {
+        key: "age",
+        patterns: [
+          /(?:user'?s?\s+)?age\s*(?:is|:)\s*(\d+)/i,
+          /(\d+)\s*years?\s*old/i,
+          /(?:is|are)\s+(\d+)\s*(?:years?\s*old)?/i,
+          /born\s+in\s+(\d{4})/i, // Will extract birth year
+          /age:\s*(\d+)/i,
+        ]
+      },
+      {
+        key: "location",
+        patterns: [
+          /(?:user\s+)?(?:lives?|living|located|based)\s+(?:in|at)\s+(.+)/i,
+          /(?:from|city|location|hometown)\s*(?:is|:)\s*(.+)/i,
+          /(?:resides?|residing)\s+(?:in|at)\s+(.+)/i,
+          /(?:in|at|from)\s+([A-Z][a-z]+(?:\s*,\s*[A-Z][a-z]+)?)/i, // City, Country pattern
+        ]
+      },
+      {
+        key: "occupation",
+        patterns: [
+          /(?:user\s+)?(?:works?|working)\s+(?:as\s+)?(?:a\s+)?(.+)/i,
+          /(?:job|occupation|profession|role|career)\s*(?:is|:)\s*(.+)/i,
+          /(?:is\s+a|am\s+a)\s+(.+?)(?:\s+(?:at|for|in)|$)/i,
+          /(?:employed|hired)\s+(?:as\s+)?(?:a\s+)?(.+)/i,
+        ]
+      },
+      {
+        key: "interests",
+        patterns: [
+          /(?:user\s+)?(?:interested?|likes?|enjoys?|loves?)\s+(.+)/i,
+          /(?:interests?|hobbies?|passions?)\s*(?:is|are|:)\s*(.+)/i,
+          /(?:into|fond of|fan of)\s+(.+)/i,
+        ]
+      },
+      {
+        key: "goals",
+        patterns: [
+          /(?:user\s+)?(?:wants?|wishes?|hopes?)\s+to\s+(.+)/i,
+          /(?:goals?|aspirations?|objectives?)\s*(?:is|are|:)\s*(.+)/i,
+          /(?:trying|planning|aiming)\s+to\s+(.+)/i,
+          /(?:dreams?\s+of|strives?\s+for)\s+(.+)/i,
+        ]
+      },
+      {
+        key: "communication",
+        patterns: [
+          /(?:prefers?|likes?)\s+(.+?)\s*(?:communication|responses?|style)/i,
+          /(?:communication\s+style|tone)\s*(?:is|:)\s*(.+)/i,
+        ]
+      }
     ]
 
-    const keyMap: Record<number, string> = {
-      0: "name",
-      1: "age",
-      2: "location",
-      3: "occupation",
-      4: "interests",
-      5: "goals",
-    }
-
-    for (let i = 0; i < patterns.length; i++) {
-      const match = content.match(patterns[i])
-      if (match && match[1]) {
-        return {
-          key: keyMap[i],
-          value: match[1].toLowerCase().trim()
+    for (const group of patternGroups) {
+      for (const pattern of group.patterns) {
+        const match = content.match(pattern)
+        if (match && match[1]) {
+          const rawValue = match[1].trim()
+          // Normalize the value: lowercase, remove trailing punctuation
+          const value = rawValue.toLowerCase()
+            .replace(/[.,;:!?]+$/, '')
+            .trim()
+          return { key: group.key, value, rawValue }
         }
       }
     }
