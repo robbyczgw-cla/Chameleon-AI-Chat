@@ -69,6 +69,7 @@ export const REASONING_MODELS_KNOWN = new Set([
   // Google Gemini Thinking models
   "google/gemini-2.0-flash-thinking-exp-01-21",
   "google/gemini-2.0-flash-thinking-exp",
+  "google/gemini-3-flash-preview", // Gemini 3 Flash - supports configurable thinking levels (minimal/low/medium/high)
 
   // MoonShot Kimi models with thinking
   "moonshotai/kimi-k2-thinking",
@@ -100,6 +101,12 @@ export const POPULAR_OPENROUTER_MODELS = [
   // 💰 Beste Preis-Leistung 2025
   { id: "deepseek/deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", category: "value" },
   { id: "x-ai/grok-4-fast:free", name: "Grok 4 Fast", provider: "xAI", category: "value" },
+  {
+    id: "google/gemini-3-flash-preview",
+    name: "Gemini 3 Flash (NEW - Thinking)",
+    provider: "Google",
+    category: "value",
+  },
   {
     id: "google/gemini-2.5-flash",
     name: "Gemini 2.5 Flash",

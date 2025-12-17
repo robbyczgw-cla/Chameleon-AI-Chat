@@ -13,6 +13,7 @@ const DEFAULT_STARTING_MODELS = [
   "x-ai/grok-4.1-fast", // Maximum reliability for agents
   "anthropic/claude-4.5-sonnet-20250929", // Best coding & long-running tasks
   "openai/gpt-5.1", // Strong reasoning
+  "google/gemini-3-flash-preview", // NEW: Fast thinking model with tool use
   "google/gemini-3-pro", // Best reasoning benchmarks
   "anthropic/claude-haiku-4.5", // Fast & cheap
   "x-ai/grok-4-fast:free", // Free option
