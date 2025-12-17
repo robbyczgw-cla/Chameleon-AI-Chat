@@ -23,6 +23,7 @@ import { MessageStats } from "@/components/message-stats"
 import { FilePreviewInline } from "@/components/file-preview-inline"
 import { ResponseAnalysisPanel } from "@/components/response-analysis-panel"
 import { SearchSourcesBadge } from "@/components/search-sources-badge"
+import { MemorySurfacingBadge } from "@/components/memory-surfacing-badge"
 import { ResponseAnalyzer } from "@/lib/response-analyzer"
 import type { FileAttachment } from "@/lib/file-handler"
 import { type Persona, getPersonaExamplePrompts } from "@/lib/personas"
@@ -971,6 +972,27 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                         results={searchEntry.searchResults}
                         provider={searchEntry.searchProvider}
                         query={searchEntry.searchQuery}
+                        language={settings.language as "en" | "de" | "es"}
+                      />
+                    </div>
+                  )
+                }
+                return null
+              })()}
+
+              {/* Memory Surfacing Badge - Shows which memories influenced the response */}
+              {message.role === "assistant" && (() => {
+                // Extract memory data from streaming history
+                const memoryEntry = message.streamingHistory?.find(entry =>
+                  entry.usedMemories && entry.usedMemories.length > 0
+                )
+
+                if (memoryEntry?.usedMemories) {
+                  return (
+                    <div className="animate-slide-in-up">
+                      <MemorySurfacingBadge
+                        memories={memoryEntry.usedMemories}
+                        decision={memoryEntry.memoryDecision}
                         language={settings.language as "en" | "de" | "es"}
                       />
                     </div>

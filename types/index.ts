@@ -37,6 +37,25 @@ export interface StreamingHistoryEntry {
   searchResults?: any[] // Full search results array (SearchResult[] from search/types.ts)
   reasoningContent?: string // Real-time reasoning/thinking tokens (o1, DeepSeek R1, etc.)
   reasoningTokens?: number // Number of reasoning tokens used
+  // Memory surfacing - show which memories influenced the response
+  usedMemories?: UsedMemory[] // Memories that were injected into context
+  memoryDecision?: {
+    action: "skipped" | "retrieved" | "empty"
+    reason: string
+    searchMethod?: "semantic" | "keyword"
+    confidence?: number
+  }
+}
+
+/**
+ * Used memory - simplified memory info for display in UI
+ */
+export interface UsedMemory {
+  id: string
+  content: string
+  type: "preference" | "fact" | "context" | "skill" | "goal"
+  importance: 1 | 2 | 3
+  similarity?: number // Semantic similarity score (0-1)
 }
 
 export interface Message {

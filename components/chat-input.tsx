@@ -7,7 +7,7 @@ import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
-import type { Message, StreamingHistoryEntry } from "@/types"
+import type { Message, StreamingHistoryEntry, UsedMemory } from "@/types"
 import { streamChatMessage, REASONING_MODELS } from "@/lib/openrouter"
 import { search, buildSearchContext } from "@/lib/search"
 import { useToast } from "@/hooks/use-toast"
@@ -688,14 +688,53 @@ export function ChatInput() {
           if (decision.action === "skipped") {
             console.log("[ChatInput] ⏭️ Memory skipped:", decision.reason,
               `(type: ${decision.details.queryType}, confidence: ${decision.details.confidence?.toFixed(2)})`)
+            // Add to streaming history even when skipped (for transparency)
+            addStreamingHistoryEntry({
+              phase: "thinking",
+              description: `Memory: ${decision.reason}`,
+              memoryDecision: {
+                action: "skipped",
+                reason: decision.reason,
+                confidence: decision.details.confidence
+              }
+            })
           } else if (decision.action === "retrieved" && relevantMemories.length > 0) {
             const memoryContext = memoryService.formatMemoriesForContext(relevantMemories)
             messages.splice(-1, 0, { role: "system" as const, content: memoryContext })
             console.log("[ChatInput] ✅ Memory context added:", decision.reason,
               decision.details.topSimilarity ? `(top similarity: ${decision.details.topSimilarity.toFixed(3)})` : "")
+
+            // Surface the used memories in streaming history
+            const usedMemories: UsedMemory[] = relevantMemories.map(m => ({
+              id: m.id,
+              content: m.content,
+              type: m.type,
+              importance: m.importance,
+              similarity: decision.details.topSimilarity // Use top similarity for all (could be enhanced per-memory)
+            }))
+            addStreamingHistoryEntry({
+              phase: "thinking",
+              description: `Using ${relevantMemories.length} memories`,
+              usedMemories,
+              memoryDecision: {
+                action: "retrieved",
+                reason: decision.reason,
+                searchMethod: searchMethod as "semantic" | "keyword" | undefined,
+                confidence: decision.details.confidence
+              }
+            })
           } else {
             console.log("[ChatInput] 📭", decision.reason,
               decision.details.topSimilarity ? `(top similarity: ${decision.details.topSimilarity.toFixed(3)})` : "")
+            addStreamingHistoryEntry({
+              phase: "thinking",
+              description: decision.reason,
+              memoryDecision: {
+                action: "empty",
+                reason: decision.reason,
+                searchMethod: searchMethod as "semantic" | "keyword" | undefined
+              }
+            })
           }
         } catch (memoryError) {
           console.error("[ChatInput] ⚠️ Memory retrieval failed, continuing without memory:", memoryError)
