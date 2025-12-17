@@ -722,6 +722,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         setSettings(mergedSettings)
         console.log("[v0] Loaded settings with model:", mergedSettings.selectedModel)
+
+        // SECURITY: Remove API keys from localStorage after successful Supabase load
+        // This prevents XSS attacks from stealing keys from localStorage
+        // Keys are now safely stored in Supabase with RLS protection
+        const hasSupabaseKeys = mergedSettings.apiKeys?.openRouter ||
+                               mergedSettings.apiKeys?.tavily ||
+                               mergedSettings.apiKeys?.serper ||
+                               mergedSettings.apiKeys?.exa
+
+        if (hasSupabaseKeys) {
+          try {
+            const localSettings = localStorage.getItem("settings")
+            if (localSettings) {
+              const parsed = JSON.parse(localSettings)
+              if (parsed.apiKeys) {
+                console.log("[v0] 🔒 SECURITY: Removing API keys from localStorage (now secured in Supabase)")
+                // Remove API keys but keep other settings
+                delete parsed.apiKeys
+                localStorage.setItem("settings", JSON.stringify(parsed))
+                console.log("[v0] ✅ API keys removed from localStorage")
+              }
+            }
+          } catch (e) {
+            console.warn("[v0] Failed to cleanup localStorage API keys:", e)
+          }
+        }
       }
 
       console.log("[v0] Loaded from Supabase:", {
@@ -860,11 +886,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
         saveCountRef.current = 0
       }, 5000)
 
-      // CRITICAL: Always save to localStorage as backup FIRST, even for authenticated users
-      // This ensures we never lose API keys even if Supabase sync fails
+      // SECURITY: For logged-in users, save settings WITHOUT API keys to localStorage
+      // API keys are stored securely in Supabase with RLS protection
+      // For guest users, save everything to localStorage (accept the XSS risk)
       try {
-        localStorage.setItem("settings", JSON.stringify(settings))
-        console.log("[v0] ✅ Settings saved to localStorage (including API keys)")
+        if (user) {
+          // Logged-in user: Save settings WITHOUT API keys to localStorage
+          const settingsWithoutKeys = { ...settings }
+          delete settingsWithoutKeys.apiKeys
+          localStorage.setItem("settings", JSON.stringify(settingsWithoutKeys))
+          console.log("[v0] ✅ Settings saved to localStorage (API keys excluded - stored in Supabase)")
+        } else {
+          // Guest user: Save everything to localStorage
+          localStorage.setItem("settings", JSON.stringify(settings))
+          console.log("[v0] ✅ Settings saved to localStorage (guest mode - includes API keys)")
+        }
       } catch (error) {
         console.error("[v0] ❌ Failed to save settings to localStorage:", error)
       }
@@ -872,7 +908,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (user) {
         console.log(`[v0] Saving settings to Supabase... (${saveCountRef.current}/3 in last 5s)`)
         supabaseSync.saveSettings(user.id, settings).catch((error) => {
-          console.error("[v0] Failed to save to Supabase, but data is backed up in localStorage:", error)
+          console.error("[v0] Failed to save to Supabase:", error)
         })
       }
     }, 500)

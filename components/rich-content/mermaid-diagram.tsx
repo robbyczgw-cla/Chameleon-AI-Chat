@@ -81,7 +81,7 @@ export const MermaidDiagram = memo(({ chart, className }: MermaidDiagramProps) =
       mermaid.initialize({
         startOnLoad: false,
         theme: document.documentElement.classList.contains("dark") ? "dark" : "default",
-        securityLevel: "loose",
+        securityLevel: "strict", // SECURITY: Prevent script injection in diagrams
         fontFamily: "var(--font-sans)",
         suppressErrors: true,
         logLevel: 5, // Only fatal errors
