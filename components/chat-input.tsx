@@ -353,18 +353,40 @@ export function ChatInput() {
 
     // Validate image size/count for the model
     if (imageAttachments.length > 0) {
-      const totalSizeMB = imageAttachments.reduce((sum, f) => sum + (f.size / 1024 / 1024), 0)
-      const validation = validateImageForModel(
-        modelSupportsVision ? currentModel : getRecommendedVisionModel(currentModel),
-        imageAttachments.length,
-        totalSizeMB
-      )
+      const visionModel = modelSupportsVision ? currentModel : getRecommendedVisionModel(currentModel)
 
-      if (!validation.valid) {
+      // Calculate ACTUAL size from compressed dataUrls (not original f.size which is pre-compression)
+      // Base64 encoding increases size by ~33%, so actual bytes = base64.length * 0.75
+      const calculateDataUrlSizeMB = (dataUrl: string): number => {
+        const base64 = dataUrl.split(',')[1] || ''
+        return (base64.length * 0.75) / (1024 * 1024) // Convert to MB
+      }
+
+      // Check each image individually against the model's per-image limit
+      for (const img of imageAttachments) {
+        const imgSizeMB = img.dataUrl ? calculateDataUrlSizeMB(img.dataUrl) : (img.size / 1024 / 1024)
+        const validation = validateImageForModel(visionModel, 1, imgSizeMB)
+
+        if (!validation.valid) {
+          console.log(`[Chat] Image ${img.name} validation failed: ${imgSizeMB.toFixed(2)}MB`)
+          haptics.trigger('error')
+          toast({
+            title: "Image validation failed",
+            description: validation.error,
+            variant: "destructive",
+          })
+          setIsLoading(false)
+          return
+        }
+      }
+
+      // Also validate total image count
+      const countValidation = validateImageForModel(visionModel, imageAttachments.length, 0)
+      if (!countValidation.valid) {
         haptics.trigger('error')
         toast({
           title: "Image validation failed",
-          description: validation.error,
+          description: countValidation.error,
           variant: "destructive",
         })
         setIsLoading(false)

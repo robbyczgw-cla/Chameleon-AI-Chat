@@ -354,13 +354,37 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     if (imageAttachments.length > 0) {
       const currentModel = overrideModel || settings.selectedModel
       const visionModel = supportsVision(currentModel) ? currentModel : getRecommendedVisionModel(currentModel)
-      const totalSizeMB = imageAttachments.reduce((sum: number, f: FileAttachment) => sum + (f.size / 1024 / 1024), 0)
-      const validation = validateImageForModel(visionModel, imageAttachments.length, totalSizeMB)
 
-      if (!validation.valid) {
+      // Calculate ACTUAL size from compressed dataUrls (not original f.size which is pre-compression)
+      // Base64 encoding increases size by ~33%, so actual bytes = base64.length * 0.75
+      const calculateDataUrlSizeMB = (dataUrl: string): number => {
+        const base64 = dataUrl.split(',')[1] || ''
+        return (base64.length * 0.75) / (1024 * 1024) // Convert to MB
+      }
+
+      // Check each image individually against the model's per-image limit
+      for (const img of imageAttachments) {
+        const imgSizeMB = img.dataUrl ? calculateDataUrlSizeMB(img.dataUrl) : (img.size / 1024 / 1024)
+        const validation = validateImageForModel(visionModel, 1, imgSizeMB)
+
+        if (!validation.valid) {
+          console.log(`[Simple Chat] Image ${img.name} validation failed: ${imgSizeMB.toFixed(2)}MB`)
+          toast({
+            title: settings.language === "de" ? "Bildvalidierung fehlgeschlagen" : "Image validation failed",
+            description: validation.error,
+            variant: "destructive",
+          })
+          setIsChatLoading(false)
+          return
+        }
+      }
+
+      // Also validate total image count
+      const countValidation = validateImageForModel(visionModel, imageAttachments.length, 0)
+      if (!countValidation.valid) {
         toast({
           title: settings.language === "de" ? "Bildvalidierung fehlgeschlagen" : "Image validation failed",
-          description: validation.error,
+          description: countValidation.error,
           variant: "destructive",
         })
         setIsChatLoading(false)
