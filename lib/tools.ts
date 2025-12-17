@@ -5,11 +5,12 @@
  * The AI model decides when to use these tools based on user queries.
  *
  * Compatible models:
- * - GPT-4, GPT-4 Turbo, GPT-4o (OpenAI)
- * - Claude 3.5 Sonnet, Claude 3 Opus (Anthropic)
- * - Gemini 1.5 Pro, Gemini 2.0 Flash (Google)
+ * - GPT-4, GPT-4 Turbo, GPT-4o, GPT-5 (OpenAI)
+ * - Claude 3.5 Sonnet, Claude 3 Opus, Claude 4 (Anthropic)
+ * - Gemini 3 Flash, Gemini 2.5 Flash, Gemini Pro (Google)
  * - DeepSeek V3, DeepSeek Chat (DeepSeek)
- * - Qwen 2.5 72B+ (Alibaba)
+ * - Qwen 3, Qwen 2.5 72B+ (Alibaba)
+ * - Grok 4 (xAI)
  */
 
 export interface ToolDefinition {
@@ -294,7 +295,7 @@ export function getAvailableTools(options?: { includeShopify?: boolean }): ToolD
 
 /**
  * Check if a model supports tool calling
- * Updated for November 2025 model landscape
+ * Updated for December 2025 model landscape
  */
 export function modelSupportsToolCalling(modelId: string): boolean {
   const modelLower = modelId.toLowerCase()
@@ -306,8 +307,8 @@ export function modelSupportsToolCalling(modelId: string): boolean {
     // Anthropic (2025)
     'claude-4', 'claude-opus-4', 'claude-sonnet-4', 'claude-haiku-4',
     'claude-3.5', 'claude-3-opus',
-    // Google (2025)
-    'gemini-2.5', 'gemini-2', 'gemini-pro', 'gemini-flash',
+    // Google (2025) - Gemini 3 Flash Preview is optimized for agentic/tool use
+    'gemini-3', 'gemini-2.5', 'gemini-2', 'gemini-pro', 'gemini-flash',
     // xAI (2025)
     'grok-4', 'grok-code',
     // DeepSeek (2025)
