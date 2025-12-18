@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { verifyAuth } from "@/lib/api-auth"
 
 export const runtime = 'edge'
 
@@ -13,14 +14,26 @@ const MAX_TEXT_LENGTH = 2000
 
 export async function POST(req: NextRequest) {
   try {
-    const { text, voice = 'nova', speed = 1.0, apiKey } = await req.json()
+    // SECURITY: Verify user is authenticated or in guest mode
+    const auth = await verifyAuth(req)
+    if (!auth.user && !auth.isGuest) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { text, voice = 'nova', speed = 1.0 } = await req.json()
 
     if (!text) {
       return NextResponse.json({ error: 'No text provided' }, { status: 400 })
     }
 
+    // SECURITY: Use server-side API key instead of client-provided key
+    const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
-      return NextResponse.json({ error: 'No API key provided' }, { status: 400 })
+      console.error('[TTS API] OPENAI_API_KEY not configured')
+      return NextResponse.json(
+        { error: 'Voice features not configured. Please set OPENAI_API_KEY in environment.' },
+        { status: 500 }
+      )
     }
 
     // Limit text length to avoid timeouts and huge API costs
@@ -30,7 +43,8 @@ export async function POST(req: NextRequest) {
       textLength: truncatedText.length,
       originalLength: text.length,
       voice,
-      speed
+      speed,
+      userId: auth.user?.id || 'guest'
     })
 
     // Create AbortController with timeout to prevent gateway timeout

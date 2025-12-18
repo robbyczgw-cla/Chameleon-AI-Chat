@@ -1,20 +1,32 @@
 import { NextRequest, NextResponse } from "next/server"
+import { verifyAuth } from "@/lib/api-auth"
 
 export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
   try {
+    // SECURITY: Verify user is authenticated or in guest mode
+    const auth = await verifyAuth(req)
+    if (!auth.user && !auth.isGuest) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const formData = await req.formData()
     const audioFile = formData.get('audio') as File | Blob
-    const apiKey = formData.get('apiKey') as string
     const mimeType = formData.get('mimeType') as string || 'audio/webm'
 
     if (!audioFile) {
       return NextResponse.json({ error: 'No audio file provided' }, { status: 400 })
     }
 
+    // SECURITY: Use server-side API key instead of client-provided key
+    const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
-      return NextResponse.json({ error: 'No API key provided' }, { status: 400 })
+      console.error('[Whisper API] OPENAI_API_KEY not configured')
+      return NextResponse.json(
+        { error: 'Voice features not configured. Please set OPENAI_API_KEY in environment.' },
+        { status: 500 }
+      )
     }
 
     // Determine correct filename based on mimeType
@@ -24,7 +36,8 @@ export async function POST(req: NextRequest) {
     console.log('[Whisper API] Received audio:', {
       size: audioFile.size,
       type: audioFile.type || mimeType,
-      filename
+      filename,
+      userId: auth.user?.id || 'guest'
     })
 
     // Convert to proper File with correct MIME type (edge runtime fix)

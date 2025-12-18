@@ -1348,9 +1348,9 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                             return
                           }
                           toast({ title: "🔊 Generating speech..." })
+                          // NOTE: API key is now handled server-side via OPENAI_API_KEY env var
                           await voiceService.speakWithOpenAI(
                             "Hello! This is a test of the OpenAI text-to-speech voice.",
-                            openAiKey,
                             {
                               voice: (localSettings.voiceSettings?.openaiVoice as any) || 'nova',
                               speed: localSettings.voiceSettings?.rate || 1,

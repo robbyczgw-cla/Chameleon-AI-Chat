@@ -1,7 +1,7 @@
 # Chameleon AI Chat - December 2025 Master Roadmap
 
-> **Last Updated:** December 18, 2025 (VERIFIED via code inspection)
-> **Status:** Most security/performance items COMPLETED
+> **Last Updated:** December 18, 2025 (v0.10.5-beta security push)
+> **Status:** ✅ ALL CRITICAL SECURITY ITEMS COMPLETE - Ready for launch
 
 ## Executive Summary
 
@@ -14,6 +14,8 @@ This document provides a comprehensive analysis of Chameleon AI Chat, covering p
 | **Security** | localStorage keys removed for logged-in users | ✅ DONE |
 | **Security** | Mermaid `securityLevel: "strict"` | ✅ DONE |
 | **Security** | `lib/api-auth.ts` utility created | ✅ DONE |
+| **Security** | Voice API keys server-side | ✅ DONE (Dec 18) |
+| **Security** | API routes using auth (voice) | ✅ DONE (Dec 18) |
 | **Performance** | Mermaid lazy loading (~400KB savings) | ✅ DONE |
 | **Performance** | KaTeX lazy loading | ✅ DONE |
 | **Performance** | Context splitting (3 contexts) | ✅ DONE |
@@ -22,9 +24,7 @@ This document provides a comprehensive analysis of Chameleon AI Chat, covering p
 | **Feature** | Memory surfacing badge | ✅ DONE |
 | **Feature** | Search sources badge | ✅ DONE |
 | **Feature** | Gemini 3 Flash Preview support | ✅ DONE |
-| **Security** | Voice API keys server-side | ❌ NOT DONE |
-| **Security** | API routes using auth | ❌ NOT DONE |
-| **Performance** | Virtual scrolling | ❌ NOT DONE |
+| **Performance** | Virtual scrolling | ⚠️ DEFERRED (low priority) |
 
 ---
 

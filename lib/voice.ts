@@ -88,9 +88,10 @@ export class VoiceService {
   /**
    * Start recording audio using MediaRecorder and transcribe with Whisper API
    * This works in all browsers including Firefox and mobile
+   *
+   * SECURITY: API key is now handled server-side via OPENAI_API_KEY env var
    */
   async startWhisperListening(
-    apiKey: string,
     onResult: (text: string) => void,
     onError?: (error: string) => void,
     onStart?: () => void
@@ -185,7 +186,7 @@ export class VoiceService {
         }
 
         try {
-          // Send to Whisper API
+          // Send to Whisper API (API key handled server-side)
           // Use correct file extension based on mimeType
           const extension = mimeType === 'audio/webm' ? 'webm' : 'm4a'
           const filename = `recording.${extension}`
@@ -198,8 +199,8 @@ export class VoiceService {
 
           const formData = new FormData()
           formData.append('audio', audioBlob, filename)
-          formData.append('apiKey', apiKey)
           formData.append('mimeType', mimeType)
+          // NOTE: apiKey is no longer sent - server uses OPENAI_API_KEY env var
 
           const response = await fetch('/api/whisper', {
             method: 'POST',
@@ -292,10 +293,11 @@ export class VoiceService {
 
   /**
    * Speak text using OpenAI TTS API (higher quality)
+   *
+   * SECURITY: API key is now handled server-side via OPENAI_API_KEY env var
    */
   async speakWithOpenAI(
     text: string,
-    apiKey: string,
     options?: { voice?: OpenAIVoiceId; speed?: number },
     onEnd?: () => void,
     onError?: (error: string) => void
@@ -315,7 +317,7 @@ export class VoiceService {
           text,
           voice: options?.voice || 'nova',
           speed: options?.speed || 1.0,
-          apiKey,
+          // NOTE: apiKey is no longer sent - server uses OPENAI_API_KEY env var
         }),
         signal: controller.signal,
       })
