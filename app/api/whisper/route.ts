@@ -13,20 +13,15 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData()
     const audioFile = formData.get('audio') as File | Blob
+    const apiKey = formData.get('apiKey') as string
     const mimeType = formData.get('mimeType') as string || 'audio/webm'
 
     if (!audioFile) {
       return NextResponse.json({ error: 'No audio file provided' }, { status: 400 })
     }
 
-    // SECURITY: Use server-side API key instead of client-provided key
-    const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
-      console.error('[Whisper API] OPENAI_API_KEY not configured')
-      return NextResponse.json(
-        { error: 'Voice features not configured. Please set OPENAI_API_KEY in environment.' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'No API key provided. Add your OpenAI API key in Settings.' }, { status: 400 })
     }
 
     // Determine correct filename based on mimeType
@@ -59,7 +54,7 @@ export async function POST(req: NextRequest) {
     whisperFormData.append('model', 'whisper-1')
     // Let Whisper auto-detect language for better multilingual support
 
-    // Call OpenAI Whisper API
+    // Call OpenAI Whisper API with user's API key
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {

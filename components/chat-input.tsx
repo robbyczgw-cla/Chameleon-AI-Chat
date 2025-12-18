@@ -128,8 +128,8 @@ export function ChatInput() {
       setIsListening(true)
 
       // Use Whisper API (works in all browsers including Firefox and mobile)
-      // NOTE: API key is now handled server-side via OPENAI_API_KEY env var
       await voiceService.startWhisperListening(
+        openAiKey,
         (text) => {
           haptics.trigger('success')
           setInput(text)

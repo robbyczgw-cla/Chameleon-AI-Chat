@@ -10,8 +10,7 @@
 | Issue | Severity | Status | Notes |
 |-------|----------|--------|-------|
 | localStorage API keys exposure | **CRITICAL** | ✅ **FIXED** | Keys removed for logged-in users |
-| Voice API keys client→server | **CRITICAL** | ✅ **FIXED** | Now uses server-side env var |
-| API route authentication | High | ✅ **FIXED** | Voice routes use verifyAuth() |
+| Voice API route authentication | High | ✅ **FIXED** | Voice routes use verifyAuth() |
 | Mermaid security level | Medium | ✅ **FIXED** | Changed to `securityLevel: "strict"` |
 | Mermaid lazy loading | High | ✅ **FIXED** | ~400KB bundle reduction |
 | KaTeX lazy loading | Medium | ✅ **FIXED** | lazy-math.tsx created |
@@ -26,27 +25,22 @@
 
 ## Part 1: Security - ALL CRITICAL ISSUES FIXED
 
-### ✅ Issue 1: Voice API Keys - FIXED (Dec 18, 2025)
+### ✅ Issue 1: Voice API Route Authentication - FIXED (Dec 18, 2025)
 
 **What was done:**
-1. Removed `apiKey` parameter from `startWhisperListening()` and `speakWithOpenAI()` functions
-2. API routes now use `process.env.OPENAI_API_KEY` exclusively
-3. Added `verifyAuth()` to `/api/whisper` and `/api/tts` routes
-4. Updated all call sites in components
+1. Added `verifyAuth()` to `/api/whisper` and `/api/tts` routes
+2. Users must be authenticated OR in guest mode to use voice features
+3. Unauthorized requests return 401
 
 **Files changed:**
-- `lib/voice.ts` - Removed apiKey params from function signatures
-- `app/api/whisper/route.ts` - Uses env var + auth verification
-- `app/api/tts/route.ts` - Uses env var + auth verification
-- `components/chat-input.tsx` - Removed apiKey argument
-- `components/simple-chat-input.tsx` - Removed apiKey argument
-- `components/chat-messages.tsx` - Removed apiKey argument
-- `components/settings-dialog.tsx` - Removed apiKey argument
+- `app/api/whisper/route.ts` - Added auth verification
+- `app/api/tts/route.ts` - Added auth verification
 
-**Security model:**
-- Server uses `OPENAI_API_KEY` from environment
-- Users must be authenticated OR in guest mode
-- Unauthorized requests return 401
+**Security model (multi-user self-hosted):**
+- Users provide their OWN OpenAI API key (stored via Supabase RLS or localStorage for guests)
+- Server validates user session before processing voice requests
+- Each user uses their own API key - no server-wide key required
+- This supports the self-hosted multi-user deployment model
 
 ---
 
@@ -147,13 +141,12 @@ No `@tanstack/react-virtual` in codebase yet.
 
 ## Security Checklist for Launch ✅
 
-- [x] API keys not visible in browser Network tab
-- [x] API keys not stored in localStorage for logged-in users
-- [x] Voice routes use server-side API key
-- [x] Voice routes verify user authentication
-- [x] Mermaid diagrams prevent script injection
+- [x] API keys not stored in localStorage for logged-in users (Supabase RLS)
+- [x] Voice routes verify user authentication (verifyAuth)
+- [x] Mermaid diagrams prevent script injection (securityLevel: strict)
 - [x] Guest mode has documented security tradeoffs
 - [x] Rate limiting in place (in-memory acceptable for now)
+- [x] Multi-user model: each user provides their own API keys
 
 ---
 

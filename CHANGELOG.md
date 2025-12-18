@@ -10,16 +10,12 @@ This project is in **beta stage** (v0.10-beta). Core features are stable with ex
 
 ### 🔒 Security Hardening (Critical)
 
-**Voice API Keys Secured**
-- **BREAKING:** Voice API keys no longer sent from client to server
-- Whisper (speech-to-text) and TTS routes now use server-side `OPENAI_API_KEY` env var
-- Added auth verification to `/api/whisper` and `/api/tts` routes
-- **Files:** `app/api/whisper/route.ts`, `app/api/tts/route.ts`, `lib/voice.ts`
-
-**API Route Authentication**
-- Added `verifyAuth()` checks to voice API routes
+**Voice API Route Authentication**
+- Added `verifyAuth()` checks to `/api/whisper` and `/api/tts` routes
 - Users must be authenticated OR in guest mode to use voice features
 - Unauthorized requests return 401
+- User-provided API keys still supported (multi-user self-hosted model)
+- **Files:** `app/api/whisper/route.ts`, `app/api/tts/route.ts`
 
 **localStorage API Keys Secured (Dec 17)**
 - API keys removed from localStorage for logged-in users

@@ -20,20 +20,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { text, voice = 'nova', speed = 1.0 } = await req.json()
+    const { text, voice = 'nova', speed = 1.0, apiKey } = await req.json()
 
     if (!text) {
       return NextResponse.json({ error: 'No text provided' }, { status: 400 })
     }
 
-    // SECURITY: Use server-side API key instead of client-provided key
-    const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
-      console.error('[TTS API] OPENAI_API_KEY not configured')
-      return NextResponse.json(
-        { error: 'Voice features not configured. Please set OPENAI_API_KEY in environment.' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'No API key provided. Add your OpenAI API key in Settings.' }, { status: 400 })
     }
 
     // Limit text length to avoid timeouts and huge API costs
@@ -53,6 +47,7 @@ export async function POST(req: NextRequest) {
 
     let response: Response
     try {
+      // Call OpenAI TTS API with user's API key
       response = await fetch('https://api.openai.com/v1/audio/speech', {
         method: 'POST',
         headers: {

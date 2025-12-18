@@ -454,10 +454,10 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
         return
       }
 
-      // NOTE: API key is now handled server-side via OPENAI_API_KEY env var
       console.log('[ChatMessages] 🔊 Speaking with OpenAI TTS')
       await voiceService.speakWithOpenAI(
         cleanText,
+        openAiKey,
         {
           voice: (settings.voiceSettings?.openaiVoice as any) || 'nova',
           speed: settings.voiceSettings?.rate || 1,

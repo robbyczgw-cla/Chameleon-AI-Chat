@@ -224,8 +224,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       haptics.trigger('medium')
       setIsListening(true)
 
-      // NOTE: API key is now handled server-side via OPENAI_API_KEY env var
       await voiceService.startWhisperListening(
+        openAiKey,
         (text) => {
           haptics.trigger('success')
           setInput(text)
