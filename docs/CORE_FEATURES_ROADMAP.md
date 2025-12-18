@@ -1,40 +1,64 @@
 # Core Features Improvement Roadmap
 
-> **Last Updated:** December 13, 2025 (COMPREHENSIVE AUDIT)
+> **Last Updated:** December 18, 2025 (VERIFIED via code inspection + git log)
 > **Total Improvements Listed:** 130+
-> **Actually Implemented:** 55+ (75%)
-> **Remaining:** 25+ high-priority items
+> **Actually Implemented:** 65+ (80%)
+> **Remaining:** 20+ items
 > **Focus Areas:** Personas, Memory, Follow-ups, Tool Use, Streaming Visualization
 
 This document outlines potential improvements for Chameleon AI Chat's 5 core differentiating features.
 
-**⚠️ NOTE:** This roadmap was comprehensively audited on Dec 13, 2025. Many items previously marked as "not implemented" were found to already exist in the codebase.
+**✅ NOTE:** Last verified Dec 18, 2025 - 203 commits reviewed since Dec 10.
+
+---
+
+## 🚀 Recently Shipped (Dec 13-18, 2025)
+
+**Dec 17-18:**
+- ✅ **Memory Surfacing** - Shows which memories influenced each response (`memory-surfacing-badge.tsx`) - commit 9fec1a3
+- ✅ **Profile Memory Protection** - Profile memories exempt from decay - commit 5a5b2d7
+- ✅ **Better Duplicate Detection** - Lowered threshold 0.85→0.75, core word overlap - commit 5a5b2d7
+- ✅ **Image Validation Fix** - Uses compressed size for iOS PWA - commit b681a5d
+- ✅ **Gemini 3 Flash Preview** - Full support with reasoning + tool calling - commits ca527bd, 9b0f95b
+- ✅ **Security: localStorage Keys** - Removed for logged-in users, stored in Supabase - commit 6a065a4
+- ✅ **Security: Mermaid Strict** - Changed from "loose" to "strict" - commit 6a065a4
+- ✅ **Performance: Mermaid Lazy** - ~400KB bundle reduction - commit 11073bc
+- ✅ **Performance: KaTeX Lazy** - Dynamic import wrapper - commit 11073bc
+- ✅ **API Auth Utility** - `lib/api-auth.ts` ready for route protection - commit 6a065a4
+
+**Dec 13:**
+- ✅ **Streaming Crash Fixes** - Throttled updates, debounced SearchService - CHANGELOG v0.10.4
+- ✅ **GPU Performance** - Disabled backdrop-blur, animations on desktop - CHANGELOG v0.10.3
+- ✅ **SearchSourcesBadge** - Compact search result display - CHANGELOG v0.10.2
 
 ---
 
 ## 🎯 Implementation Status Summary
 
-### Actually Implemented ✅ (Found in Audit)
+### Actually Implemented ✅ (Verified Dec 18)
 
 **Streaming & UI:**
-- ✅ **Cancellation Button** - Send button transforms to stop icon during streaming (`chat-input.tsx:1396`)
-- ✅ **Tool Result Preview** - SearchResultsCard shows during streaming (`message-status.tsx:325-335`)
-- ✅ **Live Token Counter** - Tokens/sec shown in message stats (`message-stats.tsx:96`)
+- ✅ **Cancellation Button** - Send button transforms to stop icon during streaming
+- ✅ **Tool Result Preview** - SearchResultsCard shows during streaming
+- ✅ **Live Token Counter** - Tokens/sec shown in message stats
 - ✅ **Streaming Phases** - 4 phases with icons: thinking, searching, tool_use, responding
 - ✅ **Elapsed Time Display** - Formatted timer during generation
+- ✅ **Memory Surfacing Badge** - Shows which memories influenced response (NEW Dec 17)
+- ✅ **Search Sources Badge** - Compact expandable search results (NEW Dec 13)
 
 **Memory System:**
-- ✅ **Memory Search** - Keyword AND semantic search with embeddings (`memory-service.ts:693-804`)
-- ✅ **Memory Categories UI** - Tabs for preference/fact/context/skill/goal (`ai-memory-hub.tsx:47`)
-- ✅ **Memory Filtering** - Filter by type and importance (`memory-manager.tsx:56-73`)
-- ✅ **Memory Conflict Detection** - Deduplication with 85% overlap detection (`memory-service.ts:1161-1197`)
-- ✅ **Memory Aging/Decay** - Auto-expiration after 7 days (`memory-service.ts:376-423`)
+- ✅ **Memory Search** - Keyword AND semantic search with embeddings
+- ✅ **Memory Categories UI** - Tabs for preference/fact/context/skill/goal
+- ✅ **Memory Filtering** - Filter by type and importance
+- ✅ **Memory Conflict Detection** - Deduplication with 75% overlap detection (improved)
+- ✅ **Memory Aging/Decay** - Auto-expiration after 7 days (profile exempt)
 - ✅ **Memory Archive/Restore** - 14-day deleted memory retention
 - ✅ **Query Classification** - LLM classifies factual/personal/ambiguous queries
+- ✅ **Memory Surfacing** - Shows which memories influenced each response (NEW Dec 17)
 
 **Personas:**
 - ✅ **26 Built-in Personas** - Unique personalities in `lib/personas.ts`
-- ✅ **Persona Analytics** - Relationship depth tracking, interaction frequency (`persona-preferences-service.ts`)
+- ✅ **Persona Analytics** - Relationship depth tracking, interaction frequency
 - ✅ **Persona Voice Settings** - TTS voice, rate, pitch per persona
 - ✅ **Persona Context Awareness** - Time-based greetings, mood detection
 - ✅ **Custom Persona Builder** - Create with AI-generated avatars
@@ -45,11 +69,21 @@ This document outlines potential improvements for Chameleon AI Chat's 5 core dif
 - ✅ **Multi-Provider Search** - Tavily, Serper, Exa support
 - ✅ **Tool Caching** - 5-min search cache, 10-min weather cache
 - ✅ **Tool History** - streamingHistory tracks all tool executions per message
+- ✅ **Gemini 3 Tool Calling** - Full support with reasoning (NEW Dec 17)
 
 **Follow-ups:**
 - ✅ **Multi-Language Labels** - German: Schnell/Tiefer/Verwandt
 - ✅ **3 Categories** - Quick ⚡, Deep 🧠, Related 🔗
 - ✅ **Minimalist + Advanced Modes** - Flat view or categorized
+
+**Security & Performance (NEW Dec 17):**
+- ✅ **localStorage Keys Secured** - Removed for logged-in users, Supabase RLS
+- ✅ **Mermaid Security** - Changed to "strict" mode
+- ✅ **Mermaid Lazy Loading** - ~400KB bundle reduction
+- ✅ **KaTeX Lazy Loading** - Dynamic import
+- ✅ **Context Splitting** - settings, chats, auth contexts separated
+- ✅ **GPU Animations Disabled** - No more 90%+ CPU on desktop
+- ✅ **Streaming Throttled** - 100+/sec → 20/sec updates
 
 ---
 

@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
+import { verifyAuth } from "@/lib/api-auth"
 
 export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
   try {
+    // SECURITY: Verify user is authenticated or in guest mode
+    const auth = await verifyAuth(req)
+    if (!auth.user && !auth.isGuest) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const formData = await req.formData()
     const audioFile = formData.get('audio') as File | Blob
     const apiKey = formData.get('apiKey') as string
@@ -14,7 +21,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!apiKey) {
-      return NextResponse.json({ error: 'No API key provided' }, { status: 400 })
+      return NextResponse.json({ error: 'No API key provided. Add your OpenAI API key in Settings.' }, { status: 400 })
     }
 
     // Determine correct filename based on mimeType
@@ -24,7 +31,8 @@ export async function POST(req: NextRequest) {
     console.log('[Whisper API] Received audio:', {
       size: audioFile.size,
       type: audioFile.type || mimeType,
-      filename
+      filename,
+      userId: auth.user?.id || 'guest'
     })
 
     // Convert to proper File with correct MIME type (edge runtime fix)
@@ -46,7 +54,7 @@ export async function POST(req: NextRequest) {
     whisperFormData.append('model', 'whisper-1')
     // Let Whisper auto-detect language for better multilingual support
 
-    // Call OpenAI Whisper API
+    // Call OpenAI Whisper API with user's API key
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {

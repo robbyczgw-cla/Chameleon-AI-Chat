@@ -6,6 +6,66 @@ This project is in **beta stage** (v0.10-beta). Core features are stable with ex
 
 ---
 
+## [0.10.5-beta] - 2025-12-18
+
+### 🔒 Security Hardening (Critical)
+
+**Voice API Route Authentication**
+- Added `verifyAuth()` checks to `/api/whisper` and `/api/tts` routes
+- Users must be authenticated OR in guest mode to use voice features
+- Unauthorized requests return 401
+- User-provided API keys still supported (multi-user self-hosted model)
+- **Files:** `app/api/whisper/route.ts`, `app/api/tts/route.ts`
+
+**localStorage API Keys Secured (Dec 17)**
+- API keys removed from localStorage for logged-in users
+- Keys stored in React state (memory) during session
+- Keys synced to Supabase with RLS protection
+- Guest mode still uses localStorage (documented risk)
+- **File:** `contexts/app-context.tsx`
+
+**Mermaid Security (Dec 17)**
+- Changed `securityLevel` from "loose" to "strict"
+- Prevents script injection in Mermaid diagrams
+- **File:** `components/rich-content/mermaid-diagram.tsx`
+
+### 🚀 Performance (Dec 17)
+
+**Mermaid Lazy Loading**
+- Created `lazy-mermaid.tsx` wrapper for dynamic import
+- ~400KB bundle reduction (mermaid only loads when diagram rendered)
+- **File:** `components/rich-content/lazy-mermaid.tsx`
+
+**KaTeX Lazy Loading**
+- Created `lazy-math.tsx` wrapper for dynamic import
+- **File:** `components/rich-content/lazy-math.tsx`
+
+### ✨ Features (Dec 17-18)
+
+**Memory Surfacing**
+- Shows which memories influenced each AI response
+- New `MemorySurfacingBadge` component with expandable details
+- Displays used memories in chat messages
+- **Files:** `components/memory-surfacing-badge.tsx`, `components/chat-messages.tsx`
+
+**Gemini 3 Flash Preview Support**
+- Full support for Gemini 3 with reasoning + tool calling
+- Thought signature support for tool calls
+- **Files:** `app/api/chat/route.ts`, `lib/models.ts`
+
+**Image Validation Fix**
+- Now uses compressed size instead of original file size
+- Fixes iOS PWA "Image size exceeds 5MB" false positives
+- **Files:** `components/chat-input.tsx`, `components/simple-chat-input.tsx`
+
+**Memory System Improvements**
+- Profile memories exempt from automatic decay
+- Better duplicate detection (threshold 0.85→0.75)
+- Core word overlap detection for critical profile fields
+- **File:** `lib/memory-service.ts`
+
+---
+
 ## [0.10.4-beta] - 2025-12-13
 
 ### 🚨 Streaming Crash Fix (Critical)

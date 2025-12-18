@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { verifyAuth } from "@/lib/api-auth"
 
 export const runtime = 'edge'
 
@@ -13,6 +14,12 @@ const MAX_TEXT_LENGTH = 2000
 
 export async function POST(req: NextRequest) {
   try {
+    // SECURITY: Verify user is authenticated or in guest mode
+    const auth = await verifyAuth(req)
+    if (!auth.user && !auth.isGuest) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { text, voice = 'nova', speed = 1.0, apiKey } = await req.json()
 
     if (!text) {
@@ -20,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!apiKey) {
-      return NextResponse.json({ error: 'No API key provided' }, { status: 400 })
+      return NextResponse.json({ error: 'No API key provided. Add your OpenAI API key in Settings.' }, { status: 400 })
     }
 
     // Limit text length to avoid timeouts and huge API costs
@@ -30,7 +37,8 @@ export async function POST(req: NextRequest) {
       textLength: truncatedText.length,
       originalLength: text.length,
       voice,
-      speed
+      speed,
+      userId: auth.user?.id || 'guest'
     })
 
     // Create AbortController with timeout to prevent gateway timeout
@@ -39,6 +47,7 @@ export async function POST(req: NextRequest) {
 
     let response: Response
     try {
+      // Call OpenAI TTS API with user's API key
       response = await fetch('https://api.openai.com/v1/audio/speech', {
         method: 'POST',
         headers: {

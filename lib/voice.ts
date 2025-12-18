@@ -88,6 +88,8 @@ export class VoiceService {
   /**
    * Start recording audio using MediaRecorder and transcribe with Whisper API
    * This works in all browsers including Firefox and mobile
+   *
+   * @param apiKey - User's OpenAI API key (each user provides their own)
    */
   async startWhisperListening(
     apiKey: string,
@@ -185,8 +187,7 @@ export class VoiceService {
         }
 
         try {
-          // Send to Whisper API
-          // Use correct file extension based on mimeType
+          // Send to Whisper API with user's API key
           const extension = mimeType === 'audio/webm' ? 'webm' : 'm4a'
           const filename = `recording.${extension}`
 
@@ -292,6 +293,8 @@ export class VoiceService {
 
   /**
    * Speak text using OpenAI TTS API (higher quality)
+   *
+   * @param apiKey - User's OpenAI API key (each user provides their own)
    */
   async speakWithOpenAI(
     text: string,
