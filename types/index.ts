@@ -409,7 +409,7 @@ export interface AppSettings {
   memorySettings?: MemorySettings
   shopifySettings?: ShopifySettings // HiFi mode: Shopify store connection
   fontSize?: "small" | "medium" | "large"
-  fontFamily?: "inter" | "roboto" | "atkinson" | "opendyslexic" | "jetbrains" | "system"
+  fontFamily?: "inter" | "roboto" | "atkinson" | "opendyslexic" | "jetbrains" | "system" | "dmsans" | "poppins"
   messageDensity?: "compact" | "comfortable" | "spacious"
   sidebarPosition?: "left" | "right"
   codeTheme?: "github-dark" | "github-light" | "monokai" | "dracula"

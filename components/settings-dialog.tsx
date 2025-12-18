@@ -370,12 +370,14 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setLocalSettings({
                       ...localSettings,
-                      fontFamily: e.target.value as "inter" | "roboto" | "atkinson" | "opendyslexic" | "jetbrains" | "system",
+                      fontFamily: e.target.value as "inter" | "roboto" | "atkinson" | "opendyslexic" | "jetbrains" | "system" | "dmsans" | "poppins",
                     })
                   }
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
                 >
                   <option value="inter">Inter (Default)</option>
+                  <option value="dmsans">DM Sans (Modern)</option>
+                  <option value="poppins">Poppins (Geometric)</option>
                   <option value="roboto">Roboto</option>
                   <option value="atkinson">Atkinson Hyperlegible (Dyslexia-friendly)</option>
                   <option value="opendyslexic">OpenDyslexic</option>
@@ -383,7 +385,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   <option value="system">System Font</option>
                 </select>
                 <p className="text-xs text-muted-foreground">
-                  Choose a font that's comfortable for reading. Atkinson and OpenDyslexic are designed for accessibility.
+                  Choose a font that's comfortable for reading. DM Sans and Poppins are modern geometric fonts. Atkinson and OpenDyslexic are designed for accessibility.
                 </p>
               </div>
 
