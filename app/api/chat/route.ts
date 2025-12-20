@@ -736,6 +736,7 @@ export async function POST(req: NextRequest) {
     const isOpenAIReasoning = modelLower.includes('o1') || modelLower.includes('o3') || modelLower.includes('gpt-5')
     const isGrokModel = modelLower.includes('grok')
     const isDeepSeekR1 = modelLower.includes('deepseek-r1') || modelLower.includes('deepseek/r1')
+    const isDeepSeekV3 = modelLower.includes('deepseek-v3') || modelLower.includes('deepseek/deepseek-v3')
     const isClaudeModel = modelLower.includes('claude')
 
     const shouldUseReasoning = reasoning && !(isMimoModel && shouldIncludeTools)
@@ -755,10 +756,10 @@ export async function POST(req: NextRequest) {
         // Grok: Just on/off reasoning (no configurable depth)
         openRouterBody.reasoning = { enabled: true }
         console.log("[Chat] Grok reasoning enabled (on/off only)")
-      } else if (isDeepSeekR1) {
-        // DeepSeek R1: Just on/off, no configurable depth
+      } else if (isDeepSeekR1 || isDeepSeekV3) {
+        // DeepSeek R1/V3: Just on/off, no configurable depth
         openRouterBody.reasoning = { enabled: true }
-        console.log("[Chat] DeepSeek R1 reasoning enabled (depth not configurable)")
+        console.log(`[Chat] DeepSeek ${isDeepSeekR1 ? 'R1' : 'V3'} reasoning enabled (on/off only)`)
       } else if (isClaudeModel) {
         // Claude: Extended thinking is automatic via include_reasoning
         // No explicit reasoning parameter needed, just include_reasoning
