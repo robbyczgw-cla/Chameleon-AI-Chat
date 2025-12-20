@@ -4,16 +4,16 @@
  */
 
 const STORAGE_KEY = "user-selected-models"
-const DEFAULT_MODEL = "openai/gpt-5.1-codex-mini" // Best value: Detailed responses, fast, affordable
+const DEFAULT_MODEL = "google/gemini-3-flash-preview" // Best value: Fast thinking model with reasoning
 const MAX_MODELS = 30
 
 // Default starting models for new users - December 2025 optimized
 const DEFAULT_STARTING_MODELS = [
-  "openai/gpt-5.1-codex-mini", // ALWAYS the default - Detailed responses, great for coding
+  "google/gemini-3-flash-preview", // ALWAYS the default - Fast thinking model with reasoning
   "x-ai/grok-4.1-fast", // Maximum reliability for agents
   "anthropic/claude-4.5-sonnet-20250929", // Best coding & long-running tasks
   "openai/gpt-5.1", // Strong reasoning
-  "google/gemini-3-flash-preview", // NEW: Fast thinking model with tool use
+  "openai/gpt-5.1-codex-mini", // Great for coding
   "google/gemini-3-pro", // Best reasoning benchmarks
   "anthropic/claude-haiku-4.5", // Fast & cheap
   "x-ai/grok-4-fast:free", // Free option
