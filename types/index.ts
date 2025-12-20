@@ -393,6 +393,7 @@ export interface AppSettings {
   }
   selectedModel: string
   defaultModel?: string // User's custom default model for new chats (Advanced Mode setting)
+  reasoningDepth?: "minimal" | "low" | "medium" | "high" // Reasoning depth for thinking models (Gemini 3, Grok, o1/o3)
   selectedModels?: string[] // Array of user's selected OpenRouter models (persisted to database)
   selectedPersona?: import("@/lib/personas").Persona // Currently selected persona
   customPersonas?: import("@/lib/personas").Persona[] // User-created custom personas (persisted to database)

@@ -32,6 +32,7 @@ import { ContextWindowMeter } from "@/components/context-window-meter"
 import { parseSlashCommand, getCommandSuggestions, buildCommandPrompt, SLASH_COMMANDS } from "@/lib/slash-commands"
 import { QuickModelPicker } from "@/components/quick-model-picker"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
+import { ReasoningDepthSelector } from "@/components/reasoning-depth-selector"
 import type { Persona } from "@/lib/personas"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { useDraft } from "@/hooks/use-draft"
@@ -58,18 +59,6 @@ export function ChatInput() {
   const [isSpeaking, setIsSpeaking] = useState(false)
   // Image mode: "off" | "normal" | "high"
   const [imageMode, setImageMode] = useState<"off" | "normal" | "high">("off")
-  const [reasoningEnabled, setReasoningEnabled] = useState(() => {
-    if (typeof window === "undefined") return false
-    const saved = localStorage.getItem("chameleon-reasoning-enabled")
-    return saved === "true"
-  })
-
-  // Save reasoning state
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("chameleon-reasoning-enabled", String(reasoningEnabled))
-    }
-  }, [reasoningEnabled])
   const [attachedCollectionId, setAttachedCollectionId] = useState<string | null>(null)
   const [commandSuggestions, setCommandSuggestions] = useState<typeof SLASH_COMMANDS>([])
   const [showCommandMenu, setShowCommandMenu] = useState(false)
@@ -189,15 +178,12 @@ export function ChatInput() {
       haptics.trigger('selection')
       setImageMode(e.detail)
     }
-    const handleToggleReasoning = () => setReasoningEnabled(prev => !prev)
 
     window.addEventListener("toggleVoice", handleToggleVoice)
     window.addEventListener("setImageMode", handleSetImageMode as EventListener)
-    window.addEventListener("toggleReasoning", handleToggleReasoning)
     return () => {
       window.removeEventListener("toggleVoice", handleToggleVoice)
       window.removeEventListener("setImageMode", handleSetImageMode as EventListener)
-      window.removeEventListener("toggleReasoning", handleToggleReasoning)
     }
   })
 
@@ -258,14 +244,7 @@ export function ChatInput() {
     if (isCommand && command) {
       // Handle action commands (toggle settings)
       if (command.action) {
-        if (command.action === 'toggle-reasoning') {
-          const newState = !reasoningEnabled
-          setReasoningEnabled(newState)
-          toast({
-            title: newState ? "🧠 Reasoning enabled" : "Reasoning disabled",
-            description: newState ? "AI will show its thinking process" : "Standard response mode",
-          })
-        } else if (command.action === 'toggle-web-search') {
+        if (command.action === 'toggle-web-search') {
           const newState = !webSearchEnabled
           setWebSearchEnabled(newState)
           toast({
@@ -949,7 +928,9 @@ export function ChatInput() {
         presencePenalty: modelParams.presencePenalty,
         apiKey: settings.apiKeys.openRouter,
         signal: abortControllerRef.current?.signal,
-        reasoning: reasoningEnabled, // Always pass if enabled - OpenRouter handles compatibility
+        // Reasoning is controlled by reasoningDepth setting (always enabled when depth is set)
+        reasoning: !!settings.reasoningDepth,
+        reasoningDepth: settings.reasoningDepth || "medium",
         onReasoning,
         // Auto tool use (tool calling) - AI decides when to use tools
         enableAutoToolUse: settings.enableAutoToolUse ?? true,
@@ -1323,15 +1304,17 @@ export function ChatInput() {
           <div className="flex items-center gap-2">
             <QuickModelPicker />
             <QuickPersonaPicker />
+            <ReasoningDepthSelector />
           </div>
         </div>
 
         {/* Main Input Container */}
         <div className="flex flex-col gap-1.5 md:gap-0">
           {/* Mobile: Model & Persona pickers above textarea */}
-          <div className="flex md:hidden items-center gap-2 px-0.5 pb-1">
+          <div className="flex md:hidden items-center gap-1.5 px-0.5 pb-1 overflow-x-auto">
             <QuickModelPicker />
             <QuickPersonaPicker />
+            <ReasoningDepthSelector compact />
           </div>
 
           {/* Input row with send button */}
