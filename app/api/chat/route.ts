@@ -752,10 +752,9 @@ export async function POST(req: NextRequest) {
         openRouterBody.reasoning = { effort: openAIEffort }
         console.log(`[Chat] OpenAI reasoning enabled with effort: ${openAIEffort}`)
       } else if (isGrokModel) {
-        // Grok: effort (low, medium, high) - doesn't support minimal
-        const grokEffort = reasoningDepth === "minimal" ? "low" : reasoningDepth
-        openRouterBody.reasoning = { effort: grokEffort }
-        console.log(`[Chat] Grok reasoning enabled with effort: ${grokEffort}`)
+        // Grok: Just on/off reasoning (no configurable depth)
+        openRouterBody.reasoning = { enabled: true }
+        console.log("[Chat] Grok reasoning enabled (on/off only)")
       } else if (isDeepSeekR1) {
         // DeepSeek R1: Just on/off, no configurable depth
         openRouterBody.reasoning = { enabled: true }

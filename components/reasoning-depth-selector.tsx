@@ -65,9 +65,7 @@ const REASONING_DEPTH_MODELS = [
   "gemini-3",
   // OpenAI o-series, GPT-5 - uses effort (low, medium, high)
   "o1", "o3", "gpt-5",
-  // Grok - uses effort (low, medium, high)
-  "grok-4", "grok-code",
-  // Note: DeepSeek R1 only supports on/off, not depth levels
+  // Note: Grok, DeepSeek R1 only support on/off, not depth levels
 ]
 
 interface ReasoningDepthSelectorProps {
