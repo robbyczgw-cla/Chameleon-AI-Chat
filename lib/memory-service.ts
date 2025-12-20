@@ -147,7 +147,8 @@ class MemoryService {
       this.loadMemories() // Load new user's memories
       this.loadDeletedMemories() // Load deleted memories archive
 
-      // Run expiration check on load
+      // Run cleanup on load
+      this.removeDuplicates() // Remove any duplicate memories
       this.checkAndExpireMemories()
       this.cleanupExpiredArchive()
     }
@@ -250,8 +251,21 @@ class MemoryService {
       const localMemoryIds = new Set(this.memories.map(m => m.id))
       const dbMemoryIds = new Set(dbMemories.map(m => m.id))
 
-      // Add DB memories that aren't local
+      // CRITICAL: Get deleted memory IDs to prevent zombie memories from coming back
+      const deletedMemoryIds = new Set(this.deletedMemories.map(m => m.id))
+
+      // Add DB memories that aren't local AND weren't deleted
       for (const dbMem of dbMemories) {
+        // Skip if this memory was deleted locally - don't bring it back!
+        if (deletedMemoryIds.has(dbMem.id)) {
+          console.log("[Memory] Skipping deleted memory from DB:", dbMem.content?.substring(0, 40))
+          // Also try to delete it from the database since it's in our deleted list
+          supabaseSync.deleteMemory(this.userId!, dbMem.id).catch(err => {
+            console.error("[Memory] Failed to sync deletion to database:", err)
+          })
+          continue
+        }
+
         if (!localMemoryIds.has(dbMem.id)) {
           this.memories.push(dbMem)
         } else {
@@ -629,9 +643,19 @@ class MemoryService {
   }
 
   /**
-   * Add a new memory
+   * Add a new memory (with deduplication check)
    */
   addMemory(memory: Omit<Memory, "id" | "createdAt" | "lastAccessedAt" | "accessCount">, apiKey?: string): Memory {
+    // Check for duplicates before adding
+    if (memory.content && this.isMemoryDuplicate(memory.content, this.memories)) {
+      console.log("[Memory] Skipping duplicate memory:", memory.content.substring(0, 40))
+      // Return the existing memory that matches
+      const existing = this.memories.find(m =>
+        m.content.toLowerCase().trim() === memory.content.toLowerCase().trim()
+      )
+      if (existing) return existing
+    }
+
     const newMemory: Memory = {
       ...memory,
       id: generateUUID(),
@@ -723,6 +747,49 @@ class MemoryService {
    */
   getAllMemories(): Memory[] {
     return [...this.memories].sort((a, b) => b.createdAt - a.createdAt)
+  }
+
+  /**
+   * Remove duplicate memories (keeps the oldest one)
+   * Call this to clean up existing duplicates
+   */
+  removeDuplicates(): number {
+    const seen = new Map<string, Memory>()
+    const duplicateIds: string[] = []
+
+    // Sort by createdAt ascending (oldest first) so we keep the original
+    const sorted = [...this.memories].sort((a, b) => a.createdAt - b.createdAt)
+
+    for (const memory of sorted) {
+      const normalizedContent = memory.content.toLowerCase().trim()
+
+      if (seen.has(normalizedContent)) {
+        // This is a duplicate - mark for removal
+        duplicateIds.push(memory.id)
+        console.log("[Memory] Found duplicate:", memory.content.substring(0, 40))
+      } else {
+        seen.set(normalizedContent, memory)
+      }
+    }
+
+    // Remove duplicates
+    if (duplicateIds.length > 0) {
+      this.memories = this.memories.filter(m => !duplicateIds.includes(m.id))
+      this.saveMemories()
+
+      // Sync deletions to database
+      if (this.syncEnabled && this.userId) {
+        for (const id of duplicateIds) {
+          supabaseSync.deleteMemory(this.userId, id).catch(err => {
+            console.error("[Memory] Failed to delete duplicate from DB:", err)
+          })
+        }
+      }
+
+      console.log(`[Memory] Removed ${duplicateIds.length} duplicate memories`)
+    }
+
+    return duplicateIds.length
   }
 
   /**
