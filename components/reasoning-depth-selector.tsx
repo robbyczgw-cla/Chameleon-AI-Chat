@@ -120,6 +120,7 @@ export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelect
     const isEnabled = !!settings.reasoningDepth
     return (
       <Button
+        type="button"
         variant={isEnabled ? "default" : "outline"}
         size="sm"
         onClick={handleToggleReasoning}
@@ -144,6 +145,7 @@ export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelect
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
+          type="button"
           variant="outline"
           size="sm"
           className={cn(
