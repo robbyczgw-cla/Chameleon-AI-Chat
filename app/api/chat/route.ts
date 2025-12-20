@@ -950,6 +950,17 @@ async function handleStreamingRequest(
         )
       )
 
+      // Send debug info about reasoning params (for troubleshooting)
+      if (openRouterBody.reasoning) {
+        await writer.write(
+          encoder.encode(
+            `data: ${JSON.stringify({
+              choices: [{ delta: { debug: { reasoningParams: openRouterBody.reasoning, model: openRouterBody.model } } }],
+            })}\n\n`
+          )
+        )
+      }
+
       while (iterations < MAX_ITERATIONS) {
         iterations++
         console.log(`[Chat] ===== Iteration ${iterations} of ${MAX_ITERATIONS} =====`)
