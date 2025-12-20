@@ -773,6 +773,11 @@ export async function POST(req: NextRequest) {
       openRouterBody.include_reasoning = true
     }
 
+    // DEBUG: Log the actual reasoning params being sent to OpenRouter
+    if (openRouterBody.reasoning) {
+      console.log("[Chat] 🧠 OpenRouter reasoning params:", JSON.stringify(openRouterBody.reasoning))
+    }
+
     if (isMimoModel && reasoning && shouldIncludeTools) {
       console.log("[Chat] ⚠️ MiMo: Disabled reasoning because tools are enabled (OpenRouter recommendation)")
     }
@@ -944,6 +949,17 @@ async function handleStreamingRequest(
           })}\n\n`
         )
       )
+
+      // Send debug info about reasoning params (for troubleshooting)
+      if (openRouterBody.reasoning) {
+        await writer.write(
+          encoder.encode(
+            `data: ${JSON.stringify({
+              choices: [{ delta: { debug: { reasoningParams: openRouterBody.reasoning, model: openRouterBody.model } } }],
+            })}\n\n`
+          )
+        )
+      }
 
       while (iterations < MAX_ITERATIONS) {
         iterations++

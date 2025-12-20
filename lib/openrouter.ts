@@ -451,6 +451,11 @@ export async function streamChatMessage(
               onPhaseChange(delta.phase)
             }
 
+            // Handle debug info (reasoning params sent to OpenRouter)
+            if (delta?.debug) {
+              console.log("[v0] 🧠 Debug - API params:", JSON.stringify(delta.debug, null, 2))
+            }
+
             // Handle tool use events
             if (delta?.toolName && onToolUse) {
               console.log("[v0] 🔧 Tool use:", delta.toolName)
