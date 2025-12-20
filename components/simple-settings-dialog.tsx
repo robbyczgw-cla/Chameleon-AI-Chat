@@ -778,34 +778,34 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   </div>
                 </button>
 
-                {/* DeepSeek V3.2 - Strong reasoning */}
+                {/* Grok 4.1 Fast - Tool calling expert */}
                 <button
                   type="button"
-                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "deepseek/deepseek-v3.2", selectedModel: "deepseek/deepseek-v3.2" })}
+                  onClick={() => setLocalSettings({ ...localSettings, defaultModel: "x-ai/grok-4.1-fast", selectedModel: "x-ai/grok-4.1-fast" })}
                   className={cn(
                     "w-full p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02]",
-                    (localSettings.defaultModel === "deepseek/deepseek-v3.2" || localSettings.selectedModel === "deepseek/deepseek-v3.2")
-                      ? "border-emerald-500 bg-emerald-500/10 ring-2 ring-emerald-500/20"
-                      : "border-border/60 hover:border-emerald-300 bg-background/50"
+                    (localSettings.defaultModel === "x-ai/grok-4.1-fast" || localSettings.selectedModel === "x-ai/grok-4.1-fast")
+                      ? "border-orange-500 bg-orange-500/10 ring-2 ring-orange-500/20"
+                      : "border-border/60 hover:border-orange-300 bg-background/50"
                   )}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-2xl flex-shrink-0">
-                      🧠
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-2xl flex-shrink-0">
+                      🚀
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold">{t.modelDeepseek}</span>
-                        <Badge className="bg-emerald-500 text-white text-[10px] px-1.5">{t.premium}</Badge>
+                        <span className="font-semibold">{t.modelGrok}</span>
+                        <Badge className="bg-orange-500 text-white text-[10px] px-1.5">Agents</Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{t.modelDeepseekDesc}</p>
-                      <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                      <p className="text-sm text-muted-foreground mb-2">{t.modelGrokDesc}</p>
+                      <div className="flex items-center gap-1.5 text-xs text-orange-600 dark:text-orange-400">
                         <Zap className="h-3 w-3" />
-                        <span>{t.modelDeepseekStrengths}</span>
+                        <span>{t.modelGrokStrengths}</span>
                       </div>
                     </div>
-                    {(localSettings.defaultModel === "deepseek/deepseek-v3.2" || localSettings.selectedModel === "deepseek/deepseek-v3.2") && (
-                      <div className="h-5 w-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                    {(localSettings.defaultModel === "x-ai/grok-4.1-fast" || localSettings.selectedModel === "x-ai/grok-4.1-fast") && (
+                      <div className="h-5 w-5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
                         <div className="h-2 w-2 rounded-full bg-white" />
                       </div>
                     )}
