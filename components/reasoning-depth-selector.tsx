@@ -65,7 +65,12 @@ const REASONING_DEPTH_MODELS = [
   "gemini-3",
   // OpenAI o-series, GPT-5 - uses effort (low, medium, high)
   "o1", "o3", "gpt-5",
-  // Note: Grok, DeepSeek R1 only support on/off, not depth levels
+]
+
+// Models that support reasoning but only on/off (no depth levels)
+const REASONING_ONOFF_MODELS = [
+  "grok-4", "grok-code",
+  "deepseek-r1", "deepseek/deepseek-r1",
 ]
 
 interface ReasoningDepthSelectorProps {
@@ -78,18 +83,60 @@ export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelect
   const currentDepth = settings.reasoningDepth || "medium"
   const currentConfig = REASONING_DEPTHS.find(d => d.id === currentDepth) || REASONING_DEPTHS[2]
 
-  // Check if current model supports reasoning depth
+  // Get the model, with fallback to prevent null issues
+  const currentModel = settings.selectedModel?.toLowerCase() || ""
+
+  // Check if current model supports reasoning depth (configurable)
   const modelSupportsDepth = REASONING_DEPTH_MODELS.some(pattern =>
-    settings.selectedModel?.toLowerCase().includes(pattern)
+    currentModel.includes(pattern)
+  )
+
+  // Check if current model supports reasoning on/off only
+  const modelSupportsOnOff = REASONING_ONOFF_MODELS.some(pattern =>
+    currentModel.includes(pattern)
   )
 
   const handleDepthChange = (depth: ReasoningDepth) => {
     updateSettings({ reasoningDepth: depth })
   }
 
-  // Don't show if model doesn't support configurable depth
-  if (!modelSupportsDepth) {
+  // Toggle for on/off models
+  const handleToggleReasoning = () => {
+    if (settings.reasoningDepth) {
+      updateSettings({ reasoningDepth: undefined })
+    } else {
+      updateSettings({ reasoningDepth: "medium" })
+    }
+  }
+
+  // Don't show if model doesn't support any reasoning
+  if (!modelSupportsDepth && !modelSupportsOnOff) {
     return null
+  }
+
+  // Simple on/off toggle for Grok, DeepSeek R1, etc.
+  if (modelSupportsOnOff && !modelSupportsDepth) {
+    const isEnabled = !!settings.reasoningDepth
+    return (
+      <Button
+        variant={isEnabled ? "default" : "outline"}
+        size="sm"
+        onClick={handleToggleReasoning}
+        className={cn(
+          "gap-1.5 h-8",
+          isEnabled && "bg-amber-500 hover:bg-amber-600 text-white",
+          compact && "px-2"
+        )}
+        title={isEnabled ? "Reasoning enabled (click to disable)" : "Click to enable reasoning"}
+      >
+        <Brain className={cn("h-3.5 w-3.5", isEnabled && "animate-pulse")} />
+        {!compact && (
+          <span className="text-xs font-medium">
+            {isEnabled ? "Thinking" : "Think"}
+          </span>
+        )}
+      </Button>
+    )
   }
 
   return (

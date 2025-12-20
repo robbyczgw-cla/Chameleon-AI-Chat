@@ -825,8 +825,8 @@ export function ChatInput() {
           topP: modelParams.topP,
           frequencyPenalty: modelParams.frequencyPenalty,
           presencePenalty: modelParams.presencePenalty,
-          // Reasoning parameters
-          reasoning: !!settings.reasoningDepth,
+          // Reasoning parameters (default: medium = ON)
+          reasoning: !!(settings.reasoningDepth || "medium"),
           reasoningDepth: settings.reasoningDepth || "medium",
         },
         // Tool settings
@@ -942,8 +942,9 @@ export function ChatInput() {
         presencePenalty: modelParams.presencePenalty,
         apiKey: settings.apiKeys.openRouter,
         signal: abortControllerRef.current?.signal,
-        // Reasoning is controlled by reasoningDepth setting (always enabled when depth is set)
-        reasoning: !!settings.reasoningDepth,
+        // Reasoning is controlled by reasoningDepth setting (default: medium = ON)
+        // Use fallback "medium" so reasoning is enabled by default for supported models
+        reasoning: !!(settings.reasoningDepth || "medium"),
         reasoningDepth: settings.reasoningDepth || "medium",
         onReasoning,
         // Auto tool use (tool calling) - AI decides when to use tools
