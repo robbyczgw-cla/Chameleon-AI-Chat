@@ -327,8 +327,9 @@ export function modelSupportsToolCalling(modelId: string): boolean {
     'codestral-2025', 'mistral-large', 'mixtral',
     // MoonShot Kimi (2025) - excellent free tool calling
     'kimi-k2',
-    // Xiaomi MiMo (2025) - open source, excellent tool calling
-    'mimo-v2', 'mimo',
+    // Xiaomi MiMo (2025) - supports tools but multi-turn may have issues on OpenRouter
+    // TODO: Re-enable when OpenRouter stabilizes MiMo tool calling
+    // 'mimo-v2', 'mimo',
     // Others
     'glm-4', 'minimax-m2', 'command-r',
   ]
