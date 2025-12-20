@@ -224,6 +224,17 @@ export class SupabaseSync {
       }
 
       // Prepare API key values - NEVER overwrite existing keys with null/empty/undefined
+      // CRITICAL FIX: If we couldn't fetch existing settings AND settings.apiKeys is empty,
+      // we must NOT update API key columns at all to prevent accidental deletion
+      const hasApiKeysInSettings = settings.apiKeys?.openRouter || settings.apiKeys?.openAI ||
+                                   settings.apiKeys?.tavily || settings.apiKeys?.serper || settings.apiKeys?.exa
+      const couldFetchExisting = !fetchError && existingSettings !== null
+      const shouldUpdateApiKeys = hasApiKeysInSettings || couldFetchExisting
+
+      if (!shouldUpdateApiKeys) {
+        console.warn("[Supabase] ⚠️ SAFETY: Skipping API key update - no keys in settings and couldn't fetch existing")
+      }
+
       const openRouterKey = settings.apiKeys?.openRouter || existingSettings?.openrouter_api_key || null
       const openAIKey = settings.apiKeys?.openAI || existingSettings?.openai_api_key || null
       const tavilyKey = settings.apiKeys?.tavily || existingSettings?.tavily_api_key || null
@@ -271,11 +282,14 @@ export class SupabaseSync {
         tavily_max_results: settings.tavilySettings?.maxResults,
         tavily_include_images: settings.tavilySettings?.includeImages,
         tavily_include_answer: settings.tavilySettings?.includeAnswer,
-        openrouter_api_key: openRouterKey,
-        openai_api_key: openAIKey,
-        tavily_api_key: tavilyKey,
-        serper_api_key: serperKey,
-        exa_api_key: exaKey,
+        // Only include API keys if we have valid values or could fetch existing ones
+        ...(shouldUpdateApiKeys && {
+          openrouter_api_key: openRouterKey,
+          openai_api_key: openAIKey,
+          tavily_api_key: tavilyKey,
+          serper_api_key: serperKey,
+          exa_api_key: exaKey,
+        }),
         search_provider: settings.searchProvider || "tavily",
         serper_max_results: settings.serperSettings?.maxResults || 5,
         serper_include_images: settings.serperSettings?.includeImages ?? true,
