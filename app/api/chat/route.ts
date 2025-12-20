@@ -739,30 +739,30 @@ export async function POST(req: NextRequest) {
     const isDeepSeekV3 = modelLower.includes('deepseek-v3')  // Matches deepseek-v3, deepseek-v3.2, etc.
     const isClaudeModel = modelLower.includes('claude')
 
-    const shouldUseReasoning = reasoning && !(isMimoModel && shouldIncludeTools)
+    // Grok and DeepSeek ALWAYS use reasoning (fast & cheap, no toggle needed)
+    const alwaysReasoningModel = isGrokModel || isDeepSeekR1 || isDeepSeekV3
+    const shouldUseReasoning = (reasoning || alwaysReasoningModel) && !(isMimoModel && shouldIncludeTools)
 
     if (shouldUseReasoning) {
-      if (isGemini3Model) {
+      if (isGrokModel) {
+        // Grok: Always enabled (fast & cheap)
+        openRouterBody.reasoning = { enabled: true }
+        console.log("[Chat] Grok reasoning ALWAYS enabled")
+      } else if (isDeepSeekR1 || isDeepSeekV3) {
+        // DeepSeek R1/V3: Always enabled (fast & cheap)
+        openRouterBody.reasoning = { enabled: true }
+        console.log(`[Chat] DeepSeek ${isDeepSeekR1 ? 'R1' : 'V3'} reasoning ALWAYS enabled`)
+      } else if (isGemini3Model) {
         // Gemini 3: thinking_level (minimal, low, medium, high)
         openRouterBody.reasoning = { thinking_level: reasoningDepth }
         console.log(`[Chat] Gemini 3 reasoning enabled with thinking_level: ${reasoningDepth}`)
       } else if (isOpenAIReasoning) {
         // OpenAI o1/o3/GPT-5: effort (none, minimal, low, medium, high, xhigh)
-        // Map our levels to OpenAI's scale
         const openAIEffort = reasoningDepth === "minimal" ? "low" : reasoningDepth
         openRouterBody.reasoning = { effort: openAIEffort }
         console.log(`[Chat] OpenAI reasoning enabled with effort: ${openAIEffort}`)
-      } else if (isGrokModel) {
-        // Grok: Just on/off reasoning (no configurable depth)
-        openRouterBody.reasoning = { enabled: true }
-        console.log("[Chat] Grok reasoning enabled (on/off only)")
-      } else if (isDeepSeekR1 || isDeepSeekV3) {
-        // DeepSeek R1/V3: Just on/off, no configurable depth
-        openRouterBody.reasoning = { enabled: true }
-        console.log(`[Chat] DeepSeek ${isDeepSeekR1 ? 'R1' : 'V3'} reasoning enabled (on/off only)`)
       } else if (isClaudeModel) {
         // Claude: Extended thinking is automatic via include_reasoning
-        // No explicit reasoning parameter needed, just include_reasoning
         console.log("[Chat] Claude extended thinking enabled (automatic)")
       } else {
         // Fallback for other models: use effort parameter
