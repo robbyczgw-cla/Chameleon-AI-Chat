@@ -808,6 +808,9 @@ export function ChatInput() {
       const promptText = messages.map((m) => m.content).join("\n")
       const promptTokens = estimateTokens(promptText)
 
+      // Determine search provider for inspector
+      const inspectorSearchProvider = settings.searchProvider || "tavily"
+
       // Capture data for Prompt Inspector
       setInspectorData({
         systemPrompt,
@@ -825,6 +828,14 @@ export function ChatInput() {
           // Reasoning parameters
           reasoning: !!settings.reasoningDepth,
           reasoningDepth: settings.reasoningDepth || "medium",
+        },
+        // Tool settings
+        toolSettings: {
+          enableAutoToolUse: settings.enableAutoToolUse ?? true,
+          searchProvider: inspectorSearchProvider,
+          enableUrlFetchTool: settings.experimental?.enableUrlFetchTool !== false,
+          enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
+          enableWeatherTool: settings.experimental?.enableWeatherTool !== false,
         },
         timestamp: Date.now(),
       })

@@ -23,6 +23,14 @@ export interface InspectorData {
     reasoning?: boolean
     reasoningDepth?: "minimal" | "low" | "medium" | "high"
   }
+  // Tool settings
+  toolSettings?: {
+    enableAutoToolUse: boolean
+    searchProvider?: string
+    enableUrlFetchTool?: boolean
+    enableYouTubeTool?: boolean
+    enableWeatherTool?: boolean
+  }
   rawRequest?: string
   rawResponse?: string
   timestamp: number
@@ -252,10 +260,61 @@ export function PromptInspector({ open, onOpenChange, data }: PromptInspectorPro
                   </div>
                 </div>
 
+                {/* Tools Section */}
+                {data.toolSettings && (
+                  <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/30">
+                    <h4 className="text-xs font-semibold mb-3 text-blue-600 dark:text-blue-400">Tools / Auto Tool Use</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold text-muted-foreground">Auto Tool Use</p>
+                        <p className={cn(
+                          "text-sm font-mono bg-background/50 p-2 rounded border",
+                          data.toolSettings.enableAutoToolUse ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                        )}>
+                          {data.toolSettings.enableAutoToolUse ? "✓ Enabled" : "✗ Disabled"}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold text-muted-foreground">Search Provider</p>
+                        <p className="text-sm font-mono bg-background/50 p-2 rounded border capitalize">
+                          {data.toolSettings.searchProvider || "—"}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold text-muted-foreground">URL Fetch</p>
+                        <p className={cn(
+                          "text-sm font-mono bg-background/50 p-2 rounded border",
+                          data.toolSettings.enableUrlFetchTool ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
+                        )}>
+                          {data.toolSettings.enableUrlFetchTool ? "✓" : "✗"}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold text-muted-foreground">YouTube</p>
+                        <p className={cn(
+                          "text-sm font-mono bg-background/50 p-2 rounded border",
+                          data.toolSettings.enableYouTubeTool ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
+                        )}>
+                          {data.toolSettings.enableYouTubeTool ? "✓" : "✗"}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold text-muted-foreground">Weather</p>
+                        <p className={cn(
+                          "text-sm font-mono bg-background/50 p-2 rounded border",
+                          data.toolSettings.enableWeatherTool ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
+                        )}>
+                          {data.toolSettings.enableWeatherTool ? "✓" : "✗"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-6 p-3 bg-background/50 rounded-lg border">
                   <h4 className="text-xs font-semibold mb-2">Vollständiger Parameter-Dump</h4>
                   <pre className="text-xs font-mono whitespace-pre-wrap break-words">
-                    {JSON.stringify(data.modelParams, null, 2)}
+                    {JSON.stringify({ ...data.modelParams, toolSettings: data.toolSettings }, null, 2)}
                   </pre>
                 </div>
               </div>
@@ -286,6 +345,13 @@ export function PromptInspector({ open, onOpenChange, data }: PromptInspectorPro
                         requestData.reasoning = true
                         requestData.reasoningDepth = data.modelParams.reasoningDepth
                       }
+                      if (data.toolSettings) {
+                        requestData.enableAutoToolUse = data.toolSettings.enableAutoToolUse
+                        requestData.searchProvider = data.toolSettings.searchProvider
+                        requestData.enableUrlFetchTool = data.toolSettings.enableUrlFetchTool
+                        requestData.enableYouTubeTool = data.toolSettings.enableYouTubeTool
+                        requestData.enableWeatherTool = data.toolSettings.enableWeatherTool
+                      }
                       copyToClipboard(JSON.stringify(requestData, null, 2), "API Request")
                     }}
                     className="gap-2"
@@ -294,7 +360,7 @@ export function PromptInspector({ open, onOpenChange, data }: PromptInspectorPro
                     Kopieren
                   </Button>
                 </div>
-                <ScrollArea className="h-[180px] w-full rounded-lg border bg-muted/30 p-4">
+                <ScrollArea className="h-[220px] w-full rounded-lg border bg-muted/30 p-4">
                   <pre className="text-xs font-mono whitespace-pre-wrap break-words">
                     {JSON.stringify(
                       {
@@ -308,6 +374,13 @@ export function PromptInspector({ open, onOpenChange, data }: PromptInspectorPro
                         ...(data.modelParams.reasoning && {
                           reasoning: true,
                           reasoningDepth: data.modelParams.reasoningDepth,
+                        }),
+                        ...(data.toolSettings && {
+                          enableAutoToolUse: data.toolSettings.enableAutoToolUse,
+                          searchProvider: data.toolSettings.searchProvider,
+                          enableUrlFetchTool: data.toolSettings.enableUrlFetchTool,
+                          enableYouTubeTool: data.toolSettings.enableYouTubeTool,
+                          enableWeatherTool: data.toolSettings.enableWeatherTool,
                         }),
                       },
                       null,
