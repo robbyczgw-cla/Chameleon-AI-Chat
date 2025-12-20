@@ -112,12 +112,21 @@ export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelect
   }
 
   // Toggle for on/off models
-  const handleToggleReasoning = () => {
+  const handleToggleReasoning = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     if (settings.reasoningDepth) {
       updateSettings({ reasoningDepth: undefined })
     } else {
       updateSettings({ reasoningDepth: "medium" })
     }
+  }
+
+  // Handle dropdown depth change
+  const handleDropdownClick = (e: React.MouseEvent, depth: ReasoningDepth) => {
+    e.preventDefault()
+    e.stopPropagation()
+    updateSettings({ reasoningDepth: depth })
   }
 
   // Don't show if model doesn't support any reasoning
@@ -134,6 +143,7 @@ export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelect
         variant={isEnabled ? "default" : "outline"}
         size="sm"
         onClick={handleToggleReasoning}
+        onMouseDown={(e) => e.preventDefault()}
         className={cn(
           "gap-1.5 h-8",
           isEnabled && "bg-amber-500 hover:bg-amber-600 text-white",
@@ -158,6 +168,7 @@ export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelect
           type="button"
           variant="outline"
           size="sm"
+          onMouseDown={(e) => e.preventDefault()}
           className={cn(
             "h-7 md:h-8 px-2 md:px-3 rounded-md border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all text-xs",
             currentConfig.color
