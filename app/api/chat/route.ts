@@ -688,9 +688,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Determine if we should include tools
-    const shouldIncludeTools = enableAutoToolUse && searchApiKey && modelSupportsToolCalling(model)
+    const modelSupportsTool = modelSupportsToolCalling(model)
+    const shouldIncludeTools = enableAutoToolUse && searchApiKey && modelSupportsTool
 
-    console.log("[Chat] Include tools:", shouldIncludeTools)
+    console.log("[Chat] Include tools:", shouldIncludeTools, "| Model supports tools:", modelSupportsTool, "| enableAutoToolUse:", enableAutoToolUse, "| hasSearchApiKey:", !!searchApiKey)
 
     const openRouterBody: Record<string, any> = {
       model,
@@ -1002,6 +1003,11 @@ async function handleStreamingRequest(
               const parsed = JSON.parse(data)
               const delta = parsed.choices?.[0]?.delta
               const finish = parsed.choices?.[0]?.finish_reason
+
+              // DEBUG: Log every SSE event to catch empty response issues
+              if (iterations === 1 && !delta?.content) {
+                console.log("[Chat] SSE event (no content):", JSON.stringify(parsed).substring(0, 300))
+              }
 
               // Capture generation ID from response for exact cost tracking
               // Each API call (including tool call iterations) gets its own generation ID
