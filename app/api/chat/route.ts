@@ -688,9 +688,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Determine if we should include tools
-    const shouldIncludeTools = enableAutoToolUse && searchApiKey && modelSupportsToolCalling(model)
+    const modelSupportsTool = modelSupportsToolCalling(model)
+    const shouldIncludeTools = enableAutoToolUse && searchApiKey && modelSupportsTool
 
-    console.log("[Chat] Include tools:", shouldIncludeTools)
+    console.log("[Chat] Include tools:", shouldIncludeTools, "| Model supports tools:", modelSupportsTool, "| enableAutoToolUse:", enableAutoToolUse, "| hasSearchApiKey:", !!searchApiKey)
 
     const openRouterBody: Record<string, any> = {
       model,
@@ -720,10 +721,19 @@ export async function POST(req: NextRequest) {
     }
 
     // Add reasoning parameter if enabled (for Grok, o1, o3, DeepSeek R1, etc.)
-    if (reasoning) {
+    // IMPORTANT: MiMo models should NOT use reasoning with tools (OpenRouter recommendation)
+    // See: https://openrouter.ai/xiaomi/mimo-v2-flash/api
+    const isMimoModel = model.toLowerCase().includes('mimo')
+    const shouldUseReasoning = reasoning && !(isMimoModel && shouldIncludeTools)
+
+    if (shouldUseReasoning) {
       openRouterBody.reasoning = { effort: "medium" }
       // CRITICAL: OpenRouter requires include_reasoning to actually return reasoning tokens
       openRouterBody.include_reasoning = true
+    }
+
+    if (isMimoModel && reasoning && shouldIncludeTools) {
+      console.log("[Chat] ⚠️ MiMo: Disabled reasoning because tools are enabled (OpenRouter recommendation)")
     }
 
     // Non-streaming request with tool calling
@@ -1002,6 +1012,24 @@ async function handleStreamingRequest(
               const parsed = JSON.parse(data)
               const delta = parsed.choices?.[0]?.delta
               const finish = parsed.choices?.[0]?.finish_reason
+
+              // DEBUG: Log ALL SSE events from first iteration to diagnose MiMo empty response
+              if (iterations === 1) {
+                const eventSummary = {
+                  hasContent: !!delta?.content,
+                  hasText: !!delta?.text,
+                  hasToolCalls: !!delta?.tool_calls,
+                  toolCallsLength: delta?.tool_calls?.length,
+                  finishReason: finish,
+                  deltaKeys: delta ? Object.keys(delta) : [],
+                  choiceKeys: parsed.choices?.[0] ? Object.keys(parsed.choices[0]) : [],
+                }
+                console.log("[Chat] SSE event:", JSON.stringify(eventSummary))
+                // Log full event for tool calls or unexpected formats
+                if (delta?.tool_calls || (!delta?.content && !delta?.text && Object.keys(delta || {}).length > 0)) {
+                  console.log("[Chat] Full SSE data:", JSON.stringify(parsed).substring(0, 500))
+                }
+              }
 
               // Capture generation ID from response for exact cost tracking
               // Each API call (including tool call iterations) gets its own generation ID
@@ -1356,6 +1384,22 @@ async function handleStreamingRequest(
         }
 
         // No more tool calls, we're done
+        // FALLBACK: If first iteration returns empty response WITH tools enabled, retry WITHOUT tools
+        // This handles models like MiMo that claim tool support but may fail silently
+        if (iterations === 1 && !hasStartedResponding && !hasToolCalls && toolsEnabled) {
+          console.log("[Chat] ⚠️ Empty response with tools enabled - retrying WITHOUT tools")
+
+          // Remove tools from request and retry
+          delete openRouterBody.tools
+          delete openRouterBody.tool_choice
+
+          // Reset generation tracking for retry
+          allGenerationIds.length = 0
+
+          // Continue to next iteration (will be iteration 2, without tools)
+          continue
+        }
+
         // Check if we got content in this iteration (after tool use)
         if (iterations > 1 && !hasStartedResponding && lastToolCallIteration > 0) {
           console.warn(`[Chat] ⚠️ Iteration ${iterations}: No content received after tool execution in iteration ${lastToolCallIteration}!`)
