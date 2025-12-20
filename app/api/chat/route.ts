@@ -720,14 +720,25 @@ export async function POST(req: NextRequest) {
       console.log("[Chat] Tools enabled:", tools.map(t => t.function.name).join(", "))
     }
 
-    // Add reasoning parameter if enabled (for Grok, o1, o3, DeepSeek R1, etc.)
-    // IMPORTANT: MiMo models should NOT use reasoning with tools (OpenRouter recommendation)
-    // See: https://openrouter.ai/xiaomi/mimo-v2-flash/api
+    // Add reasoning parameter if enabled
+    // Different models use different reasoning formats:
+    // - Gemini 3: thinking_level (minimal, low, medium, high)
+    // - Grok, DeepSeek R1: effort (low, medium, high)
+    // - MiMo: Should NOT use reasoning with tools (OpenRouter recommendation)
     const isMimoModel = model.toLowerCase().includes('mimo')
+    const isGemini3Model = model.toLowerCase().includes('gemini-3')
     const shouldUseReasoning = reasoning && !(isMimoModel && shouldIncludeTools)
 
     if (shouldUseReasoning) {
-      openRouterBody.reasoning = { effort: "medium" }
+      if (isGemini3Model) {
+        // Gemini 3 uses thinking_level: minimal, low, medium, high
+        // "medium" is a good balance of quality vs latency for chat
+        openRouterBody.reasoning = { thinking_level: "medium" }
+        console.log("[Chat] Gemini 3 reasoning enabled with thinking_level: medium")
+      } else {
+        // Other models (Grok, DeepSeek R1, etc.) use effort
+        openRouterBody.reasoning = { effort: "medium" }
+      }
       // CRITICAL: OpenRouter requires include_reasoning to actually return reasoning tokens
       openRouterBody.include_reasoning = true
     }
