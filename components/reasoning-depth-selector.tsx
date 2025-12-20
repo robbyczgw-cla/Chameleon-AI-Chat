@@ -71,7 +71,7 @@ const REASONING_DEPTH_MODELS = [
 const REASONING_ONOFF_MODELS = [
   "grok-4", "grok-code",
   "deepseek-r1", "deepseek/deepseek-r1",
-  "deepseek-v3", "deepseek/deepseek-v3",  // V3.2 also supports reasoning
+  "deepseek-v3",  // Matches both v3 and v3.2
 ]
 
 interface ReasoningDepthSelectorProps {

@@ -736,7 +736,7 @@ export async function POST(req: NextRequest) {
     const isOpenAIReasoning = modelLower.includes('o1') || modelLower.includes('o3') || modelLower.includes('gpt-5')
     const isGrokModel = modelLower.includes('grok')
     const isDeepSeekR1 = modelLower.includes('deepseek-r1') || modelLower.includes('deepseek/r1')
-    const isDeepSeekV3 = modelLower.includes('deepseek-v3') || modelLower.includes('deepseek/deepseek-v3')
+    const isDeepSeekV3 = modelLower.includes('deepseek-v3')  // Matches deepseek-v3, deepseek-v3.2, etc.
     const isClaudeModel = modelLower.includes('claude')
 
     const shouldUseReasoning = reasoning && !(isMimoModel && shouldIncludeTools)
