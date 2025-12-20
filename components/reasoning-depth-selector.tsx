@@ -60,16 +60,21 @@ const REASONING_DEPTHS: ReasoningDepthConfig[] = [
 ]
 
 // Models that support configurable reasoning depth
+// Use specific patterns to avoid false matches (e.g., "o1" matching random strings)
 const REASONING_DEPTH_MODELS = [
   // Gemini 3 - uses thinking_level (minimal, low, medium, high)
   "gemini-3",
-  // OpenAI o-series, GPT-5 - uses effort (low, medium, high)
-  "o1", "o3", "gpt-5",
+  // OpenAI o-series - uses effort (low, medium, high)
+  "openai/o1", "/o1-", "openai/o3", "/o3-",
+  // GPT-5 - uses effort
+  "gpt-5",
 ]
 
 // Models that support reasoning but only on/off (no depth levels)
 const REASONING_ONOFF_MODELS = [
+  // Grok models
   "grok-4", "grok-code",
+  // DeepSeek models
   "deepseek-r1", "deepseek/deepseek-r1",
   "deepseek-v3",  // Matches both v3 and v3.2
 ]
@@ -81,11 +86,16 @@ interface ReasoningDepthSelectorProps {
 export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelectorProps) {
   const { settings, updateSettings } = useApp()
 
+  // Early return if settings not loaded yet
+  if (!settings?.selectedModel) {
+    return null
+  }
+
   const currentDepth = settings.reasoningDepth || "medium"
   const currentConfig = REASONING_DEPTHS.find(d => d.id === currentDepth) || REASONING_DEPTHS[2]
 
-  // Get the model, with fallback to prevent null issues
-  const currentModel = settings.selectedModel?.toLowerCase() || ""
+  // Get the model in lowercase for pattern matching
+  const currentModel = settings.selectedModel.toLowerCase()
 
   // Check if current model supports reasoning depth (configurable)
   const modelSupportsDepth = REASONING_DEPTH_MODELS.some(pattern =>
