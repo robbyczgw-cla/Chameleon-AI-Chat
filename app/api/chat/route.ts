@@ -46,6 +46,7 @@ interface ChatRequest {
   presencePenalty?: number
   stream?: boolean
   reasoning?: boolean
+  reasoningDepth?: "minimal" | "low" | "medium" | "high"
   // Tool calling options
   enableAutoToolUse?: boolean
   searchProvider?: "tavily" | "serper" | "exa"
