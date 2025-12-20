@@ -1369,19 +1369,6 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
                   <Image className="h-4 w-4" />
                 </Button>
               )}
-
-              {/* Reasoning indicator (if enabled via settings) */}
-              {settings.reasoningDepth && modelSupportsReasoning && (
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  className="h-9 w-9 rounded-lg bg-amber-500 text-white"
-                  onClick={() => setReasoningEnabled(false)}
-                >
-                  <Lightbulb className="h-4 w-4" />
-                </Button>
-              )}
             </div>
 
             {/* Right: Persona picker only */}
