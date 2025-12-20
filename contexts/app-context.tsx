@@ -74,8 +74,8 @@ const DEFAULT_SETTINGS: AppSettings = {
     serper: "",
     exa: "",
   },
-  selectedModel: "x-ai/grok-4.1-fast",
-  selectedModels: ["x-ai/grok-4.1-fast"],
+  selectedModel: "google/gemini-3-flash-preview",
+  selectedModels: ["google/gemini-3-flash-preview"],
   searchProvider: "tavily", // Default to Tavily, can switch to Serper
   modelParameters: {
     temperature: 0.7,
@@ -711,8 +711,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ]
 
         if (oldModels.includes(mergedSettings.selectedModel)) {
-          console.warn("[v0] Found old/problematic model", mergedSettings.selectedModel, "- replacing with Grok 4.1 Fast")
-          mergedSettings.selectedModel = "x-ai/grok-4.1-fast"
+          console.warn("[v0] Found old/problematic model", mergedSettings.selectedModel, "- replacing with Gemini 3 Flash")
+          mergedSettings.selectedModel = "google/gemini-3-flash-preview"
 
           // Save the corrected settings back to Supabase
           supabaseSync.saveSettings(user.id, mergedSettings).catch((error) => {
