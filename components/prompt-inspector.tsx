@@ -19,6 +19,9 @@ export interface InspectorData {
     topP: number
     frequencyPenalty: number
     presencePenalty: number
+    // Reasoning parameters
+    reasoning?: boolean
+    reasoningDepth?: "minimal" | "low" | "medium" | "high"
   }
   rawRequest?: string
   rawResponse?: string
@@ -227,6 +230,28 @@ export function PromptInspector({ open, onOpenChange, data }: PromptInspectorPro
                   </div>
                 </div>
 
+                {/* Reasoning Section */}
+                <div className="mt-4 p-3 bg-amber-500/10 rounded-lg border border-amber-500/30">
+                  <h4 className="text-xs font-semibold mb-3 text-amber-600 dark:text-amber-400">Reasoning / Thinking</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-muted-foreground">Reasoning Enabled</p>
+                      <p className={cn(
+                        "text-sm font-mono bg-background/50 p-2 rounded border",
+                        data.modelParams.reasoning ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                      )}>
+                        {data.modelParams.reasoning ? "✓ Yes" : "✗ No"}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-muted-foreground">Reasoning Depth</p>
+                      <p className="text-sm font-mono bg-background/50 p-2 rounded border">
+                        {data.modelParams.reasoningDepth || "—"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="mt-6 p-3 bg-background/50 rounded-lg border">
                   <h4 className="text-xs font-semibold mb-2">Vollständiger Parameter-Dump</h4>
                   <pre className="text-xs font-mono whitespace-pre-wrap break-words">
@@ -248,7 +273,7 @@ export function PromptInspector({ open, onOpenChange, data }: PromptInspectorPro
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      const requestData = {
+                      const requestData: Record<string, unknown> = {
                         model: data.modelParams.model,
                         messages: data.messages,
                         temperature: data.modelParams.temperature,
@@ -256,6 +281,10 @@ export function PromptInspector({ open, onOpenChange, data }: PromptInspectorPro
                         top_p: data.modelParams.topP,
                         frequency_penalty: data.modelParams.frequencyPenalty,
                         presence_penalty: data.modelParams.presencePenalty,
+                      }
+                      if (data.modelParams.reasoning) {
+                        requestData.reasoning = true
+                        requestData.reasoningDepth = data.modelParams.reasoningDepth
                       }
                       copyToClipboard(JSON.stringify(requestData, null, 2), "API Request")
                     }}
@@ -276,6 +305,10 @@ export function PromptInspector({ open, onOpenChange, data }: PromptInspectorPro
                         top_p: data.modelParams.topP,
                         frequency_penalty: data.modelParams.frequencyPenalty,
                         presence_penalty: data.modelParams.presencePenalty,
+                        ...(data.modelParams.reasoning && {
+                          reasoning: true,
+                          reasoningDepth: data.modelParams.reasoningDepth,
+                        }),
                       },
                       null,
                       2

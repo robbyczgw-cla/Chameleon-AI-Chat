@@ -822,6 +822,9 @@ export function ChatInput() {
           topP: modelParams.topP,
           frequencyPenalty: modelParams.frequencyPenalty,
           presencePenalty: modelParams.presencePenalty,
+          // Reasoning parameters
+          reasoning: !!settings.reasoningDepth,
+          reasoningDepth: settings.reasoningDepth || "medium",
         },
         timestamp: Date.now(),
       })
