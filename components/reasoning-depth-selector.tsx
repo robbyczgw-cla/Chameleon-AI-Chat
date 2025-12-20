@@ -59,8 +59,8 @@ const REASONING_DEPTHS: ReasoningDepthConfig[] = [
   },
 ]
 
-// Models that support configurable reasoning depth
-// Use specific patterns to avoid false matches (e.g., "o1" matching random strings)
+// Models that support configurable reasoning depth (show dropdown)
+// Use specific patterns to avoid false matches
 const REASONING_DEPTH_MODELS = [
   // Gemini 3 - uses thinking_level (minimal, low, medium, high)
   "gemini-3",
@@ -70,14 +70,8 @@ const REASONING_DEPTH_MODELS = [
   "gpt-5",
 ]
 
-// Models that support reasoning but only on/off (no depth levels)
-const REASONING_ONOFF_MODELS = [
-  // Grok models
-  "grok-4", "grok-code",
-  // DeepSeek models
-  "deepseek-r1", "deepseek/deepseek-r1",
-  "deepseek-v3",  // Matches both v3 and v3.2
-]
+// Note: Grok 4.1, DeepSeek R1/V3 have reasoning ALWAYS enabled in the API route
+// No toggle needed - they're fast and cheap enough to always use reasoning
 
 interface ReasoningDepthSelectorProps {
   compact?: boolean // For mobile
@@ -97,13 +91,8 @@ export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelect
   // Get the model in lowercase for pattern matching
   const currentModel = settings.selectedModel.toLowerCase()
 
-  // Check if current model supports reasoning depth (configurable)
+  // Check if current model supports configurable reasoning depth
   const modelSupportsDepth = REASONING_DEPTH_MODELS.some(pattern =>
-    currentModel.includes(pattern)
-  )
-
-  // Check if current model supports reasoning on/off only
-  const modelSupportsOnOff = REASONING_ONOFF_MODELS.some(pattern =>
     currentModel.includes(pattern)
   )
 
@@ -111,44 +100,10 @@ export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelect
     updateSettings({ reasoningDepth: depth })
   }
 
-  // Toggle for on/off models
-  const handleToggleReasoning = () => {
-    if (settings.reasoningDepth) {
-      updateSettings({ reasoningDepth: undefined })
-    } else {
-      updateSettings({ reasoningDepth: "medium" })
-    }
-  }
-
-  // Don't show if model doesn't support any reasoning
-  if (!modelSupportsDepth && !modelSupportsOnOff) {
+  // Only show dropdown for models with configurable depth (Gemini 3, o1/o3, GPT-5)
+  // Grok and DeepSeek always have reasoning enabled in the API - no toggle needed
+  if (!modelSupportsDepth) {
     return null
-  }
-
-  // Simple on/off toggle for Grok, DeepSeek R1, etc.
-  if (modelSupportsOnOff && !modelSupportsDepth) {
-    const isEnabled = !!settings.reasoningDepth
-    return (
-      <Button
-        type="button"
-        variant={isEnabled ? "default" : "outline"}
-        size="sm"
-        onClick={handleToggleReasoning}
-        className={cn(
-          "gap-1.5 h-8",
-          isEnabled && "bg-amber-500 hover:bg-amber-600 text-white",
-          compact && "px-2"
-        )}
-        title={isEnabled ? "Reasoning enabled (click to disable)" : "Click to enable reasoning"}
-      >
-        <Brain className={cn("h-3.5 w-3.5", isEnabled && "animate-pulse")} />
-        {!compact && (
-          <span className="text-xs font-medium">
-            {isEnabled ? "Thinking" : "Think"}
-          </span>
-        )}
-      </Button>
-    )
   }
 
   return (
@@ -158,6 +113,7 @@ export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelect
           type="button"
           variant="outline"
           size="sm"
+          onMouseDown={(e) => e.preventDefault()}
           className={cn(
             "h-7 md:h-8 px-2 md:px-3 rounded-md border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all text-xs",
             currentConfig.color
