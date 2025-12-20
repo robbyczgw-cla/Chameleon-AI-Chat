@@ -70,6 +70,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   fontSize: "medium",
   fontFamily: "inter",
   messageDensity: "comfortable",
+  reasoningDepth: "medium", // Default reasoning depth for thinking models (Gemini 3, o1, etc.)
 }
 
 /**
