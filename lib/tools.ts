@@ -315,8 +315,8 @@ export function modelSupportsToolCalling(modelId: string): boolean {
     // See: https://ai.google.dev/gemini-api/docs/gemini-3
     // "It also supports standard Function Calling for your own custom tools (but not with built-in tools)"
     'gemini-3', 'gemini-2.5', 'gemini-2', 'gemini-pro', 'gemini-flash',
-    // xAI (2025)
-    'grok-4', 'grok-code',
+    // xAI (2025) - grok-4.1-fast is their best agentic tool calling model
+    'grok-4', 'grok-4.1', 'grok-code',
     // DeepSeek (2025)
     'deepseek-v3', 'deepseek-chat-v3', 'deepseek-coder-v3',
     // Meta (2025)

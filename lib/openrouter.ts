@@ -103,7 +103,7 @@ export const POPULAR_OPENROUTER_MODELS = [
   { id: "x-ai/grok-4-fast:free", name: "Grok 4 Fast", provider: "xAI", category: "value" },
   {
     id: "google/gemini-3-flash-preview",
-    name: "Gemini 3 Flash (NEW - Thinking)",
+    name: "Gemini 3 Flash",
     provider: "Google",
     category: "value",
   },
@@ -205,6 +205,7 @@ export async function streamChatMessage(
     apiKey?: string
     signal?: AbortSignal
     reasoning?: boolean
+    reasoningDepth?: "minimal" | "low" | "medium" | "high"
     onReasoning?: (content: string) => void
     // Auto tool use options (tool calling)
     enableAutoToolUse?: boolean
@@ -259,6 +260,7 @@ export async function streamChatMessage(
     apiKey,
     signal,
     reasoning = false,
+    reasoningDepth = "medium",
     onReasoning,
     // Auto tool use
     enableAutoToolUse = true,
@@ -319,6 +321,7 @@ export async function streamChatMessage(
   // Add reasoning parameter if enabled
   if (reasoning) {
     requestBody.reasoning = true
+    requestBody.reasoningDepth = reasoningDepth
   }
 
   // Add auto tool use parameters if enabled

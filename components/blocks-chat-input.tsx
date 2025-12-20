@@ -99,12 +99,9 @@ export function BlocksChatInput({
     return initialWebSearchEnabled ?? true
   })
 
-  // Load reasoning state from localStorage (for UI toggle display)
-  const [reasoningEnabled, setReasoningEnabled] = useState(() => {
-    if (typeof window === "undefined") return false
-    const saved = localStorage.getItem("chameleon-reasoning-enabled")
-    return saved === "true"
-  })
+  // Reasoning is controlled by settings.reasoningDepth (set via ReasoningDepthSelector in Advanced Mode)
+  // In Simple Mode, we just read from settings
+  const reasoningEnabled = !!settings.reasoningDepth
 
   // Reasoning toggle is now available for ALL models
   // OpenRouter gracefully ignores the reasoning parameter if model doesn't support it
@@ -122,7 +119,6 @@ export function BlocksChatInput({
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("chameleon-web-search-enabled", String(webSearchEnabled))
-      localStorage.setItem("chameleon-reasoning-enabled", String(reasoningEnabled))
 
       // Sync to settings context if value changed
       const settingsStr = localStorage.getItem("settings")
@@ -138,7 +134,7 @@ export function BlocksChatInput({
         }
       }
     }
-  }, [webSearchEnabled, reasoningEnabled])
+  }, [webSearchEnabled])
 
   // Determine if input is expanded (multiline or long)
   const isExpanded = input.length > 80 || input.includes("\n")
@@ -287,7 +283,7 @@ export function BlocksChatInput({
                         "h-8 w-8 rounded-full",
                         reasoningEnabled && "bg-amber-500 hover:bg-amber-600 text-white"
                       )}
-                      onClick={() => setReasoningEnabled(!reasoningEnabled)}
+                      onClick={() => updateSettings({ reasoningDepth: reasoningEnabled ? undefined : "medium" })}
                       title={reasoningEnabled ? "Reasoning enabled" : "Enable reasoning"}
                     >
                       <Lightbulb className="h-4 w-4" />

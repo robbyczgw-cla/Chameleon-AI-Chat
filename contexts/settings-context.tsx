@@ -24,8 +24,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
     serper: "",
     exa: "",
   },
-  selectedModel: "x-ai/grok-4.1-fast",
-  selectedModels: ["x-ai/grok-4.1-fast"],
+  selectedModel: "google/gemini-3-flash-preview",
+  selectedModels: ["google/gemini-3-flash-preview"],
   searchProvider: "tavily",
   modelParameters: {
     temperature: 0.7,

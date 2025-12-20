@@ -82,13 +82,6 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     return initialWebSearchEnabled ?? false
   })
 
-  // Load reasoning state from localStorage
-  const [reasoningEnabled, setReasoningEnabled] = useState(() => {
-    if (typeof window === "undefined") return false
-    const saved = localStorage.getItem("chameleon-reasoning-enabled")
-    return saved === "true"
-  })
-
   // Check if current model supports reasoning
   const model = overrideModel || settings.selectedModel || "deepseek/deepseek-v3.2"
   const modelSupportsReasoning = REASONING_MODELS.has(model)
@@ -98,7 +91,6 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("chameleon-web-search-enabled", String(webSearchEnabled))
-      localStorage.setItem("chameleon-reasoning-enabled", String(reasoningEnabled))
 
       // Sync to settings context if value changed
       const settingsStr = localStorage.getItem("settings")
@@ -114,7 +106,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         }
       }
     }
-  }, [webSearchEnabled, reasoningEnabled])
+  }, [webSearchEnabled])
 
   // NOTE: isAdvancedMode detection moved to useFeatureFlags() hook
 
@@ -906,7 +898,9 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         presencePenalty: 0,
         apiKey: settings.apiKeys.openRouter,
         signal: chatAbortControllerRef.current?.signal,
-        reasoning: reasoningEnabled && modelSupportsReasoning,
+        // Reasoning controlled by settings (depth selector in advanced mode)
+        reasoning: !!settings.reasoningDepth && modelSupportsReasoning,
+        reasoningDepth: settings.reasoningDepth || "medium",
         onReasoning,
         // Tool calling for AI-driven tool use
         enableAutoToolUse: enableToolCallingSearch,
@@ -1335,7 +1329,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
                 variant="ghost"
                 className={cn(
                   "h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted",
-                  (webSearchEnabled || reasoningEnabled || imageMode !== "off") && "text-primary"
+                  (webSearchEnabled || settings.reasoningDepth || imageMode !== "off") && "text-primary"
                 )}
                 onClick={() => {
                   haptics.trigger('selection')
@@ -1373,19 +1367,6 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
                   onClick={() => setImageMode("off")}
                 >
                   <Image className="h-4 w-4" />
-                </Button>
-              )}
-
-              {/* Reasoning indicator (if enabled) */}
-              {reasoningEnabled && modelSupportsReasoning && (
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  className="h-9 w-9 rounded-lg bg-amber-500 text-white"
-                  onClick={() => setReasoningEnabled(false)}
-                >
-                  <Lightbulb className="h-4 w-4" />
                 </Button>
               )}
             </div>

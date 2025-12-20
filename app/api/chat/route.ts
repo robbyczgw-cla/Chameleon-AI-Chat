@@ -46,6 +46,7 @@ interface ChatRequest {
   presencePenalty?: number
   stream?: boolean
   reasoning?: boolean
+  reasoningDepth?: "minimal" | "low" | "medium" | "high"
   // Tool calling options
   enableAutoToolUse?: boolean
   searchProvider?: "tavily" | "serper" | "exa"
@@ -640,6 +641,7 @@ export async function POST(req: NextRequest) {
       presencePenalty = 0,
       stream = false,
       reasoning = false,
+      reasoningDepth = "medium",
       // Tool calling options
       enableAutoToolUse = true,
       searchProvider = "tavily",
@@ -720,14 +722,52 @@ export async function POST(req: NextRequest) {
       console.log("[Chat] Tools enabled:", tools.map(t => t.function.name).join(", "))
     }
 
-    // Add reasoning parameter if enabled (for Grok, o1, o3, DeepSeek R1, etc.)
-    // IMPORTANT: MiMo models should NOT use reasoning with tools (OpenRouter recommendation)
-    // See: https://openrouter.ai/xiaomi/mimo-v2-flash/api
-    const isMimoModel = model.toLowerCase().includes('mimo')
+    // Add reasoning parameter if enabled
+    // Different models use different reasoning formats and parameter names:
+    // - Gemini 3: thinking_level (minimal, low, medium, high)
+    // - OpenAI o1/o3/GPT-5: effort (none, minimal, low, medium, high, xhigh)
+    // - Grok: effort (low, medium, high)
+    // - Claude: Extended thinking is automatic (not configurable depth)
+    // - DeepSeek R1: Just on/off (no configurable depth)
+    // - MiMo: Should NOT use reasoning with tools (OpenRouter recommendation)
+    const modelLower = model.toLowerCase()
+    const isMimoModel = modelLower.includes('mimo')
+    const isGemini3Model = modelLower.includes('gemini-3')
+    const isOpenAIReasoning = modelLower.includes('o1') || modelLower.includes('o3') || modelLower.includes('gpt-5')
+    const isGrokModel = modelLower.includes('grok')
+    const isDeepSeekR1 = modelLower.includes('deepseek-r1') || modelLower.includes('deepseek/r1')
+    const isClaudeModel = modelLower.includes('claude')
+
     const shouldUseReasoning = reasoning && !(isMimoModel && shouldIncludeTools)
 
     if (shouldUseReasoning) {
-      openRouterBody.reasoning = { effort: "medium" }
+      if (isGemini3Model) {
+        // Gemini 3: thinking_level (minimal, low, medium, high)
+        openRouterBody.reasoning = { thinking_level: reasoningDepth }
+        console.log(`[Chat] Gemini 3 reasoning enabled with thinking_level: ${reasoningDepth}`)
+      } else if (isOpenAIReasoning) {
+        // OpenAI o1/o3/GPT-5: effort (none, minimal, low, medium, high, xhigh)
+        // Map our levels to OpenAI's scale
+        const openAIEffort = reasoningDepth === "minimal" ? "low" : reasoningDepth
+        openRouterBody.reasoning = { effort: openAIEffort }
+        console.log(`[Chat] OpenAI reasoning enabled with effort: ${openAIEffort}`)
+      } else if (isGrokModel) {
+        // Grok: Just on/off reasoning (no configurable depth)
+        openRouterBody.reasoning = { enabled: true }
+        console.log("[Chat] Grok reasoning enabled (on/off only)")
+      } else if (isDeepSeekR1) {
+        // DeepSeek R1: Just on/off, no configurable depth
+        openRouterBody.reasoning = { enabled: true }
+        console.log("[Chat] DeepSeek R1 reasoning enabled (depth not configurable)")
+      } else if (isClaudeModel) {
+        // Claude: Extended thinking is automatic via include_reasoning
+        // No explicit reasoning parameter needed, just include_reasoning
+        console.log("[Chat] Claude extended thinking enabled (automatic)")
+      } else {
+        // Fallback for other models: use effort parameter
+        openRouterBody.reasoning = { effort: reasoningDepth }
+        console.log(`[Chat] Generic reasoning enabled with effort: ${reasoningDepth}`)
+      }
       // CRITICAL: OpenRouter requires include_reasoning to actually return reasoning tokens
       openRouterBody.include_reasoning = true
     }

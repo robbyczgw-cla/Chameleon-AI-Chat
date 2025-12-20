@@ -8,7 +8,7 @@ export interface SlashCommand {
   description: string
   prompt: string
   category: "code" | "text" | "analysis" | "utility" | "action"
-  action?: "toggle-reasoning" | "toggle-web-search" // Special action commands
+  action?: "toggle-web-search" // Special action commands
 }
 
 export const SLASH_COMMANDS: SlashCommand[] = [
@@ -109,13 +109,6 @@ export const SLASH_COMMANDS: SlashCommand[] = [
   },
 
   // Action Commands (toggle settings)
-  {
-    command: "/r",
-    description: "Toggle reasoning mode",
-    prompt: "",
-    category: "action",
-    action: "toggle-reasoning"
-  },
   {
     command: "/web",
     description: "Toggle web search",

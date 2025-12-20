@@ -75,10 +75,15 @@ export function QuickModelPicker() {
     }
   }
 
-  const getModelDisplay = (modelId: string) => {
+  const getModelDisplay = (modelId: string, maxLength?: number) => {
     if (!modelId) return "Modell wählen"
     const model = availableModels.find((m) => m.id === modelId)
-    return model?.name || modelId.split("/")[1] || modelId
+    const name = model?.name || modelId.split("/")[1] || modelId
+    // Truncate for mobile to prevent overflow
+    if (maxLength && name.length > maxLength) {
+      return name.substring(0, maxLength - 1) + "…"
+    }
+    return name
   }
 
   return (
@@ -90,7 +95,11 @@ export function QuickModelPicker() {
           className="h-7 md:h-8 px-2 md:px-3 rounded-md border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all text-xs"
         >
           <Bot className="h-3 w-3 md:h-3.5 md:w-3.5 mr-1.5 text-primary" />
-          <span className="font-medium max-w-[80px] md:max-w-[120px] truncate">
+          {/* Mobile: 18 chars, Desktop: full name with CSS truncate */}
+          <span className="font-medium md:hidden">
+            {getModelDisplay(currentModel, 18)}
+          </span>
+          <span className="font-medium hidden md:inline max-w-[120px] truncate">
             {getModelDisplay(currentModel)}
           </span>
           <ChevronDown className="h-3 w-3 ml-1 opacity-60" />
