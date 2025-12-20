@@ -737,9 +737,9 @@ export function SimpleChatApp() {
     : (settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en")
   const t = translations[lang as keyof typeof translations]
 
-  // Default model for all users: Grok 4.1 Fast (best tool calling, super affordable)
-  // $0.20/M input, $0.50/M output - designed for agentic tasks
-  const DEFAULT_MODEL = "x-ai/grok-4.1-fast"
+  // Default model for all users: Gemini 3 Flash (thinking model with reasoning)
+  // Great for complex tasks and everyday use
+  const DEFAULT_MODEL = "google/gemini-3-flash-preview"
   const effectiveModel = settings.defaultModel || settings.selectedModel || DEFAULT_MODEL
 
   // Filter chats based on search query
