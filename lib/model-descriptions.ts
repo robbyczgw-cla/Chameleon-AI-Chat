@@ -46,6 +46,7 @@ export const MODEL_DESCRIPTIONS: Record<string, string> = {
   // Chinese Models
   "zhipu/glm-4.6": "Chinesisches Flaggschiff-Modell, sehr stark",
   "z-ai/glm-4.6": "GLM 4.6, China AI Innovation",
+  "z-ai/glm-4.7": "GLM 4.7 mit Thinking Mode, reasoning aktiviert",
   "minimax/m2": "Chinesisch, multimodal, experimentell, spannend",
 
   // Moonshot & Others
