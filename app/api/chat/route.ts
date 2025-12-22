@@ -738,13 +738,19 @@ export async function POST(req: NextRequest) {
     const isDeepSeekR1 = modelLower.includes('deepseek-r1') || modelLower.includes('deepseek/r1')
     const isDeepSeekV3 = modelLower.includes('deepseek-v3')  // Matches deepseek-v3, deepseek-v3.2, etc.
     const isClaudeModel = modelLower.includes('claude')
+    const isGLM47Model = modelLower.includes('glm-4.7')  // GLM 4.7 with thinking mode enabled by default
 
-    // Grok and DeepSeek ALWAYS use reasoning (fast & cheap, no toggle needed)
-    const alwaysReasoningModel = isGrokModel || isDeepSeekR1 || isDeepSeekV3
+    // Grok, DeepSeek, and GLM 4.7 ALWAYS use reasoning (fast & cheap, no toggle needed)
+    const alwaysReasoningModel = isGrokModel || isDeepSeekR1 || isDeepSeekV3 || isGLM47Model
     const shouldUseReasoning = (reasoning || alwaysReasoningModel) && !(isMimoModel && shouldIncludeTools)
 
     if (shouldUseReasoning) {
-      if (isGrokModel) {
+      if (isGLM47Model) {
+        // GLM 4.7: Uses thinking parameter with type: enabled (default behavior)
+        // See: https://docs.z.ai/guides/capabilities/thinking-mode
+        openRouterBody.thinking = { type: "enabled" }
+        console.log("[Chat] GLM 4.7 thinking mode ALWAYS enabled")
+      } else if (isGrokModel) {
         // Grok: Always enabled (fast & cheap)
         openRouterBody.reasoning = { enabled: true }
         console.log("[Chat] Grok reasoning ALWAYS enabled")
@@ -773,9 +779,12 @@ export async function POST(req: NextRequest) {
       openRouterBody.include_reasoning = true
     }
 
-    // DEBUG: Log the actual reasoning params being sent to OpenRouter
+    // DEBUG: Log the actual reasoning/thinking params being sent to OpenRouter
     if (openRouterBody.reasoning) {
       console.log("[Chat] 🧠 OpenRouter reasoning params:", JSON.stringify(openRouterBody.reasoning))
+    }
+    if (openRouterBody.thinking) {
+      console.log("[Chat] 🧠 OpenRouter thinking params:", JSON.stringify(openRouterBody.thinking))
     }
 
     if (isMimoModel && reasoning && shouldIncludeTools) {
@@ -950,12 +959,16 @@ async function handleStreamingRequest(
         )
       )
 
-      // Send debug info about reasoning params (for troubleshooting)
-      if (openRouterBody.reasoning) {
+      // Send debug info about reasoning/thinking params (for troubleshooting)
+      if (openRouterBody.reasoning || openRouterBody.thinking) {
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
-              choices: [{ delta: { debug: { reasoningParams: openRouterBody.reasoning, model: openRouterBody.model } } }],
+              choices: [{ delta: { debug: {
+                reasoningParams: openRouterBody.reasoning,
+                thinkingParams: openRouterBody.thinking,
+                model: openRouterBody.model
+              } } }],
             })}\n\n`
           )
         )
@@ -1030,6 +1043,9 @@ async function handleStreamingRequest(
         // See: https://ai.google.dev/gemini-api/docs/thought-signatures
         let accumulatedReasoningDetails: any[] = []
         let thoughtSignature: string | undefined = undefined
+        // GLM 4.7 reasoning_content - MUST be preserved for multi-turn tool calling
+        // See: https://docs.z.ai/guides/capabilities/thinking-mode
+        let accumulatedReasoningContent: string = ""
 
         // Process the stream
         while (true) {
@@ -1177,35 +1193,40 @@ async function handleStreamingRequest(
                 }
               }
 
-              if (reasoningContent && !hasToolCalls) {
-                // Only send phase change ONCE when reasoning starts (not for every token!)
-                if (!hasStartedReasoning) {
-                  hasStartedReasoning = true
+              if (reasoningContent) {
+                // Accumulate reasoning content for GLM 4.7 tool calling preservation
+                accumulatedReasoningContent += reasoningContent
+
+                if (!hasToolCalls) {
+                  // Only send phase change ONCE when reasoning starts (not for every token!)
+                  if (!hasStartedReasoning) {
+                    hasStartedReasoning = true
+                    await writer.write(
+                      encoder.encode(
+                        `data: ${JSON.stringify({
+                          choices: [{
+                            delta: {
+                              phase: "thinking"
+                            }
+                          }]
+                        })}\n\n`
+                      )
+                    )
+                  }
+
+                  // Send reasoning content WITHOUT phase spam
                   await writer.write(
                     encoder.encode(
                       `data: ${JSON.stringify({
                         choices: [{
                           delta: {
-                            phase: "thinking"
+                            reasoning_content: reasoningContent
                           }
                         }]
                       })}\n\n`
                     )
                   )
                 }
-
-                // Send reasoning content WITHOUT phase spam
-                await writer.write(
-                  encoder.encode(
-                    `data: ${JSON.stringify({
-                      choices: [{
-                        delta: {
-                          reasoning_content: reasoningContent
-                        }
-                      }]
-                    })}\n\n`
-                  )
-                )
               }
 
               // Forward content to client (only if not in tool call mode)
@@ -1312,6 +1333,11 @@ async function handleStreamingRequest(
           if (accumulatedReasoningDetails.length > 0) {
             assistantMessage.reasoning_details = accumulatedReasoningDetails
             console.log("[Chat] Including reasoning_details in assistant message:", accumulatedReasoningDetails.length)
+          }
+          // Include reasoning_content if captured (GLM 4.7 format for tool calling)
+          if (accumulatedReasoningContent) {
+            assistantMessage.reasoning_content = accumulatedReasoningContent
+            console.log("[Chat] Including reasoning_content in assistant message for GLM 4.7:", accumulatedReasoningContent.length)
           }
           currentMessages.push(assistantMessage)
 

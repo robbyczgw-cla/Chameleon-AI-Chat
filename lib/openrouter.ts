@@ -74,6 +74,9 @@ export const REASONING_MODELS_KNOWN = new Set([
   // MoonShot Kimi models with thinking
   "moonshotai/kimi-k2-thinking",
 
+  // Zhipu GLM models with thinking mode (thinking enabled by default)
+  "z-ai/glm-4.7",
+
   // Note: Claude, Gemini Pro models may support reasoning parameter
   // but don't stream reasoning_content separately - they integrate thinking into response
   "anthropic/claude-4.5-sonnet-20250929",
@@ -139,7 +142,7 @@ export const POPULAR_OPENROUTER_MODELS = [
   },
   { id: "qwen/qwen3-max", name: "Qwen 3 Max", provider: "Qwen", category: "opensource" },
   { id: "qwen/qwen3-235b-a22b-thinking-2507", name: "Qwen 3 235B Thinking", provider: "Qwen", category: "opensource" },
-  { id: "zhipu/glm-4.6", name: "GLM-4.6 (China)", provider: "Zhipu AI", category: "opensource" },
+  { id: "z-ai/glm-4.7", name: "GLM-4.7 (Thinking)", provider: "Zhipu AI", category: "opensource" },
   { id: "minimax/m2", name: "Minimax M2", provider: "Minimax", category: "opensource" },
 
   // 💻 Spezialisiert für Code 2025
