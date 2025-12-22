@@ -746,10 +746,10 @@ export async function POST(req: NextRequest) {
 
     if (shouldUseReasoning) {
       if (isGLM47Model) {
-        // GLM 4.7: Uses thinking parameter with type: enabled (default behavior)
-        // See: https://docs.z.ai/guides/capabilities/thinking-mode
-        openRouterBody.thinking = { type: "enabled" }
-        console.log("[Chat] GLM 4.7 thinking mode ALWAYS enabled")
+        // GLM 4.7: OpenRouter uses standard reasoning format, not native z.ai thinking parameter
+        // Native z.ai uses `thinking: { type: "enabled" }` but OpenRouter normalizes this
+        openRouterBody.reasoning = { enabled: true }
+        console.log("[Chat] GLM 4.7 reasoning ALWAYS enabled (via OpenRouter)")
       } else if (isGrokModel) {
         // Grok: Always enabled (fast & cheap)
         openRouterBody.reasoning = { enabled: true }
