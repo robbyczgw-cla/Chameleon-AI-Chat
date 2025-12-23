@@ -720,7 +720,7 @@ export async function POST(req: NextRequest) {
       openRouterBody.tools = tools
       // Note: Some models like GLM 4.7 only support tool_choice: "auto" (not "none" or "required")
       openRouterBody.tool_choice = "auto"
-      console.log(`[v2] Tools enabled:`, tools.map(t => t.function.name).join(", "))
+      console.log("[Chat] Tools enabled:", tools.map(t => t.function.name).join(", "))
     }
 
     // Add reasoning parameter if enabled
@@ -788,14 +788,8 @@ export async function POST(req: NextRequest) {
       console.log("[Chat] 🧠 OpenRouter thinking params:", JSON.stringify(openRouterBody.thinking))
     }
 
-    // Handle models with BUILT-IN reasoning (GLM 4.7, Minimax M2.1)
-    // These models think internally by default - don't add include_reasoning as it may limit providers
-    // The reasoning output comes automatically in the response via <think> tags or reasoning_content field
-    if (builtInReasoningModels) {
-      // Don't add include_reasoning - it causes "No allowed providers available" error
-      // These models stream reasoning automatically
-      console.log(`[v3] ${model}: Built-in reasoning model - NOT adding include_reasoning (provider compatibility)`)
-    }
+    // GLM 4.7 and Minimax M2.1 have BUILT-IN reasoning - don't add include_reasoning
+    // as it limits provider availability. Reasoning streams automatically via <think> tags.
 
     if (isMimoModel && reasoning && shouldIncludeTools) {
       console.log("[Chat] ⚠️ MiMo: Disabled reasoning because tools are enabled (OpenRouter recommendation)")
@@ -1020,21 +1014,6 @@ async function handleStreamingRequest(
           })
         }
 
-        // Debug: Log full request body for GLM 4.7 and Minimax M2.1
-        const modelLowerForDebug = openRouterBody.model.toLowerCase()
-        if (modelLowerForDebug.includes('glm-4.7') || modelLowerForDebug.includes('minimax-m2.1')) {
-          console.log(`[v2-debug] ===== REQUEST TO OPENROUTER =====`)
-          console.log(`[v2-debug] Model: ${openRouterBody.model}`)
-          console.log(`[v2-debug] Has tools: ${!!openRouterBody.tools}, tool_choice: ${openRouterBody.tool_choice}`)
-          console.log(`[v2-debug] include_reasoning: ${openRouterBody.include_reasoning}`)
-          console.log(`[v2-debug] reasoning: ${JSON.stringify(openRouterBody.reasoning)}`)
-          console.log(`[v2-debug] Message count: ${currentMessages.length}`)
-          // Log tool definitions
-          if (openRouterBody.tools) {
-            console.log(`[v2-debug] Tools: ${openRouterBody.tools.map((t: any) => t.function?.name).join(', ')}`)
-          }
-        }
-
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -1046,7 +1025,7 @@ async function handleStreamingRequest(
           body: JSON.stringify({ ...openRouterBody, messages: currentMessages }),
         })
 
-        console.log(`[v2] OpenRouter response status: ${response.status}`)
+        console.log(`[Chat] OpenRouter response status: ${response.status}`)
 
         if (!response.ok) {
           const errorText = await response.text()
@@ -1111,34 +1090,6 @@ async function handleStreamingRequest(
               const delta = parsed.choices?.[0]?.delta
               const finish = parsed.choices?.[0]?.finish_reason
 
-              // DEBUG: Log ALL SSE events from first iteration to diagnose empty responses
-              // Especially important for GLM 4.7 and Minimax M2.1 which have known issues
-              const isDebugModel = openRouterBody.model.toLowerCase().includes('glm-4.7') ||
-                                   openRouterBody.model.toLowerCase().includes('minimax-m2.1')
-              if (iterations === 1 || isDebugModel) {
-                const eventSummary = {
-                  hasContent: !!delta?.content,
-                  hasText: !!delta?.text,
-                  hasToolCalls: !!delta?.tool_calls,
-                  hasReasoningContent: !!delta?.reasoning_content,
-                  hasThinking: !!delta?.thinking,
-                  hasReasoning: !!delta?.reasoning,
-                  toolCallsLength: delta?.tool_calls?.length,
-                  finishReason: finish,
-                  deltaKeys: delta ? Object.keys(delta) : [],
-                  choiceKeys: parsed.choices?.[0] ? Object.keys(parsed.choices[0]) : [],
-                  parsedKeys: Object.keys(parsed),
-                }
-                console.log("[v2-debug] SSE event:", JSON.stringify(eventSummary))
-                // Log FULL event for debug models to see exactly what OpenRouter returns
-                if (isDebugModel) {
-                  console.log("[v2-debug] FULL SSE data:", JSON.stringify(parsed).substring(0, 1000))
-                }
-                // Log full event for tool calls or unexpected formats
-                if (delta?.tool_calls || (!delta?.content && !delta?.text && Object.keys(delta || {}).length > 0)) {
-                  console.log("[v2-debug] Non-content SSE:", JSON.stringify(parsed).substring(0, 500))
-                }
-              }
 
               // Capture generation ID from response for exact cost tracking
               // Each API call (including tool call iterations) gets its own generation ID
@@ -1266,18 +1217,8 @@ async function handleStreamingRequest(
               }
 
               // Forward content to client (only if not in tool call mode)
-              // Check multiple locations for content as different models return it differently:
-              // - delta.content (standard OpenAI format)
-              // - delta.text (some models)
-              // - choices[0].message.content (some non-streaming responses mixed in)
-              let contentToForward = delta?.content || delta?.text
-              // Also check message level for models that return full message in stream
-              if (!contentToForward && parsed.choices?.[0]?.message?.content) {
-                contentToForward = parsed.choices[0].message.content
-                if (isDebugModel) {
-                  console.log(`[v2-debug] Found content at message level: ${contentToForward.substring(0, 100)}`)
-                }
-              }
+              // Also check for 'text' field as some models use that instead of 'content'
+              const contentToForward = delta?.content || delta?.text
               if (contentToForward && !hasToolCalls) {
                 // Send responding phase on first content
                 if (!hasStartedResponding) {
@@ -1302,22 +1243,7 @@ async function handleStreamingRequest(
         }
 
         // Debug: Log stream completion summary
-        console.log(`[v2] Stream ${iterations} complete - hasToolCalls: ${hasToolCalls}, finishReason: ${finishReason}, generationId: ${generationId}`)
-        console.log(`[v2] Accumulated tool calls: ${accumulatedToolCalls.length}`)
-        console.log(`[v2] hasStartedResponding: ${hasStartedResponding}, hasStartedReasoning: ${hasStartedReasoning}`)
-
-        // Extra debug for GLM 4.7 and Minimax M2.1
-        if (modelLowerForDebug.includes('glm-4.7') || modelLowerForDebug.includes('minimax-m2.1')) {
-          console.log(`[v2-debug] ===== STREAM COMPLETE SUMMARY =====`)
-          console.log(`[v2-debug] hasStartedResponding: ${hasStartedResponding}`)
-          console.log(`[v2-debug] hasStartedReasoning: ${hasStartedReasoning}`)
-          console.log(`[v2-debug] accumulatedReasoningContent length: ${accumulatedReasoningContent.length}`)
-          console.log(`[v2-debug] accumulatedReasoningDetails count: ${accumulatedReasoningDetails.length}`)
-          console.log(`[v2-debug] thoughtSignature: ${thoughtSignature ? 'present' : 'none'}`)
-          if (!hasStartedResponding && !hasToolCalls) {
-            console.log(`[v2-debug] ⚠️ EMPTY RESPONSE! Model returned no content and no tool calls`)
-          }
-        }
+        console.log(`[Chat] Stream ${iterations} complete - hasToolCalls: ${hasToolCalls}, finishReason: ${finishReason}`)
 
         // Handle tool calls
         if (hasToolCalls && accumulatedToolCalls.length > 0 && toolsEnabled) {
