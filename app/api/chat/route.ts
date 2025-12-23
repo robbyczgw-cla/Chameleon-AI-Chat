@@ -740,13 +740,17 @@ export async function POST(req: NextRequest) {
     const isClaudeModel = modelLower.includes('claude')
     const isGLM47Model = modelLower.includes('glm-4.7')  // GLM 4.7 with thinking mode enabled by default
 
-    // Grok and DeepSeek ALWAYS use reasoning (fast & cheap, no toggle needed)
-    // Note: GLM 4.7 has native thinking but OpenRouter doesn't support reasoning params for it
-    const alwaysReasoningModel = isGrokModel || isDeepSeekR1 || isDeepSeekV3
+    // Grok, DeepSeek, and GLM 4.7 ALWAYS use reasoning (fast & cheap, no toggle needed)
+    const alwaysReasoningModel = isGrokModel || isDeepSeekR1 || isDeepSeekV3 || isGLM47Model
     const shouldUseReasoning = (reasoning || alwaysReasoningModel) && !(isMimoModel && shouldIncludeTools)
 
     if (shouldUseReasoning) {
-      if (isGrokModel) {
+      if (isGLM47Model) {
+        // GLM 4.7: Uses reasoning param with include_reasoning
+        // Reasoning tokens use <think></think> tags and return via reasoning-content
+        // Do NOT send any reasoning object - just set include_reasoning
+        console.log("[Chat] GLM 4.7 reasoning enabled (native thinking mode)")
+      } else if (isGrokModel) {
         // Grok: Always enabled (fast & cheap)
         openRouterBody.reasoning = { enabled: true }
         console.log("[Chat] Grok reasoning ALWAYS enabled")
