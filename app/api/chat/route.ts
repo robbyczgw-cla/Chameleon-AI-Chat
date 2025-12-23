@@ -789,10 +789,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Handle models with BUILT-IN reasoning (GLM 4.7, Minimax M2.1)
-    // These models always think internally - we just need to receive the output
+    // These models think internally by default - don't add include_reasoning as it may limit providers
+    // The reasoning output comes automatically in the response via <think> tags or reasoning_content field
     if (builtInReasoningModels) {
-      openRouterBody.include_reasoning = true
-      console.log(`[Chat] 🧠 ${model}: Built-in reasoning model - include_reasoning=true (no extra params)`)
+      // Don't add include_reasoning - it causes "No allowed providers available" error
+      // These models stream reasoning automatically
+      console.log(`[v3] ${model}: Built-in reasoning model - NOT adding include_reasoning (provider compatibility)`)
     }
 
     if (isMimoModel && reasoning && shouldIncludeTools) {
