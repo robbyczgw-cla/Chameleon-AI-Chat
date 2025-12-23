@@ -77,6 +77,9 @@ export const REASONING_MODELS_KNOWN = new Set([
   // Zhipu GLM models with thinking mode (thinking enabled by default)
   "z-ai/glm-4.7",
 
+  // Minimax models with mandatory reasoning
+  "minimax/minimax-m2.1",
+
   // Note: Claude, Gemini Pro models may support reasoning parameter
   // but don't stream reasoning_content separately - they integrate thinking into response
   "anthropic/claude-4.5-sonnet-20250929",
