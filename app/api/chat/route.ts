@@ -738,15 +738,25 @@ export async function POST(req: NextRequest) {
     const isDeepSeekR1 = modelLower.includes('deepseek-r1') || modelLower.includes('deepseek/r1')
     const isDeepSeekV3 = modelLower.includes('deepseek-v3')  // Matches deepseek-v3, deepseek-v3.2, etc.
     const isClaudeModel = modelLower.includes('claude')
-    const isGLM47Model = modelLower.includes('glm-4.7')  // GLM 4.7 with thinking mode enabled by default
+    const isGLM47Model = modelLower.includes('glm-4.7')  // GLM 4.7 with thinking mode
+    const isMinimaxM21 = modelLower.includes('minimax-m2.1')  // Minimax M2.1 has mandatory reasoning
 
-    // Grok and DeepSeek ALWAYS use reasoning (fast & cheap, no toggle needed)
-    // GLM 4.7 excluded - OpenRouter doesn't support reasoning params for it yet
-    const alwaysReasoningModel = isGrokModel || isDeepSeekR1 || isDeepSeekV3
-    const shouldUseReasoning = (reasoning || alwaysReasoningModel) && !(isMimoModel && shouldIncludeTools) && !isGLM47Model
+    // Grok, DeepSeek, GLM 4.7 and Minimax M2.1 ALWAYS use reasoning
+    const alwaysReasoningModel = isGrokModel || isDeepSeekR1 || isDeepSeekV3 || isGLM47Model || isMinimaxM21
+    const shouldUseReasoning = (reasoning || alwaysReasoningModel) && !(isMimoModel && shouldIncludeTools)
 
     if (shouldUseReasoning) {
-      if (isGrokModel) {
+      if (isMinimaxM21) {
+        // Minimax M2.1: Uses string format "enabled" (mandatory reasoning)
+        // See: https://openrouter.ai/minimax/minimax-m2.1/api
+        openRouterBody.reasoning = "enabled"
+        console.log("[Chat] Minimax M2.1 reasoning ALWAYS enabled (string format)")
+      } else if (isGLM47Model) {
+        // GLM 4.7: Standard reasoning with <think></think> tokens
+        // See: https://openrouter.ai/z-ai/glm-4.7/api
+        openRouterBody.reasoning = true
+        console.log("[Chat] GLM 4.7 reasoning enabled")
+      } else if (isGrokModel) {
         // Grok: Always enabled (fast & cheap)
         openRouterBody.reasoning = { enabled: true }
         console.log("[Chat] Grok reasoning ALWAYS enabled")
