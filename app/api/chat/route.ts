@@ -718,8 +718,9 @@ export async function POST(req: NextRequest) {
         console.log("[Chat] Shopify tool enabled for store:", shopifyStoreUrl)
       }
       openRouterBody.tools = tools
+      // Note: Some models like GLM 4.7 only support tool_choice: "auto" (not "none" or "required")
       openRouterBody.tool_choice = "auto"
-      console.log("[Chat] Tools enabled:", tools.map(t => t.function.name).join(", "))
+      console.log(`[v2] Tools enabled:`, tools.map(t => t.function.name).join(", "))
     }
 
     // Add reasoning parameter if enabled
@@ -741,12 +742,13 @@ export async function POST(req: NextRequest) {
     const isGLM47Model = modelLower.includes('glm-4.7')  // GLM 4.7 - reasoning not supported via OpenRouter params
     const isMinimaxM21 = modelLower.includes('minimax-m2.1')  // Minimax M2.1 - reasoning not supported via OpenRouter params
 
-    // Models that should NOT have reasoning params sent (causes empty responses)
-    const noReasoningParamsModels = isGLM47Model || isMinimaxM21
+    // Models with BUILT-IN reasoning that should NOT have extra reasoning params
+    // These models always think but we still need include_reasoning to receive the output
+    const builtInReasoningModels = isGLM47Model || isMinimaxM21
 
     // Grok and DeepSeek ALWAYS use reasoning (fast & cheap, no toggle needed)
     const alwaysReasoningModel = isGrokModel || isDeepSeekR1 || isDeepSeekV3
-    const shouldUseReasoning = (reasoning || alwaysReasoningModel) && !(isMimoModel && shouldIncludeTools) && !noReasoningParamsModels
+    const shouldUseReasoning = (reasoning || alwaysReasoningModel) && !(isMimoModel && shouldIncludeTools) && !builtInReasoningModels
 
     if (shouldUseReasoning) {
       if (isGrokModel) {
@@ -786,9 +788,11 @@ export async function POST(req: NextRequest) {
       console.log("[Chat] 🧠 OpenRouter thinking params:", JSON.stringify(openRouterBody.thinking))
     }
 
-    // Log when models are excluded from reasoning params
-    if (noReasoningParamsModels) {
-      console.log(`[Chat] ⚠️ ${model}: No reasoning params sent (not supported via OpenRouter)`)
+    // Handle models with BUILT-IN reasoning (GLM 4.7, Minimax M2.1)
+    // These models always think internally - we just need to receive the output
+    if (builtInReasoningModels) {
+      openRouterBody.include_reasoning = true
+      console.log(`[Chat] 🧠 ${model}: Built-in reasoning model - include_reasoning=true (no extra params)`)
     }
 
     if (isMimoModel && reasoning && shouldIncludeTools) {
@@ -1014,6 +1018,21 @@ async function handleStreamingRequest(
           })
         }
 
+        // Debug: Log full request body for GLM 4.7 and Minimax M2.1
+        const modelLowerForDebug = openRouterBody.model.toLowerCase()
+        if (modelLowerForDebug.includes('glm-4.7') || modelLowerForDebug.includes('minimax-m2.1')) {
+          console.log(`[v2-debug] ===== REQUEST TO OPENROUTER =====`)
+          console.log(`[v2-debug] Model: ${openRouterBody.model}`)
+          console.log(`[v2-debug] Has tools: ${!!openRouterBody.tools}, tool_choice: ${openRouterBody.tool_choice}`)
+          console.log(`[v2-debug] include_reasoning: ${openRouterBody.include_reasoning}`)
+          console.log(`[v2-debug] reasoning: ${JSON.stringify(openRouterBody.reasoning)}`)
+          console.log(`[v2-debug] Message count: ${currentMessages.length}`)
+          // Log tool definitions
+          if (openRouterBody.tools) {
+            console.log(`[v2-debug] Tools: ${openRouterBody.tools.map((t: any) => t.function?.name).join(', ')}`)
+          }
+        }
+
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -1025,7 +1044,7 @@ async function handleStreamingRequest(
           body: JSON.stringify({ ...openRouterBody, messages: currentMessages }),
         })
 
-        console.log(`[Chat] OpenRouter response status: ${response.status}`)
+        console.log(`[v2] OpenRouter response status: ${response.status}`)
 
         if (!response.ok) {
           const errorText = await response.text()
@@ -1090,21 +1109,32 @@ async function handleStreamingRequest(
               const delta = parsed.choices?.[0]?.delta
               const finish = parsed.choices?.[0]?.finish_reason
 
-              // DEBUG: Log ALL SSE events from first iteration to diagnose MiMo empty response
-              if (iterations === 1) {
+              // DEBUG: Log ALL SSE events from first iteration to diagnose empty responses
+              // Especially important for GLM 4.7 and Minimax M2.1 which have known issues
+              const isDebugModel = openRouterBody.model.toLowerCase().includes('glm-4.7') ||
+                                   openRouterBody.model.toLowerCase().includes('minimax-m2.1')
+              if (iterations === 1 || isDebugModel) {
                 const eventSummary = {
                   hasContent: !!delta?.content,
                   hasText: !!delta?.text,
                   hasToolCalls: !!delta?.tool_calls,
+                  hasReasoningContent: !!delta?.reasoning_content,
+                  hasThinking: !!delta?.thinking,
+                  hasReasoning: !!delta?.reasoning,
                   toolCallsLength: delta?.tool_calls?.length,
                   finishReason: finish,
                   deltaKeys: delta ? Object.keys(delta) : [],
                   choiceKeys: parsed.choices?.[0] ? Object.keys(parsed.choices[0]) : [],
+                  parsedKeys: Object.keys(parsed),
                 }
-                console.log("[Chat] SSE event:", JSON.stringify(eventSummary))
+                console.log("[v2-debug] SSE event:", JSON.stringify(eventSummary))
+                // Log FULL event for debug models to see exactly what OpenRouter returns
+                if (isDebugModel) {
+                  console.log("[v2-debug] FULL SSE data:", JSON.stringify(parsed).substring(0, 1000))
+                }
                 // Log full event for tool calls or unexpected formats
                 if (delta?.tool_calls || (!delta?.content && !delta?.text && Object.keys(delta || {}).length > 0)) {
-                  console.log("[Chat] Full SSE data:", JSON.stringify(parsed).substring(0, 500))
+                  console.log("[v2-debug] Non-content SSE:", JSON.stringify(parsed).substring(0, 500))
                 }
               }
 
@@ -1234,8 +1264,18 @@ async function handleStreamingRequest(
               }
 
               // Forward content to client (only if not in tool call mode)
-              // Also check for 'text' field as some models use that instead of 'content'
-              const contentToForward = delta?.content || delta?.text
+              // Check multiple locations for content as different models return it differently:
+              // - delta.content (standard OpenAI format)
+              // - delta.text (some models)
+              // - choices[0].message.content (some non-streaming responses mixed in)
+              let contentToForward = delta?.content || delta?.text
+              // Also check message level for models that return full message in stream
+              if (!contentToForward && parsed.choices?.[0]?.message?.content) {
+                contentToForward = parsed.choices[0].message.content
+                if (isDebugModel) {
+                  console.log(`[v2-debug] Found content at message level: ${contentToForward.substring(0, 100)}`)
+                }
+              }
               if (contentToForward && !hasToolCalls) {
                 // Send responding phase on first content
                 if (!hasStartedResponding) {
@@ -1260,8 +1300,22 @@ async function handleStreamingRequest(
         }
 
         // Debug: Log stream completion summary
-        console.log(`[Chat] Stream ${iterations} complete - hasToolCalls: ${hasToolCalls}, finishReason: ${finishReason}, generationId: ${generationId}`)
-        console.log(`[Chat] Accumulated tool calls: ${accumulatedToolCalls.length}`)
+        console.log(`[v2] Stream ${iterations} complete - hasToolCalls: ${hasToolCalls}, finishReason: ${finishReason}, generationId: ${generationId}`)
+        console.log(`[v2] Accumulated tool calls: ${accumulatedToolCalls.length}`)
+        console.log(`[v2] hasStartedResponding: ${hasStartedResponding}, hasStartedReasoning: ${hasStartedReasoning}`)
+
+        // Extra debug for GLM 4.7 and Minimax M2.1
+        if (modelLowerForDebug.includes('glm-4.7') || modelLowerForDebug.includes('minimax-m2.1')) {
+          console.log(`[v2-debug] ===== STREAM COMPLETE SUMMARY =====`)
+          console.log(`[v2-debug] hasStartedResponding: ${hasStartedResponding}`)
+          console.log(`[v2-debug] hasStartedReasoning: ${hasStartedReasoning}`)
+          console.log(`[v2-debug] accumulatedReasoningContent length: ${accumulatedReasoningContent.length}`)
+          console.log(`[v2-debug] accumulatedReasoningDetails count: ${accumulatedReasoningDetails.length}`)
+          console.log(`[v2-debug] thoughtSignature: ${thoughtSignature ? 'present' : 'none'}`)
+          if (!hasStartedResponding && !hasToolCalls) {
+            console.log(`[v2-debug] ⚠️ EMPTY RESPONSE! Model returned no content and no tool calls`)
+          }
+        }
 
         // Handle tool calls
         if (hasToolCalls && accumulatedToolCalls.length > 0 && toolsEnabled) {
