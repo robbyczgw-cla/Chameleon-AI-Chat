@@ -48,6 +48,7 @@ export const MODEL_DESCRIPTIONS: Record<string, string> = {
   "z-ai/glm-4.6": "GLM 4.6, China AI Innovation",
   "z-ai/glm-4.7": "GLM 4.7 mit Thinking Mode, reasoning aktiviert",
   "minimax/m2": "Chinesisch, multimodal, experimentell, spannend",
+  "minimax/minimax-m2.1": "Minimax M2.1, neues chinesisches Modell",
 
   // Moonshot & Others
   "moonshotai/kimi-k2-thinking": "Long Context fähig, Thinking Mode",

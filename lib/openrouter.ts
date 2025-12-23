@@ -143,7 +143,7 @@ export const POPULAR_OPENROUTER_MODELS = [
   { id: "qwen/qwen3-max", name: "Qwen 3 Max", provider: "Qwen", category: "opensource" },
   { id: "qwen/qwen3-235b-a22b-thinking-2507", name: "Qwen 3 235B Thinking", provider: "Qwen", category: "opensource" },
   { id: "z-ai/glm-4.7", name: "GLM-4.7 (Thinking)", provider: "Zhipu AI", category: "opensource" },
-  { id: "minimax/m2", name: "Minimax M2", provider: "Minimax", category: "opensource" },
+  { id: "minimax/minimax-m2.1", name: "Minimax M2.1", provider: "Minimax", category: "opensource" },
 
   // 💻 Spezialisiert für Code 2025
   { id: "x-ai/grok-code-fast-1", name: "Grok Code Fast", provider: "xAI", category: "code" },
