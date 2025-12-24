@@ -313,6 +313,97 @@ SUMMARY:`
       default: return "bg-gray-500"
     }
   }
+
+  /**
+   * Auto-compress conversation when context is getting full
+   * Uses a fast/cheap model (Haiku) to summarize older messages
+   * Returns compressed messages ready for API call
+   *
+   * @param messages - Full message history
+   * @param model - Current model (to check context window)
+   * @param apiKey - OpenRouter API key for summarization call
+   * @param keepLastN - Number of recent messages to keep intact (default 6)
+   * @returns Compressed messages array, or original if compression not needed/failed
+   */
+  async autoCompress(
+    messages: Message[],
+    model: string,
+    apiKey: string,
+    keepLastN: number = 6
+  ): Promise<{ messages: Message[]; wasCompressed: boolean; summary?: string; stats?: CompressionResult }> {
+    // Check if compression is needed
+    const usage = this.getContextUsage(messages, model)
+
+    if (!this.shouldCompress(usage)) {
+      return { messages, wasCompressed: false }
+    }
+
+    // Get compression prompt
+    const compressionPrompt = this.getCompressionPrompt(messages, keepLastN)
+
+    if (!compressionPrompt) {
+      // Not enough messages to compress
+      return { messages, wasCompressed: false }
+    }
+
+    console.log("[Context] 📦 Auto-compressing conversation...", {
+      originalTokens: usage.usedTokens,
+      percentage: (usage.percentage * 100).toFixed(1) + "%",
+      messagesToSummarize: messages.length - keepLastN - 1 // -1 for system
+    })
+
+    try {
+      // Use a fast, cheap model for summarization (Haiku is perfect)
+      const summaryModel = "anthropic/claude-3.5-haiku"
+
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "https://chameleon.ai",
+          "X-Title": "Chameleon AI Chat - Context Compression",
+        },
+        body: JSON.stringify({
+          model: summaryModel,
+          messages: [
+            { role: "user", content: compressionPrompt }
+          ],
+          temperature: 0.3, // Low temperature for factual summary
+          max_tokens: 1000, // Summary should be concise
+        }),
+      })
+
+      if (!response.ok) {
+        console.error("[Context] ❌ Compression API failed:", response.status)
+        return { messages, wasCompressed: false }
+      }
+
+      const data = await response.json()
+      const summary = data.choices?.[0]?.message?.content?.trim()
+
+      if (!summary) {
+        console.error("[Context] ❌ No summary generated")
+        return { messages, wasCompressed: false }
+      }
+
+      // Create compressed messages
+      const compressedMessages = this.createCompressedMessages(messages, summary, keepLastN)
+      const stats = this.calculateCompressionStats(messages, compressedMessages)
+
+      console.log("[Context] ✅ Compression complete:", stats.summary)
+
+      return {
+        messages: compressedMessages,
+        wasCompressed: true,
+        summary,
+        stats
+      }
+    } catch (error) {
+      console.error("[Context] ❌ Auto-compression failed:", error)
+      return { messages, wasCompressed: false }
+    }
+  }
 }
 
 // Singleton instance

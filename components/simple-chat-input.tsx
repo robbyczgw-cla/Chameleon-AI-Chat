@@ -573,22 +573,72 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       { role: "user" as const, content: multimodalContent }, // Current message keeps full images
     ]
 
-    // Pre-flight context window check - warn user before hitting limits
-    // This prevents cryptic API errors by catching issues early
+    // Auto-compress context when approaching limits
+    // This seamlessly summarizes older messages so the user can keep chatting
+    let messagesForApi = messages
     const contextUsage = contextWindowService.getContextUsage(
       messages.map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : "[multimodal]" })),
       model
     )
-    if (contextUsage.status === "critical") {
-      console.warn("[Simple Chat] ⚠️ Context window critical:", contextUsage.percentage.toFixed(1), "%")
+
+    if (contextWindowService.shouldCompress(contextUsage)) {
+      console.log("[Simple Chat] 📦 Context getting full, auto-compressing...")
+
+      // Show compression toast
       toast({
-        title: settings.language === "de" ? "⚠️ Chat zu lang" : "⚠️ Chat too long",
+        title: settings.language === "de" ? "📦 Chat optimieren..." : "📦 Optimizing chat...",
         description: settings.language === "de"
-          ? "Der Chat ist zu lang. Starte einen neuen Chat für beste Ergebnisse."
-          : "This chat is too long. Start a new chat for best results.",
-        variant: "destructive",
+          ? "Fasse ältere Nachrichten zusammen für optimale Leistung"
+          : "Summarizing older messages for optimal performance",
       })
-      // Don't block - just warn. User can still try.
+
+      // Convert messages to the format expected by autoCompress
+      const messagesForCompression = messages.map(m => ({
+        role: m.role as "user" | "assistant" | "system",
+        content: typeof m.content === "string" ? m.content : "[multimodal content]"
+      }))
+
+      const compressionResult = await contextWindowService.autoCompress(
+        messagesForCompression,
+        model,
+        settings.apiKeys.openRouter,
+        6 // Keep last 6 messages intact
+      )
+
+      if (compressionResult.wasCompressed && compressionResult.stats) {
+        console.log("[Simple Chat] ✅ Compression complete:", compressionResult.stats.summary)
+
+        // Use compressed messages for API call
+        // But we need to restore the multimodal content for the current message
+        const compressedWithCurrentMessage = [
+          ...compressionResult.messages.slice(0, -1), // All except the last user message
+          { role: "user" as const, content: multimodalContent } // Current message with full images
+        ]
+        messagesForApi = compressedWithCurrentMessage
+
+        toast({
+          title: settings.language === "de" ? "✅ Chat optimiert" : "✅ Chat optimized",
+          description: settings.language === "de"
+            ? `${compressionResult.stats.savedTokens.toLocaleString()} Tokens gespart`
+            : `Saved ${compressionResult.stats.savedTokens.toLocaleString()} tokens`,
+        })
+
+        // Add compression event to streaming history
+        addStreamingHistoryEntry({
+          phase: "thinking",
+          description: `Auto-compressed: ${compressionResult.stats.summary}`
+        })
+      } else {
+        // Compression failed or not needed, warn user
+        console.warn("[Simple Chat] ⚠️ Compression failed, context may be full")
+        toast({
+          title: settings.language === "de" ? "⚠️ Chat sehr lang" : "⚠️ Chat very long",
+          description: settings.language === "de"
+            ? "Der Chat ist sehr lang. Antwortqualität könnte beeinträchtigt sein."
+            : "This chat is very long. Response quality may be affected.",
+          variant: "destructive",
+        })
+      }
     }
 
     try {
@@ -932,7 +982,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         enableAutoToolUse: enableToolCallingSearch
       })
 
-      await streamChatMessage(messages, model, onChunk, {
+      await streamChatMessage(messagesForApi, model, onChunk, {
         temperature: settings.temperature || 0.7,
         maxTokens,
         topP: 0.9,
@@ -1067,7 +1117,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       console.log("[Simple Chat] Stream complete, final content length:", assistantContent.length)
 
       if (messageAdded && assistantContent) {
-        const promptText = messages.map((m) => m.content).join("\n")
+        const promptText = messagesForApi.map((m) => typeof m.content === "string" ? m.content : "[multimodal]").join("\n")
         const promptTokens = estimateTokens(promptText)
         const completionTokens = estimateTokens(assistantContent)
         const totalTokens = promptTokens + completionTokens
