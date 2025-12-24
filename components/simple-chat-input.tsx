@@ -20,7 +20,7 @@ import { estimateTokens } from "@/lib/token-tracker"
 import { languageService, getTranslation } from "@/lib/languages"
 import { FileUpload } from "@/components/file-upload"
 import { extractTextFromAttachments, type FileAttachment, getFileCategory } from "@/lib/file-handler"
-import { buildMultimodalContent } from "@/lib/multimodal-utils"
+import { buildMultimodalContent, stripImageDataFromContent } from "@/lib/multimodal-utils"
 import { compressImages, getImageSizeKB } from "@/lib/image-utils"
 import { validateImageForModel } from "@/lib/vision-models"
 import type { Persona } from "@/lib/personas"
@@ -28,10 +28,12 @@ import { getRAGContext } from "@/lib/rag-service"
 import { parseSlashCommand, getCommandSuggestions, buildCommandPrompt, type SlashCommand } from "@/lib/slash-commands"
 import { memoryService } from "@/lib/memory-service"
 import { ContextWindowMeter } from "@/components/context-window-meter"
+import { contextWindowService } from "@/lib/context-window-service"
 import { useDraft } from "@/hooks/use-draft"
 import { analyzeQueryForSearch } from "@/lib/search-heuristics"
 import { supportsVision, getRecommendedVisionModel } from "@/lib/vision-models"
 import { useFeatureFlags } from "@/hooks/use-feature-flags"
+import { useIsIOSPWA } from "@/hooks/use-ios-pwa"
 import { haptics } from "@/lib/haptics"
 import { voiceService } from "@/lib/voice"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
@@ -45,6 +47,7 @@ interface SimpleChatInputProps {
 export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebSearchEnabled, overrideModel }: SimpleChatInputProps = {}) {
   const { currentChatId, addMessage, createChat, settings, chats, setChats, user, isChatLoading, setIsChatLoading, chatAbortControllerRef, stopChatGeneration, setStreamingPhase, setCurrentTool, setSearchQuery, currentStreamingDetails, setCurrentStreamingDetails, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
   const { features, isAdvancedMode, isHifi } = useFeatureFlags()
+  const isIOSPWA = useIsIOSPWA()
 
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
@@ -284,8 +287,10 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
       try {
         // Compress all images to stay under payload limit (critical for mobile PWA)
+        // iOS PWA has stricter memory limits - use more aggressive compression
+        const maxImageSizeKB = isIOSPWA ? 300 : 500
         const imageDataUrls = imageAttachments.map((img: FileAttachment) => img.dataUrl || "").filter(Boolean)
-        const compressedDataUrls = await compressImages(imageDataUrls, 500) // 500KB max per image
+        const compressedDataUrls = await compressImages(imageDataUrls, maxImageSizeKB)
 
         // Create new array with compressed images
         let compressedIndex = 0
@@ -343,6 +348,20 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       .map((f: FileAttachment) => f.dataUrl?.split(',')[1]) // Extract base64 from dataUrl
 
     // Validate image size/count for the model BEFORE adding message
+    // iOS PWA: Limit to 3 images to prevent memory exhaustion
+    const maxImagesForPlatform = isIOSPWA ? 3 : 10
+    if (imageAttachments.length > maxImagesForPlatform) {
+      toast({
+        title: settings.language === "de" ? "Zu viele Bilder" : "Too many images",
+        description: settings.language === "de"
+          ? `Maximum ${maxImagesForPlatform} Bilder pro Nachricht${isIOSPWA ? " (iOS PWA Limit)" : ""}`
+          : `Maximum ${maxImagesForPlatform} images per message${isIOSPWA ? " (iOS PWA limit)" : ""}`,
+        variant: "destructive",
+      })
+      setIsChatLoading(false)
+      return
+    }
+
     if (imageAttachments.length > 0) {
       const currentModel = overrideModel || settings.selectedModel
       const visionModel = supportsVision(currentModel) ? currentModel : getRecommendedVisionModel(currentModel)
@@ -540,14 +559,87 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     console.log("[Simple Chat] Using persona:", selectedPersona?.name || "Default")
     console.log("[Simple Chat] 🔴 DEBUG - System Prompt (first 500 chars):", systemPrompt.substring(0, 500))
 
+    // CRITICAL: Strip base64 image data from historical messages to prevent:
+    // 1. Context window exhaustion (500KB image = ~166K tokens!)
+    // 2. Payload too large errors (413)
+    // 3. iOS PWA memory crashes
+    // Only the CURRENT message keeps full image data for vision model processing
     const messages = [
       { role: "system" as const, content: systemPrompt },
       ...(currentChat?.messages || []).map((m) => ({
         role: m.role,
-        content: m.content,
+        content: stripImageDataFromContent(m.content), // Strip old images, keep text context
       })),
-      { role: "user" as const, content: multimodalContent }, // Use multimodal content for proper image handling
+      { role: "user" as const, content: multimodalContent }, // Current message keeps full images
     ]
+
+    // Auto-compress context when approaching limits
+    // This seamlessly summarizes older messages so the user can keep chatting
+    let messagesForApi = messages
+    const contextUsage = contextWindowService.getContextUsage(
+      messages.map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : "[multimodal]" })),
+      model
+    )
+
+    if (contextWindowService.shouldCompress(contextUsage)) {
+      console.log("[Simple Chat] 📦 Context getting full, auto-compressing...")
+
+      // Show compression toast
+      toast({
+        title: settings.language === "de" ? "📦 Chat optimieren..." : "📦 Optimizing chat...",
+        description: settings.language === "de"
+          ? "Fasse ältere Nachrichten zusammen für optimale Leistung"
+          : "Summarizing older messages for optimal performance",
+      })
+
+      // Convert messages to the format expected by autoCompress
+      const messagesForCompression = messages.map(m => ({
+        role: m.role as "user" | "assistant" | "system",
+        content: typeof m.content === "string" ? m.content : "[multimodal content]"
+      }))
+
+      const compressionResult = await contextWindowService.autoCompress(
+        messagesForCompression,
+        model,
+        settings.apiKeys.openRouter,
+        6 // Keep last 6 messages intact
+      )
+
+      if (compressionResult.wasCompressed && compressionResult.stats) {
+        console.log("[Simple Chat] ✅ Compression complete:", compressionResult.stats.summary)
+
+        // Use compressed messages for API call
+        // But we need to restore the multimodal content for the current message
+        const compressedWithCurrentMessage = [
+          ...compressionResult.messages.slice(0, -1), // All except the last user message
+          { role: "user" as const, content: multimodalContent } // Current message with full images
+        ]
+        messagesForApi = compressedWithCurrentMessage
+
+        toast({
+          title: settings.language === "de" ? "✅ Chat optimiert" : "✅ Chat optimized",
+          description: settings.language === "de"
+            ? `${compressionResult.stats.savedTokens.toLocaleString()} Tokens gespart`
+            : `Saved ${compressionResult.stats.savedTokens.toLocaleString()} tokens`,
+        })
+
+        // Add compression event to streaming history
+        addStreamingHistoryEntry({
+          phase: "thinking",
+          description: `Auto-compressed: ${compressionResult.stats.summary}`
+        })
+      } else {
+        // Compression failed or not needed, warn user
+        console.warn("[Simple Chat] ⚠️ Compression failed, context may be full")
+        toast({
+          title: settings.language === "de" ? "⚠️ Chat sehr lang" : "⚠️ Chat very long",
+          description: settings.language === "de"
+            ? "Der Chat ist sehr lang. Antwortqualität könnte beeinträchtigt sein."
+            : "This chat is very long. Response quality may be affected.",
+          variant: "destructive",
+        })
+      }
+    }
 
     try {
       // Memory: Phase 3 intelligent memory retrieval with classification + semantic search
@@ -890,7 +982,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         enableAutoToolUse: enableToolCallingSearch
       })
 
-      await streamChatMessage(messages, model, onChunk, {
+      await streamChatMessage(messagesForApi, model, onChunk, {
         temperature: settings.temperature || 0.7,
         maxTokens,
         topP: 0.9,
@@ -1025,7 +1117,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       console.log("[Simple Chat] Stream complete, final content length:", assistantContent.length)
 
       if (messageAdded && assistantContent) {
-        const promptText = messages.map((m) => m.content).join("\n")
+        const promptText = messagesForApi.map((m) => typeof m.content === "string" ? m.content : "[multimodal]").join("\n")
         const promptTokens = estimateTokens(promptText)
         const completionTokens = estimateTokens(assistantContent)
         const totalTokens = promptTokens + completionTokens
@@ -1173,17 +1265,55 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       }
       console.error("[Simple Chat] Chat error:", error)
 
+      // Detect specific error types for better user feedback
+      const errorStr = error instanceof Error ? error.message : String(error)
+      const isContextError = errorStr.includes("context") || errorStr.includes("token") || errorStr.includes("length")
+      const isPayloadError = errorStr.includes("413") || errorStr.includes("payload") || errorStr.includes("too large")
+      const isMemoryError = errorStr.includes("memory") || errorStr.includes("allocation")
+
+      let errorTitle = settings.language === "de" ? "Fehler" : "Error"
+      let errorDescription = settings.language === "de" ? "Antwort konnte nicht abgerufen werden" : "Could not get response"
+      let userMessage = settings.language === "de"
+        ? "Ups! Da ist etwas schiefgelaufen. Versuch es nochmal! 😊"
+        : "Oops! Something went wrong. Please try again! 😊"
+
+      if (isContextError) {
+        errorTitle = settings.language === "de" ? "Chat zu lang" : "Chat too long"
+        errorDescription = settings.language === "de"
+          ? "Starte einen neuen Chat, um Bilder hochzuladen"
+          : "Start a new chat to upload images"
+        userMessage = settings.language === "de"
+          ? "Der Chat ist zu lang geworden. Bitte starte einen neuen Chat für weitere Bilder."
+          : "This chat has gotten too long. Please start a new chat for more images."
+      } else if (isPayloadError) {
+        errorTitle = settings.language === "de" ? "Datei zu groß" : "File too large"
+        errorDescription = settings.language === "de"
+          ? "Bitte ein kleineres Bild verwenden"
+          : "Please use a smaller image"
+        userMessage = settings.language === "de"
+          ? "Das Bild ist zu groß. Bitte verwende ein kleineres Bild."
+          : "The image is too large. Please use a smaller image."
+      } else if (isMemoryError && isIOSPWA) {
+        errorTitle = settings.language === "de" ? "Speicherproblem" : "Memory issue"
+        errorDescription = settings.language === "de"
+          ? "Starte die App neu und versuche es mit weniger Bildern"
+          : "Restart the app and try with fewer images"
+        userMessage = settings.language === "de"
+          ? "Speicherproblem auf iOS. Bitte starte die App neu und verwende weniger/kleinere Bilder."
+          : "Memory issue on iOS. Please restart the app and use fewer/smaller images."
+      }
+
       const errorMessage: Message = {
         id: generateUUID(),
         role: "assistant",
-        content: `Ups! Da ist etwas schiefgelaufen. Versuch es nochmal! 😊`,
+        content: userMessage,
         timestamp: Date.now(),
       }
       addMessage(chatId, errorMessage)
 
       toast({
-        title: "Fehler",
-        description: "Antwort konnte nicht abgerufen werden",
+        title: errorTitle,
+        description: errorDescription,
         variant: "destructive",
       })
     } finally {
