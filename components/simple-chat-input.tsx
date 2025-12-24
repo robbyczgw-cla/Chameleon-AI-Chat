@@ -29,6 +29,7 @@ import { parseSlashCommand, getCommandSuggestions, buildCommandPrompt, type Slas
 import { memoryService } from "@/lib/memory-service"
 import { ContextWindowMeter } from "@/components/context-window-meter"
 import { contextWindowService } from "@/lib/context-window-service"
+import { getBackgroundModel } from "@/components/experimental-settings"
 import { useDraft } from "@/hooks/use-draft"
 import { analyzeQueryForSearch } from "@/lib/search-heuristics"
 import { supportsVision, getRecommendedVisionModel } from "@/lib/vision-models"
@@ -573,7 +574,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       { role: "user" as const, content: multimodalContent }, // Current message keeps full images
     ]
 
-    // Auto-compress context when approaching limits
+    // Auto-compress context when approaching limits (if enabled - default ON)
     // This seamlessly summarizes older messages so the user can keep chatting
     let messagesForApi = messages
     const contextUsage = contextWindowService.getContextUsage(
@@ -581,7 +582,9 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       model
     )
 
-    if (contextWindowService.shouldCompress(contextUsage)) {
+    const autoCompressionEnabled = settings.experimental?.enableAutoContextCompression !== false
+
+    if (autoCompressionEnabled && contextWindowService.shouldCompress(contextUsage)) {
       console.log("[Simple Chat] 📦 Context getting full, auto-compressing...")
 
       // Show compression toast
@@ -598,11 +601,15 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         content: typeof m.content === "string" ? m.content : "[multimodal content]"
       }))
 
+      // Get the compression model from settings or use default (Gemini 3 Flash)
+      const compressionModel = getBackgroundModel("contextCompression", settings.experimental?.backgroundAIModels)
+
       const compressionResult = await contextWindowService.autoCompress(
         messagesForCompression,
         model,
         settings.apiKeys.openRouter,
-        6 // Keep last 6 messages intact
+        6, // Keep last 6 messages intact
+        compressionModel
       )
 
       if (compressionResult.wasCompressed && compressionResult.stats) {
