@@ -316,20 +316,22 @@ SUMMARY:`
 
   /**
    * Auto-compress conversation when context is getting full
-   * Uses a fast/cheap model (Haiku) to summarize older messages
+   * Uses a fast/cheap model to summarize older messages
    * Returns compressed messages ready for API call
    *
    * @param messages - Full message history
    * @param model - Current model (to check context window)
    * @param apiKey - OpenRouter API key for summarization call
    * @param keepLastN - Number of recent messages to keep intact (default 6)
+   * @param compressionModel - Model to use for summarization (default: gemini-3-flash-preview)
    * @returns Compressed messages array, or original if compression not needed/failed
    */
   async autoCompress(
     messages: Message[],
     model: string,
     apiKey: string,
-    keepLastN: number = 6
+    keepLastN: number = 6,
+    compressionModel?: string
   ): Promise<{ messages: Message[]; wasCompressed: boolean; summary?: string; stats?: CompressionResult }> {
     // Check if compression is needed
     const usage = this.getContextUsage(messages, model)
@@ -353,8 +355,8 @@ SUMMARY:`
     })
 
     try {
-      // Use a fast, cheap model for summarization (Haiku is perfect)
-      const summaryModel = "anthropic/claude-3.5-haiku"
+      // Use a fast, cheap model for summarization (Gemini 3 Flash is fastest/cheapest)
+      const summaryModel = compressionModel || "google/gemini-3-flash-preview"
 
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",

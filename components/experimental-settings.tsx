@@ -22,7 +22,7 @@ export const DEFAULT_BACKGROUND_MODELS: Required<BackgroundAIModelsSettings> = {
   personaGeneration: "x-ai/grok-4.1-fast",
   personalityAnalysis: "x-ai/grok-4.1-fast",
   conversationInsights: "x-ai/grok-4.1-fast",
-  contextCompression: "x-ai/grok-4.1-fast",
+  contextCompression: "google/gemini-3-flash-preview", // Fast + cheap for summarization
   imageGenNormal: "google/gemini-2.5-flash-image",
   imageGenHigh: "google/gemini-3-pro-image-preview",
   embeddings: "openai/text-embedding-3-small",
@@ -750,6 +750,23 @@ export function ExperimentalSettings() {
             <Switch
               checked={experimental.enableWeatherTool !== false}
               onCheckedChange={(checked) => handleExperimentalChange({ enableWeatherTool: checked })}
+            />
+          </div>
+
+          {/* Auto Context Compression */}
+          <div className="flex items-center justify-between p-4 border rounded-lg border-purple-500/30 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/20 dark:to-violet-950/20">
+            <div className="space-y-1 flex-1">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <Label className="text-sm font-medium">Auto Context Compression</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Automatically summarize older messages when chat gets long. Allows unlimited conversation length without hitting context limits.
+              </p>
+            </div>
+            <Switch
+              checked={experimental.enableAutoContextCompression !== false}
+              onCheckedChange={(checked) => handleExperimentalChange({ enableAutoContextCompression: checked })}
             />
           </div>
 
