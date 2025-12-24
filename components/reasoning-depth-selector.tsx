@@ -78,10 +78,17 @@ interface ReasoningDepthSelectorProps {
 }
 
 export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelectorProps) {
-  const { settings, updateSettings } = useApp()
+  const { settings, updateSettings, currentChatId, chats } = useApp()
 
-  // Early return if settings not loaded yet
-  if (!settings?.selectedModel) {
+  // Get current chat to check for chat-specific model override
+  const currentChat = chats.find((c) => c.id === currentChatId)
+
+  // Use chat-specific model if set, otherwise fall back to settings
+  // This fixes the issue where the toggle wouldn't update when model changes via QuickModelPicker
+  const actualModel = currentChat?.model || settings?.selectedModel
+
+  // Early return if no model available
+  if (!actualModel) {
     return null
   }
 
@@ -89,7 +96,7 @@ export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelect
   const currentConfig = REASONING_DEPTHS.find(d => d.id === currentDepth) || REASONING_DEPTHS[2]
 
   // Get the model in lowercase for pattern matching
-  const currentModel = settings.selectedModel.toLowerCase()
+  const currentModel = actualModel.toLowerCase()
 
   // Check if current model supports configurable reasoning depth
   const modelSupportsDepth = REASONING_DEPTH_MODELS.some(pattern =>
