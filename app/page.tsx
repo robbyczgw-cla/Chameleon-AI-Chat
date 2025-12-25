@@ -286,13 +286,21 @@ function ChatApp() {
     })
 
     keyboardShortcutService.register("keyboard-shortcuts", () => {
+      // Only available in Advanced Mode - Simple Mode keeps things simple
+      if (isSimpleMode) {
+        return // Silently ignore in Simple Mode
+      }
       setIsKeyboardShortcutsOpen(true)
     })
 
     const handleKeyDown = (e: KeyboardEvent) => {
       // Special handling for "?" key to show keyboard shortcuts
-      // Only trigger if not typing in an input/textarea
+      // Only available in Advanced Mode
       if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+        if (isSimpleMode) {
+          return // Simple Mode doesn't need keyboard shortcuts help
+        }
+
         const target = e.target as HTMLElement
         const isInputField = target.tagName === "INPUT" ||
                             target.tagName === "TEXTAREA" ||
@@ -416,11 +424,13 @@ function ChatApp() {
 
       </div>
 
-      {/* Keyboard Shortcuts Dialog */}
-      <KeyboardShortcutsDialog
-        open={isKeyboardShortcutsOpen}
-        onOpenChange={setIsKeyboardShortcutsOpen}
-      />
+      {/* Keyboard Shortcuts Dialog - Advanced Mode Only */}
+      {!isSimpleMode && (
+        <KeyboardShortcutsDialog
+          open={isKeyboardShortcutsOpen}
+          onOpenChange={setIsKeyboardShortcutsOpen}
+        />
+      )}
     </div>
   )
 }
