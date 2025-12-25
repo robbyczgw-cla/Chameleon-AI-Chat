@@ -344,9 +344,10 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
     // Capture attached images BEFORE clearing (for image-to-image generation)
     // Use processedFiles (compressed) for better PWA performance
+    // Note: API expects full data URL (data:image/...;base64,...) not just the base64 portion
     const inputImagesForGen = processedFiles
-      .filter((f: FileAttachment) => f.type.startsWith('image/'))
-      .map((f: FileAttachment) => f.dataUrl?.split(',')[1]) // Extract base64 from dataUrl
+      .filter((f: FileAttachment) => f.type.startsWith('image/') && f.dataUrl)
+      .map((f: FileAttachment) => f.dataUrl as string)
 
     // Validate image size/count for the model BEFORE adding message
     // iOS PWA: Limit to 3 images to prevent memory exhaustion

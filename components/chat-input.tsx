@@ -391,8 +391,8 @@ export function ChatInput() {
 
     // Capture attached images BEFORE clearing (for image-to-image generation)
     const inputImagesForGen = attachedFiles
-      .filter(f => f.type.startsWith('image/'))
-      .map(f => f.base64)
+      .filter(f => f.type.startsWith('image/') && f.dataUrl)
+      .map(f => f.dataUrl as string)
 
     addMessage(chatId, userMessage)
     console.log("[v0] Added user message")
