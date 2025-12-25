@@ -1495,18 +1495,32 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
                 {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
               </Button>
 
-              {/* Image mode (optional) */}
-              {imageMode !== "off" && (
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  className="h-9 w-9 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white"
-                  onClick={() => setImageMode("off")}
-                >
-                  <Image className="h-4 w-4" />
-                </Button>
-              )}
+              {/* Image mode - always visible, cycles: off → normal → high → off */}
+              <Button
+                type="button"
+                size="icon"
+                variant={imageMode !== "off" ? "default" : "ghost"}
+                className={cn(
+                  "h-9 w-9 rounded-lg relative",
+                  imageMode !== "off"
+                    ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+                onClick={() => {
+                  haptics.trigger('selection')
+                  const nextState = imageMode === "off" ? "normal" : imageMode === "normal" ? "high" : "off"
+                  setImageMode(nextState)
+                }}
+                title={imageMode === "off" ? "Image generation - Click to enable" : imageMode === "normal" ? "Normal quality - Click for high quality" : "High quality mode - Click to disable"}
+              >
+                <Image className="h-4 w-4" />
+                {imageMode === "high" && (
+                  <span className="absolute -top-0.5 -right-0.5 text-[7px] font-bold bg-yellow-400 text-yellow-900 rounded-full w-3 h-3 flex items-center justify-center">+</span>
+                )}
+                {imageMode === "normal" && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full border border-white/50" />
+                )}
+              </Button>
             </div>
 
             {/* Right: Persona picker only */}
