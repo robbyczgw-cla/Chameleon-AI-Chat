@@ -19,6 +19,7 @@ import { FontApplier } from "@/components/font-applier"
 import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
 import { KeyboardShortcutsDialog } from "@/components/keyboard-shortcuts-dialog"
+import { useFeatureFlags } from "@/hooks/use-feature-flags"
 
 // Dynamic imports for heavy components - only loaded when needed
 const ModelComparison = dynamic(() => import("@/components/model-comparison").then(mod => ({ default: mod.ModelComparison })), {
@@ -34,6 +35,7 @@ const StatsDashboard = dynamic(() => import("@/components/stats-dashboard").then
 function ChatApp() {
   const { chats, currentChatId, settings, setChats, setCurrentChat, createChat } = useApp()
   const { toast } = useToast()
+  const { features, isSimpleMode } = useFeatureFlags()
   const [isComparisonMode, setIsComparisonMode] = useState(false)
   const [showStatsPanel, setShowStatsPanel] = useState(false)
   const [showSidebar, setShowSidebar] = useState(true)
@@ -220,6 +222,18 @@ function ChatApp() {
     })
 
     keyboardShortcutService.register("export-chat", () => {
+      // Check if export is available in current mode
+      if (!features.showExportChat) {
+        toast({
+          title: "Feature not available",
+          description: isSimpleMode
+            ? "Export is available in Advanced Mode. Toggle mode in settings."
+            : "Export feature is not available",
+          variant: "default",
+        })
+        return
+      }
+
       // Trigger export of current chat as JSON (default format)
       if (currentChat && currentChat.messages && currentChat.messages.length > 0) {
         const json = JSON.stringify(currentChat, null, 2)
@@ -244,11 +258,29 @@ function ChatApp() {
     })
 
     keyboardShortcutService.register("model-selector", () => {
+      // Check if model selector is available in current mode
+      if (!features.showModelSelector) {
+        toast({
+          title: "Feature not available",
+          description: isSimpleMode
+            ? "Model selection is available in Advanced Mode. Toggle mode in settings."
+            : "Model selector is not available",
+          variant: "default",
+        })
+        return
+      }
+
       // Focus the model selector dropdown
       setTimeout(() => {
         const modelSelector = document.querySelector<HTMLButtonElement>('[role="combobox"]')
         if (modelSelector) {
           modelSelector.click()
+        } else {
+          toast({
+            title: "Model selector not found",
+            description: "Try clicking the model button in the header",
+            variant: "default",
+          })
         }
       }, 50)
     })
@@ -277,7 +309,7 @@ function ChatApp() {
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [currentChat, toast])
+  }, [currentChat, toast, features, isSimpleMode])
 
   useEffect(() => {
     const handleToggleSidebar = () => {
