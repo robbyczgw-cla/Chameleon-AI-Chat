@@ -18,6 +18,7 @@ import { PersonaLevelUpNotifier } from "@/components/persona-level-up-notifier"
 import { FontApplier } from "@/components/font-applier"
 import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
+import { KeyboardShortcutsDialog } from "@/components/keyboard-shortcuts-dialog"
 
 // Dynamic imports for heavy components - only loaded when needed
 const ModelComparison = dynamic(() => import("@/components/model-comparison").then(mod => ({ default: mod.ModelComparison })), {
@@ -38,6 +39,7 @@ function ChatApp() {
   const [showSidebar, setShowSidebar] = useState(true)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [shareHandled, setShareHandled] = useState(false)
+  const [isKeyboardShortcutsOpen, setIsKeyboardShortcutsOpen] = useState(false)
 
   // Memoize derived state to prevent unnecessary recalculations
   const currentChat = useMemo(() => chats.find((chat) => chat.id === currentChatId), [chats, currentChatId])
@@ -201,13 +203,81 @@ function ChatApp() {
       window.dispatchEvent(event)
     })
 
+    keyboardShortcutService.register("search", () => {
+      // Focus the search input in the sidebar
+      // First, ensure sidebar is open on desktop
+      setShowSidebar(true)
+      // On mobile, open the sidebar
+      setIsMobileSidebarOpen(true)
+      // Focus the search input after a brief delay to ensure sidebar is rendered
+      setTimeout(() => {
+        const searchInput = document.querySelector<HTMLInputElement>('input[placeholder*="Search" i], input[placeholder*="Suchen" i]')
+        if (searchInput) {
+          searchInput.focus()
+          searchInput.select()
+        }
+      }, 100)
+    })
+
+    keyboardShortcutService.register("export-chat", () => {
+      // Trigger export of current chat as JSON (default format)
+      if (currentChat && currentChat.messages && currentChat.messages.length > 0) {
+        const json = JSON.stringify(currentChat, null, 2)
+        const blob = new Blob([json], { type: "application/json" })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `${currentChat.title.replace(/[^a-z0-9]/gi, "_")}.json`
+        a.click()
+        URL.revokeObjectURL(url)
+        toast({
+          title: "Chat exported",
+          description: `"${currentChat.title}" has been exported as JSON`,
+        })
+      } else {
+        toast({
+          title: "No chat to export",
+          description: "Start a conversation first",
+          variant: "destructive",
+        })
+      }
+    })
+
+    keyboardShortcutService.register("model-selector", () => {
+      // Focus the model selector dropdown
+      setTimeout(() => {
+        const modelSelector = document.querySelector<HTMLButtonElement>('[role="combobox"]')
+        if (modelSelector) {
+          modelSelector.click()
+        }
+      }, 50)
+    })
+
+    keyboardShortcutService.register("keyboard-shortcuts", () => {
+      setIsKeyboardShortcutsOpen(true)
+    })
+
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Special handling for "?" key to show keyboard shortcuts
+      // Only trigger if not typing in an input/textarea
+      if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+        const target = e.target as HTMLElement
+        const isInputField = target.tagName === "INPUT" ||
+                            target.tagName === "TEXTAREA" ||
+                            target.isContentEditable
+        if (!isInputField) {
+          e.preventDefault()
+          setIsKeyboardShortcutsOpen(true)
+          return
+        }
+      }
+
       keyboardShortcutService.handleKeyDown(e)
     }
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [])
+  }, [currentChat, toast])
 
   useEffect(() => {
     const handleToggleSidebar = () => {
@@ -313,6 +383,12 @@ function ChatApp() {
         </div>
 
       </div>
+
+      {/* Keyboard Shortcuts Dialog */}
+      <KeyboardShortcutsDialog
+        open={isKeyboardShortcutsOpen}
+        onOpenChange={setIsKeyboardShortcutsOpen}
+      />
     </div>
   )
 }
