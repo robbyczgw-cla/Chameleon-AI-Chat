@@ -9,6 +9,7 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
   { key: "e", ctrl: true, action: "export-chat", description: "Export current chat" },
   { key: "p", ctrl: true, action: "prompt-library", description: "Open prompt library" },
   { key: "m", ctrl: true, action: "model-selector", description: "Open model selector" },
+  { key: "?", action: "keyboard-shortcuts", description: "Show keyboard shortcuts" },
   { key: "/", ctrl: true, action: "keyboard-shortcuts", description: "Show keyboard shortcuts" },
   { key: "Enter", ctrl: true, action: "send-message", description: "Send message" },
   { key: "Escape", action: "cancel", description: "Cancel/Close" },
