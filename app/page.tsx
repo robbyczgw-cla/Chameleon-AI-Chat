@@ -18,6 +18,8 @@ import { PersonaLevelUpNotifier } from "@/components/persona-level-up-notifier"
 import { FontApplier } from "@/components/font-applier"
 import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
+import { KeyboardShortcutsDialog } from "@/components/keyboard-shortcuts-dialog"
+import { useFeatureFlags } from "@/hooks/use-feature-flags"
 
 // Dynamic imports for heavy components - only loaded when needed
 const ModelComparison = dynamic(() => import("@/components/model-comparison").then(mod => ({ default: mod.ModelComparison })), {
@@ -33,11 +35,13 @@ const StatsDashboard = dynamic(() => import("@/components/stats-dashboard").then
 function ChatApp() {
   const { chats, currentChatId, settings, setChats, setCurrentChat, createChat } = useApp()
   const { toast } = useToast()
+  const { features, isSimpleMode } = useFeatureFlags()
   const [isComparisonMode, setIsComparisonMode] = useState(false)
   const [showStatsPanel, setShowStatsPanel] = useState(false)
   const [showSidebar, setShowSidebar] = useState(true)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [shareHandled, setShareHandled] = useState(false)
+  const [isKeyboardShortcutsOpen, setIsKeyboardShortcutsOpen] = useState(false)
 
   // Memoize derived state to prevent unnecessary recalculations
   const currentChat = useMemo(() => chats.find((chat) => chat.id === currentChatId), [chats, currentChatId])
@@ -201,13 +205,119 @@ function ChatApp() {
       window.dispatchEvent(event)
     })
 
+    keyboardShortcutService.register("search", () => {
+      // Focus the search input in the sidebar
+      // First, ensure sidebar is open on desktop
+      setShowSidebar(true)
+      // On mobile, open the sidebar
+      setIsMobileSidebarOpen(true)
+      // Focus the search input after a brief delay to ensure sidebar is rendered
+      setTimeout(() => {
+        const searchInput = document.querySelector<HTMLInputElement>('input[placeholder*="Search" i], input[placeholder*="Suchen" i]')
+        if (searchInput) {
+          searchInput.focus()
+          searchInput.select()
+        }
+      }, 100)
+    })
+
+    keyboardShortcutService.register("export-chat", () => {
+      // Check if export is available in current mode
+      if (!features.showExportChat) {
+        toast({
+          title: "Feature not available",
+          description: isSimpleMode
+            ? "Export is available in Advanced Mode. Toggle mode in settings."
+            : "Export feature is not available",
+          variant: "default",
+        })
+        return
+      }
+
+      // Trigger export of current chat as JSON (default format)
+      if (currentChat && currentChat.messages && currentChat.messages.length > 0) {
+        const json = JSON.stringify(currentChat, null, 2)
+        const blob = new Blob([json], { type: "application/json" })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `${currentChat.title.replace(/[^a-z0-9]/gi, "_")}.json`
+        a.click()
+        URL.revokeObjectURL(url)
+        toast({
+          title: "Chat exported",
+          description: `"${currentChat.title}" has been exported as JSON`,
+        })
+      } else {
+        toast({
+          title: "No chat to export",
+          description: "Start a conversation first",
+          variant: "destructive",
+        })
+      }
+    })
+
+    keyboardShortcutService.register("model-selector", () => {
+      // Check if model selector is available in current mode
+      if (!features.showModelSelector) {
+        toast({
+          title: "Feature not available",
+          description: isSimpleMode
+            ? "Model selection is available in Advanced Mode. Toggle mode in settings."
+            : "Model selector is not available",
+          variant: "default",
+        })
+        return
+      }
+
+      // Focus the model selector dropdown
+      setTimeout(() => {
+        const modelSelector = document.querySelector<HTMLButtonElement>('[role="combobox"]')
+        if (modelSelector) {
+          modelSelector.click()
+        } else {
+          toast({
+            title: "Model selector not found",
+            description: "Try clicking the model button in the header",
+            variant: "default",
+          })
+        }
+      }, 50)
+    })
+
+    keyboardShortcutService.register("keyboard-shortcuts", () => {
+      // Only available in Advanced Mode - Simple Mode keeps things simple
+      if (isSimpleMode) {
+        return // Silently ignore in Simple Mode
+      }
+      setIsKeyboardShortcutsOpen(true)
+    })
+
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Special handling for "?" key to show keyboard shortcuts
+      // Only available in Advanced Mode
+      if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+        if (isSimpleMode) {
+          return // Simple Mode doesn't need keyboard shortcuts help
+        }
+
+        const target = e.target as HTMLElement
+        const isInputField = target.tagName === "INPUT" ||
+                            target.tagName === "TEXTAREA" ||
+                            target.isContentEditable
+        if (!isInputField) {
+          e.preventDefault()
+          setIsKeyboardShortcutsOpen(true)
+          return
+        }
+      }
+
       keyboardShortcutService.handleKeyDown(e)
     }
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [])
+  }, [currentChat, toast, features, isSimpleMode])
 
   useEffect(() => {
     const handleToggleSidebar = () => {
@@ -313,6 +423,14 @@ function ChatApp() {
         </div>
 
       </div>
+
+      {/* Keyboard Shortcuts Dialog - Advanced Mode Only */}
+      {!isSimpleMode && (
+        <KeyboardShortcutsDialog
+          open={isKeyboardShortcutsOpen}
+          onOpenChange={setIsKeyboardShortcutsOpen}
+        />
+      )}
     </div>
   )
 }
