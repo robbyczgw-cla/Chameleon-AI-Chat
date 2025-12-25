@@ -354,32 +354,6 @@ AI: [Generates interactive Recharts visualization]
 
 ---
 
-### 13. Gamification & Engagement
-
-**What to Build:**
-- **Achievement System** (extend existing):
-  - "First 100 messages" badge
-  - "Cost Saver" for efficient usage
-  - "Persona Explorer" for trying all personas
-  - "Night Owl" for late-night usage
-
-- **Streaks & Challenges**:
-  - Daily conversation streaks
-  - Weekly challenges ("Use 5 different models")
-  - Learning quests with persona teachers
-
-- **Leaderboards** (opt-in):
-  - Most efficient users (quality per dollar)
-  - Community contributions
-
-**Leverage Existing:**
-- Pet companion in Simple Mode
-- Extend with gamification layer
-
-**Implementation Complexity:** 🟢 Low (1-2 weeks)
-**Impact:** 🟡 Medium
-
----
 
 ### 14. Smart Context Management
 
