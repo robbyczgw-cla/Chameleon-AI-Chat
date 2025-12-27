@@ -7,7 +7,7 @@ import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
-import type { Message, StreamingHistoryEntry, UsedMemory } from "@/types"
+import type { Message, StreamingHistoryEntry, UsedMemory, CategorizedFollowUp } from "@/types"
 import { streamChatMessage, REASONING_MODELS } from "@/lib/openrouter"
 import { search, buildSearchContext } from "@/lib/search"
 import { useToast } from "@/hooks/use-toast"
@@ -1017,6 +1017,26 @@ export function ChatInput() {
           ? settings.serperSettings || {}
           : settings.exaSettings || {}
 
+      // 🚀 TRUE PARALLEL: Start follow-up generation NOW, before streaming
+      // This runs in parallel with the main response for faster UX
+      let followUpPromise: Promise<CategorizedFollowUp[]> | null = null
+      if (useDedicatedFollowUpModel && settings.apiKeys.openRouter) {
+        console.log("[v0] 🚀 Starting PARALLEL follow-up generation...")
+        const followUpMessages: Message[] = messagesForApi.slice(1).map((m, i) => ({
+          id: `ctx-${i}`,
+          role: m.role as "user" | "assistant" | "system",
+          content: typeof m.content === "string" ? m.content : "[multimodal]",
+          timestamp: Date.now()
+        }))
+        // Fire immediately - don't await
+        followUpPromise = generateFollowUpsParallel(
+          followUpMessages,
+          settings.apiKeys.openRouter,
+          undefined,
+          settings.language || "en"
+        )
+      }
+
       await streamChatMessage(messagesForApi, model, onChunk, {
         temperature: modelParams.temperature,
         maxTokens: modelParams.maxTokens,
@@ -1159,79 +1179,55 @@ export function ChatInput() {
       // Calculate performance stats
       const responseTime = (Date.now() - streamStartTime) / 1000 // in seconds
 
-      // Generate follow-ups in BACKGROUND (non-blocking) if enabled
-      // This allows the UI to update immediately while follow-ups load
-      const generateFollowUpsInBackground = async () => {
-        if (!messageAdded || !assistantContent || !useDedicatedFollowUpModel) return
-
-        console.log("[v0] 🎯 Generating follow-ups in background...")
-        try {
-          const followUpMessages: Message[] = [
-            ...messagesForApi.slice(1).map((m, i) => ({
-              id: `ctx-${i}`,
-              role: m.role as "user" | "assistant" | "system",
-              content: typeof m.content === "string" ? m.content : "[multimodal]",
-              timestamp: Date.now()
-            })),
-            {
-              id: "assistant-response",
-              role: "assistant" as const,
-              content: assistantContent,
-              timestamp: Date.now()
+      // Wait for parallel follow-up generation if it was started
+      if (followUpPromise && messageAdded && assistantContent && useDedicatedFollowUpModel) {
+        followUpPromise
+          .then((followUps) => {
+            if (followUps && followUps.length > 0) {
+              console.log(`[v0] ✅ Parallel follow-ups ready: ${followUps.length}`)
+              // Get the CURRENT content from state (may have been updated during streaming)
+              setChats((prevChats) =>
+                prevChats.map((chat) => {
+                  if (chat.id !== chatId) return chat
+                  const currentMessage = chat.messages.find(m => m.id === assistantMessageId)
+                  const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
+                  const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, followUps)
+                  return {
+                    ...chat,
+                    messages: chat.messages.map((m) =>
+                      m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
+                    ),
+                  }
+                })
+              )
             }
-          ]
-
-          const followUps = await generateFollowUpsParallel(
-            followUpMessages,
-            settings.apiKeys.openRouter,
-            undefined,
-            settings.language || "en"
-          )
-
-          if (followUps.length > 0) {
-            console.log(`[v0] ✅ Generated ${followUps.length} follow-ups (background)`)
-            const contentWithFollowUps = injectFollowUpsIntoMessage(assistantContent, followUps)
-
-            // Update the message with follow-ups
-            setChats((prevChats) =>
-              prevChats.map((chat) => {
-                if (chat.id !== chatId) return chat
-                return {
-                  ...chat,
-                  messages: chat.messages.map((m) =>
-                    m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
-                  ),
-                }
-              })
+          })
+          .catch((error) => {
+            console.warn("[v0] ⚠️ Parallel follow-up generation failed, using fallback:", error)
+            const fallbackFollowUps = generateFallbackFollowUps(
+              [{ id: "last", role: "assistant" as const, content: assistantContent, timestamp: Date.now() }],
+              messagesForApi.length,
+              settings.language || "en"
             )
-          }
-        } catch (followUpError) {
-          console.warn("[v0] ⚠️ Background follow-up generation failed, using fallback:", followUpError)
-          const fallbackFollowUps = generateFallbackFollowUps(
-            [{ id: "last", role: "assistant" as const, content: assistantContent, timestamp: Date.now() }],
-            messagesForApi.length,
-            settings.language || "en"
-          )
-          if (fallbackFollowUps.length > 0) {
-            const contentWithFollowUps = injectFollowUpsIntoMessage(assistantContent, fallbackFollowUps)
-            setChats((prevChats) =>
-              prevChats.map((chat) => {
-                if (chat.id !== chatId) return chat
-                return {
-                  ...chat,
-                  messages: chat.messages.map((m) =>
-                    m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
-                  ),
-                }
-              })
-            )
-            console.log("[v0] 📝 Using fallback follow-ups (background)")
-          }
-        }
+            if (fallbackFollowUps.length > 0) {
+              setChats((prevChats) =>
+                prevChats.map((chat) => {
+                  if (chat.id !== chatId) return chat
+                  const currentMessage = chat.messages.find(m => m.id === assistantMessageId)
+                  const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
+                  const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, fallbackFollowUps)
+                  return {
+                    ...chat,
+                    messages: chat.messages.map((m) =>
+                      m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
+                    ),
+                  }
+                })
+              )
+              console.log("[v0] 📝 Using fallback follow-ups")
+            }
+          })
       }
-
-      // Fire and forget - don't await, let it run in background
-      generateFollowUpsInBackground()
 
       if (messageAdded && assistantContent) {
         const completionTokens = estimateTokens(assistantContent)
@@ -1323,7 +1319,8 @@ export function ChatInput() {
             return prevChats.map((chat) => {
               if (chat.id !== chatId) return chat
               const updatedMessages = chat.messages.map((m) =>
-                m.id === assistantMessageId ? { ...m, content: assistantContent, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning, streamingHistory: finalMessage.streamingHistory } : m,
+                // DON'T overwrite content - it may have follow-ups from background generation
+                m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning, streamingHistory: finalMessage.streamingHistory } : m,
               )
               return { ...chat, messages: updatedMessages }
             })
