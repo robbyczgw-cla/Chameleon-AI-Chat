@@ -1160,6 +1160,14 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
                   const currentMessage = chat.messages.find(m => m.id === assistantMessageId)
                   const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
                   const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, followUps)
+
+                  // Update Supabase with follow-ups so they persist
+                  if (user) {
+                    supabaseSync.updateMessageContent(assistantMessageId, contentWithFollowUps).catch(err => {
+                      console.warn("[Simple Chat] Failed to save follow-ups to Supabase:", err)
+                    })
+                  }
+
                   return {
                     ...chat,
                     messages: chat.messages.map((m) =>
@@ -1184,6 +1192,14 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
                   const currentMessage = chat.messages.find(m => m.id === assistantMessageId)
                   const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
                   const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, fallbackFollowUps)
+
+                  // Update Supabase with fallback follow-ups so they persist
+                  if (user) {
+                    supabaseSync.updateMessageContent(assistantMessageId, contentWithFollowUps).catch(err => {
+                      console.warn("[Simple Chat] Failed to save fallback follow-ups to Supabase:", err)
+                    })
+                  }
+
                   return {
                     ...chat,
                     messages: chat.messages.map((m) =>
