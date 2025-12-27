@@ -12,7 +12,7 @@ A state-of-the-art memory system that makes your AI assistant remember important
 
 **For Advanced Users:**
 - [How It Works (Technical Deep Dive)](#how-it-works-technical-deep-dive)
-- [The Four Phases](#the-four-phases)
+- [The Five Phases](#the-five-phases)
 - [Settings Reference](#settings-reference)
 - [Fine-Tuning in Experimental Settings](#fine-tuning-in-experimental-settings)
 - [Database Setup](#database-setup)
@@ -138,8 +138,27 @@ Check the browser console (F12 → Console) to see logs like:
 
 1. **Temporary info** - Don't add things that change daily
 2. **Sensitive data** - Don't add passwords, API keys, or private info
-3. **Duplicate memories** - Check if similar memory exists first
+3. **Duplicate memories** - Check if similar memory exists first (or use automatic consolidation)
 4. **Vague statements** - "I like stuff" isn't helpful
+
+### Understanding Automatic Features
+
+**Memory Extraction** (auto-extracts from conversations):
+- Extracts **1-2 memories max** per conversation (not 5!)
+- Only truly important long-term facts
+- Quality over quantity
+
+**Memory Injection** (adds to context):
+- Returns **1-3 memories** dynamically (not always 5!)
+- Adapts based on relevance
+- `maxMemoriesInContext` is upper bound, not fixed count
+
+**Memory Maintenance** (daily background):
+- Adjusts importance based on usage
+- Consolidates duplicates (if enabled)
+- Archives unused memories
+
+**Result:** Focused, high-quality memory system without bloat! ✅
 
 ---
 
@@ -147,7 +166,7 @@ Check the browser console (F12 → Console) to see logs like:
 
 ## How It Works (Technical Deep Dive)
 
-The memory system uses a **four-phase intelligent retrieval pipeline**:
+The memory system uses a **five-phase intelligent retrieval pipeline**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -208,12 +227,35 @@ The memory system uses a **four-phase intelligent retrieval pipeline**:
 │                                                                       │
 │ • Check: Is top similarity >= minRelevanceScore (0.3)?               │
 │ • If NO: Skip ALL memories (prevents irrelevant context)             │
-│ • If YES: Proceed with injection                                     │
+│ • If YES: Proceed to dynamic limiting                                │
 │                                                                       │
 │ Example:                                                             │
 │   Query: "what's the weather?"                                       │
 │   Best match: "I like sci-fi books" (similarity: 0.15)               │
 │   0.15 < 0.3 → Skip all memories (irrelevant)                        │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PHASE 5: DYNAMIC LIMITING (Smart Quality Control)                    │
+│                                                                       │
+│ Instead of always returning maxMemoriesInContext (5), intelligently  │
+│ decide how many memories are truly needed:                           │
+│                                                                       │
+│ 1. Score Gap Detection (30% rule):                                   │
+│    Scores: [85, 80, 75, 45, 40]                                      │
+│                     ↑ 43% drop!                                       │
+│    → Stop at 3 memories (next one much less relevant)                │
+│                                                                       │
+│ 2. Quality Threshold:                                                │
+│    Scores: [60, 55, 22]                                              │
+│                    ↑ Below 25                                         │
+│    → Stop at 2 memories (third is barely relevant)                   │
+│                                                                       │
+│ 3. Hard Cap at 3:                                                    │
+│    → Most queries don't need more than 3 memories                    │
+│                                                                       │
+│ Result: Returns 1-3 memories (not always 5!)                         │
 └────────────────────────────┬────────────────────────────────────────┘
                              │
                              ▼
@@ -229,6 +271,7 @@ The memory system uses a **four-phase intelligent retrieval pipeline**:
 │ </user_memory>                                                       │
 │                                                                       │
 │ Injected before user message in the message array.                   │
+│ Note: Only 3 memories injected (not always 5!)                       │
 └────────────────────────────┬────────────────────────────────────────┘
                              │
                              ▼
@@ -243,7 +286,7 @@ The memory system uses a **four-phase intelligent retrieval pipeline**:
 
 ---
 
-## The Four Phases
+## The Five Phases
 
 ### Phase 1: Query Classification
 
@@ -336,7 +379,82 @@ if (topSimilarity < 0.3) {
 return memories
 ```
 
-### Phase 4: Settings UI
+### Phase 4: Dynamic Limiting (Smart Quality Control)
+
+**Problem:** Previously, the system would always return `maxMemoriesInContext` (5) memories, even when only 1-2 were truly relevant. This wasted tokens and diluted context.
+
+**Solution:** Intelligent dynamic limiting that returns 1-3 memories based on actual relevance.
+
+**How it works:**
+
+**1. Score Gap Detection (30% rule)**
+```typescript
+// Stop when there's a significant drop between memories
+Memories: [
+  { content: "User prefers TypeScript", score: 85 },
+  { content: "User knows JavaScript", score: 80 },
+  { content: "User learning React", score: 75 },
+  { content: "User likes coffee", score: 45 },  ← 40% drop!
+  { content: "User lives in NYC", score: 40 }
+]
+
+→ Stops at 3 memories (score drop indicates next one much less relevant)
+Console: "📊 Stopping at 3 memories (score drop: 40%)"
+```
+
+**2. Quality Threshold**
+```typescript
+// Stop if score drops below 25 after getting 2+ memories
+Memories: [
+  { content: "User is a software engineer", score: 60 },
+  { content: "User knows Python", score: 55 },
+  { content: "User tried Java once", score: 22 }  ← Below 25
+]
+
+→ Stops at 2 memories (third is barely relevant)
+Console: "📊 Stopping at 2 memories (low score: 22)"
+```
+
+**3. Hard Cap at 3**
+```typescript
+// Most queries don't need more than 3 memories
+→ Even if 5 memories are relevant, caps at 3
+→ Prevents context dilution
+Console: "📊 Capping at 3 memories (had 5)"
+```
+
+**Benefits:**
+
+| Before | After |
+|--------|-------|
+| Always 5 memories | 1-3 memories (dynamic) |
+| Wasted tokens on marginally relevant context | Only truly relevant memories |
+| Hard to find important info | Focused, high-quality context |
+| Fixed limit regardless of query | Adapts to query complexity |
+
+**Examples:**
+
+```typescript
+// High relevance query
+Query: "Recommend a programming language"
+→ Returns 3 memories (preferences, skills, goals)
+
+// Low relevance query
+Query: "What is 2+2?"
+→ Returns 0-1 memories (or skipped entirely)
+
+// Moderate relevance
+Query: "Help with my React project"
+→ Returns 2 memories (project context, relevant skills)
+```
+
+**Setting:**
+`maxMemoriesInContext` is now the **upper bound**, not a fixed count:
+- Setting: 5 (maximum possible)
+- Actual: 1-3 (based on relevance)
+- Never exceeds the setting
+
+### Phase 5: Settings UI
 
 All intelligent retrieval settings are now configurable in:
 **Settings → Experimental → Memory Intelligence**
