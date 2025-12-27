@@ -2043,7 +2043,19 @@ RULES:
 3. Focus on: preferences, personal facts, goals, skills, work context
 4. Ignore: temporary questions, greetings, one-time requests
 5. Be concise - each memory should be 5-15 words
-6. Return empty array [] if nothing worth remembering
+6. **IMPORTANT: Extract AT MOST 1-2 memories per conversation** (be very selective!)
+7. Return empty array [] if nothing worth remembering
+8. Quality over quantity - only extract if genuinely important
+
+Examples of what TO extract:
+- "User prefers TypeScript over JavaScript"
+- "User is a senior software engineer"
+- "User wants to learn machine learning"
+
+Examples of what NOT to extract:
+- "User asked about Python syntax" (temporary question)
+- "User said thanks" (greeting)
+- "User needs help with X" (one-time request)
 
 Return ONLY a valid JSON array (no markdown, no explanation):
 [{"type": "preference|fact|goal|skill|context", "content": "...", "importance": 1|2|3}]
@@ -2159,6 +2171,15 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
 
         newMemories.push(memory)
         console.log("[Memory] Added to newMemories:", memory.type, "-", memory.content)
+      }
+
+      // Hard limit: Cap at 2 memories per extraction (quality over quantity)
+      const MAX_MEMORIES_PER_EXTRACTION = 2
+      if (newMemories.length > MAX_MEMORIES_PER_EXTRACTION) {
+        console.log(`[Memory] ⚠️ Extracted ${newMemories.length} memories, capping at ${MAX_MEMORIES_PER_EXTRACTION}`)
+        // Keep the highest importance memories
+        newMemories.sort((a, b) => b.importance - a.importance)
+        newMemories.splice(MAX_MEMORIES_PER_EXTRACTION)
       }
 
       // Auto-save the new memories
