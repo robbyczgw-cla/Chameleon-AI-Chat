@@ -39,6 +39,8 @@ import { haptics } from "@/lib/haptics"
 import { voiceService } from "@/lib/voice"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 import { buildSystemPrompt } from "@/lib/system-prompt-builder"
+import { generateFollowUpsParallel, generateFallbackFollowUps } from "@/lib/follow-up-generator"
+import { injectFollowUpsIntoMessage } from "@/hooks/use-dedicated-followups"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
@@ -1128,6 +1130,56 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
       console.log("[Simple Chat] Stream complete, final content length:", assistantContent.length)
 
+      // Generate follow-ups using dedicated model if enabled
+      if (messageAdded && assistantContent && useDedicatedFollowUpModel) {
+        console.log("[Simple Chat] 🎯 Generating follow-ups with dedicated model...")
+        try {
+          // Build messages for follow-up context (include assistant response)
+          const followUpMessages: Message[] = [
+            ...messagesForApi.slice(1).map((m, i) => ({
+              id: `ctx-${i}`,
+              role: m.role as "user" | "assistant" | "system",
+              content: typeof m.content === "string" ? m.content : "[multimodal]",
+              timestamp: Date.now()
+            })),
+            {
+              id: "assistant-response",
+              role: "assistant" as const,
+              content: assistantContent,
+              timestamp: Date.now()
+            }
+          ]
+
+          const followUps = await generateFollowUpsParallel(
+            followUpMessages,
+            settings.apiKeys.openRouter,
+            undefined // Use default model (Gemini 3 Flash)
+          )
+
+          if (followUps.length > 0) {
+            console.log(`[Simple Chat] ✅ Generated ${followUps.length} follow-ups`)
+            // Inject follow-ups into assistant content for parsing
+            assistantContent = injectFollowUpsIntoMessage(assistantContent, followUps)
+          }
+        } catch (followUpError) {
+          console.warn("[Simple Chat] ⚠️ Dedicated follow-up generation failed, using fallback:", followUpError)
+          // Use fallback templates
+          const fallbackFollowUps = generateFallbackFollowUps(
+            [{
+              id: "last",
+              role: "assistant" as const,
+              content: assistantContent,
+              timestamp: Date.now()
+            }],
+            messagesForApi.length
+          )
+          if (fallbackFollowUps.length > 0) {
+            assistantContent = injectFollowUpsIntoMessage(assistantContent, fallbackFollowUps)
+            console.log("[Simple Chat] 📝 Using fallback follow-ups")
+          }
+        }
+      }
+
       if (messageAdded && assistantContent) {
         const promptText = messagesForApi.map((m) => typeof m.content === "string" ? m.content : "[multimodal]").join("\n")
         const promptTokens = estimateTokens(promptText)
@@ -1190,7 +1242,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           return prevChats.map((chat) => {
             if (chat.id !== chatId) return chat
             const updatedMessages = chat.messages.map((m) =>
-              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning } : m,
+              m.id === assistantMessageId ? { ...m, content: assistantContent, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning } : m,
             )
             return { ...chat, messages: updatedMessages }
           })
