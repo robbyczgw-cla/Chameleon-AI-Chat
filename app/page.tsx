@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
 import { KeyboardShortcutsDialog } from "@/components/keyboard-shortcuts-dialog"
 import { useFeatureFlags } from "@/hooks/use-feature-flags"
+import { ErrorBoundary } from "@/components/error-boundary"
 
 // Dynamic imports for heavy components - only loaded when needed
 const ModelComparison = dynamic(() => import("@/components/model-comparison").then(mod => ({ default: mod.ModelComparison })), {
@@ -466,10 +467,12 @@ function LoadingWrapper() {
 
 export default function Home() {
   return (
-    <AppProvider>
-      <ModeWrapper>
-        <LoadingWrapper />
-      </ModeWrapper>
-    </AppProvider>
+    <ErrorBoundary moduleName="App">
+      <AppProvider>
+        <ModeWrapper>
+          <LoadingWrapper />
+        </ModeWrapper>
+      </AppProvider>
+    </ErrorBoundary>
   )
 }
