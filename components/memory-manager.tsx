@@ -23,7 +23,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Brain, Plus, Trash2, Edit2, Search, TrendingUp, Zap, Target, Info, Download, Upload, Sparkles } from "lucide-react"
+import { Brain, Plus, Trash2, Edit2, Search, TrendingUp, Zap, Target, Info, Download, Upload, Sparkles, Wrench } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { useApp } from "@/contexts/app-context"
@@ -37,6 +37,7 @@ export function MemoryManager() {
   const [editingMemory, setEditingMemory] = useState<Memory | null>(null)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [isGeneratingEmbeddings, setIsGeneratingEmbeddings] = useState(false)
+  const [isRunningMaintenance, setIsRunningMaintenance] = useState(false)
   const [newMemory, setNewMemory] = useState({
     type: "fact" as Memory["type"],
     content: "",
@@ -260,6 +261,44 @@ export function MemoryManager() {
     }
   }
 
+  const handleRunMaintenance = async () => {
+    const apiKey = settings.apiKeys?.openRouter
+
+    setIsRunningMaintenance(true)
+    try {
+      const result = await memoryService.runMaintenance(apiKey, true) // force=true for manual run
+      loadMemories() // Refresh to show changes
+
+      if (result.success || result.ranImportanceAdjustment || result.ranConsolidation) {
+        const details = []
+        if (result.ranImportanceAdjustment && result.importanceResults) {
+          details.push(`Adjusted ${result.importanceResults.boosted + result.importanceResults.reduced} memories`)
+        }
+        if (result.ranConsolidation && result.consolidationResults) {
+          details.push(`Consolidated ${result.consolidationResults.consolidated} duplicates`)
+        }
+
+        toast({
+          title: "Maintenance Complete",
+          description: details.length > 0 ? details.join(", ") : "Memory maintenance completed successfully",
+        })
+      } else {
+        toast({
+          title: "Maintenance Skipped",
+          description: result.error || "No maintenance needed at this time",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Maintenance Failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      })
+    } finally {
+      setIsRunningMaintenance(false)
+    }
+  }
+
   const stats = memoryService.getStats()
 
   const getTypeIcon = (type: Memory["type"]) => {
@@ -324,6 +363,16 @@ export function MemoryManager() {
           <Button variant="outline" size="sm" onClick={() => setShowAddDialog(true)}>
             <Plus className="h-4 w-4 mr-1" />
             Add
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRunMaintenance}
+            disabled={isRunningMaintenance || memories.length === 0}
+            title="Adjust importance and consolidate duplicates"
+          >
+            <Wrench className="h-4 w-4 mr-1" />
+            {isRunningMaintenance ? "Running..." : "Run Maintenance"}
           </Button>
           <Button
             variant="outline"
