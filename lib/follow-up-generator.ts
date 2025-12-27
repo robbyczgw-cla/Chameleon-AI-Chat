@@ -4,17 +4,16 @@
  * Generates follow-up suggestions using a dedicated fast/cheap model in parallel
  * with the main AI response. This improves speed and reduces costs.
  *
- * Default model: openai/gpt-3.5-turbo (reliable, fast, cheap)
- * Fallback: anthropic/claude-3-haiku-20240307
+ * Default model: openai/gpt-oss-120b
+ * Fallback: openai/gpt-3.5-turbo
  */
 
 import type { Message, CategorizedFollowUp } from "@/types"
 import { parseFollowUps } from "./follow-up-parser"
 
 // Use reliable models that actually work via OpenRouter
-// GPT-3.5-turbo is fast, cheap, and ALWAYS generates content
-const DEFAULT_FOLLOWUP_MODEL = "openai/gpt-3.5-turbo"
-const FALLBACK_FOLLOWUP_MODEL = "anthropic/claude-3-haiku-20240307"
+const DEFAULT_FOLLOWUP_MODEL = "openai/gpt-oss-120b"
+const FALLBACK_FOLLOWUP_MODEL = "openai/gpt-3.5-turbo"
 
 /**
  * Build specialized system prompt for follow-up generation

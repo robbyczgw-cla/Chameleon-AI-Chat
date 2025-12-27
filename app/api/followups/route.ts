@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
         success: true,
         followUps,
         source: 'dedicated-model',
-        model: model || 'openai/gpt-3.5-turbo'
+        model: model || 'openai/gpt-oss-120b'
       })
 
     } catch (modelError) {
