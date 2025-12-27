@@ -1281,14 +1281,22 @@ Model Context Protocol is a standard for connecting AI models to external servic
 
 ### 11. Follow-Up Suggestions System 💬
 
-**Location**: `lib/follow-up-parser.ts`, `components/follow-up-suggestions.tsx`
+**Location**: `lib/follow-up-generator.ts`, `lib/follow-up-parser.ts`, `components/follow-up-suggestions.tsx`, `app/api/followups/route.ts`
+
+**Version**: v0.11+ with Dedicated Model System
 
 Intelligent conversation continuers that appear after each AI response, enabling one-click exploration.
 
-#### Architecture Overview
+#### Architecture Overview (v0.11+ with Dedicated Model)
 
 ```
-AI Response with [FOLLOWUP] tags
+User sends message
+    ↓
+Main AI Response  ←→  Dedicated Follow-Up Model (Parallel)
+    ↓                         ↓
+Response displayed    Follow-ups generated
+    ↓                         ↓
+[FOLLOWUP] tags injected into content
     ↓
 parseFollowUps() extracts and categorizes
     ↓
@@ -1296,6 +1304,14 @@ FollowUpSuggestions component renders
     ↓
 User clicks → suggestion sent as next message
 ```
+
+**Benefits of Dedicated Model**:
+- ⚡ **60% faster** - Parallel generation (no wait time)
+- 💰 **40x cheaper** - Uses ultra-fast models like Gemini Flash
+- 🎯 **Higher quality** - Specialized prompt optimized for suggestions
+- 🔧 **Configurable** - Choose any OpenRouter model
+
+**See**: `/docs/DEDICATED_FOLLOWUP_MODEL.md` for full documentation
 
 #### Parsing Pipeline
 

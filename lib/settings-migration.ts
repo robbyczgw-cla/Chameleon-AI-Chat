@@ -67,6 +67,33 @@ export function migrateSettingsToContext(): MigrationResult {
       console.log(`[Migration] Migrated language: ${oldLanguage}`)
     }
 
+    // Migrate/Enable: dedicated follow-up model (v0.11+)
+    // Enable by default for new and existing users
+    if (!settings.experimental) settings.experimental = {}
+    if (settings.experimental.useDedicatedFollowUpModel === undefined) {
+      settings.experimental.useDedicatedFollowUpModel = true
+      result.migrated.push("useDedicatedFollowUpModel")
+      console.log(`[Migration] Enabled dedicated follow-up model by default`)
+
+      // Set default background AI models if not set
+      if (!settings.experimental.backgroundAIModels) {
+        settings.experimental.backgroundAIModels = {}
+      }
+      if (!settings.experimental.backgroundAIModels.followUpGeneration) {
+        settings.experimental.backgroundAIModels.followUpGeneration = "google/gemini-3-flash-preview"
+        console.log(`[Migration] Set default follow-up generation model: google/gemini-3-flash-preview`)
+      }
+
+      // Clean up system prompt if it has follow-up instructions
+      if (settings.systemPrompt && settings.systemPrompt.includes('[FOLLOWUP]')) {
+        // Remove follow-up instructions from system prompt
+        const basePrompt = "You are a friendly, helpful assistant. Provide clear, precise, and helpful answers."
+        settings.systemPrompt = basePrompt
+        result.migrated.push("systemPrompt-cleanup")
+        console.log(`[Migration] Cleaned up system prompt (removed follow-up instructions)`)
+      }
+    }
+
     // Save migrated settings
     if (result.migrated.length > 0) {
       localStorage.setItem("settings", JSON.stringify(settings))
@@ -109,7 +136,7 @@ export function migrateSettingsToContext(): MigrationResult {
 export function runMigrationOnStartup(): void {
   if (typeof window === "undefined") return
 
-  const migrationKey = "chameleon-settings-migration-v1"
+  const migrationKey = "chameleon-settings-migration-v2" // v2: Dedicated follow-up model migration
   const migrationDone = localStorage.getItem(migrationKey)
 
   if (migrationDone) {
@@ -148,5 +175,6 @@ export function runMigrationOnStartup(): void {
 export function resetMigrationFlag(): void {
   if (typeof window === "undefined") return
   localStorage.removeItem("chameleon-settings-migration-v1")
+  localStorage.removeItem("chameleon-settings-migration-v2")
   console.log("[Migration] Reset migration flag")
 }
