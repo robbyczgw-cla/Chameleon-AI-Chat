@@ -4,16 +4,16 @@
  * Generates follow-up suggestions using a dedicated fast/cheap model in parallel
  * with the main AI response. This improves speed and reduces costs.
  *
- * Default model: google/gemini-2.5-flash-preview-09-2025
- * Fallback: google/gemini-2.0-flash-exp
+ * Default model: google/gemini-2.5-flash
+ * Fallback: google/gemini-flash-1.5
  */
 
 import type { Message, CategorizedFollowUp } from "@/types"
 import { parseFollowUps } from "./follow-up-parser"
 
 // Gemini 2.5 Flash - fast, cheap, reliable for simple JSON tasks
-const DEFAULT_FOLLOWUP_MODEL = "google/gemini-2.5-flash-preview-09-2025"
-const FALLBACK_FOLLOWUP_MODEL = "google/gemini-2.0-flash-exp"
+const DEFAULT_FOLLOWUP_MODEL = "google/gemini-2.5-flash"
+const FALLBACK_FOLLOWUP_MODEL = "google/gemini-flash-1.5"
 
 /**
  * Build specialized system prompt for follow-up generation
