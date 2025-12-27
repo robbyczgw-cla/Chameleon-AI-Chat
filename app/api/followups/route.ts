@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
         success: true,
         followUps,
         source: 'dedicated-model',
-        model: model || 'google/gemini-2.5-flash'
+        model: model || 'openai/gpt-4o-mini'
       })
 
     } catch (modelError) {
