@@ -1182,7 +1182,8 @@ export function ChatInput() {
           const followUps = await generateFollowUpsParallel(
             followUpMessages,
             settings.apiKeys.openRouter,
-            undefined // Use default model (Gemini 3 Flash)
+            undefined, // Use default model (Gemini 3 Flash)
+            settings.language || "en"
           )
 
           if (followUps.length > 0) {
@@ -1200,7 +1201,8 @@ export function ChatInput() {
               content: assistantContent,
               timestamp: Date.now()
             }],
-            messagesForApi.length
+            messagesForApi.length,
+            settings.language || "en"
           )
           if (fallbackFollowUps.length > 0) {
             assistantContent = injectFollowUpsIntoMessage(assistantContent, fallbackFollowUps)

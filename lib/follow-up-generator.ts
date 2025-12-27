@@ -13,12 +13,21 @@ import { parseFollowUps } from "./follow-up-parser"
 const DEFAULT_FOLLOWUP_MODEL = "google/gemini-3-flash-preview"
 
 /**
- * Specialized system prompt for follow-up generation
- * This is used ONLY by the dedicated follow-up model, not the main conversation
+ * Build specialized system prompt for follow-up generation
+ * Includes language instruction to match user's UI language
  */
-const FOLLOWUP_GENERATION_PROMPT = `You are a specialized AI that generates contextual follow-up questions.
+function buildFollowUpPrompt(language: string = "en"): string {
+  const languageInstruction = language === "de"
+    ? "WICHTIG: Generiere alle Fragen auf Deutsch."
+    : language === "es"
+    ? "IMPORTANTE: Genera todas las preguntas en español."
+    : "Generate all questions in English."
+
+  return `You are a specialized AI that generates contextual follow-up questions.
 
 Your task: Analyze the conversation and generate exactly 6 follow-up questions the user might ask next.
+
+${languageInstruction}
 
 Categories:
 - **quick**: Fast, surface-level questions (examples, definitions, clarifications)
@@ -41,6 +50,7 @@ OUTPUT FORMAT (use this exact JSON structure):
 }
 
 DO NOT include any other text - ONLY output the JSON object.`
+}
 
 /**
  * Generate follow-up suggestions using dedicated model
@@ -48,7 +58,8 @@ DO NOT include any other text - ONLY output the JSON object.`
 export async function generateFollowUpsParallel(
   messages: Message[],
   apiKey: string,
-  model?: string
+  model?: string,
+  language: string = "en"
 ): Promise<CategorizedFollowUp[]> {
   try {
     const followUpModel = model || DEFAULT_FOLLOWUP_MODEL
@@ -59,7 +70,7 @@ export async function generateFollowUpsParallel(
       content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
     }))
 
-    console.log(`[FollowUpGenerator] Generating follow-ups using model: ${followUpModel}`)
+    console.log(`[FollowUpGenerator] Generating follow-ups using model: ${followUpModel}, language: ${language}`)
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -74,7 +85,7 @@ export async function generateFollowUpsParallel(
         messages: [
           {
             role: 'system',
-            content: FOLLOWUP_GENERATION_PROMPT
+            content: buildFollowUpPrompt(language)
           },
           ...recentMessages
         ],
@@ -93,10 +104,28 @@ export async function generateFollowUpsParallel(
     }
 
     const data = await response.json()
-    const generatedContent = data.choices?.[0]?.message?.content
+
+    // Debug: Log full response structure
+    console.log(`[FollowUpGenerator] Full API response:`, JSON.stringify(data, null, 2))
+
+    // Handle different response structures (OpenAI vs Google)
+    const choice = data.choices?.[0]
+    let generatedContent = choice?.message?.content
+
+    // Gemini sometimes puts content in a different place
+    if (!generatedContent && choice?.message?.parts) {
+      // Gemini multimodal format
+      generatedContent = choice.message.parts.map((p: any) => p.text || '').join('')
+    }
+
+    // Handle refusal or empty responses
+    if (!generatedContent && choice?.message?.refusal) {
+      console.error(`[FollowUpGenerator] Model refused:`, choice.message.refusal)
+      throw new Error(`Model refused: ${choice.message.refusal}`)
+    }
 
     if (!generatedContent) {
-      console.error(`[FollowUpGenerator] No content in response:`, data)
+      console.error(`[FollowUpGenerator] No content in response. Choice:`, JSON.stringify(choice, null, 2))
       throw new Error('No content generated')
     }
 
@@ -192,7 +221,8 @@ function parseFollowUpsFromJSON(content: string): CategorizedFollowUp[] {
  */
 export function generateFallbackFollowUps(
   messages: Message[],
-  conversationDepth: number
+  conversationDepth: number,
+  language: string = "en"
 ): CategorizedFollowUp[] {
   const lastMessage = messages[messages.length - 1]
   const content = typeof lastMessage?.content === 'string' ? lastMessage.content : ''
@@ -203,47 +233,83 @@ export function generateFallbackFollowUps(
   const isExplanation = content.length > 200
   const isEarly = conversationDepth < 3
 
+  // German translations
+  const de = {
+    code: [
+      { category: 'quick' as const, text: 'Kannst du den Code erklären?', icon: '⚡', label: 'Schnell' },
+      { category: 'quick' as const, text: 'Zeig mir ein Beispiel', icon: '⚡', label: 'Schnell' },
+      { category: 'deep' as const, text: 'Wie kann ich das optimieren?', icon: '🧠', label: 'Vertiefung' },
+      { category: 'deep' as const, text: 'Was sind mögliche Grenzfälle?', icon: '🧠', label: 'Vertiefung' },
+      { category: 'related' as const, text: 'Zeig alternative Ansätze', icon: '🔗', label: 'Verwandt' },
+      { category: 'related' as const, text: 'Was sind Best Practices?', icon: '🔗', label: 'Verwandt' }
+    ],
+    error: [
+      { category: 'quick' as const, text: 'Wie behebe ich den Fehler?', icon: '⚡', label: 'Schnell' },
+      { category: 'quick' as const, text: 'Was bedeutet dieser Fehler?', icon: '⚡', label: 'Schnell' },
+      { category: 'deep' as const, text: 'Warum ist der Fehler aufgetreten?', icon: '🧠', label: 'Vertiefung' },
+      { category: 'deep' as const, text: 'Wie verhindere ich das in Zukunft?', icon: '🧠', label: 'Vertiefung' },
+      { category: 'related' as const, text: 'Gibt es ähnliche Fehler?', icon: '🔗', label: 'Verwandt' },
+      { category: 'related' as const, text: 'Was sind Debugging-Strategien?', icon: '🔗', label: 'Verwandt' }
+    ],
+    early: [
+      { category: 'quick' as const, text: 'Kannst du ein Beispiel geben?', icon: '⚡', label: 'Schnell' },
+      { category: 'quick' as const, text: 'Erkläre das einfacher?', icon: '⚡', label: 'Schnell' },
+      { category: 'deep' as const, text: 'Wie funktioniert das im Detail?', icon: '🧠', label: 'Vertiefung' },
+      { category: 'deep' as const, text: 'Was sollte ich darüber wissen?', icon: '🧠', label: 'Vertiefung' },
+      { category: 'related' as const, text: 'Was sind praktische Anwendungen?', icon: '🔗', label: 'Verwandt' },
+      { category: 'related' as const, text: 'Wo kann ich mehr erfahren?', icon: '🔗', label: 'Verwandt' }
+    ],
+    default: [
+      { category: 'quick' as const, text: 'Kannst du das zusammenfassen?', icon: '⚡', label: 'Schnell' },
+      { category: 'quick' as const, text: 'Gib mir ein konkretes Beispiel', icon: '⚡', label: 'Schnell' },
+      { category: 'deep' as const, text: 'Erkläre die Grundprinzipien', icon: '🧠', label: 'Vertiefung' },
+      { category: 'deep' as const, text: 'Was sind fortgeschrittene Anwendungen?', icon: '🧠', label: 'Vertiefung' },
+      { category: 'related' as const, text: 'Wie vergleicht sich das mit Alternativen?', icon: '🔗', label: 'Verwandt' },
+      { category: 'related' as const, text: 'Was sollte ich als nächstes erkunden?', icon: '🔗', label: 'Verwandt' }
+    ]
+  }
+
+  // English templates
+  const en = {
+    code: [
+      { category: 'quick' as const, text: 'Can you explain this code?', icon: '⚡', label: 'Quick' },
+      { category: 'quick' as const, text: 'Show me a usage example', icon: '⚡', label: 'Quick' },
+      { category: 'deep' as const, text: 'How can I optimize this?', icon: '🧠', label: 'Deep Dive' },
+      { category: 'deep' as const, text: 'What are potential edge cases?', icon: '🧠', label: 'Deep Dive' },
+      { category: 'related' as const, text: 'Show alternative approaches', icon: '🔗', label: 'Related' },
+      { category: 'related' as const, text: 'What are best practices for this?', icon: '🔗', label: 'Related' }
+    ],
+    error: [
+      { category: 'quick' as const, text: 'How do I fix this error?', icon: '⚡', label: 'Quick' },
+      { category: 'quick' as const, text: 'What does this error mean?', icon: '⚡', label: 'Quick' },
+      { category: 'deep' as const, text: 'Why did this error occur?', icon: '🧠', label: 'Deep Dive' },
+      { category: 'deep' as const, text: 'How can I prevent this in future?', icon: '🧠', label: 'Deep Dive' },
+      { category: 'related' as const, text: 'Are there similar errors to watch for?', icon: '🔗', label: 'Related' },
+      { category: 'related' as const, text: 'What are debugging strategies?', icon: '🔗', label: 'Related' }
+    ],
+    early: [
+      { category: 'quick' as const, text: 'Can you give me an example?', icon: '⚡', label: 'Quick' },
+      { category: 'quick' as const, text: 'Explain this more simply?', icon: '⚡', label: 'Quick' },
+      { category: 'deep' as const, text: 'How does this work in detail?', icon: '🧠', label: 'Deep Dive' },
+      { category: 'deep' as const, text: 'What should I know about this?', icon: '🧠', label: 'Deep Dive' },
+      { category: 'related' as const, text: 'What are practical use cases?', icon: '🔗', label: 'Related' },
+      { category: 'related' as const, text: 'Where can I learn more?', icon: '🔗', label: 'Related' }
+    ],
+    default: [
+      { category: 'quick' as const, text: 'Can you summarize this?', icon: '⚡', label: 'Quick' },
+      { category: 'quick' as const, text: 'Give me a concrete example', icon: '⚡', label: 'Quick' },
+      { category: 'deep' as const, text: 'Explain the underlying principles', icon: '🧠', label: 'Deep Dive' },
+      { category: 'deep' as const, text: 'What are advanced applications?', icon: '🧠', label: 'Deep Dive' },
+      { category: 'related' as const, text: 'How does this compare to alternatives?', icon: '🔗', label: 'Related' },
+      { category: 'related' as const, text: 'What should I explore next?', icon: '🔗', label: 'Related' }
+    ]
+  }
+
+  const templates = language === "de" ? de : en
+
   // Select appropriate template
-  if (hasCode) {
-    return [
-      { category: 'quick', text: 'Can you explain this code?', icon: '⚡', label: 'Quick' },
-      { category: 'quick', text: 'Show me a usage example', icon: '⚡', label: 'Quick' },
-      { category: 'deep', text: 'How can I optimize this?', icon: '🧠', label: 'Deep Dive' },
-      { category: 'deep', text: 'What are potential edge cases?', icon: '🧠', label: 'Deep Dive' },
-      { category: 'related', text: 'Show alternative approaches', icon: '🔗', label: 'Related' },
-      { category: 'related', text: 'What are best practices for this?', icon: '🔗', label: 'Related' }
-    ]
-  }
-
-  if (hasError) {
-    return [
-      { category: 'quick', text: 'How do I fix this error?', icon: '⚡', label: 'Quick' },
-      { category: 'quick', text: 'What does this error mean?', icon: '⚡', label: 'Quick' },
-      { category: 'deep', text: 'Why did this error occur?', icon: '🧠', label: 'Deep Dive' },
-      { category: 'deep', text: 'How can I prevent this in future?', icon: '🧠', label: 'Deep Dive' },
-      { category: 'related', text: 'Are there similar errors to watch for?', icon: '🔗', label: 'Related' },
-      { category: 'related', text: 'What are debugging strategies?', icon: '🔗', label: 'Related' }
-    ]
-  }
-
-  if (isEarly) {
-    return [
-      { category: 'quick', text: 'Can you give me an example?', icon: '⚡', label: 'Quick' },
-      { category: 'quick', text: 'Explain this more simply?', icon: '⚡', label: 'Quick' },
-      { category: 'deep', text: 'How does this work in detail?', icon: '🧠', label: 'Deep Dive' },
-      { category: 'deep', text: 'What should I know about this?', icon: '🧠', label: 'Deep Dive' },
-      { category: 'related', text: 'What are practical use cases?', icon: '🔗', label: 'Related' },
-      { category: 'related', text: 'Where can I learn more?', icon: '🔗', label: 'Related' }
-    ]
-  }
-
-  // Default template for explanations
-  return [
-    { category: 'quick', text: 'Can you summarize this?', icon: '⚡', label: 'Quick' },
-    { category: 'quick', text: 'Give me a concrete example', icon: '⚡', label: 'Quick' },
-    { category: 'deep', text: 'Explain the underlying principles', icon: '🧠', label: 'Deep Dive' },
-    { category: 'deep', text: 'What are advanced applications?', icon: '🧠', label: 'Deep Dive' },
-    { category: 'related', text: 'How does this compare to alternatives?', icon: '🔗', label: 'Related' },
-    { category: 'related', text: 'What should I explore next?', icon: '🔗', label: 'Related' }
-  ]
+  if (hasCode) return templates.code
+  if (hasError) return templates.error
+  if (isEarly) return templates.early
+  return templates.default
 }
