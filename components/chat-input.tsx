@@ -39,6 +39,8 @@ import type { Persona } from "@/lib/personas"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { useDraft } from "@/hooks/use-draft"
 import { buildSystemPrompt } from "@/lib/system-prompt-builder"
+import { generateFollowUpsParallel, generateFallbackFollowUps } from "@/lib/follow-up-generator"
+import { injectFollowUpsIntoMessage } from "@/hooks/use-dedicated-followups"
 
 export function ChatInput() {
   const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading, setStreamingPhase, setCurrentTool, setSearchQuery, currentStreamingDetails, setCurrentStreamingDetails, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
@@ -1157,6 +1159,56 @@ export function ChatInput() {
       // Calculate performance stats
       const responseTime = (Date.now() - streamStartTime) / 1000 // in seconds
 
+      // Generate follow-ups using dedicated model if enabled
+      if (messageAdded && assistantContent && useDedicatedFollowUpModel) {
+        console.log("[v0] 🎯 Generating follow-ups with dedicated model...")
+        try {
+          // Build messages for follow-up context (include assistant response)
+          const followUpMessages: Message[] = [
+            ...messagesForApi.slice(1).map((m, i) => ({
+              id: `ctx-${i}`,
+              role: m.role as "user" | "assistant" | "system",
+              content: typeof m.content === "string" ? m.content : "[multimodal]",
+              timestamp: Date.now()
+            })),
+            {
+              id: "assistant-response",
+              role: "assistant" as const,
+              content: assistantContent,
+              timestamp: Date.now()
+            }
+          ]
+
+          const followUps = await generateFollowUpsParallel(
+            followUpMessages,
+            settings.apiKeys.openRouter,
+            undefined // Use default model (Gemini 3 Flash)
+          )
+
+          if (followUps.length > 0) {
+            console.log(`[v0] ✅ Generated ${followUps.length} follow-ups`)
+            // Inject follow-ups into assistant content for parsing
+            assistantContent = injectFollowUpsIntoMessage(assistantContent, followUps)
+          }
+        } catch (followUpError) {
+          console.warn("[v0] ⚠️ Dedicated follow-up generation failed, using fallback:", followUpError)
+          // Use fallback templates
+          const fallbackFollowUps = generateFallbackFollowUps(
+            [{
+              id: "last",
+              role: "assistant" as const,
+              content: assistantContent,
+              timestamp: Date.now()
+            }],
+            messagesForApi.length
+          )
+          if (fallbackFollowUps.length > 0) {
+            assistantContent = injectFollowUpsIntoMessage(assistantContent, fallbackFollowUps)
+            console.log("[v0] 📝 Using fallback follow-ups")
+          }
+        }
+      }
+
       if (messageAdded && assistantContent) {
         const completionTokens = estimateTokens(assistantContent)
         const totalTokens = promptTokens + completionTokens
@@ -1247,7 +1299,7 @@ export function ChatInput() {
             return prevChats.map((chat) => {
               if (chat.id !== chatId) return chat
               const updatedMessages = chat.messages.map((m) =>
-                m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning, streamingHistory: finalMessage.streamingHistory } : m,
+                m.id === assistantMessageId ? { ...m, content: assistantContent, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning, streamingHistory: finalMessage.streamingHistory } : m,
               )
               return { ...chat, messages: updatedMessages }
             })
