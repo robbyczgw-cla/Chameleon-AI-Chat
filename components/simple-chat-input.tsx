@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import type { Message, StreamingHistoryEntry, UsedMemory } from "@/types"
+import type { Message, StreamingHistoryEntry, UsedMemory, CategorizedFollowUp } from "@/types"
 import { streamChatMessage, REASONING_MODELS } from "@/lib/openrouter"
 import { modelSupportsToolCalling } from "@/lib/tools"
 import { searchWeb, formatSearchResults as formatTavilyResults } from "@/lib/tavily"
@@ -996,6 +996,24 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         enableAutoToolUse: enableToolCallingSearch
       })
 
+      // 🚀 TRUE PARALLEL: Start follow-up generation NOW, before streaming
+      let followUpPromise: Promise<CategorizedFollowUp[]> | null = null
+      if (useDedicatedFollowUpModel && settings.apiKeys.openRouter) {
+        console.log("[Simple Chat] 🚀 Starting PARALLEL follow-up generation...")
+        const followUpMessages: Message[] = messagesForApi.slice(1).map((m, i) => ({
+          id: `ctx-${i}`,
+          role: m.role as "user" | "assistant" | "system",
+          content: typeof m.content === "string" ? m.content : "[multimodal]",
+          timestamp: Date.now()
+        }))
+        followUpPromise = generateFollowUpsParallel(
+          followUpMessages,
+          settings.apiKeys.openRouter,
+          undefined,
+          settings.language || "en"
+        )
+      }
+
       await streamChatMessage(messagesForApi, model, onChunk, {
         temperature: settings.temperature || 0.7,
         maxTokens,
@@ -1130,77 +1148,54 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
       console.log("[Simple Chat] Stream complete, final content length:", assistantContent.length)
 
-      // Generate follow-ups in BACKGROUND (non-blocking) if enabled
-      const generateFollowUpsInBackground = async () => {
-        if (!messageAdded || !assistantContent || !useDedicatedFollowUpModel) return
-
-        console.log("[Simple Chat] 🎯 Generating follow-ups in background...")
-        try {
-          const followUpMessages: Message[] = [
-            ...messagesForApi.slice(1).map((m, i) => ({
-              id: `ctx-${i}`,
-              role: m.role as "user" | "assistant" | "system",
-              content: typeof m.content === "string" ? m.content : "[multimodal]",
-              timestamp: Date.now()
-            })),
-            {
-              id: "assistant-response",
-              role: "assistant" as const,
-              content: assistantContent,
-              timestamp: Date.now()
+      // Handle parallel follow-up generation if it was started
+      if (followUpPromise && messageAdded && assistantContent && useDedicatedFollowUpModel) {
+        followUpPromise
+          .then((followUps) => {
+            if (followUps && followUps.length > 0) {
+              console.log(`[Simple Chat] ✅ Parallel follow-ups ready: ${followUps.length}`)
+              setChats((prevChats) =>
+                prevChats.map((chat) => {
+                  if (chat.id !== chatId) return chat
+                  const currentMessage = chat.messages.find(m => m.id === assistantMessageId)
+                  const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
+                  const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, followUps)
+                  return {
+                    ...chat,
+                    messages: chat.messages.map((m) =>
+                      m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
+                    ),
+                  }
+                })
+              )
             }
-          ]
-
-          const followUps = await generateFollowUpsParallel(
-            followUpMessages,
-            settings.apiKeys.openRouter,
-            undefined,
-            settings.language || "en"
-          )
-
-          if (followUps.length > 0) {
-            console.log(`[Simple Chat] ✅ Generated ${followUps.length} follow-ups (background)`)
-            const contentWithFollowUps = injectFollowUpsIntoMessage(assistantContent, followUps)
-
-            setChats((prevChats) =>
-              prevChats.map((chat) => {
-                if (chat.id !== chatId) return chat
-                return {
-                  ...chat,
-                  messages: chat.messages.map((m) =>
-                    m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
-                  ),
-                }
-              })
+          })
+          .catch((error) => {
+            console.warn("[Simple Chat] ⚠️ Parallel follow-up failed, using fallback:", error)
+            const fallbackFollowUps = generateFallbackFollowUps(
+              [{ id: "last", role: "assistant" as const, content: assistantContent, timestamp: Date.now() }],
+              messagesForApi.length,
+              settings.language || "en"
             )
-          }
-        } catch (followUpError) {
-          console.warn("[Simple Chat] ⚠️ Background follow-up failed, using fallback:", followUpError)
-          const fallbackFollowUps = generateFallbackFollowUps(
-            [{ id: "last", role: "assistant" as const, content: assistantContent, timestamp: Date.now() }],
-            messagesForApi.length,
-            settings.language || "en"
-          )
-          if (fallbackFollowUps.length > 0) {
-            const contentWithFollowUps = injectFollowUpsIntoMessage(assistantContent, fallbackFollowUps)
-            setChats((prevChats) =>
-              prevChats.map((chat) => {
-                if (chat.id !== chatId) return chat
-                return {
-                  ...chat,
-                  messages: chat.messages.map((m) =>
-                    m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
-                  ),
-                }
-              })
-            )
-            console.log("[Simple Chat] 📝 Using fallback follow-ups (background)")
-          }
-        }
+            if (fallbackFollowUps.length > 0) {
+              setChats((prevChats) =>
+                prevChats.map((chat) => {
+                  if (chat.id !== chatId) return chat
+                  const currentMessage = chat.messages.find(m => m.id === assistantMessageId)
+                  const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
+                  const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, fallbackFollowUps)
+                  return {
+                    ...chat,
+                    messages: chat.messages.map((m) =>
+                      m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
+                    ),
+                  }
+                })
+              )
+              console.log("[Simple Chat] 📝 Using fallback follow-ups")
+            }
+          })
       }
-
-      // Fire and forget - don't await
-      generateFollowUpsInBackground()
 
       if (messageAdded && assistantContent) {
         const promptText = messagesForApi.map((m) => typeof m.content === "string" ? m.content : "[multimodal]").join("\n")
@@ -1264,7 +1259,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           return prevChats.map((chat) => {
             if (chat.id !== chatId) return chat
             const updatedMessages = chat.messages.map((m) =>
-              m.id === assistantMessageId ? { ...m, content: assistantContent, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning } : m,
+              // DON'T overwrite content - it may have follow-ups from background generation
+              m.id === assistantMessageId ? { ...m, tokens: finalMessage.tokens, stats: finalMessage.stats, reasoning: finalMessage.reasoning } : m,
             )
             return { ...chat, messages: updatedMessages }
           })
