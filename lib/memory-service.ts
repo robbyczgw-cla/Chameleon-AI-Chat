@@ -1212,6 +1212,55 @@ Return ONLY the JSON array, no markdown or explanation. If no consolidation need
   }
 
   /**
+   * Apply dynamic limit based on score distribution
+   * Returns only truly relevant memories, not just top N
+   */
+  private applyDynamicLimit(
+    scored: Array<{ memory: Memory; score: number }>,
+    maxResults: number
+  ): Array<{ memory: Memory; score: number }> {
+    if (scored.length === 0) return []
+    if (scored.length <= 2) return scored // If only 1-2, return all
+
+    // Strategy: Look for significant score drops (gaps)
+    // Stop when there's a 30%+ drop from one memory to the next
+    const result: Array<{ memory: Memory; score: number }> = [scored[0]]
+
+    for (let i = 1; i < Math.min(scored.length, maxResults); i++) {
+      const current = scored[i]
+      const previous = scored[i - 1]
+
+      // Calculate score drop percentage
+      const dropPercent = ((previous.score - current.score) / previous.score) * 100
+
+      // Stop if significant drop (30%+) after getting at least 1 memory
+      // This means the next memory is much less relevant
+      if (dropPercent >= 30 && result.length >= 1) {
+        console.log(`[Memory] 📊 Stopping at ${result.length} memories (score drop: ${dropPercent.toFixed(0)}%)`)
+        break
+      }
+
+      // Stop if score is too low (below 25 points)
+      // Even if it passed minScore (15), if it's barely relevant, stop
+      if (current.score < 25 && result.length >= 2) {
+        console.log(`[Memory] 📊 Stopping at ${result.length} memories (low score: ${current.score})`)
+        break
+      }
+
+      result.push(current)
+    }
+
+    // Cap at 3 for most queries (better than always returning 5)
+    const cap = Math.min(result.length, 3)
+    if (result.length > cap) {
+      console.log(`[Memory] 📊 Capping at ${cap} memories (had ${result.length})`)
+      return result.slice(0, cap)
+    }
+
+    return result
+  }
+
+  /**
    * Get relevant memories for a query (token-efficient)
    * Uses keyword matching and importance scoring
    */
@@ -1251,22 +1300,25 @@ Return ONLY the JSON array, no markdown or explanation. If no consolidation need
       })
       .filter(({ score }) => score >= minScore)
       .sort((a, b) => b.score - a.score)
-      .slice(0, maxResults)
+
+    // Dynamic limit: Return only truly relevant memories
+    const filtered = this.applyDynamicLimit(scored, maxResults)
+    const result = filtered.slice(0, Math.min(filtered.length, maxResults))
 
     // Update access stats for retrieved memories
-    scored.forEach(({ memory }) => {
+    result.forEach(({ memory }) => {
       const m = this.memories.find(mem => mem.id === memory.id)
       if (m) {
         m.lastAccessedAt = Date.now()
         m.accessCount++
       }
     })
-    if (scored.length > 0) {
+    if (result.length > 0) {
       this.saveMemories()
-      console.log("[Memory] Updated access stats for", scored.length, "memories (keyword search)")
+      console.log("[Memory] Retrieved", result.length, "memories (keyword search)")
     }
 
-    return scored.map(({ memory }) => memory)
+    return result.map(({ memory }) => memory)
   }
 
   /**
@@ -1351,12 +1403,24 @@ Return ONLY the JSON array, no markdown or explanation. If no consolidation need
       return []
     }
 
-    const results = findSimilar(queryEmbedding, memoriesWithEmbeddings, {
+    const rawResults = findSimilar(queryEmbedding, memoriesWithEmbeddings, {
       threshold,
       maxResults,
     })
 
-    console.log("[Memory] Client-side semantic search found", results.length, "memories")
+    console.log("[Memory] Client-side semantic search found", rawResults.length, "memories")
+
+    // Apply dynamic limit based on similarity scores
+    // Convert similarity (0-1) to score (0-100) for consistency
+    const scored = rawResults.map(mem => ({
+      memory: mem,
+      score: (mem.similarity || 0) * 100
+    }))
+
+    const filtered = this.applyDynamicLimit(scored, maxResults)
+    const results = filtered.map(({ memory }) => memory as Memory & { similarity: number })
+
+    console.log("[Memory] After dynamic limit:", results.length, "memories")
 
     // Update access stats for retrieved memories
     let statsUpdated = 0
@@ -1370,7 +1434,7 @@ Return ONLY the JSON array, no markdown or explanation. If no consolidation need
     }
     if (statsUpdated > 0) {
       this.saveMemories()
-      console.log("[Memory] Updated access stats for", statsUpdated, "memories (client-side search)")
+      console.log("[Memory] Retrieved", statsUpdated, "memories (semantic search)")
     }
 
     return results
