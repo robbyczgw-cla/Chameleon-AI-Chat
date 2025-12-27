@@ -164,7 +164,7 @@ export function SettingsProvider({
       try {
         const parsed = JSON.parse(savedSettings)
 
-        // Upgrade old prompts to include FOLLOWUP format
+        // Upgrade old generic prompts to default
         const OLD_GENERIC_PROMPTS = [
           "You are a helpful AI assistant.",
           "You are a helpful AI assistant",
@@ -172,9 +172,9 @@ export function SettingsProvider({
           "You are an AI assistant",
         ]
 
-        if (!parsed.systemPrompt ||
-            OLD_GENERIC_PROMPTS.includes(parsed.systemPrompt) ||
-            !parsed.systemPrompt.includes("[FOLLOWUP]")) {
+        // Only replace if it's a known old generic prompt or empty
+        // DO NOT check for [FOLLOWUP] tags - that's old behavior before dedicated model system (v0.11+)
+        if (!parsed.systemPrompt || OLD_GENERIC_PROMPTS.includes(parsed.systemPrompt)) {
           parsed.systemPrompt = DEFAULT_SETTINGS.systemPrompt
         }
 

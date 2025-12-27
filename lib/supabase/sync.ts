@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client"
 import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt, Memory, DeletedMemory, AccessTier, ChatShare, SharedChatData } from "@/types"
+import { removeFollowUpInstructions, hasFollowUpInstructions } from "@/lib/system-prompt-builder"
 
 // Types for secure API key storage
 export interface SecureApiKey {
@@ -267,10 +268,19 @@ export class SupabaseSync {
         exa: exaKey ? `***${  exaKey.slice(-4)}` : "NULL",
       })
 
+      // CRITICAL: Clean up old follow-up instructions from system prompt before saving to database
+      // This ensures the database is updated with clean prompts for the dedicated model system (v0.11+)
+      let cleanSystemPrompt = settings.systemPrompt
+      if (cleanSystemPrompt && hasFollowUpInstructions(cleanSystemPrompt)) {
+        const oldPrompt = cleanSystemPrompt
+        cleanSystemPrompt = removeFollowUpInstructions(cleanSystemPrompt)
+        console.log(`[Supabase] Cleaned system prompt before saving (${oldPrompt.length} → ${cleanSystemPrompt.length} chars)`)
+      }
+
       const settingsData = {
         simple_mode: settings.simpleMode ?? false,
         access_tier: settings.accessTier || "standard",
-        system_prompt: settings.systemPrompt,
+        system_prompt: cleanSystemPrompt,
         temperature: settings.modelParameters?.temperature,
         max_tokens: settings.modelParameters?.maxTokens,
         top_p: settings.modelParameters?.topP,
@@ -1145,12 +1155,22 @@ export class SupabaseSync {
       type: typeof dbSettings.memory_settings,
     })
 
+    // Get raw system prompt from database
+    let systemPrompt = dbSettings.system_prompt ||
+      "You are a helpful, knowledgeable AI assistant. Provide comprehensive, detailed, and well-structured answers. When answering questions, be thorough and explain concepts fully. Use examples where appropriate. Don't cut answers short - complete your thoughts and provide meaningful, substantive responses. Am Ende jeder Antwort schlägst du 2-3 passende next possible User prompts vor im Format: [FOLLOWUP]Frage 1|Frage 2|Frage 3[/FOLLOWUP] , vor diesem follow up schreibst du mir 1-3 anregende Fragen zum fortführen der diskussion wenn es passt. aber formuliere dies immer etwas anders."
+
+    // CRITICAL: Clean up old follow-up instructions from database (migration to v0.11+ dedicated model system)
+    // This ensures users with old prompts get them cleaned automatically on every load
+    if (hasFollowUpInstructions(systemPrompt)) {
+      const oldPrompt = systemPrompt
+      systemPrompt = removeFollowUpInstructions(systemPrompt)
+      console.log(`[Supabase] Cleaned up system prompt from database (${oldPrompt.length} → ${systemPrompt.length} chars)`)
+    }
+
     return {
       simpleMode: dbSettings.simple_mode ?? false,
       accessTier: (dbSettings.access_tier as AccessTier) || "standard",
-      systemPrompt:
-        dbSettings.system_prompt ||
-        "You are a helpful, knowledgeable AI assistant. Provide comprehensive, detailed, and well-structured answers. When answering questions, be thorough and explain concepts fully. Use examples where appropriate. Don't cut answers short - complete your thoughts and provide meaningful, substantive responses. Am Ende jeder Antwort schlägst du 2-3 passende next possible User prompts vor im Format: [FOLLOWUP]Frage 1|Frage 2|Frage 3[/FOLLOWUP] , vor diesem follow up schreibst du mir 1-3 anregende Fragen zum fortführen der diskussion wenn es passt. aber formuliere dies immer etwas anders.",
+      systemPrompt,
       modelParameters: {
         temperature: Number.parseFloat(dbSettings.temperature) || 0.7,
         maxTokens: dbSettings.max_tokens || 16000,
