@@ -4,7 +4,7 @@ import { useState, useMemo } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ArrowUpDown, ArrowUp, ArrowDown, Search } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, generateKey, generateCompositeKey } from "@/lib/utils"
 
 export interface RichTableData {
   headers: string[]
@@ -91,7 +91,7 @@ export function RichTable({ data, className }: RichTableProps) {
             <tr>
               {data.headers.map((header, index) => (
                 <th
-                  key={index}
+                  key={generateKey('th', header, index)}
                   onClick={() => handleSort(index)}
                   className={cn(
                     "px-3 py-2.5 text-left font-semibold border-r border-border last:border-r-0 text-xs sm:text-sm",
@@ -121,12 +121,12 @@ export function RichTable({ data, className }: RichTableProps) {
           <tbody className="divide-y divide-border">
             {processedRows.map((row, rowIndex) => (
               <tr
-                key={rowIndex}
+                key={generateCompositeKey('tr', rowIndex, row[0])}
                 className="hover:bg-muted/30 transition-colors"
               >
                 {row.map((cell, cellIndex) => (
                   <td
-                    key={cellIndex}
+                    key={generateCompositeKey('td', rowIndex, cellIndex, cell.slice(0, 20))}
                     className="px-3 py-2.5 border-r border-border last:border-r-0 text-xs sm:text-sm"
                   >
                     {cell}
