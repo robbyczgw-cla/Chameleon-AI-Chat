@@ -122,7 +122,7 @@ async function tryGenerateFollowUps(
         ...recentMessages
       ],
       temperature: 0.7,
-      max_tokens: 500
+      max_tokens: 1000 // Increased for reasoning models that use tokens internally
     })
   })
 
@@ -179,14 +179,28 @@ async function tryGenerateFollowUps(
 function parseFollowUpsFromJSON(content: string): CategorizedFollowUp[] {
   try {
     // Try to extract JSON from the content
-    // Handle cases where model wraps JSON in markdown code blocks
+    // Handle cases where model wraps JSON in markdown code blocks or [FOLLOWUP] tags
     let jsonStr = content.trim()
+
+    // Extract from [FOLLOWUP]...[/FOLLOWUP] tags if present
+    const followUpMatch = jsonStr.match(/\[FOLLOWUP\]([\s\S]*?)\[\/FOLLOWUP\]/i)
+    if (followUpMatch) {
+      jsonStr = followUpMatch[1].trim()
+    }
 
     // Remove markdown code blocks if present
     if (jsonStr.startsWith('```json')) {
       jsonStr = jsonStr.replace(/```json\n?/, '').replace(/\n?```$/, '')
     } else if (jsonStr.startsWith('```')) {
       jsonStr = jsonStr.replace(/```\n?/, '').replace(/\n?```$/, '')
+    }
+
+    // Try to find JSON object if content has text before it
+    if (!jsonStr.startsWith('{')) {
+      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        jsonStr = jsonMatch[0]
+      }
     }
 
     jsonStr = jsonStr.trim()
