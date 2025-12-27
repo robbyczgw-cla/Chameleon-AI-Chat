@@ -38,6 +38,7 @@ import { useIsIOSPWA } from "@/hooks/use-ios-pwa"
 import { haptics } from "@/lib/haptics"
 import { voiceService } from "@/lib/voice"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
+import { buildSystemPrompt } from "@/lib/system-prompt-builder"
 
 interface SimpleChatInputProps {
   selectedPersona?: Persona
@@ -519,9 +520,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       })
     }
 
-    // Build system prompt: Start with base settings, then append persona personality (like Advanced mode)
-    // This ensures FOLLOWUP instructions from settings.systemPrompt are preserved
-    let systemPrompt = settings.systemPrompt
+    // Build system prompt: Start with base settings + conditional follow-up instructions
+    // Check if we should use dedicated follow-up model or inline mode
+    const useDedicatedFollowUpModel = settings.experimental?.useDedicatedFollowUpModel ?? true
+
+    // Build base prompt with conditional follow-up instructions
+    let systemPrompt = buildSystemPrompt(useDedicatedFollowUpModel, settings.systemPrompt)
 
     if (selectedPersona) {
       if (selectedPersona.personality) {
