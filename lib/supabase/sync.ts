@@ -422,12 +422,19 @@ export class SupabaseSync {
   }
 
   async createSystemPrompt(userId: string, prompt: SystemPrompt): Promise<void> {
+    // CRITICAL: Clean up old follow-up instructions before saving to database
+    let cleanPrompt = prompt.prompt
+    if (hasFollowUpInstructions(cleanPrompt)) {
+      cleanPrompt = removeFollowUpInstructions(cleanPrompt)
+      console.log(`[Supabase] Cleaned system prompt before creating (${prompt.prompt.length} → ${cleanPrompt.length} chars)`)
+    }
+
     const { error } = await this.supabase.from("system_prompts").insert({
       id: prompt.id,
       user_id: userId,
       name: prompt.name,
       description: prompt.description || null,
-      prompt: prompt.prompt,
+      prompt: cleanPrompt,
       is_default: prompt.isDefault,
       created_at: new Date(prompt.createdAt).toISOString(),
       updated_at: new Date(prompt.updatedAt).toISOString(),

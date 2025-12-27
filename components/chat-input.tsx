@@ -38,6 +38,7 @@ import { ReasoningDepthSelector } from "@/components/reasoning-depth-selector"
 import type { Persona } from "@/lib/personas"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { useDraft } from "@/hooks/use-draft"
+import { buildSystemPrompt } from "@/lib/system-prompt-builder"
 
 export function ChatInput() {
   const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading, setStreamingPhase, setCurrentTool, setSearchQuery, currentStreamingDetails, setCurrentStreamingDetails, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
@@ -493,8 +494,12 @@ export function ChatInput() {
     const model = currentModel || settings.selectedModel
     console.log("[v0] Using model:", model)
 
-    // Build system prompt: Base + Language instruction + Persona personality
-    let systemPrompt = settings.systemPrompt // Start with base
+    // Build system prompt: Base + Follow-up instructions (if inline mode) + Language instruction + Persona personality
+    // Check if we should use dedicated follow-up model or inline mode
+    const useDedicatedFollowUpModel = settings.experimental?.useDedicatedFollowUpModel ?? true
+
+    // Start with base prompt + conditional follow-up instructions
+    let systemPrompt = buildSystemPrompt(useDedicatedFollowUpModel, settings.systemPrompt)
 
     // Add language instruction based on UI language setting
     const languageInstruction = settings.language === "en"
