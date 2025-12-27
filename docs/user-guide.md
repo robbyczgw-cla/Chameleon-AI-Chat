@@ -1061,7 +1061,7 @@ Click Settings (⚙️) → "Advanced Settings" button
   - Search stats (if web search used)
 
 **Persona Quick-Switch:**
-- All 18+ personas as buttons
+- All 27 personas as buttons
 - One-click to change persona
 - Loads persona's system prompt automatically
 

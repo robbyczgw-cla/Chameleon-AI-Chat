@@ -65,7 +65,7 @@ if (file.size > MAX_FILE_SIZE) {
 
 **What:** Persona data structure validation
 
-**Why:** Ensures all 18+ personas have consistent structure and no missing data.
+**Why:** Ensures all 27 personas have consistent structure and no missing data.
 
 **Tests Cover:**
 - ✅ All personas have required fields (id, name, emoji, description)

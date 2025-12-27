@@ -26,7 +26,7 @@ export default function TermsPage() {
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-1">
               <li>Chat with various AI models using their own API keys</li>
-              <li>Access 18+ AI personas with different personalities</li>
+              <li>Access 27 AI personas with different personalities</li>
               <li>Track API usage costs</li>
               <li>Export conversation data</li>
               <li>Use web search functionality (optional)</li>

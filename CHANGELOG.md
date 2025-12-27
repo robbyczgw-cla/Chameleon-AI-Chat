@@ -1464,7 +1464,7 @@ This marks the transition from alpha to beta! Core features are now stable and r
   - Message streaming
   - OpenRouter integration
   - Multiple model support
-- **Personas** - 18+ AI personalities
+- **Personas** - 27 AI personalities
   - Cami, Nova, Dev, Professor, etc.
   - Unique system prompts
   - Communication styles
