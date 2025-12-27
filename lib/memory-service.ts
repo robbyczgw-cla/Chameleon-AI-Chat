@@ -806,6 +806,7 @@ class MemoryService {
   getRelevantMemories(query: string, limit?: number): Memory[] {
     const maxResults = limit || this.settings.maxMemoriesInContext
     const threshold = this.settings.importanceThreshold
+    const minScore = 15 // Minimum score to be considered relevant
 
     // Tokenize query
     const queryTokens = query.toLowerCase().split(/\s+/).filter(t => t.length > 2)
@@ -816,10 +817,10 @@ class MemoryService {
       .map(memory => {
         let score = 0
 
-        // Importance weight (0-30 points)
-        score += memory.importance * 10
+        // Importance weight (0-15 points) - reduced from 10x to 5x to reduce bias
+        score += memory.importance * 5
 
-        // Keyword matching (0-50 points)
+        // Keyword matching (0-50 points) - now more influential
         const contentLower = memory.content.toLowerCase()
         const categoryLower = (memory.category || "").toLowerCase()
 
@@ -836,11 +837,11 @@ class MemoryService {
 
         return { memory, score }
       })
-      .filter(({ score }) => score > 0)
+      .filter(({ score }) => score >= minScore)
       .sort((a, b) => b.score - a.score)
       .slice(0, maxResults)
 
-    // Update access stats
+    // Update access stats for retrieved memories
     scored.forEach(({ memory }) => {
       const m = this.memories.find(mem => mem.id === memory.id)
       if (m) {
@@ -848,7 +849,10 @@ class MemoryService {
         m.accessCount++
       }
     })
-    this.saveMemories()
+    if (scored.length > 0) {
+      this.saveMemories()
+      console.log("[Memory] Updated access stats for", scored.length, "memories (keyword search)")
+    }
 
     return scored.map(({ memory }) => memory)
   }
@@ -881,15 +885,18 @@ class MemoryService {
 
         if (results.length > 0) {
           console.log("[Memory] Database semantic search returned", results.length, "memories")
-          // Update access stats
+          // Update access stats for retrieved memories
+          let statsUpdated = 0
           for (const result of results) {
             const m = this.memories.find(mem => mem.id === result.id)
             if (m) {
               m.lastAccessedAt = Date.now()
               m.accessCount++
+              statsUpdated++
             }
           }
           this.saveMemories()
+          console.log("[Memory] Updated access stats for", statsUpdated, "memories")
           return results
         }
 
@@ -939,15 +946,20 @@ class MemoryService {
 
     console.log("[Memory] Client-side semantic search found", results.length, "memories")
 
-    // Update access stats
+    // Update access stats for retrieved memories
+    let statsUpdated = 0
     for (const result of results) {
       const m = this.memories.find(mem => mem.id === result.id)
       if (m) {
         m.lastAccessedAt = Date.now()
         m.accessCount++
+        statsUpdated++
       }
     }
-    this.saveMemories()
+    if (statsUpdated > 0) {
+      this.saveMemories()
+      console.log("[Memory] Updated access stats for", statsUpdated, "memories (client-side search)")
+    }
 
     return results
   }
@@ -1779,15 +1791,16 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
     apiKey?: string
   ): Promise<QueryClassification> {
     // Default: don't use memory if we can't classify
+    // Use confidence=1.0 so that factual queries get skipped (confidence >= threshold)
     const defaultResult: QueryClassification = {
       needsMemory: false,
-      confidence: 0,
-      reason: "No API key available",
+      confidence: 1.0,
+      reason: "No API key available - assuming factual query",
       queryType: "factual"
     }
 
     if (!apiKey) {
-      console.log("[Memory] No API key, skipping query classification")
+      console.log("[Memory] No API key, skipping query classification (will skip memory retrieval)")
       return defaultResult
     }
 
