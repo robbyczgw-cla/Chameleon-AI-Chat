@@ -342,6 +342,7 @@ export interface BackgroundAIModelsSettings {
   personalityAnalysis?: string // Default: x-ai/grok-4.1-fast
   conversationInsights?: string // Default: x-ai/grok-4.1-fast
   contextCompression?: string // Default: x-ai/grok-4.1-fast
+  followUpGeneration?: string // Default: google/gemini-3-flash-preview (cheap, fast for parallel follow-up suggestions)
   // Image generation tasks
   imageGenNormal?: string // Default: google/gemini-2.5-flash-image
   imageGenHigh?: string // Default: google/gemini-3-pro-image-preview
@@ -370,6 +371,7 @@ export interface ExperimentalSettings {
   showInputStats?: boolean // Show token/cost estimate below chat input
   // Follow-up Suggestions (Advanced Mode only)
   showCategorizedFollowUps?: boolean // Show category labels (Quick/Deep Dive/Related) in follow-up suggestions (default: false for minimalistic look)
+  useDedicatedFollowUpModel?: boolean // Use dedicated background model for follow-up generation (parallel, faster, cheaper) (default: true)
   // Background AI Models (Advanced Mode only)
   backgroundAIModels?: BackgroundAIModelsSettings // Configure models for background tasks
   // Animation Settings

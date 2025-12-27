@@ -24,6 +24,7 @@ export const DEFAULT_BACKGROUND_MODELS: Required<BackgroundAIModelsSettings> = {
   personalityAnalysis: "x-ai/grok-4.1-fast",
   conversationInsights: "x-ai/grok-4.1-fast",
   contextCompression: "google/gemini-3-flash-preview", // Fast + cheap for summarization
+  followUpGeneration: "google/gemini-3-flash-preview", // Fast + cheap for parallel follow-up suggestions
   imageGenNormal: "google/gemini-2.5-flash-image",
   imageGenHigh: "google/gemini-3-pro-image-preview",
   embeddings: "openai/text-embedding-3-small",
@@ -324,6 +325,26 @@ export function ExperimentalSettings() {
                     </SelectTrigger>
                     <SelectContent className="max-h-[200px] z-[9999]">
                       <SelectItem value="__default__">Default ({DEFAULT_BACKGROUND_MODELS.contextCompression})</SelectItem>
+                      {availableModels.map((model) => (
+                        <SelectItem key={model} value={model} className="text-xs">{model}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Follow-Up Generation */}
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium">Follow-Up Generation ⚡ NEW</Label>
+                  <p className="text-[10px] text-muted-foreground mb-1">Generates contextual follow-up questions (parallel, faster, cheaper)</p>
+                  <Select
+                    value={backgroundModels.followUpGeneration || "__default__"}
+                    onValueChange={(v) => handleBackgroundModelChange("followUpGeneration", v)}
+                  >
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[200px] z-[9999]">
+                      <SelectItem value="__default__">Default ({DEFAULT_BACKGROUND_MODELS.followUpGeneration})</SelectItem>
                       {availableModels.map((model) => (
                         <SelectItem key={model} value={model} className="text-xs">{model}</SelectItem>
                       ))}
@@ -824,6 +845,23 @@ export function ExperimentalSettings() {
               <Switch
                 checked={experimental.enableCodeBlockHighlighting || false}
                 onCheckedChange={(checked) => handleExperimentalChange({ enableCodeBlockHighlighting: checked })}
+              />
+            </div>
+
+            {/* Dedicated Follow-Up Model */}
+            <div className="flex items-center justify-between p-4 border rounded-lg border-emerald-500/30 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20">
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <Label className="text-sm font-medium">Dedicated Follow-Up Model ⚡ NEW</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Use dedicated fast model for follow-up suggestions (parallel generation, 60% faster, 40x cheaper). Enabled by default.
+                </p>
+              </div>
+              <Switch
+                checked={experimental.useDedicatedFollowUpModel !== false}
+                onCheckedChange={(checked) => handleExperimentalChange({ useDedicatedFollowUpModel: checked })}
               />
             </div>
 

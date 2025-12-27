@@ -34,8 +34,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     frequencyPenalty: 0.0,
     presencePenalty: 0.0,
   },
-  systemPrompt:
-    "You are a friendly, helpful assistant. Provide clear, precise, and helpful answers. At the end of each response, add exactly 6 clickable follow-up prompts in 3 categories (2 each):\n\n[FOLLOWUP]\n{\n  \"quick\": [\"Short prompt 1\", \"Short prompt 2\"],\n  \"deep\": [\"Detailed prompt 1\", \"Detailed prompt 2\"],\n  \"related\": [\"Related topic 1\", \"Related topic 2\"]\n}\n[/FOLLOWUP]\n\nIMPORTANT: Always provide exactly 2 prompts per category (6 total). Prompts are from the USER's perspective - what might they ask next!",
+  systemPrompt: "You are a friendly, helpful assistant. Provide clear, precise, and helpful answers.",
   tavilySettings: {
     searchDepth: "basic",
     maxResults: 5,
@@ -71,6 +70,12 @@ export const DEFAULT_SETTINGS: AppSettings = {
   fontFamily: "inter",
   messageDensity: "comfortable",
   reasoningDepth: "medium", // Default reasoning depth for thinking models (Gemini 3, o1, etc.)
+  experimental: {
+    useDedicatedFollowUpModel: true, // Use dedicated model for follow-ups by default (faster, cheaper)
+    backgroundAIModels: {
+      followUpGeneration: "google/gemini-3-flash-preview", // Fast, cheap model for follow-up generation
+    },
+  },
 }
 
 /**
@@ -122,6 +127,10 @@ export function deepMergeSettings(defaults: AppSettings, parsed: Partial<AppSett
     experimental: {
       ...defaults.experimental,
       ...(parsed.experimental || {}),
+      backgroundAIModels: {
+        ...defaults.experimental?.backgroundAIModels,
+        ...(parsed.experimental?.backgroundAIModels || {}),
+      },
     },
   }
 }

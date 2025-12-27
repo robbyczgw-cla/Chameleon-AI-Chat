@@ -84,8 +84,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     frequencyPenalty: 0.0,
     presencePenalty: 0.0,
   },
-  systemPrompt:
-    "You are a friendly, helpful assistant. Provide clear, precise, and helpful answers. At the end of each response, add exactly 6 clickable follow-up prompts in 3 categories (2 each):\n\n[FOLLOWUP]\n{\n  \"quick\": [\"Short prompt 1\", \"Short prompt 2\"],\n  \"deep\": [\"Detailed prompt 1\", \"Detailed prompt 2\"],\n  \"related\": [\"Related topic 1\", \"Related topic 2\"]\n}\n[/FOLLOWUP]\n\nIMPORTANT: Always provide exactly 2 prompts per category (6 total). Prompts are from the USER's perspective - what might they ask next!",
+  systemPrompt: "You are a friendly, helpful assistant. Provide clear, precise, and helpful answers.",
   tavilySettings: {
     searchDepth: "basic",
     maxResults: 5,
