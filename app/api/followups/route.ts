@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
         success: true,
         followUps,
         source: 'dedicated-model',
-        model: model || 'google/gemini-3-flash-preview'
+        model: model || 'google/gemini-2.5-flash-preview-09-2025'
       })
 
     } catch (modelError) {
