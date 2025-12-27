@@ -632,6 +632,12 @@ memoryService.deleteMemory(id)
 
 // Clear all memories
 memoryService.clearAllMemories()
+
+// Automatic maintenance methods
+await memoryService.runMaintenance(apiKey, force=false)
+memoryService.adjustMemoryImportance()
+await memoryService.consolidateMemories(apiKey, dryRun=false)
+memoryService.shouldRunMaintenance() // Check if maintenance is due
 ```
 
 ### Decision Object
@@ -678,9 +684,280 @@ interface MemoryRetrievalDecision {
 
 ## Future Improvements
 
-- [ ] Memory decay (reduce importance over time for unused memories)
-- [ ] Automatic memory consolidation (merge similar/redundant memories)
+- [x] ~~Memory decay (reduce importance over time for unused memories)~~ ✅ **IMPLEMENTED** (see Automatic Memory Maintenance)
+- [x] ~~Automatic memory consolidation (merge similar/redundant memories)~~ ✅ **IMPLEMENTED** (see Automatic Memory Maintenance)
+- [x] ~~Memory conflicts detection (alert when memories contradict)~~ ✅ **IMPLEMENTED** (consolidation flags conflicts)
 - [ ] Per-persona memories (different memories for different personas)
-- [ ] Memory conflicts detection (alert when memories contradict)
 - [ ] Batch embedding on import
 - [ ] Memory suggestions based on conversation patterns
+- [ ] Temporal context (memories with validity periods)
+- [ ] Memory relationships graph
+
+---
+
+## Automatic Memory Maintenance
+
+The memory system includes intelligent automatic maintenance that keeps your memories clean and well-organized.
+
+### What is Automatic Maintenance?
+
+Automatic maintenance runs **daily** in the background and performs three key tasks:
+
+1. **Dynamic Importance Adjustment** - Automatically adjusts memory importance based on actual usage
+2. **Memory Consolidation** - Finds and merges duplicate/similar memories
+3. **Memory Expiration** - Archives old, unused memories
+
+### How It Works in the Background
+
+#### 1. Dynamic Importance Adjustment ⚡
+
+**Purpose:** Ensure importance reflects actual usefulness, not just initial classification.
+
+**How it works:**
+```
+For each memory (7+ days old):
+  IF accessed 10+ times AND used recently (< 7 days):
+    → Boost importance by 1 level (e.g., Medium → High)
+
+  IF NOT accessed in 30+ days AND importance > Low:
+    → Reduce importance by 1 level (e.g., High → Medium)
+
+  IF memory is from profile OR category is "personal_info":
+    → Skip (profile memories never auto-adjust)
+```
+
+**Example:**
+- Memory: "User likes TypeScript"
+  - Initially: importance = Medium (2)
+  - After 30 days: accessed 15 times
+  - Result: **Boosted to High (3)**
+
+- Memory: "User tried Rust once"
+  - Initially: importance = Medium (2)
+  - After 60 days: never accessed
+  - Result: **Reduced to Low (1)**
+
+**Benefits:**
+- ✅ Frequently used memories get higher priority
+- ✅ Unused memories don't clutter high-importance slots
+- ✅ Profile memories stay protected
+
+#### 2. Memory Consolidation 🧹
+
+**Purpose:** Find and merge duplicate/semantically similar memories to reduce clutter.
+
+**How it works:**
+```
+1. Group memories by type (preference, fact, context, skill, goal)
+2. For each group:
+   a. Send to LLM (gpt-oss-120b by default)
+   b. LLM analyzes for duplicates and similarities
+   c. LLM decides which to keep and which to merge
+   d. Merge access counts from duplicates into kept memory
+   e. Delete merged memories
+3. Flag conflicts instead of merging
+```
+
+**LLM Decision Making:**
+```
+MERGE: Same thing, different wording
+"User likes TypeScript" + "User prefers TS over JS"
+→ Keep: "User likes TypeScript" (more detailed)
+→ Merge: "User prefers TS over JS"
+→ Combined access count: 15 (5 + 10)
+
+CONFLICT: Contradictory information
+"User lives in NYC" + "User lives in San Francisco"
+→ Flag as conflict (don't merge!)
+→ User should resolve manually
+
+KEEP SEPARATE: Different things
+"User knows Python" + "User wants to learn Rust"
+→ No merge (different memories)
+```
+
+**Benefits:**
+- ✅ Reduces duplicate memories
+- ✅ Preserves access statistics
+- ✅ Detects conflicts
+- ✅ Keeps memories clean and organized
+
+#### 3. Memory Expiration 🗑️
+
+**Purpose:** Archive old, unused memories to keep the active set relevant.
+
+**How it works:**
+```
+For each memory not accessed in 7+ days:
+
+  IF source is "profile" OR category is "personal_info":
+    → Skip (never expire profile memories)
+
+  IF importance is High (3):
+    → Demote to Medium (2)
+    → Give 7 more days
+
+  IF importance is Medium or Low:
+    → Archive to deleted memories
+    → Keep in archive for 14 days
+    → Can be restored manually
+```
+
+**Archive System:**
+- Deleted memories stored separately
+- Retained for 14 days (configurable)
+- Can be restored manually in Memory Manager
+- Automatically purged after retention period
+
+### Running Maintenance
+
+#### Automatic (Background)
+
+Maintenance checks run when:
+- ✅ User logs in (check if 24+ hours since last run)
+- ✅ Memory system loads (check if maintenance is due)
+- ✅ At most once per 24 hours
+
+**Settings:**
+```typescript
+memorySettings: {
+  autoImportanceAdjustment: true,  // Default: ON
+  autoConsolidation: false,         // Default: OFF (opt-in)
+}
+```
+
+#### Manual (Advanced Mode)
+
+In Advanced Mode → Memory Manager:
+1. Click **"Run Maintenance"** button
+2. System performs all maintenance tasks immediately
+3. Shows toast with results:
+   - "Adjusted X memories"
+   - "Consolidated Y duplicates"
+
+**Force Run:**
+```typescript
+// Bypass 24-hour limit
+await memoryService.runMaintenance(apiKey, force=true)
+```
+
+### Maintenance Results
+
+```typescript
+{
+  success: true,
+  ranImportanceAdjustment: true,
+  ranConsolidation: true,
+  importanceResults: {
+    boosted: 3,   // Memories promoted to higher importance
+    reduced: 5,   // Memories demoted to lower importance
+    skipped: 12   // Profile memories (protected)
+  },
+  consolidationResults: {
+    consolidated: 8,  // Duplicate memories merged
+    kept: 42,         // Total memories after consolidation
+    details: [
+      {
+        kept: Memory,    // Memory that was kept
+        merged: [Memory, Memory],  // Memories that were merged into it
+        reason: "All about TypeScript preference, #0 has most detail"
+      }
+    ]
+  }
+}
+```
+
+### Configuration
+
+#### Memory Settings
+
+```typescript
+memorySettings: {
+  // Automatic maintenance
+  autoImportanceAdjustment: boolean // Auto-adjust based on usage (default: true)
+  autoConsolidation: boolean        // Auto-merge duplicates (default: false, opt-in)
+  lastMaintenanceRun: number        // Timestamp of last run
+
+  // Expiration settings
+  expirationEnabled: boolean        // Enable expiration (default: true)
+  expirationDays: number           // Days before expiration (default: 7)
+  archiveRetentionDays: number     // Days to keep in archive (default: 14)
+}
+```
+
+#### Experimental Settings (Advanced Mode)
+
+Configure which LLM model to use for consolidation:
+
+```typescript
+experimental: {
+  backgroundAIModels: {
+    memoryConsolidation: "openai/gpt-oss-120b"  // Default
+  }
+}
+```
+
+**Recommended Models:**
+- `openai/gpt-oss-20b` - Fast & cheap, may miss subtle duplicates
+- `openai/gpt-oss-120b` - **Default**, good balance
+- `meta-llama/llama-3.1-70b-instruct` - More intelligent, higher cost
+- `qwen/qwen-2.5-72b-instruct` - Similar to Llama, good reasoning
+
+### Cost Estimation
+
+**Importance Adjustment:** FREE (no API calls)
+
+**Consolidation (50 memories):**
+- gpt-oss-20b: ~$0.0005
+- gpt-oss-120b: ~$0.001 (default)
+- llama-3.1-70b: ~$0.005
+
+**Typical monthly cost (100 queries/day + daily maintenance):**
+- Query classification: $0.03
+- Embeddings: $0.02
+- Consolidation (weekly): $0.004
+- **Total: ~$0.06/month**
+
+### Monitoring Maintenance
+
+Check browser console for logs:
+```
+[Memory] 🔧 Starting automatic maintenance...
+[Memory] Running importance adjustment...
+[Memory] Boosted importance: User likes TypeScript...
+[Memory] ✅ Importance adjustment complete
+[Memory] Running memory consolidation...
+[Memory] Found 2 consolidation groups for preference
+[Memory] Consolidated 3 memories into: User prefers TypeScript...
+[Memory] ✅ Consolidation complete
+[Memory] Running expiration check...
+[Memory] 🎉 Maintenance complete
+```
+
+### Best Practices
+
+**1. Start with Auto-Adjustment Only**
+```typescript
+autoImportanceAdjustment: true   // Safe, always useful
+autoConsolidation: false         // Review results manually first
+```
+
+**2. Test Consolidation First**
+- Run maintenance manually in Memory Manager
+- Review what would be merged
+- Enable auto-consolidation once comfortable
+
+**3. Monitor Results**
+- Check console logs after maintenance
+- Review deleted memories archive
+- Restore any incorrectly merged memories
+
+**4. Adjust Retention Periods**
+```typescript
+expirationDays: 7        // Default: 7 days without use
+archiveRetentionDays: 14 // Default: 14 days to restore
+```
+
+---
+
+**Note:** Memory decay and automatic consolidation features have been implemented! See the "Automatic Memory Maintenance" section above for details.

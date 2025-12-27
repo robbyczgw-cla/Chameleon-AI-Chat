@@ -479,6 +479,10 @@ export interface MemorySettings {
   expirationEnabled?: boolean // Enable automatic memory expiration (default true)
   expirationDays?: number // Days without access before expiration (default 7)
   archiveRetentionDays?: number // Days to keep deleted memories before permanent removal (default 14)
+  // Automatic maintenance settings
+  autoConsolidation?: boolean // Automatically consolidate duplicate memories daily (default false)
+  autoImportanceAdjustment?: boolean // Automatically adjust importance based on usage (default true)
+  lastMaintenanceRun?: number // Timestamp of last maintenance run
 }
 
 /**

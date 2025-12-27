@@ -17,6 +17,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 export const DEFAULT_BACKGROUND_MODELS: Required<BackgroundAIModelsSettings> = {
   titleGeneration: "openai/gpt-oss-20b",
   memoryExtraction: "openai/gpt-oss-20b",
+  memoryConsolidation: "openai/gpt-oss-120b",
   queryClassification: "openai/gpt-oss-20b",
   promptHelper: "x-ai/grok-4.1-fast",
   personaGeneration: "x-ai/grok-4.1-fast",

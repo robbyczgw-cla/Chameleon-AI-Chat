@@ -49,6 +49,10 @@ const DEFAULT_SETTINGS: MemorySettings = {
   expirationEnabled: true, // Enable automatic memory expiration
   expirationDays: DEFAULT_EXPIRATION_DAYS, // Days without access before expiration
   archiveRetentionDays: DEFAULT_ARCHIVE_RETENTION_DAYS, // Days to keep deleted memories
+  // Automatic maintenance settings
+  autoConsolidation: false, // Don't auto-consolidate by default (user opt-in)
+  autoImportanceAdjustment: true, // Auto-adjust importance (safe and useful)
+  lastMaintenanceRun: 0, // Never run yet
 }
 
 // Memory retrieval decision - explains why memories were/weren't retrieved
@@ -157,6 +161,14 @@ class MemoryService {
       this.removeDuplicates() // Remove any duplicate memories
       this.checkAndExpireMemories()
       this.cleanupExpiredArchive()
+
+      // Check if maintenance should run
+      const maintenanceCheck = this.shouldRunMaintenance()
+      if (maintenanceCheck.should) {
+        console.log("[Memory] Maintenance due (last run:", maintenanceCheck.hoursSinceLastRun, "hours ago)")
+        // Note: We don't run automatically here because we need API key from settings
+        // The app should call runMaintenance() from a background task
+      }
     }
 
     console.log("[Memory] Database sync configured:", {
@@ -750,6 +762,134 @@ Return ONLY the JSON array, no markdown or explanation. If no consolidation need
         kept: this.memories.length,
         error: error instanceof Error ? error.message : "Unknown error"
       }
+    }
+  }
+
+  /**
+   * Run automatic maintenance tasks (importance adjustment + optional consolidation)
+   * - Adjusts memory importance based on usage patterns
+   * - Consolidates duplicate memories (if enabled)
+   * - Runs at most once per 24 hours
+   *
+   * @param apiKey - OpenRouter API key (required for consolidation)
+   * @param force - Force run even if already ran today
+   * @returns Summary of maintenance actions
+   */
+  async runMaintenance(
+    apiKey?: string,
+    force: boolean = false
+  ): Promise<{
+    success: boolean
+    ranImportanceAdjustment: boolean
+    ranConsolidation: boolean
+    importanceResults?: { boosted: number; reduced: number; skipped: number }
+    consolidationResults?: { consolidated: number; kept: number; details?: any[] }
+    error?: string
+  }> {
+    const now = Date.now()
+    const lastRun = this.settings.lastMaintenanceRun || 0
+    const hoursSinceLastRun = (now - lastRun) / (1000 * 60 * 60)
+
+    // Only run once per 24 hours unless forced
+    if (!force && hoursSinceLastRun < 24) {
+      const hoursUntilNext = Math.ceil(24 - hoursSinceLastRun)
+      console.log(`[Memory] Maintenance already ran ${Math.floor(hoursSinceLastRun)}h ago. Next run in ${hoursUntilNext}h.`)
+      return {
+        success: false,
+        ranImportanceAdjustment: false,
+        ranConsolidation: false,
+        error: `Maintenance already ran ${Math.floor(hoursSinceLastRun)} hours ago`
+      }
+    }
+
+    console.log("[Memory] 🔧 Starting automatic maintenance...")
+
+    let ranImportanceAdjustment = false
+    let ranConsolidation = false
+    let importanceResults
+    let consolidationResults
+    let hadError = false
+    let errorMessage
+
+    try {
+      // 1. Always run importance adjustment if enabled (no API key needed)
+      if (this.settings.autoImportanceAdjustment !== false) {
+        console.log("[Memory] Running importance adjustment...")
+        importanceResults = this.adjustMemoryImportance()
+        ranImportanceAdjustment = true
+        console.log("[Memory] ✅ Importance adjustment complete")
+      }
+
+      // 2. Run consolidation if enabled AND API key available
+      if (this.settings.autoConsolidation && apiKey) {
+        console.log("[Memory] Running memory consolidation...")
+        const result = await this.consolidateMemories(apiKey, false)
+        if (result.success) {
+          consolidationResults = {
+            consolidated: result.consolidated,
+            kept: result.kept,
+            details: result.details
+          }
+          ranConsolidation = true
+          console.log("[Memory] ✅ Consolidation complete")
+        } else {
+          console.error("[Memory] ❌ Consolidation failed:", result.error)
+          hadError = true
+          errorMessage = result.error
+        }
+      } else if (this.settings.autoConsolidation && !apiKey) {
+        console.log("[Memory] ⚠️ Consolidation enabled but no API key provided")
+      }
+
+      // 3. Run expiration check
+      console.log("[Memory] Running expiration check...")
+      this.checkAndExpireMemories()
+
+      // Update last run timestamp
+      this.settings.lastMaintenanceRun = now
+      this.saveMemories()
+
+      console.log("[Memory] 🎉 Maintenance complete:", {
+        importanceAdjustment: ranImportanceAdjustment,
+        consolidation: ranConsolidation,
+        error: hadError ? errorMessage : null
+      })
+
+      return {
+        success: !hadError,
+        ranImportanceAdjustment,
+        ranConsolidation,
+        importanceResults,
+        consolidationResults,
+        error: errorMessage
+      }
+
+    } catch (error) {
+      console.error("[Memory] ❌ Maintenance error:", error)
+      return {
+        success: false,
+        ranImportanceAdjustment,
+        ranConsolidation,
+        importanceResults,
+        consolidationResults,
+        error: error instanceof Error ? error.message : "Unknown error"
+      }
+    }
+  }
+
+  /**
+   * Check if maintenance should run (24+ hours since last run)
+   */
+  shouldRunMaintenance(): { should: boolean; hoursSinceLastRun: number; hoursUntilNext: number } {
+    const now = Date.now()
+    const lastRun = this.settings.lastMaintenanceRun || 0
+    const hoursSinceLastRun = (now - lastRun) / (1000 * 60 * 60)
+    const should = hoursSinceLastRun >= 24
+
+    return {
+      should,
+      hoursSinceLastRun: Math.floor(hoursSinceLastRun),
+      hoursUntilNext: should ? 0 : Math.ceil(24 - hoursSinceLastRun)
     }
   }
 
