@@ -18,6 +18,7 @@ const DELETED_MEMORY_STORAGE_KEY_PREFIX = "chat_deleted_memories" // Archived me
 // Default models for memory tasks (can be overridden via settings)
 export const DEFAULT_EXTRACTION_MODEL = "openai/gpt-oss-20b" // Cheap, fast model for extraction
 export const DEFAULT_CLASSIFIER_MODEL = "openai/gpt-oss-20b" // Same model for query classification
+export const DEFAULT_CONSOLIDATION_MODEL = "openai/gpt-oss-120b" // More capable model for consolidation
 
 // Expiration constants
 const DEFAULT_EXPIRATION_DAYS = 7 // Days without access before expiration
@@ -72,6 +73,7 @@ class MemoryService {
   // Configurable models (can be set from UI settings)
   private extractionModel: string = DEFAULT_EXTRACTION_MODEL
   private classifierModel: string = DEFAULT_CLASSIFIER_MODEL
+  private consolidationModel: string = DEFAULT_CONSOLIDATION_MODEL
 
   constructor() {
     // Don't load memories in constructor - wait for user ID to be set
@@ -81,12 +83,15 @@ class MemoryService {
   /**
    * Set custom models for memory tasks (from UI settings)
    */
-  setModels(options: { extractionModel?: string; classifierModel?: string }) {
+  setModels(options: { extractionModel?: string; classifierModel?: string; consolidationModel?: string }) {
     if (options.extractionModel) {
       this.extractionModel = options.extractionModel
     }
     if (options.classifierModel) {
       this.classifierModel = options.classifierModel
+    }
+    if (options.consolidationModel) {
+      this.consolidationModel = options.consolidationModel
     }
   }
 
@@ -97,6 +102,7 @@ class MemoryService {
     return {
       extractionModel: this.extractionModel,
       classifierModel: this.classifierModel,
+      consolidationModel: this.consolidationModel,
     }
   }
 
@@ -479,6 +485,272 @@ class MemoryService {
     }
 
     return { expired: expiredCount, demoted: demotedCount, skippedProfile: skippedProfileCount }
+  }
+
+  /**
+   * Dynamically adjust memory importance based on usage patterns
+   * - Frequently accessed memories get boosted (if not already max)
+   * - Rarely accessed memories get reduced (if not profile-based)
+   *
+   * Call this periodically (e.g., daily) to keep importance aligned with actual usefulness
+   */
+  adjustMemoryImportance(): { boosted: number; reduced: number; skipped: number } {
+    const now = Date.now()
+    let boostedCount = 0
+    let reducedCount = 0
+    let skippedCount = 0
+
+    for (const memory of this.memories) {
+      // Skip profile-based memories - their importance is permanent
+      if (memory.source === "profile" || memory.category === "personal_info") {
+        skippedCount++
+        continue
+      }
+
+      const daysSinceCreated = (now - memory.createdAt) / MS_PER_DAY
+      const daysSinceAccessed = (now - memory.lastAccessedAt) / MS_PER_DAY
+
+      // Only adjust memories that are at least 7 days old (need time to establish pattern)
+      if (daysSinceCreated < 7) {
+        continue
+      }
+
+      // BOOST: Frequently accessed memories (10+ accesses and used recently)
+      if (memory.accessCount >= 10 && daysSinceAccessed < 7 && memory.importance < 3) {
+        memory.importance = Math.min(3, memory.importance + 1) as 1 | 2 | 3
+        boostedCount++
+        console.log("[Memory] Boosted importance:", memory.content.substring(0, 40),
+          `(accessCount: ${memory.accessCount}, importance: ${memory.importance})`)
+      }
+
+      // REDUCE: Rarely accessed memories (0 accesses in 30+ days, not already low)
+      else if (daysSinceAccessed > 30 && memory.accessCount === 0 && memory.importance > 1) {
+        memory.importance = Math.max(1, memory.importance - 1) as 1 | 2 | 3
+        reducedCount++
+        console.log("[Memory] Reduced importance:", memory.content.substring(0, 40),
+          `(daysSinceAccessed: ${Math.floor(daysSinceAccessed)}, importance: ${memory.importance})`)
+      }
+    }
+
+    if (boostedCount > 0 || reducedCount > 0) {
+      this.saveMemories()
+      console.log("[Memory] Importance adjustment:", {
+        boosted: boostedCount,
+        reduced: reducedCount,
+        skipped: skippedCount
+      })
+    }
+
+    return { boosted: boostedCount, reduced: reducedCount, skipped: skippedCount }
+  }
+
+  /**
+   * Consolidate duplicate/similar memories using LLM
+   * Finds semantically similar memories and merges them to reduce clutter
+   *
+   * @param apiKey - OpenRouter API key for LLM calls
+   * @param dryRun - If true, only return what would be consolidated without making changes
+   * @returns Summary of consolidation actions
+   */
+  async consolidateMemories(
+    apiKey: string,
+    dryRun: boolean = false
+  ): Promise<{
+    success: boolean
+    consolidated: number
+    kept: number
+    error?: string
+    details?: Array<{ kept: Memory; merged: Memory[]; reason: string }>
+  }> {
+    if (!apiKey) {
+      return { success: false, consolidated: 0, kept: 0, error: "No API key provided" }
+    }
+
+    if (this.memories.length < 2) {
+      return { success: true, consolidated: 0, kept: this.memories.length, error: "Not enough memories to consolidate" }
+    }
+
+    try {
+      console.log("[Memory] Starting consolidation with", this.memories.length, "memories")
+
+      // Group memories by type for better consolidation
+      const memoryGroups: Record<string, Memory[]> = {
+        preference: this.memories.filter(m => m.type === "preference"),
+        fact: this.memories.filter(m => m.type === "fact"),
+        context: this.memories.filter(m => m.type === "context"),
+        skill: this.memories.filter(m => m.type === "skill"),
+        goal: this.memories.filter(m => m.type === "goal"),
+      }
+
+      const consolidationActions: Array<{ kept: Memory; merged: Memory[]; reason: string }> = []
+      let totalConsolidated = 0
+
+      // Process each type separately
+      for (const [type, memories] of Object.entries(memoryGroups)) {
+        if (memories.length < 2) continue
+
+        console.log(`[Memory] Analyzing ${memories.length} ${type} memories for consolidation`)
+
+        // Prepare memory list for LLM
+        const memoryList = memories.map((m, idx) => ({
+          index: idx,
+          id: m.id,
+          content: m.content,
+          importance: m.importance,
+          accessCount: m.accessCount,
+          createdAt: new Date(m.createdAt).toISOString(),
+        }))
+
+        const prompt = `You are a memory consolidation system. Analyze these ${type} memories and identify duplicates or highly overlapping memories that should be merged.
+
+MEMORIES:
+${JSON.stringify(memoryList, null, 2)}
+
+RULES:
+1. Only merge memories that are clearly about the same thing
+2. "User likes TypeScript" and "User prefers TS over JS" should merge
+3. "User lives in NYC" and "User lives in San Francisco" are CONFLICTING - do NOT merge (flag as conflict)
+4. Prefer keeping the memory with:
+   - More detail/specificity
+   - Higher access count (more useful)
+   - More recent creation date (if same detail level)
+5. When merging, combine access counts and keep the better content
+
+Return a JSON array of consolidation groups. Each group should have:
+- "keep": index of memory to keep
+- "merge": array of indices to merge into it
+- "reason": brief explanation
+- "isConflict": true if these are conflicting (don't actually merge, just flag)
+
+Example output:
+[
+  {
+    "keep": 0,
+    "merge": [2, 5],
+    "reason": "All about TypeScript preference, #0 has most detail",
+    "isConflict": false
+  },
+  {
+    "keep": 3,
+    "merge": [4],
+    "reason": "Same location info, #3 is more recent",
+    "isConflict": false
+  }
+]
+
+Return ONLY the JSON array, no markdown or explanation. If no consolidation needed, return [].`
+
+        // Call LLM
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-openrouter-api-key": apiKey,
+          },
+          body: JSON.stringify({
+            messages: [{ role: "user", content: prompt }],
+            model: this.consolidationModel,
+            temperature: 0.2, // Low temp for consistent consolidation decisions
+            maxTokens: 2000,
+            stream: false,
+          }),
+        })
+
+        if (!response.ok) {
+          console.error(`[Memory] Consolidation API error for ${type}:`, response.status)
+          continue
+        }
+
+        const data = await response.json()
+        const content = data.choices?.[0]?.message?.content || ""
+
+        // Parse JSON from response
+        const jsonMatch = content.match(/\[[\s\S]*\]/)
+        if (!jsonMatch) {
+          console.log(`[Memory] No consolidation groups found for ${type}`)
+          continue
+        }
+
+        const groups = JSON.parse(jsonMatch[0])
+
+        if (!Array.isArray(groups) || groups.length === 0) {
+          console.log(`[Memory] No consolidation needed for ${type}`)
+          continue
+        }
+
+        console.log(`[Memory] Found ${groups.length} consolidation groups for ${type}`)
+
+        // Process each consolidation group
+        for (const group of groups) {
+          // Skip conflicts - just log them
+          if (group.isConflict) {
+            console.warn(`[Memory] CONFLICT detected:`, group.reason)
+            continue
+          }
+
+          const keepMemory = memories[group.keep]
+          const mergeMemories = group.merge.map((idx: number) => memories[idx]).filter(Boolean)
+
+          if (!keepMemory || mergeMemories.length === 0) continue
+
+          // Merge access counts
+          const totalAccessCount = keepMemory.accessCount +
+            mergeMemories.reduce((sum: number, m: Memory) => sum + m.accessCount, 0)
+
+          consolidationActions.push({
+            kept: keepMemory,
+            merged: mergeMemories,
+            reason: group.reason
+          })
+
+          if (!dryRun) {
+            // Update the kept memory
+            keepMemory.accessCount = totalAccessCount
+
+            // Use the most recent lastAccessedAt
+            const allMemories = [keepMemory, ...mergeMemories]
+            keepMemory.lastAccessedAt = Math.max(...allMemories.map(m => m.lastAccessedAt))
+
+            // Delete the merged memories
+            for (const mergedMemory of mergeMemories) {
+              this.permanentlyDeleteMemory(mergedMemory.id)
+              totalConsolidated++
+            }
+
+            console.log(`[Memory] Consolidated ${mergeMemories.length} memories into:`,
+              keepMemory.content.substring(0, 50),
+              `(total access count: ${totalAccessCount})`)
+          }
+        }
+      }
+
+      if (!dryRun && totalConsolidated > 0) {
+        this.saveMemories()
+      }
+
+      const keptCount = this.memories.length
+      console.log("[Memory] Consolidation complete:", {
+        consolidated: totalConsolidated,
+        kept: keptCount,
+        dryRun
+      })
+
+      return {
+        success: true,
+        consolidated: totalConsolidated,
+        kept: keptCount,
+        details: consolidationActions
+      }
+
+    } catch (error) {
+      console.error("[Memory] Consolidation error:", error)
+      return {
+        success: false,
+        consolidated: 0,
+        kept: this.memories.length,
+        error: error instanceof Error ? error.message : "Unknown error"
+      }
+    }
   }
 
   /**
