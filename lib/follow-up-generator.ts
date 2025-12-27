@@ -4,16 +4,17 @@
  * Generates follow-up suggestions using a dedicated fast/cheap model in parallel
  * with the main AI response. This improves speed and reduces costs.
  *
- * Default model: google/gemini-2.5-flash
- * Fallback: google/gemini-flash-1.5
+ * Default model: openai/gpt-3.5-turbo (reliable, fast, cheap)
+ * Fallback: anthropic/claude-3-haiku-20240307
  */
 
 import type { Message, CategorizedFollowUp } from "@/types"
 import { parseFollowUps } from "./follow-up-parser"
 
-// Gemini 2.5 Flash - fast, cheap, reliable for simple JSON tasks
-const DEFAULT_FOLLOWUP_MODEL = "google/gemini-2.5-flash"
-const FALLBACK_FOLLOWUP_MODEL = "google/gemini-flash-1.5"
+// Use reliable models that actually work via OpenRouter
+// GPT-3.5-turbo is fast, cheap, and ALWAYS generates content
+const DEFAULT_FOLLOWUP_MODEL = "openai/gpt-3.5-turbo"
+const FALLBACK_FOLLOWUP_MODEL = "anthropic/claude-3-haiku-20240307"
 
 /**
  * Build specialized system prompt for follow-up generation
