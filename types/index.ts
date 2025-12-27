@@ -335,6 +335,7 @@ export interface BackgroundAIModelsSettings {
   // Text generation tasks
   titleGeneration?: string // Default: openai/gpt-oss-20b
   memoryExtraction?: string // Default: openai/gpt-oss-20b
+  memoryConsolidation?: string // Default: openai/gpt-oss-120b
   queryClassification?: string // Default: openai/gpt-oss-20b
   promptHelper?: string // Default: x-ai/grok-4.1-fast
   personaGeneration?: string // Default: x-ai/grok-4.1-fast
