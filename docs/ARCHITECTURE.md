@@ -49,7 +49,7 @@ Chameleon is a **Next.js 16** Progressive Web App (PWA) that provides a sophisti
 ```
 
 **Core Features:**
-- 🎭 **18+ AI Personas** with distinct personalities
+- 🎭 **27 AI Personas** with distinct personalities
 - 🧠 **Long-term Memory System** with intelligent retrieval
 - 🔍 **Web Search Integration** (Tavily & Serper)
 - 🎙️ **Voice Input/Output** (Whisper + TTS)
@@ -695,10 +695,10 @@ const messages = [
 - **Cogito** - Existential philosopher
 - **Nihilo** - Cheerful nihilist
 - **Expert/Coder/Concise** - Functional specialists
-- 12+ more personas
+- 18+ more personas
 
 **Total persona system:**
-- 18+ personas
+- 27 personas
 - ~10,000 tokens of personality definitions
 - Each conversation uses 1 persona's prompt
 
@@ -2625,7 +2625,7 @@ Added to `app/layout.tsx`:
 | `app/api/chat/route.ts` | Main chat API | Streaming logic, context building | All |
 | `app/api/tts/route.ts` | OpenAI TTS API | Audio generation endpoint | All |
 | `app/api/whisper/route.ts` | Speech-to-text API | Audio format handling | 30-45 |
-| `lib/personas.ts` | Persona definitions | All 18+ personas | 1-500 |
+| `lib/personas.ts` | Persona definitions | All 27 personas | 1-500 |
 | `lib/cost-tracker.ts` | Cost tracking | Pricing database, calculation | All |
 | `lib/rag-service.ts` | RAG implementation | Chunking, embedding, retrieval | 50-150 |
 | `components/chat-messages.tsx` | Message display | React.memo, useCallback | 1-80 |

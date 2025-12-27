@@ -274,7 +274,7 @@ export function SharedChatView({ chat, shareToken }: SharedChatViewProps) {
             </a>
           </Button>
           <p className="mt-4 text-xs text-muted-foreground">
-            100+ AI models, 18+ personas, memory system, and more
+            100+ AI models, 27 personas, memory system, and more
           </p>
         </div>
       </main>

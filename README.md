@@ -5,7 +5,7 @@
 
   ### **Stop Guessing Your AI Costs. Know Exactly What You're Spending.**
 
-  The only AI chat with **real-time cost tracking**, **18+ expert personas**, and **training data export**.
+  The only AI chat with **real-time cost tracking**, **27 expert personas**, and **training data export**.
 
   [![GitHub stars](https://img.shields.io/github/stars/robbyczgw-cla/Chameleon-AI-Chat?style=social)](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/stargazers)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -37,12 +37,12 @@ See what every message costs you. Export spending history. Optimize your usage.
 </td>
 <td width="33%" align="center">
 
-### 🎭 **18+ Expert Personas**
+### 🎭 **27 Expert Personas**
 Not generic "assistants"
 
 **Real personalities with depth.**
 
-Nova (cyberpunk hacker), Sol Goldman (lawyer), Mythos (worldbuilder), Cogito (philosopher).
+Nova (cyberpunk hacker), Sol Goldman (lawyer), Mythos (worldbuilder), Cogito (philosopher), Dev (programmer), and more.
 
 *+28% engagement vs. generic bots*
 
@@ -75,7 +75,7 @@ Export conversations for GPT-4, Claude fine-tuning. Markdown, HTML, JSON formats
 | **🛠️ Visual Tool Use** | See web searches, weather checks, calculations live | Most hide tool use - we make it transparent |
 | **💰 Real Cost Tracking** | Exact billing data per message, not estimates | Everyone else guesses - we show actual OpenRouter costs |
 | **📊 Analytics Dashboard** | Charts, model distribution, spending trends | Track patterns, optimize usage, export data |
-| **🎭 26+ Deep Personas** | Nova (hacker), Sol (lawyer), Mythos (worldbuilder) | Not generic assistants - real personalities with depth |
+| **🎭 27 Deep Personas** | Nova (hacker), Sol (lawyer), Mythos (worldbuilder) | Not generic assistants - real personalities with depth |
 
 ---
 
@@ -135,25 +135,11 @@ npm run dev
 
 ---
 
-## 📸 Screenshots
-
-> **Note:** Screenshots coming soon:
-> - Advanced streaming with phase indicators
-> - Real-time tool use visualization
-> - Cost tracking dashboard
-> - Analytics charts
-> - Smart follow-up suggestions
-> - Persona selection
-
-*Launching publicly soon - watch this space!*
-
----
-
 ## 💡 Perfect For
 
 **Power Users Who Want:**
 - ✅ Control over AI spending (see exact costs per message)
-- ✅ Personality in their AI (18+ personas, not boring assistants)
+- ✅ Personality in their AI (27 personas, not boring assistants)
 - ✅ Data ownership (export training data, fine-tune your own models)
 - ✅ Advanced features (debate mode, semantic memory, smart search)
 
@@ -185,7 +171,7 @@ Not generic "ChatGPT with a twist." Real personalities:
 | **Professor Stein** 🎓 | In-depth expert | Learning, research, detailed explanations |
 | **Dev** 💻 | Programming partner | Code review, debugging, architecture |
 
-[See all 26 personas →](./docs/personas.md)
+[See all 27 personas →](./docs/personas.md)
 
 ---
 
@@ -294,7 +280,7 @@ Vote: Who convinced you?
 
 - [📖 User Guide](./docs/user-guide.md) - Complete walkthrough
 - [🧠 Memory System](./docs/MEMORY_SYSTEM.md) - How memory works
-- [🎭 Personas Guide](./docs/personas.md) - All 26 personas
+- [🎭 Personas Guide](./docs/personas.md) - All 27 personas
 - [🔧 Architecture](./docs/ARCHITECTURE.md) - Technical deep dive
 - [🚀 Deployment](./docs/deployment.md) - Self-hosting guide
 - [💾 Database Setup](./docs/DATABASE_IMPLEMENTATION_GUIDE.md) - Supabase config
@@ -355,6 +341,6 @@ Built with amazing tools:
 
 **Built with ❤️ for power users who want control**
 
-*100+ AI models • 18+ personas • Real cost tracking • Training data export*
+*100+ AI models • 27 personas • Real cost tracking • Training data export*
 
 </div>

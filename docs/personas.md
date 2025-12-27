@@ -1,6 +1,6 @@
 # 🎭 All Personas - Complete Reference
 
-Complete guide to all 18+ AI personalities in Chameleon Chat.
+Complete guide to all 27 AI personas in Chameleon Chat.
 
 ---
 
@@ -9,6 +9,7 @@ Complete guide to all 18+ AI personalities in Chameleon Chat.
 | Persona | Emoji | Best For | Style |
 |---------|-------|----------|-------|
 | Cami | 🦎 | Everyday questions | Adaptive, friendly, patient chameleon |
+| Chameleon Agent | 🦎 | Complex professional tasks | Adaptive, precise, powerful |
 | Professor Stein | 🎓 | Deep learning | Detailed, factual, expert |
 | Luna | 🎨 | Creativity | Metaphors, brainstorming |
 | Dev | 💻 | Programming | Code examples, debugging |
@@ -23,12 +24,17 @@ Complete guide to all 18+ AI personalities in Chameleon Chat.
 | Lisa Knight | 💪 | Motivation | Enthusiastic support |
 | Coach Thompson | 🏈 | Mentorship | Leadership, character building |
 | Sol Goldman | ⚖️ | Creative thinking | Lawyer, persuasive |
-| Dr. Jon Carson | 🏥 | Medical/mentoring | ER doctor, teaching |
-| Dr. Max Gray | 👨‍⚕️ | Empathy | Compassionate physician |
+| Dr. Med | 🩺 | Medical advice | Experienced physician, mentor |
 | Rustin Cole | 🔦 | Dark philosophy | Cynical detective |
-| Mari Shizuka | 🔬 | Science | Neuroscience enthusiast |
 | Ellis Anderson | 💻 | Hacking | Paranoid tech genius |
 | Louis K. | 😩 | Comedy | Self-deprecating humor |
+| Pixel | 🎮 | Game design | Retro gaming, pixel art |
+| Chef Marco | 👨‍🍳 | Cooking | Italian cuisine, recipes |
+| Zen | 🧘 | Mindfulness | Meditation, stress relief |
+| Startup Sam | 🚀 | Business | Entrepreneurship, strategy |
+| Aria | 🎵 | Music | Composition, music theory |
+| HiFi Berater | 🎧 | Audio equipment | High-end audio consulting |
+| Panel | 📊 | Multi-perspective | Multiple viewpoints discussion |
 
 ---
 
@@ -484,36 +490,143 @@ setCount(prev => prev + 1);
 
 ---
 
+## 🦎 Chameleon Agent - Premium AI Agent
+
+**Perfect For:**
+- Complex multi-step tasks
+- Professional work
+- Deep analysis
+- System design
+
+**Communication Style:**
+- Highly adaptive to task type
+- Precise and efficient
+- Direct without being cold
+- Quality-focused
+
+**When to Use:**
+- Complex coding projects
+- Multi-step research
+- Strategic planning
+- Deep dives into technical topics
+
+---
+
+## 🎮 Pixel - Retro Game Designer
+
+**Perfect For:**
+- Pixel art
+- Retro game design
+- 8-bit/16-bit aesthetics
+- Game development
+
+**Communication Style:**
+- Enthusiastic about retro gaming
+- Technically precise for art tips
+- References classic games
+- Encouraging for beginners
+
+---
+
+## 👨‍🍳 Chef Marco - Italian Chef
+
+**Perfect For:**
+- Cooking questions
+- Recipe help
+- Culinary techniques
+- Menu planning
+
+**Communication Style:**
+- Warm and inviting
+- Patient with beginners
+- Passionate about ingredients
+- Practical tips from experience
+
+---
+
+## 🧘 Zen - Mindfulness Guide
+
+**Perfect For:**
+- Meditation guidance
+- Stress relief
+- Mindfulness practice
+- Sleep and relaxation
+
+**Communication Style:**
+- Calm and grounded
+- Gentle but challenging
+- Practical and applicable
+- Non-dogmatic
+
+---
+
+## 🚀 Startup Sam - Entrepreneur
+
+**Perfect For:**
+- Business planning
+- Startup advice
+- Growth strategies
+- Pitch feedback
+
+**Communication Style:**
+- Direct and honest
+- Data-driven
+- Enthusiastic about ideas
+- Shares own failures as lessons
+
+---
+
+## 🎵 Aria - Music Theorist
+
+**Perfect For:**
+- Music composition
+- Music theory
+- Song analysis
+- Production tips
+
+**Communication Style:**
+- Enthusiastic and encouraging
+- Makes complex concepts accessible
+- Uses examples from known songs
+- Balances theory with creativity
+
+---
+
 ## 🎯 Choosing the Right Persona
 
 ### By Task Type:
 
-**Coding:** Dev, Flash (quick refs)
+**Coding:** Dev, Chameleon Agent, Flash (quick refs)
 **Learning:** Professor Stein, Herr Müller
-**Creativity:** Luna, Mythos, Nova
+**Creativity:** Luna, Mythos, Nova, Pixel
 **Motivation:** Lisa Knight, Coach Thompson
 **Philosophy:** Cogito, Nihilo
-**Analysis:** Sara Norton, Professor Stein
-**Recommendations:** Vibe
-**Professional:** Sol Goldman (legal), Dr. Jon Carson, Dr. Max Gray (medical)
+**Analysis:** Sara Norton, Professor Stein, Chameleon Agent
+**Recommendations:** Vibe, Aria
+**Professional:** Sol Goldman (legal), Dr. Med (medical), Startup Sam (business)
+**Cooking:** Chef Marco
+**Mindfulness:** Zen
+**Music:** Aria, Vibe
+**Gaming:** Pixel, Vibe
 
 ### By Communication Preference:
 
-**Detailed:** Professor Stein, Dev
+**Detailed:** Professor Stein, Dev, Chameleon Agent
 **Concise:** Flash, Sara Norton
-**Friendly:** Cami, Lisa Knight
-**Creative:** Luna, Nova, Mythos
+**Friendly:** Cami, Lisa Knight, Chef Marco
+**Creative:** Luna, Nova, Mythos, Pixel
 **Philosophical:** Cogito, Nihilo, Coach Thompson
-**Entertaining:** Sol Goldman, Nihilo, Nova
+**Entertaining:** Sol Goldman, Nihilo, Nova, Louis K.
+**Calm:** Zen, Aria
 
 ### By Mood:
 
-**Stressed:** Nihilo (perspective), Coach Thompson (strength)
-**Motivated:** Lisa Knight, Coach Thompson
-**Creative:** Luna, Mythos
+**Stressed:** Nihilo (perspective), Coach Thompson (strength), Zen (calm)
+**Motivated:** Lisa Knight, Coach Thompson, Startup Sam
+**Creative:** Luna, Mythos, Pixel, Aria
 **Curious:** Cogito, Professor Stein
 **Social:** Nova, Vibe
-**Focused:** Flash, Dev, Sara Norton
+**Focused:** Flash, Dev, Chameleon Agent, Sara Norton
 
 ---
 

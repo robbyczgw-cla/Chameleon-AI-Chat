@@ -63,7 +63,7 @@ Inject into text inputs (Gmail, Twitter, LinkedIn, etc.)
 
 ### 4. **Sidebar Chat** (Chrome only)
 Full Chameleon chat experience in sidebar
-- All 18+ personas
+- All 27 personas
 - Model switching
 - Voice input/output
 - Memory system
