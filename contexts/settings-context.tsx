@@ -71,7 +71,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   messageDensity: "comfortable",
   reasoningDepth: "medium", // Default reasoning depth for thinking models (Gemini 3, o1, etc.)
   experimental: {
-    useDedicatedFollowUpModel: false, // DISABLED: Use inline follow-ups until dedicated model integration is complete
+    useDedicatedFollowUpModel: true, // Use dedicated model for follow-ups (faster, cheaper, parallel generation)
     backgroundAIModels: {
       followUpGeneration: "google/gemini-3-flash-preview", // Fast, cheap model for follow-up generation
     },

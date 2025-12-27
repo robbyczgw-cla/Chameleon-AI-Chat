@@ -39,6 +39,7 @@ import type { Persona } from "@/lib/personas"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { useDraft } from "@/hooks/use-draft"
 import { buildSystemPrompt } from "@/lib/system-prompt-builder"
+import { useDedicatedFollowUps, injectFollowUpsIntoMessage } from "@/hooks/use-dedicated-followups"
 
 export function ChatInput() {
   const { currentChatId, addMessage, createChat, settings, chats, setChats, user, updateSettings, setIsChatLoading, setStreamingPhase, setCurrentTool, setSearchQuery, currentStreamingDetails, setCurrentStreamingDetails, addStreamingHistoryEntry, clearStreamingHistory, getStreamingHistory } = useApp()
@@ -48,6 +49,17 @@ export function ChatInput() {
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
   const [input, setInput] = useState("")
+
+  // Dedicated follow-up generation
+  const [lastProcessedMessageId, setLastProcessedMessageId] = useState<string | null>(null)
+  const dedicatedFollowUps = useDedicatedFollowUps(
+    currentChat?.messages || [],
+    {
+      enabled: settings.experimental?.useDedicatedFollowUpModel ?? false,
+      model: settings.experimental?.backgroundAIModels?.followUpGeneration,
+      apiKey: settings.apiKeys?.openRouter || '',
+    }
+  )
 
   // Restore draft when hook is ready
   useEffect(() => {
@@ -97,6 +109,67 @@ export function ChatInput() {
       window.removeEventListener("focusChatInput", handleFocusChatInput)
     }
   }, [toast])
+
+  // Trigger follow-up generation when a new assistant message is added
+  useEffect(() => {
+    if (!currentChat || !settings.experimental?.useDedicatedFollowUpModel) {
+      return // Only run if dedicated model is enabled
+    }
+
+    const lastMessage = currentChat.messages[currentChat.messages.length - 1]
+
+    // Only generate for assistant messages that we haven't processed yet
+    if (lastMessage &&
+        lastMessage.role === 'assistant' &&
+        lastMessage.id !== lastProcessedMessageId &&
+        !lastMessage.content.includes('[FOLLOWUP]')) { // Don't regenerate if already has follow-ups
+
+      console.log('[DedicatedFollowUps] Generating follow-ups for message:', lastMessage.id)
+      setLastProcessedMessageId(lastMessage.id)
+      dedicatedFollowUps.generateFollowUps()
+    }
+  }, [currentChat?.messages, settings.experimental?.useDedicatedFollowUpModel, lastProcessedMessageId])
+
+  // Inject follow-ups into the message when they're ready
+  useEffect(() => {
+    if (!currentChat ||
+        dedicatedFollowUps.followUps.length === 0 ||
+        dedicatedFollowUps.isGenerating ||
+        !lastProcessedMessageId) {
+      return
+    }
+
+    // Find the message we need to update
+    const messageToUpdate = currentChat.messages.find(m => m.id === lastProcessedMessageId)
+    if (!messageToUpdate || messageToUpdate.content.includes('[FOLLOWUP]')) {
+      return // Already has follow-ups
+    }
+
+    console.log('[DedicatedFollowUps] Injecting', dedicatedFollowUps.followUps.length, 'follow-ups into message')
+
+    // Inject follow-ups into message content
+    const contentStr = typeof messageToUpdate.content === 'string'
+      ? messageToUpdate.content
+      : JSON.stringify(messageToUpdate.content)
+
+    const updatedContent = injectFollowUpsIntoMessage(contentStr, dedicatedFollowUps.followUps)
+
+    // Update the chat state with the modified message
+    setChats((prevChats) =>
+      prevChats.map((chat) => {
+        if (chat.id !== currentChatId) return chat
+
+        return {
+          ...chat,
+          messages: chat.messages.map((msg) =>
+            msg.id === lastProcessedMessageId
+              ? { ...msg, content: updatedContent }
+              : msg
+          ),
+        }
+      })
+    )
+  }, [dedicatedFollowUps.followUps, dedicatedFollowUps.isGenerating, lastProcessedMessageId, currentChat, currentChatId, setChats])
 
   const toggleVoiceInput = async () => {
     // Check if OpenAI API key is available for Whisper
