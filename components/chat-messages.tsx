@@ -361,23 +361,28 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
   useAutoFetchCosts(
     currentChat?.messages || [],
     useCallback((messageId: string, costData: any) => {
-      if (!currentChat) return
-
-      // Update the message with exact cost data
-      const updatedMessages = currentChat.messages.map(msg =>
-        msg.id === messageId
-          ? {
-              ...msg,
-              stats: {
-                ...msg.stats,
-                ...costData,
-              }
-            }
-          : msg
-      )
-
-      updateChat(currentChat.id, { messages: updatedMessages })
-    }, [currentChat, updateChat]),
+      // IMPORTANT: Use setChats with functional update to avoid stale closure issues
+      // The previous implementation used updateChat with a snapshot of messages,
+      // which would overwrite follow-ups that were added after the snapshot was taken
+      setChats(prevChats => prevChats.map(chat => {
+        if (chat.id !== currentChatId) return chat
+        return {
+          ...chat,
+          updatedAt: Date.now(),
+          messages: chat.messages.map(msg =>
+            msg.id === messageId
+              ? {
+                  ...msg,
+                  stats: {
+                    ...msg.stats,
+                    ...costData,
+                  }
+                }
+              : msg
+          )
+        }
+      }))
+    }, [currentChatId, setChats]),
     settings.apiKeys?.openRouter // Pass API key for exact cost fetching
   )
 
