@@ -1186,12 +1186,20 @@ export function ChatInput() {
             if (followUps && followUps.length > 0) {
               console.log(`[v0] ✅ Parallel follow-ups ready: ${followUps.length}`)
               // Get the CURRENT content from state (may have been updated during streaming)
-              setChats((prevChats) =>
-                prevChats.map((chat) => {
+              setChats((prevChats) => {
+                const updatedChats = prevChats.map((chat) => {
                   if (chat.id !== chatId) return chat
                   const currentMessage = chat.messages.find(m => m.id === assistantMessageId)
                   const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
                   const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, followUps)
+
+                  // Update Supabase with follow-ups so they persist
+                  if (user) {
+                    supabaseSync.updateMessageContent(assistantMessageId, contentWithFollowUps).catch(err => {
+                      console.warn("[v0] Failed to save follow-ups to Supabase:", err)
+                    })
+                  }
+
                   return {
                     ...chat,
                     messages: chat.messages.map((m) =>
@@ -1199,7 +1207,8 @@ export function ChatInput() {
                     ),
                   }
                 })
-              )
+                return updatedChats
+              })
             }
           })
           .catch((error) => {
@@ -1216,6 +1225,14 @@ export function ChatInput() {
                   const currentMessage = chat.messages.find(m => m.id === assistantMessageId)
                   const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
                   const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, fallbackFollowUps)
+
+                  // Update Supabase with fallback follow-ups so they persist
+                  if (user) {
+                    supabaseSync.updateMessageContent(assistantMessageId, contentWithFollowUps).catch(err => {
+                      console.warn("[v0] Failed to save fallback follow-ups to Supabase:", err)
+                    })
+                  }
+
                   return {
                     ...chat,
                     messages: chat.messages.map((m) =>

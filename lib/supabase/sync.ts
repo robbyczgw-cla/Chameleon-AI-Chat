@@ -127,6 +127,22 @@ export class SupabaseSync {
     if (error) throw error
   }
 
+  /**
+   * Update message content (used for persisting follow-ups after background generation)
+   */
+  async updateMessageContent(messageId: string, content: string): Promise<void> {
+    const { error } = await this.supabase
+      .from("messages")
+      .update({ content })
+      .eq("id", messageId)
+
+    if (error) {
+      console.error("[v0] Failed to update message content:", error)
+      throw error
+    }
+    console.log("[v0] Message content updated in Supabase:", messageId.substring(0, 8))
+  }
+
   // ===== Folders =====
   async syncFolders(userId: string): Promise<Folder[]> {
     const { data, error } = await this.supabase
