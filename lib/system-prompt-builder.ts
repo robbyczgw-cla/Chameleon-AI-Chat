@@ -101,6 +101,7 @@ export function hasFollowUpInstructions(prompt: string): boolean {
 /**
  * Remove follow-up instructions from a prompt
  * Handles multiple formats and preserves custom parts
+ * PRESERVES language instructions (WICHTIG, IMPORTANT, IMPORTANTE for responses)
  */
 export function removeFollowUpInstructions(prompt: string): string {
   let cleaned = prompt
@@ -117,8 +118,9 @@ export function removeFollowUpInstructions(prompt: string): string {
   // Remove "add exactly 6 clickable follow-up prompts..." patterns
   cleaned = cleaned.replace(/add exactly \d+ clickable follow-up prompts[\s\S]*?(?=\n\n|$)/gi, '')
 
-  // Remove "IMPORTANT: Always provide..." patterns related to follow-ups
-  cleaned = cleaned.replace(/IMPORTANT:.*?(?:prompts per category|what might they ask next|from the USER's perspective).*?(?:\n|$)/gi, '')
+  // Remove "IMPORTANT: Always provide..." patterns related to follow-ups ONLY
+  // DO NOT remove language instructions like "IMPORTANT: Always respond in English"
+  cleaned = cleaned.replace(/IMPORTANT:.*?(?:prompts per category|what might they ask next|from the USER's perspective|clickable follow-up).*?(?:\n|$)/gi, '')
 
   // Remove "Prompts are from the USER's perspective..." patterns
   cleaned = cleaned.replace(/(?:The )?prompts are from the USER'?s? perspective.*?(?:\n|$)/gi, '')

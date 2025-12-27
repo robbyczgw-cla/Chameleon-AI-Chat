@@ -89,6 +89,10 @@ export function migrateSettingsToContext(): MigrationResult {
 
     // Clean up system prompt - ALWAYS run this check (not just on first migration)
     // This ensures users who already migrated still get their prompts cleaned
+    // NOTE: Language instructions (WICHTIG/IMPORTANT/IMPORTANTE for language)
+    // may be in the stored prompt from old versions, but they're now added
+    // dynamically by chat-input.tsx. If they exist in stored prompt, we keep them
+    // for backward compatibility - they'll just be duplicated (harmless).
     if (settings.systemPrompt && hasFollowUpInstructions(settings.systemPrompt)) {
       const oldPrompt = settings.systemPrompt
       const cleanedPrompt = removeFollowUpInstructions(settings.systemPrompt)
@@ -99,6 +103,10 @@ export function migrateSettingsToContext(): MigrationResult {
         result.migrated.push("systemPrompt-cleanup")
         console.log(`[Migration] Cleaned up system prompt (removed follow-up instructions)`)
         console.log(`[Migration] Old length: ${oldPrompt.length} chars → New length: ${cleanedPrompt.length} chars`)
+
+        // Log what was removed for debugging
+        const removed = oldPrompt.replace(cleanedPrompt, '[REMOVED]')
+        console.log(`[Migration] Removed content preview: ${removed.substring(0, 200)}...`)
       }
     }
 
