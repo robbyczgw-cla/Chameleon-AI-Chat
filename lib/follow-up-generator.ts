@@ -4,16 +4,16 @@
  * Generates follow-up suggestions using a dedicated fast/cheap model in parallel
  * with the main AI response. This improves speed and reduces costs.
  *
- * Default model: openai/gpt-oss-120b
- * Fallback: x-ai/grok-4.1-fast
+ * Default model: google/gemini-2.5-flash
+ * Fallback: openai/gpt-4o-mini
  */
 
 import type { Message, CategorizedFollowUp } from "@/types"
 import { parseFollowUps } from "./follow-up-parser"
 
-// Use reliable models that actually work via OpenRouter
-const DEFAULT_FOLLOWUP_MODEL = "openai/gpt-oss-120b"
-const FALLBACK_FOLLOWUP_MODEL = "x-ai/grok-4.1-fast"
+// Fast, cheap models for follow-up generation
+const DEFAULT_FOLLOWUP_MODEL = "google/gemini-2.5-flash"
+const FALLBACK_FOLLOWUP_MODEL = "openai/gpt-4o-mini"
 
 /**
  * Build specialized system prompt for follow-up generation
@@ -85,10 +85,22 @@ async function tryGenerateFollowUps(
   language: string
 ): Promise<CategorizedFollowUp[]> {
   // Take last 4 messages for context (keeps token count low)
-  const recentMessages = messages.slice(-4).map(msg => ({
-    role: msg.role,
-    content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
-  }))
+  // IMPORTANT: Extract only text content, not tool calls/results
+  const recentMessages = messages.slice(-4).map(msg => {
+    let content = ''
+
+    if (typeof msg.content === 'string') {
+      content = msg.content
+    } else if (Array.isArray(msg.content)) {
+      // Extract only text parts from complex message content
+      content = msg.content
+        .filter((part: any) => part.type === 'text' && part.text)
+        .map((part: any) => part.text)
+        .join('\n')
+    }
+
+    return { role: msg.role, content }
+  }).filter(msg => msg.content.trim()) // Remove empty messages
 
   console.log(`[FollowUpGenerator] Generating follow-ups using model: ${followUpModel}, language: ${language}`)
 
