@@ -338,7 +338,7 @@ const MessageWrapper = memo(({ children, className, messageId }: MessageWrapperP
 })
 
 export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) => {
-  const { chats, currentChatId, addMessage, updateChat, settings, isChatLoading, streamingPhase, currentTool, searchQuery, currentStreamingDetails, user } = useApp()
+  const { chats, currentChatId, addMessage, updateChat, setChats, settings, isChatLoading, streamingPhase, currentTool, searchQuery, currentStreamingDetails, user } = useApp()
 
   // Check if user is in HiFi tier - check BOTH settings AND email directly
   const userEmail = user?.email?.toLowerCase() || ""
