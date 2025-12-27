@@ -14,42 +14,33 @@ const DEFAULT_FOLLOWUP_MODEL = "google/gemini-3-flash-preview"
 
 /**
  * Build specialized system prompt for follow-up generation
- * Includes language instruction to match user's UI language
+ * Mirrors the original inline prompt style for better quality
  */
 function buildFollowUpPrompt(language: string = "en"): string {
   const languageInstruction = language === "de"
-    ? "WICHTIG: Generiere alle Fragen auf Deutsch."
+    ? "Antworte auf Deutsch."
     : language === "es"
-    ? "IMPORTANTE: Genera todas las preguntas en español."
-    : "Generate all questions in English."
+    ? "Responde en español."
+    : ""
 
-  return `You are a specialized AI that generates contextual follow-up questions.
-
-Your task: Analyze the conversation and generate exactly 6 follow-up questions the user might ask next.
-
+  return `Based on this conversation, suggest clickable next possible user prompts in categorized format.
 ${languageInstruction}
 
-Categories:
-- **quick**: Fast, surface-level questions (examples, definitions, clarifications)
-- **deep**: In-depth exploration questions (how it works, implications, analysis)
-- **related**: Connected topics (comparisons, alternatives, similar concepts)
-
-CRITICAL RULES:
-1. Generate EXACTLY 2 questions per category (6 total)
-2. Questions are from the USER's perspective (what they might ask)
-3. Make questions specific to the conversation context
-4. Keep questions concise (under 100 characters)
-5. Phrase as questions (end with ?)
-6. Make them actionable and interesting
-
-OUTPUT FORMAT (use this exact JSON structure):
+Output ONLY this JSON structure:
 {
-  "quick": ["Question 1?", "Question 2?"],
-  "deep": ["Question 3?", "Question 4?"],
-  "related": ["Question 5?", "Question 6?"]
+  "quick": ["Short contextual prompts from user perspective"],
+  "deep": ["Detailed prompts for deeper explanations"],
+  "related": ["Prompts exploring related topics"]
 }
 
-DO NOT include any other text - ONLY output the JSON object.`
+IMPORTANT:
+- Prompts are from the USER's perspective - what might they ask/say next!
+- Make prompts SPECIFIC to the conversation context
+- Not all categories need to be used - skip if not relevant
+- Keep prompts natural and conversational
+- 1-3 prompts per category is fine
+
+Output ONLY the JSON, no other text.`
 }
 
 /**
@@ -166,9 +157,9 @@ function parseFollowUpsFromJSON(content: string): CategorizedFollowUp[] {
     // Parse JSON
     const parsed = JSON.parse(jsonStr)
 
-    // Validate structure
-    if (!parsed.quick || !parsed.deep || !parsed.related) {
-      console.warn('[FollowUpGenerator] Invalid JSON structure, using fallback parser')
+    // Validate we have at least one category
+    if (!parsed.quick && !parsed.deep && !parsed.related) {
+      console.warn('[FollowUpGenerator] No valid categories in JSON, using fallback parser')
       // Try the standard parser as fallback
       const fallback = parseFollowUps(`[FOLLOWUP]${jsonStr}[/FOLLOWUP]`)
       return fallback.categorizedFollowUps
@@ -184,11 +175,11 @@ function parseFollowUpsFromJSON(content: string): CategorizedFollowUp[] {
       related: { icon: '🔗', label: 'Related' }
     }
 
-    // Process each category
+    // Process each category (allow up to 3 per category, categories are optional)
     for (const category of ['quick', 'deep', 'related'] as const) {
       const questions = parsed[category]
       if (Array.isArray(questions)) {
-        questions.slice(0, 2).forEach(text => {
+        questions.slice(0, 3).forEach(text => {
           if (text && typeof text === 'string' && text.trim().length > 0) {
             followUps.push({
               category,
@@ -201,9 +192,9 @@ function parseFollowUpsFromJSON(content: string): CategorizedFollowUp[] {
       }
     }
 
-    // Ensure we have at least 3 follow-ups
-    if (followUps.length < 3) {
-      throw new Error(`Only generated ${followUps.length} follow-ups`)
+    // Ensure we have at least 1 follow-up
+    if (followUps.length === 0) {
+      throw new Error('No follow-ups generated')
     }
 
     return followUps
