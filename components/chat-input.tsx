@@ -1159,11 +1159,13 @@ export function ChatInput() {
       // Calculate performance stats
       const responseTime = (Date.now() - streamStartTime) / 1000 // in seconds
 
-      // Generate follow-ups using dedicated model if enabled
-      if (messageAdded && assistantContent && useDedicatedFollowUpModel) {
-        console.log("[v0] 🎯 Generating follow-ups with dedicated model...")
+      // Generate follow-ups in BACKGROUND (non-blocking) if enabled
+      // This allows the UI to update immediately while follow-ups load
+      const generateFollowUpsInBackground = async () => {
+        if (!messageAdded || !assistantContent || !useDedicatedFollowUpModel) return
+
+        console.log("[v0] 🎯 Generating follow-ups in background...")
         try {
-          // Build messages for follow-up context (include assistant response)
           const followUpMessages: Message[] = [
             ...messagesForApi.slice(1).map((m, i) => ({
               id: `ctx-${i}`,
@@ -1182,34 +1184,54 @@ export function ChatInput() {
           const followUps = await generateFollowUpsParallel(
             followUpMessages,
             settings.apiKeys.openRouter,
-            undefined, // Use default model (Gemini 3 Flash)
+            undefined,
             settings.language || "en"
           )
 
           if (followUps.length > 0) {
-            console.log(`[v0] ✅ Generated ${followUps.length} follow-ups`)
-            // Inject follow-ups into assistant content for parsing
-            assistantContent = injectFollowUpsIntoMessage(assistantContent, followUps)
+            console.log(`[v0] ✅ Generated ${followUps.length} follow-ups (background)`)
+            const contentWithFollowUps = injectFollowUpsIntoMessage(assistantContent, followUps)
+
+            // Update the message with follow-ups
+            setChats((prevChats) =>
+              prevChats.map((chat) => {
+                if (chat.id !== chatId) return chat
+                return {
+                  ...chat,
+                  messages: chat.messages.map((m) =>
+                    m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
+                  ),
+                }
+              })
+            )
           }
         } catch (followUpError) {
-          console.warn("[v0] ⚠️ Dedicated follow-up generation failed, using fallback:", followUpError)
-          // Use fallback templates
+          console.warn("[v0] ⚠️ Background follow-up generation failed, using fallback:", followUpError)
           const fallbackFollowUps = generateFallbackFollowUps(
-            [{
-              id: "last",
-              role: "assistant" as const,
-              content: assistantContent,
-              timestamp: Date.now()
-            }],
+            [{ id: "last", role: "assistant" as const, content: assistantContent, timestamp: Date.now() }],
             messagesForApi.length,
             settings.language || "en"
           )
           if (fallbackFollowUps.length > 0) {
-            assistantContent = injectFollowUpsIntoMessage(assistantContent, fallbackFollowUps)
-            console.log("[v0] 📝 Using fallback follow-ups")
+            const contentWithFollowUps = injectFollowUpsIntoMessage(assistantContent, fallbackFollowUps)
+            setChats((prevChats) =>
+              prevChats.map((chat) => {
+                if (chat.id !== chatId) return chat
+                return {
+                  ...chat,
+                  messages: chat.messages.map((m) =>
+                    m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
+                  ),
+                }
+              })
+            )
+            console.log("[v0] 📝 Using fallback follow-ups (background)")
           }
         }
       }
+
+      // Fire and forget - don't await, let it run in background
+      generateFollowUpsInBackground()
 
       if (messageAdded && assistantContent) {
         const completionTokens = estimateTokens(assistantContent)

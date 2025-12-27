@@ -4,7 +4,7 @@
  * Generates follow-up suggestions using a dedicated fast/cheap model in parallel
  * with the main AI response. This improves speed and reduces costs.
  *
- * Default model: google/gemini-2.5-flash
+ * Default model: openai/gpt-oss-120b
  * Fallback: openai/gpt-4o-mini
  */
 
@@ -12,7 +12,7 @@ import type { Message, CategorizedFollowUp } from "@/types"
 import { parseFollowUps } from "./follow-up-parser"
 
 // Fast, cheap models for follow-up generation
-const DEFAULT_FOLLOWUP_MODEL = "google/gemini-2.5-flash"
+const DEFAULT_FOLLOWUP_MODEL = "openai/gpt-oss-120b"
 const FALLBACK_FOLLOWUP_MODEL = "openai/gpt-4o-mini"
 
 /**
