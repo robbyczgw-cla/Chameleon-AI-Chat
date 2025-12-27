@@ -4,13 +4,16 @@
  * Generates follow-up suggestions using a dedicated fast/cheap model in parallel
  * with the main AI response. This improves speed and reduces costs.
  *
- * Default model: google/gemini-3-flash-preview (very fast, very cheap)
+ * Default model: google/gemini-2.5-flash-preview-09-2025
+ * Fallback: google/gemini-2.0-flash-exp
  */
 
 import type { Message, CategorizedFollowUp } from "@/types"
 import { parseFollowUps } from "./follow-up-parser"
 
-const DEFAULT_FOLLOWUP_MODEL = "google/gemini-3-flash-preview"
+// Gemini 2.5 Flash - fast, cheap, reliable for simple JSON tasks
+const DEFAULT_FOLLOWUP_MODEL = "google/gemini-2.5-flash-preview-09-2025"
+const FALLBACK_FOLLOWUP_MODEL = "google/gemini-2.0-flash-exp"
 
 /**
  * Build specialized system prompt for follow-up generation
@@ -45,6 +48,7 @@ Output ONLY the JSON, no other text.`
 
 /**
  * Generate follow-up suggestions using dedicated model
+ * Tries primary model first, then fallback if it fails
  */
 export async function generateFollowUpsParallel(
   messages: Message[],
@@ -52,87 +56,108 @@ export async function generateFollowUpsParallel(
   model?: string,
   language: string = "en"
 ): Promise<CategorizedFollowUp[]> {
-  try {
-    const followUpModel = model || DEFAULT_FOLLOWUP_MODEL
+  const modelsToTry = model
+    ? [model]
+    : [DEFAULT_FOLLOWUP_MODEL, FALLBACK_FOLLOWUP_MODEL]
 
-    // Take last 4 messages for context (keeps token count low)
-    const recentMessages = messages.slice(-4).map(msg => ({
-      role: msg.role,
-      content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
-    }))
+  let lastError: Error | null = null
 
-    console.log(`[FollowUpGenerator] Generating follow-ups using model: ${followUpModel}, language: ${language}`)
-
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://chameleon-ai.chat',
-        'X-Title': 'Chameleon AI Chat - Follow-Up Generation'
-      },
-      body: JSON.stringify({
-        model: followUpModel,
-        messages: [
-          {
-            role: 'system',
-            content: buildFollowUpPrompt(language)
-          },
-          ...recentMessages
-        ],
-        temperature: 0.9, // More creative for diverse suggestions
-        max_tokens: 400, // Enough for 6 suggestions
-        top_p: 1.0,
-        frequency_penalty: 0.3, // Encourage variety
-        presence_penalty: 0.3
-      })
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error(`[FollowUpGenerator] API error:`, response.status, errorText)
-      throw new Error(`Follow-up generation failed: ${response.status}`)
+  for (const followUpModel of modelsToTry) {
+    try {
+      const result = await tryGenerateFollowUps(messages, apiKey, followUpModel, language)
+      return result
+    } catch (error) {
+      console.warn(`[FollowUpGenerator] Model ${followUpModel} failed, trying next...`, error)
+      lastError = error instanceof Error ? error : new Error(String(error))
     }
-
-    const data = await response.json()
-
-    // Debug: Log full response structure
-    console.log(`[FollowUpGenerator] Full API response:`, JSON.stringify(data, null, 2))
-
-    // Handle different response structures (OpenAI vs Google)
-    const choice = data.choices?.[0]
-    let generatedContent = choice?.message?.content
-
-    // Gemini sometimes puts content in a different place
-    if (!generatedContent && choice?.message?.parts) {
-      // Gemini multimodal format
-      generatedContent = choice.message.parts.map((p: any) => p.text || '').join('')
-    }
-
-    // Handle refusal or empty responses
-    if (!generatedContent && choice?.message?.refusal) {
-      console.error(`[FollowUpGenerator] Model refused:`, choice.message.refusal)
-      throw new Error(`Model refused: ${choice.message.refusal}`)
-    }
-
-    if (!generatedContent) {
-      console.error(`[FollowUpGenerator] No content in response. Choice:`, JSON.stringify(choice, null, 2))
-      throw new Error('No content generated')
-    }
-
-    console.log(`[FollowUpGenerator] Raw generated content:`, generatedContent)
-
-    // Parse the generated follow-ups
-    const parsed = parseFollowUpsFromJSON(generatedContent)
-
-    console.log(`[FollowUpGenerator] Successfully generated ${parsed.length} follow-ups`)
-
-    return parsed
-
-  } catch (error) {
-    console.error(`[FollowUpGenerator] Error generating follow-ups:`, error)
-    throw error // Let caller handle fallback
   }
+
+  throw lastError || new Error('All models failed')
+}
+
+/**
+ * Try generating follow-ups with a specific model
+ */
+async function tryGenerateFollowUps(
+  messages: Message[],
+  apiKey: string,
+  followUpModel: string,
+  language: string
+): Promise<CategorizedFollowUp[]> {
+  // Take last 4 messages for context (keeps token count low)
+  const recentMessages = messages.slice(-4).map(msg => ({
+    role: msg.role,
+    content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+  }))
+
+  console.log(`[FollowUpGenerator] Generating follow-ups using model: ${followUpModel}, language: ${language}`)
+
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://chameleon-ai.chat',
+      'X-Title': 'Chameleon AI Chat - Follow-Up Generation'
+    },
+    body: JSON.stringify({
+      model: followUpModel,
+      messages: [
+        {
+          role: 'system',
+          content: buildFollowUpPrompt(language)
+        },
+        ...recentMessages
+      ],
+      temperature: 0.7,
+      max_tokens: 500
+    })
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error(`[FollowUpGenerator] API error:`, response.status, errorText)
+    throw new Error(`Follow-up generation failed: ${response.status}`)
+  }
+
+  const data = await response.json()
+
+  // Debug: Log response info
+  console.log(`[FollowUpGenerator] Response from ${followUpModel}:`, {
+    model: data.model,
+    usage: data.usage,
+    finish_reason: data.choices?.[0]?.finish_reason
+  })
+
+  // Handle different response structures (OpenAI vs Google)
+  const choice = data.choices?.[0]
+  let generatedContent = choice?.message?.content
+
+  // Gemini sometimes puts content in a different place
+  if (!generatedContent && choice?.message?.parts) {
+    // Gemini multimodal format
+    generatedContent = choice.message.parts.map((p: any) => p.text || '').join('')
+  }
+
+  // Handle refusal or empty responses
+  if (!generatedContent && choice?.message?.refusal) {
+    console.error(`[FollowUpGenerator] Model refused:`, choice.message.refusal)
+    throw new Error(`Model refused: ${choice.message.refusal}`)
+  }
+
+  if (!generatedContent) {
+    console.error(`[FollowUpGenerator] No content in response. Choice:`, JSON.stringify(choice, null, 2))
+    throw new Error('No content generated')
+  }
+
+  console.log(`[FollowUpGenerator] Raw generated content:`, generatedContent)
+
+  // Parse the generated follow-ups
+  const parsed = parseFollowUpsFromJSON(generatedContent)
+
+  console.log(`[FollowUpGenerator] Successfully generated ${parsed.length} follow-ups`)
+
+  return parsed
 }
 
 /**
