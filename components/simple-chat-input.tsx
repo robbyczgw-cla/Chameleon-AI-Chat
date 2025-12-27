@@ -1130,11 +1130,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
       console.log("[Simple Chat] Stream complete, final content length:", assistantContent.length)
 
-      // Generate follow-ups using dedicated model if enabled
-      if (messageAdded && assistantContent && useDedicatedFollowUpModel) {
-        console.log("[Simple Chat] 🎯 Generating follow-ups with dedicated model...")
+      // Generate follow-ups in BACKGROUND (non-blocking) if enabled
+      const generateFollowUpsInBackground = async () => {
+        if (!messageAdded || !assistantContent || !useDedicatedFollowUpModel) return
+
+        console.log("[Simple Chat] 🎯 Generating follow-ups in background...")
         try {
-          // Build messages for follow-up context (include assistant response)
           const followUpMessages: Message[] = [
             ...messagesForApi.slice(1).map((m, i) => ({
               id: `ctx-${i}`,
@@ -1153,34 +1154,53 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           const followUps = await generateFollowUpsParallel(
             followUpMessages,
             settings.apiKeys.openRouter,
-            undefined, // Use default model (Gemini 3 Flash)
+            undefined,
             settings.language || "en"
           )
 
           if (followUps.length > 0) {
-            console.log(`[Simple Chat] ✅ Generated ${followUps.length} follow-ups`)
-            // Inject follow-ups into assistant content for parsing
-            assistantContent = injectFollowUpsIntoMessage(assistantContent, followUps)
+            console.log(`[Simple Chat] ✅ Generated ${followUps.length} follow-ups (background)`)
+            const contentWithFollowUps = injectFollowUpsIntoMessage(assistantContent, followUps)
+
+            setChats((prevChats) =>
+              prevChats.map((chat) => {
+                if (chat.id !== chatId) return chat
+                return {
+                  ...chat,
+                  messages: chat.messages.map((m) =>
+                    m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
+                  ),
+                }
+              })
+            )
           }
         } catch (followUpError) {
-          console.warn("[Simple Chat] ⚠️ Dedicated follow-up generation failed, using fallback:", followUpError)
-          // Use fallback templates
+          console.warn("[Simple Chat] ⚠️ Background follow-up failed, using fallback:", followUpError)
           const fallbackFollowUps = generateFallbackFollowUps(
-            [{
-              id: "last",
-              role: "assistant" as const,
-              content: assistantContent,
-              timestamp: Date.now()
-            }],
+            [{ id: "last", role: "assistant" as const, content: assistantContent, timestamp: Date.now() }],
             messagesForApi.length,
             settings.language || "en"
           )
           if (fallbackFollowUps.length > 0) {
-            assistantContent = injectFollowUpsIntoMessage(assistantContent, fallbackFollowUps)
-            console.log("[Simple Chat] 📝 Using fallback follow-ups")
+            const contentWithFollowUps = injectFollowUpsIntoMessage(assistantContent, fallbackFollowUps)
+            setChats((prevChats) =>
+              prevChats.map((chat) => {
+                if (chat.id !== chatId) return chat
+                return {
+                  ...chat,
+                  messages: chat.messages.map((m) =>
+                    m.id === assistantMessageId ? { ...m, content: contentWithFollowUps } : m
+                  ),
+                }
+              })
+            )
+            console.log("[Simple Chat] 📝 Using fallback follow-ups (background)")
           }
         }
       }
+
+      // Fire and forget - don't await
+      generateFollowUpsInBackground()
 
       if (messageAdded && assistantContent) {
         const promptText = messagesForApi.map((m) => typeof m.content === "string" ? m.content : "[multimodal]").join("\n")
