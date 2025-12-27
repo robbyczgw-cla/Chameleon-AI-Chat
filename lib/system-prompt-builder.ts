@@ -90,17 +90,51 @@ export function buildPersonaSystemPrompt(
  * Check if a system prompt has follow-up instructions
  */
 export function hasFollowUpInstructions(prompt: string): boolean {
-  return prompt.includes('[FOLLOWUP]') || prompt.includes('follow-up prompts')
+  return (
+    prompt.includes('[FOLLOWUP]') ||
+    prompt.includes('follow-up prompts') ||
+    prompt.includes('clickable next possible user prompts') ||
+    prompt.includes('Write 1-3 engaging questions')
+  )
 }
 
 /**
  * Remove follow-up instructions from a prompt
+ * Handles multiple formats and preserves custom parts
+ * PRESERVES language instructions (WICHTIG, IMPORTANT, IMPORTANTE for responses)
  */
 export function removeFollowUpInstructions(prompt: string): string {
-  return prompt
-    .replace(/At the end of each response.*?\[\/FOLLOWUP\]/s, '')
-    .replace(/IMPORTANT:.*?what might they ask next!/s, '')
-    .trim()
+  let cleaned = prompt
+
+  // Remove the [FOLLOWUP] JSON block
+  cleaned = cleaned.replace(/\[FOLLOWUP\][\s\S]*?\[\/FOLLOWUP\]/g, '')
+
+  // Remove "At the end of each response..." patterns (various formats)
+  cleaned = cleaned.replace(/At the end of each response[,:]?[\s\S]*?(?=\n\n|$)/gi, '')
+
+  // Remove "Write 1-3 engaging questions..." patterns
+  cleaned = cleaned.replace(/Write \d+-?\d* engaging questions[\s\S]*?(?=\n\n|$)/gi, '')
+
+  // Remove "add exactly 6 clickable follow-up prompts..." patterns
+  cleaned = cleaned.replace(/add exactly \d+ clickable follow-up prompts[\s\S]*?(?=\n\n|$)/gi, '')
+
+  // Remove "IMPORTANT: Always provide..." patterns related to follow-ups ONLY
+  // DO NOT remove language instructions like "IMPORTANT: Always respond in English"
+  cleaned = cleaned.replace(/IMPORTANT:.*?(?:prompts per category|what might they ask next|from the USER's perspective|clickable follow-up).*?(?:\n|$)/gi, '')
+
+  // Remove "Prompts are from the USER's perspective..." patterns
+  cleaned = cleaned.replace(/(?:The )?prompts are from the USER'?s? perspective.*?(?:\n|$)/gi, '')
+
+  // Remove "Not all categories need to be used" patterns
+  cleaned = cleaned.replace(/Not all categories need to be used\.?(?:\n|$)/gi, '')
+
+  // Remove extra blank lines (more than 2 consecutive newlines)
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n')
+
+  // Trim whitespace
+  cleaned = cleaned.trim()
+
+  return cleaned
 }
 
 /**

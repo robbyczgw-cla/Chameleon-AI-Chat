@@ -4,6 +4,8 @@
  * This ensures all settings use a single source of truth
  */
 
+import { removeFollowUpInstructions, hasFollowUpInstructions } from "./system-prompt-builder"
+
 export interface MigrationResult {
   migrated: string[]
   errors: string[]
@@ -83,14 +85,28 @@ export function migrateSettingsToContext(): MigrationResult {
         settings.experimental.backgroundAIModels.followUpGeneration = "google/gemini-3-flash-preview"
         console.log(`[Migration] Set default follow-up generation model: google/gemini-3-flash-preview`)
       }
+    }
 
-      // Clean up system prompt if it has follow-up instructions
-      if (settings.systemPrompt && settings.systemPrompt.includes('[FOLLOWUP]')) {
-        // Remove follow-up instructions from system prompt
-        const basePrompt = "You are a friendly, helpful assistant. Provide clear, precise, and helpful answers."
-        settings.systemPrompt = basePrompt
+    // Clean up system prompt - ALWAYS run this check (not just on first migration)
+    // This ensures users who already migrated still get their prompts cleaned
+    // NOTE: Language instructions (WICHTIG/IMPORTANT/IMPORTANTE for language)
+    // may be in the stored prompt from old versions, but they're now added
+    // dynamically by chat-input.tsx. If they exist in stored prompt, we keep them
+    // for backward compatibility - they'll just be duplicated (harmless).
+    if (settings.systemPrompt && hasFollowUpInstructions(settings.systemPrompt)) {
+      const oldPrompt = settings.systemPrompt
+      const cleanedPrompt = removeFollowUpInstructions(settings.systemPrompt)
+
+      // Only update if cleaning actually changed something
+      if (cleanedPrompt !== oldPrompt) {
+        settings.systemPrompt = cleanedPrompt
         result.migrated.push("systemPrompt-cleanup")
         console.log(`[Migration] Cleaned up system prompt (removed follow-up instructions)`)
+        console.log(`[Migration] Old length: ${oldPrompt.length} chars → New length: ${cleanedPrompt.length} chars`)
+
+        // Log what was removed for debugging
+        const removed = oldPrompt.replace(cleanedPrompt, '[REMOVED]')
+        console.log(`[Migration] Removed content preview: ${removed.substring(0, 200)}...`)
       }
     }
 
@@ -136,7 +152,7 @@ export function migrateSettingsToContext(): MigrationResult {
 export function runMigrationOnStartup(): void {
   if (typeof window === "undefined") return
 
-  const migrationKey = "chameleon-settings-migration-v2" // v2: Dedicated follow-up model migration
+  const migrationKey = "chameleon-settings-migration-v3" // v3: Improved system prompt cleanup
   const migrationDone = localStorage.getItem(migrationKey)
 
   if (migrationDone) {
@@ -176,5 +192,6 @@ export function resetMigrationFlag(): void {
   if (typeof window === "undefined") return
   localStorage.removeItem("chameleon-settings-migration-v1")
   localStorage.removeItem("chameleon-settings-migration-v2")
+  localStorage.removeItem("chameleon-settings-migration-v3")
   console.log("[Migration] Reset migration flag")
 }
