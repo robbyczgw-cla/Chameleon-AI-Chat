@@ -99,6 +99,25 @@ const ALLOWED_ATTRS: Record<string, string[]> = {
 const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:', 'tel:', 'data:']
 
 /**
+ * Dangerous tags whose content should be completely removed
+ * (not just the tags themselves)
+ */
+const DANGEROUS_TAGS = new Set([
+  'script',
+  'noscript',
+  'style',
+  'template',
+  'iframe',
+  'object',
+  'embed',
+  'applet',
+  'frame',
+  'frameset',
+  'math',
+  'xmp',
+])
+
+/**
  * Dangerous patterns to remove from CSS
  */
 const DANGEROUS_CSS_PATTERNS = [
@@ -215,13 +234,20 @@ export function sanitizeHtml(html: string, options: SanitizeOptions = {}): strin
 
     if (!container) return ''
 
-    function sanitizeNode(node: Node): void {
+    function sanitizeNode(node: Node, isContainer = false): void {
       if (node.nodeType === Node.ELEMENT_NODE) {
         const element = node as Element
         const tagName = element.tagName.toLowerCase()
 
-        // Remove disallowed tags (but keep their content)
-        if (!allAllowedTags.has(tagName)) {
+        // Completely remove dangerous tags including their content
+        if (DANGEROUS_TAGS.has(tagName)) {
+          element.parentNode?.removeChild(element)
+          return
+        }
+
+        // Remove other disallowed tags (but keep their content)
+        // Skip this check for the container wrapper (it's always a div we created)
+        if (!isContainer && !allAllowedTags.has(tagName)) {
           const parent = element.parentNode
           if (parent) {
             while (element.firstChild) {
@@ -274,12 +300,12 @@ export function sanitizeHtml(html: string, options: SanitizeOptions = {}): strin
         // Recursively sanitize children
         const children = Array.from(element.childNodes)
         for (const child of children) {
-          sanitizeNode(child)
+          sanitizeNode(child, false)
         }
       }
     }
 
-    sanitizeNode(container)
+    sanitizeNode(container, true)
     return container.innerHTML
   }
 
@@ -293,8 +319,17 @@ export function sanitizeHtml(html: string, options: SanitizeOptions = {}): strin
  * Less robust than DOM-based, but works server-side
  */
 function sanitizeHtmlRegex(html: string, allowedTags: Set<string>): string {
-  // Remove script tags entirely
-  let result = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+  let result = html
+
+  // Remove dangerous tags entirely (including content)
+  for (const tag of DANGEROUS_TAGS) {
+    // Match opening tag, content, and closing tag
+    const pattern = new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi')
+    result = result.replace(pattern, '')
+    // Also match self-closing variants
+    const selfClosing = new RegExp(`<${tag}\\b[^>]*\\/?>`, 'gi')
+    result = result.replace(selfClosing, '')
+  }
 
   // Remove event handlers (onclick, onerror, etc.)
   result = result.replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, '')

@@ -39,14 +39,20 @@ const defaultConfig: LoggerConfig = {
 class Logger {
   private config: LoggerConfig
   private timers: Map<string, number> = new Map()
+  private explicitlyEnabled: boolean = false
 
   constructor(config: Partial<LoggerConfig> = {}) {
     this.config = { ...defaultConfig, ...config }
+    // If explicitly enabled in config, mark it
+    if (config.enabled === true) {
+      this.explicitlyEnabled = true
+    }
   }
 
   private shouldLog(level: LogLevel): boolean {
     if (!this.config.enabled) return false
-    if (isTest) return false
+    // In test mode, only log if explicitly enabled
+    if (isTest && !this.explicitlyEnabled) return false
     return LOG_LEVELS[level] >= LOG_LEVELS[this.config.minLevel]
   }
 
@@ -163,6 +169,7 @@ class Logger {
    */
   enable(): void {
     this.config.enabled = true
+    this.explicitlyEnabled = true
   }
 
   /**

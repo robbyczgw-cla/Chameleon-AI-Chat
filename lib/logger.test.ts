@@ -2,19 +2,28 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { logger, loggers, createLogger, Logger } from './logger'
 
 describe('Logger', () => {
-  const consoleSpy = {
-    log: vi.spyOn(console, 'log').mockImplementation(() => {}),
-    info: vi.spyOn(console, 'info').mockImplementation(() => {}),
-    warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
-    error: vi.spyOn(console, 'error').mockImplementation(() => {}),
-    group: vi.spyOn(console, 'group').mockImplementation(() => {}),
-    groupCollapsed: vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {}),
-    groupEnd: vi.spyOn(console, 'groupEnd').mockImplementation(() => {}),
-    table: vi.spyOn(console, 'table').mockImplementation(() => {}),
+  let consoleSpy: {
+    log: ReturnType<typeof vi.spyOn>
+    info: ReturnType<typeof vi.spyOn>
+    warn: ReturnType<typeof vi.spyOn>
+    error: ReturnType<typeof vi.spyOn>
+    group: ReturnType<typeof vi.spyOn>
+    groupCollapsed: ReturnType<typeof vi.spyOn>
+    groupEnd: ReturnType<typeof vi.spyOn>
+    table: ReturnType<typeof vi.spyOn>
   }
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    consoleSpy = {
+      log: vi.spyOn(console, 'log').mockImplementation(() => {}),
+      info: vi.spyOn(console, 'info').mockImplementation(() => {}),
+      warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
+      error: vi.spyOn(console, 'error').mockImplementation(() => {}),
+      group: vi.spyOn(console, 'group').mockImplementation(() => {}),
+      groupCollapsed: vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {}),
+      groupEnd: vi.spyOn(console, 'groupEnd').mockImplementation(() => {}),
+      table: vi.spyOn(console, 'table').mockImplementation(() => {}),
+    }
   })
 
   afterEach(() => {
@@ -28,12 +37,13 @@ describe('Logger', () => {
     })
 
     it('should create a logger with custom prefix', () => {
-      const testLogger = createLogger('TestModule')
-      testLogger.enable() // Force enable for testing
+      const testLogger = new Logger({ enabled: true, minLevel: 'debug', prefix: 'TestModule' })
       testLogger.debug('test message')
       expect(consoleSpy.log).toHaveBeenCalledWith(
-        expect.stringContaining('[TestModule]'),
-        expect.anything()
+        expect.stringContaining('[TestModule]')
+      )
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining('test message')
       )
     })
 
@@ -65,14 +75,15 @@ describe('Logger', () => {
     })
 
     it('should create child loggers with combined prefix', () => {
-      const parentLogger = createLogger('Parent')
+      const parentLogger = new Logger({ enabled: true, minLevel: 'debug', prefix: 'Parent' })
       const childLogger = parentLogger.child('Child')
-      childLogger.enable()
       childLogger.debug('test')
 
       expect(consoleSpy.log).toHaveBeenCalledWith(
-        expect.stringContaining('[Parent:Child]'),
-        expect.anything()
+        expect.stringContaining('[Parent:Child]')
+      )
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining('test')
       )
     })
   })
@@ -91,8 +102,7 @@ describe('Logger', () => {
       const duration = testLogger.timeEnd('test-timer')
       expect(duration).toBeGreaterThanOrEqual(0)
       expect(consoleSpy.log).toHaveBeenCalledWith(
-        expect.stringContaining('test-timer'),
-        expect.anything()
+        expect.stringContaining('test-timer')
       )
     })
 
