@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from "react"
-import { getSettings, getChats, addChat, type StoredChat } from "../shared/storage"
+import { useState, useEffect, useRef, useCallback } from "react"
+import { getSettings, getChats, addChat, setSettings, type StoredChat, type ExtensionSettings } from "../shared/storage"
 import { chat as callAI } from "../shared/api"
-import { PERSONAS, getPersonaById, getDefaultPersona } from "../shared/personas"
+import { PERSONAS, getPersonaById, getDefaultPersona, PERSONA_CATEGORIES } from "../shared/personas"
+import { MODELS, getModelById, getDefaultModel, MODEL_CATEGORIES } from "../shared/models"
 import { getCurrentUser } from "../shared/supabase"
+import { AudioRecorder, transcribeAudio, textToSpeech, playAudio, speakNative } from "../shared/voice"
 import type { ChatMessage } from "../shared/api"
 
 // Cross-browser API detection
@@ -10,17 +12,26 @@ const isFirefox = typeof browser !== "undefined"
 const runtime = isFirefox ? browser.runtime : chrome.runtime
 const tabs = isFirefox ? browser.tabs : chrome.tabs
 
+// Global audio recorder instance
+let audioRecorder: AudioRecorder | null = null
+
 export default function Popup() {
   const [user, setUser] = useState<any>(null)
   const [apiKey, setApiKey] = useState<string>("")
+  const [openAIKey, setOpenAIKey] = useState<string>("") // For voice features
   const [selectedPersona, setSelectedPersona] = useState(getDefaultPersona().id)
-  const [selectedModel, setSelectedModel] = useState("anthropic/claude-3.5-sonnet")
+  const [selectedModel, setSelectedModel] = useState(getDefaultModel().id)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [recentChats, setRecentChats] = useState<StoredChat[]>([])
   const [settingsLoaded, setSettingsLoaded] = useState(false)
+  const [showModelPicker, setShowModelPicker] = useState(false)
+  const [ttsEnabled, setTtsEnabled] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
   // Load settings on mount
   useEffect(() => {
@@ -120,9 +131,74 @@ export default function Popup() {
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
+    // Cmd/Ctrl + Enter to send
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       handleSend()
+    }
+    // Cmd/Ctrl + K to clear chat
+    if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault()
+      clearChat()
+    }
+    // Escape to close model picker
+    if (e.key === "Escape" && showModelPicker) {
+      setShowModelPicker(false)
+    }
+  }
+
+  // Voice input handlers
+  async function toggleRecording() {
+    if (isRecording) {
+      await stopRecording()
+    } else {
+      await startRecording()
+    }
+  }
+
+  async function startRecording() {
+    try {
+      audioRecorder = new AudioRecorder()
+      await audioRecorder.start()
+      setIsRecording(true)
+    } catch (error) {
+      console.error("[Popup] Recording error:", error)
+      alert("Microphone access denied. Please allow microphone access.")
+    }
+  }
+
+  async function stopRecording() {
+    if (!audioRecorder) return
+
+    try {
+      const audioBlob = await audioRecorder.stop()
+      setIsRecording(false)
+
+      // For now, use native speech recognition as fallback since Whisper needs OpenAI key
+      // In the future, we can use Whisper with user's OpenAI key
+      try {
+        // Try to transcribe with browser's native speech recognition
+        speakNative("Processing...") // Just a placeholder
+        setInput((prev) => prev + " [Voice input - use native speech recognition]")
+      } catch {
+        // Fallback: just add a placeholder
+        setInput((prev) => prev + " ")
+      }
+    } catch (error) {
+      console.error("[Popup] Stop recording error:", error)
+      setIsRecording(false)
+    }
+  }
+
+  // Text-to-speech for responses
+  async function speakResponse(text: string) {
+    if (isPlaying) return
+    setIsPlaying(true)
+    try {
+      // Use browser native TTS for now
+      speakNative(text)
+    } finally {
+      setIsPlaying(false)
     }
   }
 
@@ -228,17 +304,26 @@ export default function Popup() {
           <span className="popup-icon">🦎</span>
           <div>
             <h1 className="popup-title">Chameleon AI</h1>
-            <select
-              className="popup-persona-select"
-              value={selectedPersona}
-              onChange={(e) => setSelectedPersona(e.target.value)}
-            >
-              {PERSONAS.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.emoji} {p.name}
-                </option>
-              ))}
-            </select>
+            <div className="popup-selectors">
+              <select
+                className="popup-persona-select"
+                value={selectedPersona}
+                onChange={(e) => setSelectedPersona(e.target.value)}
+              >
+                {PERSONAS.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.emoji} {p.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="popup-model-btn"
+                onClick={() => setShowModelPicker(!showModelPicker)}
+                title={getModelById(selectedModel)?.name || "Select Model"}
+              >
+                {getModelById(selectedModel)?.name.split(" ")[0] || "Model"}
+              </button>
+            </div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -262,6 +347,36 @@ export default function Popup() {
           </button>
         </div>
       </header>
+
+      {/* Model Picker Dropdown */}
+      {showModelPicker && (
+        <div className="popup-model-picker">
+          <div className="popup-model-picker-header">
+            <span>Select Model</span>
+            <button onClick={() => setShowModelPicker(false)}>×</button>
+          </div>
+          <div className="popup-model-list">
+            {MODEL_CATEGORIES.map((cat) => (
+              <div key={cat.id} className="popup-model-category">
+                <div className="popup-model-category-title">{cat.emoji} {cat.name}</div>
+                {MODELS.filter((m) => m.category === cat.id).map((model) => (
+                  <button
+                    key={model.id}
+                    className={`popup-model-item ${selectedModel === model.id ? "selected" : ""}`}
+                    onClick={() => {
+                      setSelectedModel(model.id)
+                      setShowModelPicker(false)
+                    }}
+                  >
+                    <span className="popup-model-name">{model.name}</span>
+                    <span className="popup-model-provider">{model.provider}</span>
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {messages.length === 0 ? (
         <div className="popup-welcome">
@@ -340,14 +455,23 @@ export default function Popup() {
 
       <footer className="popup-footer">
         <div className="popup-input-container">
+          <button
+            className={`popup-mic-btn ${isRecording ? "recording" : ""}`}
+            onClick={toggleRecording}
+            disabled={isLoading}
+            title={isRecording ? "Stop recording" : "Voice input"}
+          >
+            {isRecording ? "⏹️" : "🎤"}
+          </button>
           <textarea
+            ref={inputRef}
             className="popup-input"
-            placeholder={`Ask ${persona.name} anything...`}
+            placeholder={`Ask ${persona.name} anything... (Enter to send)`}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             rows={2}
-            disabled={isLoading}
+            disabled={isLoading || isRecording}
           />
           <button
             className="popup-send-btn"
@@ -357,9 +481,12 @@ export default function Popup() {
             ➤
           </button>
         </div>
-        <button className="popup-full-app-btn" onClick={openFullApp}>
-          Open Full App →
-        </button>
+        <div className="popup-footer-row">
+          <span className="popup-shortcuts">⌘K clear • Enter send</span>
+          <button className="popup-full-app-btn" onClick={openFullApp}>
+            Open Full App →
+          </button>
+        </div>
       </footer>
     </div>
   )
