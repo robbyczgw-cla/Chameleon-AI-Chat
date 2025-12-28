@@ -1154,6 +1154,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "I'm stuck on my writing, help me brainstorm",
       "How do I make this paragraph clearer?",
       "Write a blog intro about...",
+      "Rewrite this in a more engaging tone",
     ],
     de: [
       "Hilf mir eine E-Mail zu schreiben über...",
@@ -1161,6 +1162,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Ich stecke fest beim Schreiben, hilf mir brainstormen",
       "Wie mache ich diesen Absatz klarer?",
       "Schreib eine Blog-Einleitung über...",
+      "Schreib das in einem ansprechenderen Ton um",
     ],
   },
   wellbeing: {
@@ -1170,6 +1172,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "I need help with work-life balance",
       "What are some coping strategies for...",
       "I'm overwhelmed, where do I start?",
+      "Guide me through a breathing exercise",
     ],
     de: [
       "Ich fühle mich in letzter Zeit gestresst",
@@ -1177,6 +1180,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Ich brauche Hilfe bei der Work-Life-Balance",
       "Was sind Coping-Strategien für...",
       "Ich bin überfordert, wo fange ich an?",
+      "Führe mich durch eine Atemübung",
     ],
   },
   fit: {
@@ -1186,6 +1190,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "I want to start running, any tips?",
       "Home workout without equipment?",
       "How do I stay motivated to exercise?",
+      "What should I eat before/after workouts?",
     ],
     de: [
       "Erstelle mir einen Anfänger-Trainingsplan",
@@ -1193,6 +1198,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Ich will mit Laufen anfangen, Tipps?",
       "Heimtraining ohne Geräte?",
       "Wie bleibe ich motiviert zum Trainieren?",
+      "Was sollte ich vor/nach dem Training essen?",
     ],
   },
   finny: {
@@ -1202,6 +1208,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Strategies for paying off debt",
       "How much should I save for emergencies?",
       "Explain ETFs in simple terms",
+      "Tips for saving money on groceries",
     ],
     de: [
       "Hilf mir ein Monatsbudget zu erstellen",
@@ -1209,6 +1216,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Strategien zum Schuldenabbau",
       "Wie viel sollte ich für Notfälle sparen?",
       "Erkläre ETFs in einfachen Worten",
+      "Tipps zum Sparen beim Einkaufen",
     ],
   },
   family: {
@@ -1218,6 +1226,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "My toddler keeps having tantrums",
       "Tips for limiting screen time",
       "How to handle sibling rivalry",
+      "Age-appropriate chores for my kids",
     ],
     de: [
       "Aktivitätsideen für einen Regentag mit Kindern",
@@ -1225,6 +1234,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Mein Kleinkind hat ständig Wutanfälle",
       "Tipps zur Begrenzung der Bildschirmzeit",
       "Wie gehe ich mit Geschwisterrivalität um?",
+      "Altersgerechte Aufgaben für meine Kinder",
     ],
   },
   scholar: {
@@ -1234,6 +1244,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Help me make a study plan for finals",
       "Explain calculus like I'm 5",
       "Summarize this chapter for me",
+      "Test my understanding of this topic",
     ],
     de: [
       "Quiz mich über Photosynthese",
@@ -1241,6 +1252,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Hilf mir einen Lernplan für die Prüfungen zu machen",
       "Erkläre Analysis als wäre ich 5",
       "Fasse dieses Kapitel für mich zusammen",
+      "Teste mein Verständnis zu diesem Thema",
     ],
   },
   lingua: {
@@ -1250,6 +1262,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "How do I say this politely in German?",
       "Practice a restaurant conversation",
       "Correct my text and explain errors",
+      "Teach me 5 useful phrases in Italian",
     ],
     de: [
       "Lass uns auf Spanisch chatten",
@@ -1257,6 +1270,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Wie sage ich das höflich auf Englisch?",
       "Übe mit mir ein Restaurant-Gespräch",
       "Korrigiere meinen Text und erkläre Fehler",
+      "Bring mir 5 nützliche Sätze auf Italienisch bei",
     ],
   },
   canvas: {
@@ -1266,6 +1280,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Which fonts pair well together?",
       "How do I improve this layout?",
       "UX tips for a mobile app",
+      "Make this design more accessible",
     ],
     de: [
       "Überprüfe mein UI-Design",
@@ -1273,6 +1288,7 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Welche Schriften passen gut zusammen?",
       "Wie verbessere ich dieses Layout?",
       "UX-Tipps für eine Mobile App",
+      "Mache dieses Design barrierefreier",
     ],
   },
 }
