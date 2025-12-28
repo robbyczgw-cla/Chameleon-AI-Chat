@@ -642,7 +642,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                   <span className="text-xl sm:text-2xl flex-shrink-0">{currentPersona.emoji}</span>
                   <span className="text-xs sm:text-sm font-medium text-primary truncate">{currentPersona.name}</span>
                 </div>
-                <p className="text-xs text-muted-foreground max-w-[90%] sm:max-w-md text-center line-clamp-2">{currentPersona.description}</p>
+                <p className="text-xs text-muted-foreground max-w-[90%] sm:max-w-md md:max-w-lg lg:max-w-xl text-center line-clamp-2">{currentPersona.description}</p>
               </div>
             )}
           </div>

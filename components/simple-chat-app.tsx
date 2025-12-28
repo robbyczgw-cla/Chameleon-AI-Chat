@@ -995,10 +995,10 @@ export function SimpleChatApp() {
                     <span className="text-xl shrink-0">{selectedPersona.emoji}</span>
                     <div className="min-w-0">
                       <p className="font-medium text-sm truncate">{selectedPersona.name}</p>
-                      {/* HiFi: Show description on single line, others: truncate */}
+                      {/* Description with responsive max-width */}
                       <p className={cn(
                         "text-xs text-muted-foreground whitespace-nowrap",
-                        isHifi ? "overflow-hidden text-ellipsis max-w-[250px] sm:max-w-[350px]" : "truncate max-w-[120px] sm:max-w-[200px]"
+                        isHifi ? "overflow-hidden text-ellipsis max-w-[250px] sm:max-w-[350px] md:max-w-[450px]" : "truncate max-w-[200px] sm:max-w-[300px] md:max-w-[400px]"
                       )}>{selectedPersona.description}</p>
                     </div>
                   </div>
