@@ -637,12 +637,12 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
 
             {/* Persona info if selected - only for non-HiFi mode */}
             {currentPersona && !isHifi && (
-              <div className="flex flex-col items-center gap-2 mt-3 sm:mt-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
-                <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20 max-w-[90%]">
+              <div className="flex flex-col items-center gap-2 mt-3 sm:mt-4 animate-fade-in w-full" style={{ animationDelay: "300ms" }}>
+                <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20">
                   <span className="text-xl sm:text-2xl flex-shrink-0">{currentPersona.emoji}</span>
-                  <span className="text-xs sm:text-sm font-medium text-primary truncate">{currentPersona.name}</span>
+                  <span className="text-xs sm:text-sm font-medium text-primary">{currentPersona.name}</span>
                 </div>
-                <p className="text-xs text-muted-foreground max-w-[90%] sm:max-w-md md:max-w-lg lg:max-w-xl text-center line-clamp-2">{currentPersona.description}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground text-center px-4 max-w-prose">{currentPersona.description}</p>
               </div>
             )}
           </div>
