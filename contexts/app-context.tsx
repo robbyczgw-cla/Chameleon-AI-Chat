@@ -15,6 +15,9 @@ import { stripImageDataFromContent } from "@/lib/multimodal-utils"
 import { memoryService } from "@/lib/memory-service"
 import { personaMemoryService } from "@/lib/persona-memory-service"
 import { getBackgroundModel } from "@/components/experimental-settings"
+import { loggers } from "@/lib/logger"
+
+const log = loggers.app
 
 interface AppContextType {
   chats: Chat[]
@@ -187,7 +190,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setStreamingPhase("idle")
       setCurrentTool(null)
       setSearchQuery(null)
-      console.log("[v0] Chat generation stopped")
+      log.debug("Chat generation stopped")
     }
   }, [])
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false)
@@ -298,20 +301,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const isGuestMode = typeof window !== "undefined" && localStorage.getItem("guest-mode") === "true"
 
       // ULTRA-FAST MODE: Load cached data SYNCHRONOUSLY, show UI instantly!
-      console.log("[v0] ⚡ INSTANT MODE: Loading cached data synchronously...")
+      log.debug("⚡ INSTANT MODE: Loading cached data synchronously...")
       loadFromLocalStorage()
       setIsLoading(false) // UI READY NOW!
-      console.log("[v0] ✅ UI READY in < 50ms")
+      log.info("✅ UI READY in < 50ms")
 
       // If in guest mode, skip Supabase auth and sync
       if (isGuestMode) {
-        console.log("[v0] 🎭 GUEST MODE: Using localStorage only, no Supabase sync")
+        log.info("🎭 GUEST MODE: Using localStorage only, no Supabase sync")
         setUser(null)
         setHasInitiallyLoaded(true)
 
         // Guest mode: API keys and settings are stored in localStorage only
         // No need to clear them - user's data persists across sessions
-        console.log("[v0] 🔒 GUEST MODE: Using existing settings from localStorage")
+        log.debug("🔒 GUEST MODE: Using existing settings from localStorage")
 
         return
       }
@@ -320,33 +323,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Using queueMicrotask for immediate non-blocking execution
       queueMicrotask(async () => {
         try {
-          console.log("[v0] 🔄 Background: Checking auth...")
+          log.debug("🔄 Background: Checking auth...")
           const {
             data: { user },
           } = await supabase.auth.getUser()
-          console.log("[v0] 🔄 Background: User:", user?.email || "Not logged in")
+          log.debug("🔄 Background: User:", user?.email || "Not logged in")
           setUser(user)
 
           if (user) {
             // CRITICAL: Run migration BEFORE sync to prevent race conditions
-            console.log("[v0] 🔄 Background: Checking for migration...")
+            log.debug("🔄 Background: Checking for migration...")
             try {
               await migrateToSupabase(user.id)
             } catch (error) {
-              console.error("[v0] ⚠️ Migration failed (non-critical):", error)
+              log.warn("⚠️ Migration failed (non-critical):", error)
             }
 
-            console.log("[v0] 🔄 Background: Syncing with Supabase...")
+            log.debug("🔄 Background: Syncing with Supabase...")
             try {
               await loadFromSupabase(user.id)
               setHasInitiallyLoaded(true)
-              console.log("[v0] ✅ Background sync complete")
+              log.info("✅ Background sync complete")
             } catch (error) {
-              console.error("[v0] ⚠️ Background sync failed (using cached data):", error)
+              log.warn("⚠️ Background sync failed (using cached data):", error)
             }
           }
         } catch (error) {
-          console.error("[v0] ⚠️ Background auth check failed:", error)
+          log.warn("⚠️ Background auth check failed:", error)
         }
       })
     }

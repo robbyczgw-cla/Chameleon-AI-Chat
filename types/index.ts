@@ -537,3 +537,186 @@ export interface SharedMessage {
   model?: string
   createdAt: number
 }
+
+/**
+ * Search result from web search providers (Tavily, Serper, Exa)
+ */
+export interface SearchResult {
+  title: string
+  url: string
+  content: string
+  score?: number
+  publishedDate?: string
+  author?: string
+  image?: string
+}
+
+/**
+ * Search response with content and raw results
+ */
+export interface SearchResponse {
+  content: string
+  results: SearchResult[]
+}
+
+/**
+ * Weather forecast day data
+ */
+export interface WeatherForecastDay {
+  date: string
+  maxtemp_c: number
+  mintemp_c: number
+  condition: {
+    text: string
+  }
+}
+
+/**
+ * Tool call result structure
+ */
+export interface ToolCallResult {
+  name: string
+  input: Record<string, unknown>
+  output: string | Record<string, unknown>
+}
+
+/**
+ * Shopify product variant
+ */
+export interface ShopifyVariant {
+  node: {
+    id: string
+    title: string
+    price: string
+    availableForSale: boolean
+    sku?: string
+  }
+}
+
+/**
+ * Shopify product edge
+ */
+export interface ShopifyProductEdge {
+  node: {
+    id: string
+    title: string
+    description?: string
+    handle: string
+    status: string
+    totalInventory: number
+    priceRangeV2: {
+      minVariantPrice: {
+        amount: string
+        currencyCode: string
+      }
+      maxVariantPrice: {
+        amount: string
+        currencyCode: string
+      }
+    }
+    variants: {
+      edges: ShopifyVariant[]
+    }
+    images: {
+      edges: Array<{
+        node: {
+          url: string
+          altText?: string
+        }
+      }>
+    }
+    collections: {
+      edges: Array<{
+        node: {
+          title: string
+        }
+      }>
+    }
+    tags: string[]
+    vendor: string
+    createdAt: string
+    updatedAt: string
+  }
+}
+
+/**
+ * API Error response structure
+ */
+export interface APIError {
+  message: string
+  code?: string
+  status?: number
+  details?: Record<string, unknown>
+}
+
+/**
+ * User authentication state
+ */
+export interface AuthUser {
+  id: string
+  email: string | null
+  created_at?: string
+  updated_at?: string
+  app_metadata?: Record<string, unknown>
+  user_metadata?: Record<string, unknown>
+  aud?: string
+  role?: string
+}
+
+/**
+ * Reasoning detail from AI models (o1, DeepSeek R1, Gemini Thinking)
+ */
+export interface ReasoningDetail {
+  type: "thinking" | "text"
+  thinking?: string
+  text?: string
+  summary?: string
+}
+
+/**
+ * OpenRouter message format
+ */
+export interface OpenRouterMessage {
+  role: "user" | "assistant" | "system" | "tool"
+  content: MessageContent
+  name?: string
+  tool_call_id?: string
+  tool_calls?: Array<{
+    id: string
+    type: "function"
+    function: {
+      name: string
+      arguments: string
+    }
+  }>
+}
+
+/**
+ * OpenRouter generation data (for cost tracking)
+ */
+export interface OpenRouterGeneration {
+  id: string
+  model: string
+  usage: {
+    prompt_tokens: number
+    completion_tokens: number
+    total_tokens: number
+  }
+  native_tokens_prompt?: number
+  native_tokens_completion?: number
+  cache_creation_input_tokens?: number
+  cache_read_input_tokens?: number
+  total_cost: number
+  provider_name?: string
+}
+
+/**
+ * Rate limit information from OpenRouter
+ */
+export interface RateLimitInfo {
+  requests_limit: number
+  requests_remaining: number
+  tokens_limit?: number
+  tokens_remaining?: number
+  reset_at?: string
+}

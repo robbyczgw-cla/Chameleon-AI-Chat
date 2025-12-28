@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Zap, Brain, Link2, Sparkles } from "lucide-react"
 import type { CategorizedFollowUp } from "@/lib/follow-up-parser"
-import { cn } from "@/lib/utils"
+import { cn, generateKey } from "@/lib/utils"
 // NOTE: We pass settings as a prop from the parent (ChatMessages) to avoid
 // context issues that can crash the component during fast re-renders
 
@@ -93,7 +93,7 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
           <div className="flex flex-wrap gap-2">
             {allSuggestions.map((suggestion, index) => (
               <Button
-                key={index}
+                key={generateKey('followup', suggestion, index)}
                 variant="outline"
                 size="sm"
                 onClick={() => onSelect(suggestion)}
@@ -224,7 +224,7 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
         <div className="flex flex-wrap gap-2">
           {suggestions.slice(0, itemsPerCategory * 3).map((suggestion, index) => (
             <Button
-              key={index}
+              key={generateKey('legacy-followup', suggestion, index)}
               variant="outline"
               size="sm"
               onClick={() => onSelect(suggestion)}
