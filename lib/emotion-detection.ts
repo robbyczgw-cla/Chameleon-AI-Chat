@@ -49,14 +49,21 @@ export interface TypingPattern {
 // Indicator patterns for each emotion
 const EMOTION_PATTERNS = {
   frustrated: {
-    // Explicit frustration words
+    // Explicit frustration words (English, German, Spanish)
     words: [
+      // English
       'frustrated', 'annoying', 'annoyed', 'ugh', 'argh', 'damn', 'dammit',
       'hate', 'stupid', 'broken', 'useless', 'waste', 'terrible', 'awful',
       'ridiculous', 'impossible', 'stuck', 'again', 'still', 'why won\'t',
       'doesn\'t work', 'not working', 'keeps failing', 'error', 'bug',
+      // German
       'frustriert', 'nervt', 'nervig', 'mist', 'verdammt', 'scheisse', 'scheiße',
-      'funktioniert nicht', 'geht nicht', 'kaputt', 'fehler'
+      'funktioniert nicht', 'geht nicht', 'kaputt', 'fehler',
+      // Spanish
+      'frustrado', 'frustrada', 'molesto', 'molesta', 'uf', 'arg', 'maldición',
+      'odio', 'estúpido', 'roto', 'inútil', 'terrible', 'horrible',
+      'ridículo', 'imposible', 'atascado', 'otra vez', 'todavía',
+      'no funciona', 'no sirve', 'sigue fallando', 'error', 'bug'
     ],
     // Patterns that indicate frustration
     patterns: [
@@ -70,8 +77,9 @@ const EMOTION_PATTERNS = {
       /give up/i,
       /this is (so )?(frustrating|annoying)/i,
     ],
-    // Sarcasm patterns that indicate frustration
+    // Sarcasm patterns that indicate frustration (English, German, Spanish)
     sarcasmPatterns: [
+      // English
       /great[,.]? (just|another|more)/i,
       /just what i needed/i,
       /oh (great|perfect|wonderful)/i,
@@ -79,18 +87,33 @@ const EMOTION_PATTERNS = {
       /how (wonderful|lovely|nice)/i,
       /(exactly|just) what i (wanted|needed)/i,
       /super[.!]*$/i,
+      // German
       /toll[,.]? (schon wieder|noch mehr)/i,
       /genau das was ich (brauchte|wollte)/i,
+      // Spanish
+      /genial[,.]? (otro|más|justo)/i,
+      /justo lo que necesitaba/i,
+      /oh (genial|perfecto|maravilloso)/i,
+      /gracias[.!]*$/i,  // Sarcastic thanks
+      /qué (maravilloso|bonito|lindo)/i,
+      /(exactamente|justo) lo que (quería|necesitaba)/i,
     ]
   },
 
   excited: {
+    // Excitement words (English, German, Spanish)
     words: [
+      // English
       'awesome', 'amazing', 'love', 'fantastic', 'perfect', 'excellent',
       'brilliant', 'wonderful', 'incredible', 'yes', 'yay', 'woohoo',
       'finally', 'great', 'cool', 'nice', 'sweet', 'excited', 'can\'t wait',
+      // German
       'super', 'toll', 'geil', 'mega', 'krass', 'wahnsinn', 'endlich',
-      'perfekt', 'genial', 'fantastisch', 'wunderbar'
+      'perfekt', 'genial', 'fantastisch', 'wunderbar',
+      // Spanish
+      'increíble', 'genial', 'fantástico', 'perfecto', 'excelente',
+      'brillante', 'maravilloso', 'sí', 'yupi', 'por fin', 'finalmente',
+      'chévere', 'guay', 'emocionado', 'emocionada', 'no puedo esperar'
     ],
     patterns: [
       /!{1,}/,                    // Exclamation marks (positive context)
@@ -103,15 +126,23 @@ const EMOTION_PATTERNS = {
   },
 
   confused: {
+    // Confusion words (English, German, Spanish)
     words: [
+      // English
       'confused', 'confusing', 'don\'t understand', 'what do you mean',
       'unclear', 'lost', 'huh', 'what', 'how', 'why', 'which',
       'not sure', 'no idea', 'makes no sense', 'doesn\'t make sense',
+      // German
       'verwirrt', 'verstehe nicht', 'was meinst du', 'unklar', 'keine ahnung',
-      'ergibt keinen sinn', 'kapier ich nicht', 'wie geht das'
+      'ergibt keinen sinn', 'kapier ich nicht', 'wie geht das',
+      // Spanish
+      'confundido', 'confundida', 'confuso', 'no entiendo', 'qué quieres decir',
+      'no está claro', 'perdido', 'perdida', 'eh', 'qué', 'cómo', 'por qué',
+      'no estoy seguro', 'no tengo idea', 'no tiene sentido'
     ],
     patterns: [
       /\?{1,}/,                   // Questions
+      // English
       /what (do|does|is|are) (you|this|that|it) mean/i,
       /i don'?t (get|understand)/i,
       /can you (explain|clarify)/i,
@@ -119,13 +150,24 @@ const EMOTION_PATTERNS = {
       /how (do|does|can|should) (i|we|you)/i,
       /not sure (what|how|why|if)/i,
       /(explain|tell) (me )?(again|more)/i,
+      // Spanish
+      /qué (quieres|significa|es)/i,
+      /no (entiendo|comprendo)/i,
+      /puedes (explicar|aclarar)/i,
+      /cómo (puedo|hago|funciona)/i,
+      /no estoy segur[oa] (de |si |qué |cómo )/i,
     ]
   },
 
   grateful: {
+    // Gratitude words (English, German, Spanish)
     words: [
+      // English
       'thank', 'thanks', 'appreciate', 'helpful', 'helped', 'grateful',
-      'danke', 'dankbar', 'hilfreich', 'hat geholfen'
+      // German
+      'danke', 'dankbar', 'hilfreich', 'hat geholfen',
+      // Spanish
+      'gracias', 'agradecido', 'agradecida', 'aprecio', 'útil', 'ayudó', 'ayudaste'
     ],
     patterns: [
       /thank(s| you)( so much)?[!.]/i,
@@ -138,10 +180,16 @@ const EMOTION_PATTERNS = {
   },
 
   urgent: {
+    // Urgency words (English, German, Spanish)
     words: [
+      // English
       'urgent', 'asap', 'immediately', 'now', 'deadline', 'emergency',
       'hurry', 'quick', 'fast', 'critical', 'important', 'need',
-      'dringend', 'sofort', 'schnell', 'deadline', 'wichtig', 'muss'
+      // German
+      'dringend', 'sofort', 'schnell', 'deadline', 'wichtig', 'muss',
+      // Spanish
+      'urgente', 'ahora', 'inmediatamente', 'ya', 'fecha límite', 'emergencia',
+      'rápido', 'prisa', 'crítico', 'importante', 'necesito'
     ],
     patterns: [
       /need(s?)? (this|it|help) (now|asap|immediately|urgently)/i,
@@ -154,10 +202,16 @@ const EMOTION_PATTERNS = {
   },
 
   curious: {
+    // Curiosity words (English, German, Spanish)
     words: [
+      // English
       'curious', 'wondering', 'interested', 'how does', 'why does',
       'what if', 'tell me more', 'explain', 'learn',
-      'neugierig', 'interessiert', 'wie funktioniert', 'warum', 'erzähl mehr'
+      // German
+      'neugierig', 'interessiert', 'wie funktioniert', 'warum', 'erzähl mehr',
+      // Spanish
+      'curioso', 'curiosa', 'me pregunto', 'interesado', 'interesada',
+      'cómo funciona', 'por qué', 'qué pasa si', 'cuéntame más', 'explica', 'aprender'
     ],
     patterns: [
       /i('m| am) (curious|wondering|interested)/i,
@@ -169,10 +223,16 @@ const EMOTION_PATTERNS = {
   },
 
   discouraged: {
+    // Discouragement words (English, German, Spanish)
     words: [
+      // English
       'give up', 'hopeless', 'impossible', 'can\'t do', 'too hard',
       'never', 'pointless', 'waste of time', 'failed',
-      'aufgeben', 'hoffnungslos', 'unmöglich', 'schaffe ich nicht', 'zu schwer'
+      // German
+      'aufgeben', 'hoffnungslos', 'unmöglich', 'schaffe ich nicht', 'zu schwer',
+      // Spanish
+      'rendirse', 'me rindo', 'sin esperanza', 'imposible', 'no puedo',
+      'muy difícil', 'nunca', 'sin sentido', 'pérdida de tiempo', 'fracasé'
     ],
     patterns: [
       /i('ll| will)? (just )?give up/i,
