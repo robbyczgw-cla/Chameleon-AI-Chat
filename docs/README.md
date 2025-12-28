@@ -33,6 +33,7 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
    - Complete guide to all 27 AI personas
    - When to use each persona
    - Communication styles and specialties
+   - **Cami's Emotion Detection** - Smart mood recognition (English, German, Spanish)
    - **Find your perfect AI companion!**
 
 ### For Developers
