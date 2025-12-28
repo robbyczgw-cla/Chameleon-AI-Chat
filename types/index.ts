@@ -355,6 +355,8 @@ export interface ExperimentalSettings {
   enableResponseAnalysis?: boolean
   // Performance Mode: Disable GPU-intensive effects (chameleon color-shift, memory blink, etc.)
   performanceMode?: boolean
+  // Emotion Detection: Detect user emotions and adapt persona responses (default: ON in advanced mode, OFF in simple mode)
+  enableEmotionDetection?: boolean
   // Streaming Visualization (Advanced Mode only)
   streamingVisualization?: StreamingVisualizationSettings
   // Detailed Streaming: Show all steps, progress bar, sub-steps (default: false - only show action + reasoning)

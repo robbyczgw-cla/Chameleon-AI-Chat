@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useApp } from "@/contexts/app-context"
-import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun, BarChart2, Sparkles, Palette, Code2, GitBranch, Cpu, ChevronDown, ChevronUp } from "lucide-react"
+import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun, BarChart2, Sparkles, Palette, Code2, GitBranch, Cpu, ChevronDown, ChevronUp, Heart } from "lucide-react"
 import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
 import { getUserSelectedModels } from "@/lib/model-preferences"
@@ -470,6 +470,70 @@ export function ExperimentalSettings() {
                 <strong>Note:</strong> Response analysis shows sentiment, confidence level, hedging phrases,
                 complexity, reading time, and tone for each AI response.
               </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Emotion Detection Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Heart className="h-5 w-5 text-pink-500" />
+          <h3 className="text-lg font-semibold">Emotion Detection</h3>
+        </div>
+
+        <div className="space-y-4 pl-7">
+          {/* Enable Emotion Detection */}
+          <div className="flex items-center justify-between p-4 border rounded-lg border-pink-500/30 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-950/20">
+            <div className="space-y-1 flex-1">
+              <Label className="text-sm font-medium">🦎 Cami Emotion Awareness</Label>
+              <p className="text-xs text-muted-foreground">
+                Detect user emotions (frustration, excitement, confusion, sarcasm) and adapt responses accordingly.
+                {settings.simpleMode ? " Default: ON in Simple Mode" : " Default: OFF in Advanced Mode"}
+              </p>
+            </div>
+            <Switch
+              checked={
+                // If explicitly set by user, respect that choice
+                experimental.enableEmotionDetection !== undefined
+                  ? experimental.enableEmotionDetection
+                  // Otherwise use defaults based on mode
+                  : settings.simpleMode // Default ON in simple mode, OFF in advanced mode
+              }
+              onCheckedChange={(checked) => handleExperimentalChange({ enableEmotionDetection: checked })}
+            />
+          </div>
+
+          {/* Info Box when enabled */}
+          {(experimental.enableEmotionDetection !== undefined
+            ? experimental.enableEmotionDetection
+            : settings.simpleMode // Default ON in simple mode
+          ) && (
+            <div className="p-3 bg-pink-50 dark:bg-pink-950/20 border border-pink-200 dark:border-pink-800 rounded-lg space-y-2">
+              <p className="text-xs text-pink-800 dark:text-pink-200">
+                <strong>How it works:</strong> Cami detects emotional cues in your messages and adapts her response style:
+              </p>
+              <ul className="text-xs text-pink-800 dark:text-pink-200 space-y-1 list-disc list-inside">
+                <li><strong>Frustrated/Sarcastic:</strong> Empathetic acknowledgment, then direct help</li>
+                <li><strong>Excited:</strong> Matches your energy and enthusiasm</li>
+                <li><strong>Confused:</strong> Simpler explanations, step-by-step, more examples</li>
+                <li><strong>Discouraged:</strong> Encouraging tone, breaks problems into smaller steps</li>
+                <li><strong>Urgent:</strong> Direct answers, skips pleasantries</li>
+              </ul>
+            </div>
+          )}
+
+          {/* Example */}
+          {(experimental.enableEmotionDetection !== undefined
+            ? experimental.enableEmotionDetection
+            : settings.simpleMode // Default ON in simple mode
+          ) && (
+            <div className="p-3 bg-muted/50 border rounded-lg">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Example:</p>
+              <div className="space-y-1 text-xs">
+                <p className="text-foreground"><strong>You:</strong> "Great, another error message. Just what I needed today."</p>
+                <p className="text-muted-foreground"><strong>Cami:</strong> "Ugh, I feel you - error messages are the worst 😅 Let me help fix this..."</p>
+              </div>
             </div>
           )}
         </div>
