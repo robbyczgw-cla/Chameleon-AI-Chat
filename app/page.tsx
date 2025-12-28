@@ -21,7 +21,9 @@ import { haptics } from "@/lib/haptics"
 import { KeyboardShortcutsDialog } from "@/components/keyboard-shortcuts-dialog"
 import { useFeatureFlags } from "@/hooks/use-feature-flags"
 import { ErrorBoundary } from "@/components/error-boundary"
-import { ShieldCheck } from "lucide-react"
+import { ShieldCheck, ShieldOff } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Dynamic imports for heavy components - only loaded when needed
 const ModelComparison = dynamic(() => import("@/components/model-comparison").then(mod => ({ default: mod.ModelComparison })), {
@@ -35,7 +37,7 @@ const StatsDashboard = dynamic(() => import("@/components/stats-dashboard").then
 })
 
 function ChatApp() {
-  const { chats, currentChatId, settings, setChats, setCurrentChat, createChat } = useApp()
+  const { chats, currentChatId, settings, setChats, setCurrentChat, createChat, updateSettings } = useApp()
   const { toast } = useToast()
   const { features, isSimpleMode } = useFeatureFlags()
   const [isComparisonMode, setIsComparisonMode] = useState(false)
@@ -409,7 +411,56 @@ function ChatApp() {
             </div>
           )}
 
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+            {/* Private Chat Mode Toggle - Floating in top-right of chat window (Advanced Mode only) */}
+            {!isSimpleMode && (
+              <div className="absolute top-3 right-3 z-20">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          const newValue = !settings.privateChatMode
+                          updateSettings({ privateChatMode: newValue })
+                          haptics.trigger('selection')
+                          console.log(`[v0] Private Chat Mode ${newValue ? 'enabled' : 'disabled'}`)
+                        }}
+                        className={cn(
+                          "h-9 w-9 rounded-xl shadow-lg backdrop-blur-sm transition-all hover:scale-105",
+                          settings.privateChatMode
+                            ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/30"
+                            : "bg-background/80 border-border/50 text-muted-foreground hover:text-foreground hover:bg-background"
+                        )}
+                      >
+                        {settings.privateChatMode ? (
+                          <ShieldCheck className="h-4 w-4" />
+                        ) : (
+                          <ShieldOff className="h-4 w-4" />
+                        )}
+                        {settings.privateChatMode && (
+                          <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 bg-emerald-500 rounded-full animate-pulse shadow-sm shadow-emerald-500/50" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-xs">
+                      <div className="space-y-1">
+                        <p className="font-medium">
+                          {settings.privateChatMode ? "Private Mode ON" : "Private Mode OFF"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {settings.privateChatMode
+                            ? "Chats are not saved. No memory. Auto-deletes when closed."
+                            : "Enable for private conversations that won't be saved."}
+                        </p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
+
             {showStatsPanel ? (
               <StatsDashboard />
             ) : isComparisonMode ? (

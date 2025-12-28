@@ -24,8 +24,6 @@ import {
   Mic,
   MoreHorizontal,
   Share2,
-  ShieldCheck,
-  ShieldOff,
 } from "lucide-react"
 import { useEffect } from "react"
 import { ModelSelector } from "@/components/model-selector"
@@ -36,7 +34,6 @@ import { MemoryManager } from "@/components/memory-manager"
 import { UserProfileDialog } from "@/components/user-profile-dialog"
 import { PersonasDialog } from "@/components/personas-dialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ChameleonLogoSimple } from "@/components/chameleon-logo"
 import { cn } from "@/lib/utils"
 import { AIDebateMode } from "@/components/ai-debate-mode"
@@ -233,31 +230,6 @@ export function ChatHeader() {
             >
               <Sliders className="h-4 w-4" />
             </Button>
-            {/* Private Chat Mode Toggle - Mobile */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all relative",
-                settings.privateChatMode && "text-emerald-500 bg-emerald-500/10"
-              )}
-              onClick={() => {
-                haptics.trigger('selection')
-                const newValue = !settings.privateChatMode
-                updateSettings({ privateChatMode: newValue })
-                console.log(`[v0] Private Chat Mode ${newValue ? 'enabled' : 'disabled'}`)
-              }}
-              title={settings.privateChatMode ? "Private Mode ON" : "Private Mode OFF"}
-            >
-              {settings.privateChatMode ? (
-                <ShieldCheck className="h-4 w-4" />
-              ) : (
-                <ShieldOff className="h-4 w-4" />
-              )}
-              {settings.privateChatMode && (
-                <span className="absolute top-1 right-1 h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              )}
-            </Button>
             <MobileMoreMenu
               onSettingsClick={() => setIsSettingsOpen(true)}
               onProfileClick={() => setIsProfileOpen(true)}
@@ -428,53 +400,6 @@ export function ChatHeader() {
           <QuickActionsMenu
             onShareClick={() => setIsShareOpen(true)}
           />
-          {/* Private Chat Mode Toggle */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    const newValue = !settings.privateChatMode
-                    updateSettings({ privateChatMode: newValue })
-                    if (newValue) {
-                      // Show confirmation when enabling
-                      console.log("[v0] Private Chat Mode enabled - chats will not be saved")
-                    } else {
-                      // When disabling, delete existing private chats
-                      console.log("[v0] Private Chat Mode disabled")
-                    }
-                  }}
-                  className={cn(
-                    "hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg relative",
-                    settings.privateChatMode && "text-emerald-500 bg-emerald-500/10"
-                  )}
-                >
-                  {settings.privateChatMode ? (
-                    <ShieldCheck className="h-4 w-4 md:h-4.5 md:w-4.5" />
-                  ) : (
-                    <ShieldOff className="h-4 w-4 md:h-4.5 md:w-4.5" />
-                  )}
-                  {settings.privateChatMode && (
-                    <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-emerald-500 rounded-full shadow-sm shadow-emerald-500/50 animate-pulse" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-xs">
-                <div className="space-y-1">
-                  <p className="font-medium">
-                    {settings.privateChatMode ? "Private Mode ON" : "Private Mode OFF"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {settings.privateChatMode
-                      ? "Chats are not saved. No memory. Auto-deletes when closed."
-                      : "Enable for private conversations that won't be saved."}
-                  </p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
           {/* Model Selector - Desktop only */}
           <div className="hidden md:block">
             <ModelSelector />
