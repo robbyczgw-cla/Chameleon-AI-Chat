@@ -27,6 +27,7 @@ import { personaMemoryService } from "@/lib/persona-memory-service"
 import { personaContextAwareness } from "@/lib/persona-context-awareness"
 import { personaPreferencesService } from "@/lib/persona-preferences-service"
 import { userProfileService } from "@/lib/user-profile"
+import { analyzeEmotion, generateEmotionContext } from "@/lib/emotion-detection"
 import { TokenCounterPreview } from "@/components/token-counter-preview"
 import { ContextWindowMeter } from "@/components/context-window-meter"
 import { contextWindowService } from "@/lib/context-window-service"
@@ -842,6 +843,41 @@ export function ChatInput() {
         if (contextPrompt) {
           messages.splice(-1, 0, { role: "system" as const, content: contextPrompt })
           console.log("[ChatInput] ✅ Context awareness added:", contextData)
+        }
+      }
+
+      // Emotion Detection: Analyze user's emotional state and inject context for Cami persona
+      // Check if emotion detection is enabled (default: ON in simple mode, OFF in advanced mode)
+      const emotionDetectionEnabled = settings.experimental?.enableEmotionDetection !== undefined
+        ? settings.experimental.enableEmotionDetection
+        : settings.simpleMode // Default ON in simple mode
+
+      // Only activate for Cami persona (id: "friendly") when emotion detection is enabled
+      if (emotionDetectionEnabled && settings.selectedPersona?.id === "friendly") {
+        console.log("[ChatInput] 💗 Analyzing emotion for Cami persona")
+
+        // Analyze the user's message for emotional content
+        const emotionAnalysis = analyzeEmotion(input.trim(), undefined, {
+          hasErrorMention: /error|fehler|bug|crash|fail/i.test(input)
+        })
+
+        // Only inject context if we detected a non-neutral emotion with confidence
+        if (emotionAnalysis.primary.type !== "neutral" && emotionAnalysis.primary.confidence > 0.4) {
+          const emotionContext = generateEmotionContext(emotionAnalysis)
+          if (emotionContext) {
+            messages.splice(-1, 0, { role: "system" as const, content: emotionContext })
+            console.log("[ChatInput] 💗 Emotion detected:", emotionAnalysis.primary.type,
+              `(${Math.round(emotionAnalysis.primary.confidence * 100)}%)`,
+              emotionAnalysis.secondary ? `+ ${emotionAnalysis.secondary.type}` : "")
+
+            // Add to streaming history for transparency
+            addStreamingHistoryEntry({
+              phase: "thinking",
+              description: `Emotion: ${emotionAnalysis.primary.type} detected`
+            })
+          }
+        } else {
+          console.log("[ChatInput] 💗 Neutral emotion, no adaptation needed")
         }
       }
 
