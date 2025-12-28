@@ -15,17 +15,24 @@
         :root {
             --fg: #0a0a0a;
             --bg: #ffffff;
+            --bg-subtle: #fafafa;
             --border: #e5e5e5;
             --muted: #666666;
-            --accent: #0070f3;
+            --accent: #10b981;
+            --accent-light: #d1fae5;
+            --blue: #0070f3;
+            --purple: #8b5cf6;
+            --orange: #f59e0b;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
                 --fg: #ededed;
                 --bg: #0a0a0a;
+                --bg-subtle: #111111;
                 --border: #262626;
                 --muted: #8a8a8a;
+                --accent-light: #064e3b;
             }
         }
 
@@ -38,7 +45,13 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .container-narrow {
+            max-width: 900px;
             margin: 0 auto;
             padding: 0 24px;
         }
@@ -50,6 +63,7 @@
             position: sticky;
             top: 0;
             background: var(--bg);
+            backdrop-filter: blur(8px);
             z-index: 100;
         }
 
@@ -92,39 +106,44 @@
         }
 
         h1 {
-            font-size: 64px;
+            font-size: 72px;
             font-weight: 700;
             line-height: 1.1;
             letter-spacing: -0.03em;
             margin-bottom: 24px;
-            max-width: 800px;
+            max-width: 900px;
             margin-left: auto;
             margin-right: auto;
         }
 
+        h1 .highlight {
+            color: var(--accent);
+        }
+
         .subtitle {
-            font-size: 20px;
+            font-size: 22px;
             color: var(--muted);
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto 40px;
+            line-height: 1.5;
         }
 
         .cta {
             display: inline-flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             background: var(--fg);
             color: var(--bg);
-            padding: 12px 24px;
+            padding: 14px 28px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 500;
             font-size: 15px;
-            transition: opacity 0.2s;
+            transition: transform 0.2s;
         }
 
         .cta:hover {
-            opacity: 0.8;
+            transform: translateY(-2px);
         }
 
         .cta-secondary {
@@ -132,6 +151,10 @@
             color: var(--fg);
             border: 1px solid var(--border);
             margin-left: 12px;
+        }
+
+        .cta-secondary:hover {
+            border-color: var(--fg);
         }
 
         /* Stats */
@@ -150,24 +173,35 @@
         }
 
         .stat-number {
-            font-size: 48px;
+            font-size: 56px;
             font-weight: 700;
             letter-spacing: -0.02em;
+            color: var(--accent);
         }
 
         .stat-label {
             color: var(--muted);
-            font-size: 14px;
+            font-size: 15px;
             margin-top: 8px;
         }
 
+        .stat-desc {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
         /* Demo */
-        .demo {
+        .demo-section {
             margin: 80px 0;
+        }
+
+        .demo {
             border: 1px solid var(--border);
             border-radius: 12px;
             overflow: hidden;
             background: var(--bg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
         .demo-header {
@@ -175,7 +209,7 @@
             border-bottom: 1px solid var(--border);
             display: flex;
             gap: 8px;
-            background: var(--bg);
+            background: var(--bg-subtle);
         }
 
         .dot {
@@ -188,13 +222,13 @@
         .demo-content {
             padding: 32px;
             font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-            font-size: 13px;
-            line-height: 1.8;
+            font-size: 14px;
+            line-height: 2;
             background: var(--bg);
         }
 
         .demo-line {
-            margin: 12px 0;
+            margin: 8px 0;
         }
 
         .phase {
@@ -202,50 +236,174 @@
         }
 
         .cost {
-            color: #10b981;
+            color: var(--accent);
             font-weight: 600;
         }
 
         .model {
-            color: var(--accent);
+            color: var(--blue);
         }
 
         /* Section */
         section {
-            padding: 80px 0;
+            padding: 100px 0;
+        }
+
+        .section-alternate {
+            background: var(--bg-subtle);
         }
 
         h2 {
-            font-size: 40px;
+            font-size: 48px;
             font-weight: 700;
             letter-spacing: -0.02em;
             margin-bottom: 16px;
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
         }
 
         .section-intro {
-            font-size: 18px;
+            font-size: 20px;
             color: var(--muted);
-            margin-bottom: 64px;
-            max-width: 600px;
+            margin-bottom: 80px;
+            text-align: center;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* USP Cards */
+        .usp-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .usp-card {
+            padding: 40px 32px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg);
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .usp-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .usp-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .usp-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .usp-highlight {
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .usp-desc {
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 15px;
         }
 
         /* Features */
         .features-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 48px;
+            gap: 48px 64px;
+            margin-top: 60px;
+        }
+
+        .feature {
+            position: relative;
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+            display: block;
         }
 
         .feature h3 {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .feature p {
             color: var(--muted);
             font-size: 15px;
-            line-height: 1.6;
+            line-height: 1.7;
+        }
+
+        /* Use Cases */
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .use-case {
+            padding: 32px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg);
+        }
+
+        .use-case-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .use-case h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .use-case ul {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .use-case li {
+            color: var(--muted);
+            font-size: 14px;
+            padding-left: 24px;
+            position: relative;
+            margin: 8px 0;
+        }
+
+        .use-case li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
         }
 
         /* Comparison */
@@ -254,6 +412,7 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             overflow-x: auto;
+            margin-top: 60px;
         }
 
         table {
@@ -262,7 +421,7 @@
         }
 
         th, td {
-            padding: 16px;
+            padding: 20px;
             text-align: left;
             border-bottom: 1px solid var(--border);
             font-size: 14px;
@@ -270,7 +429,7 @@
 
         th {
             font-weight: 600;
-            background: var(--bg);
+            background: var(--bg-subtle);
         }
 
         td:first-child {
@@ -278,11 +437,16 @@
         }
 
         .yes {
-            color: #10b981;
+            color: var(--accent);
+            font-weight: 600;
         }
 
         .no {
             color: #ef4444;
+        }
+
+        .partial {
+            color: var(--orange);
         }
 
         /* Personas */
@@ -290,132 +454,219 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 24px;
+            margin-top: 60px;
         }
 
         .persona {
-            padding: 24px;
+            padding: 28px 24px;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 12px;
             text-align: center;
+            transition: border-color 0.2s, transform 0.2s;
+            background: var(--bg);
+        }
+
+        .persona:hover {
+            border-color: var(--purple);
+            transform: translateY(-4px);
         }
 
         .persona-icon {
-            font-size: 32px;
-            margin-bottom: 12px;
+            font-size: 40px;
+            margin-bottom: 16px;
         }
 
         .persona-name {
-            font-weight: 600;
-            margin-bottom: 4px;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .persona-role {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 12px;
         }
 
         .persona-desc {
             font-size: 13px;
             color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* Tech Stack */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .tech-item {
+            padding: 24px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+            background: var(--bg);
+        }
+
+        .tech-label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .tech-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        /* Code snippet */
+        .code-snippet {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            margin: 48px 0;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        .code-snippet code {
+            color: var(--muted);
+            display: block;
+            line-height: 1.8;
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Callout */
+        .callout {
+            background: var(--accent-light);
+            border: 2px solid var(--accent);
+            border-radius: 16px;
+            padding: 64px 48px;
+            text-align: center;
+            margin: 100px 0;
+        }
+
+        .callout h2 {
+            margin-bottom: 20px;
+            font-size: 42px;
+        }
+
+        .callout p {
+            color: var(--muted);
+            margin-bottom: 32px;
+            font-size: 18px;
         }
 
         /* Footer */
         footer {
             border-top: 1px solid var(--border);
-            padding: 48px 0;
-            margin-top: 120px;
+            padding: 64px 0;
+            background: var(--bg-subtle);
         }
 
         .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 64px;
+        }
+
+        .footer-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
         }
 
         .footer-links {
-            display: flex;
-            gap: 32px;
             list-style: none;
+        }
+
+        .footer-links li {
+            margin: 8px 0;
         }
 
         .footer-links a {
             color: var(--muted);
             text-decoration: none;
             font-size: 14px;
+            transition: color 0.2s;
         }
 
         .footer-links a:hover {
             color: var(--fg);
         }
 
+        .footer-bottom {
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: var(--accent-light);
+            color: var(--accent);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
         /* Mobile */
         @media (max-width: 768px) {
             h1 {
-                font-size: 40px;
+                font-size: 42px;
             }
 
             h2 {
-                font-size: 32px;
+                font-size: 36px;
             }
 
-            .stats {
+            .stats,
+            .usp-grid,
+            .use-cases-grid,
+            .tech-grid {
                 grid-template-columns: 1fr;
-                gap: 32px;
+                gap: 24px;
             }
 
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 32px;
-            }
-
+            .features-grid,
             .personas-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
+                gap: 32px;
             }
 
             .footer-content {
-                flex-direction: column;
-                gap: 24px;
-                text-align: center;
+                grid-template-columns: 1fr;
+                gap: 32px;
             }
 
             .nav-links {
                 display: none;
             }
+
+            section {
+                padding: 60px 0;
+            }
         }
 
-        /* Code snippet */
-        .code-snippet {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 24px;
-            margin: 32px 0;
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 13px;
-            overflow-x: auto;
-        }
-
-        .code-snippet code {
-            color: var(--muted);
-        }
-
-        .highlight {
-            color: var(--fg);
-            font-weight: 600;
-        }
-
-        /* Callout */
-        .callout {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 48px;
-            text-align: center;
-            margin: 80px 0;
-        }
-
-        .callout h2 {
-            margin-bottom: 16px;
-        }
-
-        .callout p {
-            color: var(--muted);
-            margin-bottom: 32px;
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
         }
     </style>
 </head>
@@ -428,42 +679,56 @@
             </div>
             <ul class="nav-links">
                 <li><a href="#features">Features</a></li>
+                <li><a href="#use-cases">Use Cases</a></li>
                 <li><a href="#personas">Personas</a></li>
+                <li><a href="#comparison">Compare</a></li>
                 <li><a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat">GitHub</a></li>
             </ul>
         </div>
     </nav>
 
     <main>
+        <!-- Hero -->
         <section class="hero">
             <div class="container">
-                <h1>AI chat that shows you the real cost</h1>
-                <p class="subtitle">Not estimates. Not guesses. Actual billing data from OpenRouter. See what every message costs before it adds up.</p>
+                <div class="badge">🚀 100+ AI models • 27 personas • Real cost tracking</div>
+                <h1>AI chat that shows you <span class="highlight">the real cost</span></h1>
+                <p class="subtitle">Not estimates. Not guesses. Actual billing data from OpenRouter. See what every message costs you before it adds up. Export your data. Train your own models.</p>
                 <div>
                     <a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat" class="cta">
-                        Get started
+                        Get started free
                         <span>→</span>
                     </a>
-                    <a href="#features" class="cta cta-secondary">See features</a>
+                    <a href="#features" class="cta cta-secondary">Explore features</a>
                 </div>
             </div>
         </section>
 
+        <!-- Stats -->
         <section class="container">
             <div class="stats">
                 <div class="stat-item">
                     <div class="stat-number">100+</div>
-                    <div class="stat-label">AI models</div>
+                    <div class="stat-label">AI models via OpenRouter</div>
+                    <div class="stat-desc">GPT-4, Claude, Gemini, and more</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number">27</div>
-                    <div class="stat-label">personas</div>
+                    <div class="stat-label">unique AI personas</div>
+                    <div class="stat-desc">Each with distinct personality</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number">$0.00</div>
-                    <div class="stat-label">to start</div>
+                    <div class="stat-label">to get started</div>
+                    <div class="stat-desc">Free tier available on all services</div>
                 </div>
             </div>
+        </section>
+
+        <!-- Demo -->
+        <section class="demo-section container-narrow">
+            <h2>See what the AI is actually doing</h2>
+            <p class="section-intro">Real-time transparency. Not just "typing..."</p>
 
             <div class="demo">
                 <div class="demo-header">
@@ -473,192 +738,452 @@
                 </div>
                 <div class="demo-content">
                     <div class="demo-line"><span class="phase">→ Thinking</span> Analyzing your message...</div>
-                    <div class="demo-line"><span class="phase">→ Searching</span> Found 8 results from vercel.com</div>
-                    <div class="demo-line"><span class="phase">→ Writing</span> 1,170 tokens generated</div>
+                    <div class="demo-line">  <span class="phase">└─</span> 45 reasoning tokens</div>
                     <div class="demo-line"></div>
+                    <div class="demo-line"><span class="phase">→ Searching Web</span> Using Serper API...</div>
+                    <div class="demo-line">  <span class="phase">└─</span> Query: "latest Next.js 15 features"</div>
+                    <div class="demo-line">  <span class="phase">└─</span> Found 8 results from vercel.com, nextjs.org</div>
+                    <div class="demo-line"></div>
+                    <div class="demo-line"><span class="phase">→ Writing</span> Generating response...</div>
+                    <div class="demo-line">  <span class="phase">└─</span> Tokens: 350 → 820 → 1,170</div>
+                    <div class="demo-line"></div>
+                    <div class="demo-line"><span class="phase">✓ Complete</span></div>
                     <div class="demo-line"><span class="cost">$0.0234</span> • <span class="model">GPT-4 Turbo</span> • OpenAI</div>
+                    <div class="demo-line"></div>
+                    <div class="demo-line"><span style="color: var(--muted);">⚡ Quick:</span> "What about React 19?"</div>
+                    <div class="demo-line"><span style="color: var(--muted);">🧠 Deep:</span> "How does this compare to Remix?"</div>
+                    <div class="demo-line"><span style="color: var(--muted);">🔗 Related:</span> "Show me migration examples"</div>
                 </div>
             </div>
         </section>
 
+        <!-- USP -->
+        <section class="section-alternate">
+            <div class="container">
+                <h2>Three things no other AI chat has</h2>
+                <p class="section-intro">Features that actually matter to power users and developers</p>
+
+                <div class="usp-grid">
+                    <div class="usp-card">
+                        <span class="usp-icon">💰</span>
+                        <h3 class="usp-title">Exact Cost Tracking</h3>
+                        <p class="usp-highlight">Not estimates. Actual costs.</p>
+                        <p class="usp-desc">Real billing data from OpenRouter API. See what every message costs you. Export spending history. Optimize your usage based on actual per-message costs. Most competitors show estimates. We show reality.</p>
+                    </div>
+
+                    <div class="usp-card">
+                        <span class="usp-icon">🎭</span>
+                        <h3 class="usp-title">27 Expert Personas</h3>
+                        <p class="usp-highlight">Real personalities with depth.</p>
+                        <p class="usp-desc">Not generic assistants. Nova (cyberpunk hacker from 2089), Sol Goldman (charismatic lawyer), Mythos (collaborative worldbuilder), Cogito (consciousness explorer), Dev (programming partner). Each with distinct voice and expertise.</p>
+                    </div>
+
+                    <div class="usp-card">
+                        <span class="usp-icon">💾</span>
+                        <h3 class="usp-title">Training Data Export</h3>
+                        <p class="usp-highlight">Build your own models.</p>
+                        <p class="usp-desc">Export conversations in JSONL format for GPT-4 or Claude fine-tuning. Markdown, HTML, and JSON exports available. Your data isn't locked in. Most apps trap your data. We free it.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
         <section id="features" class="container">
             <h2>What makes it different</h2>
-            <p class="section-intro">Features that actually matter to developers and power users.</p>
+            <p class="section-intro">Built for developers and power users who want control</p>
 
             <div class="features-grid">
                 <div class="feature">
-                    <h3>Real cost tracking</h3>
-                    <p>Exact billing from OpenRouter API. No estimates, no surprises. Export your spending history. Optimize based on actual costs per message.</p>
+                    <span class="feature-icon">🎬</span>
+                    <h3>Advanced Streaming</h3>
+                    <p>Real-time phase indicators show exactly what the AI is doing. See tool previews, reasoning displays, token counts. Most apps just show "typing..." - we show thinking, searching, writing phases with full transparency.</p>
                 </div>
 
                 <div class="feature">
-                    <h3>27 expert personas</h3>
-                    <p>Not generic assistants. Nova (cyberpunk hacker), Sol (lawyer), Mythos (worldbuilder), Dev (programmer). Each with real personality depth.</p>
+                    <span class="feature-icon">⚡</span>
+                    <h3>Smart Follow-ups</h3>
+                    <p>3-tier suggestion system: Quick responses, Deep dives, and Related topics. Intelligently generated based on conversation context. We guide conversations meaningfully, not with random prompts.</p>
                 </div>
 
                 <div class="feature">
-                    <h3>Training data export</h3>
-                    <p>Export conversations in JSONL for GPT-4 or Claude fine-tuning. Your data isn't locked in. Markdown, HTML, and JSON formats available.</p>
+                    <span class="feature-icon">🛠️</span>
+                    <h3>Visual Tool Use</h3>
+                    <p>See web searches, weather checks, calculations happening live. Transparent tool execution with full visibility into what data the AI is accessing. Most competitors hide this - we show everything.</p>
                 </div>
 
                 <div class="feature">
-                    <h3>Transparent streaming</h3>
-                    <p>See what the AI is doing in real-time. Tool calls, web searches, reasoning tokens. Not just "typing..."</p>
+                    <span class="feature-icon">📊</span>
+                    <h3>Analytics Dashboard</h3>
+                    <p>Charts showing usage patterns, model distribution, spending trends over time. Export your data for deeper analysis. Track which models and personas work best for your use cases.</p>
                 </div>
 
                 <div class="feature">
-                    <h3>Emotion detection</h3>
-                    <p>Cami persona detects your mood and adapts responses. Recognizes frustration, confusion, excitement. No other AI does this.</p>
+                    <span class="feature-icon">🎭</span>
+                    <h3>Emotion-Aware AI</h3>
+                    <p>Cami persona detects your emotional state (frustration, confusion, excitement, curiosity) and adapts tone and approach. Uses Spanish language detection. No other AI emotionally responds to YOUR state.</p>
                 </div>
 
                 <div class="feature">
-                    <h3>Debate mode</h3>
-                    <p>Watch different models argue any topic. Compare reasoning approaches. Vote on winners. Perfect for research.</p>
+                    <span class="feature-icon">⚔️</span>
+                    <h3>AI Debate Mode</h3>
+                    <p>Watch different models argue any topic. Compare reasoning approaches between GPT-4, Claude, Gemini. Vote on winners. Perfect for research, education, and understanding different AI perspectives.</p>
+                </div>
+
+                <div class="feature">
+                    <span class="feature-icon">🧠</span>
+                    <h3>Semantic Memory</h3>
+                    <p>AI remembers context across conversations with pgvector embeddings. Surface relevant memories during chats. See which past conversations influenced current responses.</p>
+                </div>
+
+                <div class="feature">
+                    <span class="feature-icon">🔍</span>
+                    <h3>Web Search Integration</h3>
+                    <p>Integrated Tavily, Serper, and Exa APIs for real-time web research. AI can search the web and cite sources. Perfect for current events and research tasks.</p>
                 </div>
             </div>
         </section>
 
+        <!-- Use Cases -->
+        <section id="use-cases" class="section-alternate">
+            <div class="container">
+                <h2>Perfect for</h2>
+                <p class="section-intro">Built for specific workflows, not generic everything</p>
+
+                <div class="use-cases-grid">
+                    <div class="use-case">
+                        <div class="use-case-icon">💻</div>
+                        <h3>Developers</h3>
+                        <p style="color: var(--muted); font-size: 14px;">Build better with AI assistance</p>
+                        <ul>
+                            <li>Programming help with Dev persona</li>
+                            <li>Cost optimization for AI projects</li>
+                            <li>Training data export for fine-tuning</li>
+                            <li>Compare models side-by-side</li>
+                            <li>Debug with reasoning visibility</li>
+                        </ul>
+                    </div>
+
+                    <div class="use-case">
+                        <div class="use-case-icon">📊</div>
+                        <h3>Businesses</h3>
+                        <p style="color: var(--muted); font-size: 14px;">Control costs and track usage</p>
+                        <ul>
+                            <li>Track team AI spending precisely</li>
+                            <li>Custom personas for different roles</li>
+                            <li>Usage analytics and insights</li>
+                            <li>Self-hosted option available</li>
+                            <li>Data ownership and export</li>
+                        </ul>
+                    </div>
+
+                    <div class="use-case">
+                        <div class="use-case-icon">🎯</div>
+                        <h3>Power Users</h3>
+                        <p style="color: var(--muted); font-size: 14px;">Maximum control and features</p>
+                        <ul>
+                            <li>Access 100+ AI models</li>
+                            <li>27 specialized personas</li>
+                            <li>Full conversation export</li>
+                            <li>Advanced memory system</li>
+                            <li>No vendor lock-in</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Personas -->
         <section id="personas" class="container">
-            <h2>Personas</h2>
-            <p class="section-intro">Real personalities, not just prompt variations.</p>
+            <h2>27 Expert Personas</h2>
+            <p class="section-intro">Real personalities with depth, not just prompt variations</p>
 
             <div class="personas-grid">
                 <div class="persona">
                     <div class="persona-icon">🦎</div>
                     <div class="persona-name">Cami</div>
-                    <div class="persona-desc">Emotion-aware</div>
+                    <div class="persona-role">Adaptive Chameleon</div>
+                    <div class="persona-desc">Emotion-aware AI that adapts to your mood and tone</div>
                 </div>
                 <div class="persona">
                     <div class="persona-icon">✨</div>
                     <div class="persona-name">Nova</div>
-                    <div class="persona-desc">Cyberpunk hacker</div>
+                    <div class="persona-role">Cyberpunk Hacker</div>
+                    <div class="persona-desc">Tech expert from Neo-Tokyo 2089</div>
                 </div>
                 <div class="persona">
                     <div class="persona-icon">⚖️</div>
-                    <div class="persona-name">Sol</div>
-                    <div class="persona-desc">Lawyer</div>
+                    <div class="persona-name">Sol Goldman</div>
+                    <div class="persona-role">Lawyer</div>
+                    <div class="persona-desc">Charismatic legal thinking specialist</div>
                 </div>
                 <div class="persona">
                     <div class="persona-icon">🗺️</div>
                     <div class="persona-name">Mythos</div>
-                    <div class="persona-desc">Worldbuilder</div>
+                    <div class="persona-role">Worldbuilder</div>
+                    <div class="persona-desc">Collaborative D&D and storytelling partner</div>
                 </div>
                 <div class="persona">
                     <div class="persona-icon">🤔</div>
                     <div class="persona-name">Cogito</div>
-                    <div class="persona-desc">Philosopher</div>
+                    <div class="persona-role">Philosopher</div>
+                    <div class="persona-desc">Consciousness explorer for deep questions</div>
                 </div>
                 <div class="persona">
                     <div class="persona-icon">🎧</div>
                     <div class="persona-name">Vibe</div>
-                    <div class="persona-desc">Taste curator</div>
+                    <div class="persona-role">Taste Curator</div>
+                    <div class="persona-desc">Personal recommendations for media</div>
                 </div>
                 <div class="persona">
                     <div class="persona-icon">🎓</div>
-                    <div class="persona-name">Stein</div>
-                    <div class="persona-desc">Expert teacher</div>
+                    <div class="persona-name">Professor Stein</div>
+                    <div class="persona-role">Expert Teacher</div>
+                    <div class="persona-desc">In-depth explanations and learning</div>
                 </div>
                 <div class="persona">
                     <div class="persona-icon">💻</div>
                     <div class="persona-name">Dev</div>
-                    <div class="persona-desc">Code partner</div>
+                    <div class="persona-role">Code Partner</div>
+                    <div class="persona-desc">Programming, debugging, architecture</div>
                 </div>
             </div>
-            <p style="text-align: center; margin-top: 32px; color: var(--muted); font-size: 14px;">+ 19 more personas</p>
+            <p style="text-align: center; margin-top: 40px; color: var(--muted); font-size: 16px;">+ 19 more unique personas including Sage, Echo, Pixel, Aurora, and more</p>
         </section>
 
-        <section class="container">
-            <h2>vs other AI chats</h2>
+        <!-- Comparison -->
+        <section id="comparison" class="section-alternate">
+            <div class="container">
+                <h2>vs Competition</h2>
+                <p class="section-intro">If you want transparency, intelligence, and control → Chameleon</p>
 
-            <div class="comparison">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Feature</th>
-                            <th>Chameleon</th>
-                            <th>Open-WebUI</th>
-                            <th>LibreChat</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Real cost tracking</td>
-                            <td class="yes">Exact billing</td>
-                            <td class="no">Estimates only</td>
-                            <td class="no">None</td>
-                        </tr>
-                        <tr>
-                            <td>Transparent streaming</td>
-                            <td class="yes">Full phase display</td>
-                            <td class="no">Basic</td>
-                            <td class="no">Basic</td>
-                        </tr>
-                        <tr>
-                            <td>Training export</td>
-                            <td class="yes">JSONL format</td>
-                            <td class="no">None</td>
-                            <td class="no">None</td>
-                        </tr>
-                        <tr>
-                            <td>Deep personas</td>
-                            <td class="yes">27 unique</td>
-                            <td class="no">2-3</td>
-                            <td class="no">2-3</td>
-                        </tr>
-                        <tr>
-                            <td>Emotion detection</td>
-                            <td class="yes">Built-in</td>
-                            <td class="no">None</td>
-                            <td class="no">None</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="comparison">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Chameleon</th>
+                                <th>Open-WebUI</th>
+                                <th>LibreChat</th>
+                                <th>ChatGPT-Next-Web</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Advanced Streaming</td>
+                                <td class="yes">✓ Phases + Tool Preview</td>
+                                <td class="partial">⚠ Basic</td>
+                                <td class="partial">⚠ Basic</td>
+                                <td class="partial">⚠ Basic</td>
+                            </tr>
+                            <tr>
+                                <td>Visual Tool Use</td>
+                                <td class="yes">✓ Transparent</td>
+                                <td class="partial">⚠ Hidden</td>
+                                <td class="partial">⚠ Hidden</td>
+                                <td class="no">✗ None</td>
+                            </tr>
+                            <tr>
+                                <td>Smart Follow-ups</td>
+                                <td class="yes">✓ 3-tier intelligent</td>
+                                <td class="no">✗ None</td>
+                                <td class="no">✗ None</td>
+                                <td class="no">✗ None</td>
+                            </tr>
+                            <tr>
+                                <td>Real Cost Tracking</td>
+                                <td class="yes">✓ Exact billing data</td>
+                                <td class="partial">⚠ Estimates</td>
+                                <td class="no">✗ None</td>
+                                <td class="no">✗ None</td>
+                            </tr>
+                            <tr>
+                                <td>Analytics Dashboard</td>
+                                <td class="yes">✓ Charts + Export</td>
+                                <td class="partial">⚠ Basic</td>
+                                <td class="no">✗ None</td>
+                                <td class="no">✗ None</td>
+                            </tr>
+                            <tr>
+                                <td>Deep Personas</td>
+                                <td class="yes">✓ 27 unique</td>
+                                <td class="partial">⚠ 2-3</td>
+                                <td class="partial">⚠ 2-3</td>
+                                <td class="no">✗ None</td>
+                            </tr>
+                            <tr>
+                                <td>Training Data Export</td>
+                                <td class="yes">✓ JSONL format</td>
+                                <td class="no">✗ None</td>
+                                <td class="no">✗ None</td>
+                                <td class="no">✗ None</td>
+                            </tr>
+                            <tr>
+                                <td>Emotion Detection</td>
+                                <td class="yes">✓ Built-in</td>
+                                <td class="no">✗ None</td>
+                                <td class="no">✗ None</td>
+                                <td class="no">✗ None</td>
+                            </tr>
+                            <tr>
+                                <td>Multi-model Support</td>
+                                <td class="yes">✓ 100+</td>
+                                <td class="yes">✓ Many</td>
+                                <td class="yes">✓ Many</td>
+                                <td class="yes">✓ Many</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
+        <!-- Tech Stack -->
         <section class="container">
-            <h2>Quick start</h2>
+            <h2>Built with modern tech</h2>
+            <p class="section-intro">Fast, reliable, and battle-tested stack</p>
 
-            <div class="code-snippet">
-                <code>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <div class="tech-label">Frontend</div>
+                    <div class="tech-name">Next.js 16</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">UI Framework</div>
+                    <div class="tech-name">React 19.2</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">Styling</div>
+                    <div class="tech-name">Tailwind CSS 4</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">Components</div>
+                    <div class="tech-name">shadcn/ui</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">Database</div>
+                    <div class="tech-name">Supabase</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">Vector DB</div>
+                    <div class="tech-name">pgvector</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">AI Models</div>
+                    <div class="tech-name">OpenRouter</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">Deployment</div>
+                    <div class="tech-name">Vercel Edge</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start -->
+        <section class="section-alternate">
+            <div class="container-narrow">
+                <h2>Get running in 3 minutes</h2>
+                <p class="section-intro">Quick and easy setup with free tier options</p>
+
+                <div class="code-snippet">
+                    <code># 1. Clone and install
 git clone https://github.com/robbyczgw-cla/Chameleon-AI-Chat.git
 cd Chameleon-AI-Chat
 npm install
 
+# 2. Set up environment
 cp .env.example .env.local
-<span class="highlight"># Add your OpenRouter API key</span>
+<span class="highlight"># Add your OpenRouter API key (get free at openrouter.ai)</span>
+<span class="highlight"># Add Supabase credentials (free tier at supabase.com)</span>
 
+# 3. Run development server
 npm run dev
-<span class="highlight"># http://localhost:3000</span>
-                </code>
-            </div>
+<span class="highlight"># → Open http://localhost:3000</span></code>
+                </div>
 
-            <p style="color: var(--muted); font-size: 14px;">
-                Requires: OpenRouter API (free tier) • Supabase account (free tier)
-            </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px;">
+                    <div>
+                        <h3 style="font-size: 18px; margin-bottom: 12px;">Required</h3>
+                        <ul style="list-style: none; color: var(--muted); font-size: 14px; line-height: 2;">
+                            <li>✓ OpenRouter API key (free tier)</li>
+                            <li>✓ Supabase account (free tier)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 18px; margin-bottom: 12px;">Optional</h3>
+                        <ul style="list-style: none; color: var(--muted); font-size: 14px; line-height: 2;">
+                            <li>+ Web search APIs (Serper, Tavily, Exa)</li>
+                            <li>+ Voice (OpenAI Whisper + TTS)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <div class="container">
+        <!-- CTA -->
+        <section class="container">
             <div class="callout">
                 <h2>Stop guessing what AI costs</h2>
                 <p>See real billing data. Track spending. Export conversations. Control your AI usage.</p>
-                <a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat" class="cta">
-                    Get started free
-                    <span>→</span>
-                </a>
+                <div>
+                    <a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat" class="cta">
+                        Get started free
+                        <span>→</span>
+                    </a>
+                    <a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat" class="cta cta-secondary">⭐ Star on GitHub</a>
+                </div>
+                <p style="margin-top: 24px; font-size: 14px; color: var(--muted);">MIT License • Free forever • Self-hostable</p>
             </div>
-        </div>
+        </section>
     </main>
 
+    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="footer-content">
-                <div style="color: var(--muted); font-size: 14px;">MIT License • Free to use and modify</div>
-                <ul class="footer-links">
-                    <li><a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat">GitHub</a></li>
-                    <li><a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues">Issues</a></li>
-                    <li><a href="mailto:robbyczgw@gmail.com">Contact</a></li>
-                </ul>
+                <div class="footer-section">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                        <span style="font-size: 24px;">🦎</span>
+                        <span style="font-weight: 600; font-size: 18px;">Chameleon</span>
+                    </div>
+                    <p style="color: var(--muted); font-size: 14px; max-width: 300px;">
+                        AI chat with real-time cost tracking, 27 expert personas, and training data export.
+                    </p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#personas">Personas</a></li>
+                        <li><a href="#comparison">Comparison</a></li>
+                        <li><a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat/blob/main/CHANGELOG.md">Changelog</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat/tree/main/docs">Documentation</a></li>
+                        <li><a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat">GitHub</a></li>
+                        <li><a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues">Issues</a></li>
+                        <li><a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions">Discussions</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:robbyczgw@gmail.com">Email</a></li>
+                        <li><a href="https://github.com/robbyczgw-cla">GitHub Profile</a></li>
+                        <li><a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat/blob/main/LICENSE">License</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 Chameleon AI Chat. MIT License. Built with Next.js, React, and Supabase.</p>
+                <p style="margin-top: 8px;">Free to use, modify, and distribute. No vendor lock-in.</p>
             </div>
         </div>
     </footer>
