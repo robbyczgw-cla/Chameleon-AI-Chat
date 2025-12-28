@@ -14,8 +14,16 @@ export default defineConfig({
           rename: "manifest.json",
         },
         {
-          src: "../public/icon-*.png",
+          src: "../public/icon-192.png",
           dest: "icons",
+        },
+        {
+          src: "../public/icon-512.png",
+          dest: "icons",
+        },
+        {
+          src: "src/content/styles.css",
+          dest: "content",
         },
       ],
     }),
@@ -28,13 +36,18 @@ export default defineConfig({
         background: resolve(__dirname, "src/background/index.ts"),
         content: resolve(__dirname, "src/content/inject.ts"),
         popup: resolve(__dirname, "src/popup/index.html"),
-        // No sidepanel for Firefox - uses larger popup instead
         options: resolve(__dirname, "src/options/index.html"),
       },
       output: {
         entryFileNames: "[name]/index.js",
         chunkFileNames: "shared/[name].js",
-        assetFileNames: "[name]/[name].[ext]",
+        assetFileNames: (assetInfo) => {
+          // Keep CSS in the right folders
+          if (assetInfo.name?.endsWith(".css")) {
+            return "[name]/[name][extname]"
+          }
+          return "assets/[name][extname]"
+        },
       },
     },
   },

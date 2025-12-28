@@ -1,7 +1,33 @@
 /**
  * Chameleon AI - Content Script Styles
  * Injected overlay for showing AI responses
+ * Supports both light and dark mode
  */
+
+/* CSS Variables for theming */
+.chameleon-overlay {
+  --chameleon-bg: #ffffff;
+  --chameleon-bg-secondary: #f9fafb;
+  --chameleon-bg-code: #f3f4f6;
+  --chameleon-bg-pre: #1f2937;
+  --chameleon-text: #1f2937;
+  --chameleon-text-secondary: #6b7280;
+  --chameleon-border: #e5e7eb;
+  --chameleon-link: #3b82f6;
+}
+
+@media (prefers-color-scheme: dark) {
+  .chameleon-overlay {
+    --chameleon-bg: #1a1a1a;
+    --chameleon-bg-secondary: #252525;
+    --chameleon-bg-code: #333333;
+    --chameleon-bg-pre: #0f0f0f;
+    --chameleon-text: #f3f4f6;
+    --chameleon-text-secondary: #9ca3af;
+    --chameleon-border: #333333;
+    --chameleon-link: #60a5fa;
+  }
+}
 
 .chameleon-overlay {
   all: initial;
@@ -31,7 +57,7 @@
 
 .chameleon-card {
   all: initial;
-  background: white;
+  background: var(--chameleon-bg);
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   max-width: 600px;
@@ -110,7 +136,7 @@
   padding: 20px;
   overflow-y: auto;
   flex: 1;
-  color: #1f2937;
+  color: var(--chameleon-text);
   line-height: 1.6;
   font-size: 15px;
   font-family: system-ui, -apple-system, sans-serif;
@@ -119,7 +145,7 @@
 .chameleon-content p {
   all: initial;
   margin: 0 0 12px 0;
-  color: #1f2937;
+  color: var(--chameleon-text);
   line-height: 1.6;
   font-size: 15px;
   font-family: system-ui, -apple-system, sans-serif;
@@ -128,17 +154,17 @@
 
 .chameleon-content code {
   all: initial;
-  background: #f3f4f6;
+  background: var(--chameleon-bg-code);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: "Consolas", "Monaco", monospace;
   font-size: 14px;
-  color: #1f2937;
+  color: var(--chameleon-text);
 }
 
 .chameleon-content pre {
   all: initial;
-  background: #1f2937;
+  background: var(--chameleon-bg-pre);
   color: #f9fafb;
   padding: 16px;
   border-radius: 8px;
@@ -153,27 +179,27 @@
 .chameleon-content strong {
   all: initial;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--chameleon-text);
   font-family: system-ui, -apple-system, sans-serif;
 }
 
 .chameleon-content em {
   all: initial;
   font-style: italic;
-  color: #1f2937;
+  color: var(--chameleon-text);
   font-family: system-ui, -apple-system, sans-serif;
 }
 
 .chameleon-content a {
   all: initial;
-  color: #3b82f6;
+  color: var(--chameleon-link);
   text-decoration: underline;
   cursor: pointer;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
 .chameleon-content a:hover {
-  color: #2563eb;
+  opacity: 0.8;
 }
 
 .chameleon-loading {
@@ -205,7 +231,7 @@
 .chameleon-hint {
   all: initial;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--chameleon-text-secondary);
   margin-top: 8px;
   display: block;
   font-family: system-ui, -apple-system, sans-serif;
@@ -214,8 +240,8 @@
 .chameleon-footer {
   all: initial;
   padding: 16px 20px;
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  background: var(--chameleon-bg-secondary);
+  border-top: 1px solid var(--chameleon-border);
   display: flex;
   gap: 12px;
   justify-content: flex-end;
@@ -230,9 +256,9 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1px solid #d1d5db;
-  background: white;
-  color: #374151;
+  border: 1px solid var(--chameleon-border);
+  background: var(--chameleon-bg);
+  color: var(--chameleon-text);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -240,8 +266,8 @@
 }
 
 .chameleon-btn:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+  background: var(--chameleon-bg-secondary);
+  border-color: var(--chameleon-text-secondary);
 }
 
 .chameleon-btn-primary {

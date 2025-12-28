@@ -1,3 +1,34 @@
+/* Popup Styles with Dark Mode Support */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-message-user: #eff6ff;
+  --bg-message-assistant: #f3f4f6;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --border: #e5e7eb;
+  --accent: #10b981;
+  --accent-secondary: #3b82f6;
+  --shadow: rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #0f0f0f;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #252525;
+    --bg-message-user: #1e3a5f;
+    --bg-message-assistant: #1f2937;
+    --text-primary: #f3f4f6;
+    --text-secondary: #9ca3af;
+    --text-tertiary: #6b7280;
+    --border: #333333;
+    --shadow: rgba(0, 0, 0, 0.3);
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -5,19 +36,21 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   margin: 0;
   padding: 0;
   width: 400px;
   height: 600px;
   overflow: hidden;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .popup {
   display: flex;
   flex-direction: column;
   height: 600px;
-  background: #ffffff;
+  background: var(--bg-primary);
 }
 
 /* Header */
@@ -28,7 +61,7 @@ body {
   padding: 16px;
   background: linear-gradient(135deg, #10b981, #3b82f6);
   color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .popup-header-left {
@@ -56,6 +89,11 @@ body {
   font-size: 13px;
   margin-top: 4px;
   cursor: pointer;
+}
+
+.popup-persona-select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .popup-persona-select:hover {
@@ -87,6 +125,7 @@ body {
   justify-content: center;
   padding: 32px 24px;
   text-align: center;
+  overflow-y: auto;
 }
 
 .popup-welcome-icon {
@@ -96,27 +135,60 @@ body {
 
 .popup-welcome h2 {
   font-size: 24px;
-  color: #1f2937;
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 
 .popup-welcome p {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-bottom: 24px;
   line-height: 1.5;
+}
+
+/* Quick Actions */
+.popup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.popup-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.popup-action-btn:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.popup-action-icon {
+  font-size: 14px;
 }
 
 /* Recent Chats */
 .popup-recent {
   width: 100%;
-  margin-top: 24px;
+  margin-top: 16px;
 }
 
 .popup-recent h3 {
   font-size: 13px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-bottom: 8px;
   text-align: left;
 }
@@ -126,7 +198,7 @@ body {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: #f9fafb;
+  background: var(--bg-secondary);
   border-radius: 8px;
   margin-bottom: 4px;
   cursor: pointer;
@@ -135,7 +207,7 @@ body {
 }
 
 .popup-recent-item:hover {
-  background: #f3f4f6;
+  background: var(--bg-tertiary);
 }
 
 .popup-recent-icon {
@@ -144,10 +216,11 @@ body {
 
 .popup-recent-title {
   font-size: 13px;
-  color: #374151;
+  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
 }
 
 /* Messages */
@@ -189,11 +262,11 @@ body {
 }
 
 .popup-message-user .popup-message-icon {
-  background: #3b82f6;
+  background: var(--accent-secondary);
 }
 
 .popup-message-assistant .popup-message-icon {
-  background: #10b981;
+  background: var(--accent);
 }
 
 .popup-message-content {
@@ -202,29 +275,51 @@ body {
   border-radius: 12px;
   font-size: 14px;
   line-height: 1.5;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .popup-message-user .popup-message-content {
-  background: #eff6ff;
+  background: var(--bg-message-user);
 }
 
 .popup-message-assistant .popup-message-content {
-  background: #f3f4f6;
+  background: var(--bg-message-assistant);
+}
+
+/* Code blocks in messages */
+.popup-message-content code {
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "SF Mono", Consolas, monospace;
+  font-size: 13px;
+}
+
+.popup-message-content pre {
+  background: var(--bg-tertiary);
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.popup-message-content pre code {
+  background: none;
+  padding: 0;
 }
 
 .popup-loading {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .popup-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid #e5e7eb;
-  border-top-color: #3b82f6;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent-secondary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -238,8 +333,8 @@ body {
 /* Footer */
 .popup-footer {
   padding: 16px;
-  border-top: 1px solid #e5e7eb;
-  background: #ffffff;
+  border-top: 1px solid var(--border);
+  background: var(--bg-primary);
 }
 
 .popup-input-container {
@@ -251,16 +346,22 @@ body {
 .popup-input {
   flex: 1;
   padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
   resize: none;
   outline: none;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.popup-input::placeholder {
+  color: var(--text-tertiary);
 }
 
 .popup-input:focus {
-  border-color: #3b82f6;
+  border-color: var(--accent-secondary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -273,12 +374,16 @@ body {
   font-size: 18px;
   border-radius: 8px;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, transform 0.1s;
   align-self: flex-end;
 }
 
 .popup-send-btn:hover:not(:disabled) {
   opacity: 0.9;
+}
+
+.popup-send-btn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 .popup-send-btn:disabled {
@@ -289,9 +394,9 @@ body {
 .popup-full-app-btn {
   width: 100%;
   padding: 10px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  color: #374151;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
   font-size: 13px;
   font-weight: 500;
   border-radius: 8px;
@@ -300,23 +405,79 @@ body {
 }
 
 .popup-full-app-btn:hover {
-  background: #f3f4f6;
+  background: var(--bg-tertiary);
+}
+
+/* API Key Warning */
+.popup-no-api-key {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.popup-no-api-key-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.popup-no-api-key h2 {
+  font-size: 18px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.popup-no-api-key p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.popup-setup-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #10b981, #3b82f6);
+  border: none;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.popup-setup-btn:hover {
+  opacity: 0.9;
 }
 
 /* Scrollbar */
-.popup-messages::-webkit-scrollbar {
+.popup-messages::-webkit-scrollbar,
+.popup-welcome::-webkit-scrollbar {
   width: 8px;
 }
 
-.popup-messages::-webkit-scrollbar-track {
-  background: #f9fafb;
+.popup-messages::-webkit-scrollbar-track,
+.popup-welcome::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
 }
 
-.popup-messages::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+.popup-messages::-webkit-scrollbar-thumb,
+.popup-welcome::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
   border-radius: 4px;
 }
 
-.popup-messages::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+.popup-messages::-webkit-scrollbar-thumb:hover,
+.popup-welcome::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Firefox scrollbar */
+.popup-messages,
+.popup-welcome {
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-tertiary) var(--bg-secondary);
 }
