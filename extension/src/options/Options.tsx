@@ -7,6 +7,7 @@ import {
 } from "../shared/storage"
 import { getModels } from "../shared/api"
 import { PERSONAS, getDefaultPersona } from "../shared/personas"
+import { getCurrentUser, signIn, signOut, getUserSettings, onAuthStateChange } from "../shared/supabase"
 
 const DEFAULT_MODELS = [
   { id: "anthropic/claude-3.5-sonnet", name: "Claude 3.5 Sonnet" },
@@ -18,7 +19,18 @@ const DEFAULT_MODELS = [
   { id: "deepseek/deepseek-chat", name: "DeepSeek Chat" },
 ]
 
+type AuthMode = "login" | "manual" | "authenticated"
+
 export default function Options() {
+  // Auth state
+  const [authMode, setAuthMode] = useState<AuthMode>("login")
+  const [user, setUser] = useState<any>(null)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authError, setAuthError] = useState("")
+
+  // Settings state
   const [settings, setLocalSettings] = useState<ExtensionSettings>({
     apiKey: "",
     selectedPersona: getDefaultPersona().id,
@@ -35,30 +47,116 @@ export default function Options() {
   const [showApiKey, setShowApiKey] = useState(false)
 
   useEffect(() => {
-    loadSettings()
+    initializeAuth()
   }, [])
 
-  async function loadSettings() {
+  async function initializeAuth() {
     try {
-      const stored = await getSettings()
-      if (stored) {
-        setLocalSettings(stored)
-        // Try to load models if API key exists
-        if (stored.apiKey) {
+      // Check if user is logged in
+      const currentUser = await getCurrentUser()
+      if (currentUser) {
+        setUser(currentUser)
+        setAuthMode("authenticated")
+        await loadUserSettings(currentUser.id)
+      } else {
+        // Check if we have manual API key
+        const stored = await getSettings()
+        if (stored?.apiKey) {
+          setLocalSettings(stored)
+          setAuthMode("manual")
+        }
+      }
+    } catch (err) {
+      console.error("[Options] Auth init error:", err)
+    } finally {
+      setLoading(false)
+    }
+
+    // Listen for auth changes
+    onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        setUser(session.user)
+        setAuthMode("authenticated")
+        await loadUserSettings(session.user.id)
+      } else if (event === "SIGNED_OUT") {
+        setUser(null)
+        setAuthMode("login")
+      }
+    })
+  }
+
+  async function loadUserSettings(userId: string) {
+    try {
+      const supabaseSettings = await getUserSettings(userId)
+      if (supabaseSettings) {
+        // Map Supabase settings to extension settings
+        const mappedSettings: ExtensionSettings = {
+          apiKey: supabaseSettings.openrouter_api_key || "",
+          selectedPersona: supabaseSettings.selected_persona || getDefaultPersona().id,
+          selectedModel: supabaseSettings.selected_model || "anthropic/claude-3.5-sonnet",
+          theme: supabaseSettings.theme || "system",
+          fontSize: supabaseSettings.font_size || "medium",
+          autoSummarize: supabaseSettings.auto_summarize || false,
+          voiceEnabled: supabaseSettings.voice_enabled || false,
+        }
+        setLocalSettings(mappedSettings)
+        await setSettings(mappedSettings)
+
+        // Load models
+        if (mappedSettings.apiKey) {
           try {
-            const fetchedModels = await getModels(stored.apiKey)
+            const fetchedModels = await getModels(mappedSettings.apiKey)
             if (fetchedModels.length > 0) {
-              setModels(fetchedModels.slice(0, 20)) // Top 20 models
+              setModels(fetchedModels.slice(0, 20))
             }
           } catch {
-            // Use default models if fetch fails
+            // Use default models
           }
         }
       }
     } catch (err) {
-      setError("Failed to load settings")
+      console.error("[Options] Failed to load user settings:", err)
+    }
+  }
+
+  async function handleLogin() {
+    if (!email || !password) {
+      setAuthError("Please enter email and password")
+      return
+    }
+
+    setAuthLoading(true)
+    setAuthError("")
+
+    try {
+      const { user } = await signIn(email, password)
+      setUser(user)
+      setAuthMode("authenticated")
+      await loadUserSettings(user.id)
+    } catch (err: any) {
+      setAuthError(err.message || "Login failed")
     } finally {
-      setLoading(false)
+      setAuthLoading(false)
+    }
+  }
+
+  async function handleLogout() {
+    try {
+      await signOut()
+      await clearStorage()
+      setUser(null)
+      setAuthMode("login")
+      setLocalSettings({
+        apiKey: "",
+        selectedPersona: getDefaultPersona().id,
+        selectedModel: "anthropic/claude-3.5-sonnet",
+        theme: "system",
+        fontSize: "medium",
+        autoSummarize: false,
+        voiceEnabled: false,
+      })
+    } catch (err) {
+      console.error("[Options] Logout error:", err)
     }
   }
 
@@ -116,11 +214,96 @@ export default function Options() {
   if (loading) {
     return (
       <div className="options-container">
-        <div className="loading">Loading settings...</div>
+        <div className="loading">Loading...</div>
       </div>
     )
   }
 
+  // Show login screen if not authenticated
+  if (authMode === "login") {
+    return (
+      <div className="options-container">
+        <header className="options-header">
+          <div className="options-logo">
+            <span className="options-icon">🦎</span>
+            <h1>Chameleon AI</h1>
+          </div>
+          <p className="options-subtitle">Sign in to sync with your account</p>
+        </header>
+
+        <main className="options-main">
+          <section className="options-section">
+            <h2>Login to Your Account</h2>
+
+            {authError && <div className="options-error">{authError}</div>}
+
+            <div className="options-field">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                disabled={authLoading}
+              />
+            </div>
+
+            <div className="options-field">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Your password"
+                disabled={authLoading}
+                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              />
+            </div>
+
+            <button
+              className="options-btn options-btn-primary"
+              onClick={handleLogin}
+              disabled={authLoading}
+              style={{ width: "100%", marginTop: 16 }}
+            >
+              {authLoading ? "Signing in..." : "Sign In"}
+            </button>
+
+            <div style={{ textAlign: "center", marginTop: 24 }}>
+              <p className="options-hint">
+                Don't have an account?{" "}
+                <a href="https://chameleonai.chat/auth/sign-up" target="_blank" rel="noreferrer">
+                  Sign up
+                </a>
+              </p>
+            </div>
+          </section>
+
+          <div style={{ textAlign: "center", margin: "24px 0" }}>
+            <span style={{ color: "var(--text-secondary)" }}>or</span>
+          </div>
+
+          <section className="options-section">
+            <h2>Use API Key Instead</h2>
+            <p className="options-hint" style={{ marginBottom: 16 }}>
+              Use your own OpenRouter API key without an account
+            </p>
+            <button
+              className="options-btn"
+              onClick={() => setAuthMode("manual")}
+              style={{ width: "100%" }}
+            >
+              Enter API Key Manually
+            </button>
+          </section>
+        </main>
+      </div>
+    )
+  }
+
+  // Show settings (authenticated or manual mode)
   return (
     <div className="options-container">
       <header className="options-header">
@@ -128,42 +311,69 @@ export default function Options() {
           <span className="options-icon">🦎</span>
           <h1>Chameleon AI Settings</h1>
         </div>
-        <p className="options-subtitle">Configure your AI assistant</p>
+        {user ? (
+          <p className="options-subtitle">
+            Logged in as <strong>{user.email}</strong>
+          </p>
+        ) : (
+          <p className="options-subtitle">Using manual API key</p>
+        )}
       </header>
 
       {error && <div className="options-error">{error}</div>}
       {saved && <div className="options-success">Settings saved!</div>}
 
       <main className="options-main">
-        {/* API Key Section */}
-        <section className="options-section">
-          <h2>API Configuration</h2>
-          <div className="options-field">
-            <label htmlFor="apiKey">OpenRouter API Key</label>
-            <div className="options-input-group">
-              <input
-                type={showApiKey ? "text" : "password"}
-                id="apiKey"
-                value={settings.apiKey}
-                onChange={(e) => updateSetting("apiKey", e.target.value)}
-                placeholder="sk-or-v1-..."
-              />
-              <button
-                type="button"
-                className="options-toggle-btn"
-                onClick={() => setShowApiKey(!showApiKey)}
-              >
-                {showApiKey ? "Hide" : "Show"}
-              </button>
+        {/* Account Section */}
+        {user ? (
+          <section className="options-section">
+            <h2>Account</h2>
+            <p>Your settings are synced with your Chameleon account.</p>
+            <button
+              className="options-btn options-btn-danger"
+              onClick={handleLogout}
+              style={{ marginTop: 12 }}
+            >
+              Sign Out
+            </button>
+          </section>
+        ) : (
+          <section className="options-section">
+            <h2>API Configuration</h2>
+            <div className="options-field">
+              <label htmlFor="apiKey">OpenRouter API Key</label>
+              <div className="options-input-group">
+                <input
+                  type={showApiKey ? "text" : "password"}
+                  id="apiKey"
+                  value={settings.apiKey}
+                  onChange={(e) => updateSetting("apiKey", e.target.value)}
+                  placeholder="sk-or-v1-..."
+                />
+                <button
+                  type="button"
+                  className="options-toggle-btn"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                >
+                  {showApiKey ? "Hide" : "Show"}
+                </button>
+              </div>
+              <p className="options-hint">
+                Get your API key from{" "}
+                <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">
+                  openrouter.ai/keys
+                </a>
+              </p>
             </div>
-            <p className="options-hint">
-              Get your API key from{" "}
-              <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">
-                openrouter.ai/keys
-              </a>
-            </p>
-          </div>
-        </section>
+            <button
+              className="options-btn"
+              onClick={() => setAuthMode("login")}
+              style={{ marginTop: 12 }}
+            >
+              Or sign in to your account
+            </button>
+          </section>
+        )}
 
         {/* AI Settings */}
         <section className="options-section">

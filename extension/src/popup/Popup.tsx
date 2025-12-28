@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { getSettings, getChats, addChat, type StoredChat } from "../shared/storage"
 import { chat as callAI } from "../shared/api"
 import { PERSONAS, getPersonaById, getDefaultPersona } from "../shared/personas"
+import { getCurrentUser } from "../shared/supabase"
 import type { ChatMessage } from "../shared/api"
 
 // Cross-browser API detection
@@ -10,6 +11,7 @@ const runtime = isFirefox ? browser.runtime : chrome.runtime
 const tabs = isFirefox ? browser.tabs : chrome.tabs
 
 export default function Popup() {
+  const [user, setUser] = useState<any>(null)
   const [apiKey, setApiKey] = useState<string>("")
   const [selectedPersona, setSelectedPersona] = useState(getDefaultPersona().id)
   const [selectedModel, setSelectedModel] = useState("anthropic/claude-3.5-sonnet")
@@ -33,6 +35,12 @@ export default function Popup() {
 
   async function loadSettings() {
     try {
+      // Check if user is logged in
+      const currentUser = await getCurrentUser()
+      if (currentUser) {
+        setUser(currentUser)
+      }
+
       const settings = await getSettings()
       if (settings) {
         setApiKey(settings.apiKey || "")
@@ -125,11 +133,16 @@ export default function Popup() {
       const pageTitle = tab?.title || "this page"
       const pageUrl = tab?.url || ""
 
+      // For summarize, use the dedicated page summarizer
+      if (action === "summarize" && tab?.id) {
+        // Close popup and trigger summarization on the page
+        runtime.sendMessage({ type: "SUMMARIZE_PAGE" })
+        window.close()
+        return
+      }
+
       let prompt = ""
       switch (action) {
-        case "summarize":
-          prompt = `Please summarize the content of the page titled "${pageTitle}" (${pageUrl}). Focus on the key points and main ideas.`
-          break
         case "explain":
           prompt = `Please explain what "${pageTitle}" is about in simple terms. I'm looking at: ${pageUrl}`
           break
@@ -188,14 +201,14 @@ export default function Popup() {
         </header>
 
         <div className="popup-no-api-key">
-          <span className="popup-no-api-key-icon">🔑</span>
-          <h2>API Key Required</h2>
+          <span className="popup-no-api-key-icon">🔐</span>
+          <h2>Sign In Required</h2>
           <p>
-            To use Chameleon AI, you need an OpenRouter API key.
-            It's free to get started!
+            Sign in with your Chameleon account to sync settings,
+            or add your OpenRouter API key manually.
           </p>
           <button className="popup-setup-btn" onClick={openSettings}>
-            Set Up API Key
+            Sign In / Set Up
           </button>
         </div>
 
@@ -228,7 +241,12 @@ export default function Popup() {
             </select>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {user && (
+            <span className="popup-user-badge" title={user.email}>
+              👤
+            </span>
+          )}
           {messages.length > 0 && (
             <button
               className="popup-settings-btn"

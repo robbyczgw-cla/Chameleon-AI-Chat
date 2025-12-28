@@ -284,3 +284,69 @@
 .chameleon-btn-copy:active {
   transform: scale(0.95);
 }
+
+/* Writing Assistant Styles */
+.chameleon-writing-assistant {
+  all: initial;
+  position: fixed;
+  background: var(--chameleon-bg, #ffffff);
+  border: 1px solid var(--chameleon-border, #e5e7eb);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  font-family: system-ui, -apple-system, sans-serif;
+  z-index: 2147483646;
+  animation: chameleon-fade-in 0.2s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  .chameleon-writing-assistant {
+    --chameleon-bg: #1a1a1a;
+    --chameleon-bg-secondary: #252525;
+    --chameleon-text: #f3f4f6;
+    --chameleon-border: #333333;
+  }
+}
+
+.chameleon-wa-header {
+  all: initial;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #10b981, #3b82f6);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px 8px 0 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.chameleon-wa-buttons {
+  all: initial;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.chameleon-wa-buttons button {
+  all: initial;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--chameleon-bg-secondary, #f9fafb);
+  color: var(--chameleon-text, #1f2937);
+  border: 1px solid var(--chameleon-border, #e5e7eb);
+  font-family: system-ui, -apple-system, sans-serif;
+  white-space: nowrap;
+}
+
+.chameleon-wa-buttons button:hover {
+  background: linear-gradient(135deg, #10b981, #3b82f6);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-1px);
+}
