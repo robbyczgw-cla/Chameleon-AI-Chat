@@ -57,6 +57,89 @@ This release completely reorganizes and expands the persona system with new cate
 - `docs/user-guide.md` - Updated persona section
 - `README.md` - Updated persona count to 31
 
+### 🧠 Emotion-Aware AI (NEW!)
+
+**Emotion Detection Service (Cami Persona)**
+- **9 Emotion Types Detected:**
+  - Frustrated (error messages, repeated failures, sarcasm)
+  - Excited (enthusiasm, positive energy, celebration)
+  - Confused (questions, unclear requests, lost users)
+  - Sarcastic (underlying frustration masked as humor)
+  - Grateful (appreciation, thanks, positive feedback)
+  - Urgent (time-sensitive requests, deadlines)
+  - Curious (inquisitive, wanting to learn)
+  - Discouraged (hopelessness, giving up, self-doubt)
+  - Neutral (baseline)
+
+**How It Works:**
+- **Rule-Based Analysis** - Word and pattern matching across 3 languages
+- **Confidence Scoring** - 0-100% confidence for primary + secondary emotions
+- **Adaptation Hints** - AI receives guidance: "empathize", "simplify", "match_energy", "be_direct", "offer_help", "acknowledge_sarcasm", "encourage"
+- **Context Injection** - Emotion context automatically added to Cami's system prompt
+- **Streaming Integration** - Emotion detected during message and visible in chat history
+- **File:** `lib/emotion-detection.ts` (609 lines)
+
+**Cami Persona Updates:**
+- Enhanced personality with emotion-awareness guidelines (German)
+- Automatic response adaptation based on detected emotions
+- Examples for each emotion type (frustration, sarcasm, excitement, confusion, discouragement, urgency)
+- Specific instructions for empathy, clarity, and matching user energy
+- **File:** `lib/personas.ts`
+
+**UI Integration:**
+- Toggle in Experimental Settings for emotion detection
+- Default: ON in Simple Mode, OFF in Advanced Mode
+- Shows emotion detection in streaming history for transparency
+- **Files:** `components/experimental-settings.tsx`, `components/chat-input.tsx`
+
+**Multi-Language Support:**
+- English, German, and Spanish emotion patterns
+- Frustration detection for all 3 languages including sarcasm
+- Excitement, confusion, gratitude, urgency patterns translated
+- **Example Spanish detection:**
+  - Frustration: "frustrado", "molesto", "no funciona", "ridículo"
+  - Excitement: "increíble", "genial", "fantástico", "no puedo esperar"
+  - Confusion: "confundido", "no entiendo", "qué quieres decir"
+
+**Feature Examples:**
+
+*Detecting Frustration (Sarcasm):*
+```
+USER: "Oh great, not another error message."
+SYSTEM: Primary emotion: SARCASTIC (85% confidence)
+        Secondary emotion: FRUSTRATED (72% confidence)
+CAMI: "Ugh, I feel that - error messages are the worst. 😅 Let me help..."
+```
+
+*Detecting Confusion:*
+```
+USER: "I don't understand what you mean by the API call"
+SYSTEM: Primary emotion: CONFUSED (90% confidence)
+CAMI: "No stress, let me explain differently! Think of an API like a waiter in a restaurant..."
+```
+
+*Detecting Discouragement:*
+```
+USER: "I think I'm just too dumb for programming"
+SYSTEM: Primary emotion: DISCOURAGED (88% confidence)
+CAMI: "Hey, stop right there - that's not true! Programming is HARD, everyone feels this way at first..."
+```
+
+**Technical Details:**
+- Score normalization ensures emotions are comparable
+- Typing pattern analysis (speed, edits, message timing)
+- Context-aware scoring (error mentions, repeated questions)
+- Primary emotion selection + secondary emotion (if confidence > 0.3)
+- Sarcasm patterns checked first (affects frustration detection)
+- ALL CAPS detection distinguishes positive vs. negative context
+
+### Commits (2025-12-28)
+- `4f6737e` feat: Add Spanish language support to emotion detection
+- `159c044` feat: Add emotion detection for Cami persona
+
+---
+
+## [0.10.5-beta] - 2025-12-18
 ---
 
 ## [0.10.5-beta] - 2025-12-18
@@ -1546,6 +1629,8 @@ This marks the transition from alpha to beta! Core features are now stable and r
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| **0.10.6-beta** | 2025-12-28 | 🧠 **Emotion-Aware AI** - 9 emotions, Cami persona adaptation, Spanish support |
+| **0.10.5-beta** | 2025-12-18 | 🔒 **Security Hardening** - Voice API auth, mermaid security, lazy loading |
 | **0.10-beta** | 2025-12-07 | 💰 **Exact Cost Tracking** - 3 critical bug fixes, collapsible stats, provider tracking |
 | **0.9-beta** | 2025-12-06 | 🎉 **Beta Release** - Shareable chat links, desktop image toggle, personalized greetings |
 | 0.11.1-alpha | 2025-12-05 | React 19 compatibility, vaul 1.1.2, database implementation guide |

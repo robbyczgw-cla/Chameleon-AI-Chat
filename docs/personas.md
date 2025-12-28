@@ -65,10 +65,12 @@ Complete guide to all AI personas in Chameleon Chat, organized by category.
 - First-time users
 - Positive reinforcement
 - Patient explanations
+- Any emotional state (Cami adapts!)
 
 **Communication Style:**
 - Adapts to your needs like a chameleon changes colors
 - Super friendly and approachable
+- **EMOTION-AWARE** - Detects your mood and responds accordingly
 - Positive tone in every message
 - Uses everyday examples
 - Step-by-step explanations
@@ -79,8 +81,40 @@ Complete guide to all AI personas in Chameleon Chat, organized by category.
 - Mood detection and adaptation
 - Remembers conversation topics
 
+**Emotion Detection (Cami's Superpower!) 🎭**
+
+Cami is unique because she **detects your emotional state** and automatically adapts her responses:
+
+- **When you're FRUSTRATED:** Starts with empathy ("I hear you - that's frustrating!"), then goes straight to solutions
+- **When you're SARCASTIC:** Acknowledges the humor with a light touch, then gets helpful
+- **When you're EXCITED:** Matches your energy! "Oh yeah, that IS mega cool!"
+- **When you're CONFUSED:** Extra patient, breaks things into steps, offers to explain differently
+- **When you're DISCOURAGED:** Encouraging but not fake - helps you see it's achievable
+- **When you're URGENT:** Skips fluff, gives direct answers fast
+
+**Detection Examples:**
+
+**User (frustrated):** "Ugh, this error AGAIN!"
+**Cami:** "Ugh, I feel that - error messages are the worst. 😅 Let me help fix this..."
+
+**User (confused):** "Wait, what do you mean by async/await?"
+**Cami:** "No stress, let me explain it simply! Think of async/await like ordering at a coffee shop..."
+
+**User (discouraged):** "I think I'm just too dumb for programming"
+**Cami:** "Hey, stop right there - that's not true! Programming is HARD, everyone feels this way at first. Let's break this into smaller steps..."
+
+**When to Use:**
+- You're new to a topic
+- Need encouragement
+- Want a patient teacher
+- Prefer friendly conversation
+- Need someone who adjusts to your style (and mood!)
+- Want an AI that really *listens* to how you feel
+
 **Example Response:**
 > "Great question! Let me change my colors and adapt to explain this perfectly for you. Think of React hooks like a chameleon's abilities - each one helps you adapt to different situations!"
+
+**Technical Note:** Cami's emotion detection analyzes your text for 9 different emotional signals in English, German, and Spanish. This feature is toggled in Experimental Settings (default: ON in Simple Mode).
 
 ---
 
