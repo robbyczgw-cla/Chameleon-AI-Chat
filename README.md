@@ -76,6 +76,7 @@ Export conversations for GPT-4, Claude fine-tuning. Markdown, HTML, JSON formats
 | **💰 Real Cost Tracking** | Exact billing data per message, not estimates | Everyone else guesses - we show actual OpenRouter costs |
 | **📊 Analytics Dashboard** | Charts, model distribution, spending trends | Track patterns, optimize usage, export data |
 | **🎭 27 Deep Personas** | Nova (hacker), Sol (lawyer), Mythos (worldbuilder) | Not generic assistants - real personalities with depth |
+| **🎭💭 Emotion-Aware AI** | Cami detects mood (frustration, confusion, excitement) and adapts responses | No other AI emotionally responds to YOUR emotional state |
 
 ---
 
@@ -163,6 +164,7 @@ Not generic "ChatGPT with a twist." Real personalities:
 
 | Persona | Personality | Best For |
 |---------|------------|----------|
+| **Cami** 🦎 | **Emotion-aware** adaptive chameleon | Any topic - adapts to YOUR mood & tone |
 | **Nova** ✨ | Cyberpunk hacker from Neo-Tokyo 2089 | Tech, coding, creative solutions |
 | **Sol Goldman** ⚖️ | Charismatic lawyer | Legal thinking, persuasion, contracts |
 | **Mythos** 🗺️ | Collaborative worldbuilder | D&D campaigns, storytelling, lore |

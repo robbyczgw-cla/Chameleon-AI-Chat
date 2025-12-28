@@ -1,8 +1,128 @@
 # Recent Commits Summary
 
+**Updated**: December 28, 2025
+**Latest**: Emotion Detection for Cami + Spanish Language Support
+**Commits**: Latest 2 major commits
+
+---
+
+## 🎭 Emotion-Aware AI - Latest Features
+
+### Commit #0: Add Spanish Language Support to Emotion Detection
+
+**Commit Hash**: `4f6737e`
+**Author**: Claude <noreply@anthropic.com>
+**Date**: December 28, 2025
+**Type**: Feature Enhancement
+
+**Summary**
+Extended emotion detection to support Spanish language alongside English and German. All emotion types now detect Spanish words and phrases.
+
+**What Changed**
+- Added Spanish words for all 9 emotion types
+- Extended frustration detection to include Spanish sarcasm patterns
+- Updated excitement, confusion, gratitude, and urgency patterns with Spanish variants
+- File: `lib/emotion-detection.ts` (78 lines added, 9 lines modified)
+
+**Spanish Emotion Examples**
+- Frustrated: "frustrado", "molesto", "no funciona", "ridículo"
+- Excited: "increíble", "genial", "fantástico", "no puedo esperar"
+- Confused: "confundido", "no entiendo", "qué quieres decir"
+- Sarcasm: "genial, otro error", "justo lo que necesitaba"
+
+**Impact**
+- ✅ Spanish-speaking users get full emotion detection
+- ✅ Cami persona now adapts to emotions in 3 languages
+- ✅ No performance impact (same algorithm, just more patterns)
+
+---
+
+### Commit #1: Add Emotion Detection for Cami Persona
+
+**Commit Hash**: `159c044`
+**Author**: Claude <noreply@anthropic.com>
+**Date**: December 28, 2025
+**Type**: Feature (Major)
+
+**Summary**
+Created comprehensive emotion detection service that makes Cami persona emotionally aware. Cami now detects 9 emotion types and adapts responses accordingly.
+
+**What Changed**
+- Created `lib/emotion-detection.ts` - 609 line service with:
+  - 9 emotion types: frustrated, excited, confused, sarcastic, grateful, urgent, curious, discouraged, neutral
+  - Confidence scoring (0-100%)
+  - Adaptation hints for AI responses
+  - Multi-language support (English, German, Spanish)
+
+- Updated Cami persona with emotion guidelines in `lib/personas.ts`
+- Added emotion detection toggle in `components/experimental-settings.tsx`
+- Integrated emotion context into chat flow in `components/chat-input.tsx`
+- Shows emotion detection in streaming history for transparency
+
+**How It Works**
+1. **Text Analysis**: Checks for emotion words + patterns
+2. **Typing Pattern**: Analyzes speed, edits, follow-up timing
+3. **Context**: Detects errors, repeated questions, urgency
+4. **Scoring**: Normalizes emotions on 0-1 scale
+5. **Adaptation**: Generates hints for AI response tone
+
+**Emotion Detection Examples**
+
+*When user is FRUSTRATED:*
+```
+Indicators: ["Word: error", "CAPS usage", "Excessive punctuation"]
+Confidence: 85%
+Adaptation: "Start with empathy, then direct solution"
+```
+
+*When user is CONFUSED:*
+```
+Indicators: ["Pattern: what do you mean", "Multiple questions"]
+Confidence: 78%
+Adaptation: "Simplify, use examples, offer re-explanation"
+```
+
+*When user is SARCASTIC:*
+```
+Indicators: ["Sarcasm pattern: oh great", "Underlying frustration"]
+Confidence: 72%
+Adaptation: "Acknowledge sarcasm lightly, then be helpful"
+```
+
+**UI Integration**
+- Experimental Settings toggle (default: ON in Simple Mode)
+- Shows emotion in streaming history for transparency
+- Works with all personas (optimized for Cami)
+
+**Files Changed**
+- `lib/emotion-detection.ts` - New 609-line service
+- `lib/personas.ts` - Enhanced Cami with emotion guidelines
+- `components/experimental-settings.tsx` - Added toggle
+- `components/chat-input.tsx` - Integrated emotion context
+- `types/index.ts` - Added emotion types
+
+**Technical Highlights**
+- Pattern-based detection (no ML model needed)
+- Covers frustration, excitement, confusion, sarcasm, gratitude, urgency, curiosity, discouragement
+- Multi-language: English, German, Spanish
+- Context-aware: detects error mentions, repeated questions
+- Typing analysis: speed, edits, message timing
+- Sarcasm detection with underlying frustration recognition
+
+**Impact**
+- ✅ Cami is now emotionally intelligent
+- ✅ Responses adapt to user mood automatically
+- ✅ Better UX for frustrated/confused users
+- ✅ No API calls needed (pure text analysis)
+- ✅ Works offline
+
+---
+
+## Previous Commits Summary
+
 **Generated**: December 13, 2025
 **Branch**: `claude/fix-gpu-crashes-01UHq5Q14gtDJoSBXBLFaDHk`
-**Commits**: Last 20 commits in detail
+**Earlier Commits**: Last 20 older commits in detail
 
 ---
 
