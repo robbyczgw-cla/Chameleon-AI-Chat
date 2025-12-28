@@ -64,6 +64,9 @@ interface AppContextType {
   deleteAllComparisonSessions: () => void
   updateComparisonSession: (sessionId: string, updates: Partial<ComparisonSession>) => void
   signOut: () => Promise<void>
+  // Private chat functions
+  deleteAllPrivateChats: () => void
+  isCurrentChatPrivate: () => boolean
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -923,11 +926,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [settings, user, isLoading])
 
   // Save chats to localStorage as backup (sanitized to prevent quota issues)
+  // PRIVATE CHATS: Excluded from localStorage to ensure they are never persisted
   useEffect(() => {
     if (isLoading) return
 
+    // Filter out private chats - they should never be saved to localStorage
+    const nonPrivateChats = chats.filter((chat) => !chat.isPrivate)
+
     // Strip image data URLs to prevent localStorage quota exceeded errors
-    const sanitizedChats = sanitizeChatsForStorage(chats)
+    const sanitizedChats = sanitizeChatsForStorage(nonPrivateChats)
     const success = safeSetLocalStorage("chats", sanitizedChats)
 
     if (!success) {
@@ -954,17 +961,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Use provided model, or user's custom default model (Advanced Mode), or system default
     const chatModel = model || settings.defaultModel || settings.selectedModel
 
+    // Check if private chat mode is enabled
+    const isPrivateChat = settings.privateChatMode === true
+
     const newChat: Chat = {
       id: chatId,
-      title: "New Chat",
+      title: isPrivateChat ? "Private Chat" : "New Chat",
       messages: [],
       createdAt: Date.now(),
       updatedAt: Date.now(),
       model: chatModel,
+      isPrivate: isPrivateChat,
     }
 
     setChats((prev) => [newChat, ...prev])
     setCurrentChatId(newChat.id)
+
+    // PRIVATE MODE: Skip database sync entirely
+    if (isPrivateChat) {
+      console.log("[v0] PRIVATE CHAT created (no database sync):", newChat.id)
+      return newChat.id
+    }
 
     if (user) {
       console.log("[v0] Creating chat in Supabase:", newChat.id)
@@ -985,7 +1002,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     return newChat.id
-  }, [settings.defaultModel, settings.selectedModel, user])
+  }, [settings.defaultModel, settings.selectedModel, settings.privateChatMode, user])
 
   const deleteChat = useCallback((chatId: string) => {
     setChats((prev) => prev.filter((chat) => chat.id !== chatId))
@@ -1030,18 +1047,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
       textContent = textPart?.text || "Image conversation"
     }
 
+    // Check if this is a private chat
+    const currentChat = chats.find((c) => c.id === chatId)
+    const isPrivateChat = currentChat?.isPrivate === true
+
     setChats((prev) =>
       prev.map((chat) => {
         if (chat.id === chatId) {
           const updatedMessages = [...chat.messages, message]
           const isFirstUserMessage = chat.messages.length === 0 && message.role === "user"
 
-          // Use temporary title first (will be updated by AI)
-          const tempTitle = isFirstUserMessage
-            ? textContent.slice(0, 50) + (textContent.length > 50 ? "..." : "")
-            : chat.title
+          // Use temporary title first (will be updated by AI) - but keep "Private Chat" for private chats
+          const tempTitle = chat.isPrivate
+            ? "Private Chat"
+            : isFirstUserMessage
+              ? textContent.slice(0, 50) + (textContent.length > 50 ? "..." : "")
+              : chat.title
 
-          if (user) {
+          // PRIVATE MODE: Skip database sync entirely
+          if (chat.isPrivate) {
+            console.log("[v0] PRIVATE CHAT: Message added locally only (no database sync)")
+          } else if (user) {
             console.log("[v0] Saving message to Supabase:", message.id)
             supabaseSync
               .createMessage(message, chatId)
@@ -1071,11 +1097,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }),
     )
 
-    // Generate AI title asynchronously for first user message
-    const currentChat = chats.find((c) => c.id === chatId)
-    const isFirstUserMessage = currentChat && currentChat.messages.length === 0 && message.role === "user"
+    // Generate AI title asynchronously for first user message (skip for private chats)
+    const chatForTitle = chats.find((c) => c.id === chatId)
+    const isFirstUserMessage = chatForTitle && chatForTitle.messages.length === 0 && message.role === "user"
+    const shouldGenerateTitle = isFirstUserMessage && !chatForTitle?.isPrivate && settings.apiKeys.openRouter && textContent.length >= 10
 
-    if (isFirstUserMessage && settings.apiKeys.openRouter && textContent.length >= 10) {
+    if (shouldGenerateTitle) {
       // Generate title in background (don't block UI)
       const titleModel = getBackgroundModel('titleGeneration', settings.experimental?.backgroundAIModels)
       generateChatTitle(textContent, settings.apiKeys.openRouter, { model: titleModel })
@@ -1088,12 +1115,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
               )
             )
 
-            // Sync to Supabase if logged in
-            if (user) {
-              const chat = chats.find((c) => c.id === chatId)
-              if (chat) {
-                supabaseSync.updateChat(user.id, { ...chat, title: aiTitle }).catch(console.error)
-              }
+            // Sync to Supabase if logged in (skip for private chats)
+            const updatedChat = chats.find((c) => c.id === chatId)
+            if (user && updatedChat && !updatedChat.isPrivate) {
+              supabaseSync.updateChat(user.id, { ...updatedChat, title: aiTitle }).catch(console.error)
             }
 
             console.log(`[v0] AI title generated: "${aiTitle}"`)
@@ -1259,6 +1284,60 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // Private Chat Mode Functions
+  const deleteAllPrivateChats = useCallback(() => {
+    const privateChats = chats.filter((chat) => chat.isPrivate)
+    if (privateChats.length > 0) {
+      console.log(`[v0] Deleting ${privateChats.length} private chat(s)`)
+      setChats((prev) => prev.filter((chat) => !chat.isPrivate))
+      // If current chat was private, clear it
+      if (currentChatId) {
+        const currentChat = chats.find((c) => c.id === currentChatId)
+        if (currentChat?.isPrivate) {
+          setCurrentChatId(null)
+        }
+      }
+    }
+  }, [chats, currentChatId])
+
+  const isCurrentChatPrivate = useCallback(() => {
+    if (!currentChatId) return false
+    const currentChat = chats.find((c) => c.id === currentChatId)
+    return currentChat?.isPrivate === true
+  }, [chats, currentChatId])
+
+  // Auto-delete private chats when browser/tab is closed
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Delete all private chats from memory (they're already not in localStorage)
+      const privateChats = chats.filter((chat) => chat.isPrivate)
+      if (privateChats.length > 0) {
+        console.log(`[v0] Browser closing - ${privateChats.length} private chat(s) will be deleted`)
+        // Note: We can't reliably update state here, but since private chats
+        // are excluded from localStorage, they won't persist anyway
+      }
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [chats])
+
+  // Auto-delete private chat when switching to a different chat
+  useEffect(() => {
+    // If private mode is OFF and we navigate away from a private chat, delete it
+    if (!settings.privateChatMode) {
+      const privateChats = chats.filter((chat) => chat.isPrivate)
+      if (privateChats.length > 0) {
+        // Check if current chat is NOT private (meaning we navigated away)
+        const currentChat = chats.find((c) => c.id === currentChatId)
+        if (!currentChat?.isPrivate) {
+          console.log(`[v0] Private mode OFF and navigated away - deleting ${privateChats.length} private chat(s)`)
+          setChats((prev) => prev.filter((chat) => !chat.isPrivate))
+        }
+      }
+    }
+  }, [currentChatId, settings.privateChatMode])
+
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({
     chats,
@@ -1302,12 +1381,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     deleteAllComparisonSessions,
     updateComparisonSession,
     signOut,
+    // Private chat functions
+    deleteAllPrivateChats,
+    isCurrentChatPrivate,
   }), [
     chats, currentChatId, settings, folders, comparisonSessions, user,
     isLoading, isChatLoading, streamingPhase, currentTool, searchQuery,
     currentStreamingDetails, stopChatGeneration, createChat, deleteChat,
     deleteAllChats, updateChat, setCurrentChat, addMessage, updateSettings,
     createFolder, deleteFolder, exportChat, importChat, exportAllChats,
+    deleteAllPrivateChats, isCurrentChatPrivate,
     saveComparisonSession, deleteComparisonSession, deleteAllComparisonSessions,
     updateComparisonSession, signOut,
   ])

@@ -21,6 +21,7 @@ import { haptics } from "@/lib/haptics"
 import { KeyboardShortcutsDialog } from "@/components/keyboard-shortcuts-dialog"
 import { useFeatureFlags } from "@/hooks/use-feature-flags"
 import { ErrorBoundary } from "@/components/error-boundary"
+import { ShieldCheck } from "lucide-react"
 
 // Dynamic imports for heavy components - only loaded when needed
 const ModelComparison = dynamic(() => import("@/components/model-comparison").then(mod => ({ default: mod.ModelComparison })), {
@@ -391,6 +392,23 @@ function ChatApp() {
           )}
         >
           <ChatHeader />
+
+          {/* Private Mode Banner - shows when privateChatMode is enabled */}
+          {settings.privateChatMode && (
+            <div className="flex items-center justify-center gap-2 px-3 py-1.5 bg-emerald-500/10 border-b border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>Private Mode: Chats are not saved, no memory access, auto-deletes when closed</span>
+            </div>
+          )}
+
+          {/* Private Chat Indicator - shows when current chat is private */}
+          {currentChat?.isPrivate && !settings.privateChatMode && (
+            <div className="flex items-center justify-center gap-2 px-3 py-1.5 bg-amber-500/10 border-b border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-medium">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>This is a private chat - it will not be saved</span>
+            </div>
+          )}
+
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {showStatsPanel ? (
               <StatsDashboard />
