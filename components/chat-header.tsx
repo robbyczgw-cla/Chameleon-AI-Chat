@@ -233,6 +233,31 @@ export function ChatHeader() {
             >
               <Sliders className="h-4 w-4" />
             </Button>
+            {/* Private Chat Mode Toggle - Mobile */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition-all relative",
+                settings.privateChatMode && "text-emerald-500 bg-emerald-500/10"
+              )}
+              onClick={() => {
+                haptics.trigger('selection')
+                const newValue = !settings.privateChatMode
+                updateSettings({ privateChatMode: newValue })
+                console.log(`[v0] Private Chat Mode ${newValue ? 'enabled' : 'disabled'}`)
+              }}
+              title={settings.privateChatMode ? "Private Mode ON" : "Private Mode OFF"}
+            >
+              {settings.privateChatMode ? (
+                <ShieldCheck className="h-4 w-4" />
+              ) : (
+                <ShieldOff className="h-4 w-4" />
+              )}
+              {settings.privateChatMode && (
+                <span className="absolute top-1 right-1 h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              )}
+            </Button>
             <MobileMoreMenu
               onSettingsClick={() => setIsSettingsOpen(true)}
               onProfileClick={() => setIsProfileOpen(true)}
