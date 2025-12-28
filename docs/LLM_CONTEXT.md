@@ -44,22 +44,37 @@
 - Training data export
 - Cost tracking dashboard
 
-### 3. Persona System (18+ Personas)
+### 3. Persona System (31 Personas, 8 Categories)
 
 Each persona has unique:
 - System prompt (personality, expertise, style)
 - Emoji and visual theme
 - Communication patterns
+- Category assignment
+
+**Categories:**
+- **Core** - Essential everyday personas (Cami, Chameleon Agent, Dev, Flash, Professor Stein, Sara Norton)
+- **Creative** - Artistic and roleplay (Luna, Nova, Mythos, Pixel)
+- **Professional** - Work-focused (Startup Sam, Dr. Med, Sol Goldman, Wordsmith, Canvas, Finny)
+- **Philosophy** - Deep thinking (Cogito, Nihilo, The Panel)
+- **Lifestyle** - Health & wellness (Chef Marco, Zen, Wellbeing, Fit, Family, Lisa Knight, Coach Thompson)
+- **Learning** - Education (Herr Müller, Scholar, Lingua)
+- **Curator** - Recommendations (Vibe, Aria)
+- **Special** - Hidden/business-specific (HiFi Berater)
 
 **Featured Personas:**
-- **Cami** 🦎 - Adaptive chameleon (default)
+- **Cami** 🦎 - Adaptive chameleon with emotion detection (default)
 - **Dev** 💻 - Programming expert
 - **Nova** ✨ - Cyberpunk hacker from Neo-Tokyo 2089
-- **Cogito** 🤔 - Existential philosopher
-- **Professor Einstein** 🎓 - Deep explanations
+- **Cogito** 🤔 - Consciousness explorer
+- **Professor Stein** 🎓 - Deep explanations
 - **Flash** ⚡ - Quick, concise answers
 - **Vibe** 🎧 - Music/entertainment curator
 - **Mythos** 🗺️ - World-building storyteller
+- **Wordsmith** 📝 - Writing partner (NEW)
+- **Wellbeing** 💚 - Mental health support (NEW)
+- **Scholar** 📚 - Active study partner (NEW)
+- **Lingua** 🗣️ - Language learning partner (NEW)
 
 ### 4. Follow-Up Suggestions System
 

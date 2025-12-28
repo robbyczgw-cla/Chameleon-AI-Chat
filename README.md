@@ -37,12 +37,12 @@ See what every message costs you. Export spending history. Optimize your usage.
 </td>
 <td width="33%" align="center">
 
-### 🎭 **27 Expert Personas**
+### 🎭 **31 Expert Personas**
 Not generic "assistants"
 
 **Real personalities with depth.**
 
-Nova (cyberpunk hacker), Sol Goldman (lawyer), Mythos (worldbuilder), Cogito (philosopher), Dev (programmer), and more.
+Cami (adaptive chameleon), Nova (cyberpunk hacker), Mythos (worldbuilder), Cogito (philosopher), Dev (programmer), Wordsmith (writing partner), Wellbeing (mental health), and more.
 
 *+28% engagement vs. generic bots*
 
@@ -75,7 +75,7 @@ Export conversations for GPT-4, Claude fine-tuning. Markdown, HTML, JSON formats
 | **🛠️ Visual Tool Use** | See web searches, weather checks, calculations live | Most hide tool use - we make it transparent |
 | **💰 Real Cost Tracking** | Exact billing data per message, not estimates | Everyone else guesses - we show actual OpenRouter costs |
 | **📊 Analytics Dashboard** | Charts, model distribution, spending trends | Track patterns, optimize usage, export data |
-| **🎭 27 Deep Personas** | Nova (hacker), Sol (lawyer), Mythos (worldbuilder) | Not generic assistants - real personalities with depth |
+| **🎭 31 Deep Personas** | Cami (chameleon), Nova (hacker), Mythos (worldbuilder), Wordsmith (writer) | Not generic assistants - real personalities with depth |
 | **🎭💭 Emotion-Aware AI** | Cami detects mood (frustration, confusion, excitement) and adapts responses | No other AI emotionally responds to YOUR emotional state |
 
 ---
@@ -160,20 +160,21 @@ npm run dev
 
 ## 🎨 Personas That Matter
 
-Not generic "ChatGPT with a twist." Real personalities:
+Not generic "ChatGPT with a twist." Real personalities organized in 8 categories:
 
 | Persona | Personality | Best For |
 |---------|------------|----------|
 | **Cami** 🦎 | **Emotion-aware** adaptive chameleon | Any topic - adapts to YOUR mood & tone |
 | **Nova** ✨ | Cyberpunk hacker from Neo-Tokyo 2089 | Tech, coding, creative solutions |
-| **Sol Goldman** ⚖️ | Charismatic lawyer | Legal thinking, persuasion, contracts |
 | **Mythos** 🗺️ | Collaborative worldbuilder | D&D campaigns, storytelling, lore |
 | **Cogito** 🤔 | Consciousness explorer | Philosophy, deep questions, ethics |
 | **Vibe** 🎧 | Personal taste curator | Music, games, shows, recommendations |
 | **Professor Stein** 🎓 | In-depth expert | Learning, research, detailed explanations |
 | **Dev** 💻 | Programming partner | Code review, debugging, architecture |
+| **Wordsmith** 📝 | Creative writing partner | All text types, blogs, emails *(NEW)* |
+| **Wellbeing** 💚 | Mental health support | Mindfulness, emotional support *(NEW)* |
 
-[See all 27 personas →](./docs/personas.md)
+[See all 31 personas →](./docs/personas.md)
 
 ---
 
@@ -186,7 +187,7 @@ Not generic "ChatGPT with a twist." Real personalities:
 | **Smart Follow-ups** | ✅ **3-tier** | ❌ No | ❌ No | ⚠️ Basic | ❌ No |
 | **Real Cost Tracking** | ✅ **Exact Billing** | ❌ Estimates | ❌ No | ❌ No | ❌ No |
 | **Analytics Dashboard** | ✅ **Charts + Export** | ⚠️ Basic | ❌ No | ❌ No | ❌ No |
-| **Deep Personas** | ✅ **26+** | ⚠️ 2-3 | ⚠️ 2-3 | ⚠️ 2-3 | ❌ None |
+| **Deep Personas** | ✅ **31** | ⚠️ 2-3 | ⚠️ 2-3 | ⚠️ 2-3 | ❌ None |
 | Multi-model | ✅ 100+ | ✅ Many | ✅ Many | ✅ Many | ✅ Many |
 | Training Export | ✅ JSONL | ❌ No | ❌ No | ❌ No | ❌ No |
 
@@ -282,7 +283,7 @@ Vote: Who convinced you?
 
 - [📖 User Guide](./docs/user-guide.md) - Complete walkthrough
 - [🧠 Memory System](./docs/MEMORY_SYSTEM.md) - How memory works
-- [🎭 Personas Guide](./docs/personas.md) - All 27 personas
+- [🎭 Personas Guide](./docs/personas.md) - All 31 personas in 8 categories
 - [🔧 Architecture](./docs/ARCHITECTURE.md) - Technical deep dive
 - [🚀 Deployment](./docs/deployment.md) - Self-hosting guide
 - [💾 Database Setup](./docs/DATABASE_IMPLEMENTATION_GUIDE.md) - Supabase config
@@ -343,6 +344,6 @@ Built with amazing tools:
 
 **Built with ❤️ for power users who want control**
 
-*100+ AI models • 27 personas • Real cost tracking • Training data export*
+*100+ AI models • 31 personas • Real cost tracking • Training data export*
 
 </div>

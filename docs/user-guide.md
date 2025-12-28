@@ -340,16 +340,32 @@ Personas are AI personalities with unique:
 - **Areas of expertise** (coding, creativity, teaching, etc.)
 - **Backstories** (Nova lives in Neo-Tokyo 2089!)
 - **Response patterns** (bullet points vs. detailed explanations)
+- **Category assignment** (Core, Creative, Professional, etc.)
+
+### 31 Personas in 8 Categories
+
+| Category | Description | Personas |
+|----------|-------------|----------|
+| **Core** | Essential everyday personas | Cami, Chameleon Agent, Dev, Flash, Professor Stein, Sara Norton |
+| **Creative** | Artistic and roleplay | Luna, Nova, Mythos, Pixel |
+| **Professional** | Work-focused | Startup Sam, Dr. Med, Sol Goldman, Wordsmith, Canvas, Finny |
+| **Philosophy** | Deep thinking | Cogito, Nihilo, The Panel |
+| **Lifestyle** | Health & wellness | Chef Marco, Zen, Wellbeing, Fit, Family, Lisa Knight, Coach Thompson |
+| **Learning** | Education | Herr Müller, Scholar, Lingua |
+| **Curator** | Recommendations | Vibe, Aria |
+| **Special** | Hidden/business-specific | HiFi Berater (hidden) |
 
 ### Choosing the Right Persona
 
 **For Everyday Questions:**
-- **Cami** 🦎 - Adaptive, friendly chameleon
+- **Cami** 🦎 - Adaptive, friendly chameleon with emotion detection
 - **Flash** ⚡ - Quick, concise answers with bullet points
 
 **For Learning:**
-- **Professor Einstein** 🎓 - In-depth, detailed explanations
+- **Professor Stein** 🎓 - In-depth, detailed explanations
 - **Herr Müller** 👨‍🏫 - Simple language, analogies, ELI5 style
+- **Scholar** 📚 - Active study partner for school and university *(NEW)*
+- **Lingua** 🗣️ - Language learning partner *(NEW)*
 
 **For Coding:**
 - **Dev** 💻 - Code examples, debugging, best practices
@@ -358,6 +374,8 @@ Personas are AI personalities with unique:
 **For Creativity:**
 - **Luna** 🎨 - Brainstorming, innovative ideas, metaphors
 - **Mythos** 🗺️ - Build fictional worlds, D&D campaigns
+- **Wordsmith** 📝 - Writing partner for all text types *(NEW)*
+- **Canvas** 🎨 - Design partner for UI/UX *(NEW)*
 
 **For Philosophy:**
 - **Cogito** 🤔 - Questions consciousness, explores existence
@@ -365,16 +383,20 @@ Personas are AI personalities with unique:
 
 **For Entertainment:**
 - **Nova** ✨ - Cyberpunk hacker with rich backstory
-- **Saul Goodman** ⚖️ - Charismatic lawyer, morally flexible
-- **Leslie Knope** 💪 - Ultra-enthusiastic supporter
+- **Sol Goldman** ⚖️ - Charismatic lawyer and creative problem solver
 
 **For Recommendations:**
 - **Vibe** 🎧 - Curates music, games, shows based on your taste
-- Learns your preferences over time!
+- **Aria** 🎵 - Music discovery and playlist curation
 
-**For Professional Help:**
-- **Coach Taylor** 🏈 - Mentorship and motivation
-- **Saga Noren** 🔍 - Analytical detective, problem-solving
+**For Health & Wellness:**
+- **Wellbeing** 💚 - Mental health support and mindfulness *(NEW)*
+- **Fit** 💪 - Fitness buddy for training and health *(NEW)*
+- **Chef Marco** 🍝 - Italian cuisine and cooking guidance
+
+**For Family & Life:**
+- **Family** 👨‍👩‍👧‍👦 - Parent helper for family life *(NEW)*
+- **Finny** 💰 - Financial friend for budgeting *(NEW)*
 
 ### Pro Persona Tips
 
@@ -383,6 +405,8 @@ Personas are AI personalities with unique:
 3. **Use Mythos for long-term worldbuilding** - Builds persistent universes
 4. **Vibe remembers your feedback** - Tell it what you liked/disliked
 5. **Cogito is genuinely uncertain** - Not pretending, actually exploring
+6. **Use Scholar for active learning** - Asks questions to test understanding
+7. **Wellbeing provides supportive listening** - For mental health support
 
 ### Follow-Up Suggestions ⭐ ENHANCED (v0.10)
 
@@ -1061,7 +1085,7 @@ Click Settings (⚙️) → "Advanced Settings" button
   - Search stats (if web search used)
 
 **Persona Quick-Switch:**
-- All 27 personas as buttons
+- All 31 personas organized by category
 - One-click to change persona
 - Loads persona's system prompt automatically
 

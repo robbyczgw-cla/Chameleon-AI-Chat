@@ -58,7 +58,7 @@ Chameleon is a **Next.js 16** Progressive Web App (PWA) that provides a sophisti
 ```
 
 **Core Features:**
-- 🎭 **27 AI Personas** with distinct personalities
+- 🎭 **31 AI Personas** in 8 categories with distinct personalities
 - 🎭💭 **Emotion-Aware AI** (Cami detects mood, adapts responses)
 - 🧠 **Long-term Memory System** with intelligent retrieval
 - 🔍 **Web Search Integration** (Tavily & Serper)
@@ -645,11 +645,21 @@ Semantic similarity: 0.72 → HIGH MATCH (conceptually related)
 
 **Location**: `lib/personas.ts`, `lib/persona-*.ts`
 
-18+ distinct AI personalities with unique system prompts, visual themes, and conversation styles.
+31 distinct AI personalities organized into 8 categories, with unique system prompts, visual themes, and conversation styles.
 
 #### Persona Definition
 
 ```typescript
+type PersonaCategory =
+  | "core"        // Essential everyday personas
+  | "creative"    // Artistic and roleplay
+  | "professional" // Work-focused
+  | "philosophy"  // Deep thinking
+  | "lifestyle"   // Health, wellness, cooking
+  | "learning"    // Education-focused
+  | "curator"     // Recommendation personas
+  | "special"     // Hidden/business-specific
+
 interface Persona {
   id: string;           // Unique identifier
   name: string;         // Display name
@@ -657,7 +667,22 @@ interface Persona {
   description: string;  // Short description
   prompt: string;       // System prompt (main personality)
   color: string;        // Gradient colors
+  category?: PersonaCategory; // Category for organization
+  hidden?: boolean;     // Hidden from UI (e.g., HiFi Berater)
 }
+```
+
+#### Helper Functions
+
+```typescript
+// Get all visible personas (excludes hidden ones)
+getVisiblePersonas(): Persona[]
+
+// Get core personas for Simple Mode
+getCorePersonas(): Persona[]
+
+// Get personas by category
+getPersonasByCategory(category: PersonaCategory): Persona[]
 ```
 
 #### How Personas Work
@@ -689,6 +714,19 @@ const messages = [
 - Response format
 - Follow-up suggestions
 
+#### Persona Categories
+
+| Category | Description | Count |
+|----------|-------------|-------|
+| **Core** | Essential everyday personas | 6 |
+| **Creative** | Artistic and roleplay | 4 |
+| **Professional** | Work-focused | 6 |
+| **Philosophy** | Deep thinking | 3 |
+| **Lifestyle** | Health, wellness, cooking | 7 |
+| **Learning** | Education-focused | 3 |
+| **Curator** | Recommendations | 2 |
+| **Special** | Hidden/business-specific | 1 |
+
 #### Persona Complexity
 
 **Simple personas:**
@@ -699,20 +737,22 @@ const messages = [
 - Stateful (references previous conversations via memory)
 
 **Featured Personas:**
-- **Cami** (default) - Adaptive chameleon, friendly & versatile
+- **Cami** (default) - Adaptive chameleon with emotion detection
 - **Nova** - Cyberpunk hacker from Neo-Tokyo 2089
 - **Mythos** - World-building storyteller
 - **Cogito** - Existential philosopher
-- **Nihilo** - Cheerful nihilist
-- **Expert/Coder/Concise** - Functional specialists
-- 18+ more personas
+- **Wordsmith** - Creative writing partner *(NEW)*
+- **Wellbeing** - Mental health support *(NEW)*
+- **Scholar** - Active learning partner *(NEW)*
+- And 24 more personas...
 
 **Total persona system:**
-- 27 personas
-- ~10,000 tokens of personality definitions
+- 31 personas in 8 categories
+- ~15,000 tokens of personality definitions
 - Each conversation uses 1 persona's prompt
+- Hidden personas for business use cases
 
-**File**: `lib/personas.ts:1-500`
+**File**: `lib/personas.ts`
 
 ---
 
@@ -2811,7 +2851,7 @@ Added to `app/layout.tsx`:
 | `app/api/chat/route.ts` | Main chat API | Streaming logic, context building | All |
 | `app/api/tts/route.ts` | OpenAI TTS API | Audio generation endpoint | All |
 | `app/api/whisper/route.ts` | Speech-to-text API | Audio format handling | 30-45 |
-| `lib/personas.ts` | Persona definitions | All 27 personas | 1-500 |
+| `lib/personas.ts` | Persona definitions | All 31 personas in 8 categories | All |
 | `lib/cost-tracker.ts` | Cost tracking | Pricing database, calculation | All |
 | `lib/rag-service.ts` | RAG implementation | Chunking, embedding, retrieval | 50-150 |
 | `components/chat-messages.tsx` | Message display | React.memo, useCallback | 1-80 |

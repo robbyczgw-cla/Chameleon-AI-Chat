@@ -8,6 +8,55 @@ This project is in **beta stage** (v0.10-beta). Core features are stable with ex
 
 ## [0.10.6-beta] - 2025-12-28
 
+### 🎭 Persona System Overhaul
+
+**Major Update: 31 Personas in 8 Categories**
+
+This release completely reorganizes and expands the persona system with new categories, new personas, and improved architecture.
+
+**8 Persona Categories:**
+- **Core** - Essential everyday personas (Cami, Chameleon Agent, Dev, Flash, Professor Stein, Sara Norton)
+- **Creative** - Artistic and roleplay (Luna, Nova, Mythos, Pixel)
+- **Professional** - Work-focused (Startup Sam, Dr. Med, Sol Goldman, Wordsmith, Canvas, Finny)
+- **Philosophy** - Deep thinking (Cogito, Nihilo, The Panel)
+- **Lifestyle** - Health & wellness (Chef Marco, Zen, Wellbeing, Fit, Family, Lisa Knight, Coach Thompson)
+- **Learning** - Education (Herr Müller, Scholar, Lingua)
+- **Curator** - Recommendations (Vibe, Aria)
+- **Special** - Hidden/business-specific (HiFi Berater)
+
+**8 New Personas Added:**
+- **Wordsmith** 📝 - Creative writing partner for all text types (blogs, emails, stories)
+- **Wellbeing** 💚 - Mental health support, mindfulness, and emotional guidance
+- **Fit** 💪 - Fitness buddy for training plans, nutrition, and health goals
+- **Finny** 💰 - Financial friend for budgeting, saving, and money management
+- **Family** 👨‍👩‍👧‍👦 - Parent helper for child development and family life
+- **Scholar** 📚 - Active learning partner who asks questions and tests understanding
+- **Lingua** 🗣️ - Language learning partner for practicing new languages
+- **Canvas** 🎨 - Design partner for UI/UX, visual design, and aesthetics
+
+**3 Personas Removed:**
+- Louis K. (louie) - Reference to real person
+- Rustin Cole (rust) - Overly dark themes
+- Ellis Anderson (elliot) - Mental illness portrayal concerns
+
+**Architecture Improvements:**
+- Added `PersonaCategory` type with 8 categories
+- Added `hidden` flag for business-specific personas (HiFi Berater)
+- New helper functions: `getVisiblePersonas()`, `getCorePersonas()`, `getPersonasByCategory()`
+- Updated all UI components to use `getVisiblePersonas()` to exclude hidden personas
+- Full i18n translations (DE/EN/ES) for all new personas
+
+**Files Changed:**
+- `lib/personas.ts` - Main persona definitions with categories
+- `lib/languages.ts` - Translations for new personas
+- `components/persona-selector.tsx` - Uses getVisiblePersonas()
+- `components/quick-persona-picker.tsx` - Uses getVisiblePersonas()
+- `components/personas-manager.tsx` - Uses getVisiblePersonas()
+- `docs/personas.md` - Complete rewrite with category organization
+- `docs/LLM_CONTEXT.md` - Updated persona count and categories
+- `docs/user-guide.md` - Updated persona section
+- `README.md` - Updated persona count to 31
+
 ### 🧠 Emotion-Aware AI (NEW!)
 
 **Emotion Detection Service (Cami Persona)**
@@ -88,6 +137,9 @@ CAMI: "Hey, stop right there - that's not true! Programming is HARD, everyone fe
 - `4f6737e` feat: Add Spanish language support to emotion detection
 - `159c044` feat: Add emotion detection for Cami persona
 
+---
+
+## [0.10.5-beta] - 2025-12-18
 ---
 
 ## [0.10.5-beta] - 2025-12-18
