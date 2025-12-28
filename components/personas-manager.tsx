@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { PERSONAS, type Persona } from "@/lib/personas"
+import { PERSONAS, type Persona, getVisiblePersonas } from "@/lib/personas"
 import { PersonasStorageService } from "@/lib/personas-storage"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -56,7 +56,8 @@ export function PersonasManager() {
   ]
 
   useEffect(() => {
-    setPersonas(PERSONAS)
+    // Use getVisiblePersonas to exclude hidden personas like HiFi Berater
+    setPersonas(getVisiblePersonas())
     loadCustomPersonas()
   }, [])
 

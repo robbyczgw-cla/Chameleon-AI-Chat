@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { User, ChevronDown, Check } from "lucide-react"
-import { PERSONAS, type Persona } from "@/lib/personas"
+import { type Persona, getVisiblePersonas } from "@/lib/personas"
 import { PersonasStorageService } from "@/lib/personas-storage"
 import { cn } from "@/lib/utils"
 import { getPersonaDescription } from "@/lib/languages"
@@ -22,10 +22,11 @@ export function QuickPersonaPicker() {
   const [allPersonas, setAllPersonas] = useState<Persona[]>([])
   const currentPersona = settings.selectedPersona
 
-  // Load personas (built-in + custom)
+  // Load personas (built-in visible + custom)
   const loadPersonas = () => {
     const customPersonas = PersonasStorageService.loadCustomPersonas()
-    setAllPersonas([...PERSONAS, ...customPersonas])
+    // Use getVisiblePersonas to exclude hidden personas like HiFi Berater
+    setAllPersonas([...getVisiblePersonas(), ...customPersonas])
   }
 
   useEffect(() => {

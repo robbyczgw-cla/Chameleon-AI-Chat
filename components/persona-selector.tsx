@@ -1,6 +1,6 @@
 "use client"
 
-import { PERSONAS, type Persona } from "@/lib/personas"
+import { type Persona, getVisiblePersonas } from "@/lib/personas"
 import { cn } from "@/lib/utils"
 
 interface PersonaSelectorProps {
@@ -9,9 +9,12 @@ interface PersonaSelectorProps {
 }
 
 export function PersonaSelector({ selectedPersona, onSelectPersona }: PersonaSelectorProps) {
+  // Use getVisiblePersonas to exclude hidden personas like HiFi Berater
+  const visiblePersonas = getVisiblePersonas()
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-      {PERSONAS.map((persona) => (
+      {visiblePersonas.map((persona) => (
         <button
           key={persona.id}
           onClick={() => onSelectPersona(persona)}
