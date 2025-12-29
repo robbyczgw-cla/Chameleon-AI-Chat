@@ -246,6 +246,15 @@ class NativeHapticsService {
   onLongPress = () => this.trigger('longPress')
   onNotification = () => this.trigger('notification')
   onAchievement = () => this.trigger('achievement')
+
+  // Direct haptic methods for compatibility
+  async impact(style: 'light' | 'medium' | 'heavy' = 'medium'): Promise<void> {
+    await this.trigger(style)
+  }
+
+  async notification(type: 'success' | 'warning' | 'error' = 'success'): Promise<void> {
+    await this.trigger(type)
+  }
 }
 
 export const nativeHaptics = new NativeHapticsService()

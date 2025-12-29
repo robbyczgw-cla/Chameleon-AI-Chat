@@ -4,7 +4,6 @@ const config: CapacitorConfig = {
   appId: 'com.chameleon.ai.chat',
   appName: 'Chameleon AI',
   webDir: 'out',
-  bundledWebRuntime: false,
 
   // Server configuration - loads from deployed web app for full API support
   server: {
@@ -57,7 +56,6 @@ const config: CapacitorConfig = {
       androidSplashResourceName: 'splash',
       androidScaleType: 'CENTER_CROP',
       showSpinner: true,
-      spinnerStyle: 'large',
       spinnerColor: '#22c55e',
       splashFullScreen: true,
       splashImmersive: true,
@@ -65,15 +63,12 @@ const config: CapacitorConfig = {
 
     // Status Bar Configuration
     StatusBar: {
-      style: 'Dark',
+      style: 'DARK',
       backgroundColor: '#0a0a0a',
-      overlaysWebView: false,
     },
 
     // Keyboard Configuration
     Keyboard: {
-      resize: 'body',
-      style: 'dark',
       resizeOnFullScreen: true,
     },
 
@@ -87,39 +82,6 @@ const config: CapacitorConfig = {
       smallIcon: 'ic_stat_icon_config_sample',
       iconColor: '#22c55e',
       sound: 'default',
-    },
-
-    // Haptics - uses native haptic engine
-    Haptics: {
-      selectionDuration: 10,
-      impactLight: 10,
-      impactMedium: 20,
-      impactHeavy: 30,
-      notification: {
-        success: [10, 50, 10],
-        warning: [15, 50, 15, 50, 15],
-        error: [30, 100, 30],
-      },
-    },
-
-    // App URL schemes for deep linking
-    App: {
-      launchUrl: 'https://chameleon-ai.app',
-    },
-
-    // Camera configuration
-    Camera: {
-      quality: 90,
-      allowEditing: true,
-      resultType: 'uri',
-      source: 'prompt',
-      direction: 'rear',
-      presentationStyle: 'fullScreen',
-    },
-
-    // Share configuration
-    Share: {
-      // Android share intents
     },
   },
 }
