@@ -58,12 +58,13 @@ export function CapacitorInit() {
         const { nativeTTS } = await import('@/lib/capacitor/tts')
         await nativeTTS.initialize()
 
-        // Configure Status Bar (don't overlay content)
+        // Configure Status Bar appearance
+        // Note: Safe area insets are injected by MainActivity.java as --safe-area-top/bottom
         if (Capacitor.isPluginAvailable('StatusBar')) {
           const { StatusBar, Style } = await import('@capacitor/status-bar')
           await StatusBar.setStyle({ style: Style.Dark })
-          await StatusBar.setBackgroundColor({ color: '#0a0a0a' })
-          await StatusBar.setOverlaysWebView({ overlay: false })
+          // Don't set background color - using transparent for edge-to-edge
+          // await StatusBar.setBackgroundColor({ color: '#0a0a0a' })
         }
 
         // Apply native Android styling (Material You)

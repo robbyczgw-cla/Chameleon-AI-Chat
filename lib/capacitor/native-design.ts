@@ -237,23 +237,26 @@ export function generateNativeCSS(): string {
       /* M3 Expressive uses bolder typography */
       font-weight: 400;
       letter-spacing: 0.01em;
-      /* Safe area insets for status bar and navigation bar */
-      padding-top: env(safe-area-inset-top, 0);
-      padding-bottom: env(safe-area-inset-bottom, 0);
+      /* Use --safe-area-top injected by MainActivity.java for devices
+         where env(safe-area-inset-top) doesn't work (Vivo, Xiaomi, etc.) */
+      padding-top: var(--safe-area-top, 0px);
+      padding-bottom: var(--safe-area-bottom, 0px);
     }
 
     /* Status bar safe area - apply to main content */
     .native-android main,
     .native-android [role="main"],
     .native-android .main-content {
-      padding-top: env(safe-area-inset-top, 24px);
+      /* Don't add extra padding - body already has it */
+      padding-top: 0;
     }
 
     /* Fixed header should account for status bar */
     .native-android header,
     .native-android .fixed-header,
     .native-android [class*="sticky"] {
-      padding-top: env(safe-area-inset-top, 24px);
+      /* Headers need the status bar offset when position:fixed */
+      top: var(--safe-area-top, 0px);
     }
 
     /* Ensure full height with safe areas */
@@ -261,7 +264,7 @@ export function generateNativeCSS(): string {
     .native-android #root {
       min-height: 100vh;
       min-height: 100dvh;
-      padding-top: env(safe-area-inset-top, 0);
+      /* Don't add extra padding - body already has it */
     }
 
     /* ====================================================
