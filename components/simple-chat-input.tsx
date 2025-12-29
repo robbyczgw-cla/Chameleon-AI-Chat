@@ -2,7 +2,8 @@
 
 import type React from "react"
 import { Send, Globe, Square, Lightbulb, Mic, MicOff, Image } from "lucide-react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
+import { Capacitor } from "@capacitor/core"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -73,6 +74,15 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   const { toast } = useToast()
 
   // NOTE: isAdvancedMode is now provided by useFeatureFlags() hook above
+
+  // Detect Android Capacitor at runtime to adjust safe area padding
+  const isAndroidCapacitor = useMemo(() => {
+    try {
+      return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'
+    } catch {
+      return false
+    }
+  }, [])
 
   // Load web search state from settings context (PERSIST USER PREFERENCE!)
   // Default is FALSE - automatic tool use handles web search via AI tool calling
@@ -1469,7 +1479,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   const hasContent = input.trim().length > 0 || attachedFiles.length > 0
 
   return (
-    <div className="p-3 md:p-4 pb-[env(safe-area-inset-bottom,8px)] md:pb-4">
+    <div className={cn(
+      "p-3 md:p-4 md:pb-4",
+      // iOS/Web: use env() safe area. Android Capacitor: no extra bottom padding needed
+      !isAndroidCapacitor && "pb-[env(safe-area-inset-bottom,8px)]",
+      isAndroidCapacitor && "pb-1" // Minimal padding on Android
+    )}>
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
         {/* Unified Input Container - Clean dark rounded box */}
         <div className="bg-muted/50 dark:bg-muted/30 rounded-2xl border border-border/40 overflow-hidden">

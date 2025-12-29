@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useSwipeable } from "react-swipeable"
+import { Capacitor } from "@capacitor/core"
 import { useApp } from "@/contexts/app-context"
 import { haptics } from "@/lib/haptics"
 import { ChatMessages } from "@/components/chat-messages"
@@ -511,6 +512,41 @@ export function SimpleChatApp() {
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState("")
 
+  // CRITICAL: Detect Android Capacitor and get safe area at runtime
+  const [isAndroidCapacitor, setIsAndroidCapacitor] = useState(false)
+  const [safeAreaTop, setSafeAreaTop] = useState(0)
+
+  useEffect(() => {
+    // Check platform at runtime (not module load time)
+    // ONLY applies to Capacitor Android - does NOT affect iOS or web
+    const checkPlatform = () => {
+      try {
+        const isNative = Capacitor.isNativePlatform()
+        const platform = Capacitor.getPlatform()
+        const isAndroid = isNative && platform === 'android'
+
+        console.log('[SimpleChatApp] Platform check - isNative:', isNative, 'platform:', platform, 'isAndroidCapacitor:', isAndroid)
+
+        if (isAndroid) {
+          setIsAndroidCapacitor(true)
+          // Get safe area from CSS variable (set by MainActivity.java) or use fallback
+          const safeArea = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')
+          const parsed = parseInt(safeArea) || 28 // Default 28px for Android status bar
+          console.log('[SimpleChatApp] Android safe area top:', parsed, 'px')
+          setSafeAreaTop(parsed)
+        }
+      } catch (e) {
+        // Not running in Capacitor - this is fine for web
+        console.log('[SimpleChatApp] Capacitor not available (web mode)')
+      }
+    }
+
+    checkPlatform()
+    // Re-check after a delay in case Capacitor/MainActivity initializes late
+    const timer = setTimeout(checkPlatform, 500)
+    return () => clearTimeout(timer)
+  }, [])
+
   // Swipe gesture handlers for mobile sidebar and new chat
   const swipeHandlers = useSwipeable({
     onSwipedRight: (eventData) => {
@@ -813,10 +849,22 @@ export function SimpleChatApp() {
         </>
       )}
 
-      {/* iOS PWA fix: Only apply safe-area-inset-top here, bottom padding is handled by SimpleChatInput */}
+      {/* Safe area handling:
+          - iOS PWA: uses env(safe-area-inset-top) via CSS class
+          - Android Capacitor: uses inline style with --safe-area-top variable (set by MainActivity.java) */}
       <div
         {...swipeHandlers}
-        className="relative z-10 h-[100dvh] flex flex-col md:grid md:grid-cols-[288px_1fr] md:grid-rows-[1fr] overflow-hidden pt-[env(safe-area-inset-top,0px)] touch-pan-y"
+        className={cn(
+          "relative z-10 flex flex-col md:grid md:grid-cols-[288px_1fr] md:grid-rows-[1fr] overflow-hidden touch-pan-y",
+          // Only apply iOS safe area when NOT on Android Capacitor
+          !isAndroidCapacitor && "h-[100dvh] pt-[env(safe-area-inset-top,0px)]"
+        )}
+        style={isAndroidCapacitor ? {
+          // Android Capacitor: Apply safe area via inline styles (most reliable)
+          height: `calc(100dvh - ${safeAreaTop}px)`,
+          paddingTop: `${safeAreaTop}px`,
+          boxSizing: 'content-box' as const,
+        } : undefined}
       >
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (

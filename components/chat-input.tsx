@@ -3,6 +3,7 @@
 import type React from "react"
 import { FolderOpen, Send, Mic, Globe, MicOff, Square, Zap, Image } from "lucide-react"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
+import { Capacitor } from "@capacitor/core"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -72,6 +73,15 @@ export function ChatInput() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { toast } = useToast()
   const { setInspectorData } = usePromptInspectorStore()
+
+  // Detect Android Capacitor at runtime for safe area handling
+  const isAndroidCapacitor = useMemo(() => {
+    try {
+      return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'
+    } catch {
+      return false
+    }
+  }, [])
 
   useEffect(() => {
     const handleInsertPrompt = (e: CustomEvent) => {
@@ -1507,8 +1517,11 @@ export function ChatInput() {
   return (
     <div
       className={cn(
-        "chat-input-container bg-background/80 backdrop-blur-sm p-2 md:p-4 border-t border-border/20 smooth-transition pb-[env(safe-area-inset-bottom,4px)] md:pb-4",
-        isEmpty ? "shadow-apple-2" : "shadow-apple-1"
+        "chat-input-container bg-background/80 backdrop-blur-sm p-2 md:p-4 border-t border-border/20 smooth-transition md:pb-4",
+        isEmpty ? "shadow-apple-2" : "shadow-apple-1",
+        // iOS/Web: use env() safe area. Android Capacitor: minimal padding
+        !isAndroidCapacitor && "pb-[env(safe-area-inset-bottom,4px)]",
+        isAndroidCapacitor && "pb-1"
       )}
     >
       {attachedCollectionId && (
