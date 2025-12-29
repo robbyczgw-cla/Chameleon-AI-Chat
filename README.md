@@ -203,23 +203,66 @@ Not generic "ChatGPT with a twist." Real personalities organized in 8 categories
 |--------|----------|---------|
 | **Web App** | Quick access, any device | [chameleon-ai-chat.vercel.app](https://chameleon-ai-chat.vercel.app) |
 | **PWA** | Mobile with offline support | Add to Home Screen from browser |
-| **Android APK** | Native experience, Play Store | [Download APK](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/releases) |
+| **Android APK** | Native experience | [Download from Releases](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/releases) |
 
-### Android App vs PWA
+---
+
+## 🤖 Android Native App
+
+**Built with Capacitor 8 for a true native Android experience.**
+
+### Native Features
+
+| Feature | Description |
+|---------|-------------|
+| **Native Haptics** | 17 haptic patterns (success, error, typing, swipe, etc.) |
+| **Biometric Auth** | Fingerprint/Face unlock for secure credential storage |
+| **Local Notifications** | Android notification channels, custom sounds, icons |
+| **Share Target** | Receive shared text, images, PDFs from any app |
+| **Deep Links** | `chameleon-ai://` custom URL scheme |
+| **Native Camera** | Photo capture with editing, gallery picker |
+| **Voice Recording** | Optimized audio for Whisper transcription |
+| **Text-to-Speech** | Native voice synthesis |
+| **Material 3 Design** | Spring animations, blur effects, native styling |
+
+### Android vs PWA
 
 | Feature | PWA | Android APK |
 |---------|-----|-------------|
-| **Haptics** | Basic vibration | Native patterns (success, error, etc.) |
-| **Biometric Auth** | Not available | Fingerprint/Face unlock |
-| **Notifications** | Limited web push | Native channels, custom sounds |
-| **Share Target** | Limited | Receive text, images, PDFs |
-| **Deep Links** | Web URLs only | Custom schemes (chameleon-ai://) |
-| **App Icon** | Browser badge | Native icon |
-| **Camera** | Web picker | Native with editing |
-| **Distribution** | Add to Home | Google Play Store |
+| **Haptics** | Basic vibration | 17 native patterns |
+| **Biometrics** | Not available | Fingerprint/Face ID |
+| **Notifications** | Web push (limited) | Native channels |
+| **Share Target** | Limited | Full support |
+| **App Icon** | Browser badge | Native launcher icon |
 | **Design** | Web CSS | Material 3 Expressive |
 
-**Android Requirements:** Android 13+ (API 33)
+### Build Requirements
+
+| Component | Version |
+|-----------|---------|
+| Android | 13+ (API 33) |
+| Node.js | 22+ |
+| Java | 21 |
+| Gradle | 8.11.1 |
+
+### Build Commands
+
+```bash
+# Install dependencies
+npm ci
+
+# Sync Capacitor
+npx cap sync android
+
+# Build debug APK
+npm run cap:android:build
+
+# Build release APK
+npm run cap:android:release
+
+# Open in Android Studio
+npx cap open android
+```
 
 [Full Android documentation →](./docs/CAPACITOR_ANDROID.md)
 
