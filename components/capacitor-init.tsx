@@ -58,6 +58,14 @@ export function CapacitorInit() {
         const { nativeTTS } = await import('@/lib/capacitor/tts')
         await nativeTTS.initialize()
 
+        // Configure Status Bar (don't overlay content)
+        if (Capacitor.isPluginAvailable('StatusBar')) {
+          const { StatusBar, Style } = await import('@capacitor/status-bar')
+          await StatusBar.setStyle({ style: Style.Dark })
+          await StatusBar.setBackgroundColor({ color: '#0a0a0a' })
+          await StatusBar.setOverlaysWebView({ overlay: false })
+        }
+
         // Apply native Android styling (Material You)
         if (Capacitor.getPlatform() === 'android') {
           const { applyNativeStyling } = await import('@/lib/capacitor/native-design')

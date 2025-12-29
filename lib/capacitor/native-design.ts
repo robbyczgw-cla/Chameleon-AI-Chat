@@ -237,6 +237,31 @@ export function generateNativeCSS(): string {
       /* M3 Expressive uses bolder typography */
       font-weight: 400;
       letter-spacing: 0.01em;
+      /* Safe area insets for status bar and navigation bar */
+      padding-top: env(safe-area-inset-top, 0);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    /* Status bar safe area - apply to main content */
+    .native-android main,
+    .native-android [role="main"],
+    .native-android .main-content {
+      padding-top: env(safe-area-inset-top, 24px);
+    }
+
+    /* Fixed header should account for status bar */
+    .native-android header,
+    .native-android .fixed-header,
+    .native-android [class*="sticky"] {
+      padding-top: env(safe-area-inset-top, 24px);
+    }
+
+    /* Ensure full height with safe areas */
+    .native-android #__next,
+    .native-android #root {
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding-top: env(safe-area-inset-top, 0);
     }
 
     /* ====================================================
