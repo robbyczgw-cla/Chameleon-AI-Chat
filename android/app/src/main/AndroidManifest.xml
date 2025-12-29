@@ -135,6 +135,35 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
+        <!-- Home Screen Widget -->
+        <receiver
+            android:name=".ChameleonWidget"
+            android:exported="true"
+            android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+
+        <!-- Text Selection: "Ask Chameleon" -->
+        <activity
+            android:name=".ProcessTextActivity"
+            android:label="@string/ask_chameleon"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:noHistory="true">
+            <!-- Android 6.0+ Text Selection Menu -->
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
         <!-- File Provider for Camera/File Sharing -->
         <provider
             android:name="androidx.core.content.FileProvider"
