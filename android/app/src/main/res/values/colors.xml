@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Chameleon AI Brand Colors -->
+
+    <!-- Primary: Green accent -->
+    <color name="colorPrimary">#22c55e</color>
+    <color name="colorPrimaryDark">#16a34a</color>
+    <color name="colorAccent">#22c55e</color>
+
+    <!-- Dark theme backgrounds (matching web app) -->
+    <color name="windowBackground">#0a0a0a</color>
+    <color name="statusBarColor">#0a0a0a</color>
+    <color name="navigationBarColor">#0a0a0a</color>
+
+    <!-- Surface colors -->
+    <color name="surfaceColor">#171717</color>
+    <color name="cardBackground">#1f1f1f</color>
+    <color name="dividerColor">#262626</color>
+
+    <!-- Text colors -->
+    <color name="textPrimary">#fafafa</color>
+    <color name="textSecondary">#a1a1aa</color>
+    <color name="textMuted">#71717a</color>
+
+    <!-- Accent variations -->
+    <color name="accentLight">#4ade80</color>
+    <color name="accentDark">#15803d</color>
+
+    <!-- Semantic colors -->
+    <color name="success">#22c55e</color>
+    <color name="warning">#f59e0b</color>
+    <color name="error">#ef4444</color>
+    <color name="info">#3b82f6</color>
+
+    <!-- Splash screen -->
+    <color name="splash_background">#0a0a0a</color>
+</resources>

@@ -1,10 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Enable static export for Capacitor Android/iOS builds
+  // Set to undefined for web deployment, 'export' for Capacitor builds
+  output: process.env.CAPACITOR_BUILD === 'true' ? 'export' : undefined,
+
+  // Trailing slashes needed for static export
+  trailingSlash: process.env.CAPACITOR_BUILD === 'true',
+
   typescript: {
     // TODO: Fix all type errors and set to false
     ignoreBuildErrors: true,
   },
   images: {
+    // Disable image optimization for static export (Capacitor)
+    unoptimized: process.env.CAPACITOR_BUILD === 'true',
     // Enable modern image formats for 40-60% smaller files
     formats: ['image/avif', 'image/webp'],
     // Cache images for 1 year (they have content-based hashes)
