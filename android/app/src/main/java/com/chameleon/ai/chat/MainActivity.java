@@ -130,6 +130,15 @@ public class MainActivity extends BridgeActivity {
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
 
+        // CRITICAL: Enable keyboard predictions and autocomplete
+        // This allows the keyboard to show word suggestions
+        settings.setSaveFormData(true);  // Enable form data saving (helps with autocomplete)
+
+        // Enable autofill for Android 8+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            webView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_YES);
+        }
+
         // Performance optimizations
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
