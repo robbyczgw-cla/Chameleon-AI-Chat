@@ -95,14 +95,15 @@ public class MainActivity extends BridgeActivity {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
 
             // Pass insets to WebView via JavaScript
+            // IMPORTANT: Set bottom to 0 because adjustResize handles keyboard positioning
+            // Setting it to insets.bottom causes a black bar when keyboard opens
             bridge.getWebView().post(() -> {
                 String js = String.format(
                     "document.documentElement.style.setProperty('--safe-area-top', '%dpx');" +
-                    "document.documentElement.style.setProperty('--safe-area-bottom', '%dpx');" +
+                    "document.documentElement.style.setProperty('--safe-area-bottom', '0px');" +
                     "document.documentElement.style.setProperty('--safe-area-left', '%dpx');" +
                     "document.documentElement.style.setProperty('--safe-area-right', '%dpx');",
                     pxToDp(insets.top),
-                    pxToDp(insets.bottom),
                     pxToDp(insets.left),
                     pxToDp(insets.right)
                 );
