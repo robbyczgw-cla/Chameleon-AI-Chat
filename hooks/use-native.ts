@@ -685,3 +685,99 @@ export function useNativeAuth() {
     logout,
   }
 }
+
+/**
+ * Hook for native permissions
+ */
+export function useNativePermissions() {
+  const [permissions, setPermissions] = useState<{
+    camera: string
+    microphone: string
+    notifications: string
+    photos: string
+  }>({
+    camera: 'prompt',
+    microphone: 'prompt',
+    notifications: 'prompt',
+    photos: 'prompt',
+  })
+
+  useEffect(() => {
+    import('@/lib/capacitor/permissions').then(async ({ nativePermissions }) => {
+      const all = await nativePermissions.getAllPermissions()
+      setPermissions(all)
+    })
+  }, [])
+
+  const requestCamera = useCallback(async () => {
+    const { nativePermissions } = await import('@/lib/capacitor/permissions')
+    const status = await nativePermissions.requestCamera()
+    setPermissions(prev => ({ ...prev, camera: status }))
+    return status === 'granted'
+  }, [])
+
+  const requestMicrophone = useCallback(async () => {
+    const { nativePermissions } = await import('@/lib/capacitor/permissions')
+    const status = await nativePermissions.requestMicrophone()
+    setPermissions(prev => ({ ...prev, microphone: status }))
+    return status === 'granted'
+  }, [])
+
+  const requestNotifications = useCallback(async () => {
+    const { nativePermissions } = await import('@/lib/capacitor/permissions')
+    const status = await nativePermissions.requestNotifications()
+    setPermissions(prev => ({ ...prev, notifications: status }))
+    return status === 'granted'
+  }, [])
+
+  const requestPhotos = useCallback(async () => {
+    const { nativePermissions } = await import('@/lib/capacitor/permissions')
+    const status = await nativePermissions.requestPhotos()
+    setPermissions(prev => ({ ...prev, photos: status }))
+    return status === 'granted'
+  }, [])
+
+  const ensurePermission = useCallback(async (permission: 'camera' | 'microphone' | 'notifications' | 'photos') => {
+    const { nativePermissions } = await import('@/lib/capacitor/permissions')
+    return nativePermissions.ensurePermission(permission)
+  }, [])
+
+  const openSettings = useCallback(async () => {
+    const { nativePermissions } = await import('@/lib/capacitor/permissions')
+    return nativePermissions.openSettings()
+  }, [])
+
+  return {
+    permissions,
+    hasCameraPermission: permissions.camera === 'granted',
+    hasMicrophonePermission: permissions.microphone === 'granted',
+    hasNotificationPermission: permissions.notifications === 'granted',
+    hasPhotosPermission: permissions.photos === 'granted',
+    requestCamera,
+    requestMicrophone,
+    requestNotifications,
+    requestPhotos,
+    ensurePermission,
+    openSettings,
+  }
+}
+
+/**
+ * Hook for native design classes
+ */
+export function useNativeDesign() {
+  const [classes, setClasses] = useState<typeof import('@/lib/capacitor/native-design').nativeClasses | null>(null)
+
+  useEffect(() => {
+    import('@/lib/capacitor/native-design').then(({ nativeClasses, isAndroid }) => {
+      if (isAndroid) {
+        setClasses(nativeClasses)
+      }
+    })
+  }, [])
+
+  return {
+    classes,
+    isNativeAndroid: !!classes,
+  }
+}

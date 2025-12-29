@@ -58,6 +58,12 @@ export function CapacitorInit() {
         const { nativeTTS } = await import('@/lib/capacitor/tts')
         await nativeTTS.initialize()
 
+        // Apply native Android styling (Material You)
+        if (Capacitor.getPlatform() === 'android') {
+          const { applyNativeStyling } = await import('@/lib/capacitor/native-design')
+          applyNativeStyling()
+        }
+
         // Hide splash screen after initialization
         if (Capacitor.isPluginAvailable('SplashScreen')) {
           const { SplashScreen } = await import('@capacitor/splash-screen')
