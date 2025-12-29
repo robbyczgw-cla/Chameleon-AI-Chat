@@ -550,6 +550,106 @@ Defined in `android/app/src/main/res/xml/shortcuts.xml`:
 - Simple Mode
 - Debate Mode
 
+### Home Screen Widget
+
+A native Android widget for quick access to Chameleon AI features.
+
+**Location:** `android/app/src/main/java/com/chameleon/ai/chat/ChameleonWidget.java`
+
+**Features:**
+- "New Chat" button - Instantly starts a new conversation
+- "Voice Input" button - Opens app with voice recording active
+- Dark themed with app branding
+- Resizable (default 3x2 cells)
+
+**Files:**
+| File | Purpose |
+|------|---------|
+| `ChameleonWidget.java` | Widget provider class |
+| `res/layout/widget_chameleon.xml` | Widget layout |
+| `res/xml/widget_info.xml` | Widget metadata |
+| `res/drawable/widget_background.xml` | Rounded dark background |
+| `res/drawable/widget_button_background.xml` | Button styling |
+
+**How to Add Widget:**
+1. Long-press on home screen
+2. Select "Widgets"
+3. Find "Chameleon AI"
+4. Drag to home screen
+
+### Text Selection Integration ("Ask Chameleon")
+
+Allows users to select text anywhere on Android and query Chameleon AI.
+
+**Location:** `android/app/src/main/java/com/chameleon/ai/chat/ProcessTextActivity.java`
+
+**How it works:**
+1. User selects text in any app (browser, notes, etc.)
+2. Tap "Ask Chameleon" in the text selection menu
+3. App opens with selected text pre-filled as a question
+4. AI responds to the query
+
+**Technical Implementation:**
+```xml
+<!-- AndroidManifest.xml -->
+<activity
+    android:name=".ProcessTextActivity"
+    android:label="@string/ask_chameleon"
+    android:theme="@android:style/Theme.Translucent.NoTitleBar"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.intent.action.PROCESS_TEXT" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <data android:mimeType="text/plain" />
+    </intent-filter>
+</activity>
+```
+
+**Event Flow:**
+```
+User selects text → "Ask Chameleon" → ProcessTextActivity
+    ↓
+MainActivity receives intent with action="process_text"
+    ↓
+dispatchEventWithRetry() waits for web app ready
+    ↓
+window.__chameleonReady === true
+    ↓
+Dispatch 'chameleon:ask' event with selected text
+    ↓
+capacitor-init.tsx creates new chat and inserts text
+```
+
+### Keyboard Predictions
+
+Full keyboard autocomplete/prediction support in WebView.
+
+**Configuration:**
+```typescript
+// capacitor.config.ts
+android: {
+  captureInput: false,  // Let native keyboard handle input
+}
+```
+
+**HTML Attributes:**
+```tsx
+<Textarea
+  autoComplete="on"
+  autoCorrect="on"
+  autoCapitalize="sentences"
+  spellCheck={true}
+  inputMode="text"
+  enterKeyHint="send"
+/>
+```
+
+**WebView Settings (MainActivity.java):**
+```java
+settings.setSaveFormData(true);
+webView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_YES);
+```
+
 ---
 
 ## Native Design System

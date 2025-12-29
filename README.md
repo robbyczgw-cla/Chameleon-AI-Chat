@@ -215,7 +215,10 @@ Not generic "ChatGPT with a twist." Real personalities organized in 8 categories
 
 | Feature | Description |
 |---------|-------------|
+| **Home Screen Widget** | Quick access widget with "New Chat" and "Voice Input" buttons |
+| **Text Selection Integration** | Select text anywhere → tap "Ask Chameleon" to query AI |
 | **Native Haptics** | 17 haptic patterns (success, error, typing, swipe, etc.) |
+| **Keyboard Predictions** | Full Gboard/keyboard autocomplete support |
 | **Biometric Auth** | Fingerprint/Face unlock for secure credential storage |
 | **Local Notifications** | Android notification channels, custom sounds, icons |
 | **Share Target** | Receive shared text, images, PDFs from any app |
@@ -224,13 +227,17 @@ Not generic "ChatGPT with a twist." Real personalities organized in 8 categories
 | **Voice Recording** | Optimized audio for Whisper transcription |
 | **Text-to-Speech** | Native voice synthesis |
 | **Material 3 Design** | Spring animations, blur effects, native styling |
+| **Edge-to-Edge Display** | Proper status bar and navigation bar handling |
 
 ### Android vs PWA
 
 | Feature | PWA | Android APK |
 |---------|-----|-------------|
+| **Home Widget** | ❌ Not available | ✅ Quick access widget |
+| **Text Selection** | ❌ Not available | ✅ "Ask Chameleon" in any app |
+| **Keyboard Predictions** | ⚠️ Varies | ✅ Full support |
 | **Haptics** | Basic vibration | 17 native patterns |
-| **Biometrics** | Not available | Fingerprint/Face ID |
+| **Biometrics** | ❌ Not available | ✅ Fingerprint/Face ID |
 | **Notifications** | Web push (limited) | Native channels |
 | **Share Target** | Limited | Full support |
 | **App Icon** | Browser badge | Native launcher icon |
