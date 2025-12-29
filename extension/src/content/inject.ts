@@ -5,6 +5,10 @@
 
 import { Readability } from "@mozilla/readability"
 
+// Cross-browser API detection
+const isFirefox = typeof browser !== "undefined"
+const runtime = isFirefox ? browser.runtime : chrome.runtime
+
 console.log("[Chameleon Content] Script loaded")
 
 /**
@@ -63,10 +67,13 @@ function showResponseOverlay(response: string, personaName: string, personaEmoji
       </div>
       <div class="chameleon-footer">
         <button class="chameleon-btn chameleon-btn-copy" id="chameleon-copy">
-          Copy
+          📋 Copy
+        </button>
+        <button class="chameleon-btn" id="chameleon-speak">
+          🔊 Read Aloud
         </button>
         <button class="chameleon-btn chameleon-btn-primary" id="chameleon-more">
-          Open Full Chat
+          Open Full Chat →
         </button>
       </div>
     </div>
@@ -76,6 +83,7 @@ function showResponseOverlay(response: string, personaName: string, personaEmoji
 
   // Add event listeners
   document.getElementById("chameleon-close")?.addEventListener("click", () => {
+    speechSynthesis.cancel() // Stop any ongoing speech
     overlay.remove()
   })
 
@@ -83,25 +91,57 @@ function showResponseOverlay(response: string, personaName: string, personaEmoji
     navigator.clipboard.writeText(response)
     const btn = document.getElementById("chameleon-copy")
     if (btn) {
-      btn.textContent = "Copied!"
+      btn.textContent = "✓ Copied!"
       setTimeout(() => {
-        btn.textContent = "Copy"
+        btn.textContent = "📋 Copy"
       }, 2000)
     }
   })
 
+  // Read aloud button using browser TTS
+  let isSpeaking = false
+  document.getElementById("chameleon-speak")?.addEventListener("click", () => {
+    const btn = document.getElementById("chameleon-speak")
+    if (!btn) return
+
+    if (isSpeaking) {
+      speechSynthesis.cancel()
+      btn.textContent = "🔊 Read Aloud"
+      isSpeaking = false
+    } else {
+      const utterance = new SpeechSynthesisUtterance(response)
+      utterance.rate = 1.0
+      utterance.onend = () => {
+        btn.textContent = "🔊 Read Aloud"
+        isSpeaking = false
+      }
+      speechSynthesis.speak(utterance)
+      btn.textContent = "⏹️ Stop"
+      isSpeaking = true
+    }
+  })
+
   document.getElementById("chameleon-more")?.addEventListener("click", () => {
-    chrome.runtime.sendMessage({ type: "OPEN_SIDEPANEL" })
+    runtime.sendMessage({ type: "OPEN_SIDEPANEL" })
   })
 
   // Auto-close on escape
   const handleEscape = (e: KeyboardEvent) => {
     if (e.key === "Escape") {
+      speechSynthesis.cancel()
       overlay.remove()
       document.removeEventListener("keydown", handleEscape)
     }
   }
   document.addEventListener("keydown", handleEscape)
+
+  // Close when clicking outside the card
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      speechSynthesis.cancel()
+      overlay.remove()
+    }
+  })
 }
 
 /**
@@ -251,7 +291,7 @@ function hideWritingAssistant() {
 function handleWritingAction(action: string, text: string) {
   if (!text.trim()) return
 
-  chrome.runtime.sendMessage({
+  runtime.sendMessage({
     type: "WRITING_ASSIST",
     action,
     text,
@@ -319,7 +359,7 @@ document.addEventListener("input", (e) => {
 /**
  * Listen for messages from background script
  */
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+runtime.onMessage.addListener((message: any, sender: any, sendResponse: (response?: any) => void) => {
   console.log("[Chameleon Content] Message received:", message.type)
 
   switch (message.type) {
@@ -347,6 +387,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case "APPLY_WRITING_RESULT":
       applyWritingResult(message.text)
+      break
+
+    case "HIDE_OVERLAY":
+      removeOverlay()
       break
 
     default:

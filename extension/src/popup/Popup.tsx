@@ -1,24 +1,58 @@
-import { useState, useEffect, useRef, useCallback } from "react"
-import { getSettings, getChats, addChat, setSettings, type StoredChat, type ExtensionSettings } from "../shared/storage"
-import { chat as callAI } from "../shared/api"
-import { PERSONAS, getPersonaById, getDefaultPersona, PERSONA_CATEGORIES } from "../shared/personas"
+import { useState, useEffect, useRef } from "react"
+import { getSettings, getChats, addChat, type StoredChat } from "../shared/storage"
+import { callOpenRouterStreaming, contentToText, type ChatMessage } from "../shared/api"
+import { PERSONAS, getPersonaById, getDefaultPersona } from "../shared/personas"
 import { MODELS, getModelById, getDefaultModel, MODEL_CATEGORIES } from "../shared/models"
 import { getCurrentUser } from "../shared/supabase"
-import { AudioRecorder, transcribeAudio, textToSpeech, playAudio, speakNative } from "../shared/voice"
-import type { ChatMessage } from "../shared/api"
+import { VoiceService } from "../shared/voice"
 
 // Cross-browser API detection
 const isFirefox = typeof browser !== "undefined"
 const runtime = isFirefox ? browser.runtime : chrome.runtime
 const tabs = isFirefox ? browser.tabs : chrome.tabs
 
-// Global audio recorder instance
-let audioRecorder: AudioRecorder | null = null
+// Global voice service instance
+const voiceService = new VoiceService()
+
+/**
+ * Simple markdown to HTML renderer (matches main app's formatting)
+ */
+function renderMarkdown(text: string): string {
+  let html = text
+    // Escape HTML first
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    // Code blocks with syntax highlighting class
+    .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
+    // Inline code
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    // Bold
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    // Italic
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    // Links
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    // Headers
+    .replace(/^### (.+)$/gm, "<h4>$1</h4>")
+    .replace(/^## (.+)$/gm, "<h3>$1</h3>")
+    .replace(/^# (.+)$/gm, "<h2>$1</h2>")
+    // Bullet lists
+    .replace(/^[*-] (.+)$/gm, "<li>$1</li>")
+    // Line breaks
+    .replace(/\n/g, "<br>")
+    // Wrap consecutive list items
+    .replace(/(<li>.*<\/li>)(<br>)?(<li>)/g, "$1$3")
+    .replace(/(<li>.*<\/li>)/g, "<ul>$1</ul>")
+    .replace(/<\/ul><br><ul>/g, "")
+
+  return html
+}
 
 export default function Popup() {
   const [user, setUser] = useState<any>(null)
   const [apiKey, setApiKey] = useState<string>("")
-  const [openAIKey, setOpenAIKey] = useState<string>("") // For voice features
+  const [openAIKey, setOpenAIKey] = useState<string>("")
   const [selectedPersona, setSelectedPersona] = useState(getDefaultPersona().id)
   const [selectedModel, setSelectedModel] = useState(getDefaultModel().id)
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -26,10 +60,11 @@ export default function Popup() {
   const [isLoading, setIsLoading] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [streamingContent, setStreamingContent] = useState("")
+  const [voiceError, setVoiceError] = useState<string | null>(null)
   const [recentChats, setRecentChats] = useState<StoredChat[]>([])
   const [settingsLoaded, setSettingsLoaded] = useState(false)
   const [showModelPicker, setShowModelPicker] = useState(false)
-  const [ttsEnabled, setTtsEnabled] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -55,6 +90,7 @@ export default function Popup() {
       const settings = await getSettings()
       if (settings) {
         setApiKey(settings.apiKey || "")
+        setOpenAIKey(settings.openAIKey || "")
         setSelectedPersona(settings.selectedPersona || getDefaultPersona().id)
         setSelectedModel(settings.selectedModel || "anthropic/claude-3.5-sonnet")
       }
@@ -85,22 +121,37 @@ export default function Popup() {
     setMessages((prev) => [...prev, userMessage])
     if (!customPrompt) setInput("")
     setIsLoading(true)
+    setStreamingContent("")
 
     try {
       const persona = getPersonaById(selectedPersona) || getDefaultPersona()
-      const response = await callAI(
-        apiKey,
-        selectedModel,
-        [...messages, userMessage],
-        persona.personality
-      )
+      const allMessages: ChatMessage[] = [
+        { role: "system", content: persona.personality },
+        ...messages,
+        userMessage,
+      ]
+
+      // Use streaming for better UX
+      let fullResponse = ""
+      const stream = callOpenRouterStreaming(apiKey, {
+        model: selectedModel,
+        messages: allMessages,
+        temperature: 0.7,
+        max_tokens: 4096,
+      })
+
+      for await (const chunk of stream) {
+        fullResponse += chunk
+        setStreamingContent(fullResponse)
+      }
 
       const assistantMessage: ChatMessage = {
         role: "assistant",
-        content: response,
+        content: fullResponse,
       }
 
       setMessages((prev) => [...prev, assistantMessage])
+      setStreamingContent("")
 
       // Save chat
       const chat: StoredChat = {
@@ -109,7 +160,7 @@ export default function Popup() {
         personaId: selectedPersona,
         messages: [...messages, userMessage, assistantMessage].map((m) => ({
           role: m.role as "user" | "assistant",
-          content: m.content,
+          content: contentToText(m.content),
           timestamp: Date.now(),
         })),
         createdAt: Date.now(),
@@ -120,6 +171,7 @@ export default function Popup() {
       await loadRecentChats()
     } catch (error) {
       console.error("[Popup] Error:", error)
+      setStreamingContent("")
       const errorMessage: ChatMessage = {
         role: "assistant",
         content: `Error: ${error instanceof Error ? error.message : "Unknown error"}. Check your API key in settings.`,
@@ -147,59 +199,73 @@ export default function Popup() {
     }
   }
 
-  // Voice input handlers
+  // Voice input handlers using VoiceService with Whisper
   async function toggleRecording() {
     if (isRecording) {
-      await stopRecording()
+      voiceService.stopWhisperListening()
+      setIsRecording(false)
     } else {
       await startRecording()
     }
   }
 
   async function startRecording() {
-    try {
-      audioRecorder = new AudioRecorder()
-      await audioRecorder.start()
-      setIsRecording(true)
-    } catch (error) {
-      console.error("[Popup] Recording error:", error)
-      alert("Microphone access denied. Please allow microphone access.")
+    setVoiceError(null)
+
+    // Need OpenAI key for Whisper
+    if (!openAIKey) {
+      setVoiceError("Add OpenAI API key in settings for voice input")
+      return
     }
-  }
 
-  async function stopRecording() {
-    if (!audioRecorder) return
-
-    try {
-      const audioBlob = await audioRecorder.stop()
-      setIsRecording(false)
-
-      // For now, use native speech recognition as fallback since Whisper needs OpenAI key
-      // In the future, we can use Whisper with user's OpenAI key
-      try {
-        // Try to transcribe with browser's native speech recognition
-        speakNative("Processing...") // Just a placeholder
-        setInput((prev) => prev + " [Voice input - use native speech recognition]")
-      } catch {
-        // Fallback: just add a placeholder
-        setInput((prev) => prev + " ")
+    await voiceService.startWhisperListening(
+      openAIKey,
+      (text) => {
+        // On successful transcription
+        setInput((prev) => (prev ? prev + " " + text : text))
+        setIsRecording(false)
+      },
+      (error) => {
+        // On error
+        console.error("[Popup] Voice error:", error)
+        setVoiceError(error)
+        setIsRecording(false)
+      },
+      () => {
+        // On start
+        setIsRecording(true)
       }
-    } catch (error) {
-      console.error("[Popup] Stop recording error:", error)
-      setIsRecording(false)
-    }
+    )
   }
 
-  // Text-to-speech for responses
+  // Text-to-speech using OpenAI TTS
   async function speakResponse(text: string) {
     if (isPlaying) return
-    setIsPlaying(true)
-    try {
-      // Use browser native TTS for now
-      speakNative(text)
-    } finally {
-      setIsPlaying(false)
+
+    if (!openAIKey) {
+      // Fall back to browser native TTS
+      voiceService.speak(text)
+      return
     }
+
+    setIsPlaying(true)
+    await voiceService.speakWithOpenAI(
+      text,
+      openAIKey,
+      { voice: "nova", speed: 1.0 },
+      () => setIsPlaying(false),
+      (error) => {
+        console.error("[Popup] TTS error:", error)
+        setIsPlaying(false)
+        // Fall back to native TTS
+        voiceService.speak(text)
+      }
+    )
+  }
+
+  function stopSpeaking() {
+    voiceService.stopSpeaking()
+    setIsPlaying(false)
   }
 
   async function handleQuickAction(action: string) {
@@ -432,20 +498,60 @@ export default function Popup() {
         </div>
       ) : (
         <div className="popup-messages">
-          {messages.map((msg, i) => (
-            <div key={i} className={`popup-message popup-message-${msg.role}`}>
-              <div className="popup-message-icon">
-                {msg.role === "user" ? "👤" : persona.emoji}
+          {messages.map((msg, i) => {
+            const content = contentToText(msg.content)
+            const isAssistant = msg.role === "assistant"
+            return (
+              <div key={i} className={`popup-message popup-message-${msg.role}`}>
+                <div className="popup-message-icon">
+                  {msg.role === "user" ? "👤" : persona.emoji}
+                </div>
+                <div className="popup-message-body">
+                  {isAssistant ? (
+                    <div
+                      className="popup-message-content popup-markdown"
+                      dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
+                    />
+                  ) : (
+                    <div className="popup-message-content">{content}</div>
+                  )}
+                  {isAssistant && (
+                    <div className="popup-message-actions">
+                      <button
+                        className="popup-action-icon-btn"
+                        onClick={() => navigator.clipboard.writeText(content)}
+                        title="Copy"
+                      >
+                        📋
+                      </button>
+                      <button
+                        className={`popup-action-icon-btn ${isPlaying ? "active" : ""}`}
+                        onClick={() => isPlaying ? stopSpeaking() : speakResponse(content)}
+                        title={isPlaying ? "Stop speaking" : "Read aloud"}
+                      >
+                        {isPlaying ? "⏹️" : "🔊"}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="popup-message-content">{msg.content}</div>
-            </div>
-          ))}
+            )
+          })}
           {isLoading && (
             <div className="popup-message popup-message-assistant">
               <div className="popup-message-icon">{persona.emoji}</div>
-              <div className="popup-message-content popup-loading">
-                <div className="popup-spinner"></div>
-                Thinking...
+              <div className="popup-message-body">
+                {streamingContent ? (
+                  <div
+                    className="popup-message-content popup-markdown"
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(streamingContent) }}
+                  />
+                ) : (
+                  <div className="popup-message-content popup-loading">
+                    <div className="popup-spinner"></div>
+                    Thinking...
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -454,12 +560,18 @@ export default function Popup() {
       )}
 
       <footer className="popup-footer">
+        {voiceError && (
+          <div className="popup-voice-error">
+            <span>⚠️ {voiceError}</span>
+            <button onClick={() => setVoiceError(null)}>×</button>
+          </div>
+        )}
         <div className="popup-input-container">
           <button
             className={`popup-mic-btn ${isRecording ? "recording" : ""}`}
             onClick={toggleRecording}
             disabled={isLoading}
-            title={isRecording ? "Stop recording" : "Voice input"}
+            title={isRecording ? "Stop recording (click to transcribe)" : "Voice input (Whisper)"}
           >
             {isRecording ? "⏹️" : "🎤"}
           </button>

@@ -10,6 +10,7 @@ const storageAPI = isBrowser ? browser.storage : chrome.storage
 export interface ExtensionSettings {
   // API Keys
   apiKey: string
+  openAIKey?: string // For voice features (Whisper & TTS)
   tavilyKey?: string
   serperKey?: string
 
