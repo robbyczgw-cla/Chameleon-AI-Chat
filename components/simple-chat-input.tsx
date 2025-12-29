@@ -1523,7 +1523,10 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               name="message"
               autoComplete="on"
               autoCorrect="on"
+              autoCapitalize="sentences"
               spellCheck={true}
+              inputMode="text"
+              enterKeyHint="send"
               value={input}
               onChange={(e) => {
                 setInput(e.target.value)

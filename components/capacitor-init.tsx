@@ -97,6 +97,9 @@ export function CapacitorInit() {
         // Setup deep link handling
         setupDeepLinkHandling()
 
+        // Setup widget and text selection handling
+        setupWidgetEventHandling()
+
         // Setup back button handling for Android
         setupBackButtonHandling()
 
@@ -171,6 +174,71 @@ function handleCustomProtocol(action: string) {
     default:
       console.log('[Capacitor] Unknown protocol action:', action)
   }
+}
+
+/**
+ * Setup widget and text selection event handling
+ * Listens for native events from Android widget and "Ask Chameleon" text selection
+ */
+function setupWidgetEventHandling() {
+  // Handle "New Chat" from widget
+  window.addEventListener('chameleon:new-chat', () => {
+    console.log('[Capacitor] Widget: New Chat requested')
+    // Dispatch event that the app context listens for
+    window.dispatchEvent(new CustomEvent('createNewChat'))
+  })
+
+  // Handle "Voice Input" from widget
+  window.addEventListener('chameleon:voice-input', () => {
+    console.log('[Capacitor] Widget: Voice Input requested')
+    // Dispatch event to trigger voice input
+    window.dispatchEvent(new CustomEvent('toggleVoice'))
+  })
+
+  // Handle "Ask Chameleon" from text selection
+  window.addEventListener('chameleon:ask', (e: any) => {
+    const text = e.detail?.text
+    if (!text) return
+
+    console.log('[Capacitor] Text Selection: Ask about:', text.substring(0, 50))
+
+    // First create a new chat, then insert the text
+    window.dispatchEvent(new CustomEvent('createNewChat'))
+
+    // Wait for new chat to be created, then insert text
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('insertPrompt', {
+        detail: `Please explain or help me with: "${text}"`
+      }))
+      // Focus the input
+      window.dispatchEvent(new CustomEvent('focusChatInput'))
+    }, 300)
+  })
+
+  // Handle deep link data
+  window.addEventListener('chameleon:deep-link', (e: any) => {
+    const url = e.detail?.url
+    if (!url) return
+
+    console.log('[Capacitor] Deep link received:', url)
+
+    try {
+      const parsed = new URL(url)
+      const params = new URLSearchParams(parsed.search)
+
+      // Handle ask?text=... from ProcessTextActivity
+      if (parsed.pathname.includes('/ask') || parsed.host === 'ask') {
+        const text = params.get('text')
+        if (text) {
+          window.dispatchEvent(new CustomEvent('chameleon:ask', {
+            detail: { text: decodeURIComponent(text) }
+          }))
+        }
+      }
+    } catch (error) {
+      console.warn('[Capacitor] Failed to parse deep link:', error)
+    }
+  })
 }
 
 /**

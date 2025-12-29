@@ -218,12 +218,58 @@ public class MainActivity extends BridgeActivity {
         String action = intent.getAction();
         String type = intent.getType();
 
+        // Check for widget/text selection actions from extras
+        String extraAction = intent.getStringExtra("action");
+        if (extraAction != null) {
+            handleWidgetAction(intent, extraAction);
+            return;
+        }
+
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             handleShareIntent(intent, type);
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
             handleMultipleShareIntent(intent);
         } else if (Intent.ACTION_VIEW.equals(action)) {
             handleDeepLink(intent);
+        }
+    }
+
+    /**
+     * Handle widget and text selection actions
+     */
+    private void handleWidgetAction(Intent intent, String action) {
+        switch (action) {
+            case "new_chat":
+                // Start a new chat
+                bridge.getWebView().post(() -> {
+                    String js = "window.dispatchEvent(new CustomEvent('chameleon:new-chat'));";
+                    bridge.getWebView().evaluateJavascript(js, null);
+                });
+                break;
+
+            case "voice_input":
+                // Start voice input
+                bridge.getWebView().post(() -> {
+                    String js = "window.dispatchEvent(new CustomEvent('chameleon:voice-input'));";
+                    bridge.getWebView().evaluateJavascript(js, null);
+                });
+                break;
+
+            case "process_text":
+                // Text selected from another app - "Ask Chameleon"
+                String selectedText = intent.getStringExtra("selected_text");
+                if (selectedText != null && !selectedText.isEmpty()) {
+                    bridge.getWebView().post(() -> {
+                        String js = String.format(
+                            "window.dispatchEvent(new CustomEvent('chameleon:ask', { " +
+                            "  detail: { text: '%s' } " +
+                            "}));",
+                            escapeJs(selectedText)
+                        );
+                        bridge.getWebView().evaluateJavascript(js, null);
+                    });
+                }
+                break;
         }
     }
 

@@ -5,6 +5,13 @@
     <string name="package_name">com.chameleon.ai.chat</string>
     <string name="custom_url_scheme">com.chameleon.ai.chat</string>
 
+    <!-- Widget -->
+    <string name="widget_description">Quick access to Chameleon AI - start new chats or use voice input</string>
+    <string name="widget_name">Chameleon AI</string>
+
+    <!-- Text Selection -->
+    <string name="ask_chameleon">Ask Chameleon</string>
+
     <!-- App Shortcuts -->
     <string name="shortcut_new_chat">New Chat</string>
     <string name="shortcut_new_chat_long">Start a new conversation</string>
