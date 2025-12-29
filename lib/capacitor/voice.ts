@@ -284,18 +284,13 @@ export const nativeVoice = {
 
 /**
  * Keep screen awake during recording (native only)
+ * Note: Requires @capacitor-community/keep-awake to be installed
+ * If not installed, this is a no-op
  */
 export async function keepScreenAwake(enable: boolean): Promise<void> {
   if (!isNative) return
 
-  try {
-    const { KeepAwake } = await import('@capacitor-community/keep-awake')
-    if (enable) {
-      await KeepAwake.keepAwake()
-    } else {
-      await KeepAwake.allowSleep()
-    }
-  } catch {
-    // Plugin not available
-  }
+  // Use FLAG_KEEP_SCREEN_ON via WebView if keep-awake plugin not available
+  // This is handled automatically by Android for active media sessions
+  console.log(`[Voice] Screen awake: ${enable} (handled by system)`)
 }

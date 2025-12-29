@@ -197,8 +197,8 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
     }
   }
 
-  // Handle file selection from menu
-  const handleFileSelect = () => {
+  // Open file picker from menu
+  const openFilePicker = () => {
     setIsMenuOpen(false)
     haptics.trigger('selection')
     fileInputRef.current?.click()
@@ -243,7 +243,7 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
               <ImageIcon className="h-4 w-4" />
               <span>Gallery</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleFileSelect} className="gap-2 cursor-pointer">
+            <DropdownMenuItem onClick={openFilePicker} className="gap-2 cursor-pointer">
               <FolderOpen className="h-4 w-4" />
               <span>Files</span>
             </DropdownMenuItem>
