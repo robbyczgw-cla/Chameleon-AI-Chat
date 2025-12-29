@@ -174,8 +174,8 @@ export const androidTouchTarget = {
  * Material 3 Expressive (Android 16 - 2025)
  */
 export function generateNativeCSS(): string {
-  if (!isAndroid) return ''
-
+  // Always generate CSS - the check happens in applyNativeStyling
+  // This function should not check isAndroid since it may be stale
   return `
     /* ====================================================
        Material 3 Expressive - Android 16 (2025)
@@ -737,20 +737,40 @@ export function generateNativeCSS(): string {
  * Apply native Android styling to the document
  */
 export function applyNativeStyling(): void {
-  if (!isAndroid) return
+  // CRITICAL: Check platform at runtime, not module load time!
+  // Module-level isAndroid may be false if Capacitor wasn't ready during import
+  const isAndroidRuntime = Capacitor.getPlatform() === 'android'
+
+  console.log('[NativeDesign] applyNativeStyling called, platform:', Capacitor.getPlatform(), 'isAndroid:', isAndroidRuntime)
+
+  if (!isAndroidRuntime) {
+    console.log('[NativeDesign] Not Android, skipping native styling')
+    return
+  }
 
   // Add native-android class to body
   document.body.classList.add('native-android')
+  console.log('[NativeDesign] Added native-android class to body')
 
   // Inject native CSS
   const styleId = 'native-android-styles'
   if (!document.getElementById(styleId)) {
     const style = document.createElement('style')
     style.id = styleId
-    style.textContent = generateNativeCSS()
+    const css = generateNativeCSS()
+    style.textContent = css
     document.head.appendChild(style)
+    console.log('[NativeDesign] Injected CSS style element, length:', css.length)
+
+    // Log key CSS rules for debugging
+    const safeAreaTop = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')
+    console.log('[NativeDesign] --safe-area-top value:', safeAreaTop || '(not set, using fallback 28px)')
+  } else {
+    console.log('[NativeDesign] Style element already exists, skipping injection')
   }
 
+  // Verify the class was added
+  console.log('[NativeDesign] body.classList contains native-android:', document.body.classList.contains('native-android'))
   console.log('[NativeDesign] Applied Android Material You styling')
 }
 
