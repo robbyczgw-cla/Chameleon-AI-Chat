@@ -2730,10 +2730,16 @@ select option {
   }
 }
 
-/* Bottom Safe Area Enhancement */
+/* Bottom Safe Area Enhancement - iOS only */
+/* Android handles keyboard differently, so we skip this padding on Android */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .pb-safe {
     padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+  }
+
+  /* Remove extra padding on Android Capacitor */
+  .native-android .pb-safe {
+    padding-bottom: 0;
   }
 }
 

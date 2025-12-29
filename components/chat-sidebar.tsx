@@ -306,9 +306,8 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
       style={isAndroidCapacitor ? {
         width: '300px',
         maxWidth: '300px',
-        height: `calc(100dvh - ${safeAreaTop}px)`,
+        height: '100dvh',
         paddingTop: `${safeAreaTop}px`,
-        boxSizing: 'content-box' as const,
       } : { width: '300px', maxWidth: '300px' }}
     >
       <div className="flex items-center gap-3 border-b border-hairline p-4 md:p-5 bg-background/92">

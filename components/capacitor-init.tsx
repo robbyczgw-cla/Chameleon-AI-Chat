@@ -103,6 +103,11 @@ export function CapacitorInit() {
         // Setup back button handling for Android
         setupBackButtonHandling()
 
+        // Signal to native code that web app is ready to receive events
+        // This is checked by MainActivity.dispatchEventWithRetry()
+        ;(window as any).__chameleonReady = true
+        console.log('[Capacitor] Set __chameleonReady flag')
+
         console.log('[Capacitor] Native features initialized successfully')
       } catch (error) {
         console.error('[Capacitor] Initialization error:', error)
