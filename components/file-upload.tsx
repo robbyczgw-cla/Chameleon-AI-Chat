@@ -4,11 +4,20 @@ import type React from "react"
 
 import { useRef, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Plus, Upload, Loader2 } from "lucide-react"
+import { Plus, Upload, Loader2, Camera, FolderOpen } from "lucide-react"
 import { processFile, type FileAttachment } from "@/lib/file-handler"
 import { useToast } from "@/hooks/use-toast"
 import { FilePreviewInline } from "@/components/file-preview-inline"
-import { cn } from "@/lib/utils"
+import { cn, generateUUID } from "@/lib/utils"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { haptics } from "@/lib/haptics"
+import { Capacitor } from "@capacitor/core"
+import { ImageIcon } from "lucide-react"
 
 interface FileUploadProps {
   onFilesChange: (files: FileAttachment[]) => void
@@ -20,6 +29,10 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
   const { toast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  // Only show menu on native Capacitor (Android)
+  const isNativeCapacitor = Capacitor.isNativePlatform()
 
   // Listen for external trigger to open file dialog
   useEffect(() => {
@@ -104,6 +117,93 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
     onFilesChange(files.filter((f) => f.id !== fileId))
   }
 
+  // Handle camera capture (native only)
+  const handleCameraCapture = async () => {
+    setIsMenuOpen(false)
+    haptics.trigger('selection')
+    setIsProcessing(true)
+
+    try {
+      const { nativeCamera } = await import('@/lib/capacitor/camera')
+      const photo = await nativeCamera.getPhoto('camera')
+
+      if (photo && photo.dataUrl) {
+        const fileAttachment: FileAttachment = {
+          id: generateUUID(),
+          name: `photo_${Date.now()}.${photo.format || 'jpg'}`,
+          type: `image/${photo.format || 'jpeg'}`,
+          size: Math.round(photo.dataUrl.length * 0.75),
+          dataUrl: photo.dataUrl,
+          content: '',
+        }
+
+        onFilesChange([...files, fileAttachment])
+        haptics.trigger('success')
+        toast({
+          title: "Photo captured",
+          description: "Photo attached successfully",
+        })
+      }
+    } catch (error) {
+      console.error('[FileUpload] Camera error:', error)
+      haptics.trigger('error')
+      toast({
+        title: "Camera error",
+        description: error instanceof Error ? error.message : "Failed to capture photo",
+        variant: "destructive",
+      })
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  // Handle gallery selection (native only)
+  const handleGallerySelect = async () => {
+    setIsMenuOpen(false)
+    haptics.trigger('selection')
+    setIsProcessing(true)
+
+    try {
+      const { nativeCamera } = await import('@/lib/capacitor/camera')
+      const photo = await nativeCamera.getPhoto('gallery')
+
+      if (photo && photo.dataUrl) {
+        const fileAttachment: FileAttachment = {
+          id: generateUUID(),
+          name: `image_${Date.now()}.${photo.format || 'jpg'}`,
+          type: `image/${photo.format || 'jpeg'}`,
+          size: Math.round(photo.dataUrl.length * 0.75),
+          dataUrl: photo.dataUrl,
+          content: '',
+        }
+
+        onFilesChange([...files, fileAttachment])
+        haptics.trigger('success')
+        toast({
+          title: "Image selected",
+          description: "Image attached successfully",
+        })
+      }
+    } catch (error) {
+      console.error('[FileUpload] Gallery error:', error)
+      haptics.trigger('error')
+      toast({
+        title: "Gallery error",
+        description: error instanceof Error ? error.message : "Failed to select image",
+        variant: "destructive",
+      })
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  // Handle file selection from menu
+  const handleFileSelect = () => {
+    setIsMenuOpen(false)
+    haptics.trigger('selection')
+    fileInputRef.current?.click()
+  }
+
   return (
     <div className="space-y-2">
       <input
@@ -115,21 +215,58 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
         accept=".txt,.md,.json,.csv,.xml,.html,.css,.js,.ts,.tsx,.jsx,.py,.java,.jpg,.jpeg,.png,.gif,.webp,.svg,.pdf"
       />
 
-      <Button
-        type="button"
-        size="icon"
-        variant="ghost"
-        className="h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
-        onClick={() => fileInputRef.current?.click()}
-        disabled={isProcessing}
-        title="Attach files"
-      >
-        {isProcessing ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Plus className="h-4 w-4" />
-        )}
-      </Button>
+      {/* Native Capacitor: Show dropdown with Camera, Gallery, Files */}
+      {isNativeCapacitor ? (
+        <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+              disabled={isProcessing}
+              title="Attach files or take photo"
+            >
+              {isProcessing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuItem onClick={handleCameraCapture} className="gap-2 cursor-pointer">
+              <Camera className="h-4 w-4" />
+              <span>Take Photo</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleGallerySelect} className="gap-2 cursor-pointer">
+              <ImageIcon className="h-4 w-4" />
+              <span>Gallery</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleFileSelect} className="gap-2 cursor-pointer">
+              <FolderOpen className="h-4 w-4" />
+              <span>Files</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        /* Web/PWA: Simple file picker button */
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          className="h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isProcessing}
+          title="Attach files"
+        >
+          {isProcessing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
+        </Button>
+      )}
 
       {files.length > 0 && (
         <div
