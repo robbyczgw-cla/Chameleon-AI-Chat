@@ -237,34 +237,50 @@ export function generateNativeCSS(): string {
       /* M3 Expressive uses bolder typography */
       font-weight: 400;
       letter-spacing: 0.01em;
-      /* Use --safe-area-top injected by MainActivity.java for devices
-         where env(safe-area-inset-top) doesn't work (Vivo, Xiaomi, etc.) */
-      padding-top: var(--safe-area-top, 0px);
-      padding-bottom: var(--safe-area-bottom, 0px);
+      /* NO body padding - we use header offset instead for edge-to-edge */
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
     }
 
-    /* Status bar safe area - apply to main content */
+    /* ====================================================
+       CRITICAL: Status Bar Safe Area Fix
+       Override Tailwind's top-0 for sticky/fixed headers
+       ==================================================== */
+    .native-android header,
+    .native-android header.sticky,
+    .native-android header[class*="sticky"],
+    .native-android header[class*="top-0"],
+    .native-android .sticky.top-0,
+    body.native-android header {
+      top: var(--safe-area-top, 0px) !important;
+      /* Add visual padding inside the header for content */
+      padding-top: 0 !important;
+    }
+
+    /* Main content needs top margin to not be hidden behind header + status bar */
     .native-android main,
     .native-android [role="main"],
-    .native-android .main-content {
-      /* Don't add extra padding - body already has it */
-      padding-top: 0;
+    .native-android .main-content,
+    body.native-android > div > main {
+      padding-top: 0 !important;
+      /* Content scrolls normally, header is pushed down by safe-area-top */
     }
 
-    /* Fixed header should account for status bar */
-    .native-android header,
-    .native-android .fixed-header,
-    .native-android [class*="sticky"] {
-      /* Headers need the status bar offset when position:fixed */
-      top: var(--safe-area-top, 0px);
-    }
-
-    /* Ensure full height with safe areas */
+    /* Ensure full height */
     .native-android #__next,
-    .native-android #root {
+    .native-android #root,
+    body.native-android > div {
       min-height: 100vh;
       min-height: 100dvh;
-      /* Don't add extra padding - body already has it */
+      padding-top: 0 !important;
+    }
+
+    /* Bottom safe area for input/navigation */
+    .native-android [class*="bottom-0"],
+    .native-android [class*="fixed"][class*="bottom"],
+    .native-android footer,
+    body.native-android .bottom-0 {
+      padding-bottom: var(--safe-area-bottom, 0px) !important;
     }
 
     /* ====================================================
