@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import dynamic from "next/dynamic"
 import { useSwipeable } from "react-swipeable"
+import { Capacitor } from "@capacitor/core"
 import { ChatSidebar } from "@/components/chat-sidebar"
 import { ChatHeader } from "@/components/chat-header"
 import { ChatMessages } from "@/components/chat-messages"
@@ -43,6 +44,33 @@ function ChatApp() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [shareHandled, setShareHandled] = useState(false)
   const [isKeyboardShortcutsOpen, setIsKeyboardShortcutsOpen] = useState(false)
+
+  // CRITICAL: Detect Android Capacitor and get safe area at runtime
+  const [isAndroidCapacitor, setIsAndroidCapacitor] = useState(false)
+  const [safeAreaTop, setSafeAreaTop] = useState(0)
+
+  useEffect(() => {
+    // Check platform at runtime - ONLY affects Capacitor Android
+    const checkPlatform = () => {
+      try {
+        const isNative = Capacitor.isNativePlatform()
+        const platform = Capacitor.getPlatform()
+        const isAndroid = isNative && platform === 'android'
+
+        if (isAndroid) {
+          setIsAndroidCapacitor(true)
+          const safeArea = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')
+          const parsed = parseInt(safeArea) || 28
+          setSafeAreaTop(parsed)
+        }
+      } catch {
+        // Not in Capacitor
+      }
+    }
+    checkPlatform()
+    const timer = setTimeout(checkPlatform, 500)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Memoize derived state to prevent unnecessary recalculations
   const currentChat = useMemo(() => chats.find((chat) => chat.id === currentChatId), [chats, currentChatId])
@@ -364,7 +392,15 @@ function ChatApp() {
 
       <div
         {...swipeHandlers}
-        className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 gap-0 touch-pan-y"
+        className={cn(
+          "relative z-10 flex overflow-hidden px-0 md:px-0 gap-0 touch-pan-y",
+          !isAndroidCapacitor && "h-[100dvh]"
+        )}
+        style={isAndroidCapacitor ? {
+          height: `calc(100dvh - ${safeAreaTop}px)`,
+          paddingTop: `${safeAreaTop}px`,
+          boxSizing: 'content-box' as const,
+        } : undefined}
       >
         <PersonaLevelUpNotifier />
         {isMobileSidebarOpen && (
