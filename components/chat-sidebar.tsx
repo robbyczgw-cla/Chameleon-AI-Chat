@@ -5,6 +5,7 @@ import { X, LogOut, User } from "lucide-react"
 import { Sparkles } from "lucide-react"
 
 import { useState, useMemo, useEffect, useCallback } from "react"
+import { Capacitor } from "@capacitor/core"
 import { useApp } from "@/contexts/app-context"
 import { searchService } from "@/lib/search-service"
 import { Button } from "@/components/ui/button"
@@ -48,6 +49,33 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
   const [newFolderName, setNewFolderName] = useState("")
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false)
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
+
+  // CRITICAL: Detect Android Capacitor and get safe area at runtime
+  const [isAndroidCapacitor, setIsAndroidCapacitor] = useState(false)
+  const [safeAreaTop, setSafeAreaTop] = useState(0)
+
+  useEffect(() => {
+    const checkPlatform = () => {
+      try {
+        const isNative = Capacitor.isNativePlatform()
+        const platform = Capacitor.getPlatform()
+        const isAndroid = isNative && platform === 'android'
+        if (isAndroid) {
+          setIsAndroidCapacitor(true)
+          // Get the safe area value set by MainActivity.java
+          const safeArea = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')
+          const parsed = parseInt(safeArea) || 28 // Default fallback
+          setSafeAreaTop(parsed)
+        }
+      } catch (e) {
+        // Capacitor not available, running in web
+      }
+    }
+    checkPlatform()
+    // Re-check after a delay in case Capacitor initializes late
+    const timer = setTimeout(checkPlatform, 500)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Track AI-generated titles for animation
   useEffect(() => {
@@ -271,8 +299,17 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
 
   return (
     <div
-      className="relative flex h-[100dvh] md:h-full md:max-h-[100dvh] w-[300px] max-w-[300px] flex-col rounded-none md:rounded-none border border-hairline shadow-none bg-background/92 overflow-y-auto overflow-x-hidden"
-      style={{ width: '300px', maxWidth: '300px' }}
+      className={cn(
+        "relative flex w-[300px] max-w-[300px] flex-col rounded-none md:rounded-none border border-hairline shadow-none bg-background/92 overflow-y-auto overflow-x-hidden",
+        !isAndroidCapacitor && "h-[100dvh] md:h-full md:max-h-[100dvh]"
+      )}
+      style={isAndroidCapacitor ? {
+        width: '300px',
+        maxWidth: '300px',
+        height: `calc(100dvh - ${safeAreaTop}px)`,
+        paddingTop: `${safeAreaTop}px`,
+        boxSizing: 'content-box' as const,
+      } : { width: '300px', maxWidth: '300px' }}
     >
       <div className="flex items-center gap-3 border-b border-hairline p-4 md:p-5 bg-background/92">
         {onClose && (
