@@ -81,6 +81,16 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Fix Capacitor generated files
+        run: |
+          # Fix AGP version in generated files (Capacitor may generate wrong versions)
+          sed -i "s/gradle:8\.[0-9]*\.[0-9]*/gradle:8.2.2/g" android/capacitor-cordova-android-plugins/build.gradle || true
+          sed -i "s/VERSION_21/VERSION_17/g" android/capacitor-cordova-android-plugins/build.gradle || true
+          sed -i "s/VERSION_21/VERSION_17/g" android/app/capacitor.build.gradle || true
+          sed -i "s/compileSdk.*36/compileSdk = 35/g" android/capacitor-cordova-android-plugins/build.gradle || true
+          sed -i "s/targetSdkVersion.*36/targetSdkVersion = 35/g" android/capacitor-cordova-android-plugins/build.gradle || true
+          echo "Fixed Capacitor generated files"
+
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
