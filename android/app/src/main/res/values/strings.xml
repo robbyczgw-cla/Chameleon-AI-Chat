@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Chameleon AI</string>
+    <string name="title_activity_main">Chameleon AI</string>
+    <string name="package_name">com.chameleon.ai.chat</string>
+    <string name="custom_url_scheme">com.chameleon.ai.chat</string>
+
+    <!-- App Shortcuts -->
+    <string name="shortcut_new_chat">New Chat</string>
+    <string name="shortcut_new_chat_long">Start a new conversation</string>
+    <string name="shortcut_simple_mode">Simple Mode</string>
+    <string name="shortcut_simple_mode_long">Open in Simple Mode</string>
+    <string name="shortcut_debate">AI Debate</string>
+    <string name="shortcut_debate_long">Start an AI debate session</string>
+    <string name="shortcut_personas">Personas</string>
+    <string name="shortcut_personas_long">Browse AI personas</string>
+
+    <!-- Notification Channels -->
+    <string name="channel_chat_messages">Chat Messages</string>
+    <string name="channel_chat_description">Notifications for new AI responses</string>
+    <string name="channel_background_tasks">Background Tasks</string>
+    <string name="channel_background_description">Notifications for ongoing operations</string>
+    <string name="channel_reminders">Reminders</string>
+    <string name="channel_reminders_description">Chat reminders and follow-ups</string>
+</resources>
