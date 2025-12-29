@@ -291,17 +291,18 @@ export function generateNativeCSS(): string {
       top: var(--safe-area-top, 28px) !important;
     }
 
-    /* Bottom: Remove iOS safe-area padding that causes wasted space on Android.
-       Android handles navigation bar differently - we use --safe-area-bottom from MainActivity */
+    /* Bottom: Remove iOS safe-area padding completely on Android.
+       Android handles keyboard resize via windowSoftInputMode="adjustResize",
+       so we don't need extra bottom padding - it causes a black bar above keyboard */
     body.native-android .pb-safe,
     body.native-android [class*="pb-[env(safe-area-inset-bottom"] {
-      padding-bottom: var(--safe-area-bottom, 0px) !important;
+      padding-bottom: 0 !important;
     }
 
-    /* Fixed bottom elements - minimal safe area */
+    /* Fixed bottom elements - no extra padding needed on Android */
     body.native-android .fixed.bottom-0 {
       bottom: 0 !important;
-      padding-bottom: var(--safe-area-bottom, 0px) !important;
+      padding-bottom: 0 !important;
     }
 
     /* ====================================================
