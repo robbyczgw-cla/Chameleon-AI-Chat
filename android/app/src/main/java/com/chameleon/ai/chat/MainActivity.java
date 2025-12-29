@@ -236,41 +236,67 @@ public class MainActivity extends BridgeActivity {
 
     /**
      * Handle widget and text selection actions
+     * Uses delayed dispatch to ensure web app is ready to receive events
      */
     private void handleWidgetAction(Intent intent, String action) {
         switch (action) {
             case "new_chat":
-                // Start a new chat
-                bridge.getWebView().post(() -> {
-                    String js = "window.dispatchEvent(new CustomEvent('chameleon:new-chat'));";
-                    bridge.getWebView().evaluateJavascript(js, null);
-                });
+                // Start a new chat - delay to ensure web app is ready
+                dispatchEventWithRetry("window.dispatchEvent(new CustomEvent('chameleon:new-chat'));", 3);
                 break;
 
             case "voice_input":
                 // Start voice input
-                bridge.getWebView().post(() -> {
-                    String js = "window.dispatchEvent(new CustomEvent('chameleon:voice-input'));";
-                    bridge.getWebView().evaluateJavascript(js, null);
-                });
+                dispatchEventWithRetry("window.dispatchEvent(new CustomEvent('chameleon:voice-input'));", 3);
                 break;
 
             case "process_text":
                 // Text selected from another app - "Ask Chameleon"
                 String selectedText = intent.getStringExtra("selected_text");
                 if (selectedText != null && !selectedText.isEmpty()) {
-                    bridge.getWebView().post(() -> {
-                        String js = String.format(
-                            "window.dispatchEvent(new CustomEvent('chameleon:ask', { " +
-                            "  detail: { text: '%s' } " +
-                            "}));",
-                            escapeJs(selectedText)
-                        );
-                        bridge.getWebView().evaluateJavascript(js, null);
-                    });
+                    String js = String.format(
+                        "window.dispatchEvent(new CustomEvent('chameleon:ask', { " +
+                        "  detail: { text: '%s' } " +
+                        "}));",
+                        escapeJs(selectedText)
+                    );
+                    dispatchEventWithRetry(js, 5); // More retries for text selection
                 }
                 break;
         }
+    }
+
+    /**
+     * Dispatch JavaScript event with retry mechanism
+     * Ensures the web app has time to initialize before receiving events
+     */
+    private void dispatchEventWithRetry(String js, int maxRetries) {
+        final int[] retryCount = {0};
+        final long initialDelay = 500; // Wait 500ms initially for page load
+        final long retryDelay = 300;   // Then retry every 300ms
+
+        bridge.getWebView().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Check if web app is ready by looking for our initialization flag
+                bridge.getWebView().evaluateJavascript(
+                    "(function() { return window.__chameleonReady === true; })()",
+                    result -> {
+                        if ("true".equals(result)) {
+                            // Web app is ready, dispatch the event
+                            bridge.getWebView().evaluateJavascript(js, null);
+                        } else if (retryCount[0] < maxRetries) {
+                            // Retry after delay
+                            retryCount[0]++;
+                            bridge.getWebView().postDelayed(this, retryDelay);
+                        } else {
+                            // Max retries reached, try dispatching anyway
+                            bridge.getWebView().evaluateJavascript(js, null);
+                        }
+                    }
+                );
+            }
+        }, initialDelay);
     }
 
     /**
