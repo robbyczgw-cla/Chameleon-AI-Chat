@@ -261,7 +261,31 @@ export function generateNativeCSS(): string {
     body.native-android #__next,
     body.native-android #root {
       padding-top: 0 !important;
+      height: 100% !important;
+      max-height: 100% !important;
       min-height: 100% !important;
+    }
+
+    /* CRITICAL FIX: Override viewport height (100dvh) to use parent-relative height
+       This fixes the layout issue where h-[100dvh] doesn't account for body padding.
+       Elements with 100dvh would overflow by the safe-area-top amount. */
+    body.native-android .h-\\[100dvh\\],
+    body.native-android [style*="height: 100dvh"] {
+      height: 100% !important;
+      max-height: 100% !important;
+    }
+
+    /* Also fix common viewport height patterns */
+    body.native-android .h-screen {
+      height: 100% !important;
+      max-height: 100% !important;
+    }
+
+    /* Remove any env() safe area padding on main containers - we handle this via body padding.
+       This prevents double padding on Android devices where env(safe-area-inset-top) is supported. */
+    body.native-android .pt-\\[env\\(safe-area-inset-top\\,0px\\)\\],
+    body.native-android [class*="pt-[env(safe-area-inset"] {
+      padding-top: 0 !important;
     }
 
     /* Sticky headers at top:0 (relative to padded body) */

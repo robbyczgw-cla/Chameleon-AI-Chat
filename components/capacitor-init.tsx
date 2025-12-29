@@ -78,6 +78,12 @@ export function CapacitorInit() {
             console.log('[Capacitor] --safe-area-top already set:', currentTop)
           }
 
+          // Debug: Log any env() safe-area values that might conflict
+          const envSafeAreaTop = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-top)')
+          if (envSafeAreaTop && envSafeAreaTop !== '0px') {
+            console.log('[Capacitor] env(safe-area-inset-top) detected:', envSafeAreaTop, '- CSS override applied')
+          }
+
           // Set bottom safe area fallback for navigation bar
           const currentBottom = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-bottom')
           if (!currentBottom || currentBottom === '' || currentBottom === '0px') {
