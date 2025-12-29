@@ -244,27 +244,41 @@ export function generateNativeCSS(): string {
        The --safe-area-top variable is set by:
        1. MainActivity.java (native injection)
        2. capacitor-init.tsx (fallback: 28px)
-       Fallback to 28px if variable not set (common status bar height)
+
+       IMPORTANT: Body padding doesn't work with h-[100dvh] children!
+       We must apply padding directly to viewport-height containers.
        ==================================================== */
 
-    /* Apply padding to body - most reliable approach */
+    /* Body setup - no padding here since children use viewport units */
     body.native-android {
-      padding-top: var(--safe-area-top, 28px) !important;
-      padding-bottom: var(--safe-area-bottom, 0px) !important;
+      margin: 0 !important;
+      padding: 0 !important;
       min-height: 100vh !important;
       min-height: 100dvh !important;
-      box-sizing: border-box !important;
+      overflow: hidden !important;
     }
 
-    /* Prevent double padding on nested containers */
-    body.native-android > div,
-    body.native-android #__next,
-    body.native-android #root {
+    /* CRITICAL FIX: Apply safe area to viewport-height containers directly.
+       These containers use 100dvh which ignores body padding.
+       We add top padding and reduce height to account for status bar. */
+    body.native-android .h-\\[100dvh\\] {
+      height: calc(100dvh - var(--safe-area-top, 28px)) !important;
+      padding-top: var(--safe-area-top, 28px) !important;
+      box-sizing: content-box !important;
+    }
+
+    body.native-android .h-screen {
+      height: calc(100vh - var(--safe-area-top, 28px)) !important;
+      padding-top: var(--safe-area-top, 28px) !important;
+      box-sizing: content-box !important;
+    }
+
+    /* Remove iOS env() safe-area padding - we handle it via --safe-area-top */
+    body.native-android .pt-\\[env\\(safe-area-inset-top\\,0px\\)\\] {
       padding-top: 0 !important;
-      min-height: 100% !important;
     }
 
-    /* Sticky headers at top:0 (relative to padded body) */
+    /* Sticky headers stay at top:0 (now correctly positioned) */
     body.native-android header,
     body.native-android header.sticky,
     body.native-android .sticky.top-0 {
@@ -272,19 +286,21 @@ export function generateNativeCSS(): string {
       margin-top: 0 !important;
     }
 
-    /* Fixed elements need explicit top offset (they ignore parent padding) */
+    /* Fixed top elements need explicit offset */
     body.native-android .fixed.top-0 {
       top: var(--safe-area-top, 28px) !important;
     }
 
-    /* Main content - no extra padding needed */
-    body.native-android main {
-      padding-top: 0 !important;
-      margin-top: 0 !important;
+    /* Bottom: Remove iOS safe-area padding that causes wasted space on Android.
+       Android handles navigation bar differently - we use --safe-area-bottom from MainActivity */
+    body.native-android .pb-safe,
+    body.native-android [class*="pb-[env(safe-area-inset-bottom"] {
+      padding-bottom: var(--safe-area-bottom, 0px) !important;
     }
 
-    /* Bottom elements get bottom safe area */
+    /* Fixed bottom elements - minimal safe area */
     body.native-android .fixed.bottom-0 {
+      bottom: 0 !important;
       padding-bottom: var(--safe-area-bottom, 0px) !important;
     }
 
