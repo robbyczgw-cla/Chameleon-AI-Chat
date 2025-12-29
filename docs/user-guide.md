@@ -1548,6 +1548,47 @@ AI: Since you're using Next.js, Vercel is perfect - made by same team.
 
 ## 📱 PWA & Mobile Tips
 
+### Android Native App (APK)
+
+For the best Android experience, download the native APK from [GitHub Releases](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/releases).
+
+**Native Features Not Available in PWA:**
+
+| Feature | How to Use |
+|---------|------------|
+| **Home Screen Widget** | Long-press home → Widgets → "Chameleon AI" |
+| **"Ask Chameleon" Text Selection** | Select text anywhere → tap "Ask Chameleon" |
+| **Native Haptics** | Automatic - 17 different vibration patterns |
+| **Biometric Auth** | Settings → Security → Enable biometrics |
+| **Full Keyboard Predictions** | Automatic - works with Gboard and other keyboards |
+
+**Using the Widget:**
+
+1. Long-press on your home screen
+2. Select "Widgets"
+3. Find "Chameleon AI" widget
+4. Drag to home screen
+5. Use "New Chat" or "Voice" buttons for quick access
+
+**Using "Ask Chameleon" Text Selection:**
+
+1. Select any text in any app (browser, notes, messages)
+2. Tap "Ask Chameleon" in the text selection menu
+3. App opens with text pre-filled as a question
+4. Get instant AI response
+
+**Android vs PWA Comparison:**
+
+| Feature | Native APK | PWA |
+|---------|-----------|-----|
+| Home Widget | ✅ Yes | ❌ No |
+| Text Selection | ✅ Yes | ❌ No |
+| Keyboard Predictions | ✅ Full | ⚠️ Limited |
+| Haptic Feedback | ✅ 17 patterns | ⚠️ Basic |
+| Biometrics | ✅ Yes | ❌ No |
+| File Size | ~5 MB APK | 0 (web) |
+| Updates | APK download | Automatic |
+
 ### Installing as PWA
 
 Chameleon Chat works great as a Progressive Web App (PWA)!
