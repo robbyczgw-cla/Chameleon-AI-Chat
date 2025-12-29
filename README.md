@@ -195,6 +195,36 @@ Not generic "ChatGPT with a twist." Real personalities organized in 8 categories
 
 ---
 
+## 📱 Install Options
+
+**Three ways to use Chameleon AI:**
+
+| Option | Best For | Install |
+|--------|----------|---------|
+| **Web App** | Quick access, any device | [chameleon-ai-chat.vercel.app](https://chameleon-ai-chat.vercel.app) |
+| **PWA** | Mobile with offline support | Add to Home Screen from browser |
+| **Android APK** | Native experience, Play Store | [Download APK](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/releases) |
+
+### Android App vs PWA
+
+| Feature | PWA | Android APK |
+|---------|-----|-------------|
+| **Haptics** | Basic vibration | Native patterns (success, error, etc.) |
+| **Biometric Auth** | Not available | Fingerprint/Face unlock |
+| **Notifications** | Limited web push | Native channels, custom sounds |
+| **Share Target** | Limited | Receive text, images, PDFs |
+| **Deep Links** | Web URLs only | Custom schemes (chameleon-ai://) |
+| **App Icon** | Browser badge | Native icon |
+| **Camera** | Web picker | Native with editing |
+| **Distribution** | Add to Home | Google Play Store |
+| **Design** | Web CSS | Material 3 Expressive |
+
+**Android Requirements:** Android 13+ (API 33)
+
+[Full Android documentation →](./docs/CAPACITOR_ANDROID.md)
+
+---
+
 ## 🛠️ Tech Stack
 
 **Modern, fast, reliable:**
@@ -206,6 +236,7 @@ Not generic "ChatGPT with a twist." Real personalities organized in 8 categories
 - **Voice:** OpenAI Whisper + TTS
 - **Search:** Tavily + Serper + Exa
 - **Deploy:** Vercel (Edge Runtime)
+- **Mobile:** Capacitor 8 (Android)
 
 ---
 
