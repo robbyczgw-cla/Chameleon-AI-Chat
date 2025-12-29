@@ -237,49 +237,54 @@ export function generateNativeCSS(): string {
       /* M3 Expressive uses bolder typography */
       font-weight: 400;
       letter-spacing: 0.01em;
-      /* NO body padding - we use header offset instead for edge-to-edge */
-      padding-top: 0 !important;
-      padding-bottom: 0 !important;
     }
 
     /* ====================================================
-       CRITICAL: Status Bar Safe Area Fix
-       Override Tailwind's top-0 for sticky/fixed headers
+       CRITICAL: Status Bar Safe Area Fix for Vivo/Xiaomi/etc
+       The --safe-area-top variable is set by:
+       1. MainActivity.java (native injection)
+       2. capacitor-init.tsx (fallback: 28px)
+       Fallback to 28px if variable not set (common status bar height)
        ==================================================== */
-    .native-android header,
-    .native-android header.sticky,
-    .native-android header[class*="sticky"],
-    .native-android header[class*="top-0"],
-    .native-android .sticky.top-0,
-    body.native-android header {
-      top: var(--safe-area-top, 0px) !important;
-      /* Add visual padding inside the header for content */
-      padding-top: 0 !important;
+
+    /* Apply padding to body - most reliable approach */
+    body.native-android {
+      padding-top: var(--safe-area-top, 28px) !important;
+      padding-bottom: var(--safe-area-bottom, 0px) !important;
+      min-height: 100vh !important;
+      min-height: 100dvh !important;
+      box-sizing: border-box !important;
     }
 
-    /* Main content needs top margin to not be hidden behind header + status bar */
-    .native-android main,
-    .native-android [role="main"],
-    .native-android .main-content,
-    body.native-android > div > main {
+    /* Prevent double padding on nested containers */
+    body.native-android > div,
+    body.native-android #__next,
+    body.native-android #root {
       padding-top: 0 !important;
-      /* Content scrolls normally, header is pushed down by safe-area-top */
+      min-height: 100% !important;
     }
 
-    /* Ensure full height */
-    .native-android #__next,
-    .native-android #root,
-    body.native-android > div {
-      min-height: 100vh;
-      min-height: 100dvh;
-      padding-top: 0 !important;
+    /* Sticky headers at top:0 (relative to padded body) */
+    body.native-android header,
+    body.native-android header.sticky,
+    body.native-android .sticky.top-0 {
+      top: 0 !important;
+      margin-top: 0 !important;
     }
 
-    /* Bottom safe area for input/navigation */
-    .native-android [class*="bottom-0"],
-    .native-android [class*="fixed"][class*="bottom"],
-    .native-android footer,
-    body.native-android .bottom-0 {
+    /* Fixed elements need explicit top offset (they ignore parent padding) */
+    body.native-android .fixed.top-0 {
+      top: var(--safe-area-top, 28px) !important;
+    }
+
+    /* Main content - no extra padding needed */
+    body.native-android main {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+    }
+
+    /* Bottom elements get bottom safe area */
+    body.native-android .fixed.bottom-0 {
       padding-bottom: var(--safe-area-bottom, 0px) !important;
     }
 
