@@ -13,7 +13,7 @@
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
 
-        <!-- Enable edge-to-edge -->
+        <!-- Status bar styling - edge-to-edge mode (handled by MainActivity) -->
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
 
