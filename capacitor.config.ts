@@ -27,7 +27,8 @@ const config: CapacitorConfig = {
   // Android-specific configuration - Optimized for Android 13-15
   android: {
     allowMixedContent: true,
-    captureInput: true,
+    // IMPORTANT: captureInput false allows native keyboard predictions to work
+    captureInput: false,
     webContentsDebuggingEnabled: process.env.NODE_ENV !== 'production',
     backgroundColor: '#0a0a0a',
     // Minimum SDK 33 (Android 13), Target SDK 35 (Android 15)

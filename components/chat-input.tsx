@@ -1588,7 +1588,10 @@ export function ChatInput() {
                 placeholder="Message..."
                 autoComplete="on"
                 autoCorrect="on"
+                autoCapitalize="sentences"
                 spellCheck={true}
+                inputMode="text"
+                enterKeyHint="send"
                 rows={1}
                 className={cn(
                   "min-h-[44px] md:min-h-[52px] max-h-[120px] md:max-h-[200px] resize-none text-sm sm:text-base rounded-xl",
