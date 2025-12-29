@@ -59,16 +59,31 @@ export function CapacitorInit() {
         await nativeTTS.initialize()
 
         // Configure Status Bar appearance
-        // Note: Safe area insets are injected by MainActivity.java as --safe-area-top/bottom
         if (Capacitor.isPluginAvailable('StatusBar')) {
           const { StatusBar, Style } = await import('@capacitor/status-bar')
           await StatusBar.setStyle({ style: Style.Dark })
-          // Don't set background color - using transparent for edge-to-edge
-          // await StatusBar.setBackgroundColor({ color: '#0a0a0a' })
         }
 
         // Apply native Android styling (Material You)
         if (Capacitor.getPlatform() === 'android') {
+          // CRITICAL: Set safe area fallback if not already set by MainActivity
+          // This ensures the CSS has a value even if native injection is delayed
+          const currentTop = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')
+          if (!currentTop || currentTop === '' || currentTop === '0px') {
+            // Default Android status bar height is ~24-32dp
+            // Use 28dp as safe default for most devices (Vivo, Xiaomi, Samsung)
+            document.documentElement.style.setProperty('--safe-area-top', '28px')
+            console.log('[Capacitor] Set fallback --safe-area-top: 28px')
+          } else {
+            console.log('[Capacitor] --safe-area-top already set:', currentTop)
+          }
+
+          // Set bottom safe area fallback for navigation bar
+          const currentBottom = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-bottom')
+          if (!currentBottom || currentBottom === '' || currentBottom === '0px') {
+            document.documentElement.style.setProperty('--safe-area-bottom', '0px')
+          }
+
           const { applyNativeStyling } = await import('@/lib/capacitor/native-design')
           applyNativeStyling()
         }
