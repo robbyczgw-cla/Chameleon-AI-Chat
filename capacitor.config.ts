@@ -24,13 +24,13 @@ const config: CapacitorConfig = {
     ],
   },
 
-  // Android-specific configuration - Optimized for Android 13-16
+  // Android-specific configuration - Optimized for Android 13-15
   android: {
     allowMixedContent: true,
     captureInput: true,
     webContentsDebuggingEnabled: process.env.NODE_ENV !== 'production',
     backgroundColor: '#0a0a0a',
-    // Minimum SDK 33 (Android 13), Target SDK 35 (Android 16)
+    // Minimum SDK 33 (Android 13), Target SDK 35 (Android 15)
     minWebViewVersion: 100,
     appendUserAgent: 'ChameleonAI/1.0.0',
     // Enable hardware acceleration

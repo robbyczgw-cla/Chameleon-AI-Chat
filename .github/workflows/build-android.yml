@@ -27,7 +27,7 @@ on:
 env:
   NODE_VERSION: '20'
   JAVA_VERSION: '17'
-  ANDROID_SDK_VERSION: '36'
+  ANDROID_SDK_VERSION: '35'
 
 jobs:
   build:
@@ -55,7 +55,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'build-tools;34.0.0 platforms;android-36'
+          packages: 'build-tools;34.0.0 platforms;android-35'
 
       - name: Cache node_modules
         uses: actions/cache@v4
@@ -128,7 +128,7 @@ jobs:
           echo "| Version | ${{ steps.version.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build Number | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Min SDK | 33 (Android 13) |" >> $GITHUB_STEP_SUMMARY
-          echo "| Target SDK | 36 (Android 16) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target SDK | 35 (Android 15) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
           echo "Download the APK from the Artifacts section above." >> $GITHUB_STEP_SUMMARY
