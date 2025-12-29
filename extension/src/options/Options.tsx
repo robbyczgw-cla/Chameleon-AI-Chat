@@ -10,19 +10,32 @@ import { PERSONAS, getDefaultPersona } from "../shared/personas"
 import { getCurrentUser, signIn, signOut, getUserSettings, onAuthStateChange } from "../shared/supabase"
 
 const DEFAULT_MODELS = [
-  { id: "anthropic/claude-3.5-sonnet", name: "Claude 3.5 Sonnet" },
+  { id: "anthropic/claude-3.5-sonnet", name: "Claude 3.5 Sonnet (Vision)" },
   { id: "anthropic/claude-3-haiku", name: "Claude 3 Haiku (Fast)" },
-  { id: "openai/gpt-4o", name: "GPT-4o" },
+  { id: "openai/gpt-4o", name: "GPT-4o (Vision)" },
   { id: "openai/gpt-4o-mini", name: "GPT-4o Mini (Fast)" },
   { id: "google/gemini-pro-1.5", name: "Gemini Pro 1.5" },
-  { id: "meta-llama/llama-3.1-70b-instruct", name: "Llama 3.1 70B" },
-  { id: "deepseek/deepseek-chat", name: "DeepSeek Chat" },
+  { id: "google/gemini-2.0-flash-exp", name: "Gemini 2.0 Flash" },
+  { id: "deepseek/deepseek-chat", name: "DeepSeek V3" },
 ]
 
 type AuthMode = "login" | "manual" | "authenticated"
 
+const DEFAULT_SETTINGS: ExtensionSettings = {
+  apiKey: "",
+  selectedPersona: getDefaultPersona().id,
+  selectedModel: "anthropic/claude-3.5-sonnet",
+  theme: "dark",
+  fontSize: "medium",
+  autoSummarize: false,
+  voiceEnabled: true,
+  ttsSpeed: 1.0,
+  enableContextMenu: true,
+  searchProvider: "duckduckgo",
+  saveHistory: true,
+}
+
 export default function Options() {
-  // Auth state
   const [authMode, setAuthMode] = useState<AuthMode>("login")
   const [user, setUser] = useState<any>(null)
   const [email, setEmail] = useState("")
@@ -30,21 +43,13 @@ export default function Options() {
   const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState("")
 
-  // Settings state
-  const [settings, setLocalSettings] = useState<ExtensionSettings>({
-    apiKey: "",
-    selectedPersona: getDefaultPersona().id,
-    selectedModel: "anthropic/claude-3.5-sonnet",
-    theme: "system",
-    fontSize: "medium",
-    autoSummarize: false,
-    voiceEnabled: false,
-  })
+  const [settings, setLocalSettings] = useState<ExtensionSettings>(DEFAULT_SETTINGS)
   const [models, setModels] = useState(DEFAULT_MODELS)
   const [loading, setLoading] = useState(true)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState("")
   const [showApiKey, setShowApiKey] = useState(false)
+  const [showTavilyKey, setShowTavilyKey] = useState(false)
 
   useEffect(() => {
     initializeAuth()
@@ -52,17 +57,15 @@ export default function Options() {
 
   async function initializeAuth() {
     try {
-      // Check if user is logged in
       const currentUser = await getCurrentUser()
       if (currentUser) {
         setUser(currentUser)
         setAuthMode("authenticated")
         await loadUserSettings(currentUser.id)
       } else {
-        // Check if we have manual API key
         const stored = await getSettings()
         if (stored?.apiKey) {
-          setLocalSettings(stored)
+          setLocalSettings({ ...DEFAULT_SETTINGS, ...stored })
           setAuthMode("manual")
         }
       }
@@ -72,7 +75,6 @@ export default function Options() {
       setLoading(false)
     }
 
-    // Listen for auth changes
     onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
         setUser(session.user)
@@ -89,29 +91,24 @@ export default function Options() {
     try {
       const supabaseSettings = await getUserSettings(userId)
       if (supabaseSettings) {
-        // Map Supabase settings to extension settings
         const mappedSettings: ExtensionSettings = {
+          ...DEFAULT_SETTINGS,
           apiKey: supabaseSettings.openrouter_api_key || "",
           selectedPersona: supabaseSettings.selected_persona || getDefaultPersona().id,
           selectedModel: supabaseSettings.selected_model || "anthropic/claude-3.5-sonnet",
-          theme: supabaseSettings.theme || "system",
-          fontSize: supabaseSettings.font_size || "medium",
-          autoSummarize: supabaseSettings.auto_summarize || false,
-          voiceEnabled: supabaseSettings.voice_enabled || false,
+          theme: supabaseSettings.theme || "dark",
+          voiceEnabled: supabaseSettings.voice_enabled ?? true,
         }
         setLocalSettings(mappedSettings)
         await setSettings(mappedSettings)
 
-        // Load models
         if (mappedSettings.apiKey) {
           try {
             const fetchedModels = await getModels(mappedSettings.apiKey)
             if (fetchedModels.length > 0) {
               setModels(fetchedModels.slice(0, 20))
             }
-          } catch {
-            // Use default models
-          }
+          } catch {}
         }
       }
     } catch (err) {
@@ -124,10 +121,8 @@ export default function Options() {
       setAuthError("Please enter email and password")
       return
     }
-
     setAuthLoading(true)
     setAuthError("")
-
     try {
       const { user } = await signIn(email, password)
       setUser(user)
@@ -146,15 +141,7 @@ export default function Options() {
       await clearStorage()
       setUser(null)
       setAuthMode("login")
-      setLocalSettings({
-        apiKey: "",
-        selectedPersona: getDefaultPersona().id,
-        selectedModel: "anthropic/claude-3.5-sonnet",
-        theme: "system",
-        fontSize: "medium",
-        autoSummarize: false,
-        voiceEnabled: false,
-      })
+      setLocalSettings(DEFAULT_SETTINGS)
     } catch (err) {
       console.error("[Options] Logout error:", err)
     }
@@ -167,16 +154,13 @@ export default function Options() {
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
 
-      // Reload models if API key changed
       if (settings.apiKey) {
         try {
           const fetchedModels = await getModels(settings.apiKey)
           if (fetchedModels.length > 0) {
             setModels(fetchedModels.slice(0, 20))
           }
-        } catch {
-          // Keep default models
-        }
+        } catch {}
       }
     } catch (err) {
       setError("Failed to save settings")
@@ -184,18 +168,10 @@ export default function Options() {
   }
 
   async function handleClearData() {
-    if (confirm("This will clear all extension data including chat history. Continue?")) {
+    if (confirm("Clear all extension data including chat history?")) {
       try {
         await clearStorage()
-        setLocalSettings({
-          apiKey: "",
-          selectedPersona: getDefaultPersona().id,
-          selectedModel: "anthropic/claude-3.5-sonnet",
-          theme: "system",
-          fontSize: "medium",
-          autoSummarize: false,
-          voiceEnabled: false,
-        })
+        setLocalSettings(DEFAULT_SETTINGS)
         setSaved(true)
         setTimeout(() => setSaved(false), 2000)
       } catch (err) {
@@ -204,22 +180,15 @@ export default function Options() {
     }
   }
 
-  function updateSetting<K extends keyof ExtensionSettings>(
-    key: K,
-    value: ExtensionSettings[K]
-  ) {
+  function updateSetting<K extends keyof ExtensionSettings>(key: K, value: ExtensionSettings[K]) {
     setLocalSettings((prev) => ({ ...prev, [key]: value }))
   }
 
   if (loading) {
-    return (
-      <div className="options-container">
-        <div className="loading">Loading...</div>
-      </div>
-    )
+    return <div className="options-container"><div className="loading">Loading...</div></div>
   }
 
-  // Show login screen if not authenticated
+  // Login screen
   if (authMode === "login") {
     return (
       <div className="options-container">
@@ -228,13 +197,12 @@ export default function Options() {
             <span className="options-icon">🦎</span>
             <h1>Chameleon AI</h1>
           </div>
-          <p className="options-subtitle">Sign in to sync with your account</p>
+          <p className="options-subtitle">Browser extension for AI assistance</p>
         </header>
 
         <main className="options-main">
           <section className="options-section">
-            <h2>Login to Your Account</h2>
-
+            <h2>Sign In</h2>
             {authError && <div className="options-error">{authError}</div>}
 
             <div className="options-field">
@@ -256,7 +224,7 @@ export default function Options() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Your password"
+                placeholder="Password"
                 disabled={authLoading}
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               />
@@ -271,31 +239,20 @@ export default function Options() {
               {authLoading ? "Signing in..." : "Sign In"}
             </button>
 
-            <div style={{ textAlign: "center", marginTop: 24 }}>
-              <p className="options-hint">
-                Don't have an account?{" "}
-                <a href="https://chameleonai.chat/auth/sign-up" target="_blank" rel="noreferrer">
-                  Sign up
-                </a>
-              </p>
-            </div>
+            <p className="options-hint" style={{ textAlign: "center", marginTop: 16 }}>
+              <a href="https://chameleonai.chat/auth/sign-up" target="_blank" rel="noreferrer">
+                Create an account
+              </a>
+            </p>
           </section>
 
-          <div style={{ textAlign: "center", margin: "24px 0" }}>
-            <span style={{ color: "var(--text-secondary)" }}>or</span>
-          </div>
+          <div className="options-divider">or</div>
 
           <section className="options-section">
-            <h2>Use API Key Instead</h2>
-            <p className="options-hint" style={{ marginBottom: 16 }}>
-              Use your own OpenRouter API key without an account
-            </p>
-            <button
-              className="options-btn"
-              onClick={() => setAuthMode("manual")}
-              style={{ width: "100%" }}
-            >
-              Enter API Key Manually
+            <h2>Use Your Own API Key</h2>
+            <p className="options-hint">Use OpenRouter directly without an account</p>
+            <button className="options-btn" onClick={() => setAuthMode("manual")} style={{ width: "100%" }}>
+              Enter API Key
             </button>
           </section>
         </main>
@@ -303,216 +260,220 @@ export default function Options() {
     )
   }
 
-  // Show settings (authenticated or manual mode)
+  // Settings
   return (
     <div className="options-container">
       <header className="options-header">
         <div className="options-logo">
           <span className="options-icon">🦎</span>
-          <h1>Chameleon AI Settings</h1>
+          <h1>Settings</h1>
         </div>
         {user ? (
-          <p className="options-subtitle">
-            Logged in as <strong>{user.email}</strong>
-          </p>
+          <p className="options-subtitle">Signed in as {user.email}</p>
         ) : (
-          <p className="options-subtitle">Using manual API key</p>
+          <p className="options-subtitle">Using API key</p>
         )}
       </header>
 
       {error && <div className="options-error">{error}</div>}
-      {saved && <div className="options-success">Settings saved!</div>}
+      {saved && <div className="options-success">Saved!</div>}
 
       <main className="options-main">
-        {/* Account Section */}
-        {user ? (
-          <section className="options-section">
-            <h2>Account</h2>
-            <p>Your settings are synced with your Chameleon account.</p>
-            <button
-              className="options-btn options-btn-danger"
-              onClick={handleLogout}
-              style={{ marginTop: 12 }}
-            >
-              Sign Out
-            </button>
-          </section>
-        ) : (
-          <section className="options-section">
-            <h2>API Configuration</h2>
-            <div className="options-field">
-              <label htmlFor="apiKey">OpenRouter API Key</label>
-              <div className="options-input-group">
-                <input
-                  type={showApiKey ? "text" : "password"}
-                  id="apiKey"
-                  value={settings.apiKey}
-                  onChange={(e) => updateSetting("apiKey", e.target.value)}
-                  placeholder="sk-or-v1-..."
-                />
-                <button
-                  type="button"
-                  className="options-toggle-btn"
-                  onClick={() => setShowApiKey(!showApiKey)}
-                >
-                  {showApiKey ? "Hide" : "Show"}
-                </button>
-              </div>
-              <p className="options-hint">
-                Get your API key from{" "}
-                <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">
-                  openrouter.ai/keys
-                </a>
-              </p>
-            </div>
-            <button
-              className="options-btn"
-              onClick={() => setAuthMode("login")}
-              style={{ marginTop: 12 }}
-            >
-              Or sign in to your account
-            </button>
-          </section>
-        )}
-
-        {/* AI Settings */}
+        {/* API Configuration */}
         <section className="options-section">
-          <h2>AI Settings</h2>
+          <h2>🔑 API Configuration</h2>
+
+          {user ? (
+            <div className="options-info">
+              <p>✅ Using API key from your Chameleon account</p>
+              <button className="options-btn options-btn-small" onClick={handleLogout}>
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="options-field">
+                <label>OpenRouter API Key</label>
+                <div className="options-input-group">
+                  <input
+                    type={showApiKey ? "text" : "password"}
+                    value={settings.apiKey}
+                    onChange={(e) => updateSetting("apiKey", e.target.value)}
+                    placeholder="sk-or-v1-..."
+                  />
+                  <button className="options-toggle-btn" onClick={() => setShowApiKey(!showApiKey)}>
+                    {showApiKey ? "Hide" : "Show"}
+                  </button>
+                </div>
+                <p className="options-hint">
+                  <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">Get API key</a>
+                </p>
+              </div>
+              <button className="options-btn options-btn-small" onClick={() => setAuthMode("login")}>
+                Or sign in to your account
+              </button>
+            </>
+          )}
+        </section>
+
+        {/* AI Defaults */}
+        <section className="options-section">
+          <h2>🤖 AI Defaults</h2>
 
           <div className="options-field">
-            <label htmlFor="persona">Default Persona</label>
+            <label>Default Persona</label>
             <select
-              id="persona"
               value={settings.selectedPersona}
               onChange={(e) => updateSetting("selectedPersona", e.target.value)}
             >
               {PERSONAS.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.emoji} {p.name} - {p.description}
-                </option>
+                <option key={p.id} value={p.id}>{p.emoji} {p.name}</option>
               ))}
             </select>
           </div>
 
           <div className="options-field">
-            <label htmlFor="model">Default Model</label>
+            <label>Default Model</label>
             <select
-              id="model"
               value={settings.selectedModel}
               onChange={(e) => updateSetting("selectedModel", e.target.value)}
             >
               {models.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
+                <option key={m.id} value={m.id}>{m.name}</option>
               ))}
             </select>
+            <p className="options-hint">Models with (Vision) support screenshot analysis</p>
           </div>
         </section>
 
-        {/* Appearance */}
+        {/* Extension Features */}
         <section className="options-section">
-          <h2>Appearance</h2>
+          <h2>⚡ Extension Features</h2>
+
+          <div className="options-feature">
+            <div className="options-feature-header">
+              <span>📋 Context Menu</span>
+              <label className="options-switch">
+                <input
+                  type="checkbox"
+                  checked={settings.enableContextMenu !== false}
+                  onChange={(e) => updateSetting("enableContextMenu", e.target.checked)}
+                />
+                <span className="options-switch-slider"></span>
+              </label>
+            </div>
+            <p className="options-hint">Right-click selected text to explain, summarize, translate, etc.</p>
+          </div>
+
+          <div className="options-feature">
+            <div className="options-feature-header">
+              <span>📸 Screenshot Analysis</span>
+              <span className="options-badge">Vision models</span>
+            </div>
+            <p className="options-hint">Right-click page → "Analyze screenshot" to understand page content</p>
+          </div>
+
+          <div className="options-feature">
+            <div className="options-feature-header">
+              <span>📄 Page Summarizer</span>
+              <span className="options-badge">Built-in</span>
+            </div>
+            <p className="options-hint">Right-click page → "Summarize this page" for quick summaries</p>
+          </div>
+
+          <div className="options-feature">
+            <div className="options-feature-header">
+              <span>🎤 Voice Input</span>
+              <label className="options-switch">
+                <input
+                  type="checkbox"
+                  checked={settings.voiceEnabled}
+                  onChange={(e) => updateSetting("voiceEnabled", e.target.checked)}
+                />
+                <span className="options-switch-slider"></span>
+              </label>
+            </div>
+            <p className="options-hint">Use microphone for voice-to-text in popup</p>
+          </div>
+        </section>
+
+        {/* Web Search */}
+        <section className="options-section">
+          <h2>🔍 Web Search</h2>
+          <p className="options-hint" style={{ marginBottom: 12 }}>
+            Power the "Web search" context menu action with real-time search results
+          </p>
 
           <div className="options-field">
-            <label htmlFor="theme">Theme</label>
+            <label>Search Provider</label>
             <select
-              id="theme"
-              value={settings.theme}
-              onChange={(e) =>
-                updateSetting("theme", e.target.value as ExtensionSettings["theme"])
-              }
+              value={settings.searchProvider || "duckduckgo"}
+              onChange={(e) => updateSetting("searchProvider", e.target.value as any)}
             >
-              <option value="system">System</option>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
+              <option value="duckduckgo">DuckDuckGo (Free)</option>
+              <option value="tavily" disabled={!settings.tavilyKey}>
+                Tavily {settings.tavilyKey ? "" : "(needs API key)"}
+              </option>
             </select>
           </div>
 
           <div className="options-field">
-            <label htmlFor="fontSize">Font Size</label>
-            <select
-              id="fontSize"
-              value={settings.fontSize}
-              onChange={(e) =>
-                updateSetting("fontSize", e.target.value as ExtensionSettings["fontSize"])
-              }
-            >
-              <option value="small">Small</option>
-              <option value="medium">Medium</option>
-              <option value="large">Large</option>
-            </select>
+            <label>Tavily API Key (Optional)</label>
+            <div className="options-input-group">
+              <input
+                type={showTavilyKey ? "text" : "password"}
+                value={settings.tavilyKey || ""}
+                onChange={(e) => updateSetting("tavilyKey", e.target.value)}
+                placeholder="tvly-..."
+              />
+              <button className="options-toggle-btn" onClick={() => setShowTavilyKey(!showTavilyKey)}>
+                {showTavilyKey ? "Hide" : "Show"}
+              </button>
+            </div>
+            <p className="options-hint">
+              Better search results with AI answers.{" "}
+              <a href="https://tavily.com" target="_blank" rel="noreferrer">Get free key</a> (1000/month)
+            </p>
           </div>
         </section>
 
-        {/* Features */}
+        {/* Privacy */}
         <section className="options-section">
-          <h2>Features</h2>
+          <h2>🔒 Privacy</h2>
 
-          <div className="options-checkbox">
-            <input
-              type="checkbox"
-              id="autoSummarize"
-              checked={settings.autoSummarize}
-              onChange={(e) => updateSetting("autoSummarize", e.target.checked)}
-            />
-            <label htmlFor="autoSummarize">
-              Auto-summarize long pages
-              <span className="options-hint-inline">
-                Automatically show summary for pages with lots of text
-              </span>
-            </label>
+          <div className="options-feature">
+            <div className="options-feature-header">
+              <span>Save Chat History</span>
+              <label className="options-switch">
+                <input
+                  type="checkbox"
+                  checked={settings.saveHistory !== false}
+                  onChange={(e) => updateSetting("saveHistory", e.target.checked)}
+                />
+                <span className="options-switch-slider"></span>
+              </label>
+            </div>
+            <p className="options-hint">Store conversations locally in browser</p>
           </div>
 
-          <div className="options-checkbox">
-            <input
-              type="checkbox"
-              id="voiceEnabled"
-              checked={settings.voiceEnabled}
-              onChange={(e) => updateSetting("voiceEnabled", e.target.checked)}
-            />
-            <label htmlFor="voiceEnabled">
-              Enable voice features
-              <span className="options-hint-inline">
-                Voice input and text-to-speech output
-              </span>
-            </label>
-          </div>
+          <button className="options-btn options-btn-danger" onClick={handleClearData} style={{ marginTop: 12 }}>
+            Clear All Data
+          </button>
         </section>
 
-        {/* Actions */}
+        {/* Save */}
         <section className="options-actions">
           <button className="options-btn options-btn-primary" onClick={handleSave}>
             Save Settings
-          </button>
-          <button className="options-btn options-btn-danger" onClick={handleClearData}>
-            Clear All Data
           </button>
         </section>
 
         {/* About */}
         <section className="options-section options-about">
-          <h2>About</h2>
-          <p>
-            <strong>Chameleon AI Extension</strong> v0.1.0
-          </p>
-          <p>
-            Open source AI assistant with multiple personas and 100+ models.
-          </p>
+          <p><strong>Chameleon AI</strong> v0.1.0</p>
           <div className="options-links">
-            <a href="https://chameleonai.chat" target="_blank" rel="noreferrer">
-              Open Full App
-            </a>
-            <a
-              href="https://github.com/ChameleonAI/chameleon"
-              target="_blank"
-              rel="noreferrer"
-            >
-              GitHub
-            </a>
-            <a href="https://openrouter.ai" target="_blank" rel="noreferrer">
-              OpenRouter
-            </a>
+            <a href="https://chameleonai.chat" target="_blank" rel="noreferrer">Web App</a>
+            <a href="https://github.com/ChameleonAI/chameleon" target="_blank" rel="noreferrer">GitHub</a>
           </div>
         </section>
       </main>

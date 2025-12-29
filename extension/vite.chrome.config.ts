@@ -17,6 +17,10 @@ export default defineConfig({
           src: "../public/icon-*.png",
           dest: "icons",
         },
+        {
+          src: "src/content/styles.css",
+          dest: "content",
+        },
       ],
     }),
   ],
