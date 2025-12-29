@@ -42,6 +42,22 @@ export function CapacitorInit() {
           await nativeNotifications.requestPermissions()
         }
 
+        // Initialize network monitoring
+        const { nativeNetwork } = await import('@/lib/capacitor/network')
+        await nativeNetwork.initialize()
+
+        // Initialize keyboard handling
+        const { nativeKeyboard } = await import('@/lib/capacitor/keyboard')
+        await nativeKeyboard.initialize()
+
+        // Initialize theme management
+        const { nativeTheme } = await import('@/lib/capacitor/theme')
+        nativeTheme.initialize()
+
+        // Initialize TTS
+        const { nativeTTS } = await import('@/lib/capacitor/tts')
+        await nativeTTS.initialize()
+
         // Hide splash screen after initialization
         if (Capacitor.isPluginAvailable('SplashScreen')) {
           const { SplashScreen } = await import('@capacitor/splash-screen')
