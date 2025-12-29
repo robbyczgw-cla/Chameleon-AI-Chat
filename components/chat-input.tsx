@@ -1586,6 +1586,9 @@ export function ChatInput() {
                 onChange={(e) => handleInputChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Message..."
+                autoComplete="on"
+                autoCorrect="on"
+                spellCheck={true}
                 rows={1}
                 className={cn(
                   "min-h-[44px] md:min-h-[52px] max-h-[120px] md:max-h-[200px] resize-none text-sm sm:text-base rounded-xl",

@@ -1521,7 +1521,9 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               ref={textareaRef}
               id="simple-chat-input"
               name="message"
-              autoComplete="off"
+              autoComplete="on"
+              autoCorrect="on"
+              spellCheck={true}
               value={input}
               onChange={(e) => {
                 setInput(e.target.value)
