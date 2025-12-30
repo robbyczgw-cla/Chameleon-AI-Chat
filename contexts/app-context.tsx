@@ -1005,13 +1005,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [settings.defaultModel, settings.selectedModel, settings.privateChatMode, user])
 
   const deleteChat = useCallback((chatId: string) => {
+    // Check if this is a private chat before removing from state
+    const chatToDelete = chats.find((c) => c.id === chatId)
+    const isPrivateChat = chatToDelete?.isPrivate === true
+
     setChats((prev) => prev.filter((chat) => chat.id !== chatId))
     setCurrentChatId((prev) => prev === chatId ? null : prev)
 
-    if (user) {
+    // Skip Supabase delete for private chats (they were never saved to database)
+    if (user && !isPrivateChat) {
       supabaseSync.deleteChat(user.id, chatId).catch(console.error)
     }
-  }, [user])
+  }, [user, chats])
 
   const deleteAllChats = useCallback(() => {
     setChats([])

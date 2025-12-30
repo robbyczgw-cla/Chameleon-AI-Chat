@@ -10,7 +10,7 @@ import { searchService } from "@/lib/search-service"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { MessageSquarePlus, Search, Trash2, Edit2, Pin, FolderPlus, Folder } from "lucide-react"
+import { MessageSquarePlus, Search, Trash2, Edit2, Pin, FolderPlus, Folder, ShieldCheck } from "lucide-react"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -213,10 +213,13 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
             <div className="flex items-center w-full min-w-0">
               {/* Title - takes remaining space, truncates */}
               <div className={cn(
-                "flex-1 min-w-0 font-medium text-sm truncate",
+                "flex-1 min-w-0 font-medium text-sm truncate flex items-center gap-1.5",
                 animatedTitleIds.has(chat.id) && "animate-title-appear"
               )}>
-                {chat.title}
+                {chat.isPrivate && (
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
+                )}
+                <span className="truncate">{chat.title}</span>
               </div>
 
               {/* Right side: action buttons always visible */}

@@ -260,13 +260,15 @@ export function QuickActionsMenu({
           Export as JSON
         </DropdownMenuItem>
 
-        {onShareClick && (
+        {/* Share options hidden for private chats */}
+        {onShareClick && !currentChat?.isPrivate && (
           <DropdownMenuItem onClick={onShareClick} disabled={!currentChat || !currentChat.messages?.length}>
             <Share2 className="h-4 w-4 mr-2" />
             Share Online
           </DropdownMenuItem>
         )}
 
+        {!currentChat?.isPrivate && (
         <DropdownMenuItem onClick={handleCopyShareLink} disabled={!currentChat || !currentChat.messages?.length}>
           {linkCopied ? (
             <>
@@ -280,6 +282,7 @@ export function QuickActionsMenu({
             </>
           )}
         </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )
