@@ -116,12 +116,10 @@ public class MainActivity extends BridgeActivity {
         // Enable 120Hz high refresh rate for smooth animations (Android 11+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Request highest available refresh rate (60Hz, 90Hz, 120Hz, etc.)
-            window.getAttributes().preferredDisplayModeId = 0; // 0 = highest available
-
-            // Set preferred refresh rate range for adaptive displays
-            window.getAttributes().preferredRefreshRate = 120.0f;
-            window.getAttributes().preferredMinDisplayRefreshRate = 60.0f;
-            window.getAttributes().preferredMaxDisplayRefreshRate = 120.0f;
+            WindowManager.LayoutParams params = window.getAttributes();
+            params.preferredDisplayModeId = 0; // 0 = highest available mode
+            params.preferredRefreshRate = 120.0f; // Prefer 120Hz when available
+            window.setAttributes(params);
         }
 
         // Handle window insets for proper layout
