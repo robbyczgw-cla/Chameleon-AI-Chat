@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.PathInterpolator;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -18,8 +19,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+
+import java.util.List;
 
 import com.getcapacitor.BridgeActivity;
 
@@ -55,6 +59,9 @@ public class MainActivity extends BridgeActivity {
 
         // Configure WebView for optimal performance
         configureWebView();
+
+        // Setup smooth keyboard animations (Android 11+)
+        setupKeyboardAnimation();
 
         // Setup predictive back gesture for Android 16+
         setupPredictiveBackGesture();
@@ -415,5 +422,102 @@ public class MainActivity extends BridgeActivity {
                   .replace("'", "\\'")
                   .replace("\n", "\\n")
                   .replace("\r", "\\r");
+    }
+
+    /**
+     * Setup smooth keyboard animations (Android 11+)
+     * Uses WindowInsetsAnimationCompat for synchronized keyboard animations
+     */
+    private void setupKeyboardAnimation() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            // WindowInsetsAnimation requires Android 11+
+            return;
+        }
+
+        WebView webView = bridge.getWebView();
+        if (webView == null) return;
+
+        // Create a callback to sync content with keyboard animation
+        WindowInsetsAnimationCompat.Callback animationCallback = new WindowInsetsAnimationCompat.Callback(
+            WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP
+        ) {
+            private int startBottom = 0;
+            private int endBottom = 0;
+
+            @Override
+            public void onPrepare(WindowInsetsAnimationCompat animation) {
+                // Called before animation starts
+                super.onPrepare(animation);
+            }
+
+            @Override
+            public WindowInsetsAnimationCompat.BoundsCompat onStart(
+                WindowInsetsAnimationCompat animation,
+                WindowInsetsAnimationCompat.BoundsCompat bounds
+            ) {
+                // Capture the start and end keyboard heights
+                startBottom = bounds.getLowerBound().bottom;
+                endBottom = bounds.getUpperBound().bottom;
+
+                // Notify web app that keyboard animation is starting
+                String js = String.format(
+                    "document.documentElement.classList.add('keyboard-animating');" +
+                    "document.documentElement.style.setProperty('--keyboard-height-start', '%dpx');" +
+                    "document.documentElement.style.setProperty('--keyboard-height-end', '%dpx');",
+                    pxToDp(startBottom),
+                    pxToDp(endBottom)
+                );
+                webView.evaluateJavascript(js, null);
+
+                return bounds;
+            }
+
+            @Override
+            public WindowInsetsCompat onProgress(
+                WindowInsetsCompat insets,
+                List<WindowInsetsAnimationCompat> runningAnimations
+            ) {
+                // Find the IME animation
+                WindowInsetsAnimationCompat imeAnimation = null;
+                for (WindowInsetsAnimationCompat animation : runningAnimations) {
+                    if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
+                        imeAnimation = animation;
+                        break;
+                    }
+                }
+
+                if (imeAnimation != null) {
+                    // Get the current progress (0.0 to 1.0)
+                    float progress = imeAnimation.getInterpolatedFraction();
+
+                    // Calculate current keyboard height
+                    Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
+                    int currentHeight = imeInsets.bottom;
+
+                    // Update CSS variable for smooth transition
+                    String js = String.format(
+                        "document.documentElement.style.setProperty('--keyboard-height', '%dpx');" +
+                        "document.documentElement.style.setProperty('--keyboard-progress', '%.3f');",
+                        pxToDp(currentHeight),
+                        progress
+                    );
+                    webView.evaluateJavascript(js, null);
+                }
+
+                return insets;
+            }
+
+            @Override
+            public void onEnd(WindowInsetsAnimationCompat animation) {
+                // Notify web app that keyboard animation ended
+                String js = "document.documentElement.classList.remove('keyboard-animating');";
+                webView.evaluateJavascript(js, null);
+
+                super.onEnd(animation);
+            }
+        };
+
+        // Apply the animation callback to the WebView
+        ViewCompat.setWindowInsetsAnimationCallback(webView, animationCallback);
     }
 }
