@@ -3,6 +3,30 @@
  * Prevents layout shift, content hiding, and iOS zoom issues
  */
 
+/* CRITICAL: Android keyboard black bar fix */
+html, body {
+  background-color: #0a0a0a !important;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Ensure main container fills space during keyboard animation */
+#__next {
+  background-color: #0a0a0a !important;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* During keyboard animation, prevent any white/black flashing */
+.keyboard-animating {
+  background-color: #0a0a0a !important;
+}
+
+.keyboard-animating body,
+.keyboard-animating #__next {
+  background-color: #0a0a0a !important;
+}
+
 /* Keyboard-aware containers using env() variables (Chrome 94+) */
 .keyboard-aware-container {
   /* Automatically adjust padding for virtual keyboard */
