@@ -14,6 +14,10 @@ export interface ExtensionSettings {
   tavilyKey?: string
   serperKey?: string
 
+  // Supabase Configuration (optional - for account sync)
+  supabaseUrl?: string
+  supabaseAnonKey?: string
+
   // AI Settings
   selectedPersona: string
   selectedModel: string
