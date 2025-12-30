@@ -444,12 +444,17 @@ function ChatApp() {
                         )}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="left" className="max-w-xs">
+                    <TooltipContent
+                      side="left"
+                      sideOffset={8}
+                      collisionPadding={16}
+                      className="max-w-[200px] z-50"
+                    >
                       <div className="space-y-1">
-                        <p className="font-medium">
+                        <p className="font-medium text-sm">
                           {settings.privateChatMode ? "Private Mode ON" : "Private Mode OFF"}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs opacity-80">
                           {settings.privateChatMode
                             ? "Chats are not saved. No memory. Auto-deletes when closed."
                             : "Enable for private conversations that won't be saved."}
