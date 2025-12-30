@@ -733,12 +733,5 @@ public class MainActivity extends BridgeActivity {
 
         // Apply the animation callback to the WebView
         ViewCompat.setWindowInsetsAnimationCallback(webView, animationCallback);
-
-        // Configure window for smooth keyboard transitions
-        Window window = getWindow();
-        window.setSoftInputMode(
-            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE |
-            WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN
-        );
     }
 }
