@@ -1345,6 +1345,54 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [currentChatId, settings.privateChatMode])
 
+  // PWA/Mobile Edge Case: Clean up private chats after long app suspension
+  // This handles iOS Safari, Android PWA, and Capacitor scenarios
+  useEffect(() => {
+    let lastVisibleTime = Date.now()
+    const SUSPENSION_THRESHOLD = 30 * 60 * 1000 // 30 minutes
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const timeSuspended = Date.now() - lastVisibleTime
+
+        // If app was suspended for 30+ minutes with private mode ON, clean up for security
+        if (timeSuspended > SUSPENSION_THRESHOLD && settings.privateChatMode) {
+          const privateChats = chats.filter((chat) => chat.isPrivate)
+          if (privateChats.length > 0) {
+            console.log(`[v0] 🔒 SECURITY: App resumed after ${Math.round(timeSuspended / 60000)}min - deleting ${privateChats.length} private chat(s)`)
+            setChats((prev) => prev.filter((chat) => !chat.isPrivate))
+            // Also disable private mode for safety
+            setSettings((prev) => ({ ...prev, privateChatMode: false }))
+          }
+        }
+      } else {
+        lastVisibleTime = Date.now()
+      }
+    }
+
+    // Handle bfcache restoration (iOS Safari, some Android browsers)
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        console.log("[v0] Page restored from bfcache")
+        // If we have private chats after bfcache restore, clean them up
+        const privateChats = chats.filter((chat) => chat.isPrivate)
+        if (privateChats.length > 0 && settings.privateChatMode) {
+          console.log(`[v0] 🔒 SECURITY: bfcache restore - cleaning ${privateChats.length} private chat(s)`)
+          setChats((prev) => prev.filter((chat) => !chat.isPrivate))
+          setSettings((prev) => ({ ...prev, privateChatMode: false }))
+        }
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    window.addEventListener("pageshow", handlePageShow)
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+      window.removeEventListener("pageshow", handlePageShow)
+    }
+  }, [chats, settings.privateChatMode])
+
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({
     chats,
