@@ -3,10 +3,13 @@ import type { Metadata, Viewport } from "next"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import "./keyboard-optimizations.css"
+import "./material-motion.css"
 import { Toaster } from "@/components/ui/toaster"
 import { PWARegister } from "@/components/pwa-register"
 import { CookieConsentBanner } from "@/components/cookie-consent-banner"
 import { ChunkErrorHandler } from "@/components/chunk-error-handler"
+import { CapacitorInit } from "@/components/capacitor-init"
+import { NativeErrorBoundary } from "@/components/native-error-boundary"
 
 // Note: OpenDyslexic loaded via @font-face in globals.css (not available in Google Fonts)
 // Note: Google Fonts disabled to allow offline builds; we use system stacks via CSS vars.
@@ -228,7 +231,10 @@ export default function RootLayout({
         `}} />
         <ChunkErrorHandler />
         <PWARegister />
-        {children}
+        <CapacitorInit />
+        <NativeErrorBoundary>
+          {children}
+        </NativeErrorBoundary>
         <Toaster />
         <Analytics />
         <CookieConsentBanner />

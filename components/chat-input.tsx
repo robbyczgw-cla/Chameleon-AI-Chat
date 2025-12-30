@@ -3,6 +3,7 @@
 import type React from "react"
 import { FolderOpen, Send, Mic, Globe, MicOff, Square, Zap, Image } from "lucide-react"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
+import { Capacitor } from "@capacitor/core"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -72,6 +73,25 @@ export function ChatInput() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { toast } = useToast()
   const { setInspectorData } = usePromptInspectorStore()
+
+  // CRITICAL: Detect Android Capacitor at runtime (not useMemo - Capacitor may not be ready)
+  const [isAndroidCapacitor, setIsAndroidCapacitor] = useState(false)
+
+  useEffect(() => {
+    const checkPlatform = () => {
+      try {
+        const isNative = Capacitor.isNativePlatform()
+        const platform = Capacitor.getPlatform()
+        setIsAndroidCapacitor(isNative && platform === 'android')
+      } catch {
+        setIsAndroidCapacitor(false)
+      }
+    }
+    checkPlatform()
+    // Re-check after delay in case Capacitor initializes late
+    const timer = setTimeout(checkPlatform, 300)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     const handleInsertPrompt = (e: CustomEvent) => {
@@ -1540,8 +1560,12 @@ export function ChatInput() {
   return (
     <div
       className={cn(
-        "chat-input-container bg-background/80 backdrop-blur-sm p-2 md:p-4 border-t border-border/20 smooth-transition pb-[env(safe-area-inset-bottom,4px)] md:pb-4",
-        isEmpty ? "shadow-apple-2" : "shadow-apple-1"
+        "chat-input-container bg-background/80 backdrop-blur-sm border-t border-border/20 smooth-transition",
+        // Explicit padding - no shorthand so we can fully control bottom
+        "px-2 pt-2 md:px-4 md:pt-4",
+        isEmpty ? "shadow-apple-2" : "shadow-apple-1",
+        // Bottom padding: iOS/Web uses safe area, Android uses 0 (keyboard adjustResize handles it)
+        isAndroidCapacitor ? "pb-0" : "pb-2 md:pb-4 pb-[max(8px,env(safe-area-inset-bottom))]"
       )}
     >
       {attachedCollectionId && (
@@ -1606,6 +1630,12 @@ export function ChatInput() {
                 onChange={(e) => handleInputChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Message..."
+                autoComplete="on"
+                autoCorrect="on"
+                autoCapitalize="sentences"
+                spellCheck={true}
+                inputMode="text"
+                enterKeyHint="send"
                 rows={1}
                 className={cn(
                   "min-h-[44px] md:min-h-[52px] max-h-[120px] md:max-h-[200px] resize-none text-sm sm:text-base rounded-xl",

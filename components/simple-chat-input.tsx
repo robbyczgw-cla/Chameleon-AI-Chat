@@ -2,7 +2,8 @@
 
 import type React from "react"
 import { Send, Globe, Square, Lightbulb, Mic, MicOff, Image } from "lucide-react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
+import { Capacitor } from "@capacitor/core"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -73,6 +74,26 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   const { toast } = useToast()
 
   // NOTE: isAdvancedMode is now provided by useFeatureFlags() hook above
+
+  // Detect Android Capacitor at runtime to adjust safe area padding
+  // CRITICAL: Detect Android Capacitor at runtime (not useMemo - Capacitor may not be ready)
+  const [isAndroidCapacitor, setIsAndroidCapacitor] = useState(false)
+
+  useEffect(() => {
+    const checkPlatform = () => {
+      try {
+        const isNative = Capacitor.isNativePlatform()
+        const platform = Capacitor.getPlatform()
+        setIsAndroidCapacitor(isNative && platform === 'android')
+      } catch {
+        setIsAndroidCapacitor(false)
+      }
+    }
+    checkPlatform()
+    // Re-check after delay in case Capacitor initializes late
+    const timer = setTimeout(checkPlatform, 300)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Load web search state from settings context (PERSIST USER PREFERENCE!)
   // Default is FALSE - automatic tool use handles web search via AI tool calling
@@ -1469,7 +1490,13 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   const hasContent = input.trim().length > 0 || attachedFiles.length > 0
 
   return (
-    <div className="p-3 md:p-4 pb-[env(safe-area-inset-bottom,8px)] md:pb-4">
+    <div className={cn(
+      "chat-input-container",
+      // Use explicit padding instead of p-3 so we can control bottom separately
+      "px-3 pt-3 md:px-4 md:pt-4",
+      // Bottom padding: iOS/Web uses safe area, Android uses 0 (keyboard adjustResize handles it)
+      isAndroidCapacitor ? "pb-0" : "pb-3 md:pb-4 pb-[max(12px,env(safe-area-inset-bottom))]"
+    )}>
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
         {/* Unified Input Container - Clean dark rounded box */}
         <div className="bg-muted/50 dark:bg-muted/30 rounded-2xl border border-border/40 overflow-hidden">
@@ -1506,7 +1533,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               ref={textareaRef}
               id="simple-chat-input"
               name="message"
-              autoComplete="off"
+              autoComplete="on"
+              autoCorrect="on"
+              autoCapitalize="sentences"
+              spellCheck={true}
+              inputMode="text"
+              enterKeyHint="send"
               value={input}
               onChange={(e) => {
                 setInput(e.target.value)

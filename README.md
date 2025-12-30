@@ -195,6 +195,86 @@ Not generic "ChatGPT with a twist." Real personalities organized in 8 categories
 
 ---
 
+## 📱 Install Options
+
+**Three ways to use Chameleon AI:**
+
+| Option | Best For | Install |
+|--------|----------|---------|
+| **Web App** | Quick access, any device | [chameleon-ai-chat.vercel.app](https://chameleon-ai-chat.vercel.app) |
+| **PWA** | Mobile with offline support | Add to Home Screen from browser |
+| **Android APK** | Native experience | [Download from Releases](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/releases) |
+
+---
+
+## 🤖 Android Native App
+
+**Built with Capacitor 8 for a true native Android experience.**
+
+### Native Features
+
+| Feature | Description |
+|---------|-------------|
+| **Home Screen Widget** | Quick access widget with "New Chat" and "Voice Input" buttons |
+| **Text Selection Integration** | Select text anywhere → tap "Ask Chameleon" to query AI |
+| **Native Haptics** | 17 haptic patterns (success, error, typing, swipe, etc.) |
+| **Keyboard Predictions** | Full Gboard/keyboard autocomplete support |
+| **Biometric Auth** | Fingerprint/Face unlock for secure credential storage |
+| **Local Notifications** | Android notification channels, custom sounds, icons |
+| **Share Target** | Receive shared text, images, PDFs from any app |
+| **Deep Links** | `chameleon-ai://` custom URL scheme |
+| **Native Camera** | Photo capture with editing, gallery picker |
+| **Voice Recording** | Optimized audio for Whisper transcription |
+| **Text-to-Speech** | Native voice synthesis |
+| **Material 3 Design** | Spring animations, blur effects, native styling |
+| **Edge-to-Edge Display** | Proper status bar and navigation bar handling |
+
+### Android vs PWA
+
+| Feature | PWA | Android APK |
+|---------|-----|-------------|
+| **Home Widget** | ❌ Not available | ✅ Quick access widget |
+| **Text Selection** | ❌ Not available | ✅ "Ask Chameleon" in any app |
+| **Keyboard Predictions** | ⚠️ Varies | ✅ Full support |
+| **Haptics** | Basic vibration | 17 native patterns |
+| **Biometrics** | ❌ Not available | ✅ Fingerprint/Face ID |
+| **Notifications** | Web push (limited) | Native channels |
+| **Share Target** | Limited | Full support |
+| **App Icon** | Browser badge | Native launcher icon |
+| **Design** | Web CSS | Material 3 Expressive |
+
+### Build Requirements
+
+| Component | Version |
+|-----------|---------|
+| Android | 13+ (API 33) |
+| Node.js | 22+ |
+| Java | 21 |
+| Gradle | 8.11.1 |
+
+### Build Commands
+
+```bash
+# Install dependencies
+npm ci
+
+# Sync Capacitor
+npx cap sync android
+
+# Build debug APK
+npm run cap:android:build
+
+# Build release APK
+npm run cap:android:release
+
+# Open in Android Studio
+npx cap open android
+```
+
+[Full Android documentation →](./docs/CAPACITOR_ANDROID.md)
+
+---
+
 ## 🛠️ Tech Stack
 
 **Modern, fast, reliable:**
@@ -206,6 +286,7 @@ Not generic "ChatGPT with a twist." Real personalities organized in 8 categories
 - **Voice:** OpenAI Whisper + TTS
 - **Search:** Tavily + Serper + Exa
 - **Deploy:** Vercel (Edge Runtime)
+- **Mobile:** Capacitor 8 (Android)
 
 ---
 

@@ -8,13 +8,39 @@ const isBrowser = typeof browser !== "undefined"
 const storageAPI = isBrowser ? browser.storage : chrome.storage
 
 export interface ExtensionSettings {
+  // API Keys
   apiKey: string
+  openAIKey?: string // For voice features (Whisper & TTS)
+  tavilyKey?: string
+  serperKey?: string
+
+  // Supabase Configuration (optional - for account sync)
+  supabaseUrl?: string
+  supabaseAnonKey?: string
+
+  // AI Settings
   selectedPersona: string
   selectedModel: string
+
+  // Appearance
   theme: "light" | "dark" | "system"
   fontSize: "small" | "medium" | "large"
+
+  // Features
   autoSummarize: boolean
   voiceEnabled: boolean
+  ttsVoice?: string
+  ttsSpeed?: number
+
+  // Context Menu
+  enableContextMenu: boolean
+  contextMenuActions?: string[]
+
+  // Search
+  searchProvider: "duckduckgo" | "tavily" | "serper"
+
+  // Privacy
+  saveHistory: boolean
 }
 
 export interface StoredChat {

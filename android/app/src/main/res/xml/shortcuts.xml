@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- New Chat Shortcut -->
+    <shortcut
+        android:shortcutId="new_chat"
+        android:enabled="true"
+        android:icon="@drawable/ic_add_chat"
+        android:shortcutShortLabel="@string/shortcut_new_chat"
+        android:shortcutLongLabel="@string/shortcut_new_chat_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.chameleon.ai.chat"
+            android:targetClass="com.chameleon.ai.chat.MainActivity"
+            android:data="chameleon-ai://new-chat" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+    <!-- Simple Mode Shortcut -->
+    <shortcut
+        android:shortcutId="simple_mode"
+        android:enabled="true"
+        android:icon="@drawable/ic_simple_mode"
+        android:shortcutShortLabel="@string/shortcut_simple_mode"
+        android:shortcutLongLabel="@string/shortcut_simple_mode_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.chameleon.ai.chat"
+            android:targetClass="com.chameleon.ai.chat.MainActivity"
+            android:data="chameleon-ai://simple-mode" />
+    </shortcut>
+
+    <!-- AI Debate Shortcut -->
+    <shortcut
+        android:shortcutId="debate_mode"
+        android:enabled="true"
+        android:icon="@drawable/ic_debate"
+        android:shortcutShortLabel="@string/shortcut_debate"
+        android:shortcutLongLabel="@string/shortcut_debate_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.chameleon.ai.chat"
+            android:targetClass="com.chameleon.ai.chat.MainActivity"
+            android:data="chameleon-ai://debate-mode" />
+    </shortcut>
+
+    <!-- Personas Shortcut -->
+    <shortcut
+        android:shortcutId="personas"
+        android:enabled="true"
+        android:icon="@drawable/ic_personas"
+        android:shortcutShortLabel="@string/shortcut_personas"
+        android:shortcutLongLabel="@string/shortcut_personas_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.chameleon.ai.chat"
+            android:targetClass="com.chameleon.ai.chat.MainActivity"
+            android:data="chameleon-ai://personas" />
+    </shortcut>
+</shortcuts>

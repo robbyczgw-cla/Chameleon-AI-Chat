@@ -1,14 +1,17 @@
 /**
  * Enhanced Haptic Feedback Utility
  * Provides vibration feedback for touch interactions on mobile devices
- * Works with PWA and native mobile browsers
+ * Works with PWA, native mobile browsers, and Capacitor native apps
  *
  * 2025 Best Practices:
+ * - Native Capacitor Haptics when available (true native feel)
  * - Context-aware patterns (send, receive, typing)
  * - Intensity settings for user preference
  * - iOS-style notification patterns
  * - Graceful fallback for unsupported devices
  */
+
+import { Capacitor } from '@capacitor/core'
 
 type HapticPattern =
   | 'light'
@@ -67,13 +70,30 @@ const INTENSITY_MULTIPLIERS: Record<HapticIntensity, number> = {
 
 class HapticsService {
   private isSupported = false
+  private isNative = false
   private intensity: HapticIntensity = 'normal'
+  private capacitorHaptics: typeof import('@capacitor/haptics').Haptics | null = null
 
   constructor() {
     if (typeof window !== 'undefined') {
-      this.isSupported = 'vibrate' in navigator
-      // Load saved intensity preference
+      this.isNative = Capacitor.isNativePlatform()
+      this.isSupported = this.isNative || 'vibrate' in navigator
       this.loadIntensityPreference()
+      this.loadNativeHaptics()
+    }
+  }
+
+  /**
+   * Load native Capacitor Haptics plugin
+   */
+  private async loadNativeHaptics(): Promise<void> {
+    if (this.isNative && Capacitor.isPluginAvailable('Haptics')) {
+      try {
+        const { Haptics } = await import('@capacitor/haptics')
+        this.capacitorHaptics = Haptics
+      } catch {
+        // Native haptics not available, fall back to web
+      }
     }
   }
 
@@ -112,10 +132,18 @@ class HapticsService {
 
   /**
    * Trigger haptic feedback with a pattern
+   * Uses native Capacitor Haptics when available for true native feel
    */
   trigger(pattern: HapticPattern = 'light'): void {
     if (!this.isSupported || this.intensity === 'off') return
 
+    // Try native haptics first
+    if (this.capacitorHaptics) {
+      this.triggerNative(pattern)
+      return
+    }
+
+    // Fall back to web vibration
     try {
       const basePattern = PATTERNS[pattern]
       const multiplier = INTENSITY_MULTIPLIERS[this.intensity]
@@ -128,6 +156,66 @@ class HapticsService {
       navigator.vibrate(adjustedPattern)
     } catch (error) {
       console.warn('Haptic feedback failed:', error)
+    }
+  }
+
+  /**
+   * Trigger native Capacitor haptic feedback
+   */
+  private async triggerNative(pattern: HapticPattern): Promise<void> {
+    if (!this.capacitorHaptics) return
+
+    try {
+      const { ImpactStyle, NotificationType } = await import('@capacitor/haptics')
+
+      switch (pattern) {
+        case 'light':
+        case 'selection':
+        case 'typing':
+          await this.capacitorHaptics.impact({ style: ImpactStyle.Light })
+          break
+        case 'medium':
+        case 'toggle':
+        case 'swipe':
+          await this.capacitorHaptics.impact({ style: ImpactStyle.Medium })
+          break
+        case 'heavy':
+        case 'delete':
+        case 'longPress':
+          await this.capacitorHaptics.impact({ style: ImpactStyle.Heavy })
+          break
+        case 'success':
+        case 'send':
+        case 'achievement':
+          await this.capacitorHaptics.notification({ type: NotificationType.Success })
+          break
+        case 'warning':
+        case 'notification':
+        case 'receive':
+          await this.capacitorHaptics.notification({ type: NotificationType.Warning })
+          break
+        case 'error':
+          await this.capacitorHaptics.notification({ type: NotificationType.Error })
+          break
+        case 'doubleTap':
+          await this.capacitorHaptics.impact({ style: ImpactStyle.Light })
+          setTimeout(() => this.capacitorHaptics?.impact({ style: ImpactStyle.Medium }), 50)
+          break
+        case 'refresh':
+          await this.capacitorHaptics.vibrate({ duration: 200 })
+          break
+        default:
+          await this.capacitorHaptics.impact({ style: ImpactStyle.Light })
+      }
+    } catch (error) {
+      console.warn('Native haptic feedback failed:', error)
+      // Fall back to web vibration
+      try {
+        const basePattern = PATTERNS[pattern]
+        navigator.vibrate(basePattern)
+      } catch {
+        // Ignore
+      }
     }
   }
 

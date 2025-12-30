@@ -2730,11 +2730,82 @@ select option {
   }
 }
 
-/* Bottom Safe Area Enhancement */
+/* Bottom Safe Area Enhancement - iOS only */
+/* Android handles keyboard differently, so we skip this padding on Android */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .pb-safe {
     padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
   }
+
+  /* Remove extra padding on Android Capacitor */
+  .native-android .pb-safe {
+    padding-bottom: 0;
+  }
+}
+
+/* ======================================
+   Smooth Keyboard Animation (Android)
+   ====================================== */
+
+/* CSS Variables set by native code during keyboard animation */
+:root {
+  --keyboard-height: 0px;
+  --keyboard-progress: 0;
+  --keyboard-height-start: 0px;
+  --keyboard-height-end: 0px;
+}
+
+/* During keyboard animation - sync with native WindowInsetsAnimation */
+.keyboard-animating .chat-input-container,
+.keyboard-animating .chat-stage,
+.keyboard-animating main {
+  /* Use native animation progress - no CSS transition needed */
+  transition: none !important;
+}
+
+/* Native-synced keyboard height adjustment */
+.keyboard-animating {
+  --keyboard-offset: var(--keyboard-height);
+}
+
+/* Base transition for keyboard resize (fallback for non-animated cases) */
+.native-android .chat-input-container,
+.native-android .chat-stage,
+.native-android main,
+.native-android .flex-1 {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+              height 0.2s cubic-bezier(0.2, 0, 0, 1),
+              padding 0.2s cubic-bezier(0.2, 0, 0, 1);
+  will-change: transform, height;
+}
+
+/* When keyboard is open */
+.native-android.keyboard-open .chat-input-container {
+  transform: translateY(0);
+}
+
+/* Smooth scroll behavior during keyboard animation */
+.native-android .chat-stage {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent content jumping */
+.native-android .flex-shrink-0 {
+  flex-shrink: 0 !important;
+}
+
+/* Enhanced touch responsiveness */
+.native-android * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Optimize for 60fps animations */
+.native-android .chat-input-container,
+.native-android .chat-stage {
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transform: translateZ(0);
 }
 
 /* iOS-style Momentum Scroll Enhancement */

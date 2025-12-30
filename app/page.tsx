@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import dynamic from "next/dynamic"
 import { useSwipeable } from "react-swipeable"
+import { Capacitor } from "@capacitor/core"
 import { ChatSidebar } from "@/components/chat-sidebar"
 import { ChatHeader } from "@/components/chat-header"
 import { ChatMessages } from "@/components/chat-messages"
@@ -24,6 +25,7 @@ import { ErrorBoundary } from "@/components/error-boundary"
 import { ShieldCheck, ShieldOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useMaterialMotion } from "@/hooks/use-material-motion"
 
 // Dynamic imports for heavy components - only loaded when needed
 const ModelComparison = dynamic(() => import("@/components/model-comparison").then(mod => ({ default: mod.ModelComparison })), {
@@ -40,12 +42,43 @@ function ChatApp() {
   const { chats, currentChatId, settings, setChats, setCurrentChat, createChat, updateSettings } = useApp()
   const { toast } = useToast()
   const { features, isSimpleMode } = useFeatureFlags()
+
+  // Initialize Material Design motion system and 120Hz detection
+  useMaterialMotion()
+
   const [isComparisonMode, setIsComparisonMode] = useState(false)
   const [showStatsPanel, setShowStatsPanel] = useState(false)
   const [showSidebar, setShowSidebar] = useState(true)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [shareHandled, setShareHandled] = useState(false)
   const [isKeyboardShortcutsOpen, setIsKeyboardShortcutsOpen] = useState(false)
+
+  // CRITICAL: Detect Android Capacitor and get safe area at runtime
+  const [isAndroidCapacitor, setIsAndroidCapacitor] = useState(false)
+  const [safeAreaTop, setSafeAreaTop] = useState(0)
+
+  useEffect(() => {
+    // Check platform at runtime - ONLY affects Capacitor Android
+    const checkPlatform = () => {
+      try {
+        const isNative = Capacitor.isNativePlatform()
+        const platform = Capacitor.getPlatform()
+        const isAndroid = isNative && platform === 'android'
+
+        if (isAndroid) {
+          setIsAndroidCapacitor(true)
+          const safeArea = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')
+          const parsed = parseInt(safeArea) || 28
+          setSafeAreaTop(parsed)
+        }
+      } catch {
+        // Not in Capacitor
+      }
+    }
+    checkPlatform()
+    const timer = setTimeout(checkPlatform, 500)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Memoize derived state to prevent unnecessary recalculations
   const currentChat = useMemo(() => chats.find((chat) => chat.id === currentChatId), [chats, currentChatId])
@@ -367,7 +400,15 @@ function ChatApp() {
 
       <div
         {...swipeHandlers}
-        className="relative z-10 flex h-[100dvh] overflow-hidden px-0 md:px-0 gap-0 touch-pan-y"
+        className={cn(
+          "relative z-10 flex overflow-hidden px-0 md:px-0 gap-0 touch-pan-y",
+          !isAndroidCapacitor && "h-[100dvh]"
+        )}
+        style={isAndroidCapacitor ? {
+          // Using border-box (default) - content shrinks to fit within padding
+          height: '100dvh',
+          paddingTop: `${safeAreaTop}px`,
+        } : undefined}
       >
         <PersonaLevelUpNotifier />
         {isMobileSidebarOpen && (
@@ -486,7 +527,10 @@ function ChatApp() {
                     <ChatMessages currentPersona={settings.selectedPersona} />
                   </div>
                 </div>
-                <div className="flex-shrink-0 w-full max-w-4xl mx-auto px-2 pb-safe">
+                <div className={cn(
+                  "flex-shrink-0 w-full max-w-4xl mx-auto px-2",
+                  !isAndroidCapacitor && "pb-safe"
+                )}>
                   <ChatInput />
                 </div>
               </>

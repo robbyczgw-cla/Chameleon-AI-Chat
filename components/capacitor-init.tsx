@@ -1,0 +1,293 @@
+'use client'
+
+import { useEffect, useRef } from 'react'
+import { Capacitor } from '@capacitor/core'
+
+/**
+ * Capacitor Initialization Component
+ * Initializes all native capabilities when running in Capacitor
+ * Must be placed near the root of the app
+ */
+export function CapacitorInit() {
+  const initialized = useRef(false)
+
+  useEffect(() => {
+    if (initialized.current) return
+    initialized.current = true
+
+    const init = async () => {
+      if (!Capacitor.isNativePlatform()) {
+        console.log('[Capacitor] Running in web mode')
+        return
+      }
+
+      console.log('[Capacitor] Initializing native features...')
+
+      try {
+        // Import and initialize main Capacitor module
+        const { initializeCapacitor } = await import('@/lib/capacitor')
+        await initializeCapacitor()
+
+        // Migrate localStorage to native storage
+        const { nativeStorage } = await import('@/lib/capacitor/storage')
+        await nativeStorage.migrate()
+
+        // Initialize notifications
+        const { nativeNotifications } = await import('@/lib/capacitor/notifications')
+        await nativeNotifications.initialize()
+
+        // Request notification permissions
+        const permission = await nativeNotifications.checkPermissions()
+        if (permission === 'prompt') {
+          await nativeNotifications.requestPermissions()
+        }
+
+        // Initialize network monitoring
+        const { nativeNetwork } = await import('@/lib/capacitor/network')
+        await nativeNetwork.initialize()
+
+        // Initialize keyboard handling
+        const { nativeKeyboard } = await import('@/lib/capacitor/keyboard')
+        await nativeKeyboard.initialize()
+
+        // Initialize theme management
+        const { nativeTheme } = await import('@/lib/capacitor/theme')
+        nativeTheme.initialize()
+
+        // Initialize TTS
+        const { nativeTTS } = await import('@/lib/capacitor/tts')
+        await nativeTTS.initialize()
+
+        // Configure Status Bar appearance
+        if (Capacitor.isPluginAvailable('StatusBar')) {
+          const { StatusBar, Style } = await import('@capacitor/status-bar')
+          await StatusBar.setStyle({ style: Style.Dark })
+        }
+
+        // Apply native Android styling (Material You)
+        if (Capacitor.getPlatform() === 'android') {
+          // CRITICAL: Set safe area fallback if not already set by MainActivity
+          // This ensures the CSS has a value even if native injection is delayed
+          const currentTop = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')
+          if (!currentTop || currentTop === '' || currentTop === '0px') {
+            // Default Android status bar height is ~24-32dp
+            // Use 28dp as safe default for most devices (Vivo, Xiaomi, Samsung)
+            document.documentElement.style.setProperty('--safe-area-top', '28px')
+            console.log('[Capacitor] Set fallback --safe-area-top: 28px')
+          } else {
+            console.log('[Capacitor] --safe-area-top already set:', currentTop)
+          }
+
+          // Set bottom safe area fallback for navigation bar
+          const currentBottom = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-bottom')
+          if (!currentBottom || currentBottom === '' || currentBottom === '0px') {
+            document.documentElement.style.setProperty('--safe-area-bottom', '0px')
+          }
+
+          const { applyNativeStyling } = await import('@/lib/capacitor/native-design')
+          applyNativeStyling()
+        }
+
+        // Hide splash screen after initialization
+        if (Capacitor.isPluginAvailable('SplashScreen')) {
+          const { SplashScreen } = await import('@capacitor/splash-screen')
+          await SplashScreen.hide({ fadeOutDuration: 500 })
+        }
+
+        // Setup deep link handling
+        setupDeepLinkHandling()
+
+        // Setup widget and text selection handling
+        setupWidgetEventHandling()
+
+        // Setup back button handling for Android
+        setupBackButtonHandling()
+
+        // Signal to native code that web app is ready to receive events
+        // This is checked by MainActivity.dispatchEventWithRetry()
+        ;(window as any).__chameleonReady = true
+        console.log('[Capacitor] Set __chameleonReady flag')
+
+        console.log('[Capacitor] Native features initialized successfully')
+      } catch (error) {
+        console.error('[Capacitor] Initialization error:', error)
+      }
+    }
+
+    init()
+  }, [])
+
+  return null
+}
+
+/**
+ * Setup deep link handling for authentication and share targets
+ */
+function setupDeepLinkHandling() {
+  document.addEventListener('capacitor:deeplink', (e: any) => {
+    const url = e.detail?.url
+    if (!url) return
+
+    console.log('[Capacitor] Deep link received:', url)
+
+    try {
+      const parsed = new URL(url)
+
+      // Handle auth callbacks
+      if (parsed.pathname.includes('/auth/callback')) {
+        window.location.href = parsed.pathname + parsed.search
+        return
+      }
+
+      // Handle share intents
+      if (parsed.pathname.includes('/share')) {
+        window.location.href = parsed.pathname + parsed.search
+        return
+      }
+
+      // Handle custom protocol (web+chameleon://)
+      if (url.startsWith('web+chameleon://')) {
+        const action = url.replace('web+chameleon://', '')
+        handleCustomProtocol(action)
+        return
+      }
+
+      // Default: navigate to the path
+      if (parsed.pathname && parsed.pathname !== '/') {
+        window.location.href = parsed.pathname + parsed.search
+      }
+    } catch (error) {
+      console.warn('[Capacitor] Failed to parse deep link:', error)
+    }
+  })
+}
+
+/**
+ * Handle custom protocol actions
+ */
+function handleCustomProtocol(action: string) {
+  switch (action) {
+    case 'new-chat':
+      window.dispatchEvent(new CustomEvent('chameleon:new-chat'))
+      break
+    case 'simple-mode':
+      window.dispatchEvent(new CustomEvent('chameleon:mode-change', { detail: 'simple' }))
+      break
+    case 'debate-mode':
+      window.dispatchEvent(new CustomEvent('chameleon:mode-change', { detail: 'debate' }))
+      break
+    default:
+      console.log('[Capacitor] Unknown protocol action:', action)
+  }
+}
+
+/**
+ * Setup widget and text selection event handling
+ * Listens for native events from Android widget and "Ask Chameleon" text selection
+ */
+function setupWidgetEventHandling() {
+  // Handle "New Chat" from widget
+  window.addEventListener('chameleon:new-chat', () => {
+    console.log('[Capacitor] Widget: New Chat requested')
+    // Dispatch event that the app context listens for
+    window.dispatchEvent(new CustomEvent('createNewChat'))
+  })
+
+  // Handle "Voice Input" from widget
+  window.addEventListener('chameleon:voice-input', () => {
+    console.log('[Capacitor] Widget: Voice Input requested')
+    // Dispatch event to trigger voice input
+    window.dispatchEvent(new CustomEvent('toggleVoice'))
+  })
+
+  // Handle "Ask Chameleon" from text selection
+  window.addEventListener('chameleon:ask', (e: any) => {
+    const text = e.detail?.text
+    if (!text) return
+
+    console.log('[Capacitor] Text Selection: Ask about:', text.substring(0, 50))
+
+    // First create a new chat, then insert the text
+    window.dispatchEvent(new CustomEvent('createNewChat'))
+
+    // Wait for new chat to be created, then insert text
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('insertPrompt', {
+        detail: `Please explain or help me with: "${text}"`
+      }))
+      // Focus the input
+      window.dispatchEvent(new CustomEvent('focusChatInput'))
+    }, 300)
+  })
+
+  // Handle deep link data
+  window.addEventListener('chameleon:deep-link', (e: any) => {
+    const url = e.detail?.url
+    if (!url) return
+
+    console.log('[Capacitor] Deep link received:', url)
+
+    try {
+      const parsed = new URL(url)
+      const params = new URLSearchParams(parsed.search)
+
+      // Handle ask?text=... from ProcessTextActivity
+      if (parsed.pathname.includes('/ask') || parsed.host === 'ask') {
+        const text = params.get('text')
+        if (text) {
+          window.dispatchEvent(new CustomEvent('chameleon:ask', {
+            detail: { text: decodeURIComponent(text) }
+          }))
+        }
+      }
+    } catch (error) {
+      console.warn('[Capacitor] Failed to parse deep link:', error)
+    }
+  })
+}
+
+/**
+ * Setup back button handling for Android
+ */
+async function setupBackButtonHandling() {
+  if (!Capacitor.isPluginAvailable('App')) return
+
+  const { App } = await import('@capacitor/app')
+
+  // Track navigation state
+  let canGoBack = false
+
+  // Update canGoBack based on history state
+  window.addEventListener('popstate', () => {
+    canGoBack = window.history.length > 1
+  })
+
+  // Listen for Android back button
+  App.addListener('backButton', async () => {
+    // First, try to close any open dialogs/modals
+    const closeEvent = new CustomEvent('chameleon:close-dialog')
+    const handled = document.dispatchEvent(closeEvent)
+
+    if (handled) return
+
+    // Then try normal navigation
+    if (window.history.length > 1) {
+      window.history.back()
+    } else {
+      // Confirm exit
+      const { Dialog } = await import('@capacitor/dialog')
+      const { value } = await Dialog.confirm({
+        title: 'Exit App',
+        message: 'Are you sure you want to exit Chameleon AI?',
+        okButtonTitle: 'Exit',
+        cancelButtonTitle: 'Stay',
+      })
+
+      if (value) {
+        App.exitApp()
+      }
+    }
+  })
+}
+
+export default CapacitorInit
