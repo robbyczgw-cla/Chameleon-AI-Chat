@@ -60,19 +60,27 @@ public class MainActivity extends BridgeActivity {
         // Configure WebView for optimal performance
         configureWebView();
 
-        // Setup smooth keyboard animations (Android 11+)
-        setupKeyboardAnimation();
-
         // Setup predictive back gesture for Android 16+
         setupPredictiveBackGesture();
 
         // Handle incoming intents (share targets, deep links)
         handleIntent(getIntent());
 
-        // Mark as ready after brief delay to ensure smooth transition
-        bridge.getWebView().post(() -> {
-            isReady = true;
-        });
+        // Defer bridge-dependent setup to ensure it's ready
+        // This fixes crash on first launch after fresh install
+        if (bridge != null && bridge.getWebView() != null) {
+            bridge.getWebView().post(() -> {
+                // Setup smooth keyboard animations (Android 11+)
+                setupKeyboardAnimation();
+                isReady = true;
+            });
+        } else {
+            // Fallback: post to main thread with delay
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                setupKeyboardAnimation();
+                isReady = true;
+            }, 500);
+        }
     }
 
     /**
@@ -95,6 +103,10 @@ public class MainActivity extends BridgeActivity {
         // Transparent system bars for edge-to-edge
         window.setStatusBarColor(Color.TRANSPARENT);
         window.setNavigationBarColor(Color.TRANSPARENT);
+
+        // CRITICAL: Set window background to match app theme
+        // This prevents black showing through during keyboard animation
+        window.getDecorView().setBackgroundColor(Color.parseColor("#0a0a0a"));
 
         // Handle window insets for proper layout
         View rootView = findViewById(android.R.id.content);
@@ -130,6 +142,10 @@ public class MainActivity extends BridgeActivity {
     private void configureWebView() {
         WebView webView = bridge.getWebView();
         if (webView == null) return;
+
+        // CRITICAL: Set WebView background to match app theme
+        // This prevents black bar appearing during keyboard animation
+        webView.setBackgroundColor(Color.parseColor("#0a0a0a")); // Dark theme background
 
         WebSettings settings = webView.getSettings();
 
@@ -433,6 +449,9 @@ public class MainActivity extends BridgeActivity {
             // WindowInsetsAnimation requires Android 11+
             return;
         }
+
+        // Ensure bridge is ready (fixes crash on fresh install)
+        if (bridge == null) return;
 
         WebView webView = bridge.getWebView();
         if (webView == null) return;

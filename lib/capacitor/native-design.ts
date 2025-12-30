@@ -260,17 +260,16 @@ export function generateNativeCSS(): string {
 
     /* CRITICAL FIX: Apply safe area to viewport-height containers directly.
        These containers use 100dvh which ignores body padding.
-       We add top padding and reduce height to account for status bar. */
+       We add top padding and reduce height to account for status bar.
+       NOTE: Using border-box (default) - padding is INCLUDED in height */
     body.native-android .h-\\[100dvh\\] {
-      height: calc(100dvh - var(--safe-area-top, 28px)) !important;
       padding-top: var(--safe-area-top, 28px) !important;
-      box-sizing: content-box !important;
+      padding-bottom: 0 !important;
     }
 
     body.native-android .h-screen {
-      height: calc(100vh - var(--safe-area-top, 28px)) !important;
       padding-top: var(--safe-area-top, 28px) !important;
-      box-sizing: content-box !important;
+      padding-bottom: 0 !important;
     }
 
     /* Remove iOS env() safe-area padding - we handle it via --safe-area-top */

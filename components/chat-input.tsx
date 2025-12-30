@@ -1527,11 +1527,12 @@ export function ChatInput() {
   return (
     <div
       className={cn(
-        "chat-input-container bg-background/80 backdrop-blur-sm p-2 md:p-4 border-t border-border/20 smooth-transition md:pb-4",
+        "chat-input-container bg-background/80 backdrop-blur-sm border-t border-border/20 smooth-transition",
+        // Explicit padding - no shorthand so we can fully control bottom
+        "px-2 pt-2 md:px-4 md:pt-4",
         isEmpty ? "shadow-apple-2" : "shadow-apple-1",
-        // iOS/Web: use env() safe area. Android Capacitor: no bottom padding - adjustResize handles keyboard
-        !isAndroidCapacitor && "pb-[env(safe-area-inset-bottom,4px)]",
-        isAndroidCapacitor && "!pb-0"
+        // Bottom padding: iOS/Web uses safe area, Android uses 0 (keyboard adjustResize handles it)
+        isAndroidCapacitor ? "pb-0" : "pb-2 md:pb-4 pb-[max(8px,env(safe-area-inset-bottom))]"
       )}
     >
       {attachedCollectionId && (
