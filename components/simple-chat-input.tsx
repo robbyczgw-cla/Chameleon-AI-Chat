@@ -1491,10 +1491,11 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
   return (
     <div className={cn(
-      "p-3 md:p-4 md:pb-4",
-      // iOS/Web: use env() safe area. Android Capacitor: no extra bottom padding needed
-      !isAndroidCapacitor && "pb-[env(safe-area-inset-bottom,8px)]",
-      isAndroidCapacitor && "!pb-0" // No bottom padding on Android - adjustResize handles keyboard
+      "chat-input-container",
+      // Use explicit padding instead of p-3 so we can control bottom separately
+      "px-3 pt-3 md:px-4 md:pt-4",
+      // Bottom padding: iOS/Web uses safe area, Android uses 0 (keyboard adjustResize handles it)
+      isAndroidCapacitor ? "pb-0" : "pb-3 md:pb-4 pb-[max(12px,env(safe-area-inset-bottom))]"
     )}>
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
         {/* Unified Input Container - Clean dark rounded box */}
