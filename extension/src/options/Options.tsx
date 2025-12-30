@@ -7,7 +7,7 @@ import {
 } from "../shared/storage"
 import { getModels } from "../shared/api"
 import { PERSONAS, getDefaultPersona } from "../shared/personas"
-import { getCurrentUser, signIn, signOut, getUserSettings, onAuthStateChange } from "../shared/supabase"
+import { getCurrentUser, signIn, signOut, getUserSettings, onAuthStateChange, isSupabaseAvailable } from "../shared/supabase"
 
 const DEFAULT_MODELS = [
   { id: "anthropic/claude-3.5-sonnet", name: "Claude 3.5 Sonnet (Vision)" },
@@ -23,6 +23,9 @@ type AuthMode = "login" | "manual" | "authenticated"
 
 const DEFAULT_SETTINGS: ExtensionSettings = {
   apiKey: "",
+  openAIKey: "",
+  supabaseUrl: "",
+  supabaseAnonKey: "",
   selectedPersona: getDefaultPersona().id,
   selectedModel: "anthropic/claude-3.5-sonnet",
   theme: "dark",
@@ -49,7 +52,10 @@ export default function Options() {
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState("")
   const [showApiKey, setShowApiKey] = useState(false)
+  const [showOpenAIKey, setShowOpenAIKey] = useState(false)
   const [showTavilyKey, setShowTavilyKey] = useState(false)
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [supabaseConfigured, setSupabaseConfigured] = useState(false)
 
   useEffect(() => {
     initializeAuth()
@@ -57,34 +63,52 @@ export default function Options() {
 
   async function initializeAuth() {
     try {
-      const currentUser = await getCurrentUser()
-      if (currentUser) {
-        setUser(currentUser)
-        setAuthMode("authenticated")
-        await loadUserSettings(currentUser.id)
-      } else {
-        const stored = await getSettings()
-        if (stored?.apiKey) {
-          setLocalSettings({ ...DEFAULT_SETTINGS, ...stored })
-          setAuthMode("manual")
+      // Check if Supabase is configured
+      const supabaseAvailable = await isSupabaseAvailable()
+      setSupabaseConfigured(supabaseAvailable)
+
+      if (supabaseAvailable) {
+        const currentUser = await getCurrentUser()
+        if (currentUser) {
+          setUser(currentUser)
+          setAuthMode("authenticated")
+          await loadUserSettings(currentUser.id)
+          setLoading(false)
+          return
         }
+      }
+
+      // No Supabase or not logged in - check for stored settings
+      const stored = await getSettings()
+      if (stored?.apiKey) {
+        setLocalSettings({ ...DEFAULT_SETTINGS, ...stored })
+        setAuthMode("manual")
+      } else if (!supabaseAvailable) {
+        // No Supabase configured - go straight to manual mode
+        setAuthMode("manual")
       }
     } catch (err) {
       console.error("[Options] Auth init error:", err)
+      // On error, default to manual mode
+      setAuthMode("manual")
     } finally {
       setLoading(false)
     }
 
-    onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session?.user) {
-        setUser(session.user)
-        setAuthMode("authenticated")
-        await loadUserSettings(session.user.id)
-      } else if (event === "SIGNED_OUT") {
-        setUser(null)
-        setAuthMode("login")
-      }
-    })
+    // Only set up auth listener if Supabase is available
+    const supabaseAvailable = await isSupabaseAvailable()
+    if (supabaseAvailable) {
+      onAuthStateChange(async (event, session) => {
+        if (event === "SIGNED_IN" && session?.user) {
+          setUser(session.user)
+          setAuthMode("authenticated")
+          await loadUserSettings(session.user.id)
+        } else if (event === "SIGNED_OUT") {
+          setUser(null)
+          setAuthMode("login")
+        }
+      })
+    }
   }
 
   async function loadUserSettings(userId: string) {
@@ -201,52 +225,62 @@ export default function Options() {
         </header>
 
         <main className="options-main">
-          <section className="options-section">
-            <h2>Sign In</h2>
-            {authError && <div className="options-error">{authError}</div>}
+          {supabaseConfigured ? (
+            <section className="options-section">
+              <h2>Sign In</h2>
+              {authError && <div className="options-error">{authError}</div>}
 
-            <div className="options-field">
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
+              <div className="options-field">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  disabled={authLoading}
+                />
+              </div>
+
+              <div className="options-field">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  disabled={authLoading}
+                  onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                />
+              </div>
+
+              <button
+                className="options-btn options-btn-primary"
+                onClick={handleLogin}
                 disabled={authLoading}
-              />
-            </div>
+                style={{ width: "100%", marginTop: 16 }}
+              >
+                {authLoading ? "Signing in..." : "Sign In"}
+              </button>
 
-            <div className="options-field">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                disabled={authLoading}
-                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-              />
-            </div>
+              <p className="options-hint" style={{ textAlign: "center", marginTop: 16 }}>
+                <a href="https://chameleonai.chat/auth/sign-up" target="_blank" rel="noreferrer">
+                  Create an account
+                </a>
+              </p>
+            </section>
+          ) : (
+            <section className="options-section">
+              <h2>Welcome!</h2>
+              <p className="options-hint">
+                Enter your OpenRouter API key to get started. You can optionally configure
+                Supabase in Advanced Settings to enable account sync.
+              </p>
+            </section>
+          )}
 
-            <button
-              className="options-btn options-btn-primary"
-              onClick={handleLogin}
-              disabled={authLoading}
-              style={{ width: "100%", marginTop: 16 }}
-            >
-              {authLoading ? "Signing in..." : "Sign In"}
-            </button>
-
-            <p className="options-hint" style={{ textAlign: "center", marginTop: 16 }}>
-              <a href="https://chameleonai.chat/auth/sign-up" target="_blank" rel="noreferrer">
-                Create an account
-              </a>
-            </p>
-          </section>
-
-          <div className="options-divider">or</div>
+          {supabaseConfigured && <div className="options-divider">or</div>}
 
           <section className="options-section">
             <h2>Use Your Own API Key</h2>
@@ -459,6 +493,72 @@ export default function Options() {
           <button className="options-btn options-btn-danger" onClick={handleClearData} style={{ marginTop: 12 }}>
             Clear All Data
           </button>
+        </section>
+
+        {/* Advanced Settings */}
+        <section className="options-section">
+          <button
+            className="options-btn options-btn-small"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            style={{ width: "100%" }}
+          >
+            {showAdvanced ? "▼" : "▶"} Advanced Settings
+          </button>
+
+          {showAdvanced && (
+            <div style={{ marginTop: 16 }}>
+              {/* OpenAI API Key for Voice */}
+              <div className="options-field">
+                <label>OpenAI API Key (for Voice)</label>
+                <div className="options-input-group">
+                  <input
+                    type={showOpenAIKey ? "text" : "password"}
+                    value={settings.openAIKey || ""}
+                    onChange={(e) => updateSetting("openAIKey", e.target.value)}
+                    placeholder="sk-..."
+                  />
+                  <button className="options-toggle-btn" onClick={() => setShowOpenAIKey(!showOpenAIKey)}>
+                    {showOpenAIKey ? "Hide" : "Show"}
+                  </button>
+                </div>
+                <p className="options-hint">
+                  Required for Whisper voice input & OpenAI TTS.{" "}
+                  <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">Get key</a>
+                </p>
+              </div>
+
+              {/* Supabase Configuration */}
+              <div className="options-field" style={{ marginTop: 16 }}>
+                <label>Supabase URL (for Account Sync)</label>
+                <input
+                  type="text"
+                  value={settings.supabaseUrl || ""}
+                  onChange={(e) => updateSetting("supabaseUrl", e.target.value)}
+                  placeholder="https://your-project.supabase.co"
+                />
+              </div>
+
+              <div className="options-field">
+                <label>Supabase Anon Key</label>
+                <input
+                  type="password"
+                  value={settings.supabaseAnonKey || ""}
+                  onChange={(e) => updateSetting("supabaseAnonKey", e.target.value)}
+                  placeholder="eyJhbGciOiJI..."
+                />
+                <p className="options-hint">
+                  Optional: Connect to your Chameleon web app for account sync.
+                  Get these from your Supabase project dashboard.
+                </p>
+              </div>
+
+              {supabaseConfigured && (
+                <div className="options-info" style={{ marginTop: 8 }}>
+                  <p>✅ Supabase configured - you can sign in above</p>
+                </div>
+              )}
+            </div>
+          )}
         </section>
 
         {/* Save */}
