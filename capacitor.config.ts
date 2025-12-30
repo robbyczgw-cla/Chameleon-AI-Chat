@@ -70,10 +70,10 @@ const config: CapacitorConfig = {
 
     // Keyboard Configuration
     Keyboard: {
-      // Use 'native' to work WITH Android's adjustResize
-      resize: 'native',
-      resizeOnFullScreen: true,
-      // Don't add extra scroll - let CSS handle layout
+      // CRITICAL: Set to 'none' to let native adjustResize handle keyboard
+      // Other modes cause black bar between content and keyboard
+      resize: 'none',
+      resizeOnFullScreen: false,
       scrollPadding: false,
     },
 
