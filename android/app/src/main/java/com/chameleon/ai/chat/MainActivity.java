@@ -10,8 +10,11 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.PathInterpolator;
+import android.view.HapticFeedbackConstants;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -24,6 +27,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 import java.util.List;
+import android.webkit.JavascriptInterface;
+import android.content.Context;
 
 import com.getcapacitor.BridgeActivity;
 
@@ -108,6 +113,17 @@ public class MainActivity extends BridgeActivity {
         // This prevents black showing through during keyboard animation
         window.getDecorView().setBackgroundColor(Color.parseColor("#0a0a0a"));
 
+        // Enable 120Hz high refresh rate for smooth animations (Android 11+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Request highest available refresh rate (60Hz, 90Hz, 120Hz, etc.)
+            window.getAttributes().preferredDisplayModeId = 0; // 0 = highest available
+
+            // Set preferred refresh rate range for adaptive displays
+            window.getAttributes().preferredRefreshRate = 120.0f;
+            window.getAttributes().preferredMinDisplayRefreshRate = 60.0f;
+            window.getAttributes().preferredMaxDisplayRefreshRate = 120.0f;
+        }
+
         // Handle window insets for proper layout
         View rootView = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(rootView, (view, windowInsets) -> {
@@ -172,13 +188,25 @@ public class MainActivity extends BridgeActivity {
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
 
-        // Enable hardware acceleration
+        // Enable hardware acceleration with GPU rasterization
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
-        // Modern rendering
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            settings.setForceDark(WebSettings.FORCE_DARK_ON);
+        // PERFORMANCE: Enable additional GPU optimizations
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Enable force dark for better battery and theme consistency
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                settings.setForceDark(WebSettings.FORCE_DARK_ON);
+            }
+
+            // Disable safe browsing for performance (app loads from known URLs)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                settings.setSafeBrowsingEnabled(false);
+            }
         }
+
+        // Enable smooth scrolling and better rendering
+        webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+        webView.setNestedScrollingEnabled(true);
 
         // Enable media playback (for TTS)
         settings.setMediaPlaybackRequiresUserGesture(false);
@@ -202,6 +230,103 @@ public class MainActivity extends BridgeActivity {
         // User agent identification
         String defaultUserAgent = settings.getUserAgentString();
         settings.setUserAgentString(defaultUserAgent + " ChameleonAI/1.0.0");
+
+        // Add JavaScript interface for native features (haptics, device info, etc.)
+        webView.addJavascriptInterface(new NativeInterface(this), "ChameleonNative");
+
+        // Pass display refresh rate to web app
+        float refreshRate = getRefreshRate();
+        String refreshRateJs = String.format(
+            "window.__nativeRefreshRate = %.1f;" +
+            "window.__supports120Hz = %s;" +
+            "document.documentElement.style.setProperty('--refresh-rate', '%.1f');",
+            refreshRate,
+            refreshRate >= 115.0f ? "true" : "false", // Allow 115Hz+ as "120Hz"
+            refreshRate
+        );
+        webView.post(() -> webView.evaluateJavascript(refreshRateJs, null));
+    }
+
+    /**
+     * Get current display refresh rate
+     */
+    private float getRefreshRate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            android.view.Display display = getDisplay();
+            if (display != null) {
+                return display.getRefreshRate();
+            }
+        }
+        return getWindowManager().getDefaultDisplay().getRefreshRate();
+    }
+
+    /**
+     * JavaScript interface for native Android features
+     * Exposes haptic feedback, device info, and other native capabilities to web
+     */
+    public class NativeInterface {
+        private Context context;
+
+        NativeInterface(Context context) {
+            this.context = context;
+        }
+
+        /**
+         * Trigger haptic feedback from JavaScript
+         * Usage: window.ChameleonNative.haptic('light')
+         */
+        @JavascriptInterface
+        public void haptic(String type) {
+            runOnUiThread(() -> {
+                if (bridge == null || bridge.getWebView() == null) return;
+
+                int feedbackConstant;
+                switch (type) {
+                    case "light":
+                        feedbackConstant = HapticFeedbackConstants.CLOCK_TICK;
+                        break;
+                    case "medium":
+                        feedbackConstant = HapticFeedbackConstants.CONTEXT_CLICK;
+                        break;
+                    case "heavy":
+                        feedbackConstant = HapticFeedbackConstants.LONG_PRESS;
+                        break;
+                    case "success":
+                        feedbackConstant = HapticFeedbackConstants.CONFIRM;
+                        break;
+                    case "warning":
+                        feedbackConstant = HapticFeedbackConstants.REJECT;
+                        break;
+                    default:
+                        feedbackConstant = HapticFeedbackConstants.VIRTUAL_KEY;
+                }
+
+                bridge.getWebView().performHapticFeedback(
+                    feedbackConstant,
+                    HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                );
+            });
+        }
+
+        /**
+         * Get device display info
+         */
+        @JavascriptInterface
+        public String getDisplayInfo() {
+            float refreshRate = getRefreshRate();
+            return String.format("{\"refreshRate\":%.1f,\"supports120Hz\":%s}",
+                refreshRate,
+                refreshRate >= 115.0f ? "true" : "false"
+            );
+        }
+
+        /**
+         * Check if device supports high refresh rate
+         */
+        @JavascriptInterface
+        public boolean supports120Hz() {
+            return getRefreshRate() >= 115.0f;
+        }
     }
 
     /**
@@ -467,7 +592,9 @@ public class MainActivity extends BridgeActivity {
 
     /**
      * Setup smooth keyboard animations (Android 11+)
-     * Uses WindowInsetsAnimationCompat for synchronized keyboard animations
+     * Uses Material Design motion principles for natural feel
+     * Animation curve: Emphasized easing (0.2, 0.0, 0.0, 1.0)
+     * Duration: 300ms (Android standard for IME transitions)
      */
     private void setupKeyboardAnimation() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
@@ -481,17 +608,34 @@ public class MainActivity extends BridgeActivity {
         WebView webView = bridge.getWebView();
         if (webView == null) return;
 
+        // Material Design Emphasized Easing for keyboard (feels more natural)
+        // This creates a smooth, snappy animation that follows finger velocity
+        final PathInterpolator emphasizedInterpolator = new PathInterpolator(0.2f, 0.0f, 0.0f, 1.0f);
+
         // Create a callback to sync content with keyboard animation
         WindowInsetsAnimationCompat.Callback animationCallback = new WindowInsetsAnimationCompat.Callback(
-            WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP
+            WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE
         ) {
             private int startBottom = 0;
             private int endBottom = 0;
+            private long animationStartTime = 0;
 
             @Override
             public void onPrepare(WindowInsetsAnimationCompat animation) {
-                // Called before animation starts
                 super.onPrepare(animation);
+
+                // Pre-calculate start state for smoother animation
+                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
+                    animationStartTime = System.currentTimeMillis();
+
+                    // Enable haptic feedback for keyboard show/hide (subtle)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        webView.performHapticFeedback(
+                            HapticFeedbackConstants.KEYBOARD_TAP,
+                            HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                        );
+                    }
+                }
             }
 
             @Override
@@ -499,6 +643,11 @@ public class MainActivity extends BridgeActivity {
                 WindowInsetsAnimationCompat animation,
                 WindowInsetsAnimationCompat.BoundsCompat bounds
             ) {
+                // Only handle IME (keyboard) animations
+                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) == 0) {
+                    return bounds;
+                }
+
                 // Capture the start and end keyboard heights
                 startBottom = bounds.getLowerBound().bottom;
                 endBottom = bounds.getUpperBound().bottom;
@@ -507,9 +656,11 @@ public class MainActivity extends BridgeActivity {
                 String js = String.format(
                     "document.documentElement.classList.add('keyboard-animating');" +
                     "document.documentElement.style.setProperty('--keyboard-height-start', '%dpx');" +
-                    "document.documentElement.style.setProperty('--keyboard-height-end', '%dpx');",
+                    "document.documentElement.style.setProperty('--keyboard-height-end', '%dpx');" +
+                    "document.documentElement.style.setProperty('--keyboard-direction', '%s');",
                     pxToDp(startBottom),
-                    pxToDp(endBottom)
+                    pxToDp(endBottom),
+                    endBottom > startBottom ? "showing" : "hiding"
                 );
                 webView.evaluateJavascript(js, null);
 
@@ -531,19 +682,25 @@ public class MainActivity extends BridgeActivity {
                 }
 
                 if (imeAnimation != null) {
-                    // Get the current progress (0.0 to 1.0)
-                    float progress = imeAnimation.getInterpolatedFraction();
+                    // Get linear progress from system
+                    float linearProgress = imeAnimation.getFraction();
+
+                    // Apply Material Design emphasized easing for natural feel
+                    float easedProgress = emphasizedInterpolator.getInterpolation(linearProgress);
 
                     // Calculate current keyboard height
                     Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
                     int currentHeight = imeInsets.bottom;
 
-                    // Update CSS variable for smooth transition
+                    // Update CSS variables with both linear and eased progress
+                    // This allows web to choose which curve works best for different elements
                     String js = String.format(
                         "document.documentElement.style.setProperty('--keyboard-height', '%dpx');" +
-                        "document.documentElement.style.setProperty('--keyboard-progress', '%.3f');",
+                        "document.documentElement.style.setProperty('--keyboard-progress', '%.4f');" +
+                        "document.documentElement.style.setProperty('--keyboard-progress-linear', '%.4f');",
                         pxToDp(currentHeight),
-                        progress
+                        easedProgress,
+                        linearProgress
                     );
                     webView.evaluateJavascript(js, null);
                 }
@@ -553,8 +710,23 @@ public class MainActivity extends BridgeActivity {
 
             @Override
             public void onEnd(WindowInsetsAnimationCompat animation) {
+                // Only handle IME animations
+                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) == 0) {
+                    return;
+                }
+
+                // Calculate final animation duration for logging
+                long duration = System.currentTimeMillis() - animationStartTime;
+
                 // Notify web app that keyboard animation ended
-                String js = "document.documentElement.classList.remove('keyboard-animating');";
+                String js = String.format(
+                    "document.documentElement.classList.remove('keyboard-animating');" +
+                    "document.documentElement.style.setProperty('--keyboard-progress', '1.0');" +
+                    "window.dispatchEvent(new CustomEvent('chameleon:keyboard-animation-end', { " +
+                    "  detail: { duration: %d } " +
+                    "}));",
+                    duration
+                );
                 webView.evaluateJavascript(js, null);
 
                 super.onEnd(animation);
@@ -563,5 +735,12 @@ public class MainActivity extends BridgeActivity {
 
         // Apply the animation callback to the WebView
         ViewCompat.setWindowInsetsAnimationCallback(webView, animationCallback);
+
+        // Configure window for smooth keyboard transitions
+        Window window = getWindow();
+        window.setSoftInputMode(
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE |
+            WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN
+        );
     }
 }

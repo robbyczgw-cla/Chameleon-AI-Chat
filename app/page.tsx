@@ -22,6 +22,7 @@ import { haptics } from "@/lib/haptics"
 import { KeyboardShortcutsDialog } from "@/components/keyboard-shortcuts-dialog"
 import { useFeatureFlags } from "@/hooks/use-feature-flags"
 import { ErrorBoundary } from "@/components/error-boundary"
+import { useMaterialMotion } from "@/hooks/use-material-motion"
 
 // Dynamic imports for heavy components - only loaded when needed
 const ModelComparison = dynamic(() => import("@/components/model-comparison").then(mod => ({ default: mod.ModelComparison })), {
@@ -38,6 +39,10 @@ function ChatApp() {
   const { chats, currentChatId, settings, setChats, setCurrentChat, createChat } = useApp()
   const { toast } = useToast()
   const { features, isSimpleMode } = useFeatureFlags()
+
+  // Initialize Material Design motion system and 120Hz detection
+  useMaterialMotion()
+
   const [isComparisonMode, setIsComparisonMode] = useState(false)
   const [showStatsPanel, setShowStatsPanel] = useState(false)
   const [showSidebar, setShowSidebar] = useState(true)
