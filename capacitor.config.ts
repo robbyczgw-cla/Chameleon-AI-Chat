@@ -70,7 +70,10 @@ const config: CapacitorConfig = {
 
     // Keyboard Configuration
     Keyboard: {
-      resizeOnFullScreen: true,
+      // CRITICAL: Set to 'none' to let native adjustResize handle keyboard
+      // Other modes cause black bar between content and keyboard
+      resize: 'none',
+      resizeOnFullScreen: false,
     },
 
     // Push Notifications
