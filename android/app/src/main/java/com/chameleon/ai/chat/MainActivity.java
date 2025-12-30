@@ -142,6 +142,9 @@ public class MainActivity extends BridgeActivity {
      * Configure WebView for optimal performance
      */
     private void configureWebView() {
+        // CRITICAL: Check bridge is ready (fixes crash on first launch)
+        if (bridge == null) return;
+
         WebView webView = bridge.getWebView();
         if (webView == null) return;
 
@@ -209,8 +212,15 @@ public class MainActivity extends BridgeActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                if (bridge == null || bridge.getWebView() == null) {
+                    // Bridge not ready, use default back behavior
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                    setEnabled(true);
+                    return;
+                }
                 WebView webView = bridge.getWebView();
-                if (webView != null && webView.canGoBack()) {
+                if (webView.canGoBack()) {
                     // Navigate back in web history
                     webView.goBack();
                 } else {
@@ -297,27 +307,31 @@ public class MainActivity extends BridgeActivity {
      * Ensures the web app has time to initialize before receiving events
      */
     private void dispatchEventWithRetry(String js, int maxRetries) {
+        // Check bridge is ready
+        if (bridge == null || bridge.getWebView() == null) return;
+
         final int[] retryCount = {0};
         final long initialDelay = 500; // Wait 500ms initially for page load
         final long retryDelay = 300;   // Then retry every 300ms
+        final WebView webView = bridge.getWebView();
 
-        bridge.getWebView().postDelayed(new Runnable() {
+        webView.postDelayed(new Runnable() {
             @Override
             public void run() {
                 // Check if web app is ready by looking for our initialization flag
-                bridge.getWebView().evaluateJavascript(
+                webView.evaluateJavascript(
                     "(function() { return window.__chameleonReady === true; })()",
                     result -> {
                         if ("true".equals(result)) {
                             // Web app is ready, dispatch the event
-                            bridge.getWebView().evaluateJavascript(js, null);
+                            webView.evaluateJavascript(js, null);
                         } else if (retryCount[0] < maxRetries) {
                             // Retry after delay
                             retryCount[0]++;
-                            bridge.getWebView().postDelayed(this, retryDelay);
+                            webView.postDelayed(this, retryDelay);
                         } else {
                             // Max retries reached, try dispatching anyway
-                            bridge.getWebView().evaluateJavascript(js, null);
+                            webView.evaluateJavascript(js, null);
                         }
                     }
                 );
@@ -368,7 +382,10 @@ public class MainActivity extends BridgeActivity {
      * Pass share data to web app
      */
     private void passShareToWeb(String type, String data, String title) {
-        bridge.getWebView().post(() -> {
+        if (bridge == null || bridge.getWebView() == null) return;
+        final WebView webView = bridge.getWebView();
+
+        webView.post(() -> {
             String js = String.format(
                 "window.dispatchEvent(new CustomEvent('chameleon:share-received', { " +
                 "  detail: { type: '%s', data: %s, title: %s } " +
@@ -377,7 +394,7 @@ public class MainActivity extends BridgeActivity {
                 type.equals("images") ? data : "'" + escapeJs(data) + "'",
                 title != null ? "'" + escapeJs(title) + "'" : "null"
             );
-            bridge.getWebView().evaluateJavascript(js, null);
+            webView.evaluateJavascript(js, null);
         });
     }
 
@@ -385,17 +402,20 @@ public class MainActivity extends BridgeActivity {
      * Handle deep links
      */
     private void handleDeepLink(Intent intent) {
+        if (bridge == null || bridge.getWebView() == null) return;
+
         Uri data = intent.getData();
         if (data != null) {
+            final WebView webView = bridge.getWebView();
             String url = data.toString();
-            bridge.getWebView().post(() -> {
+            webView.post(() -> {
                 String js = String.format(
                     "window.dispatchEvent(new CustomEvent('chameleon:deep-link', { " +
                     "  detail: { url: '%s' } " +
                     "}));",
                     escapeJs(url)
                 );
-                bridge.getWebView().evaluateJavascript(js, null);
+                webView.evaluateJavascript(js, null);
             });
         }
     }
@@ -410,8 +430,11 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        if (bridge == null || bridge.getWebView() == null) return;
+
         // Notify web app of configuration changes
-        bridge.getWebView().post(() -> {
+        final WebView webView = bridge.getWebView();
+        webView.post(() -> {
             String js = String.format(
                 "window.dispatchEvent(new CustomEvent('chameleon:config-changed', { " +
                 "  detail: { orientation: '%s', uiMode: '%s' } " +
@@ -419,7 +442,7 @@ public class MainActivity extends BridgeActivity {
                 newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE ? "landscape" : "portrait",
                 (newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES ? "dark" : "light"
             );
-            bridge.getWebView().evaluateJavascript(js, null);
+            webView.evaluateJavascript(js, null);
         });
     }
 
