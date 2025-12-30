@@ -1248,8 +1248,8 @@ export function ChatInput() {
                   const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
                   const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, followUps)
 
-                  // Update Supabase with follow-ups so they persist
-                  if (user) {
+                  // Update Supabase with follow-ups so they persist (skip for private mode)
+                  if (user && !isPrivateChat) {
                     supabaseSync.updateMessageContent(assistantMessageId, contentWithFollowUps).catch(err => {
                       console.warn("[v0] Failed to save follow-ups to Supabase:", err)
                     })
@@ -1281,8 +1281,8 @@ export function ChatInput() {
                   const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
                   const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, fallbackFollowUps)
 
-                  // Update Supabase with fallback follow-ups so they persist
-                  if (user) {
+                  // Update Supabase with fallback follow-ups so they persist (skip for private mode)
+                  if (user && !isPrivateChat) {
                     supabaseSync.updateMessageContent(assistantMessageId, contentWithFollowUps).catch(err => {
                       console.warn("[v0] Failed to save fallback follow-ups to Supabase:", err)
                     })
@@ -1352,7 +1352,8 @@ export function ChatInput() {
           ...(streamingHistoryForMessage.length > 0 ? { streamingHistory: streamingHistoryForMessage } : {}),
         }
 
-        if (user) {
+        // PRIVATE MODE: Skip Supabase sync for assistant message
+        if (user && !isPrivateChat) {
           // OPTIMIZED: Removed JSON.stringify(finalMessage.stats) - was causing memory pressure
           console.log("[v0] Saving final message to Supabase with tokens:", totalTokens)
           // CRITICAL: Save message FIRST, then track usage (to avoid FK violation)
@@ -1373,6 +1374,8 @@ export function ChatInput() {
             .catch((error) => {
               console.error("[v0] Failed to save message or track usage:", error)
             })
+        } else if (isPrivateChat) {
+          console.log("[v0] PRIVATE MODE: Skipping assistant message sync to Supabase")
         }
 
         // CRASH DEBUG: Checkpoint before state update (most likely crash point)

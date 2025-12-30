@@ -1070,8 +1070,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
               : chat.title
 
           // PRIVATE MODE: Skip database sync entirely
-          if (chat.isPrivate) {
-            console.log("[v0] PRIVATE CHAT: Message added locally only (no database sync)")
+          // Check BOTH: chat's isPrivate flag AND global privateChatMode setting
+          // (user may have enabled private mode after chat was created)
+          if (chat.isPrivate || settings.privateChatMode) {
+            console.log("[v0] PRIVATE MODE: Message added locally only (no database sync)")
           } else if (user) {
             console.log("[v0] Saving message to Supabase:", message.id)
             supabaseSync
