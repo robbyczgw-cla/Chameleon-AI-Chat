@@ -440,7 +440,10 @@ function ChatApp() {
                     <ChatMessages currentPersona={settings.selectedPersona} />
                   </div>
                 </div>
-                <div className="flex-shrink-0 w-full max-w-4xl mx-auto px-2 pb-safe">
+                <div className={cn(
+                  "flex-shrink-0 w-full max-w-4xl mx-auto px-2",
+                  !isAndroidCapacitor && "pb-safe"
+                )}>
                   <ChatInput />
                 </div>
               </>
