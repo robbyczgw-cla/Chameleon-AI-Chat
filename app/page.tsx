@@ -397,9 +397,9 @@ function ChatApp() {
           !isAndroidCapacitor && "h-[100dvh]"
         )}
         style={isAndroidCapacitor ? {
-          height: `calc(100dvh - ${safeAreaTop}px)`,
+          // Using border-box (default) - content shrinks to fit within padding
+          height: '100dvh',
           paddingTop: `${safeAreaTop}px`,
-          boxSizing: 'content-box' as const,
         } : undefined}
       >
         <PersonaLevelUpNotifier />

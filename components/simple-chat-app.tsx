@@ -861,9 +861,9 @@ export function SimpleChatApp() {
         )}
         style={isAndroidCapacitor ? {
           // Android Capacitor: Apply safe area via inline styles (most reliable)
-          height: `calc(100dvh - ${safeAreaTop}px)`,
+          // Using border-box (default) - content shrinks to fit within padding
+          height: '100dvh',
           paddingTop: `${safeAreaTop}px`,
-          boxSizing: 'content-box' as const,
         } : undefined}
       >
         {/* Mobile Sidebar Overlay */}
