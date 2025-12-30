@@ -134,6 +134,7 @@ export interface Chat {
   currentBranchPath?: string[] // Array of branch IDs representing the current branch path
   insights?: ConversationInsight // AI-generated conversation insights
   titleGeneratedAt?: number // Timestamp when AI generated the title (for animation)
+  isPrivate?: boolean // Private chat: no memory, no persistence, auto-delete on close
 }
 
 export interface ChatFolder {
@@ -388,6 +389,7 @@ export interface AppSettings {
   language?: "en" | "de" | "es" // UI language: English, German, or Spanish
   simpleMode?: boolean // Simple Mode: Clean UI focused on personas & profile
   accessTier?: AccessTier // Access tier: standard (default) or hifi (team-only)
+  privateChatMode?: boolean // Private Chat Mode: No memory, no persistence, auto-delete on close
   enableAutoToolUse?: boolean // Enable automatic tool use (web search, weather, etc.) via tool calling (AI decides when to use tools)
   apiKeys: {
     openRouter?: string

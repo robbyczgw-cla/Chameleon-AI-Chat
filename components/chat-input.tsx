@@ -753,7 +753,22 @@ export function ChatInput() {
 
       // Memory: Phase 3 intelligent memory retrieval with classification + semantic search
       // Wrapped in try-catch to prevent memory issues from blocking chat
-      if (settings.memorySettings?.enabled) {
+      // PRIVATE MODE: Skip memory entirely for private chats
+      // Check BOTH: current chat's isPrivate flag AND the global privateChatMode setting
+      // (privateChatMode needed because new chat may not exist yet when this runs)
+      const isPrivateChat = currentChat?.isPrivate === true || settings.privateChatMode === true
+      if (isPrivateChat) {
+        console.log("[ChatInput] 🔒 PRIVATE MODE: Skipping memory retrieval")
+        addStreamingHistoryEntry({
+          phase: "thinking",
+          description: "Private Mode: Memory disabled",
+          memoryDecision: {
+            action: "skipped",
+            reason: "Private chat - no memory access"
+          }
+        })
+      }
+      if (settings.memorySettings?.enabled && !isPrivateChat) {
         try {
           const isPersonaChat = !!settings.selectedPersona
           console.log("[ChatInput] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50),
@@ -826,7 +841,8 @@ export function ChatInput() {
       }
 
       // Persona Memory: Add persona-specific memories if enabled
-      if (settings.selectedPersona?.memorySettings?.enabled) {
+      // PRIVATE MODE: Skip persona memory for private chats
+      if (settings.selectedPersona?.memorySettings?.enabled && !isPrivateChat) {
         console.log("[ChatInput] 👤 Retrieving persona memories for:", settings.selectedPersona.name)
         const relevantConversations = personaMemoryService.getRelevantConversations(
           settings.selectedPersona.id,
@@ -842,7 +858,8 @@ export function ChatInput() {
       }
 
       // Context Awareness: Add time, mood, and topic awareness if enabled
-      if (settings.selectedPersona?.contextSettings?.enabled) {
+      // PRIVATE MODE: Skip context awareness for private chats (no topic tracking)
+      if (settings.selectedPersona?.contextSettings?.enabled && !isPrivateChat) {
         console.log("[ChatInput] 🎯 Adding context awareness for:", settings.selectedPersona.name)
 
         const currentChatMessages = currentChat?.messages || []
@@ -868,12 +885,14 @@ export function ChatInput() {
 
       // Emotion Detection: Analyze user's emotional state and inject context for Cami persona
       // Check if emotion detection is enabled (default: ON in simple mode, OFF in advanced mode)
+      // PRIVATE MODE: Skip emotion detection for private chats
       const emotionDetectionEnabled = settings.experimental?.enableEmotionDetection !== undefined
         ? settings.experimental.enableEmotionDetection
         : settings.simpleMode // Default ON in simple mode
 
       // Only activate for Cami persona (id: "friendly") when emotion detection is enabled
-      if (emotionDetectionEnabled && settings.selectedPersona?.id === "friendly") {
+      // PRIVATE MODE: Skip for private chats
+      if (emotionDetectionEnabled && settings.selectedPersona?.id === "friendly" && !isPrivateChat) {
         console.log("[ChatInput] 💗 Analyzing emotion for Cami persona")
 
         // Analyze the user's message for emotional content
@@ -1249,8 +1268,8 @@ export function ChatInput() {
                   const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
                   const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, followUps)
 
-                  // Update Supabase with follow-ups so they persist
-                  if (user) {
+                  // Update Supabase with follow-ups so they persist (skip for private mode)
+                  if (user && !isPrivateChat) {
                     supabaseSync.updateMessageContent(assistantMessageId, contentWithFollowUps).catch(err => {
                       console.warn("[v0] Failed to save follow-ups to Supabase:", err)
                     })
@@ -1282,8 +1301,8 @@ export function ChatInput() {
                   const currentContent = typeof currentMessage?.content === 'string' ? currentMessage.content : assistantContent
                   const contentWithFollowUps = injectFollowUpsIntoMessage(currentContent, fallbackFollowUps)
 
-                  // Update Supabase with fallback follow-ups so they persist
-                  if (user) {
+                  // Update Supabase with fallback follow-ups so they persist (skip for private mode)
+                  if (user && !isPrivateChat) {
                     supabaseSync.updateMessageContent(assistantMessageId, contentWithFollowUps).catch(err => {
                       console.warn("[v0] Failed to save fallback follow-ups to Supabase:", err)
                     })
@@ -1353,7 +1372,8 @@ export function ChatInput() {
           ...(streamingHistoryForMessage.length > 0 ? { streamingHistory: streamingHistoryForMessage } : {}),
         }
 
-        if (user) {
+        // PRIVATE MODE: Skip Supabase sync for assistant message
+        if (user && !isPrivateChat) {
           // OPTIMIZED: Removed JSON.stringify(finalMessage.stats) - was causing memory pressure
           console.log("[v0] Saving final message to Supabase with tokens:", totalTokens)
           // CRITICAL: Save message FIRST, then track usage (to avoid FK violation)
@@ -1374,6 +1394,8 @@ export function ChatInput() {
             .catch((error) => {
               console.error("[v0] Failed to save message or track usage:", error)
             })
+        } else if (isPrivateChat) {
+          console.log("[v0] PRIVATE MODE: Skipping assistant message sync to Supabase")
         }
 
         // CRASH DEBUG: Checkpoint before state update (most likely crash point)
@@ -1404,8 +1426,18 @@ export function ChatInput() {
           }
         })
 
+        // PRIVATE MODE: Skip all background learning tasks for private chats
+        // Check BOTH: chat's isPrivate flag AND global privateChatMode setting
+        const currentChatForLearning = chats.find((c) => c.id === chatId)
+        const isPrivateChatForLearning = currentChatForLearning?.isPrivate === true || settings.privateChatMode === true
+
+        if (isPrivateChatForLearning) {
+          console.log("[ChatInput] 🔒 PRIVATE MODE: Skipping all learning/memory tasks")
+        }
+
         // Save conversation to persona memory and learn preferences if enabled
-        if (settings.selectedPersona) {
+        // PRIVATE MODE: Skip for private chats
+        if (settings.selectedPersona && !isPrivateChatForLearning) {
           const currentChatMessages = chats.find((c) => c.id === chatId)?.messages || []
           const userMessages = currentChatMessages.filter((m) => m.role === "user").map((m) => m.content)
           const assistantMessages = currentChatMessages
@@ -1456,10 +1488,11 @@ export function ChatInput() {
 
         // Auto-extract memories using LLM (background, silent)
         // Only for conversations with 4+ messages to avoid test/short chats
+        // PRIVATE MODE: Skip for private chats
         const currentChatForMemory = chats.find((c) => c.id === chatId)
         const messageCount = (currentChatForMemory?.messages.length || 0) + 2 // +2 for current exchange
 
-        if (memoryService.shouldExtractMemories(messageCount)) {
+        if (memoryService.shouldExtractMemories(messageCount) && !isPrivateChatForLearning) {
           console.log("[ChatInput] 🧠 Running automatic memory extraction...")
           // Run in background - don't await, don't block UI
           memoryService.extractMemoriesWithLLM(

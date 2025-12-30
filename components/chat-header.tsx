@@ -191,8 +191,8 @@ export function ChatHeader() {
 
           {/* Right: Share, Settings, Tune, More */}
           <div className="flex items-center gap-0.5">
-            {/* Share button - visible when chat has messages */}
-            {currentChat && currentChat.messages && currentChat.messages.length > 0 && (
+            {/* Share button - visible when chat has messages AND is not private */}
+            {currentChat && currentChat.messages && currentChat.messages.length > 0 && !currentChat.isPrivate && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -474,7 +474,8 @@ export function ChatHeader() {
         onOpenChange={setIsInspectorOpen}
         data={inspectorData}
       />
-      {currentChat && (
+      {/* Share dialog - not available for private chats */}
+      {currentChat && !currentChat.isPrivate && (
         <ShareDialog
           open={isShareOpen}
           onOpenChange={setIsShareOpen}
