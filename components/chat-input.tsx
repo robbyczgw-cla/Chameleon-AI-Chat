@@ -734,7 +734,9 @@ export function ChatInput() {
       // Memory: Phase 3 intelligent memory retrieval with classification + semantic search
       // Wrapped in try-catch to prevent memory issues from blocking chat
       // PRIVATE MODE: Skip memory entirely for private chats
-      const isPrivateChat = currentChat?.isPrivate === true
+      // Check BOTH: current chat's isPrivate flag AND the global privateChatMode setting
+      // (privateChatMode needed because new chat may not exist yet when this runs)
+      const isPrivateChat = currentChat?.isPrivate === true || settings.privateChatMode === true
       if (isPrivateChat) {
         console.log("[ChatInput] 🔒 PRIVATE MODE: Skipping memory retrieval")
         addStreamingHistoryEntry({
@@ -1402,8 +1404,9 @@ export function ChatInput() {
         })
 
         // PRIVATE MODE: Skip all background learning tasks for private chats
+        // Check BOTH: chat's isPrivate flag AND global privateChatMode setting
         const currentChatForLearning = chats.find((c) => c.id === chatId)
-        const isPrivateChatForLearning = currentChatForLearning?.isPrivate === true
+        const isPrivateChatForLearning = currentChatForLearning?.isPrivate === true || settings.privateChatMode === true
 
         if (isPrivateChatForLearning) {
           console.log("[ChatInput] 🔒 PRIVATE MODE: Skipping all learning/memory tasks")

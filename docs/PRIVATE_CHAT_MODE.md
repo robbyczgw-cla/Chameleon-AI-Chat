@@ -120,7 +120,10 @@ useEffect(() => {
 All memory-related features check for private mode:
 
 ```typescript
-const isPrivateChat = currentChat?.isPrivate === true
+// IMPORTANT: Check BOTH the chat's isPrivate flag AND the global setting
+// The global setting is needed because when starting a new chat, the private
+// chat doesn't exist yet when memory retrieval runs
+const isPrivateChat = currentChat?.isPrivate === true || settings.privateChatMode === true
 
 // Memory retrieval - SKIPPED
 if (settings.memorySettings?.enabled && !isPrivateChat) {
