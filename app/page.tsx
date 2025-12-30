@@ -426,6 +426,14 @@ function ChatApp() {
                           updateSettings({ privateChatMode: newValue })
                           haptics.trigger('selection')
                           console.log(`[v0] Private Chat Mode ${newValue ? 'enabled' : 'disabled'}`)
+
+                          // When ENABLING private mode on a non-private chat with messages,
+                          // create a new private chat to ensure clean privacy boundary
+                          if (newValue && currentChat && !currentChat.isPrivate && currentChat.messages.length > 0) {
+                            console.log(`[v0] 🔒 Switching to new private chat (existing chat had ${currentChat.messages.length} messages)`)
+                            // Small delay to let settings update first
+                            setTimeout(() => createChat(), 50)
+                          }
                         }}
                         className={cn(
                           "h-9 w-9 rounded-xl shadow-lg backdrop-blur-sm transition-all hover:scale-105",
