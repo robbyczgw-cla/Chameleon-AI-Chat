@@ -1,0 +1,382 @@
+/**
+ * Material Design Motion System for Chameleon AI
+ * Optimized for 60Hz and 120Hz displays
+ * Reference: Material Design 3 Motion Guidelines
+ */
+
+/* ========================================
+   Material Design 3 Easing Curves
+   ======================================== */
+
+:root {
+  /* Standard easing (most common) */
+  --md-easing-standard: cubic-bezier(0.2, 0.0, 0, 1.0);
+
+  /* Emphasized easing (for important UI changes - keyboard, dialogs) */
+  --md-easing-emphasized: cubic-bezier(0.2, 0.0, 0.0, 1.0);
+  --md-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1.0);
+  --md-easing-emphasized-accelerate: cubic-bezier(0.3, 0.0, 0.8, 0.15);
+
+  /* Legacy easing (for compatibility) */
+  --md-easing-legacy: cubic-bezier(0.4, 0.0, 0.2, 1.0);
+  --md-easing-legacy-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1.0);
+  --md-easing-legacy-accelerate: cubic-bezier(0.4, 0.0, 1.0, 1.0);
+
+  /* Material Design 3 Duration Tokens */
+  --md-duration-short1: 50ms;   /* Micro-interactions */
+  --md-duration-short2: 100ms;  /* Small UI changes */
+  --md-duration-short3: 150ms;  /* Buttons, chips */
+  --md-duration-short4: 200ms;  /* Simple transitions */
+  --md-duration-medium1: 250ms; /* Standard transitions */
+  --md-duration-medium2: 300ms; /* Modals, sheets */
+  --md-duration-medium3: 350ms; /* Full-screen transitions */
+  --md-duration-medium4: 400ms; /* Complex layouts */
+  --md-duration-long1: 450ms;   /* Large containers */
+  --md-duration-long2: 500ms;   /* Page transitions */
+  --md-duration-long3: 550ms;   /* Extra large */
+  --md-duration-long4: 600ms;   /* Maximum */
+
+  /* 120Hz optimized durations (30% faster for smoother feel) */
+  --md-duration-short1-120hz: 35ms;
+  --md-duration-short2-120hz: 70ms;
+  --md-duration-short3-120hz: 105ms;
+  --md-duration-short4-120hz: 140ms;
+  --md-duration-medium1-120hz: 175ms;
+  --md-duration-medium2-120hz: 210ms;
+  --md-duration-medium3-120hz: 245ms;
+  --md-duration-medium4-120hz: 280ms;
+  --md-duration-long1-120hz: 315ms;
+  --md-duration-long2-120hz: 350ms;
+}
+
+/* Automatically use faster animations on 120Hz displays */
+@media (min-resolution: 115dpi) and (prefers-reduced-motion: no-preference) {
+  :root {
+    --md-duration-short1: 35ms;
+    --md-duration-short2: 70ms;
+    --md-duration-short3: 105ms;
+    --md-duration-short4: 140ms;
+    --md-duration-medium1: 175ms;
+    --md-duration-medium2: 210ms;
+    --md-duration-medium3: 245ms;
+    --md-duration-medium4: 280ms;
+    --md-duration-long1: 315ms;
+    --md-duration-long2: 350ms;
+  }
+}
+
+/* ========================================
+   Optimized Keyframe Animations
+   Using Material Design 3 curves
+   ======================================== */
+
+/* Slide animations for navigation */
+@keyframes md-slide-in-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes md-slide-in-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes md-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes md-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Fade animations */
+@keyframes md-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes md-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Scale animations for dialogs and modals */
+@keyframes md-scale-in {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes md-scale-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Material Design Ripple Effect */
+@keyframes md-ripple {
+  from {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Keyboard-aware animations */
+@keyframes md-keyboard-slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+/* Smooth transitions for all interactive elements */
+.md-transition {
+  transition-property: color, background-color, border-color, transform, opacity, box-shadow;
+  transition-duration: var(--md-duration-short4);
+  transition-timing-function: var(--md-easing-standard);
+}
+
+.md-transition-fast {
+  transition-duration: var(--md-duration-short2);
+  transition-timing-function: var(--md-easing-emphasized);
+}
+
+.md-transition-slow {
+  transition-duration: var(--md-duration-medium2);
+  transition-timing-function: var(--md-easing-emphasized-decelerate);
+}
+
+/* Animation classes */
+.md-slide-in-up {
+  animation: md-slide-in-up var(--md-duration-medium2) var(--md-easing-emphasized);
+}
+
+.md-slide-in-down {
+  animation: md-slide-in-down var(--md-duration-medium2) var(--md-easing-emphasized);
+}
+
+.md-fade-in {
+  animation: md-fade-in var(--md-duration-short4) var(--md-easing-standard);
+}
+
+.md-scale-in {
+  animation: md-scale-in var(--md-duration-medium1) var(--md-easing-emphasized);
+}
+
+/* ========================================
+   Keyboard Animation Enhancements
+   ======================================== */
+
+/* Apply smooth transform during keyboard animation */
+.keyboard-animating {
+  /* Enable GPU acceleration for all children during keyboard animation */
+  * {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+}
+
+/* Smooth keyboard-aware content animations */
+.keyboard-content {
+  transition: transform var(--md-duration-medium2) var(--md-easing-emphasized),
+              opacity var(--md-duration-short4) var(--md-easing-standard);
+}
+
+/* When keyboard is showing, smoothly slide content up */
+[data-keyboard-direction="showing"] .keyboard-content {
+  animation: md-keyboard-slide-up var(--md-duration-medium2) var(--md-easing-emphasized);
+}
+
+/* ========================================
+   Material Design Ripple Effect
+   ======================================== */
+
+.md-ripple-surface {
+  position: relative;
+  overflow: hidden;
+}
+
+.md-ripple-surface::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.md-ripple-surface:active::before {
+  animation: md-ripple 600ms var(--md-easing-standard);
+}
+
+/* Apply ripple to interactive elements */
+button,
+[role="button"],
+a {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ========================================
+   Performance Optimizations
+   ======================================== */
+
+/* Enable hardware acceleration for animated elements */
+.md-accelerated {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Optimize scrolling performance */
+.md-smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* ========================================
+   120Hz Display Optimizations
+   ======================================== */
+
+/* Faster, smoother animations for high refresh rate displays */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-supports-120hz="true"] {
+    /* Override animation durations for 120Hz */
+    .md-slide-in-up,
+    .md-slide-in-down {
+      animation-duration: var(--md-duration-medium1-120hz);
+    }
+
+    .md-fade-in {
+      animation-duration: var(--md-duration-short3-120hz);
+    }
+
+    .md-scale-in {
+      animation-duration: var(--md-duration-medium1-120hz);
+    }
+
+    /* Faster transitions */
+    .md-transition {
+      transition-duration: var(--md-duration-short3-120hz);
+    }
+
+    .md-transition-fast {
+      transition-duration: var(--md-duration-short1-120hz);
+    }
+
+    .md-transition-slow {
+      transition-duration: var(--md-duration-medium1-120hz);
+    }
+
+    /* Smoother keyboard animations */
+    .keyboard-content {
+      transition-duration: var(--md-duration-medium1-120hz);
+    }
+  }
+}
+
+/* ========================================
+   Respect Reduced Motion Preference
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========================================
+   Android-specific Optimizations
+   ======================================== */
+
+/* Optimize touch interactions */
+@media (pointer: coarse) {
+  /* Faster feedback for touch interactions */
+  button:active,
+  [role="button"]:active,
+  a:active {
+    transform: scale(0.97);
+    transition: transform var(--md-duration-short1) var(--md-easing-emphasized);
+  }
+
+  /* Larger touch targets */
+  button,
+  [role="button"],
+  a {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* Enable CSS containment for better performance */
+.md-contain {
+  contain: layout style paint;
+}
+
+.md-contain-strict {
+  contain: strict;
+}
