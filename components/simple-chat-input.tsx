@@ -76,12 +76,23 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   // NOTE: isAdvancedMode is now provided by useFeatureFlags() hook above
 
   // Detect Android Capacitor at runtime to adjust safe area padding
-  const isAndroidCapacitor = useMemo(() => {
-    try {
-      return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'
-    } catch {
-      return false
+  // CRITICAL: Detect Android Capacitor at runtime (not useMemo - Capacitor may not be ready)
+  const [isAndroidCapacitor, setIsAndroidCapacitor] = useState(false)
+
+  useEffect(() => {
+    const checkPlatform = () => {
+      try {
+        const isNative = Capacitor.isNativePlatform()
+        const platform = Capacitor.getPlatform()
+        setIsAndroidCapacitor(isNative && platform === 'android')
+      } catch {
+        setIsAndroidCapacitor(false)
+      }
     }
+    checkPlatform()
+    // Re-check after delay in case Capacitor initializes late
+    const timer = setTimeout(checkPlatform, 300)
+    return () => clearTimeout(timer)
   }, [])
 
   // Load web search state from settings context (PERSIST USER PREFERENCE!)
@@ -1483,7 +1494,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       "p-3 md:p-4 md:pb-4",
       // iOS/Web: use env() safe area. Android Capacitor: no extra bottom padding needed
       !isAndroidCapacitor && "pb-[env(safe-area-inset-bottom,8px)]",
-      isAndroidCapacitor && "pb-1" // Minimal padding on Android
+      isAndroidCapacitor && "!pb-0" // No bottom padding on Android - adjustResize handles keyboard
     )}>
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
         {/* Unified Input Container - Clean dark rounded box */}

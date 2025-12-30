@@ -74,13 +74,23 @@ export function ChatInput() {
   const { toast } = useToast()
   const { setInspectorData } = usePromptInspectorStore()
 
-  // Detect Android Capacitor at runtime for safe area handling
-  const isAndroidCapacitor = useMemo(() => {
-    try {
-      return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'
-    } catch {
-      return false
+  // CRITICAL: Detect Android Capacitor at runtime (not useMemo - Capacitor may not be ready)
+  const [isAndroidCapacitor, setIsAndroidCapacitor] = useState(false)
+
+  useEffect(() => {
+    const checkPlatform = () => {
+      try {
+        const isNative = Capacitor.isNativePlatform()
+        const platform = Capacitor.getPlatform()
+        setIsAndroidCapacitor(isNative && platform === 'android')
+      } catch {
+        setIsAndroidCapacitor(false)
+      }
     }
+    checkPlatform()
+    // Re-check after delay in case Capacitor initializes late
+    const timer = setTimeout(checkPlatform, 300)
+    return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {
@@ -1519,9 +1529,9 @@ export function ChatInput() {
       className={cn(
         "chat-input-container bg-background/80 backdrop-blur-sm p-2 md:p-4 border-t border-border/20 smooth-transition md:pb-4",
         isEmpty ? "shadow-apple-2" : "shadow-apple-1",
-        // iOS/Web: use env() safe area. Android Capacitor: minimal padding
+        // iOS/Web: use env() safe area. Android Capacitor: no bottom padding - adjustResize handles keyboard
         !isAndroidCapacitor && "pb-[env(safe-area-inset-bottom,4px)]",
-        isAndroidCapacitor && "pb-1"
+        isAndroidCapacitor && "!pb-0"
       )}
     >
       {attachedCollectionId && (
