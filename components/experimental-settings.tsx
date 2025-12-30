@@ -24,7 +24,7 @@ export const DEFAULT_BACKGROUND_MODELS: Required<BackgroundAIModelsSettings> = {
   personalityAnalysis: "x-ai/grok-4.1-fast",
   conversationInsights: "x-ai/grok-4.1-fast",
   contextCompression: "google/gemini-3-flash-preview", // Fast + cheap for summarization
-  followUpGeneration: "google/gemini-3-flash-preview", // Fast + cheap for parallel follow-up suggestions
+  followUpGeneration: "openai/gpt-oss-120b", // Primary model with fallback to x-ai/grok-4.1-fast
   imageGenNormal: "google/gemini-2.5-flash-image",
   imageGenHigh: "google/gemini-3-pro-image-preview",
   embeddings: "openai/text-embedding-3-small",

@@ -5,7 +5,7 @@
  * with the main AI response. This improves speed and reduces costs.
  *
  * Default model: openai/gpt-oss-120b
- * Fallback: openai/gpt-4o-mini
+ * Fallback: x-ai/grok-4.1-fast
  */
 
 import type { Message, CategorizedFollowUp } from "@/types"
@@ -13,7 +13,7 @@ import { parseFollowUps } from "./follow-up-parser"
 
 // Fast, cheap models for follow-up generation
 const DEFAULT_FOLLOWUP_MODEL = "openai/gpt-oss-120b"
-const FALLBACK_FOLLOWUP_MODEL = "openai/gpt-4o-mini"
+const FALLBACK_FOLLOWUP_MODEL = "x-ai/grok-4.1-fast"
 
 /**
  * Build specialized system prompt for follow-up generation

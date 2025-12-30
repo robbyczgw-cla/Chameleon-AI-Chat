@@ -1104,10 +1104,11 @@ export function ChatInput() {
           timestamp: Date.now()
         }))
         // Fire immediately - don't await
+        const followUpModel = getBackgroundModel('followUpGeneration', settings.experimental?.backgroundAIModels)
         followUpPromise = generateFollowUpsParallel(
           followUpMessages,
           settings.apiKeys.openRouter,
-          undefined,
+          followUpModel,
           settings.language || "en"
         )
       }

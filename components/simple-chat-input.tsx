@@ -1027,10 +1027,11 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           content: typeof m.content === "string" ? m.content : "[multimodal]",
           timestamp: Date.now()
         }))
+        const followUpModel = getBackgroundModel('followUpGeneration', settings.experimental?.backgroundAIModels)
         followUpPromise = generateFollowUpsParallel(
           followUpMessages,
           settings.apiKeys.openRouter,
-          undefined,
+          followUpModel,
           settings.language || "en"
         )
       }
