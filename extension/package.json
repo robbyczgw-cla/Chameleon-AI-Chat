@@ -6,11 +6,13 @@
   "scripts": {
     "dev:chrome": "vite build --watch --mode development --config vite.chrome.config.ts",
     "dev:firefox": "vite build --watch --mode development --config vite.firefox.config.ts",
-    "build:chrome": "vite build --config vite.chrome.config.ts",
-    "build:firefox": "vite build --config vite.firefox.config.ts",
-    "build:all": "pnpm build:chrome && pnpm build:firefox",
-    "package:chrome": "pnpm build:chrome && cd dist/chrome && zip -r ../../chameleon-chrome.zip .",
-    "package:firefox": "pnpm build:firefox && cd dist/firefox && zip -r ../../chameleon-firefox.xpi .",
+    "build:chrome": "vite build --config vite.chrome.config.ts && npm run postbuild:chrome",
+    "build:firefox": "vite build --config vite.firefox.config.ts && npm run postbuild:firefox",
+    "postbuild:firefox": "test -f dist/firefox/src/popup/index.html && mv dist/firefox/src/popup/index.html dist/firefox/popup/ || true && test -f dist/firefox/src/options/index.html && mv dist/firefox/src/options/index.html dist/firefox/options/ || true && rm -rf dist/firefox/src 2>/dev/null || true",
+    "postbuild:chrome": "mv dist/chrome/src/popup/index.html dist/chrome/popup/ 2>/dev/null || true && mv dist/chrome/src/options/index.html dist/chrome/options/ 2>/dev/null || true && mv dist/chrome/src/sidepanel/index.html dist/chrome/sidepanel/ 2>/dev/null || true && rm -rf dist/chrome/src 2>/dev/null || true",
+    "build:all": "npm run build:chrome && npm run build:firefox",
+    "package:chrome": "npm run build:chrome && cd dist/chrome && zip -r ../../chameleon-chrome.zip .",
+    "package:firefox": "npm run build:firefox && cd dist/firefox && zip -r ../../chameleon-firefox.xpi .",
     "lint": "eslint src --ext ts,tsx",
     "type-check": "tsc --noEmit"
   },
@@ -18,6 +20,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "@mozilla/readability": "^0.5.0",
+    "@supabase/supabase-js": "^2.47.0",
     "lucide-react": "^0.460.0"
   },
   "devDependencies": {
@@ -28,6 +31,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.7.3",
     "vite": "^6.0.7",
+    "vite-plugin-static-copy": "^2.2.0",
     "vite-plugin-web-extension": "^4.2.0",
     "webextension-polyfill": "^0.12.0"
   }

@@ -2,18 +2,16 @@
   "manifest_version": 3,
   "name": "Chameleon AI",
   "version": "0.1.0",
-  "description": "AI chat with 27 personas, 100+ models. Highlight & Ask, Page Summarizer, Writing Assistant.",
+  "description": "AI chat with 31 personas, 100+ models. Screenshot analysis, web search, writing assistant.",
   "icons": {
-    "16": "icons/icon-16.png",
-    "48": "icons/icon-48.png",
-    "128": "icons/icon-128.png"
+    "48": "icons/icon-192.png",
+    "128": "icons/icon-192.png"
   },
   "action": {
     "default_popup": "popup/index.html",
     "default_icon": {
-      "16": "icons/icon-16.png",
-      "48": "icons/icon-48.png",
-      "128": "icons/icon-128.png"
+      "48": "icons/icon-192.png",
+      "128": "icons/icon-192.png"
     },
     "default_title": "Chameleon AI"
   },
@@ -27,7 +25,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content/inject.js"],
+      "js": ["content/index.js"],
       "css": ["content/styles.css"],
       "run_at": "document_end"
     }
@@ -35,13 +33,16 @@
   "permissions": [
     "storage",
     "activeTab",
+    "tabs",
     "contextMenus",
     "sidePanel",
     "scripting"
   ],
   "host_permissions": [
     "https://openrouter.ai/*",
-    "https://api.openai.com/*"
+    "https://api.openai.com/*",
+    "https://api.duckduckgo.com/*",
+    "https://api.tavily.com/*"
   ],
   "options_page": "options/index.html",
   "content_security_policy": {
