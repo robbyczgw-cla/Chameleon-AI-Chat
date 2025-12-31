@@ -6,6 +6,104 @@ This project is in **beta stage** (v0.10-beta). Core features are stable with ex
 
 ---
 
+## [0.10.7-beta] - 2025-12-31
+
+### 🎯 Follow-up Generation Model Picker (NEW!)
+
+**Model Selection for Follow-ups**
+- Users can now select which model powers follow-up suggestions
+- Fallback model handling for optimal performance
+- Integrated with background model picker system
+- **Files:** `components/chat-input.tsx`, `components/simple-chat-input.tsx`
+
+### 🔘 Dialog & Sheet Polish
+
+**Close Button Refinements**
+- Reduced close button X icon size to 14px for cleaner appearance
+- Proper CSS handling with inline styles to bypass specificity issues
+- Consistent positioning across all dialogs and sheets
+- Professional, minimal aesthetic
+- **Files:** `components/ui/dialog.tsx`, `components/ui/sheet.tsx`
+
+### 📱 Mobile Menu Enhancements
+
+**Swipe Gestures & Close Buttons**
+- Add swipe-right gesture to close mobile More menu (3-dots)
+- Visual close button (X) on mobile More menu for accessibility
+- Standardized mobile close button styling throughout app
+- Better mobile menu UX matching modern patterns
+- **Files:** `components/mobile-menu.tsx`, `components/chat-header.tsx`
+
+### 🎚️ Background Model Pickers - Complete
+
+**All Background Models Customizable**
+- Complete wire-up of background model pickers for:
+  - Memory system (semantic search + extraction)
+  - Embeddings generation
+  - Image generation
+  - Follow-up generation (NEW)
+- Users can optimize for speed, quality, or cost per background process
+- Fallback model handling for all systems
+- **Files:** `components/model-management.tsx`, `components/ai-memory-hub.tsx`
+
+### 🔒 Private Chat Mode Critical Fixes
+
+**Privacy & Data Protection**
+- Create new private chat when enabling mid-conversation (prevents data leakage)
+- Completely disable Supabase sync in private mode (zero cloud storage)
+- Critical fix: Check `privateChatMode` setting for memory bypass
+- PWA/mobile edge case handling
+- Improved tooltip positioning to prevent viewport cutoff
+- Comprehensive documentation of private chat mode
+- **Files:** `lib/memory-service.ts`, `components/experimental-settings.tsx`, `docs/PRIVATE_CHAT_MODE.md`
+
+### 🤖 Android Native Experience Improvements
+
+**120Hz Support & Keyboard Fixes**
+- Add 120Hz display support for compatible devices (adaptive refresh rate)
+- Fix keyboard handling: restore 'native' resize mode for proper input movement
+- Resolve keyboard black bar issue with multiple CSS and config approaches
+- Implement Material Motion framework for native Android animations
+- Add comprehensive Android native experience roadmap documentation
+- Fix edge cases in private chat mode with Android
+- **Files:** `android/app/src/main/kotlin/MainActivity.kt`, `lib/hooks/use-material-motion.ts`, `docs/DECEMBER-2025-ROADMAP.md`
+
+### Commits (2025-12-31)
+- `6464f45` Merge pull request #523 (follow-up model picker)
+- `0855fd4` feat: Add fallback model picker for follow-up generation
+- `584735b` fix: Reduce close button X icon size to 14px
+- `741d8f7` fix: Use inline styles for close buttons to bypass CSS issues
+- `0006c90` fix: Restore dialog/sheet to original working state
+- `ccaac2b` fix: Restructure dialog/sheet for proper close button positioning
+- `9ab195f` fix: Make dialog/sheet close buttons visible with proper styling
+- `051d6c1` fix: Revert dialog/sheet close buttons to clean small style
+- `22aa68c` feat: Add swipe-right gesture to close mobile More menu
+- `4aa9e4e` fix: Clean up mobile close buttons - professional approach
+- `8158faa` fix: Add close button to mobile More menu (3-dots menu)
+- `cbd8bca` fix: Improve mobile close buttons for dialogs and sheets
+- `e38d421` feat: Wire up all remaining background model pickers (memory, embeddings, images)
+- `46b99f4` fix: Update follow-up generation models and enable background model picker
+- `d562ddc` fix: Edge case fixes for background model pickers
+- `2b99d35` fix: Final completeness fixes for background model pickers
+- `40096bb` fix: Remove duplicate import causing build error
+- `c1a390b` fix: Create new private chat when enabling private mode mid-conversation
+- `e2a756c` fix: Add PWA/mobile edge case handling for private chat mode
+- `cf28f7c` fix: Prevent all Supabase sync in private chat mode
+- `7466b6d` fix: Critical - check privateChatMode setting for memory bypass, not just chat flag
+- `7549030` fix: Add collision padding to private mode tooltip to prevent viewport cutoff
+- `0fd2b7c` docs: Add comprehensive documentation for Private Chat Mode
+- `65bf85f` feat(android): Add comprehensive native experience improvements with 120Hz support
+- `a00576f` fix(android): Restore 'native' resize mode so input moves with keyboard
+- `2a43579` fix(android): Remove setSoftInputMode that conflicts with keyboard fix
+- `b49b7c9` fix(android): Revert Keyboard resize to 'none' to eliminate black bar
+- `602caa0` fix(android): Add CSS fixes for keyboard black bar issue
+- `8f90b81` fix(android): Remove non-existent refresh rate API fields
+- `6e2108a` fix(android): Move use-material-motion hook to correct directory
+- `b7f1391` docs(android): Add comprehensive 2025 Android native experience roadmap
+- `3fd4bc8` fix: Address edge cases for private chat mode
+
+---
+
 ## [0.10.6-beta] - 2025-12-28
 
 ### 🎭 Persona System Overhaul

@@ -1,8 +1,250 @@
 # Recent Commits Summary
 
-**Updated**: December 28, 2025
-**Latest**: Emotion Detection for Cami + Spanish Language Support
-**Commits**: Latest 2 major commits
+**Updated**: December 31, 2025
+**Latest**: Follow-up Model Picker, Dialog Close Buttons, Private Chat Mode, Android Improvements
+**Commits**: Latest 30+ commits across multiple features
+
+---
+
+## 📋 December 31, 2025 - Latest Updates
+
+This document has been updated with the latest commits from December 31, 2025. Here's a summary of the major feature groups completed today:
+
+### 🎯 Follow-up Generation Model Picker (NEW!)
+
+**Commit Hash**: `0855fd4`
+**Type**: Feature
+
+**Summary**
+Added fallback model picker for follow-up generation. Users can now select which model to use when generating follow-up suggestions.
+
+**What Changed**
+- Added model picker component for follow-up generation settings
+- Integrated with background model picker system
+- Fallback model selection when primary model unavailable
+- File: `components/chat-input.tsx`, `components/simple-chat-input.tsx`
+
+**Impact**
+- ✅ Better control over follow-up generation quality
+- ✅ Consistent with other background model pickers
+- ✅ Users can optimize for speed vs quality
+
+---
+
+### 🔘 Dialog & Sheet Close Button Refinements
+
+**Commits**: `584735b`, `741d8f7`, `0006c90`, `ccaac2b`, `9ab195f`, `051d6c1`
+**Type**: Bug Fix (Iterative Polish)
+
+**Summary**
+Multiple iterations to perfect the close button experience in dialogs and sheets. Final solution uses clean, professional styling with proper sizing and CSS handling.
+
+**Key Fixes**
+- ✅ Close button X icon size reduced to 14px (clean look)
+- ✅ Inline styles to bypass CSS specificity issues
+- ✅ Proper visibility in all states
+- ✅ Consistent positioning across all dialogs/sheets
+- ✅ Professional appearance maintained
+
+**Files Modified**
+- `components/ui/dialog.tsx`
+- `components/ui/sheet.tsx`
+- Multiple dialog components
+
+**Impact**
+- ✅ Dialogs are more user-friendly
+- ✅ Close buttons visually polished
+- ✅ Improved mobile UX
+
+---
+
+### 📱 Mobile Menu Improvements
+
+**Commits**: `22aa68c`, `4aa9e4e`, `8158faa`, `cbd8bca`
+**Type**: Feature + Bug Fixes
+
+**Summary**
+Enhanced mobile menu experience with swipe gestures and improved close buttons throughout the interface.
+
+**Features Added**
+1. **Swipe-Right Gesture to Close Mobile More Menu** (`22aa68c`)
+   - Right swipe closes the 3-dots menu for quick dismissal
+   - Natural gesture for mobile users
+
+2. **Close Button on Mobile More Menu** (`8158faa`)
+   - Visual close button (X) on the mobile More menu
+   - Always accessible for users who prefer tapping
+
+3. **Professional Mobile Close Buttons** (`4aa9e4e`)
+   - Standardized close button styling
+   - Consistent sizing and positioning
+   - Works with dialogs and sheets
+
+**Impact**
+- ✅ More intuitive mobile menu navigation
+- ✅ Better accessibility for closing menus
+- ✅ Consistent with modern mobile patterns
+
+---
+
+### 🎚️ Background Model Pickers - Complete Implementation
+
+**Commits**: `e38d421`, `46b99f4`, `d562ddc`, `2b99d35`, `40096bb`
+**Type**: Features + Bug Fixes
+
+**Summary**
+Completed wire-up of all background model pickers for memory, embeddings, and image generation. Now users have full control over which models power various background processes.
+
+**What Changed**
+1. **Wire Up All Background Model Pickers** (`e38d421`)
+   - Memory system model selection
+   - Embeddings model selection
+   - Image generation model selection
+   - Follow-up generation model selection (latest)
+
+2. **Update Follow-up Generation Models** (`46b99f4`)
+   - Enable background model picker for follow-ups
+   - Fallback model handling
+   - Performance optimizations
+
+3. **Edge Case & Completeness Fixes** (`d562ddc`, `2b99d35`)
+   - Handle null/undefined model states
+   - Proper fallback behavior
+   - Build error resolution (`40096bb`)
+
+**Files Modified**
+- `components/model-management.tsx`
+- `components/ai-memory-hub.tsx`
+- `components/advanced-settings.tsx`
+
+**Impact**
+- ✅ Users have granular control over background models
+- ✅ Better performance by choosing appropriate models
+- ✅ Cost optimization through model selection
+- ✅ All background processes now customizable
+
+---
+
+### 🔒 Private Chat Mode Enhancements
+
+**Commits**: `c1a390b`, `e2a756c`, `cf28f7c`, `7466b6d`, `7549030`, `0fd2b7c`
+**Type**: Features + Bug Fixes + Documentation
+
+**Summary**
+Major improvements to private chat mode functionality with critical fixes for data privacy and mobile compatibility.
+
+**Key Improvements**
+1. **Private Chat Mid-Conversation** (`c1a390b`)
+   - Create new private chat when enabling mid-conversation
+   - Prevent data leakage to previous chats
+   - Seamless transition experience
+
+2. **Supabase Sync Prevention** (`cf28f7c`)
+   - Completely disable Supabase sync in private mode
+   - No cloud storage of private conversations
+   - All data stays on device
+
+3. **Critical Privacy Fix** (`7466b6d`)
+   - Check `privateChatMode` setting for memory bypass
+   - Fix memory system incorrectly syncing private chats
+   - Ensure only device storage used
+
+4. **PWA/Mobile Support** (`e2a756c`)
+   - Edge case handling for PWA mode
+   - Proper offline behavior
+   - Mobile-specific fixes
+
+5. **UI Polish** (`7549030`)
+   - Add collision padding to tooltip
+   - Prevent viewport cutoff
+   - Better tooltip positioning
+
+6. **Documentation** (`0fd2b7c`)
+   - Comprehensive Private Chat Mode guide
+   - Feature overview and how-to
+   - Privacy guarantees explained
+
+**Files Modified**
+- `lib/memory-service.ts`
+- `components/experimental-settings.tsx`
+- `docs/PRIVATE_CHAT_MODE.md` (NEW)
+
+**Impact**
+- ✅ Users can trust private chat truly stays private
+- ✅ Zero cloud storage in private mode
+- ✅ Better mobile UX
+- ✅ Clear documentation of privacy features
+
+---
+
+### 🤖 Android Native Experience Improvements
+
+**Commits**: `65bf85f`, `a00576f`, `2a43579`, `b49b7c9`, `602caa0`, `8f90b81`, `6e2108a`, `b7f1391`, `3fd4bc8`
+**Type**: Features + Bug Fixes + Documentation
+
+**Summary**
+Comprehensive improvements to Android app experience with 120Hz support, keyboard handling, and native animation framework.
+
+**Major Features**
+1. **120Hz Display Support** (`65bf85f`)
+   - Adaptive refresh rate for supported devices
+   - Smoother animations and scrolling
+   - Battery-efficient on lower refresh rate devices
+
+2. **Keyboard Handling Fixes** (Multiple commits)
+   - Restore 'native' resize mode so input moves with keyboard (`a00576f`)
+   - Remove conflicting setSoftInputMode (`2a43579`)
+   - CSS fixes for keyboard black bar (`602caa0`)
+   - Revert to optimal Keyboard resize settings (`b49b7c9`)
+
+3. **Material Motion Framework** (`6e2108a`)
+   - Move use-material-motion hook to correct directory
+   - Proper Material 3 animation support
+   - Native feel on Android
+
+4. **Comprehensive Documentation** (`b7f1391`)
+   - Android native experience roadmap
+   - Feature matrix and performance notes
+   - Setup and configuration guides
+
+**Files Modified**
+- `android/app/src/main/kotlin/MainActivity.kt`
+- `android/app/build.gradle`
+- `lib/hooks/use-material-motion.ts`
+- `docs/DECEMBER-2025-ROADMAP.md` (Android section)
+
+**Technical Details**
+- Removes non-existent refresh rate API fields (`8f90b81`)
+- Edge case handling in private chat with Android (`3fd4bc8`)
+- Proper safe area insets for status bar
+- Optimized for both high and low-end Android devices
+
+**Impact**
+- ✅ Android app feels native and smooth
+- ✅ 120Hz devices show superior performance
+- ✅ Keyboard experience much improved
+- ✅ Professional Material 3 animations
+- ✅ Better battery efficiency
+
+---
+
+## Summary Statistics for December 31, 2025
+
+**Commit Count**: 30+ commits today
+**Feature Groups**: 6 major feature groups
+**Commits by Type**:
+- Features: 8 commits
+- Bug Fixes: 18 commits
+- Documentation: 3 commits
+- Merges: Multiple PR merges
+
+**Major Themes**
+1. **Mobile/Dialog UX Refinement** - Close buttons and menu improvements
+2. **Model Selection** - Background model pickers completed
+3. **Privacy & Security** - Private chat mode critical fixes
+4. **Native Android** - Comprehensive native experience
+5. **Follow-up Generation** - Model picker added
+6. **Quality & Polish** - Multiple iterative fixes
 
 ---
 
