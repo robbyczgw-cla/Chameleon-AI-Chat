@@ -87,18 +87,25 @@ const SheetContent = React.forwardRef<
       <SheetOverlay />
       <SheetPrimitive.Content
         ref={ref}
-        className={cn(sheetVariants({ side }), className)}
-        style={needsSafeArea ? { paddingTop: `${safeAreaTop + 24}px` } : undefined}
+        className={cn(sheetVariants({ side }), "flex flex-col overflow-hidden p-0", className)}
+        style={needsSafeArea ? { paddingTop: `${safeAreaTop}px` } : undefined}
         {...props}
       >
-        {children}
+        {/* Close button - fixed at top right */}
         <SheetPrimitive.Close
-          className="absolute right-4 top-4 z-50 h-8 w-8 flex items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-          style={needsSafeArea ? { top: `${safeAreaTop + 16}px` } : undefined}
+          className="absolute right-4 z-[60] h-8 w-8 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          style={{ top: needsSafeArea ? `${safeAreaTop + 16}px` : '16px' }}
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
+        {/* Scrollable content */}
+        <div
+          className="flex-1 overflow-y-auto p-6"
+          style={needsSafeArea ? { paddingTop: `${safeAreaTop + 48}px` } : { paddingTop: '48px' }}
+        >
+          {children}
+        </div>
       </SheetPrimitive.Content>
     </SheetPortal>
   )

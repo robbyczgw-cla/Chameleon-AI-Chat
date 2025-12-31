@@ -68,7 +68,7 @@ function DialogContent({
         data-nested={nested ? 'true' : undefined}
         className={cn(
           // GPU-OPTIMIZED: Removed backdrop-blur-xl - was 24px blur!
-          'bg-background/95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-1/2 top-1/2 grid w-full max-w-[calc(100%-2rem)] max-h-[min(90vh,calc(100dvh-2rem))] md:max-h-[calc(100vh-3rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-2xl border border-hairline p-6 shadow-apple-2 duration-200 sm:max-w-lg',
+          'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-1/2 top-1/2 flex flex-col w-full max-w-[calc(100%-2rem)] max-h-[min(90vh,calc(100dvh-2rem))] md:max-h-[calc(100vh-3rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-hairline shadow-apple-2 duration-200 sm:max-w-lg',
           nested ? 'z-[10999]' : 'z-[9999]',
           className,
         )}
@@ -79,16 +79,20 @@ function DialogContent({
         }}
         {...props}
       >
-        {children}
+        {/* Close button - sticky at top right */}
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="absolute top-4 right-4 z-50 h-8 w-8 flex items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+            className="absolute top-3 right-3 z-[60] h-8 w-8 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             <XIcon className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto p-6 pt-12">
+          {children}
+        </div>
       </DialogPrimitive.Content>
     </DialogPortal>
   )
