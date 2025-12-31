@@ -25,6 +25,7 @@ export const DEFAULT_BACKGROUND_MODELS: Required<BackgroundAIModelsSettings> = {
   conversationInsights: "x-ai/grok-4.1-fast",
   contextCompression: "google/gemini-3-flash-preview", // Fast + cheap for summarization
   followUpGeneration: "openai/gpt-oss-120b", // Primary model with fallback to x-ai/grok-4.1-fast
+  followUpGenerationFallback: "x-ai/grok-4.1-fast", // Fallback for follow-up generation
   imageGenNormal: "google/gemini-2.5-flash-image",
   imageGenHigh: "google/gemini-3-pro-image-preview",
   embeddings: "openai/text-embedding-3-small",
@@ -332,10 +333,10 @@ export function ExperimentalSettings() {
                   </Select>
                 </div>
 
-                {/* Follow-Up Generation */}
+                {/* Follow-Up Generation (Primary) */}
                 <div className="space-y-1">
-                  <Label className="text-xs font-medium">Follow-Up Generation ⚡ NEW</Label>
-                  <p className="text-[10px] text-muted-foreground mb-1">Generates contextual follow-up questions (parallel, faster, cheaper)</p>
+                  <Label className="text-xs font-medium">Follow-Up Generation (Primary) ⚡ NEW</Label>
+                  <p className="text-[10px] text-muted-foreground mb-1">Primary model for contextual follow-up questions</p>
                   <Select
                     value={backgroundModels.followUpGeneration || "__default__"}
                     onValueChange={(v) => handleBackgroundModelChange("followUpGeneration", v)}
@@ -345,6 +346,26 @@ export function ExperimentalSettings() {
                     </SelectTrigger>
                     <SelectContent className="max-h-[200px] z-[9999]">
                       <SelectItem value="__default__">Default ({DEFAULT_BACKGROUND_MODELS.followUpGeneration})</SelectItem>
+                      {availableModels.map((model) => (
+                        <SelectItem key={model} value={model} className="text-xs">{model}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Follow-Up Generation (Fallback) */}
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium">Follow-Up Generation (Fallback) ⚡ NEW</Label>
+                  <p className="text-[10px] text-muted-foreground mb-1">Fallback model if primary fails</p>
+                  <Select
+                    value={backgroundModels.followUpGenerationFallback || "__default__"}
+                    onValueChange={(v) => handleBackgroundModelChange("followUpGenerationFallback", v)}
+                  >
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[200px] z-[9999]">
+                      <SelectItem value="__default__">Default ({DEFAULT_BACKGROUND_MODELS.followUpGenerationFallback})</SelectItem>
                       {availableModels.map((model) => (
                         <SelectItem key={model} value={model} className="text-xs">{model}</SelectItem>
                       ))}
