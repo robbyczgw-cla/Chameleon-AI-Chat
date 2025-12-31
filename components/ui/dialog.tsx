@@ -98,7 +98,7 @@ function DialogContent({
               cursor: 'pointer',
             }}
           >
-            <XIcon style={{ width: '16px', height: '16px' }} />
+            <XIcon style={{ width: '14px', height: '14px' }} />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}
