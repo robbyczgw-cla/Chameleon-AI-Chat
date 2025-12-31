@@ -5,7 +5,7 @@
 
   ### **Stop Guessing Your AI Costs. Know Exactly What You're Spending.**
 
-  The only AI chat with **real-time cost tracking**, **27 expert personas**, and **training data export**.
+  The only AI chat with **real-time cost tracking**, **31 expert personas**, and **training data export**.
 
   [![GitHub stars](https://img.shields.io/github/stars/robbyczgw-cla/Chameleon-AI-Chat?style=social)](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/stargazers)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -140,7 +140,7 @@ npm run dev
 
 **Power Users Who Want:**
 - ✅ Control over AI spending (see exact costs per message)
-- ✅ Personality in their AI (27 personas, not boring assistants)
+- ✅ Personality in their AI (31 personas, not boring assistants)
 - ✅ Data ownership (export training data, fine-tune your own models)
 - ✅ Advanced features (debate mode, semantic memory, smart search)
 
@@ -355,6 +355,29 @@ Vote: Who convinced you?
 
 ---
 
+## 🔒 Privacy & Security
+
+**Your data, your control:**
+
+| Feature | Description |
+|---------|-------------|
+| **Private Chat Mode** | Ephemeral conversations - no database sync, no localStorage, auto-deleted on close |
+| **Local-First Option** | Use without authentication - all data stays in your browser |
+| **Your Own API Keys** | Enter your own keys via Settings - never stored on our servers |
+| **Self-Hostable** | Deploy your own instance - complete control over your data |
+| **No Tracking** | No third-party analytics beyond what you enable |
+| **Row-Level Security** | Supabase RLS ensures users only access their own data |
+| **Transparent Data Flow** | See exactly which services receive your data |
+
+**Enterprise Features:**
+- Custom access tiers for business teams
+- Shopify and external service integrations
+- Configurable feature restrictions per user tier
+
+[Read Security Policy →](./SECURITY.md) | [Private Chat Docs →](./docs/PRIVATE_CHAT_MODE.md)
+
+---
+
 ## 🚀 Roadmap
 
 **Currently working on:**
@@ -380,11 +403,13 @@ Vote: Who convinced you?
 **Get started fast:**
 
 - [📖 User Guide](./docs/user-guide.md) - Complete walkthrough
-- [🧠 Memory System](./docs/MEMORY_SYSTEM.md) - How memory works
+- [🧠 Memory System](./docs/MEMORY_SYSTEM.md) - How semantic memory works
 - [🎭 Personas Guide](./docs/personas.md) - All 31 personas in 8 categories
+- [🔒 Private Chat Mode](./docs/PRIVATE_CHAT_MODE.md) - Ephemeral privacy mode
 - [🔧 Architecture](./docs/ARCHITECTURE.md) - Technical deep dive
 - [🚀 Deployment](./docs/deployment.md) - Self-hosting guide
 - [💾 Database Setup](./docs/DATABASE_IMPLEMENTATION_GUIDE.md) - Supabase config
+- [🔐 Security Policy](./SECURITY.md) - API key handling & best practices
 
 ---
 
@@ -399,13 +424,13 @@ Vote: Who convinced you?
 
 ---
 
-## 💬 Community
+## 💬 Community & Support
 
-**Join the conversation:**
+**Get help and connect:**
 
-- 💬 [Discord](#) - Chat with users and developers *(coming soon)*
-- 🐦 [Twitter](#) - Updates and announcements *(coming soon)*
-- 📧 Email: robbyczgw@gmail.com
+- 🐛 [Report Issues](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues) - Bug reports and feature requests
+- 💬 [Discussions](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions) - Questions and community chat
+- 🔒 [Security Issues](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/security/advisories/new) - Report vulnerabilities privately
 
 ---
 

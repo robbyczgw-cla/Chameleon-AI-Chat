@@ -95,8 +95,8 @@ Mockups, examples from other apps, etc.
 # Fork the repo on GitHub first!
 
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/v0-react-chat-interface.git
-cd v0-react-chat-interface
+git clone https://github.com/YOUR_USERNAME/Chameleon-AI-Chat.git
+cd Chameleon-AI-Chat
 
 # Install dependencies
 pnpm install  # or npm install
