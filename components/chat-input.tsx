@@ -459,13 +459,18 @@ export function ChatInput() {
             : isHighQuality ? "Using Gemini 3 Pro (high quality)" : "Using Gemini 2.5 Flash",
         })
 
+        // Get custom model from background settings or use quality-based default
+        const customImageModel = isHighQuality
+          ? getBackgroundModel('imageGenHigh', settings.experimental?.backgroundAIModels)
+          : getBackgroundModel('imageGenNormal', settings.experimental?.backgroundAIModels)
+
         const response = await fetch('/api/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             prompt: messageContent,
             apiKey,
-            quality: isHighQuality ? "high" : "normal",
+            customModel: customImageModel,
             inputImages: inputImagesForGen, // Send attached images for image-to-image
           }),
         })
@@ -770,6 +775,16 @@ export function ChatInput() {
       }
       if (settings.memorySettings?.enabled && !isPrivateChat) {
         try {
+          // Set background models if configured (otherwise defaults are used)
+          if (settings.experimental?.backgroundAIModels) {
+            memoryService.setModels({
+              classifierModel: getBackgroundModel('queryClassification', settings.experimental.backgroundAIModels),
+              extractionModel: getBackgroundModel('memoryExtraction', settings.experimental.backgroundAIModels),
+              consolidationModel: getBackgroundModel('memoryConsolidation', settings.experimental.backgroundAIModels),
+              embeddingModel: getBackgroundModel('embeddings', settings.experimental.backgroundAIModels),
+            })
+          }
+
           const isPersonaChat = !!settings.selectedPersona
           console.log("[ChatInput] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50),
             isPersonaChat ? "(persona chat)" : "")
@@ -1104,10 +1119,11 @@ export function ChatInput() {
           timestamp: Date.now()
         }))
         // Fire immediately - don't await
+        const followUpModel = getBackgroundModel('followUpGeneration', settings.experimental?.backgroundAIModels)
         followUpPromise = generateFollowUpsParallel(
           followUpMessages,
           settings.apiKeys.openRouter,
-          undefined,
+          followUpModel,
           settings.language || "en"
         )
       }

@@ -106,13 +106,14 @@ export function PersonasManager() {
     setGeneratingAvatar(true)
     try {
       const prompt = `Portrait of ${formData.name}, ${formData.description}, professional avatar style, centered face, neutral background, high quality`
+      const imageModel = getBackgroundModel('imageGenHigh', settings.experimental?.backgroundAIModels)
 
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt,
-          model: 'google/gemini-3-pro-image-preview',
+          customModel: imageModel,
           apiKey: settings.apiKeys.openRouter,
         }),
       })

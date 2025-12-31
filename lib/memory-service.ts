@@ -19,6 +19,7 @@ const DELETED_MEMORY_STORAGE_KEY_PREFIX = "chat_deleted_memories" // Archived me
 export const DEFAULT_EXTRACTION_MODEL = "openai/gpt-oss-20b" // Cheap, fast model for extraction
 export const DEFAULT_CLASSIFIER_MODEL = "openai/gpt-oss-20b" // Same model for query classification
 export const DEFAULT_CONSOLIDATION_MODEL = "openai/gpt-oss-120b" // More capable model for consolidation
+export const DEFAULT_EMBEDDING_MODEL = "openai/text-embedding-3-small" // OpenAI embedding model
 
 // Expiration constants
 const DEFAULT_EXPIRATION_DAYS = 7 // Days without access before expiration
@@ -78,6 +79,7 @@ class MemoryService {
   private extractionModel: string = DEFAULT_EXTRACTION_MODEL
   private classifierModel: string = DEFAULT_CLASSIFIER_MODEL
   private consolidationModel: string = DEFAULT_CONSOLIDATION_MODEL
+  private embeddingModel: string = DEFAULT_EMBEDDING_MODEL
 
   constructor() {
     // Don't load memories in constructor - wait for user ID to be set
@@ -87,7 +89,7 @@ class MemoryService {
   /**
    * Set custom models for memory tasks (from UI settings)
    */
-  setModels(options: { extractionModel?: string; classifierModel?: string; consolidationModel?: string }) {
+  setModels(options: { extractionModel?: string; classifierModel?: string; consolidationModel?: string; embeddingModel?: string }) {
     if (options.extractionModel) {
       this.extractionModel = options.extractionModel
     }
@@ -96,6 +98,9 @@ class MemoryService {
     }
     if (options.consolidationModel) {
       this.consolidationModel = options.consolidationModel
+    }
+    if (options.embeddingModel) {
+      this.embeddingModel = options.embeddingModel
     }
   }
 
@@ -107,6 +112,7 @@ class MemoryService {
       extractionModel: this.extractionModel,
       classifierModel: this.classifierModel,
       consolidationModel: this.consolidationModel,
+      embeddingModel: this.embeddingModel,
     }
   }
 
@@ -1339,7 +1345,7 @@ Return ONLY the JSON array, no markdown or explanation. If no consolidation need
     if (this.syncEnabled && this.userId) {
       try {
         console.log("[Memory] Attempting database semantic search...")
-        const queryEmbedding = await generateEmbedding(query, apiKey)
+        const queryEmbedding = await generateEmbedding(query, apiKey, { model: this.embeddingModel })
 
         const results = await supabaseSync.semanticSearchMemories(
           this.userId,

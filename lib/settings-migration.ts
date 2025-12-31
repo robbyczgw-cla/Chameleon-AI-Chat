@@ -82,8 +82,8 @@ export function migrateSettingsToContext(): MigrationResult {
         settings.experimental.backgroundAIModels = {}
       }
       if (!settings.experimental.backgroundAIModels.followUpGeneration) {
-        settings.experimental.backgroundAIModels.followUpGeneration = "google/gemini-3-flash-preview"
-        console.log(`[Migration] Set default follow-up generation model: google/gemini-3-flash-preview`)
+        settings.experimental.backgroundAIModels.followUpGeneration = "openai/gpt-oss-120b"
+        console.log(`[Migration] Set default follow-up generation model: openai/gpt-oss-120b`)
       }
     }
 

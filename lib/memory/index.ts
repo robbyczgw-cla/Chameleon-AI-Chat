@@ -268,6 +268,7 @@ class MemoryModule {
     options?: {
       limit?: number
       isPersonaChat?: boolean
+      classificationModel?: string // Custom model for query classification
     }
   ): Promise<MemoryRetrievalResult> {
     const confidenceThreshold = this.settings.classificationConfidence ?? 0.8
@@ -285,7 +286,7 @@ class MemoryModule {
     }
 
     // Classify query
-    const classification = await classifyQuery(query, apiKey)
+    const classification = await classifyQuery(query, apiKey, options?.classificationModel)
 
     // Skip if factual with high confidence
     if (!classification.needsMemory && classification.confidence >= confidenceThreshold) {
