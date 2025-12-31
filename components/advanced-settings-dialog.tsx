@@ -45,18 +45,7 @@ export function AdvancedSettingsDialog({ open, onOpenChange }: AdvancedSettingsD
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <DialogTitle>Advanced Settings</DialogTitle>
-            {/* Mobile-friendly close button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              className="md:hidden min-h-[44px] px-4 text-sm font-medium"
-            >
-              Done
-            </Button>
-          </div>
+          <DialogTitle>Advanced Settings</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="parameters" className="flex-1 flex flex-col min-h-0">
