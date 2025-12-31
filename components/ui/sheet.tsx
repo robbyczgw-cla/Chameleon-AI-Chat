@@ -108,7 +108,7 @@ const SheetContent = React.forwardRef<
             cursor: 'pointer',
           }}
         >
-          <X style={{ width: '16px', height: '16px' }} />
+          <X style={{ width: '14px', height: '14px' }} />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
       </SheetPrimitive.Content>
