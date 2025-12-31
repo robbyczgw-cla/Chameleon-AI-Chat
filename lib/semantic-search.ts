@@ -39,13 +39,14 @@ export interface SearchResult {
 /**
  * Generate embedding for a query using the embeddings API
  */
-export async function generateQueryEmbedding(query: string): Promise<number[]> {
+export async function generateQueryEmbedding(query: string, model?: string): Promise<number[]> {
   try {
     const response = await fetch("/api/embeddings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         texts: [query],
+        model, // Pass model if provided (otherwise API uses default)
       }),
     })
 
@@ -67,6 +68,7 @@ export async function generateQueryEmbedding(query: string): Promise<number[]> {
  * @param collectionId - Optional collection ID to limit search scope
  * @param limit - Maximum number of results to return (default: 10)
  * @param minSimilarity - Minimum similarity threshold (default: 0.5)
+ * @param model - Optional embedding model (defaults to openai/text-embedding-3-small)
  */
 export async function semanticSearch(
   query: string,
@@ -74,15 +76,16 @@ export async function semanticSearch(
     collectionId?: string
     limit?: number
     minSimilarity?: number
+    model?: string
   } = {}
 ): Promise<SearchResult[]> {
-  const { collectionId, limit = 10, minSimilarity = 0.5 } = options
+  const { collectionId, limit = 10, minSimilarity = 0.5, model } = options
 
   try {
     console.log(`[SemanticSearch] Searching for: "${query}"`)
 
     // Generate embedding for query
-    const queryEmbedding = await generateQueryEmbedding(query)
+    const queryEmbedding = await generateQueryEmbedding(query, model)
 
     // Get all relevant embeddings
     const embeddings = collectionId
@@ -125,6 +128,7 @@ export async function generateDocumentEmbeddings(
   metadata?: {
     collectionId?: string
     documentName?: string
+    model?: string
   }
 ): Promise<StoredEmbedding[]> {
   const maxChunkSize = 25000 // ~6k tokens to be safe
@@ -155,6 +159,7 @@ export async function generateDocumentEmbeddings(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       texts: chunks,
+      model: metadata?.model, // Pass model if provided (otherwise API uses default)
     }),
   })
 

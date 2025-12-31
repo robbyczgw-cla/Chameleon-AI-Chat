@@ -452,10 +452,10 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       description: "Analyzing your message and planning response"
     })
 
-    // Handle image generation mode - always use Gemini 3 Pro Image Preview
+    // Handle image generation mode - use background model setting or default to Gemini 3 Pro Image Preview
     if (imageMode !== "off") {
       try {
-        const imageModel = "google/gemini-3-pro-image-preview"
+        const imageModel = getBackgroundModel('imageGenHigh', settings.experimental?.backgroundAIModels)
         const apiKey = settings.apiKeys.openRouter
 
         if (!apiKey) {
@@ -478,7 +478,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             prompt: messageContent,
-            model: imageModel,
+            customModel: imageModel,
             apiKey,
             inputImages: inputImagesForGen, // Send attached images for image-to-image
           }),
@@ -679,6 +679,15 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     try {
       // Memory: Phase 3 intelligent memory retrieval with classification + semantic search
       if (settings.memorySettings?.enabled) {
+        // Set background models if configured (otherwise defaults are used)
+        if (settings.experimental?.backgroundAIModels) {
+          memoryService.setModels({
+            classifierModel: getBackgroundModel('queryClassification', settings.experimental.backgroundAIModels),
+            extractionModel: getBackgroundModel('memoryExtraction', settings.experimental.backgroundAIModels),
+            consolidationModel: getBackgroundModel('memoryConsolidation', settings.experimental.backgroundAIModels),
+          })
+        }
+
         console.log("[Simple Chat] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50))
 
         const { memories: relevantMemories, decision } =
