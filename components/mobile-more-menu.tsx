@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -71,6 +71,40 @@ export function MobileMoreMenu({
   const { toast } = useToast()
   const [open, setOpen] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
+
+  // Swipe gesture detection
+  const touchStartX = useRef<number>(0)
+  const touchStartY = useRef<number>(0)
+
+  useEffect(() => {
+    if (!open) return
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX.current = e.touches[0].clientX
+      touchStartY.current = e.touches[0].clientY
+    }
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      const touchEndX = e.changedTouches[0].clientX
+      const touchEndY = e.changedTouches[0].clientY
+      const diffX = touchEndX - touchStartX.current
+      const diffY = Math.abs(touchEndY - touchStartY.current)
+
+      // Swipe right to close (at least 100px, mostly horizontal)
+      if (diffX > 100 && diffY < 50) {
+        setOpen(false)
+        haptics.trigger('selection')
+      }
+    }
+
+    document.addEventListener('touchstart', handleTouchStart)
+    document.addEventListener('touchend', handleTouchEnd)
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart)
+      document.removeEventListener('touchend', handleTouchEnd)
+    }
+  }, [open])
 
   // Find current chat for export functions
   let currentChat = chats.find((c) => c.id === currentChatId)
