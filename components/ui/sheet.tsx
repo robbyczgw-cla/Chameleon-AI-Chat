@@ -93,10 +93,22 @@ const SheetContent = React.forwardRef<
       >
         {children}
         <SheetPrimitive.Close
-          className="absolute right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
-          style={needsSafeArea ? { top: `${safeAreaTop + 16}px` } : { top: '1rem' }}
+          style={{
+            position: 'absolute',
+            top: needsSafeArea ? `${safeAreaTop + 16}px` : '16px',
+            right: '16px',
+            zIndex: 100,
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '9999px',
+            backgroundColor: 'rgba(128, 128, 128, 0.2)',
+            cursor: 'pointer',
+          }}
         >
-          <X className="h-4 w-4" />
+          <X style={{ width: '16px', height: '16px' }} />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
       </SheetPrimitive.Content>
