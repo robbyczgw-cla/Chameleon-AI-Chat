@@ -1038,11 +1038,13 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           timestamp: Date.now()
         }))
         const followUpModel = getBackgroundModel('followUpGeneration', settings.experimental?.backgroundAIModels)
+        const followUpFallback = getBackgroundModel('followUpGenerationFallback', settings.experimental?.backgroundAIModels)
         followUpPromise = generateFollowUpsParallel(
           followUpMessages,
           settings.apiKeys.openRouter,
           followUpModel,
-          settings.language || "en"
+          settings.language || "en",
+          followUpFallback
         )
       }
 

@@ -54,11 +54,13 @@ export async function generateFollowUpsParallel(
   messages: Message[],
   apiKey: string,
   model?: string,
-  language: string = "en"
+  language: string = "en",
+  fallbackModel?: string
 ): Promise<CategorizedFollowUp[]> {
-  const modelsToTry = model
-    ? [model]
-    : [DEFAULT_FOLLOWUP_MODEL, FALLBACK_FOLLOWUP_MODEL]
+  // Determine which models to try (primary then fallback)
+  const primaryModel = model || DEFAULT_FOLLOWUP_MODEL
+  const secondaryModel = fallbackModel || FALLBACK_FOLLOWUP_MODEL
+  const modelsToTry = [primaryModel, secondaryModel]
 
   let lastError: Error | null = null
 

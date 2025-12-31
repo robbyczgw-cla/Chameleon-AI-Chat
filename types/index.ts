@@ -343,7 +343,8 @@ export interface BackgroundAIModelsSettings {
   personalityAnalysis?: string // Default: x-ai/grok-4.1-fast
   conversationInsights?: string // Default: x-ai/grok-4.1-fast
   contextCompression?: string // Default: x-ai/grok-4.1-fast
-  followUpGeneration?: string // Default: google/gemini-3-flash-preview (cheap, fast for parallel follow-up suggestions)
+  followUpGeneration?: string // Default: openai/gpt-oss-120b (primary model for follow-up suggestions)
+  followUpGenerationFallback?: string // Default: x-ai/grok-4.1-fast (fallback if primary fails)
   // Image generation tasks
   imageGenNormal?: string // Default: google/gemini-2.5-flash-image
   imageGenHigh?: string // Default: google/gemini-3-pro-image-preview

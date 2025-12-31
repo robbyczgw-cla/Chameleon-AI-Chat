@@ -1120,11 +1120,13 @@ export function ChatInput() {
         }))
         // Fire immediately - don't await
         const followUpModel = getBackgroundModel('followUpGeneration', settings.experimental?.backgroundAIModels)
+        const followUpFallback = getBackgroundModel('followUpGenerationFallback', settings.experimental?.backgroundAIModels)
         followUpPromise = generateFollowUpsParallel(
           followUpMessages,
           settings.apiKeys.openRouter,
           followUpModel,
-          settings.language || "en"
+          settings.language || "en",
+          followUpFallback
         )
       }
 
