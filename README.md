@@ -195,6 +195,23 @@ Not generic "ChatGPT with a twist." Real personalities organized in 8 categories
 
 ---
 
+## ✨ Latest Updates (v0.10.7-beta - December 31, 2025)
+
+**6 Major Features Completed Today:**
+
+| Feature | What's New | Impact |
+|---------|-----------|--------|
+| **🎯 Follow-up Model Picker** | Select which model generates follow-up suggestions | Better quality control, optimize for speed vs quality |
+| **🔘 Dialog Refinements** | Cleaner close buttons with 14px icons | More professional, polished UX |
+| **📱 Mobile Menu** | Swipe-right to close, new close button on 3-dots menu | Faster navigation, modern patterns |
+| **🎚️ Model Pickers Complete** | All background processes (memory, embeddings, images, follow-ups) now have model selectors | Full user control, cost optimization |
+| **🔒 Private Chat Mode** | Critical privacy fixes - zero Supabase sync, new private chat mid-conversation | True data privacy on device |
+| **🤖 Android 120Hz** | 120Hz display support, fixed keyboard issues, Material Motion framework | Smoother native experience |
+
+**[Read full release notes →](./docs/RECENT_COMMITS_SUMMARY.md)**
+
+---
+
 ## 📱 Install Options
 
 **Three ways to use Chameleon AI:**

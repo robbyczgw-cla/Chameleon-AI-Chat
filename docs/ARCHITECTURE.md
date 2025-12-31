@@ -3551,6 +3551,101 @@ const VISION_MODELS = [
 
 ---
 
+## Recent Architecture Updates (December 31, 2025)
+
+### 1. Background Model Pickers - Complete Implementation
+
+**Commits**: `e38d421`, `46b99f4`, `d562ddc`, `2b99d35`, `40096bb`
+
+All background processes now have user-selectable models:
+
+```typescript
+// Memory system model selection
+memory.embeddings.model = settings.modelPreferences.embeddings
+memory.extraction.model = settings.modelPreferences.memoryExtraction
+
+// Image generation model selection
+image.generation.model = settings.modelPreferences.imageGeneration
+
+// Follow-up suggestions model selection
+followups.model = settings.modelPreferences.followupGeneration
+
+// All with fallback handling
+const model = userModel || DEFAULT_FALLBACK
+```
+
+**Architecture Impact**:
+- Adds `modelPreferences` object to settings
+- Each background system checks for user override before using default
+- Consistent fallback pattern across all systems
+- Enables cost optimization per background process
+
+### 2. Private Chat Mode - Complete Privacy Implementation
+
+**Commits**: `c1a390b`, `e2a756c`, `cf28f7c`, `7466b6d`, `7549030`
+
+Completely isolated private chat architecture:
+
+```typescript
+// Data flow in private mode
+if (settings.privateChatMode) {
+  // SKIP Supabase sync (zero cloud storage)
+  // SKIP memory extraction (no data persistence)
+  // SKIP embeddings generation (no semantic search)
+  // Store only in localStorage (device-only)
+  return skipCloudSync()
+}
+```
+
+**Critical Privacy Features**:
+1. **New Chat on Enable**: Mid-conversation private mode doesn't leak previous messages
+2. **Supabase Bypass**: Complete network isolation for private chats
+3. **Memory Bypass**: Check `privateChatMode` in all sync operations
+4. **PWA Offline**: Proper handling for offline-first scenarios
+
+### 3. Android Native Experience - Material 3 Framework
+
+**Commits**: `65bf85f`, `a00576f`, `2a43579`, `b49b7c9`, `602caa0`, `8f90b81`, `6e2108a`
+
+Native Android architecture built on Capacitor 8 with Material 3 design:
+
+**Keyboard Architecture**:
+- Resize mode: `'native'` (input follows keyboard without black bar)
+- CSS fixes for safe-area-inset-bottom
+- Material Motion animations for smoothness
+- 120Hz display support (adaptive refresh rate)
+
+**Native Animations**:
+- Spring animations framework
+- Material Motion hook system
+- Haptics (17 native patterns)
+- Smooth transitions on all interactions
+
+### 4. Dialog & UI Polish
+
+**Commits**: `584735b`, `741d8f7`, `0006c90`, `ccaac2b`, `9ab195f`, `051d6c1`, `22aa68c`
+
+Final iterations of UI polish focusing on mobile UX:
+
+```typescript
+// Dialog close button: 14px professional sizing
+<X className="h-3.5 w-3.5" />
+
+// Mobile menu: Swipe-right gesture + tap close button
+<button onClick={closeMenu}>✕</button>
+
+// CSS specificity solution: Inline styles + Tailwind !
+style={{ minWidth: '320px' }}
+className="!w-[calc(100vw-2rem)] sm:!w-auto"
+```
+
+**Architecture Learning**:
+- Component library defaults require specificity overrides
+- Inline styles + Tailwind ! prefix for maximum compatibility
+- Test mobile and desktop before considering solution complete
+
+---
+
 ## Conclusion
 
 Chameleon's architecture prioritizes:
