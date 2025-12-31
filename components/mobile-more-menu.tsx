@@ -231,8 +231,12 @@ export function MobileMoreMenu({
       </SheetTrigger>
       <SheetContent side="right" className="w-[300px] sm:w-[350px]">
         <SheetHeader>
-          <SheetTitle>Settings & Tools</SheetTitle>
-          <SheetDescription>Access advanced features and settings</SheetDescription>
+          <div className="flex items-center justify-between pr-12">
+            <div>
+              <SheetTitle>Settings & Tools</SheetTitle>
+              <SheetDescription>Access advanced features and settings</SheetDescription>
+            </div>
+          </div>
         </SheetHeader>
         <div className="mt-6 space-y-1">
           {/* Theme */}
@@ -344,6 +348,17 @@ export function MobileMoreMenu({
                   <span>Copy Chat Link (URL)</span>
                 </>
               )}
+            </Button>
+          </div>
+
+          {/* Close button at bottom for easy access */}
+          <div className="border-t pt-4 mt-4">
+            <Button
+              variant="outline"
+              className="w-full min-h-[48px] text-base font-medium"
+              onClick={() => setOpen(false)}
+            >
+              Close
             </Button>
           </div>
         </div>
