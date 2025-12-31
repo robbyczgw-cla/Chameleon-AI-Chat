@@ -68,7 +68,7 @@ function DialogContent({
         data-nested={nested ? 'true' : undefined}
         className={cn(
           // GPU-OPTIMIZED: Removed backdrop-blur-xl - was 24px blur!
-          'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-1/2 top-1/2 flex flex-col w-full max-w-[calc(100%-2rem)] max-h-[min(90vh,calc(100dvh-2rem))] md:max-h-[calc(100vh-3rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-hairline shadow-apple-2 duration-200 sm:max-w-lg',
+          'bg-background/95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-1/2 top-1/2 grid w-full max-w-[calc(100%-2rem)] max-h-[min(90vh,calc(100dvh-2rem))] md:max-h-[calc(100vh-3rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-2xl border border-hairline p-6 shadow-apple-2 duration-200 sm:max-w-lg',
           nested ? 'z-[10999]' : 'z-[9999]',
           className,
         )}
@@ -79,20 +79,16 @@ function DialogContent({
         }}
         {...props}
       >
-        {/* Close button - sticky at top right */}
+        {children}
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="absolute top-3 right-3 z-[60] h-8 w-8 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
           >
-            <XIcon className="h-4 w-4" />
+            <XIcon />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto p-6 pt-12">
-          {children}
-        </div>
       </DialogPrimitive.Content>
     </DialogPortal>
   )
