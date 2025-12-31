@@ -18,7 +18,9 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
   // Check if user is in HiFi tier - check BOTH settings AND email directly
   // Email check is needed because settings may not be synced yet for new users
   const userEmail = user?.email?.toLowerCase() || ""
-  const isHifiByEmail = userEmail.endsWith("@hifiteam.at")
+  // Enterprise email domain is configurable via environment variable
+  const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
+  const isHifiByEmail = enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())
   const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
 
   // Check if user needs to select a mode (first-time user)

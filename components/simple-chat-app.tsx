@@ -609,7 +609,9 @@ export function SimpleChatApp() {
   useEffect(() => {
     // HiFi tier users skip onboarding entirely
     const userEmail = user?.email?.toLowerCase() || ""
-    const isHifiUser = userEmail.endsWith("@hifiteam.at") || settings.accessTier === "hifi"
+    // Enterprise email domain is configurable via environment variable
+    const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
+    const isHifiUser = (enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())) || settings.accessTier === "hifi"
     if (isHifiUser) {
       localStorage.setItem("simple-mode-onboarding-complete", "true")
       return
@@ -757,7 +759,9 @@ export function SimpleChatApp() {
   // Get feature flags based on access tier - check BOTH settings AND email directly
   // Email check is needed because settings may not be synced yet for new users
   const userEmail = user?.email?.toLowerCase() || ""
-  const isHifiByEmail = userEmail.endsWith("@hifiteam.at")
+  // Enterprise email domain is configurable via environment variable
+  const enterpriseDomainForFlags = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
+  const isHifiByEmail = enterpriseDomainForFlags && userEmail.endsWith(enterpriseDomainForFlags.toLowerCase())
   const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
   const effectiveAccessTier = isHifi ? "hifi" : settings.accessTier
   const featureFlags = getFeatureFlags(true, effectiveAccessTier) // Always simple mode in SimpleChatApp

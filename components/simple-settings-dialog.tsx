@@ -431,7 +431,9 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
 
   // Check if user is in HiFi tier - check BOTH settings AND email directly
   const userEmail = user?.email?.toLowerCase() || ""
-  const isHifiByEmail = userEmail.endsWith("@hifiteam.at")
+  // Enterprise email domain is configurable via environment variable
+  const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
+  const isHifiByEmail = enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())
   const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
 
   // Get translations based on language - HiFi users ALWAYS get German

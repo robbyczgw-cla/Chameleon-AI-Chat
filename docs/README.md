@@ -30,7 +30,7 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
    - **Understand the conversation continuers!**
 
 4. **[personas.md](./personas.md)** 🎭
-   - Complete guide to all 27 AI personas
+   - Complete guide to all 31 AI personas
    - When to use each persona
    - Communication styles and specialties
    - **Cami's Emotion Detection** - Smart mood recognition (English, German, Spanish)
@@ -122,7 +122,7 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
 **...contribute a new feature**
 → [contributing.md](./contributing.md)
 
-**...learn about the 27 personas**
+**...learn about the 31 personas**
 → [personas.md](./personas.md)
 
 **...understand the vision**

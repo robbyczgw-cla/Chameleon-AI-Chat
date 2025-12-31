@@ -56,7 +56,7 @@ This document provides a comprehensive analysis of Chameleon AI Chat, covering p
 
 | Feature | Description | Competitor Status |
 |---------|-------------|-------------------|
-| **27 AI Personas** | Unique personalities with memory & relationship tracking | None have this |
+| **31 AI Personas** | Unique personalities with memory & relationship tracking | None have this |
 | **Exact Cost Tracking** | Per-message token costs with cumulative totals | Most only show estimates |
 | **AI Debate Mode** | Multiple AI models discuss topics | Unique feature |
 | **Categorized Follow-ups** | Smart follow-up suggestions by category | ChatGPT has basic version |

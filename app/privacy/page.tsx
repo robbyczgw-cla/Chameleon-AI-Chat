@@ -184,10 +184,12 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-3">13. Contact Us</h2>
             <p className="text-muted-foreground">
-              If you have questions about this privacy policy or how we handle your data, please contact us at:
+              If you have questions about this privacy policy or how we handle your data, please contact us through:
             </p>
             <div className="p-4 rounded-lg bg-muted/50 mt-3">
-              <p className="font-mono text-sm">robchameleon@proton.me</p>
+              <p className="font-mono text-sm">
+                <a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions" className="text-primary hover:underline">GitHub Discussions</a>
+              </p>
               <p className="text-sm text-muted-foreground mt-2">We aim to respond to all inquiries within 48 hours.</p>
             </div>
           </section>
