@@ -15,7 +15,6 @@ import { useApp } from "@/contexts/app-context"
 import { PersonaAdvancedSettings } from "@/components/persona-advanced-settings"
 import { PersonaInfoDialog } from "@/components/persona-info-dialog"
 import { getPersonaDescription } from "@/lib/languages"
-import { getBackgroundModel } from "@/components/experimental-settings"
 import {
   Select,
   SelectContent,
