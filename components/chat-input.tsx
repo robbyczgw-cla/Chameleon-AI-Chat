@@ -781,6 +781,7 @@ export function ChatInput() {
               classifierModel: getBackgroundModel('queryClassification', settings.experimental.backgroundAIModels),
               extractionModel: getBackgroundModel('memoryExtraction', settings.experimental.backgroundAIModels),
               consolidationModel: getBackgroundModel('memoryConsolidation', settings.experimental.backgroundAIModels),
+              embeddingModel: getBackgroundModel('embeddings', settings.experimental.backgroundAIModels),
             })
           }
 

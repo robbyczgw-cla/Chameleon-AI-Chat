@@ -9,6 +9,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { documentCollectionService } from "@/lib/document-collections"
 import { processFile } from "@/lib/file-handler"
 import { generateDocumentEmbeddings } from "@/lib/semantic-search"
+import { useApp } from "@/contexts/app-context"
+import { getBackgroundModel } from "@/components/experimental-settings"
 import { deleteEmbedding } from "@/lib/embeddings-store"
 import { FolderOpen, Plus, Trash2, Upload, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -21,6 +23,7 @@ interface DocumentCollectionsDialogProps {
 }
 
 export function DocumentCollectionsDialog({ open, onOpenChange, onSelectCollection }: DocumentCollectionsDialogProps) {
+  const { settings } = useApp()
   const [collections, setCollections] = useState(documentCollectionService.getAllCollections())
   const [selectedCollection, setSelectedCollection] = useState<DocumentCollection | null>(null)
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -68,9 +71,11 @@ export function DocumentCollectionsDialog({ open, onOpenChange, onSelectCollecti
       if (doc && processed.content) {
         console.log(`[DocumentCollections] Generating embeddings for ${file.name}`)
         try {
+          const embeddingModel = getBackgroundModel('embeddings', settings.experimental?.backgroundAIModels)
           await generateDocumentEmbeddings(doc.id, processed.content, {
             collectionId,
             documentName: file.name,
+            model: embeddingModel,
           })
           console.log(`[DocumentCollections] Embeddings generated successfully`)
         } catch (error) {
