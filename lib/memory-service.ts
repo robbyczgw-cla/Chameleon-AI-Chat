@@ -112,6 +112,7 @@ class MemoryService {
       extractionModel: this.extractionModel,
       classifierModel: this.classifierModel,
       consolidationModel: this.consolidationModel,
+      embeddingModel: this.embeddingModel,
     }
   }
 

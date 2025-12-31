@@ -15,6 +15,7 @@ import { useApp } from "@/contexts/app-context"
 import { PersonaAdvancedSettings } from "@/components/persona-advanced-settings"
 import { PersonaInfoDialog } from "@/components/persona-info-dialog"
 import { getPersonaDescription } from "@/lib/languages"
+import { getBackgroundModel } from "@/components/experimental-settings"
 import {
   Select,
   SelectContent,
@@ -106,13 +107,14 @@ export function PersonasManager() {
     setGeneratingAvatar(true)
     try {
       const prompt = `Portrait of ${formData.name}, ${formData.description}, professional avatar style, centered face, neutral background, high quality`
+      const imageModel = getBackgroundModel('imageGenHigh', settings.experimental?.backgroundAIModels)
 
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt,
-          model: 'google/gemini-3-pro-image-preview',
+          customModel: imageModel,
           apiKey: settings.apiKeys.openRouter,
         }),
       })
