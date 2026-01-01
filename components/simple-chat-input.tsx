@@ -1541,7 +1541,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           )}
 
           {/* Textarea with Send button inside */}
-          <div className="relative flex items-center">
+          <div className="flex items-end gap-2 p-2">
             <Textarea
               ref={textareaRef}
               id="simple-chat-input"
@@ -1559,29 +1559,29 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               }}
               onKeyDown={handleKeyDown}
               placeholder={getTranslation("inputPlaceholder", language)}
-              className="min-h-[44px] max-h-[200px] resize-none text-base bg-transparent border-0 focus:ring-0 focus:outline-none pl-4 pr-16 py-3 flex-1"
+              className="min-h-[40px] max-h-[200px] resize-none text-base bg-transparent border-0 focus:ring-0 focus:outline-none px-2 py-2 flex-1"
               disabled={isChatLoading}
             />
-            {/* Send Button - Inside input field, right side */}
+            {/* Send Button - Right side of input */}
             <Button
-              type={isChatLoading ? "button" : "submit"}
-              onClick={isChatLoading ? stopGeneration : undefined}
+              type="submit"
+              onClick={isChatLoading ? (e) => { e.preventDefault(); stopGeneration(); } : undefined}
               disabled={!isChatLoading && !hasContent}
               className={cn(
-                "absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full transition-all duration-200 flex-shrink-0 border-2",
+                "h-8 w-8 rounded-lg transition-all duration-200 flex-shrink-0",
                 isChatLoading
-                  ? "bg-red-500 hover:bg-red-600 text-white shadow-md border-red-500"
+                  ? "bg-red-500 hover:bg-red-600 text-white"
                   : hasContent
-                    ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md border-primary"
-                    : "bg-background text-muted-foreground border-border/60 hover:border-primary/50 hover:text-foreground",
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+                    : "bg-muted text-muted-foreground",
                 "active:scale-95"
               )}
               size="icon"
             >
               {isChatLoading ? (
-                <Square className="h-4 w-4" />
+                <Square className="h-3.5 w-3.5" />
               ) : (
-                <Send className="h-4 w-4" />
+                <Send className="h-3.5 w-3.5" />
               )}
             </Button>
           </div>
