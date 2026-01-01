@@ -86,19 +86,19 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
   const cacheCreationTokens = stats?.cacheCreationTokens || 0
   const hasCacheStats = cacheReadTokens > 0 || cacheCreationTokens > 0
 
-  // Use native tokens (accurate totals from OpenRouter)
-  const totalInputTokens = stats?.nativeTokensPrompt || tokens?.prompt || 0
-  const totalOutputTokens = stats?.nativeTokensCompletion || tokens?.completion || 0
+  // Use native tokens (accurate totals from OpenRouter) - this is what you PAY for
+  const inputTokens = stats?.nativeTokensPrompt || tokens?.prompt || 0
+  const outputTokens = stats?.nativeTokensCompletion || tokens?.completion || 0
+  const totalTokens = inputTokens + outputTokens
 
-  // Tool call tokens
+  // Tool call tokens (first API call before search results)
   const toolInputTokens = stats?.toolCallTokensPrompt || 0
   const toolOutputTokens = stats?.toolCallTokensCompletion || 0
   const hasToolCalls = toolInputTokens > 0 || toolOutputTokens > 0
 
-  // FINAL response tokens = what user actually sees (total - tool overhead)
-  const inputTokens = hasToolCalls ? totalInputTokens - toolInputTokens : totalInputTokens
-  const outputTokens = hasToolCalls ? totalOutputTokens - toolOutputTokens : totalOutputTokens
-  const totalTokens = inputTokens + outputTokens
+  // Search results tokens = difference between total and tool call input
+  // (search results are injected into the final API call)
+  const searchResultsTokens = hasToolCalls ? inputTokens - toolInputTokens - toolOutputTokens : 0
 
   // Reasoning stats
   const hasReasoningTokens = stats?.nativeTokensCompletionReasoning && stats.nativeTokensCompletionReasoning > 0
@@ -298,20 +298,21 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
           )}
           {stats?.toolCallTokensPrompt && (
             <StatRow
-              label="Tool Input Tokens"
-              value={stats.toolCallTokensPrompt.toLocaleString()}
+              label="1st Call Input"
+              value={`${stats.toolCallTokensPrompt.toLocaleString()} tokens`}
             />
           )}
           {stats?.toolCallTokensCompletion && (
             <StatRow
-              label="Tool Output Tokens"
-              value={stats.toolCallTokensCompletion.toLocaleString()}
+              label="1st Call Output"
+              value={`${stats.toolCallTokensCompletion.toLocaleString()} tokens`}
             />
           )}
-          {stats?.toolCallCount && (
+          {searchResultsTokens > 0 && (
             <StatRow
-              label="Tool Iterations"
-              value={stats.toolCallCount}
+              label="Search Results"
+              value={`~${searchResultsTokens.toLocaleString()} tokens`}
+              valueClass="text-blue-600 dark:text-blue-400"
             />
           )}
           {stats?.allGenerationIds && stats.allGenerationIds.length > 1 && (
