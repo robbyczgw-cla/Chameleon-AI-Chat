@@ -218,8 +218,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   const stopGeneration = () => {
     stopChatGeneration()
     toast({
-      title: settings.language === "de" ? "Gestoppt" : "Stopped",
-      description: settings.language === "de" ? "Antwort wurde abgebrochen" : "Response was cancelled",
+      title: getTranslation("stopped", settings.language),
+      description: getTranslation("responseCancelled", settings.language),
     })
   }
 
@@ -227,10 +227,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     const openAiKey = settings.apiKeys.openai
     if (!openAiKey) {
       toast({
-        title: settings.language === "de" ? "API Key erforderlich" : "API key required",
-        description: settings.language === "de"
-          ? "Bitte OpenAI API Key in den Einstellungen hinterlegen"
-          : "Please add OpenAI API key in settings",
+        title: getTranslation("apiKeyRequired", settings.language),
+        description: getTranslation("addOpenAIKey", settings.language),
         variant: "destructive",
       })
       return
@@ -251,14 +249,14 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           setInput(text)
           setIsListening(false)
           toast({
-            title: `✓ ${  settings.language === "de" ? "Transkribiert" : "Transcribed"}`,
+            title: `✓ ${getTranslation("transcribed", settings.language)}`,
             description: `"${text.substring(0, 50)}${text.length > 50 ? '...' : ''}"`,
           })
         },
         (error) => {
           haptics.trigger('error')
           toast({
-            title: settings.language === "de" ? "Sprachfehler" : "Voice error",
+            title: getTranslation("voiceError", settings.language),
             description: error,
             variant: "destructive",
           })
@@ -266,10 +264,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         },
         () => {
           toast({
-            title: settings.language === "de" ? "🎤 Aufnahme gestartet" : "🎤 Recording started",
-            description: settings.language === "de"
-              ? "Sprich jetzt... Klicke nochmal zum Stoppen"
-              : "Speak now... Click again to stop",
+            title: getTranslation("recordingStarted", settings.language),
+            description: getTranslation("speakNow", settings.language),
           })
         }
       )
@@ -306,8 +302,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
     if (imageAttachments.length > 0) {
       toast({
-        title: settings.language === "de" ? "🖼️ Bilder komprimieren..." : "🖼️ Compressing images...",
-        description: `${imageAttachments.length} ${settings.language === "de" ? "Bild(er)" : "image(s)"}`,
+        title: getTranslation("compressingImages", settings.language),
+        description: `${imageAttachments.length} ${getTranslation("imageCount", settings.language)}`,
       })
 
       try {
@@ -332,8 +328,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       } catch (error) {
         console.error("[Simple Chat] Image compression failed:", error)
         toast({
-          title: settings.language === "de" ? "⚠️ Bildkomprimierung fehlgeschlagen" : "⚠️ Image compression failed",
-          description: settings.language === "de" ? "Verwende Originalbilder" : "Using original images",
+          title: getTranslation("compressionFailed", settings.language),
+          description: getTranslation("usingOriginalImages", settings.language),
           variant: "destructive",
         })
       }
@@ -378,10 +374,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     const maxImagesForPlatform = isIOSPWA ? 3 : 10
     if (imageAttachments.length > maxImagesForPlatform) {
       toast({
-        title: settings.language === "de" ? "Zu viele Bilder" : "Too many images",
+        title: getTranslation("tooManyImages", settings.language),
         description: settings.language === "de"
           ? `Maximum ${maxImagesForPlatform} Bilder pro Nachricht${isIOSPWA ? " (iOS PWA Limit)" : ""}`
-          : `Maximum ${maxImagesForPlatform} images per message${isIOSPWA ? " (iOS PWA limit)" : ""}`,
+          : settings.language === "es"
+            ? `Máximo ${maxImagesForPlatform} imágenes por mensaje${isIOSPWA ? " (límite iOS PWA)" : ""}`
+            : `Maximum ${maxImagesForPlatform} images per message${isIOSPWA ? " (iOS PWA limit)" : ""}`,
         variant: "destructive",
       })
       setIsChatLoading(false)
@@ -407,7 +405,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         if (!validation.valid) {
           console.log(`[Simple Chat] Image ${img.name} validation failed: ${imgSizeMB.toFixed(2)}MB`)
           toast({
-            title: settings.language === "de" ? "Bildvalidierung fehlgeschlagen" : "Image validation failed",
+            title: getTranslation("imageValidationFailed", settings.language),
             description: validation.error,
             variant: "destructive",
           })
@@ -467,10 +465,10 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         }
 
         toast({
-          title: settings.language === "de" ? "🎨 Generiere Bild..." : "🎨 Generating image...",
+          title: getTranslation("generatingImage", settings.language),
           description: inputImagesForGen.length > 0
-            ? (settings.language === "de" ? "Bearbeite hochgeladenes Bild..." : "Editing uploaded image...")
-            : `${settings.language === "de" ? "Verwende" : "Using"  } Gemini 3 Pro`,
+            ? getTranslation("editingImage", settings.language)
+            : `${getTranslation("using", settings.language)} Gemini 3 Pro`,
         })
 
         const response = await fetch('/api/generate-image', {
@@ -494,7 +492,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         const imageMessage: Message = {
           id: generateUUID(),
           role: "assistant",
-          content: `${settings.language === "de" ? "Generiertes Bild" : "Generated image"}: ${messageContent}`,
+          content: `${getTranslation("generatedImage", settings.language)}: ${messageContent}`,
           imageUrl: data.url,
           timestamp: Date.now(),
           stats: {
@@ -505,13 +503,13 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
         addMessage(chatId, imageMessage)
         toast({
-          title: settings.language === "de" ? "🎨 Bild generiert!" : "🎨 Image generated!",
-          description: settings.language === "de" ? "Das Bild wurde erfolgreich erstellt" : "Image created successfully",
+          title: getTranslation("imageGenerated", settings.language),
+          description: getTranslation("imageCreatedSuccessfully", settings.language),
         })
       } catch (error) {
         console.error('[Simple Chat] Image generation error:', error)
         toast({
-          title: settings.language === "de" ? "Fehler bei Bildgenerierung" : "Image generation failed",
+          title: getTranslation("imageGenerationFailed", settings.language),
           description: error instanceof Error ? error.message : 'Unknown error',
           variant: "destructive",
         })
@@ -617,10 +615,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
       // Show compression toast
       toast({
-        title: settings.language === "de" ? "📦 Chat optimieren..." : "📦 Optimizing chat...",
-        description: settings.language === "de"
-          ? "Fasse ältere Nachrichten zusammen für optimale Leistung"
-          : "Summarizing older messages for optimal performance",
+        title: getTranslation("optimizingChat", settings.language),
+        description: getTranslation("reducingContext", settings.language),
       })
 
       // Convert messages to the format expected by autoCompress
@@ -652,10 +648,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         messagesForApi = compressedWithCurrentMessage
 
         toast({
-          title: settings.language === "de" ? "✅ Chat optimiert" : "✅ Chat optimized",
+          title: getTranslation("chatOptimized", settings.language),
           description: settings.language === "de"
             ? `${compressionResult.stats.savedTokens.toLocaleString()} Tokens gespart`
-            : `Saved ${compressionResult.stats.savedTokens.toLocaleString()} tokens`,
+            : settings.language === "es"
+              ? `${compressionResult.stats.savedTokens.toLocaleString()} tokens ahorrados`
+              : `Saved ${compressionResult.stats.savedTokens.toLocaleString()} tokens`,
         })
 
         // Add compression event to streaming history
@@ -667,10 +665,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         // Compression failed or not needed, warn user
         console.warn("[Simple Chat] ⚠️ Compression failed, context may be full")
         toast({
-          title: settings.language === "de" ? "⚠️ Chat sehr lang" : "⚠️ Chat very long",
+          title: getTranslation("chatVeryLong", settings.language),
           description: settings.language === "de"
             ? "Der Chat ist sehr lang. Antwortqualität könnte beeinträchtigt sein."
-            : "This chat is very long. Response quality may be affected.",
+            : settings.language === "es"
+              ? "Este chat es muy largo. La calidad de la respuesta puede verse afectada."
+              : "This chat is very long. Response quality may be affected.",
           variant: "destructive",
         })
       }
@@ -1403,36 +1403,50 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       const isPayloadError = errorStr.includes("413") || errorStr.includes("payload") || errorStr.includes("too large")
       const isMemoryError = errorStr.includes("memory") || errorStr.includes("allocation")
 
-      let errorTitle = settings.language === "de" ? "Fehler" : "Error"
-      let errorDescription = settings.language === "de" ? "Antwort konnte nicht abgerufen werden" : "Could not get response"
+      let errorTitle = getTranslation("errorTitle", settings.language)
+      let errorDescription = getTranslation("couldNotGetResponse", settings.language)
       let userMessage = settings.language === "de"
         ? "Ups! Da ist etwas schiefgelaufen. Versuch es nochmal! 😊"
-        : "Oops! Something went wrong. Please try again! 😊"
+        : settings.language === "es"
+          ? "¡Ups! Algo salió mal. ¡Por favor, inténtalo de nuevo! 😊"
+          : "Oops! Something went wrong. Please try again! 😊"
 
       if (isContextError) {
-        errorTitle = settings.language === "de" ? "Chat zu lang" : "Chat too long"
+        errorTitle = getTranslation("chatTooLong", settings.language)
         errorDescription = settings.language === "de"
           ? "Starte einen neuen Chat, um Bilder hochzuladen"
-          : "Start a new chat to upload images"
+          : settings.language === "es"
+            ? "Inicia un nuevo chat para subir imágenes"
+            : "Start a new chat to upload images"
         userMessage = settings.language === "de"
           ? "Der Chat ist zu lang geworden. Bitte starte einen neuen Chat für weitere Bilder."
-          : "This chat has gotten too long. Please start a new chat for more images."
+          : settings.language === "es"
+            ? "Este chat se ha vuelto demasiado largo. Por favor, inicia un nuevo chat para más imágenes."
+            : "This chat has gotten too long. Please start a new chat for more images."
       } else if (isPayloadError) {
-        errorTitle = settings.language === "de" ? "Datei zu groß" : "File too large"
+        errorTitle = getTranslation("fileTooLarge", settings.language)
         errorDescription = settings.language === "de"
           ? "Bitte ein kleineres Bild verwenden"
-          : "Please use a smaller image"
+          : settings.language === "es"
+            ? "Por favor, usa una imagen más pequeña"
+            : "Please use a smaller image"
         userMessage = settings.language === "de"
           ? "Das Bild ist zu groß. Bitte verwende ein kleineres Bild."
-          : "The image is too large. Please use a smaller image."
+          : settings.language === "es"
+            ? "La imagen es demasiado grande. Por favor, usa una imagen más pequeña."
+            : "The image is too large. Please use a smaller image."
       } else if (isMemoryError && isIOSPWA) {
-        errorTitle = settings.language === "de" ? "Speicherproblem" : "Memory issue"
+        errorTitle = getTranslation("memoryIssue", settings.language)
         errorDescription = settings.language === "de"
           ? "Starte die App neu und versuche es mit weniger Bildern"
-          : "Restart the app and try with fewer images"
+          : settings.language === "es"
+            ? "Reinicia la app e intenta con menos imágenes"
+            : "Restart the app and try with fewer images"
         userMessage = settings.language === "de"
           ? "Speicherproblem auf iOS. Bitte starte die App neu und verwende weniger/kleinere Bilder."
-          : "Memory issue on iOS. Please restart the app and use fewer/smaller images."
+          : settings.language === "es"
+            ? "Problema de memoria en iOS. Por favor, reinicia la app y usa menos/imágenes más pequeñas."
+            : "Memory issue on iOS. Please restart the app and use fewer/smaller images."
       }
 
       const errorMessage: Message = {

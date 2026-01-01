@@ -88,6 +88,11 @@ interface Translations {
     profile: string
     memory: string
     settings: string
+    lightMode: string
+    darkMode: string
+    tune: string
+    share: string
+    toggleSidebar: string
   }
 
   // Chat Input
@@ -199,6 +204,11 @@ const translations: Record<Language, Translations> = {
       profile: "Profile",
       memory: "Memory System",
       settings: "Settings",
+      lightMode: "Light Mode",
+      darkMode: "Dark Mode",
+      tune: "Tune",
+      share: "Share",
+      toggleSidebar: "Toggle Sidebar",
     },
     chatInput: {
       placeholder: "Message...",
@@ -302,6 +312,11 @@ const translations: Record<Language, Translations> = {
       profile: "Profil",
       memory: "Speichersystem",
       settings: "Einstellungen",
+      lightMode: "Hell-Modus",
+      darkMode: "Dunkel-Modus",
+      tune: "Anpassen",
+      share: "Teilen",
+      toggleSidebar: "Seitenleiste umschalten",
     },
     chatInput: {
       placeholder: "Nachricht...",
