@@ -16,9 +16,24 @@ import { NativeErrorBoundary } from "@/components/native-error-boundary"
 
 export const metadata: Metadata = {
   title: "Chameleon AI Chat - Adapt to Any Conversation",
-  description: "Like a chameleon adapting to its environment, this AI chat platform transforms to match your needs with 18+ unique personas, 100+ AI models, and intelligent features",
-  generator: "v0.app",
-  applicationName: "Chameleon AI",
+  description: "The AI chat with real-time cost tracking, 31 expert personas, and training data export. 100+ AI models via OpenRouter. Know exactly what you're spending.",
+  generator: "Next.js",
+  applicationName: "Chameleon AI Chat",
+  authors: [{ name: "Chameleon AI Chat Contributors" }],
+  keywords: ["AI chat", "ChatGPT alternative", "cost tracking", "AI personas", "OpenRouter", "LLM", "fine-tuning", "training data"],
+  openGraph: {
+    title: "Chameleon AI Chat - Stop Guessing Your AI Costs",
+    description: "The only AI chat with real-time cost tracking, 31 expert personas, and training data export. 100+ AI models. Know exactly what you're spending.",
+    url: "https://chameleon-ai-chat.vercel.app",
+    siteName: "Chameleon AI Chat",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Chameleon AI Chat - Stop Guessing Your AI Costs",
+    description: "31 AI personas + 100+ models with real-time cost tracking. Export training data for fine-tuning.",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

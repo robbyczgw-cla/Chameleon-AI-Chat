@@ -372,11 +372,13 @@ for chunk in client.chat(
 
 ## Testing
 
-**Postman Collection:**
-- Download: [chameleon-api.postman_collection.json](./postman/)
-- Import to Postman
-- Set environment variables
-- Test all endpoints
+**Using cURL:**
+
+The examples below show how to test the API endpoints directly.
+
+**Using Postman/Insomnia:**
+
+Import the cURL commands below into your API client of choice, or create requests manually using the endpoint documentation above.
 
 **cURL Examples:**
 
