@@ -96,9 +96,9 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
   const toolOutputTokens = stats?.toolCallTokensCompletion || 0
   const hasToolCalls = toolInputTokens > 0 || toolOutputTokens > 0
 
-  // Search results tokens = difference between total and tool call input
-  // (search results are injected into the final API call)
-  const searchResultsTokens = hasToolCalls ? inputTokens - toolInputTokens - toolOutputTokens : 0
+  // 2nd call input = total input minus 1st call input
+  // This includes: re-sent context + tool response (search results)
+  const secondCallInputTokens = hasToolCalls ? Math.max(0, inputTokens - toolInputTokens) : 0
 
   // Reasoning stats
   const hasReasoningTokens = stats?.nativeTokensCompletionReasoning && stats.nativeTokensCompletionReasoning > 0
@@ -117,10 +117,15 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
   const toolCallCostPercent = hasToolCallCosts && cost
     ? ((stats.toolCallCost! / cost) * 100)
     : null
+  // Token percentage (different from cost percentage due to input/output pricing)
+  const toolCallTotalTokens = toolInputTokens + toolOutputTokens
+  const toolCallTokenPercent = hasToolCalls && totalTokens > 0
+    ? ((toolCallTotalTokens / totalTokens) * 100)
+    : null
 
   // Cache savings (based on total input, not just final response)
-  const cacheSavingsPercent = cacheReadTokens > 0 && totalInputTokens > 0
-    ? ((cacheReadTokens / totalInputTokens) * 100)
+  const cacheSavingsPercent = cacheReadTokens > 0 && inputTokens > 0
+    ? ((cacheReadTokens / inputTokens) * 100)
     : null
 
   return (
@@ -296,23 +301,43 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
               value={`${toolCallCostPercent.toFixed(1)}%`}
             />
           )}
+          {toolCallTokenPercent && (
+            <StatRow
+              label="% of Total Tokens"
+              value={`${toolCallTokenPercent.toFixed(1)}%`}
+              valueClass="text-muted-foreground"
+            />
+          )}
           {stats?.toolCallTokensPrompt && (
             <StatRow
-              label="1st Call Input"
+              label="Tool Input"
               value={`${stats.toolCallTokensPrompt.toLocaleString()} tokens`}
             />
           )}
           {stats?.toolCallTokensCompletion && (
             <StatRow
-              label="1st Call Output"
+              label="Tool Output"
               value={`${stats.toolCallTokensCompletion.toLocaleString()} tokens`}
             />
           )}
-          {searchResultsTokens > 0 && (
+          {secondCallInputTokens > 0 && (
             <StatRow
-              label="Search Results"
-              value={`~${searchResultsTokens.toLocaleString()} tokens`}
+              label="Final Input"
+              value={`${secondCallInputTokens.toLocaleString()} tokens`}
               valueClass="text-blue-600 dark:text-blue-400"
+            />
+          )}
+          {hasToolCalls && outputTokens > toolOutputTokens && (
+            <StatRow
+              label="Final Output"
+              value={`${(outputTokens - toolOutputTokens).toLocaleString()} tokens`}
+              valueClass="text-green-600 dark:text-green-400"
+            />
+          )}
+          {stats?.toolCallCount && stats.toolCallCount > 0 && (
+            <StatRow
+              label="Tool Iterations"
+              value={stats.toolCallCount}
             />
           )}
           {stats?.allGenerationIds && stats.allGenerationIds.length > 1 && (
