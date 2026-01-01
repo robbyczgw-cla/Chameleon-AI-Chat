@@ -44,9 +44,11 @@ import { PromptHelperDialog } from "@/components/prompt-helper-dialog"
 import { MobileMoreMenu } from "@/components/mobile-more-menu"
 import { ShareDialog } from "@/components/share-dialog"
 import { haptics } from "@/lib/haptics"
+import { useTranslation } from "@/lib/i18n"
 
 export function ChatHeader() {
   const { settings, updateSettings, chats, currentChatId } = useApp()
+  const { translations } = useTranslation(settings.language || "en")
   const [mounted, setMounted] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isDocCollectionsOpen, setIsDocCollectionsOpen] = useState(false)
@@ -201,7 +203,7 @@ export function ChatHeader() {
                   haptics.trigger('selection')
                   setIsShareOpen(true)
                 }}
-                title="Share"
+                title={translations.chatHeader.share}
               >
                 <Share2 className="h-4 w-4" />
               </Button>
@@ -214,7 +216,7 @@ export function ChatHeader() {
                 haptics.trigger('selection')
                 setIsSettingsOpen(true)
               }}
-              title="Settings"
+              title={translations.chatHeader.settings}
             >
               <Settings className="h-4 w-4" />
             </Button>
@@ -226,7 +228,7 @@ export function ChatHeader() {
                 haptics.trigger('selection')
                 setIsAdvancedSettingsOpen(true)
               }}
-              title="Tune"
+              title={translations.chatHeader.tune}
             >
               <Sliders className="h-4 w-4" />
             </Button>
@@ -254,7 +256,7 @@ export function ChatHeader() {
             size="icon"
             className="flex-shrink-0 h-10 w-10 hover:bg-accent hover:text-accent-foreground hover:scale-105 transition-all rounded-xl"
             onClick={toggleDesktopSidebar}
-            title="Toggle Sidebar"
+            title={translations.chatHeader.toggleSidebar}
           >
             <PanelLeftClose className="h-5 w-5" />
           </Button>
@@ -277,7 +279,7 @@ export function ChatHeader() {
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            title={settings.theme === "dark" ? "Hell-Modus" : "Dunkel-Modus"}
+            title={settings.theme === "dark" ? translations.chatHeader.lightMode : translations.chatHeader.darkMode}
             className="hidden sm:flex hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             {settings.theme === "dark" ? (
@@ -290,7 +292,7 @@ export function ChatHeader() {
             variant="ghost"
             size="icon"
             onClick={() => setIsProfileOpen(true)}
-            title="Profil"
+            title={translations.chatHeader.profile}
             className="hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             <User className="h-4 w-4 md:h-4.5 md:w-4.5 text-primary" />
@@ -408,7 +410,7 @@ export function ChatHeader() {
             variant="ghost"
             size="icon"
             onClick={() => setIsSettingsOpen(true)}
-            title="Einstellungen"
+            title={translations.chatHeader.settings}
             className="hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
             <Settings className="h-4 w-4 md:h-4.5 md:w-4.5" />

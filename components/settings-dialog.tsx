@@ -1481,10 +1481,10 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
 
         <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4 border-t flex-shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="min-h-[44px]">
-            Abbrechen
+            {translations.settings.cancel}
           </Button>
           <Button onClick={handleSave} className="min-h-[44px]">
-            Änderungen speichern
+            {translations.settings.save}
           </Button>
         </div>
       </DialogContent>
