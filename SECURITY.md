@@ -2,7 +2,7 @@
 
 ## Reporting Security Vulnerabilities
 
-If you discover a security vulnerability, please email us at [your-email@example.com] instead of using the issue tracker.
+If you discover a security vulnerability, please report it through [GitHub Security Advisories](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/security/advisories/new) instead of using the public issue tracker. This ensures the vulnerability can be addressed before public disclosure.
 
 ## API Key Security
 

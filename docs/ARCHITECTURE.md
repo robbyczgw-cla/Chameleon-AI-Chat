@@ -928,7 +928,7 @@ Cami: "Hey, STOP right there! That's not true at all.
        Let's break this into smaller, achievable steps..."
 ```
 
-**Full documentation**: [EMOTION_DETECTION.md](./EMOTION_DETECTION.md) (coming soon)
+**Implementation**: See `lib/emotion-detection.ts` for the full detection system.
 
 ---
 

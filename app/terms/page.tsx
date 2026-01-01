@@ -26,7 +26,7 @@ export default function TermsPage() {
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-1">
               <li>Chat with various AI models using their own API keys</li>
-              <li>Access 27 AI personas with different personalities</li>
+              <li>Access 31 AI personas with different personalities</li>
               <li>Track API usage costs</li>
               <li>Export conversation data</li>
               <li>Use web search functionality (optional)</li>
@@ -269,10 +269,12 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-3">16. Contact Us</h2>
             <p className="text-muted-foreground">
-              Questions about these Terms? Contact us:
+              Questions about these Terms? Contact us through:
             </p>
             <div className="p-4 rounded-lg bg-muted/50 mt-3">
-              <p className="font-mono text-sm">robchameleon@proton.me</p>
+              <p className="font-mono text-sm">
+                <a href="https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions" className="text-primary hover:underline">GitHub Discussions</a>
+              </p>
               <p className="text-sm text-muted-foreground mt-2">We aim to respond within 48 hours.</p>
             </div>
           </section>

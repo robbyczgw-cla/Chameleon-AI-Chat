@@ -114,12 +114,14 @@ export default function Page() {
         .eq("user_id", signUpData.user.id)
         .single()
 
-      // Check if user is registering with team email for special access
-      const isTeamEmail = email.toLowerCase().endsWith("@hifiteam.at")
-      const accessTier = isTeamEmail ? "hifi" : "standard"
+      // Check if user is registering with enterprise email domain for special access
+      // Enterprise domain is configurable via environment variable
+      const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
+      const isEnterpriseEmail = enterpriseDomain && email.toLowerCase().endsWith(enterpriseDomain.toLowerCase())
+      const accessTier = isEnterpriseEmail ? "hifi" : "standard"
 
-      if (isTeamEmail) {
-        console.log("[v0] Team email detected, setting access tier to hifi")
+      if (isEnterpriseEmail) {
+        console.log("[v0] Enterprise email detected, setting access tier to hifi")
       }
 
       if (!existingSettings) {

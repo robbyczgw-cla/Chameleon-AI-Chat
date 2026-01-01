@@ -1770,9 +1770,9 @@ These gestures work in both Simple Mode and Advanced Mode with haptic feedback.
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
+- **Issues**: [GitHub Issues](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions)
 - **Docs**: [Full Documentation](../docs/)
-- **Community**: Discord (link in README)
 
 ---
 

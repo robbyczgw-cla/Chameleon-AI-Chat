@@ -1,447 +1,119 @@
-<div align="center">
-  <img src="public/chameleon-logo.jpg" alt="Chameleon AI Logo" width="200" />
+# Chameleon AI Chat
 
-  # 🦎 Chameleon AI Chat
+An open-source AI chat application with real-time cost tracking, 31 conversational personas, and training data export.
 
-  ### **Stop Guessing Your AI Costs. Know Exactly What You're Spending.**
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
 
-  The only AI chat with **real-time cost tracking**, **27 expert personas**, and **training data export**.
+<!--
+TODO: Add a screenshot here before public release
+![Screenshot](docs/screenshot.png)
+-->
 
-  [![GitHub stars](https://img.shields.io/github/stars/robbyczgw-cla/Chameleon-AI-Chat?style=social)](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/stargazers)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
-  [![React](https://img.shields.io/badge/React-19-blue?logo=react)](https://react.dev/)
+## Features
 
-  [🚀 Quick Start](#-quick-start) • [✨ Features](#-why-chameleon) • [📚 Docs](./docs) • [💬 Community](#-community)
-</div>
+### Core
+- **Real-time cost tracking** - Actual billing data per message from OpenRouter, not estimates
+- **31 AI personas** - From Cami (adaptive chameleon) to Dev (programmer) to Mythos (worldbuilder)
+- **100+ AI models** - Claude Opus 4.5, GPT-5, Gemini 3, Grok 4, Llama 4, DeepSeek, and more via OpenRouter
+- **Two modes** - Simple Mode for casual users, Advanced Mode for power users with full controls
+- **Training data export** - Export conversations as JSONL for fine-tuning your own models
 
----
+### AI Experience
+- **Smart follow-ups** - AI-generated contextual suggestions after each response (quick, deep dive, related topics)
+- **Live streaming** - Watch responses generate in real-time with token-by-token streaming
+- **Streaming history** - Review past streaming sessions with performance metrics and reasoning traces
+- **Semantic memory** - AI remembers context across conversations using RAG with pgvector
 
-## 🎯 Why Chameleon?
+### Privacy & Security
+- **Private chat mode** - Ephemeral conversations that leave no trace
+- **Self-hostable** - Run your own instance with full control
+- **Your API keys** - Keys stored locally in your browser, never on servers
 
-### **Three Things No Other AI Chat Has:**
+### Integrations
+- **Web search** - Integrated search via Tavily, Serper, or Exa
+- **Voice input/output** - Whisper transcription and text-to-speech
+- **Image analysis** - Vision-capable models for image understanding
 
-<table>
-<tr>
-<td width="33%" align="center">
+### Mobile & Cross-Platform
+- **PWA support** - Install as app on any device, works offline
+- **Mobile-first layouts** - Optimized responsive UI for phones and tablets
+- **Android APK** - Native Android app via Capacitor with push notifications
 
-### 💰 **Exact Cost Tracking**
-Real billing data from OpenRouter API
-
-**Not estimates. Actual costs.**
-
-See what every message costs you. Export spending history. Optimize your usage.
-
-*Competitors show estimates. We show reality.*
-
-</td>
-<td width="33%" align="center">
-
-### 🎭 **31 Expert Personas**
-Not generic "assistants"
-
-**Real personalities with depth.**
-
-Cami (adaptive chameleon), Nova (cyberpunk hacker), Mythos (worldbuilder), Cogito (philosopher), Dev (programmer), Wordsmith (writing partner), Wellbeing (mental health), and more.
-
-*+28% engagement vs. generic bots*
-
-</td>
-<td width="33%" align="center">
-
-### 💾 **Training Data Export**
-JSONL format for fine-tuning
-
-**Build your own models.**
-
-Export conversations for GPT-4, Claude fine-tuning. Markdown, HTML, JSON formats.
-
-*Most apps lock your data. We free it.*
-
-</td>
-</tr>
-</table>
-
----
-
-## 🔥 What Makes This Different
-
-**The features that actually matter:**
-
-| Feature | What It Does | Why No One Else Has It |
-|---------|-------------|------------------------|
-| **🎬 Advanced Streaming** | Real-time phase indicators, tool previews, reasoning display | Most apps just show "typing..." - we show WHAT the AI is doing |
-| **⚡🧠🔗 Smart Follow-ups** | 3-tier suggestions (Quick/Deep/Related) | We guide conversations intelligently, not random suggestions |
-| **🛠️ Visual Tool Use** | See web searches, weather checks, calculations live | Most hide tool use - we make it transparent |
-| **💰 Real Cost Tracking** | Exact billing data per message, not estimates | Everyone else guesses - we show actual OpenRouter costs |
-| **📊 Analytics Dashboard** | Charts, model distribution, spending trends | Track patterns, optimize usage, export data |
-| **🎭 31 Deep Personas** | Cami (chameleon), Nova (hacker), Mythos (worldbuilder), Wordsmith (writer) | Not generic assistants - real personalities with depth |
-| **🎭💭 Emotion-Aware AI** | Cami detects mood (frustration, confusion, excitement) and adapts responses | No other AI emotionally responds to YOUR emotional state |
-
----
-
-## 🚀 Quick Start
-
-**Get running in 3 minutes:**
+## Quick Start
 
 ```bash
-# 1. Clone and install
 git clone https://github.com/robbyczgw-cla/Chameleon-AI-Chat.git
 cd Chameleon-AI-Chat
 npm install
-
-# 2. Set up environment
 cp .env.example .env.local
-# Add your OpenRouter API key (get one at openrouter.ai)
-
-# 3. Run
+# Add your API keys to .env.local
 npm run dev
-# Open http://localhost:3000
 ```
 
-**Required:**
-- OpenRouter API key (free tier available)
-- Supabase account (free tier works)
+Open [http://localhost:3000](http://localhost:3000)
 
-**Optional:**
-- Web search: Serper, Tavily, or Exa API
-- Voice: OpenAI Whisper + TTS
+### Requirements
 
----
+- Node.js 18+
+- [OpenRouter API key](https://openrouter.ai) (required)
+- [Supabase account](https://supabase.com) (required for auth/sync)
 
-## 🎬 Live Streaming Example
+### Optional
 
-**See what the AI is actually doing in real-time:**
+- Tavily/Serper/Exa API key for web search
+- OpenAI API key for Whisper voice transcription
 
-```
-[🧠 Thinking] Analyzing your message...
-  └─ Tokens: 45 reasoning tokens
+## Documentation
 
-[🔍 Searching Web] Using Serper API...
-  └─ Query: "latest Next.js 15 features"
-  └─ Found 8 results from vercel.com, nextjs.org
+| Guide | Description |
+|-------|-------------|
+| [User Guide](./docs/user-guide.md) | Complete walkthrough |
+| [Personas](./docs/personas.md) | All 31 personas explained |
+| [Memory System](./docs/MEMORY_SYSTEM.md) | How semantic memory works |
+| [Architecture](./docs/ARCHITECTURE.md) | Technical deep dive |
+| [Deployment](./docs/deployment.md) | Self-hosting guide |
+| [Android Build](./docs/CAPACITOR_ANDROID.md) | Building the Android app |
 
-[✍️ Writing] Generating response...
-  └─ Tokens: 350 → 820 → 1,170
+## Tech Stack
 
-[✅ Complete] $0.0234 (GPT-4 Turbo via OpenAI)
+- **Frontend**: Next.js 16, React 19, TypeScript 5, Tailwind CSS
+- **UI**: shadcn/ui components, Radix primitives
+- **Database**: Supabase (PostgreSQL + pgvector for embeddings)
+- **AI**: OpenRouter API (100+ models)
+- **Mobile**: Capacitor 8 (Android), PWA (iOS/Desktop)
+- **Auth**: Supabase Auth with Row-Level Security
 
-⚡ Quick: "What about React 19?"
-🧠 Deep: "How does this compare to Remix?"
-🔗 Related: "Show me migration examples"
-```
+## Privacy
 
-**Most AI chats show:** "Typing..."
-**Chameleon shows:** Exactly what's happening, with costs
+- **Private Chat Mode**: Conversations not saved anywhere
+- **Self-hostable**: Run your own instance
+- **Your API keys**: Keys stored locally, never on our servers
+- **Row-level security**: Supabase RLS ensures data isolation
 
----
+See [SECURITY.md](./SECURITY.md) for details.
 
-## 💡 Perfect For
+## Contributing
 
-**Power Users Who Want:**
-- ✅ Control over AI spending (see exact costs per message)
-- ✅ Personality in their AI (27 personas, not boring assistants)
-- ✅ Data ownership (export training data, fine-tune your own models)
-- ✅ Advanced features (debate mode, semantic memory, smart search)
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
-**Developers:**
-- 💻 Programming help with Dev persona
-- 📊 Cost optimization for AI projects
-- 🔧 Training data for fine-tuning models
-- 🎯 Compare models side-by-side (debate mode)
+Quick links:
+- [Report a bug](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=bug_report.md)
+- [Request a feature](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=feature_request.md)
+- [Discussions](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions)
 
-**Businesses:**
-- 💰 Track team AI spending
-- 🎭 Custom personas for different roles
-- 📈 Usage analytics and insights
-- 🔒 Self-hosted option (data stays private)
+## License
 
----
+MIT License - see [LICENSE](./LICENSE)
 
-## 🎨 Personas That Matter
+## Acknowledgments
 
-Not generic "ChatGPT with a twist." Real personalities organized in 8 categories:
-
-| Persona | Personality | Best For |
-|---------|------------|----------|
-| **Cami** 🦎 | **Emotion-aware** adaptive chameleon | Any topic - adapts to YOUR mood & tone |
-| **Nova** ✨ | Cyberpunk hacker from Neo-Tokyo 2089 | Tech, coding, creative solutions |
-| **Mythos** 🗺️ | Collaborative worldbuilder | D&D campaigns, storytelling, lore |
-| **Cogito** 🤔 | Consciousness explorer | Philosophy, deep questions, ethics |
-| **Vibe** 🎧 | Personal taste curator | Music, games, shows, recommendations |
-| **Professor Stein** 🎓 | In-depth expert | Learning, research, detailed explanations |
-| **Dev** 💻 | Programming partner | Code review, debugging, architecture |
-| **Wordsmith** 📝 | Creative writing partner | All text types, blogs, emails *(NEW)* |
-| **Wellbeing** 💚 | Mental health support | Mindfulness, emotional support *(NEW)* |
-
-[See all 31 personas →](./docs/personas.md)
-
----
-
-## 🆚 vs Competition
-
-| Feature | Chameleon | Open-WebUI | LibreChat | LobeChat | ChatGPT-Next-Web |
-|---------|-----------|------------|-----------|----------|------------------|
-| **Advanced Streaming** | ✅ **Phases + Tool Preview** | ⚠️ Basic | ⚠️ Basic | ⚠️ Basic | ⚠️ Basic |
-| **Visual Tool Use** | ✅ **Transparent** | ⚠️ Hidden | ⚠️ Hidden | ⚠️ Hidden | ❌ No |
-| **Smart Follow-ups** | ✅ **3-tier** | ❌ No | ❌ No | ⚠️ Basic | ❌ No |
-| **Real Cost Tracking** | ✅ **Exact Billing** | ❌ Estimates | ❌ No | ❌ No | ❌ No |
-| **Analytics Dashboard** | ✅ **Charts + Export** | ⚠️ Basic | ❌ No | ❌ No | ❌ No |
-| **Deep Personas** | ✅ **31** | ⚠️ 2-3 | ⚠️ 2-3 | ⚠️ 2-3 | ❌ None |
-| Multi-model | ✅ 100+ | ✅ Many | ✅ Many | ✅ Many | ✅ Many |
-| Training Export | ✅ JSONL | ❌ No | ❌ No | ❌ No | ❌ No |
-
-**TL;DR:** If you want transparency, intelligence, and control → **Chameleon**
-
----
-
-## ✨ Latest Updates (v0.10.7-beta - December 31, 2025)
-
-**6 Major Features Completed Today:**
-
-| Feature | What's New | Impact |
-|---------|-----------|--------|
-| **🎯 Follow-up Model Picker** | Select which model generates follow-up suggestions | Better quality control, optimize for speed vs quality |
-| **🔘 Dialog Refinements** | Cleaner close buttons with 14px icons | More professional, polished UX |
-| **📱 Mobile Menu** | Swipe-right to close, new close button on 3-dots menu | Faster navigation, modern patterns |
-| **🎚️ Model Pickers Complete** | All background processes (memory, embeddings, images, follow-ups) now have model selectors | Full user control, cost optimization |
-| **🔒 Private Chat Mode** | Critical privacy fixes - zero Supabase sync, new private chat mid-conversation | True data privacy on device |
-| **🤖 Android 120Hz** | 120Hz display support, fixed keyboard issues, Material Motion framework | Smoother native experience |
-
-**[Read full release notes →](./docs/RECENT_COMMITS_SUMMARY.md)**
-
----
-
-## 📱 Install Options
-
-**Three ways to use Chameleon AI:**
-
-| Option | Best For | Install |
-|--------|----------|---------|
-| **Web App** | Quick access, any device | [chameleon-ai-chat.vercel.app](https://chameleon-ai-chat.vercel.app) |
-| **PWA** | Mobile with offline support | Add to Home Screen from browser |
-| **Android APK** | Native experience | [Download from Releases](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/releases) |
-
----
-
-## 🤖 Android Native App
-
-**Built with Capacitor 8 for a true native Android experience.**
-
-### Native Features
-
-| Feature | Description |
-|---------|-------------|
-| **Home Screen Widget** | Quick access widget with "New Chat" and "Voice Input" buttons |
-| **Text Selection Integration** | Select text anywhere → tap "Ask Chameleon" to query AI |
-| **Native Haptics** | 17 haptic patterns (success, error, typing, swipe, etc.) |
-| **Keyboard Predictions** | Full Gboard/keyboard autocomplete support |
-| **Biometric Auth** | Fingerprint/Face unlock for secure credential storage |
-| **Local Notifications** | Android notification channels, custom sounds, icons |
-| **Share Target** | Receive shared text, images, PDFs from any app |
-| **Deep Links** | `chameleon-ai://` custom URL scheme |
-| **Native Camera** | Photo capture with editing, gallery picker |
-| **Voice Recording** | Optimized audio for Whisper transcription |
-| **Text-to-Speech** | Native voice synthesis |
-| **Material 3 Design** | Spring animations, blur effects, native styling |
-| **Edge-to-Edge Display** | Proper status bar and navigation bar handling |
-
-### Android vs PWA
-
-| Feature | PWA | Android APK |
-|---------|-----|-------------|
-| **Home Widget** | ❌ Not available | ✅ Quick access widget |
-| **Text Selection** | ❌ Not available | ✅ "Ask Chameleon" in any app |
-| **Keyboard Predictions** | ⚠️ Varies | ✅ Full support |
-| **Haptics** | Basic vibration | 17 native patterns |
-| **Biometrics** | ❌ Not available | ✅ Fingerprint/Face ID |
-| **Notifications** | Web push (limited) | Native channels |
-| **Share Target** | Limited | Full support |
-| **App Icon** | Browser badge | Native launcher icon |
-| **Design** | Web CSS | Material 3 Expressive |
-
-### Build Requirements
-
-| Component | Version |
-|-----------|---------|
-| Android | 13+ (API 33) |
-| Node.js | 22+ |
-| Java | 21 |
-| Gradle | 8.11.1 |
-
-### Build Commands
-
-```bash
-# Install dependencies
-npm ci
-
-# Sync Capacitor
-npx cap sync android
-
-# Build debug APK
-npm run cap:android:build
-
-# Build release APK
-npm run cap:android:release
-
-# Open in Android Studio
-npx cap open android
-```
-
-[Full Android documentation →](./docs/CAPACITOR_ANDROID.md)
-
----
-
-## 🛠️ Tech Stack
-
-**Modern, fast, reliable:**
-
-- **Frontend:** Next.js 16 + React 19.2 + TypeScript 5
-- **Styling:** Tailwind CSS 4.1 + shadcn/ui
-- **Database:** Supabase (PostgreSQL + pgvector)
-- **AI:** OpenRouter (100+ models)
-- **Voice:** OpenAI Whisper + TTS
-- **Search:** Tavily + Serper + Exa
-- **Deploy:** Vercel (Edge Runtime)
-- **Mobile:** Capacitor 8 (Android)
-
----
-
-## 📊 Cost Tracking Example
-
-**See exactly what you're spending:**
-
-```
-Message 1: "Write a blog post about AI"
-├─ Model: GPT-4 Turbo
-├─ Tokens: 1,170 (350 input + 820 output)
-├─ Cost: $0.0234
-└─ Provider: OpenAI (via OpenRouter)
-
-Message 2: "Now make it shorter"
-├─ Model: Claude Sonnet 3.5
-├─ Tokens: 890 (550 input + 340 output)
-├─ Cost: $0.0178
-└─ Provider: Anthropic
-
-Total conversation: $0.0412
-Monthly projection: $12.36 (based on usage)
-```
-
-**Export to JSON, analyze your spending, optimize costs.**
-
----
-
-## 🎭 AI Debate Mode
-
-**Watch models argue any topic:**
-
-```
-Topic: "Is AGI achievable by 2030?"
-
-GPT-4: "I believe AGI by 2030 is unlikely because..."
-Claude: "I respectfully disagree. Recent progress shows..."
-GPT-4: "But consider the fundamental challenges..."
-Claude: "Those challenges are being actively solved..."
-
-Vote: Who convinced you?
-```
-
-**Perfect for:**
-- Comparing model reasoning
-- Research and analysis
-- Entertainment and education
-- Understanding different AI perspectives
-
----
-
-## 🚀 Roadmap
-
-**Currently working on:**
-- [ ] Plugin system for extensibility
-- [ ] Advanced memory visualization
-- [ ] Team collaboration features
-- [ ] Enhanced persona customization
-- [ ] CLI tool for developers
-
-**Recently shipped:**
-- [x] Exact cost tracking from OpenRouter API
-- [x] Memory surfacing (see which memories influenced response)
-- [x] Image validation optimization
-- [x] Gemini 3 support with reasoning
-- [x] Security hardening (API keys, Mermaid diagrams)
-
-[See full changelog →](./CHANGELOG.md)
-
----
-
-## 📚 Documentation
-
-**Get started fast:**
-
-- [📖 User Guide](./docs/user-guide.md) - Complete walkthrough
-- [🧠 Memory System](./docs/MEMORY_SYSTEM.md) - How memory works
-- [🎭 Personas Guide](./docs/personas.md) - All 31 personas in 8 categories
-- [🔧 Architecture](./docs/ARCHITECTURE.md) - Technical deep dive
-- [🚀 Deployment](./docs/deployment.md) - Self-hosting guide
-- [💾 Database Setup](./docs/DATABASE_IMPLEMENTATION_GUIDE.md) - Supabase config
-
----
-
-## 🤝 Contributing
-
-**Want to help?**
-
-1. 🌟 **Star this repo** (helps others discover it)
-2. 🐛 **Report bugs** via [Issues](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues)
-3. 💡 **Suggest features** via [Discussions](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions)
-4. 🔧 **Submit PRs** - see [Contributing Guide](./docs/contributing.md)
-
----
-
-## 💬 Community
-
-**Join the conversation:**
-
-- 💬 [Discord](#) - Chat with users and developers *(coming soon)*
-- 🐦 [Twitter](#) - Updates and announcements *(coming soon)*
-- 📧 Email: robbyczgw@gmail.com
-
----
-
-## ⭐ Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=robbyczgw-cla/Chameleon-AI-Chat&type=Date)](https://star-history.com/#robbyczgw-cla/Chameleon-AI-Chat&Date)
-
----
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE)
-
-**Free to use, modify, and distribute.**
-
----
-
-## 🙏 Acknowledgments
-
-Built with amazing tools:
-- [OpenRouter](https://openrouter.ai) - AI model access
-- [Supabase](https://supabase.com) - Backend & database
-- [Vercel](https://vercel.com) - Hosting
-- [shadcn/ui](https://ui.shadcn.com) - UI components
-- [blocks.so](https://github.com/ephraimduncan/blocks) - Chat input inspiration
-
----
-
-<div align="center">
-
-### **Stop guessing your AI costs. Know exactly what you're spending.**
-
-[🚀 Get Started](#-quick-start) • [⭐ Star This Repo](https://github.com/robbyczgw-cla/Chameleon-AI-Chat) • [📖 Read Docs](./docs)
-
-**Built with ❤️ for power users who want control**
-
-*100+ AI models • 31 personas • Real cost tracking • Training data export*
-
-</div>
+- [OpenRouter](https://openrouter.ai) - Unified API for 100+ AI models
+- [Supabase](https://supabase.com) - Database, auth, and vector search
+- [shadcn/ui](https://ui.shadcn.com) - Beautiful UI components
+- [Radix UI](https://radix-ui.com) - Accessible component primitives
+- [Tailwind CSS](https://tailwindcss.com) - Utility-first styling
+- [Capacitor](https://capacitorjs.com) - Native mobile runtime
+- [Vercel](https://vercel.com) - Hosting and deployment
+- [Lucide](https://lucide.dev) - Icon library

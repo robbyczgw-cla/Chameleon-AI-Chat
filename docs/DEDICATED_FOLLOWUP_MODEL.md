@@ -457,8 +457,8 @@ Planned features for future releases:
 ## Support
 
 - **Documentation**: `/docs/FOLLOW_UP_SUGGESTIONS.md`
-- **Issues**: https://github.com/your-repo/issues
-- **Discussions**: https://github.com/your-repo/discussions
+- **Issues**: https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues
+- **Discussions**: https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions
 
 ---
 
