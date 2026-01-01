@@ -71,7 +71,6 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
   // Settings with defaults (all true by default)
   const showReasoning = statsSettings?.showReasoning !== false
   const showCache = statsSettings?.showCache !== false
-  const showNativeTokens = statsSettings?.showNativeTokens !== false
   const showPerformance = statsSettings?.showPerformance !== false
   const showGeneration = statsSettings?.showGeneration !== false
   const showSearch = statsSettings?.showSearch !== false
@@ -79,7 +78,7 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
   const defaultExpandReasoning = statsSettings?.defaultExpandReasoning !== false
   const defaultExpandCache = statsSettings?.defaultExpandCache || false
 
-  // Use exact cost from OpenRouter API (no more estimates!)
+  // Use exact cost from OpenRouter API
   const cost = stats?.actualCost || stats?.cost || null
 
   // Cache stats
@@ -87,17 +86,16 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
   const cacheCreationTokens = stats?.cacheCreationTokens || 0
   const hasCacheStats = cacheReadTokens > 0 || cacheCreationTokens > 0
 
-  // IMPORTANT: Use native tokens as primary source (accurate totals including tool calls)
-  // Fall back to message.tokens only if native tokens aren't available
-  const hasNativeTokens = stats?.nativeTokensPrompt || stats?.nativeTokensCompletion
-
-  // Actual token counts to use for display and calculations
-  const actualInputTokens = stats?.nativeTokensPrompt || tokens?.prompt || 0
-  const actualOutputTokens = stats?.nativeTokensCompletion || tokens?.completion || 0
-  const actualTotalTokens = actualInputTokens + actualOutputTokens
+  // Use native tokens (accurate totals from OpenRouter)
+  const inputTokens = stats?.nativeTokensPrompt || tokens?.prompt || 0
+  const outputTokens = stats?.nativeTokensCompletion || tokens?.completion || 0
+  const totalTokens = inputTokens + outputTokens
 
   // Reasoning stats
   const hasReasoningTokens = stats?.nativeTokensCompletionReasoning && stats.nativeTokensCompletionReasoning > 0
+  const reasoningPercentage = hasReasoningTokens && outputTokens > 0
+    ? ((stats.nativeTokensCompletionReasoning! / outputTokens) * 100)
+    : null
 
   // Performance stats
   const hasPerformance = stats?.responseTime || stats?.actualTokensPerSecond || stats?.actualFirstTokenLatency
@@ -111,22 +109,9 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
     ? ((stats.toolCallCost! / cost) * 100)
     : null
 
-  // Tool call tokens for calculating final response
-  const toolInputTokens = stats?.toolCallTokensPrompt || 0
-  const toolOutputTokens = stats?.toolCallTokensCompletion || 0
-  const hasToolCalls = hasToolCallCosts && toolInputTokens > 0
-
-  // Final response = what the user actually sees (total - tool overhead)
-  const finalInputTokens = hasToolCalls ? actualInputTokens - toolInputTokens : actualInputTokens
-  const finalOutputTokens = hasToolCalls ? actualOutputTokens - toolOutputTokens : actualOutputTokens
-  const finalTotalTokens = finalInputTokens + finalOutputTokens
-
-  // Reasoning percentage based on FINAL output (visible content), not total
-  const reasoningPercentage = hasReasoningTokens && finalOutputTokens > 0
-    ? ((stats.nativeTokensCompletionReasoning! / finalOutputTokens) * 100)
-    : null
-  const cacheSavingsPercent = cacheReadTokens > 0 && actualInputTokens > 0
-    ? ((cacheReadTokens / actualInputTokens) * 100)
+  // Cache savings
+  const cacheSavingsPercent = cacheReadTokens > 0 && inputTokens > 0
+    ? ((cacheReadTokens / inputTokens) * 100)
     : null
 
   return (
@@ -140,48 +125,41 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
         )}
       </div>
 
-      {/* Primary Token Display - Shows FINAL response (what user sees) */}
-      {/* If tool calls exist, shows final response; otherwise shows total */}
-      {(finalInputTokens > 0 || finalOutputTokens > 0) && (
+      {/* Token counts - always visible */}
+      {totalTokens > 0 && (
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 overflow-hidden">
-          <StatRow label="Input" value={`${finalInputTokens.toLocaleString()} tokens`} />
-          <StatRow label="Output" value={`${finalOutputTokens.toLocaleString()} tokens`} />
-          <StatRow label="Total" value={`${finalTotalTokens.toLocaleString()} tokens`} />
+          <StatRow label="Input" value={`${inputTokens.toLocaleString()} tokens`} />
+          <StatRow label="Output" value={`${outputTokens.toLocaleString()} tokens`} />
+          <StatRow label="Total" value={`${totalTokens.toLocaleString()} tokens`} />
         </div>
       )}
 
-      {/* 🧠 Reasoning breakdown - inline, not collapsible for quick view */}
+      {/* 🧠 Reasoning Tokens */}
       {showReasoning && hasReasoningTokens && (
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 pt-2 border-t border-border/50 overflow-hidden">
+        <CollapsibleSection
+          title="Reasoning"
+          icon="🧠"
+          defaultOpen={defaultExpandReasoning}
+          badge={`${reasoningPercentage?.toFixed(0)}%`}
+          badgeColor="bg-amber-500/20 text-amber-600 dark:text-amber-400"
+        >
           <StatRow
-            label="🧠 Reasoning"
-            value={`${stats.nativeTokensCompletionReasoning!.toLocaleString()} tokens (${reasoningPercentage?.toFixed(0)}%)`}
+            label="Thinking Tokens"
+            value={stats.nativeTokensCompletionReasoning!.toLocaleString()}
             valueClass="text-amber-600 dark:text-amber-400"
           />
           <StatRow
+            label="% of Output"
+            value={`${reasoningPercentage?.toFixed(1)}%`}
+          />
+          <StatRow
             label="Visible Output"
-            value={`${(finalOutputTokens - stats.nativeTokensCompletionReasoning!).toLocaleString()} tokens`}
+            value={`${(outputTokens - stats.nativeTokensCompletionReasoning!).toLocaleString()}`}
           />
-        </div>
+        </CollapsibleSection>
       )}
 
-      {/* 🔧 Tool Overhead breakdown - inline when present */}
-      {hasToolCalls && (
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 pt-2 border-t border-border/50 overflow-hidden">
-          <StatRow
-            label="🔧 Tool Overhead"
-            value={`+${toolInputTokens.toLocaleString()} in, +${toolOutputTokens.toLocaleString()} out`}
-            valueClass="text-orange-600 dark:text-orange-400"
-          />
-          <StatRow
-            label="Total (incl. tools)"
-            value={`${actualTotalTokens.toLocaleString()} tokens`}
-            valueClass="opacity-75"
-          />
-        </div>
-      )}
-
-      {/* 💾 Cache Stats - Prompt caching */}
+      {/* 💾 Cache Stats */}
       {showCache && hasCacheStats && (
         <CollapsibleSection
           title="Prompt Cache"
@@ -222,7 +200,6 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
             ? `${Math.round(stats.actualTokensPerSecond)} t/s`
             : undefined}
         >
-          {/* TTFT from OpenRouter */}
           {stats?.actualFirstTokenLatency && (
             <StatRow
               label="Time to First Token"
@@ -236,7 +213,6 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
               value={`${stats.responseTime.toFixed(2)}s`}
             />
           )}
-          {/* TPS from OpenRouter */}
           {stats?.actualTokensPerSecond && (
             <StatRow
               label="Generation Speed"
@@ -244,7 +220,6 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
               valueClass="text-green-600 dark:text-green-400"
             />
           )}
-          {/* Tool call TPS if different from final response */}
           {stats?.toolCallTokensPerSecond && stats.actualTokensPerSecond &&
            Math.abs(stats.toolCallTokensPerSecond - stats.actualTokensPerSecond) > 5 && (
             <StatRow
@@ -293,26 +268,40 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
         </CollapsibleSection>
       )}
 
-      {/* 🔧 Tool Calling Details - only show cost details in collapsible */}
+      {/* 🔧 Tool Calling */}
       {hasToolCallCosts && (
         <CollapsibleSection
-          title="Tool Details"
+          title="Tool Calling"
           icon="🔧"
-          badge={`$${stats.toolCallCost!.toFixed(4)} (${toolCallCostPercent?.toFixed(0)}%)`}
+          badge={`$${stats.toolCallCost!.toFixed(4)}`}
           badgeColor="bg-orange-500/20 text-orange-600 dark:text-orange-400"
         >
           <StatRow
-            label="Tool Cost"
+            label="Tool Call Cost"
             value={`$${stats.toolCallCost!.toFixed(6)}`}
             valueClass="text-orange-600 dark:text-orange-400"
           />
-          <StatRow
-            label="Response Cost"
-            value={`$${(cost! - stats.toolCallCost!).toFixed(6)}`}
-          />
+          {toolCallCostPercent && (
+            <StatRow
+              label="% of Total Cost"
+              value={`${toolCallCostPercent.toFixed(1)}%`}
+            />
+          )}
+          {stats?.toolCallTokensPrompt && (
+            <StatRow
+              label="Tool Input Tokens"
+              value={stats.toolCallTokensPrompt.toLocaleString()}
+            />
+          )}
+          {stats?.toolCallTokensCompletion && (
+            <StatRow
+              label="Tool Output Tokens"
+              value={stats.toolCallTokensCompletion.toLocaleString()}
+            />
+          )}
           {stats?.toolCallCount && (
             <StatRow
-              label="Iterations"
+              label="Tool Iterations"
               value={stats.toolCallCount}
             />
           )}
@@ -325,20 +314,19 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
         </CollapsibleSection>
       )}
 
-      {/* 📈 Efficiency Metrics */}
-      {showEfficiency && actualTotalTokens > 0 && stats?.responseTime && (
+      {/* 📈 Efficiency */}
+      {showEfficiency && totalTokens > 0 && stats?.responseTime && (
         <CollapsibleSection title="Efficiency" icon="📈">
           {cost && (
             <StatRow
               label="Cost/Second"
               value={`$${(cost / stats.responseTime).toFixed(6)}/s`}
-              valueClass="opacity-75"
             />
           )}
           <StatRow
             label="Chars/Token (out)"
-            value={actualOutputTokens > 0
-              ? `${((message.content?.length || 0) / actualOutputTokens).toFixed(1)}`
+            value={outputTokens > 0
+              ? `${((message.content?.length || 0) / outputTokens).toFixed(1)}`
               : "N/A"
             }
           />
