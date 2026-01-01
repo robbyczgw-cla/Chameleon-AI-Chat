@@ -1568,12 +1568,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               onClick={isChatLoading ? stopGeneration : undefined}
               disabled={!isChatLoading && !hasContent}
               className={cn(
-                "absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-xl transition-all duration-200 flex-shrink-0",
+                "absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full transition-all duration-200 flex-shrink-0 border-2",
                 isChatLoading
-                  ? "bg-red-500 hover:bg-red-600 text-white shadow-md"
+                  ? "bg-red-500 hover:bg-red-600 text-white shadow-md border-red-500"
                   : hasContent
-                    ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
-                    : "bg-muted/80 text-muted-foreground",
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md border-primary"
+                    : "bg-background text-muted-foreground border-border/60 hover:border-primary/50 hover:text-foreground",
                 "active:scale-95"
               )}
               size="icon"
