@@ -87,8 +87,17 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
   const hasCacheStats = cacheReadTokens > 0 || cacheCreationTokens > 0
 
   // Use native tokens (accurate totals from OpenRouter)
-  const inputTokens = stats?.nativeTokensPrompt || tokens?.prompt || 0
-  const outputTokens = stats?.nativeTokensCompletion || tokens?.completion || 0
+  const totalInputTokens = stats?.nativeTokensPrompt || tokens?.prompt || 0
+  const totalOutputTokens = stats?.nativeTokensCompletion || tokens?.completion || 0
+
+  // Tool call tokens
+  const toolInputTokens = stats?.toolCallTokensPrompt || 0
+  const toolOutputTokens = stats?.toolCallTokensCompletion || 0
+  const hasToolCalls = toolInputTokens > 0 || toolOutputTokens > 0
+
+  // FINAL response tokens = what user actually sees (total - tool overhead)
+  const inputTokens = hasToolCalls ? totalInputTokens - toolInputTokens : totalInputTokens
+  const outputTokens = hasToolCalls ? totalOutputTokens - toolOutputTokens : totalOutputTokens
   const totalTokens = inputTokens + outputTokens
 
   // Reasoning stats
@@ -109,9 +118,9 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
     ? ((stats.toolCallCost! / cost) * 100)
     : null
 
-  // Cache savings
-  const cacheSavingsPercent = cacheReadTokens > 0 && inputTokens > 0
-    ? ((cacheReadTokens / inputTokens) * 100)
+  // Cache savings (based on total input, not just final response)
+  const cacheSavingsPercent = cacheReadTokens > 0 && totalInputTokens > 0
+    ? ((cacheReadTokens / totalInputTokens) * 100)
     : null
 
   return (
