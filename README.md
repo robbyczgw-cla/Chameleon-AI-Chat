@@ -1,107 +1,270 @@
 # Chameleon AI Chat
 
-An open-source AI chat application with real-time cost tracking, 31 conversational personas, and training data export.
+An open-source AI chat application with real-time cost tracking, 31 conversational personas, semantic memory, and training data export. Access 100+ AI models through a beautiful, privacy-focused interface.
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase)
 
+---
+
+## Why Chameleon?
+
+Most AI chat apps are either too simple (ChatGPT wrapper) or too complex (developer-only tools). Chameleon gives you the best of both worlds:
+
+- **Simple Mode** for casual users who just want to chat
+- **Advanced Mode** for power users who want full control
+- **Real costs** from OpenRouter's Generation API - not estimates
+- **Your data, your keys** - runs entirely in your browser or self-hosted
+
+---
 
 ## Features
 
-### Core
-- **Real-time cost tracking** - Actual billing data per message from OpenRouter, not estimates
-- **31 AI personas** - From Cami (adaptive chameleon) to Dev (programmer) to Mythos (worldbuilder)
-- **100+ AI models** - Claude Opus 4.5, GPT-5, Gemini 3, Grok 4, Llama 4, DeepSeek, and more via OpenRouter
-- **Two modes** - Simple Mode for casual users, Advanced Mode for power users with full controls
-- **Training data export** - Export conversations as JSONL for fine-tuning your own models
+### Core Capabilities
+
+| Feature | Description |
+|---------|-------------|
+| **100+ AI Models** | Claude Opus 4.5, GPT-5, Gemini 3, Grok 4, Llama 4, DeepSeek R1, Mistral Large, and more via OpenRouter |
+| **Real-time Cost Tracking** | Actual billing data per message from OpenRouter's Generation API - not token estimates |
+| **31 AI Personas** | Pre-configured personalities from Cami (adaptive chameleon) to Dev (programmer) to Mythos (worldbuilder) |
+| **Two Modes** | Simple Mode for beginners, Advanced Mode for power users with full parameter controls |
+| **Training Export** | Export conversations as JSONL for fine-tuning your own models |
 
 ### AI Experience
-- **Smart follow-ups** - AI-generated contextual suggestions after each response (quick, deep dive, related topics)
-- **Live streaming** - Watch responses generate in real-time with token-by-token streaming
-- **Streaming history** - Review past streaming sessions with performance metrics and reasoning traces
-- **Semantic memory** - AI remembers context across conversations using RAG with pgvector
+
+| Feature | Description |
+|---------|-------------|
+| **Smart Follow-ups** | AI-generated contextual suggestions after each response (quick actions, deep dives, related topics) |
+| **Semantic Memory** | AI remembers context across conversations using RAG with pgvector embeddings |
+| **Live Streaming** | Watch responses generate in real-time with token-by-token streaming |
+| **Streaming History** | Review past streaming sessions with performance metrics and reasoning traces |
+| **Model Comparison** | Run the same prompt through 2-4 models side-by-side |
+| **Conversation Branching** | Explore alternative responses by branching conversations |
 
 ### Privacy & Security
-- **Private chat mode** - Ephemeral conversations that leave no trace
-- **Self-hostable** - Run your own instance with full control
-- **Your API keys** - Keys stored locally in your browser, never on servers
 
-### Integrations
-- **Web search** - Integrated search via Tavily, Serper, or Exa
-- **Voice input/output** - Whisper transcription and text-to-speech
-- **Image analysis** - Vision-capable models for image understanding
+| Feature | Description |
+|---------|-------------|
+| **Private Chat Mode** | Ephemeral conversations that leave no trace - not saved anywhere |
+| **Self-hostable** | Run your own instance with full control over your data |
+| **Local API Keys** | Keys stored in browser localStorage, never sent to our servers |
+| **Row-Level Security** | Supabase RLS ensures complete data isolation between users |
+| **XSS Protection** | Content sanitization prevents cross-site scripting attacks |
 
-### Mobile & Cross-Platform
-- **PWA support** - Install as app on any device, works offline
-- **Mobile-first layouts** - Optimized responsive UI for phones and tablets
-- **Android APK** - Native Android app via Capacitor with push notifications
+### Integrations & Tools
+
+| Feature | Description |
+|---------|-------------|
+| **Web Search** | Integrated search via Tavily (AI-optimized), Serper (Google), or Exa (Neural) |
+| **Voice Input** | Whisper transcription for speech-to-text |
+| **Voice Output** | Text-to-speech for AI responses |
+| **Image Analysis** | Vision-capable models for understanding images |
+| **Weather & More** | Extensible tool system for external APIs |
+
+### Cross-Platform
+
+| Platform | Support |
+|----------|---------|
+| **Desktop** | Full web app, installable PWA |
+| **iOS** | Safari PWA (Add to Home Screen) |
+| **Android** | Native APK via Capacitor + PWA |
+| **Offline** | Service worker caching for offline access |
+
+---
+
+## Personas
+
+31 unique AI personalities across 8 categories:
+
+| Category | Personas |
+|----------|----------|
+| **Core** | Cami (adaptive), Dev (coding), Flash (quick), Scholar (research) |
+| **Creative** | Luna (storytelling), Nova (roleplay), Mythos (mythology/worldbuilding) |
+| **Professional** | Dr. Med (health), Sol Goldman (legal), Finny (finance), Coach (business) |
+| **Lifestyle** | Chef Marco (cooking), Fit (fitness), Zen (mindfulness), Gaia (sustainability) |
+| **Learning** | Scholar (education), Lingua (languages), Herr Müller (German), Science (STEM) |
+| **Technical** | Dev (coding), Security (cybersec), Data (analytics), Cloud (DevOps) |
+| **Fun** | Buddy (casual), Trivia (games), Sage (philosophy), Mystic (astrology) |
+| **Special** | Enterprise Advisor (business), Kids Mode (child-safe) |
+
+Each persona has custom system prompts, communication styles, and specialized knowledge. Cami (the default) features **emotion detection** - recognizing frustration, excitement, confusion, and more to adapt responses.
+
+---
+
+## Themes
+
+12+ beautiful themes to personalize your experience:
+
+- **Light/Dark** - Clean defaults with system preference detection
+- **Aether** - Soft blue tones with ethereal gradients
+- **Midnight** - Deep dark theme with purple accents
+- **Forest** - Nature-inspired greens
+- **Ocean** - Calming blue depths
+- **Sunset** - Warm orange and pink gradients
+- **Lavender** - Soft purple elegance
+- **Amber Pro** - Premium warm elegance with sophisticated orange accents
+- **Cyberpunk** - Neon-futuristic vibes
+- **Nord** - Arctic-inspired color palette
+- **Dracula** - Popular dark theme with vivid accents
+- **High Contrast** - Accessibility-focused
+
+---
 
 ## Quick Start
 
+### Prerequisites
+
+- Node.js 18+
+- [OpenRouter API key](https://openrouter.ai) (required for AI models)
+- [Supabase account](https://supabase.com) (required for auth and data sync)
+
+### Installation
+
 ```bash
+# Clone the repository
 git clone https://github.com/robbyczgw-cla/Chameleon-AI-Chat.git
 cd Chameleon-AI-Chat
+
+# Install dependencies
 npm install
+
+# Copy environment template
 cp .env.example .env.local
-# Add your API keys to .env.local
+
+# Edit .env.local with your credentials:
+# - NEXT_PUBLIC_SUPABASE_URL
+# - NEXT_PUBLIC_SUPABASE_ANON_KEY
+# - (Optional) OPENROUTER_API_KEY for server-side fallback
+
+# Start development server
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
 
-### Requirements
+### First-Time Setup
 
-- Node.js 18+
-- [OpenRouter API key](https://openrouter.ai) (required)
-- [Supabase account](https://supabase.com) (required for auth/sync)
+1. Create an account or continue as guest
+2. Go to **Settings → API Keys**
+3. Enter your OpenRouter API key
+4. (Optional) Add Tavily/Serper for web search
+5. Start chatting!
 
-### Optional
+---
 
-- Tavily/Serper/Exa API key for web search
-- OpenAI API key for Whisper voice transcription
+## API Keys & Services
+
+| Service | Purpose | Required |
+|---------|---------|----------|
+| **OpenRouter** | AI model access (100+ models) | ✅ Yes |
+| **Supabase** | Database, auth, vector search | ✅ Yes |
+| **Tavily** | AI-optimized web search | ❌ Optional |
+| **Serper** | Google Search API | ❌ Optional |
+| **Exa** | Neural semantic search | ❌ Optional |
+| **OpenAI** | Whisper voice, DALL-E images | ❌ Optional |
+| **WeatherAPI** | Weather tool integration | ❌ Optional |
+
+---
 
 ## Documentation
 
+### User Guides
+
 | Guide | Description |
 |-------|-------------|
-| [User Guide](./docs/user-guide.md) | Complete walkthrough |
+| [User Guide](./docs/user-guide.md) | Complete walkthrough for new users |
+| [Power User Guide](./docs/POWER_USER_GUIDE.md) | Advanced features and shortcuts |
 | [Personas](./docs/personas.md) | All 31 personas explained |
 | [Memory System](./docs/MEMORY_SYSTEM.md) | How semantic memory works |
+| [FAQ](./docs/FAQ.md) | Frequently asked questions |
+
+### Developer Guides
+
+| Guide | Description |
+|-------|-------------|
 | [Architecture](./docs/ARCHITECTURE.md) | Technical deep dive |
+| [Database](./docs/database.md) | Schema and RLS policies |
+| [API Reference](./docs/api.md) | API endpoints |
 | [Deployment](./docs/deployment.md) | Self-hosting guide |
-| [Android Build](./docs/CAPACITOR_ANDROID.md) | Building the Android app |
+| [Android Build](./docs/CAPACITOR_ANDROID.md) | Building the native app |
+
+### Feature Docs
+
+| Guide | Description |
+|-------|-------------|
+| [Streaming Visualization](./docs/STREAMING-VISUALIZATION.md) | Real-time streaming UI |
+| [Follow-up Suggestions](./docs/FOLLOW_UP_SUGGESTIONS.md) | Smart conversation continuers |
+| [Private Chat Mode](./docs/PRIVATE_CHAT_MODE.md) | Ephemeral conversations |
+| [Search Providers](./docs/SEARCH-PROVIDERS-GUIDE.md) | Web search integration |
+
+See [docs/README.md](./docs/README.md) for the complete documentation index.
+
+---
 
 ## Tech Stack
 
-- **Frontend**: Next.js 16, React 19, TypeScript 5, Tailwind CSS
-- **UI**: shadcn/ui components, Radix primitives
-- **Database**: Supabase (PostgreSQL + pgvector for embeddings)
-- **AI**: OpenRouter API (100+ models)
-- **Mobile**: Capacitor 8 (Android), PWA (iOS/Desktop)
-- **Auth**: Supabase Auth with Row-Level Security
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | Next.js 16, React 19, TypeScript 5, Tailwind CSS 4 |
+| **UI Components** | shadcn/ui, Radix UI primitives, Lucide icons |
+| **Database** | Supabase (PostgreSQL + pgvector for embeddings) |
+| **AI Provider** | OpenRouter API (100+ models unified API) |
+| **Auth** | Supabase Auth with Row-Level Security |
+| **Mobile** | Capacitor 8 (Android), PWA (iOS/Desktop) |
+| **Markdown** | react-markdown, remark-gfm, rehype-highlight |
+| **Diagrams** | Mermaid.js for flowcharts and diagrams |
 
-## Privacy
+---
 
-- **Private Chat Mode**: Conversations not saved anywhere
-- **Self-hostable**: Run your own instance
-- **Your API keys**: Keys stored locally, never on our servers
-- **Row-level security**: Supabase RLS ensures data isolation
+## Privacy & Security
 
-See [SECURITY.md](./SECURITY.md) for details.
+| Aspect | Implementation |
+|--------|----------------|
+| **API Keys** | Stored in browser localStorage, never on our servers |
+| **Conversations** | Local by default, optional cloud sync with Supabase |
+| **Private Mode** | Zero persistence - deleted when you close the chat |
+| **Data Isolation** | Supabase Row-Level Security (RLS) on all tables |
+| **XSS Protection** | HTML sanitization on all user content |
+| **HTTPS** | HSTS headers enforce secure connections |
+
+See [SECURITY.md](./SECURITY.md) for the complete security policy and deployment checklist.
+
+---
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
-Quick links:
-- [Report a bug](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=bug_report.md)
-- [Request a feature](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=feature_request.md)
+### Quick Links
+
+- [Report a Bug](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=bug_report.md)
+- [Request a Feature](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=feature_request.md)
 - [Discussions](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions)
+- [Security Vulnerabilities](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/security/advisories/new)
+
+---
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Cmd/Ctrl + K` | Open command palette |
+| `Cmd/Ctrl + ,` | Quick model switch |
+| `Cmd/Ctrl + N` | New chat |
+| `Cmd/Ctrl + /` | Toggle sidebar |
+| `Enter` | Send message |
+| `Shift + Enter` | New line in message |
+
+---
 
 ## License
 
 MIT License - see [LICENSE](./LICENSE)
+
+---
 
 ## Acknowledgments
 
@@ -113,3 +276,8 @@ MIT License - see [LICENSE](./LICENSE)
 - [Capacitor](https://capacitorjs.com) - Native mobile runtime
 - [Vercel](https://vercel.com) - Hosting and deployment
 - [Lucide](https://lucide.dev) - Icon library
+- [Mermaid](https://mermaid.js.org) - Diagram rendering
+
+---
+
+**Built with 🦎 by the Chameleon community**
