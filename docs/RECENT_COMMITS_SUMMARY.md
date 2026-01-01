@@ -1,14 +1,136 @@
 # Recent Commits Summary
 
-**Updated**: December 31, 2025
-**Latest**: Follow-up Model Picker, Dialog Close Buttons, Private Chat Mode, Android Improvements
-**Commits**: Latest 30+ commits across multiple features
+**Updated**: January 1, 2026
+**Latest**: Message Statistics Improvements, Mobile UX Fixes, Language Translations, Public Release Preparation
+**Commits**: Latest 45+ commits across multiple features
 
 ---
 
-## 📋 December 31, 2025 - Latest Updates
+## 📋 January 1, 2026 - New Year Release Preparation
 
-This document has been updated with the latest commits from December 31, 2025. Here's a summary of the major feature groups completed today:
+This document has been updated with the latest commits from January 1, 2026. Today focused on polish and preparation for public GitHub release.
+
+### 📊 Message Statistics Display Improvements
+
+**Commits**: `eee5ea5`, `38cf1f6`, `ce00aa7`, `864d262`, `85b51fc`, `90905fe`, `4736e48`
+**Type**: Bug Fix & UX Improvement (Multiple iterations)
+
+**Summary**
+Comprehensive overhaul of how message statistics are displayed, focusing on clarity and accuracy.
+
+**Key Improvements**
+- ✅ Show final response tokens (excluding tool calls) as primary display
+- ✅ Show total tokens with search results breakdown
+- ✅ Improved tool calling stats with token percentages and clearer labels
+- ✅ Simplified stats - show actual tokens, removed confusing $/M rates
+- ✅ Use native tokens for accurate stats display and calculations
+- ✅ Corrected Final Response tokens calculation
+
+**Files Modified**
+- `components/message-status.tsx`
+- `components/message-stats.tsx`
+
+**Impact**
+- ✅ Users see clearer, more accurate token counts
+- ✅ Tool calling costs now properly broken down
+- ✅ Removed confusing pricing metrics in favor of actual costs
+
+---
+
+### 🌍 Complete Language Translations
+
+**Commit**: `df5d467`
+**Type**: Enhancement
+
+**Summary**
+Completed all missing translations for German, English, and Spanish across the application.
+
+**What Changed**
+- Full DE/EN/ES translations for all UI elements
+- Consistent terminology across all three languages
+- Fixed untranslated strings throughout the app
+
+**Impact**
+- ✅ Spanish-speaking users have complete UI translation
+- ✅ German users have polished, native-quality text
+- ✅ Consistent experience across all supported languages
+
+---
+
+### 📱 Mobile Send Button Fixes
+
+**Commits**: `39a4821`, `d01db5a`, `47fbde6`, `53eeca8`
+**Type**: Bug Fix (Iterative)
+
+**Summary**
+Multiple iterations to fix mobile send button issues where it was being cut off or not responding on first press.
+
+**Key Fixes**
+- ✅ Position send button on right side of chat input on mobile
+- ✅ Make send button always visible with border and solid background
+- ✅ Prevent send button from being cut off
+- ✅ Simplify layout - smaller button, inside input, fix first press issue
+
+**Files Modified**
+- `components/simple-chat-input.tsx`
+- `components/chat-input.tsx`
+
+**Impact**
+- ✅ Mobile users can reliably send messages
+- ✅ Button always visible and accessible
+- ✅ First press now works correctly
+
+---
+
+### 📚 Public Release Documentation
+
+**Commits**: `5ae16ba`, `7fa8fb0`, `7686ee5`
+**Type**: Documentation
+
+**Summary**
+Prepared documentation for public GitHub release with enhanced README and templates.
+
+**What Changed**
+- Enhanced README with full feature showcase
+- Simplified README for public consumption
+- Added GitHub issue/PR templates
+- Added Open Graph tags for link previews
+- Cleaned up internal documentation
+
+**Files Modified**
+- `README.md`
+- `.github/ISSUE_TEMPLATE/bug_report.md`
+- `.github/ISSUE_TEMPLATE/feature_request.md`
+- `.github/PULL_REQUEST_TEMPLATE.md`
+
+**Impact**
+- ✅ Professional GitHub presence
+- ✅ Clear contribution guidelines
+- ✅ Attractive link previews when shared
+
+---
+
+### Summary Statistics for January 1, 2026
+
+**Commit Count**: 15+ commits today
+**Feature Groups**: 4 major areas
+**Commits by Type**:
+- Bug Fixes: 10 commits (statistics, mobile, layout)
+- Documentation: 3 commits
+- Enhancements: 2 commits
+- Merges: Multiple PR merges
+
+**Major Themes**
+1. **Message Statistics Clarity** - 7 iterations to perfect token display
+2. **Mobile UX** - Send button reliability
+3. **Internationalization** - Complete translations
+4. **Release Prep** - Documentation and templates
+
+---
+
+## 📋 December 31, 2025 - Previous Updates
+
+This section contains the updates from December 31, 2025:
 
 ### 🎯 Follow-up Generation Model Picker (NEW!)
 
@@ -588,7 +710,7 @@ Used Tailwind's `!` prefix which adds `!important` to CSS rules, forcing them to
 - ✅ **Delete All Chats dialog displays at proper width**
 - ✅ **Works on mobile and desktop**
 - ✅ **No more narrow vertical strips**
-- ✅ **Finally fucking works!**
+- ✅ **Finally works correctly!**
 
 ### Lesson Learned
 **Sometimes you need the nuclear option.** When dealing with complex component libraries with deeply nested styles and specificity conflicts, don't be afraid to use `!important` (via Tailwind's `!` prefix). It's not "bad practice" when it's the only way to override stubborn base styles.

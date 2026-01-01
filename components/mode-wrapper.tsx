@@ -19,7 +19,7 @@ export function ModeWrapper({ children }: ModeWrapperProps) {
   // Email check is needed because settings may not be synced yet for new users
   const userEmail = user?.email?.toLowerCase() || ""
   // Enterprise email domain is configurable via environment variable
-  const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
+  const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
   const isHifiByEmail = enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())
   const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
 

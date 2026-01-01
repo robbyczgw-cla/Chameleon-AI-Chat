@@ -28,13 +28,13 @@ export default function Page() {
     setError(null)
 
     if (password !== repeatPassword) {
-      setError("Passwörter stimmen nicht überein")
+      setError("Passwords do not match")
       setIsLoading(false)
       return
     }
 
     if (password.length < 8) {
-      setError("Passwort muss mindestens 8 Zeichen lang sein")
+      setError("Password must be at least 8 characters long")
       setIsLoading(false)
       return
     }
@@ -64,7 +64,7 @@ export default function Page() {
 
       // Check if email confirmation is required
       if (signUpData.user.identities && signUpData.user.identities.length === 0) {
-        setError("Bitte bestätige deine E-Mail Adresse. Wir haben dir einen Link geschickt.")
+        setError("Please confirm your email address. We've sent you a verification link.")
         return
       }
 
@@ -116,7 +116,7 @@ export default function Page() {
 
       // Check if user is registering with enterprise email domain for special access
       // Enterprise domain is configurable via environment variable
-      const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
+      const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
       const isEnterpriseEmail = enterpriseDomain && email.toLowerCase().endsWith(enterpriseDomain.toLowerCase())
       const accessTier = isEnterpriseEmail ? "hifi" : "standard"
 
@@ -143,7 +143,7 @@ export default function Page() {
           tavily_include_answer: true,
           // Team access configuration
           access_tier: accessTier,
-          simple_mode: !!isTeamEmail, // Team users always start in simple mode
+          simple_mode: !!isEnterpriseEmail, // Enterprise users always start in simple mode
         })
 
         if (settingsError) {
@@ -156,7 +156,7 @@ export default function Page() {
       router.push("/")
     } catch (error: unknown) {
       console.error("[v0] Sign up error:", error)
-      const errorMessage = error instanceof Error ? error.message : "Ein Fehler ist aufgetreten"
+      const errorMessage = error instanceof Error ? error.message : "An error occurred"
       setError(errorMessage)
     } finally {
       setIsLoading(false)

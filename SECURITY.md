@@ -84,6 +84,31 @@ This app may send data to:
 
 Always review the privacy policies of these services before using them.
 
+## Security Headers
+
+This application uses strict security headers:
+
+- **Strict-Transport-Security (HSTS)**: Forces HTTPS connections
+- **X-Frame-Options**: Prevents clickjacking via DENY
+- **X-Content-Type-Options**: Prevents MIME sniffing
+- **X-XSS-Protection**: Legacy XSS protection
+- **Referrer-Policy**: Strict origin cross-origin
+- **Content-Security-Policy**: Restricts resource loading
+
+## XSS Protection
+
+User-generated content is sanitized using the `lib/sanitize-html.ts` utility which:
+- Removes dangerous tags (script, iframe, object, etc.)
+- Removes event handlers (onclick, onerror, etc.)
+- Validates URLs (blocks javascript: protocol)
+- Sanitizes CSS (removes expression(), javascript:, etc.)
+
+## Known Limitations
+
+1. **Browser Storage**: API keys in localStorage are readable by browser extensions. Consider using incognito mode for sensitive keys.
+2. **Rate Limiting**: Current in-memory rate limiting doesn't persist across server restarts.
+3. **Guest Mode**: Unauthenticated users can access limited functionality. Configure for your use case.
+
 ## Secure Deployment Checklist
 
 Before deploying to production:
@@ -97,6 +122,8 @@ Before deploying to production:
 - [ ] Review and set appropriate rate limits on your API keys
 - [ ] Monitor API usage and costs regularly
 - [ ] Keep dependencies updated (run `npm audit` regularly)
+- [ ] Run `npm audit` and fix any vulnerabilities
+- [ ] Test with security scanning tools (OWASP ZAP, etc.)
 
 ## License
 

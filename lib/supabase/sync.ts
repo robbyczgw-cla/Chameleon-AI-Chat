@@ -216,17 +216,6 @@ export class SupabaseSync {
 
   async saveSettings(userId: string, settings: AppSettings): Promise<void> {
     try {
-      // DEBUG: Log API keys being saved
-      console.log("[Supabase] Saving API keys:", {
-        openRouter: settings.apiKeys?.openRouter ? `***${  settings.apiKeys.openRouter.slice(-4)}` : "empty",
-        openAI: settings.apiKeys?.openAI ? `***${  settings.apiKeys.openAI.slice(-4)}` : "empty",
-        tavily: settings.apiKeys?.tavily ? `***${  settings.apiKeys.tavily.slice(-4)}` : "empty",
-        serper: settings.apiKeys?.serper ? `***${  settings.apiKeys.serper.slice(-4)}` : "empty",
-        exa: settings.apiKeys?.exa ? `***${  settings.apiKeys.exa.slice(-4)}` : "empty",
-      })
-
-      // DEBUG: Log memory settings being saved
-      console.log("[Supabase] Saving memorySettings:", settings.memorySettings)
 
       // CRITICAL: Get existing settings to preserve API keys if new settings have empty values
       // Use .maybeSingle() to avoid errors if settings don't exist yet
@@ -276,13 +265,6 @@ export class SupabaseSync {
         }
       }
 
-      console.log("[Supabase] Final API keys being saved to DB:", {
-        openRouter: openRouterKey ? `***${  openRouterKey.slice(-4)}` : "NULL",
-        openAI: openAIKey ? `***${  openAIKey.slice(-4)}` : "NULL",
-        tavily: tavilyKey ? `***${  tavilyKey.slice(-4)}` : "NULL",
-        serper: serperKey ? `***${  serperKey.slice(-4)}` : "NULL",
-        exa: exaKey ? `***${  exaKey.slice(-4)}` : "NULL",
-      })
 
       // CRITICAL: Clean up old follow-up instructions from system prompt before saving to database
       // This ensures the database is updated with clean prompts for the dedicated model system (v0.11+)
@@ -1163,20 +1145,6 @@ export class SupabaseSync {
   }
 
   private mapSettingsFromDB(dbSettings: any): AppSettings {
-    // DEBUG: Log API keys being loaded
-    console.log("[Supabase] Loading API keys from DB:", {
-      openRouter: dbSettings.openrouter_api_key ? `***${  dbSettings.openrouter_api_key.slice(-4)}` : "NULL/empty",
-      openAI: dbSettings.openai_api_key ? `***${  dbSettings.openai_api_key.slice(-4)}` : "NULL/empty",
-      tavily: dbSettings.tavily_api_key ? `***${  dbSettings.tavily_api_key.slice(-4)}` : "NULL/empty",
-      serper: dbSettings.serper_api_key ? `***${  dbSettings.serper_api_key.slice(-4)}` : "NULL/empty",
-      exa: dbSettings.exa_api_key ? `***${  dbSettings.exa_api_key.slice(-4)}` : "NULL/empty",
-    })
-
-    // DEBUG: Log memory settings being loaded
-    console.log("[Supabase] Loading memorySettings from DB:", {
-      raw: dbSettings.memory_settings,
-      type: typeof dbSettings.memory_settings,
-    })
 
     // Get raw system prompt from database
     let systemPrompt = dbSettings.system_prompt ||

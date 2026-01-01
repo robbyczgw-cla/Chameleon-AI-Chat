@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Brain, Sparkles, Loader2 } from "lucide-react"
 import { streamChatMessage } from "@/lib/openrouter"
 import { getBackgroundModel, DEFAULT_BACKGROUND_MODELS } from "@/components/experimental-settings"
+import { sanitizeHtml } from "@/lib/sanitize-html"
 
 interface PersonalityAnalysis {
   analysis: string
@@ -192,14 +193,17 @@ Erstelle eine strukturierte Persönlichkeitsanalyse mit folgenden Punkten:
                 <div
                   className="text-sm leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: analysis.analysis
-                      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-                      .replace(/\*(.*?)\*/g, "<em>$1</em>")
-                      .replace(/^### (.*$)/gim, "<h3 class='text-base font-bold mt-4 mb-2'>$1</h3>")
-                      .replace(/^## (.*$)/gim, "<h2 class='text-lg font-bold mt-4 mb-2'>$1</h2>")
-                      .replace(/^# (.*$)/gim, "<h1 class='text-xl font-bold mt-4 mb-2'>$1</h1>")
-                      .replace(/^- (.*$)/gim, "<li class='ml-4'>$1</li>")
-                      .replace(/\n/g, "<br />"),
+                    __html: sanitizeHtml(
+                      analysis.analysis
+                        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                        .replace(/\*(.*?)\*/g, "<em>$1</em>")
+                        .replace(/^### (.*$)/gim, "<h3 class='text-base font-bold mt-4 mb-2'>$1</h3>")
+                        .replace(/^## (.*$)/gim, "<h2 class='text-lg font-bold mt-4 mb-2'>$1</h2>")
+                        .replace(/^# (.*$)/gim, "<h1 class='text-xl font-bold mt-4 mb-2'>$1</h1>")
+                        .replace(/^- (.*$)/gim, "<li class='ml-4'>$1</li>")
+                        .replace(/\n/g, "<br />"),
+                      { context: 'rich' }
+                    ),
                   }}
                 />
               </div>

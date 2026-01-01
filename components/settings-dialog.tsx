@@ -215,7 +215,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
   const applyTheme = (theme: string) => {
     const html = document.documentElement
     // Remove all theme classes
-    html.classList.remove("dark", "girly-violet", "kawaii-pink", "aurora", "hifi-team", "ocean-breeze", "paper-mint", "clean-slate", "claude", "claude-grey", "chameleon", "soft-sunrise")
+    html.classList.remove("dark", "girly-violet", "kawaii-pink", "aurora", "amber-pro", "ocean-breeze", "paper-mint", "clean-slate", "claude", "claude-grey", "chameleon", "soft-sunrise")
     // Add the selected theme
     if (theme !== "light") {
       html.classList.add(theme)
@@ -424,7 +424,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   <option value="girly-violet">💜 Girly Violet - Soft & Purple</option>
                   <option value="kawaii-pink">💖 Kawaii Pink - Cute & Playful</option>
                   <option value="aurora">✨ Aurora - Ethereal Light & Modern</option>
-                  <option value="hifi-team">🎵 HiFi Team - Premium Orange & Ivory</option>
+                  <option value="amber-pro">🔶 Amber Pro - Premium Orange & Ivory</option>
                   <option value="ocean-breeze">🌊 Ocean Breeze - Fresh & Aqua</option>
                   <option value="paper-mint">📄 Paper Mint - Warm & Crisp</option>
                 </select>
