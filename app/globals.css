@@ -161,17 +161,17 @@
   --sidebar-ring: oklch(0.52 0.22 275);
 }
 
-.hifi-team {
-  /* HiFi Team Theme - Premium audio retail elegance */
-  /* Sophisticated orange-accented light theme for HIFI TEAM Graz */
-  /* Brand color: #f07900 - warm, inviting, professional */
+.amber-pro {
+  /* Amber Pro Theme - Premium warm elegance */
+  /* Sophisticated orange-accented light theme with warm, professional feel */
+  /* Primary color: #f07900 - warm, inviting, professional */
   --background: #FFFBF5;
   --foreground: #1a1612;
   --card: #FFFFFF;
   --card-foreground: #1a1612;
   --popover: #FFFFFF;
   --popover-foreground: #1a1612;
-  /* HiFi Team Orange - warm, professional, recognizable */
+  /* Amber Pro Primary - warm, professional, recognizable */
   --primary: #f07900;
   --primary-foreground: #FFFFFF;
   --secondary: #FFF5EB;
@@ -186,7 +186,7 @@
   --border: #E8DED4;
   --input: #F5EDE5;
   --ring: #f07900;
-  /* Chart colors - warm palette with HiFi orange anchoring */
+  /* Chart colors - warm palette with amber anchoring */
   --chart-1: #f07900;
   --chart-2: #D4A855;
   --chart-3: #4A7C6F;
@@ -2442,7 +2442,7 @@ html {
   background-color: #FFFFFF !important;
 }
 
-.hifi-team [data-slot="dialog-content"] {
+.amber-pro [data-slot="dialog-content"] {
   background-color: #FFFBF5 !important;
 }
 
@@ -2516,7 +2516,7 @@ html {
   background-color: #FFFFFF !important;
 }
 
-.hifi-team [data-slot="alert-dialog-content"] {
+.amber-pro [data-slot="alert-dialog-content"] {
   background-color: #FFFBF5 !important;
 }
 

@@ -19,12 +19,12 @@ export function ChameleonLogo({
   colorShift = false,
   isHifi = false
 }: ChameleonLogoProps) {
-  // HiFi mode shows HIFI TEAM logo - constrained width
+  // Enterprise mode shows custom logo - constrained width
   if (isHifi) {
     return (
       <Image
-        src="/hifi-team-logo.svg"
-        alt="HIFI TEAM Logo"
+        src="/enterprise-logo.svg"
+        alt="Enterprise Logo"
         width={size * 2.5}
         height={size}
         className={cn(

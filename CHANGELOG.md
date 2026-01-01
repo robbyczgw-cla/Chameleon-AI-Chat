@@ -6,6 +6,41 @@ This project is in **beta stage** (v0.10-beta). Core features are stable with ex
 
 ---
 
+## [0.10.8-beta] - 2026-01-01
+
+### 🔒 Security Hardening
+
+**XSS Prevention**
+- Fixed XSS vulnerability in personality-analysis component
+- Now uses sanitizeHtml utility for all user-generated content rendering
+- **File:** `components/personality-analysis.tsx`
+
+**Security Headers**
+- Added HSTS (Strict-Transport-Security) header for HTTPS enforcement
+- **File:** `next.config.mjs`
+
+**Documentation**
+- Enhanced SECURITY.md with security headers documentation
+- Added known limitations section for transparency
+- Expanded deployment checklist
+
+### 🎨 Theme System Update
+
+**Renamed Theme for Generic Use**
+- Changed "HiFi Team" theme to "Amber Pro" for public release
+- Enterprise branding now fully configurable via environment variables
+- **Files:** `app/globals.css`, all theme-related components
+
+### 📖 Documentation
+
+**Updated for Today's Commits**
+- Added January 1, 2026 section to RECENT_COMMITS_SUMMARY.md
+- Documented message statistics improvements
+- Documented mobile send button fixes
+- Documented language translation completion
+
+---
+
 ## [0.10.7-beta] - 2025-12-31
 
 ### 🎯 Follow-up Generation Model Picker (NEW!)

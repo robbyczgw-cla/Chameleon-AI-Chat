@@ -470,7 +470,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
 
   const applyTheme = (theme: string) => {
     const html = document.documentElement
-    html.classList.remove("dark", "girly-violet", "kawaii-pink", "aurora", "hifi-team", "ocean-breeze", "paper-mint", "clean-slate", "claude", "claude-grey", "chameleon", "soft-sunrise")
+    html.classList.remove("dark", "girly-violet", "kawaii-pink", "aurora", "amber-pro", "ocean-breeze", "paper-mint", "clean-slate", "claude", "claude-grey", "chameleon", "soft-sunrise")
     if (theme !== "light") {
       html.classList.add(theme)
     }
@@ -869,7 +869,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                     { value: "girly-violet", label: "Violet", bg: "bg-gradient-to-br from-pink-100 to-purple-200", border: "border-pink-300" },
                     { value: "kawaii-pink", label: "Kawaii 💖", bg: "bg-gradient-to-br from-pink-200 via-pink-100 to-purple-100", border: "border-pink-400" },
                     { value: "aurora", label: "Aurora ✨", bg: "bg-gradient-to-br from-violet-100 via-indigo-50 to-orange-50", border: "border-violet-400" },
-                    { value: "hifi-team", label: "HiFi Team 🎵", bg: "bg-gradient-to-br from-orange-100 to-amber-200", border: "border-orange-500" },
+                    { value: "amber-pro", label: "Amber Pro 🔶", bg: "bg-gradient-to-br from-orange-100 to-amber-200", border: "border-orange-500" },
                     { value: "ocean-breeze", label: "Ocean", bg: "bg-gradient-to-br from-cyan-100 to-blue-200", border: "border-cyan-300" },
                   ].map((theme) => (
                     <button
