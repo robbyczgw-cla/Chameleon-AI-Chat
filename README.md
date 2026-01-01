@@ -6,10 +6,6 @@ An open-source AI chat application with real-time cost tracking, 31 conversation
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
 
-<!--
-TODO: Add a screenshot here before public release
-![Screenshot](docs/screenshot.png)
--->
 
 ## Features
 

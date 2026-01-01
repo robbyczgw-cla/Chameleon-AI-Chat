@@ -610,7 +610,7 @@ export function SimpleChatApp() {
     // HiFi tier users skip onboarding entirely
     const userEmail = user?.email?.toLowerCase() || ""
     // Enterprise email domain is configurable via environment variable
-    const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
+    const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
     const isHifiUser = (enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())) || settings.accessTier === "hifi"
     if (isHifiUser) {
       localStorage.setItem("simple-mode-onboarding-complete", "true")
@@ -766,14 +766,14 @@ export function SimpleChatApp() {
   const effectiveAccessTier = isHifi ? "hifi" : settings.accessTier
   const featureFlags = getFeatureFlags(true, effectiveAccessTier) // Always simple mode in SimpleChatApp
 
-  // For HiFi tier: Force HiFi persona, otherwise use selected or default to Cami
+  // For enterprise tier: Force enterprise persona, otherwise use selected or default to Cami
   const selectedPersona = isHifi
-    ? getPersonaById("hifi-berater")
+    ? getPersonaById("enterprise-advisor")
     : (settings.selectedPersona || getPersonaById("friendly"))
 
-  // For HiFi tier: Force German, otherwise use selected language
+  // For enterprise tier: Use user's language preference
   const lang = isHifi
-    ? "de"
+    ? (settings.language || "en")
     : (settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en")
   const t = translations[lang as keyof typeof translations]
 
@@ -1163,75 +1163,63 @@ export function SimpleChatApp() {
         />
       )}
 
-      {/* HiFi Help Dialog - German only */}
+      {/* Enterprise Help Dialog */}
       {isHifi && (
         <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
           <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <HelpCircle className="h-5 w-5 text-primary" />
-                Hilfe - HiFi Berater
+                Help - Enterprise Advisor
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               {/* Introduction */}
               <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
-                <h3 className="font-semibold mb-2">Willkommen beim HiFi Berater</h3>
+                <h3 className="font-semibold mb-2">Welcome to Enterprise Advisor</h3>
                 <p className="text-sm text-muted-foreground">
-                  Dein KI-Assistent für High-End Audio Beratung bei HIFI TEAM Graz.
+                  Your AI assistant for sales and customer support.
                 </p>
               </div>
 
               {/* What you can ask */}
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Was du fragen kannst:</h4>
+                <h4 className="font-semibold text-sm">What you can ask:</h4>
                 <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Produktvergleiche (z.B. "Vergleiche Naim Uniti Atom mit Bluesound Powernode")</span>
+                    <span>Product comparisons and specifications</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Preisanfragen und Verfügbarkeit</span>
+                    <span>Price inquiries and availability</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Technische Spezifikationen unserer Marken</span>
+                    <span>Product recommendations for customers</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Kombinationsempfehlungen für Anlagen</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-primary">•</span>
-                    <span>Beratung zu Lautsprechern, Verstärkern, Streamern, Plattenspielern</span>
+                    <span>Technical specifications and details</span>
                   </li>
                 </ul>
               </div>
 
-              {/* Brands */}
-              <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Unsere Marken:</h4>
-                <p className="text-sm text-muted-foreground">
-                  Naim, Linn, Rega, Arcam, Atoll, Triangle, Dynaudio, Pro-Ject, DOAcoustics, Guru Audio, Lab12, Fezz, Sennheiser, NAD, Bluesound
-                </p>
-              </div>
-
               {/* Tips */}
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Tipps für bessere Antworten:</h4>
+                <h4 className="font-semibold text-sm">Tips for better answers:</h4>
                 <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
                   <li className="flex gap-2">
                     <span className="text-green-500">•</span>
-                    <span>Nenne ein Budget für passende Empfehlungen</span>
+                    <span>Mention a budget for tailored recommendations</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-green-500">•</span>
-                    <span>Beschreibe den Raum/Einsatzzweck</span>
+                    <span>Describe the use case or requirements</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-green-500">•</span>
-                    <span>Frag nach aktuellen Preisen - ich suche im Shop</span>
+                    <span>Ask for current prices - I'll search the inventory</span>
                   </li>
                 </ul>
               </div>
@@ -1239,7 +1227,7 @@ export function SimpleChatApp() {
               {/* Note */}
               <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
                 <p className="text-xs text-amber-700 dark:text-amber-400">
-                  Hinweis: Der HiFi Berater nutzt Websuche um aktuelle Preise und Verfügbarkeit von shop.hifiteam.at abzurufen.
+                  Note: Enterprise Advisor uses web search to fetch current prices and availability when configured.
                 </p>
               </div>
             </div>

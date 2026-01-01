@@ -710,7 +710,7 @@ Used Tailwind's `!` prefix which adds `!important` to CSS rules, forcing them to
 - ✅ **Delete All Chats dialog displays at proper width**
 - ✅ **Works on mobile and desktop**
 - ✅ **No more narrow vertical strips**
-- ✅ **Finally fucking works!**
+- ✅ **Finally works correctly!**
 
 ### Lesson Learned
 **Sometimes you need the nuclear option.** When dealing with complex component libraries with deeply nested styles and specificity conflicts, don't be afraid to use `!important` (via Tailwind's `!` prefix). It's not "bad practice" when it's the only way to override stubborn base styles.

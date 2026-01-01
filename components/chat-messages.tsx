@@ -343,7 +343,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
   // Check if user is in HiFi tier - check BOTH settings AND email directly
   const userEmail = user?.email?.toLowerCase() || ""
   // Enterprise email domain is configurable via environment variable
-  const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
+  const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
   const isHifiByEmail = enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())
   const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
   const [copiedId, setCopiedId] = useState<string | null>(null)
