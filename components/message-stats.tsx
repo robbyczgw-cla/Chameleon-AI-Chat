@@ -112,7 +112,6 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
     : null
 
   // Derived metrics - use ACTUAL token counts (native tokens when available)
-  const costPerKToken = cost && actualTotalTokens > 0 ? ((cost / actualTotalTokens) * 1000) : null
   const reasoningPercentage = hasReasoningTokens && actualOutputTokens > 0
     ? ((stats.nativeTokensCompletionReasoning! / actualOutputTokens) * 100)
     : null
@@ -138,13 +137,6 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
           <StatRow label="Input" value={`${actualInputTokens.toLocaleString()} tokens`} />
           <StatRow label="Output" value={`${actualOutputTokens.toLocaleString()} tokens`} />
           <StatRow label="Total" value={`${actualTotalTokens.toLocaleString()} tokens`} />
-          {costPerKToken && (
-            <StatRow
-              label="Rate"
-              value={`$${(costPerKToken * 1000).toFixed(2)}/M`}
-              valueClass="opacity-75"
-            />
-          )}
         </div>
       )}
 
@@ -206,23 +198,22 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
       )}
 
       {/* 📏 Final Response Tokens - Shows only final API call tokens when different from total */}
-      {/* Helpful to understand tool call overhead: Total - Final = Tool call tokens */}
-      {showNativeTokens && hasNativeTokens && tokens &&
-       (tokens.prompt !== actualInputTokens || tokens.completion !== actualOutputTokens) && (
+      {/* Calculated as: Total tokens - Tool call tokens = Final response tokens */}
+      {showNativeTokens && hasNativeTokens && hasToolCallCosts && stats?.toolCallTokensPrompt && (
         <CollapsibleSection title="Final Response Only" icon="📏">
           <StatRow
             label="Final Input"
-            value={`${tokens.prompt.toLocaleString()} tokens`}
+            value={`${(actualInputTokens - (stats.toolCallTokensPrompt || 0)).toLocaleString()} tokens`}
             valueClass="opacity-75"
           />
           <StatRow
             label="Final Output"
-            value={`${tokens.completion.toLocaleString()} tokens`}
+            value={`${(actualOutputTokens - (stats.toolCallTokensCompletion || 0)).toLocaleString()} tokens`}
             valueClass="opacity-75"
           />
           <StatRow
             label="Tool Overhead"
-            value={`+${(actualInputTokens - tokens.prompt).toLocaleString()} in, +${(actualOutputTokens - tokens.completion).toLocaleString()} out`}
+            value={`+${(stats.toolCallTokensPrompt || 0).toLocaleString()} in, +${(stats.toolCallTokensCompletion || 0).toLocaleString()} out`}
             valueClass="text-orange-600 dark:text-orange-400"
           />
         </CollapsibleSection>
@@ -356,19 +347,9 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
       )}
 
       {/* 📈 Efficiency Metrics */}
-      {showEfficiency && actualTotalTokens > 0 && cost && (
+      {showEfficiency && actualTotalTokens > 0 && stats?.responseTime && (
         <CollapsibleSection title="Efficiency" icon="📈">
-          <StatRow
-            label="Cost/Input Token"
-            value={`$${(cost / actualInputTokens * 1000000).toFixed(2)}/M`}
-            valueClass="opacity-75"
-          />
-          <StatRow
-            label="Cost/Output Token"
-            value={`$${(cost / actualOutputTokens * 1000000).toFixed(2)}/M`}
-            valueClass="opacity-75"
-          />
-          {stats?.responseTime && (
+          {cost && (
             <StatRow
               label="Cost/Second"
               value={`$${(cost / stats.responseTime).toFixed(6)}/s`}
