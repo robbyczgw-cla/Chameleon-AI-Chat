@@ -87,8 +87,14 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
   const cacheCreationTokens = stats?.cacheCreationTokens || 0
   const hasCacheStats = cacheReadTokens > 0 || cacheCreationTokens > 0
 
-  // Native tokens
+  // IMPORTANT: Use native tokens as primary source (accurate totals including tool calls)
+  // Fall back to message.tokens only if native tokens aren't available
   const hasNativeTokens = stats?.nativeTokensPrompt || stats?.nativeTokensCompletion
+
+  // Actual token counts to use for display and calculations
+  const actualInputTokens = stats?.nativeTokensPrompt || tokens?.prompt || 0
+  const actualOutputTokens = stats?.nativeTokensCompletion || tokens?.completion || 0
+  const actualTotalTokens = actualInputTokens + actualOutputTokens
 
   // Reasoning stats
   const hasReasoningTokens = stats?.nativeTokensCompletionReasoning && stats.nativeTokensCompletionReasoning > 0
@@ -105,13 +111,13 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
     ? ((stats.toolCallCost! / cost) * 100)
     : null
 
-  // Derived metrics
-  const costPerKToken = cost && tokens?.total ? ((cost / tokens.total) * 1000) : null
-  const reasoningPercentage = hasReasoningTokens && tokens?.completion
-    ? ((stats.nativeTokensCompletionReasoning! / tokens.completion) * 100)
+  // Derived metrics - use ACTUAL token counts (native tokens when available)
+  const costPerKToken = cost && actualTotalTokens > 0 ? ((cost / actualTotalTokens) * 1000) : null
+  const reasoningPercentage = hasReasoningTokens && actualOutputTokens > 0
+    ? ((stats.nativeTokensCompletionReasoning! / actualOutputTokens) * 100)
     : null
-  const cacheSavingsPercent = cacheReadTokens > 0 && tokens?.prompt
-    ? ((cacheReadTokens / tokens.prompt) * 100)
+  const cacheSavingsPercent = cacheReadTokens > 0 && actualInputTokens > 0
+    ? ((cacheReadTokens / actualInputTokens) * 100)
     : null
 
   return (
@@ -126,11 +132,12 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
       </div>
 
       {/* Basic Token & Cost - Always visible */}
-      {tokens && (
+      {/* Uses native tokens (accurate totals) when available, falls back to message.tokens */}
+      {(actualInputTokens > 0 || actualOutputTokens > 0) && (
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 overflow-hidden">
-          <StatRow label="Input" value={`${tokens.prompt.toLocaleString()} tokens`} />
-          <StatRow label="Output" value={`${tokens.completion.toLocaleString()} tokens`} />
-          <StatRow label="Total" value={`${tokens.total.toLocaleString()} tokens`} />
+          <StatRow label="Input" value={`${actualInputTokens.toLocaleString()} tokens`} />
+          <StatRow label="Output" value={`${actualOutputTokens.toLocaleString()} tokens`} />
+          <StatRow label="Total" value={`${actualTotalTokens.toLocaleString()} tokens`} />
           {costPerKToken && (
             <StatRow
               label="Rate"
@@ -161,7 +168,7 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
           />
           <StatRow
             label="Visible Output"
-            value={`${(tokens!.completion - stats.nativeTokensCompletionReasoning!).toLocaleString()}`}
+            value={`${(actualOutputTokens - stats.nativeTokensCompletionReasoning!).toLocaleString()}`}
           />
         </CollapsibleSection>
       )}
@@ -198,21 +205,26 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
         </CollapsibleSection>
       )}
 
-      {/* 📏 Native Tokens - Accurate tokenizer */}
-      {showNativeTokens && hasNativeTokens && (
-        <CollapsibleSection title="Native Tokenizer" icon="📏">
-          {stats?.nativeTokensPrompt && (
-            <StatRow
-              label="Native Input"
-              value={stats.nativeTokensPrompt.toLocaleString()}
-            />
-          )}
-          {stats?.nativeTokensCompletion && (
-            <StatRow
-              label="Native Output"
-              value={stats.nativeTokensCompletion.toLocaleString()}
-            />
-          )}
+      {/* 📏 Final Response Tokens - Shows only final API call tokens when different from total */}
+      {/* Helpful to understand tool call overhead: Total - Final = Tool call tokens */}
+      {showNativeTokens && hasNativeTokens && tokens &&
+       (tokens.prompt !== actualInputTokens || tokens.completion !== actualOutputTokens) && (
+        <CollapsibleSection title="Final Response Only" icon="📏">
+          <StatRow
+            label="Final Input"
+            value={`${tokens.prompt.toLocaleString()} tokens`}
+            valueClass="opacity-75"
+          />
+          <StatRow
+            label="Final Output"
+            value={`${tokens.completion.toLocaleString()} tokens`}
+            valueClass="opacity-75"
+          />
+          <StatRow
+            label="Tool Overhead"
+            value={`+${(actualInputTokens - tokens.prompt).toLocaleString()} in, +${(actualOutputTokens - tokens.completion).toLocaleString()} out`}
+            valueClass="text-orange-600 dark:text-orange-400"
+          />
         </CollapsibleSection>
       )}
 
@@ -344,19 +356,19 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
       )}
 
       {/* 📈 Efficiency Metrics */}
-      {showEfficiency && tokens && cost && (
+      {showEfficiency && actualTotalTokens > 0 && cost && (
         <CollapsibleSection title="Efficiency" icon="📈">
           <StatRow
             label="Cost/Input Token"
-            value={`$${(cost / tokens.prompt * 1000000).toFixed(2)}/M`}
+            value={`$${(cost / actualInputTokens * 1000000).toFixed(2)}/M`}
             valueClass="opacity-75"
           />
           <StatRow
             label="Cost/Output Token"
-            value={`$${(cost / tokens.completion * 1000000).toFixed(2)}/M`}
+            value={`$${(cost / actualOutputTokens * 1000000).toFixed(2)}/M`}
             valueClass="opacity-75"
           />
-          {stats?.tokensPerSecond && stats?.responseTime && (
+          {stats?.responseTime && (
             <StatRow
               label="Cost/Second"
               value={`$${(cost / stats.responseTime).toFixed(6)}/s`}
@@ -365,8 +377,8 @@ export function MessageStats({ message, statsSettings }: MessageStatsProps) {
           )}
           <StatRow
             label="Chars/Token (out)"
-            value={(message.content?.length || 0) / tokens.completion > 0
-              ? `${((message.content?.length || 0) / tokens.completion).toFixed(1)}`
+            value={actualOutputTokens > 0
+              ? `${((message.content?.length || 0) / actualOutputTokens).toFixed(1)}`
               : "N/A"
             }
           />
