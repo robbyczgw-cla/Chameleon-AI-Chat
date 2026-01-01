@@ -1541,7 +1541,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           )}
 
           {/* Textarea with Send button inside */}
-          <div className="relative">
+          <div className="relative flex items-center">
             <Textarea
               ref={textareaRef}
               id="simple-chat-input"
@@ -1559,20 +1559,20 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               }}
               onKeyDown={handleKeyDown}
               placeholder={getTranslation("inputPlaceholder", language)}
-              className="min-h-[44px] max-h-[200px] resize-none text-base bg-transparent border-0 focus:ring-0 focus:outline-none pl-4 pr-12 py-3"
+              className="min-h-[44px] max-h-[200px] resize-none text-base bg-transparent border-0 focus:ring-0 focus:outline-none pl-4 pr-14 py-3 flex-1"
               disabled={isChatLoading}
             />
-            {/* Send Button - Inside input field */}
+            {/* Send Button - Inside input field, right side */}
             <Button
               type={isChatLoading ? "button" : "submit"}
               onClick={isChatLoading ? stopGeneration : undefined}
               disabled={!isChatLoading && !hasContent}
               className={cn(
-                "absolute right-2 bottom-2 h-8 w-8 rounded-lg transition-all duration-200 flex-shrink-0",
+                "absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-xl transition-all duration-200 flex-shrink-0",
                 isChatLoading
-                  ? "bg-red-500 hover:bg-red-600 text-white"
+                  ? "bg-red-500 hover:bg-red-600 text-white shadow-md"
                   : hasContent
-                    ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
                     : "bg-muted/80 text-muted-foreground",
                 "active:scale-95"
               )}
@@ -1581,9 +1581,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               {isChatLoading ? (
                 <Square className="h-4 w-4" />
               ) : (
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 19V5M5 12l7-7 7 7" />
-                </svg>
+                <Send className="h-4 w-4" />
               )}
             </Button>
           </div>
