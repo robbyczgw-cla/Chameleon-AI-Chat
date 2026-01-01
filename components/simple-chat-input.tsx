@@ -1512,7 +1512,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     )}>
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl w-full">
         {/* Unified Input Container - Clean dark rounded box */}
-        <div className="bg-muted/50 dark:bg-muted/30 rounded-2xl border border-border/40 overflow-hidden">
+        <div className="bg-muted/50 dark:bg-muted/30 rounded-2xl border border-border/40">
           {/* Slash Command Suggestions */}
           {isAdvancedMode && features.showSlashCommands && commandSuggestions.length > 0 && (
             <div className="absolute bottom-full left-0 mb-2 w-full max-w-md bg-popover border border-border rounded-lg shadow-lg overflow-hidden z-50">
@@ -1559,7 +1559,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               }}
               onKeyDown={handleKeyDown}
               placeholder={getTranslation("inputPlaceholder", language)}
-              className="min-h-[44px] max-h-[200px] resize-none text-base bg-transparent border-0 focus:ring-0 focus:outline-none pl-4 pr-14 py-3 flex-1"
+              className="min-h-[44px] max-h-[200px] resize-none text-base bg-transparent border-0 focus:ring-0 focus:outline-none pl-4 pr-16 py-3 flex-1"
               disabled={isChatLoading}
             />
             {/* Send Button - Inside input field, right side */}
@@ -1568,12 +1568,12 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               onClick={isChatLoading ? stopGeneration : undefined}
               disabled={!isChatLoading && !hasContent}
               className={cn(
-                "absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-xl transition-all duration-200 flex-shrink-0",
+                "absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full transition-all duration-200 flex-shrink-0 border-2",
                 isChatLoading
-                  ? "bg-red-500 hover:bg-red-600 text-white shadow-md"
+                  ? "bg-red-500 hover:bg-red-600 text-white shadow-md border-red-500"
                   : hasContent
-                    ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
-                    : "bg-muted/80 text-muted-foreground",
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md border-primary"
+                    : "bg-background text-muted-foreground border-border/60 hover:border-primary/50 hover:text-foreground",
                 "active:scale-95"
               )}
               size="icon"
