@@ -13,15 +13,33 @@ TODO: Add a screenshot here before public release
 
 ## Features
 
-- **Real-time cost tracking** - See actual billing data per message from OpenRouter, not estimates
+### Core
+- **Real-time cost tracking** - Actual billing data per message from OpenRouter, not estimates
 - **31 AI personas** - From Cami (adaptive chameleon) to Dev (programmer) to Mythos (worldbuilder)
-- **100+ AI models** - Access GPT-4, Claude, Gemini, Llama, and more via OpenRouter
+- **100+ AI models** - Claude Opus 4.5, GPT-5, Gemini 3, Grok 4, Llama 4, DeepSeek, and more via OpenRouter
+- **Two modes** - Simple Mode for casual users, Advanced Mode for power users with full controls
 - **Training data export** - Export conversations as JSONL for fine-tuning your own models
-- **Semantic memory** - AI remembers context across conversations using RAG
+
+### AI Experience
+- **Smart follow-ups** - AI-generated contextual suggestions after each response (quick, deep dive, related topics)
+- **Live streaming** - Watch responses generate in real-time with token-by-token streaming
+- **Streaming history** - Review past streaming sessions with performance metrics and reasoning traces
+- **Semantic memory** - AI remembers context across conversations using RAG with pgvector
+
+### Privacy & Security
 - **Private chat mode** - Ephemeral conversations that leave no trace
+- **Self-hostable** - Run your own instance with full control
+- **Your API keys** - Keys stored locally in your browser, never on servers
+
+### Integrations
 - **Web search** - Integrated search via Tavily, Serper, or Exa
 - **Voice input/output** - Whisper transcription and text-to-speech
-- **Android app** - Native Android experience via Capacitor
+- **Image analysis** - Vision-capable models for image understanding
+
+### Mobile & Cross-Platform
+- **PWA support** - Install as app on any device, works offline
+- **Mobile-first layouts** - Optimized responsive UI for phones and tablets
+- **Android APK** - Native Android app via Capacitor with push notifications
 
 ## Quick Start
 
@@ -60,11 +78,12 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## Tech Stack
 
-- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
-- **UI**: shadcn/ui components
-- **Database**: Supabase (PostgreSQL + pgvector)
-- **AI**: OpenRouter API
-- **Mobile**: Capacitor (Android)
+- **Frontend**: Next.js 16, React 19, TypeScript 5, Tailwind CSS
+- **UI**: shadcn/ui components, Radix primitives
+- **Database**: Supabase (PostgreSQL + pgvector for embeddings)
+- **AI**: OpenRouter API (100+ models)
+- **Mobile**: Capacitor 8 (Android), PWA (iOS/Desktop)
+- **Auth**: Supabase Auth with Row-Level Security
 
 ## Privacy
 
@@ -90,7 +109,11 @@ MIT License - see [LICENSE](./LICENSE)
 
 ## Acknowledgments
 
-- [OpenRouter](https://openrouter.ai) - AI model access
-- [Supabase](https://supabase.com) - Database and auth
-- [shadcn/ui](https://ui.shadcn.com) - UI components
-- [Vercel](https://vercel.com) - Hosting
+- [OpenRouter](https://openrouter.ai) - Unified API for 100+ AI models
+- [Supabase](https://supabase.com) - Database, auth, and vector search
+- [shadcn/ui](https://ui.shadcn.com) - Beautiful UI components
+- [Radix UI](https://radix-ui.com) - Accessible component primitives
+- [Tailwind CSS](https://tailwindcss.com) - Utility-first styling
+- [Capacitor](https://capacitorjs.com) - Native mobile runtime
+- [Vercel](https://vercel.com) - Hosting and deployment
+- [Lucide](https://lucide.dev) - Icon library
