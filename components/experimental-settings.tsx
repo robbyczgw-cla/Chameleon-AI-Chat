@@ -621,7 +621,7 @@ export function ExperimentalSettings() {
             <div className="space-y-1">
               <Label className="text-sm font-medium">💰 Show Detailed Message Stats</Label>
               <p className="text-xs text-muted-foreground">
-                Display stats after each AI message: exact costs, tokens, performance metrics (desktop only, Advanced Mode)
+                Display stats after each AI message: exact costs, tokens, performance metrics (Advanced Mode, all platforms)
               </p>
             </div>
             <Switch

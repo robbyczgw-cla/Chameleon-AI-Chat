@@ -1041,17 +1041,11 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
               })()}
 
               {/* Detailed Stats for assistant messages (when enabled in experimental streaming settings) */}
+              {/* Shows on ALL platforms (mobile, desktop, PWA, Android) in Advanced Mode when toggle is ON */}
               {message.role === "assistant" &&
                isAdvancedMode &&
                settings.experimental?.streamingVisualization?.showDetailedStats !== false && (
-                <div className={cn(
-                  // Show on mobile only if experimental showDetailedStats is explicitly enabled
-                  settings.experimental?.streamingVisualization?.showDetailedStats === true
-                    ? "block"
-                    : "hidden md:block"
-                )}>
-                  <MessageStats message={message} statsSettings={settings.experimental?.statsDisplay} />
-                </div>
+                <MessageStats message={message} statsSettings={settings.experimental?.statsDisplay} />
               )}
 
               {/* Response Analysis for assistant messages (when enabled in experimental settings) */}
