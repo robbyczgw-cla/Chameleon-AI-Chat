@@ -1,132 +1,47 @@
 /**
  * Memory Module - Type Definitions
+ *
+ * This file contains shared types used by the memory classification
+ * and context filtering modules.
+ *
+ * Note: The main Memory, MemorySettings, and DeletedMemory types
+ * are defined in @/types and re-exported here for convenience.
  */
 
 import type { Memory, MemorySettings, DeletedMemory } from '@/types'
 
+// Re-export base types from @/types
 export type { Memory, MemorySettings, DeletedMemory }
 
 /**
- * Query classification result
+ * Query classification result from Self-RAG inspired classification.
+ *
+ * Used by classification.ts to determine if a query needs memory context.
+ *
+ * @property needsMemory - Whether the query requires personal memory context
+ * @property confidence - Confidence level (0-1) in the classification
+ * @property reason - Human-readable explanation of the classification
+ * @property queryType - Category of the query
  */
 export interface QueryClassification {
   needsMemory: boolean
-  confidence: number // 0-1
+  confidence: number
   reason: string
   queryType: 'factual' | 'personal' | 'ambiguous'
 }
 
 /**
- * Memory retrieval decision - explains why memories were/weren't retrieved
- */
-export interface MemoryRetrievalDecision {
-  action: 'skipped' | 'retrieved' | 'empty'
-  reason: string
-  details: {
-    queryType?: 'factual' | 'personal' | 'ambiguous'
-    confidence?: number
-    searchMethod?: 'semantic' | 'keyword'
-    topSimilarity?: number
-    memoryCount?: number
-  }
-}
-
-/**
- * Memory with similarity score (from semantic search)
- */
-export interface ScoredMemory extends Memory {
-  similarity?: number
-  score?: number
-}
-
-/**
- * Memory retrieval result
- */
-export interface MemoryRetrievalResult {
-  memories: Memory[]
-  classification: QueryClassification
-  skipped: boolean
-  searchMethod?: 'semantic' | 'keyword'
-  decision: MemoryRetrievalDecision
-}
-
-/**
- * Memory extraction result
- */
-export interface MemoryExtractionResult {
-  memories: Array<{
-    type: Memory['type']
-    content: string
-    importance: 1 | 2 | 3
-    category?: string
-  }>
-  raw?: string
-}
-
-/**
- * Memory consolidation result
- */
-export interface ConsolidationResult {
-  consolidated: number
-  removed: number
-  errors: string[]
-}
-
-/**
- * Memory maintenance result
- */
-export interface MaintenanceResult {
-  expired: number
-  archived: number
-  consolidated: number
-  cleaned: number
-  errors: string[]
-}
-
-/**
- * Default memory settings
- */
-export const DEFAULT_MEMORY_SETTINGS: MemorySettings = {
-  enabled: false,
-  autoExtract: true,
-  maxMemoriesInContext: 3, // Reduced from 5 - most queries need at most 2-3 memories
-  importanceThreshold: 2,
-  syncToDatabase: false,
-  useSemanticSearch: true,
-  similarityThreshold: 0.65, // Raised from 0.5 - stricter matching for quality
-  classificationConfidence: 0.7, // Lowered from 0.8 - skip more factual queries
-  minRelevanceScore: 0.45, // Raised from 0.3 - prevents weak matches
-  alwaysRetrieveForPersonas: true,
-  expirationEnabled: true,
-  expirationDays: 7,
-  archiveRetentionDays: 14,
-  autoConsolidation: false,
-  autoImportanceAdjustment: true,
-  lastMaintenanceRun: 0,
-}
-
-/**
- * Default models for memory tasks
+ * Default models for memory background tasks.
+ *
+ * These are cheap, fast models suitable for:
+ * - Query classification (simple intent detection)
+ * - Memory extraction (structured JSON output)
+ * - Memory consolidation (requires more reasoning)
+ *
+ * Can be overridden via experimental settings in the UI.
  */
 export const MEMORY_MODELS = {
   extraction: 'openai/gpt-oss-20b',
   classifier: 'openai/gpt-oss-20b',
   consolidation: 'openai/gpt-oss-120b',
-} as const
-
-/**
- * Storage keys
- */
-export const STORAGE_KEYS = {
-  memories: 'chat_memories',
-  deletedMemories: 'chat_deleted_memories',
-} as const
-
-/**
- * Time constants
- */
-export const TIME_CONSTANTS = {
-  msPerDay: 24 * 60 * 60 * 1000,
-  defaultExpirationDays: 7,
-  defaultArchiveRetentionDays: 14,
 } as const
