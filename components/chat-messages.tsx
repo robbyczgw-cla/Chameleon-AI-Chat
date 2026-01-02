@@ -1016,7 +1016,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                     {/* Categorized follow-ups (new format) */}
                     {parsed.categorizedFollowUps.length > 0 && (
                       <div className="mt-4">
-                        <p className="text-xs text-muted-foreground mb-2">💬 Weiter geht's:</p>
+                        <p className="text-xs text-muted-foreground mb-2">💬 Continue with:</p>
                         <FollowUpSuggestions
                           categorizedSuggestions={parsed.categorizedFollowUps}
                           onSelect={handleFollowUpSelect}
@@ -1027,14 +1027,14 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                     {/* Follow-up questions (AI asks user) - old format fallback */}
                     {parsed.followUps.length > 0 && parsed.categorizedFollowUps.length === 0 && (
                       <div className="mt-4">
-                        <p className="text-xs text-muted-foreground mb-2">❓ Noch Fragen?</p>
+                        <p className="text-xs text-muted-foreground mb-2">❓ Follow-up questions:</p>
                         <FollowUpSuggestions suggestions={parsed.followUps} onSelect={handleFollowUpSelect} />
                       </div>
                     )}
                     {/* Suggested prompts (user can ask AI) - shown last, most prominent */}
                     {parsed.suggestedPrompts.length > 0 && (
                       <div className="mt-3">
-                        <p className="text-xs text-muted-foreground mb-2">💡 Das könntest du als Nächstes fragen:</p>
+                        <p className="text-xs text-muted-foreground mb-2">💡 You could ask:</p>
                         <FollowUpSuggestions suggestions={parsed.suggestedPrompts} onSelect={handleFollowUpSelect} />
                       </div>
                     )}
