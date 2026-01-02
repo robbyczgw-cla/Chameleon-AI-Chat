@@ -11,6 +11,12 @@ import type { Memory, MemorySettings, DeletedMemory } from "@/types"
 import { generateUUID } from "@/lib/utils"
 import { supabaseSync } from "@/lib/supabase/sync"
 import { generateEmbedding, findSimilar, cosineSimilarity } from "@/lib/embedding-service"
+import {
+  filterMemoriesAlreadyInContext,
+  isTransientContent,
+  assessMemoryQuality,
+  type ConversationMessage
+} from "@/lib/memory/context-filter"
 
 const MEMORY_STORAGE_KEY_PREFIX = "chat_memories" // Base key - user ID appended for security
 const DELETED_MEMORY_STORAGE_KEY_PREFIX = "chat_deleted_memories" // Archived memories storage
@@ -2098,39 +2104,42 @@ Return ONLY the JSON array, no other text.`
     const existingMemories = this.getAllMemories()
     const existingContent = existingMemories.map(m => m.content.toLowerCase()).join("; ")
 
-    const extractionPrompt = `Analyze this conversation and extract key facts about the user that should be remembered long-term.
+    const extractionPrompt = `You are a VERY selective memory extractor. Extract ONLY genuinely important, long-term facts about the user.
 
-EXISTING MEMORIES (do NOT duplicate these):
+EXISTING MEMORIES (do NOT duplicate):
 ${existingContent || "None yet"}
 
 CONVERSATION:
 User: "${userMessage}"
 Assistant: "${assistantMessage}"
 
-RULES:
-1. Only extract NEW information not already in existing memories
-2. Only include truly important, long-term relevant facts
-3. Focus on: preferences, personal facts, goals, skills, work context
-4. Ignore: temporary questions, greetings, one-time requests
-5. Be concise - each memory should be 5-15 words
-6. **IMPORTANT: Extract AT MOST 1-2 memories per conversation** (be very selective!)
-7. Return empty array [] if nothing worth remembering
-8. Quality over quantity - only extract if genuinely important
+CRITICAL RULES - Be EXTREMELY selective:
+1. Extract AT MOST 1 memory (usually 0). Most conversations have nothing worth remembering.
+2. ONLY extract PERMANENT facts that will still be relevant months from now
+3. The bar is HIGH: if unsure, return empty array []
 
-Examples of what TO extract:
-- "User prefers TypeScript over JavaScript"
-- "User is a senior software engineer"
-- "User wants to learn machine learning"
+✅ EXTRACT (permanent, identity-defining):
+- Profession/role: "User is a software engineer at Google"
+- Strong preferences: "User prefers TypeScript over JavaScript"
+- Long-term goals: "User wants to transition to ML engineering"
+- Key skills: "User is fluent in Python and Go"
+- Location/timezone: "User is based in Berlin, Germany"
 
-Examples of what NOT to extract:
-- "User asked about Python syntax" (temporary question)
-- "User said thanks" (greeting)
-- "User needs help with X" (one-time request)
+❌ DO NOT EXTRACT (transient, temporary, or obvious):
+- Current tasks: "User is debugging a React error" (temporary)
+- One-time requests: "User needs help with X" (not persistent)
+- Questions asked: "User asked about Python syntax" (just a question)
+- Greetings/thanks: "User said thanks" (filler)
+- Vague statements: "User uses Python sometimes" (too weak)
+- Project details: "Working on a dashboard with charts" (too specific, will change)
+- Things they're "currently" doing (implies temporary)
+- Anything the assistant said (only extract USER information)
 
-Return ONLY a valid JSON array (no markdown, no explanation):
-[{"type": "preference|fact|goal|skill|context", "content": "...", "importance": 1|2|3}]
+Return ONLY valid JSON (no markdown):
+[] or [{"type": "preference|fact|skill|goal", "content": "User ...", "importance": 2|3}]
 
-importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
+Note: Skip "context" type - it's usually too transient. Focus on fact/preference/skill/goal.
+importance: 2=useful, 3=very important (rarely use 1)`
 
     try {
       console.log("[Memory] Starting LLM extraction with model:", this.extractionModel)
@@ -2224,6 +2233,20 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
           continue
         }
 
+        // Secondary filter: Check for transient content patterns
+        // This catches things the LLM might have missed
+        if (isTransientContent(item.content)) {
+          console.log("[Memory] Skipping transient content:", item.content?.substring(0, 50))
+          continue
+        }
+
+        // Quality assessment - skip low quality memories
+        const qualityScore = assessMemoryQuality(item.content, item.type)
+        if (qualityScore < 0.4) {
+          console.log("[Memory] Skipping low quality memory (score:", qualityScore.toFixed(2), "):", item.content?.substring(0, 50))
+          continue
+        }
+
         if (![1, 2, 3].includes(item.importance)) {
           console.log("[Memory] Invalid importance, defaulting to 2:", item.importance)
           item.importance = 2
@@ -2240,11 +2263,11 @@ importance: 1=low (nice to know), 2=medium (useful), 3=high (very important)`
         }
 
         newMemories.push(memory)
-        console.log("[Memory] Added to newMemories:", memory.type, "-", memory.content)
+        console.log("[Memory] Added to newMemories (quality:", qualityScore.toFixed(2), "):", memory.type, "-", memory.content)
       }
 
-      // Hard limit: Cap at 2 memories per extraction (quality over quantity)
-      const MAX_MEMORIES_PER_EXTRACTION = 2
+      // Hard limit: Cap at 1 memory per extraction (quality over quantity)
+      const MAX_MEMORIES_PER_EXTRACTION = 1
       if (newMemories.length > MAX_MEMORIES_PER_EXTRACTION) {
         console.log(`[Memory] ⚠️ Extracted ${newMemories.length} memories, capping at ${MAX_MEMORIES_PER_EXTRACTION}`)
         // Keep the highest importance memories
@@ -2414,18 +2437,21 @@ Respond with ONLY valid JSON (no markdown):
    * 2. If factual with high confidence → skip memory entirely
    * 3. If personal or low confidence → do semantic search
    * 4. Apply minimum relevance filter (skip if top result < minRelevanceScore)
-   * 5. Return memories with detailed decision info
+   * 5. Filter out memories already present in conversation context
+   * 6. Return memories with detailed decision info
    *
    * @param query - The user's query
    * @param apiKey - OpenRouter API key for classification and embeddings
    * @param limit - Max memories to return
    * @param isPersonaChat - If true, always retrieve (override classification)
+   * @param recentMessages - Optional: recent conversation messages for context deduplication
    */
   async getRelevantMemoriesWithClassification(
     query: string,
     apiKey?: string,
     limit?: number,
-    isPersonaChat?: boolean
+    isPersonaChat?: boolean,
+    recentMessages?: Array<{ role: string; content: string }>
   ): Promise<{
     memories: Memory[]
     classification: QueryClassification
@@ -2433,8 +2459,8 @@ Respond with ONLY valid JSON (no markdown):
     searchMethod?: "semantic" | "keyword"
     decision: MemoryRetrievalDecision
   }> {
-    const confidenceThreshold = this.settings.classificationConfidence ?? 0.8
-    const minRelevance = this.settings.minRelevanceScore ?? 0.3
+    const confidenceThreshold = this.settings.classificationConfidence ?? 0.7
+    const minRelevance = this.settings.minRelevanceScore ?? 0.45
 
     // Phase 3: Persona override - always retrieve for persona chats if enabled
     if (isPersonaChat && this.settings.alwaysRetrieveForPersonas !== false) {
@@ -2444,7 +2470,7 @@ Respond with ONLY valid JSON (no markdown):
         confidence: 1.0,
         reason: "Persona chat - always retrieve",
         queryType: "personal"
-      }, "Persona chat override")
+      }, "Persona chat override", recentMessages)
     }
 
     // Step 1: Classify the query
@@ -2481,18 +2507,21 @@ Respond with ONLY valid JSON (no markdown):
     }
 
     return this.performMemoryRetrieval(query, apiKey, limit, classification,
-      classification.needsMemory ? "Personal query" : "Low confidence - retrieving anyway")
+      classification.needsMemory ? "Personal query" : "Low confidence - retrieving anyway",
+      recentMessages)
   }
 
   /**
    * Internal method to perform memory retrieval with relevance filtering
+   * and context-aware deduplication
    */
   private async performMemoryRetrieval(
     query: string,
     apiKey: string | undefined,
     limit: number | undefined,
     classification: QueryClassification,
-    retrievalReason: string
+    retrievalReason: string,
+    recentMessages?: Array<{ role: string; content: string }>
   ): Promise<{
     memories: Memory[]
     classification: QueryClassification
@@ -2500,7 +2529,7 @@ Respond with ONLY valid JSON (no markdown):
     searchMethod?: "semantic" | "keyword"
     decision: MemoryRetrievalDecision
   }> {
-    const minRelevance = this.settings.minRelevanceScore ?? 0.3
+    const minRelevance = this.settings.minRelevanceScore ?? 0.45
     console.log("[Memory] ✅ Retrieving memories:", retrievalReason)
 
     let memories: Array<Memory & { similarity?: number }> = []
@@ -2561,25 +2590,52 @@ Respond with ONLY valid JSON (no markdown):
       }
     }
 
-    // Success - return memories
-    console.log("[Memory] Retrieved", memories.length, "memories via", searchMethod, "search")
+    // Step 5: Context-aware deduplication - filter out memories already in conversation
+    // This prevents injecting redundant information the model already has
+    let filteredMemories = memories
+    let filteredCount = 0
+
+    if (recentMessages && recentMessages.length > 0 && memories.length > 0) {
+      // Take last 6 messages for context checking (3 turns)
+      const contextMessages = recentMessages.slice(-6).map(m => ({
+        role: m.role as 'user' | 'assistant' | 'system',
+        content: m.content
+      }))
+
+      const filterResult = filterMemoriesAlreadyInContext(memories, contextMessages, query)
+      filteredMemories = filterResult.kept
+      filteredCount = filterResult.filtered.length
+
+      if (filteredCount > 0) {
+        console.log(`[Memory] 🔍 Context filter: kept ${filteredMemories.length}, filtered ${filteredCount} (already in conversation)`)
+        filterResult.filtered.forEach(m => {
+          const reason = filterResult.reasons.get(m.id) || 'Already in context'
+          console.log(`  - Filtered: "${m.content.substring(0, 40)}..." (${reason})`)
+        })
+      }
+    }
+
+    // Success - return filtered memories
+    const finalCount = filteredMemories.length
+    console.log("[Memory] Retrieved", finalCount, "memories via", searchMethod, "search",
+      filteredCount > 0 ? `(${filteredCount} filtered as already in context)` : "")
 
     return {
-      memories,
+      memories: filteredMemories,
       classification,
       skipped: false,
       searchMethod,
       decision: {
-        action: memories.length > 0 ? "retrieved" : "empty",
-        reason: memories.length > 0
-          ? `Retrieved ${memories.length} relevant memories via ${searchMethod} search`
-          : "No memories matched the query",
+        action: finalCount > 0 ? "retrieved" : "empty",
+        reason: finalCount > 0
+          ? `Retrieved ${finalCount} relevant memories via ${searchMethod} search${filteredCount > 0 ? ` (${filteredCount} filtered)` : ""}`
+          : filteredCount > 0 ? `All ${filteredCount} memories already in conversation context` : "No memories matched the query",
         details: {
           queryType: classification.queryType,
           confidence: classification.confidence,
           searchMethod,
           topSimilarity,
-          memoryCount: memories.length
+          memoryCount: finalCount
         }
       }
     }

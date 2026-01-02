@@ -789,12 +789,20 @@ export function ChatInput() {
           console.log("[ChatInput] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50),
             isPersonaChat ? "(persona chat)" : "")
 
+          // Pass recent messages for context-aware deduplication
+          // This prevents injecting memories that are already mentioned in the conversation
+          const recentMessages = messages.slice(-6).map(m => ({
+            role: m.role,
+            content: typeof m.content === 'string' ? m.content : ''
+          }))
+
           const { memories: relevantMemories, decision, searchMethod } =
             await memoryService.getRelevantMemoriesWithClassification(
               input.trim(),
               settings.apiKeys.openRouter,
               settings.memorySettings.maxMemoriesInContext,
-              isPersonaChat
+              isPersonaChat,
+              recentMessages
             )
 
           // Log the decision with full details
