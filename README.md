@@ -10,6 +10,10 @@ An open-source AI chat application with real-time cost tracking, 31 conversation
 
 ---
 
+![Chameleon AI Chat Screenshot](./docs/screenshot.png)
+
+---
+
 ## Why Chameleon?
 
 Most AI chat apps are either too simple (ChatGPT wrapper) or too complex (developer-only tools). Chameleon gives you the best of both worlds:
