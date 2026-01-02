@@ -238,32 +238,23 @@ export function filterMemoriesAlreadyInContext(
 /**
  * Check if memory content is transient (temporary) and shouldn't be stored
  * Used during extraction to filter out non-persistent information
+ *
+ * NOTE: Be conservative here - only filter obviously transient content
  */
 export function isTransientContent(content: string): boolean {
   const contentLower = content.toLowerCase()
 
-  // Patterns that indicate transient/temporary information
+  // Only filter OBVIOUSLY transient content
   const transientPatterns = [
-    // Current debugging/troubleshooting (temporary)
-    /\b(debugging|troubleshooting|fixing|investigating)\s+(a|an|the|this)?\s*(bug|error|issue|problem)\b/i,
-    /\bcurrently (working on|debugging|fixing)\b/i,
-    /\bthis (error|bug|issue)\b/i,
+    // Explicitly temporary states
+    /\bcurrently (debugging|fixing|troubleshooting)\b/i,
+    /\buser is (debugging|fixing|troubleshooting)\b/i,
+    /\bright now\b/i,
+    /\btemporarily\b/i,
 
-    // Specific code/file references (too granular)
-    /\b(line \d+|file:?|\.tsx?|\.jsx?|\.py|\.java)\b/i,
-    /\b(function|method|class|variable)\s+\w+\b/i,
-
-    // One-time requests (not persistent)
-    /\b(help (me )?with|can you|please|explain)\b/i,
-    /\bshow me how\b/i,
-
-    // Time-bound references
-    /\b(today|yesterday|tomorrow|this (week|month)|right now)\b/i,
-    /\b(at the moment|for now|temporarily)\b/i,
-
-    // Questions (not facts)
-    /\?$/,
-    /^(what|how|why|when|where|can|could|would|should|is|are|do|does)\b/i,
+    // Specific file/line references (too granular to remember)
+    /\bline \d+\b/i,
+    /\bfile:.+\.(ts|js|py|java|go)\b/i,
   ]
 
   return transientPatterns.some(p => p.test(contentLower))

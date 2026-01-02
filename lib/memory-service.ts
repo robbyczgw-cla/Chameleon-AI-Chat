@@ -2104,7 +2104,7 @@ Return ONLY the JSON array, no other text.`
     const existingMemories = this.getAllMemories()
     const existingContent = existingMemories.map(m => m.content.toLowerCase()).join("; ")
 
-    const extractionPrompt = `You are a VERY selective memory extractor. Extract ONLY genuinely important, long-term facts about the user.
+    const extractionPrompt = `Analyze this conversation and extract important facts about the user worth remembering long-term.
 
 EXISTING MEMORIES (do NOT duplicate):
 ${existingContent || "None yet"}
@@ -2113,33 +2113,29 @@ CONVERSATION:
 User: "${userMessage}"
 Assistant: "${assistantMessage}"
 
-CRITICAL RULES - Be EXTREMELY selective:
-1. Extract AT MOST 1 memory (usually 0). Most conversations have nothing worth remembering.
-2. ONLY extract PERMANENT facts that will still be relevant months from now
-3. The bar is HIGH: if unsure, return empty array []
+RULES:
+1. Extract 0-2 memories per conversation (only if there's something worth remembering)
+2. Focus on PERSISTENT facts that will still be relevant weeks/months from now
+3. If nothing important, return empty array []
 
-✅ EXTRACT (permanent, identity-defining):
-- Profession/role: "User is a software engineer at Google"
-- Strong preferences: "User prefers TypeScript over JavaScript"
-- Long-term goals: "User wants to transition to ML engineering"
-- Key skills: "User is fluent in Python and Go"
-- Location/timezone: "User is based in Berlin, Germany"
+✅ GOOD TO EXTRACT:
+- Profession/role: "User is a software engineer"
+- Preferences: "User prefers TypeScript over JavaScript"
+- Goals: "User wants to learn machine learning"
+- Skills: "User knows Python and React"
+- Location: "User is based in Berlin"
+- Personal facts: "User's name is Alex"
 
-❌ DO NOT EXTRACT (transient, temporary, or obvious):
-- Current tasks: "User is debugging a React error" (temporary)
-- One-time requests: "User needs help with X" (not persistent)
-- Questions asked: "User asked about Python syntax" (just a question)
-- Greetings/thanks: "User said thanks" (filler)
-- Vague statements: "User uses Python sometimes" (too weak)
-- Project details: "Working on a dashboard with charts" (too specific, will change)
-- Things they're "currently" doing (implies temporary)
-- Anything the assistant said (only extract USER information)
+❌ DO NOT EXTRACT:
+- Current debugging/tasks: "User is fixing a bug" (temporary)
+- One-time requests: "User asked about X" (just a question)
+- Greetings/filler: "User said thanks"
+- Vague statements: "User might use Python"
 
 Return ONLY valid JSON (no markdown):
-[] or [{"type": "preference|fact|skill|goal", "content": "User ...", "importance": 2|3}]
+[] or [{"type": "preference|fact|skill|goal|context", "content": "User ...", "importance": 1|2|3}]
 
-Note: Skip "context" type - it's usually too transient. Focus on fact/preference/skill/goal.
-importance: 2=useful, 3=very important (rarely use 1)`
+importance: 1=nice to know, 2=useful, 3=very important`
 
     try {
       console.log("[Memory] Starting LLM extraction with model:", this.extractionModel)
@@ -2240,9 +2236,9 @@ importance: 2=useful, 3=very important (rarely use 1)`
           continue
         }
 
-        // Quality assessment - skip low quality memories
+        // Quality assessment - skip very low quality memories
         const qualityScore = assessMemoryQuality(item.content, item.type)
-        if (qualityScore < 0.4) {
+        if (qualityScore < 0.3) {
           console.log("[Memory] Skipping low quality memory (score:", qualityScore.toFixed(2), "):", item.content?.substring(0, 50))
           continue
         }
@@ -2266,8 +2262,8 @@ importance: 2=useful, 3=very important (rarely use 1)`
         console.log("[Memory] Added to newMemories (quality:", qualityScore.toFixed(2), "):", memory.type, "-", memory.content)
       }
 
-      // Hard limit: Cap at 1 memory per extraction (quality over quantity)
-      const MAX_MEMORIES_PER_EXTRACTION = 1
+      // Hard limit: Cap at 2 memories per extraction
+      const MAX_MEMORIES_PER_EXTRACTION = 2
       if (newMemories.length > MAX_MEMORIES_PER_EXTRACTION) {
         console.log(`[Memory] ⚠️ Extracted ${newMemories.length} memories, capping at ${MAX_MEMORIES_PER_EXTRACTION}`)
         // Keep the highest importance memories
