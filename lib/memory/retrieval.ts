@@ -110,7 +110,44 @@ export function getRelevantByKeyword(
 }
 
 /**
+ * Calculate recency score (0-1) with exponential decay
+ * Recent memories get higher scores
+ */
+function calculateRecencyScore(memory: Memory): number {
+  const now = Date.now()
+  const daysSinceAccess = (now - (memory.lastAccessedAt || memory.createdAt)) / (1000 * 60 * 60 * 24)
+
+  // Exponential decay: score halves every 30 days
+  // Recent (< 7 days): ~1.0
+  // 1 month: ~0.5
+  // 3 months: ~0.125
+  return Math.exp(-daysSinceAccess / 30)
+}
+
+/**
+ * Calculate combined relevance score
+ * Factors: semantic similarity (60%), recency (25%), importance (15%)
+ */
+function calculateCombinedScore(
+  similarity: number,
+  memory: Memory
+): number {
+  const recencyScore = calculateRecencyScore(memory)
+  const importanceScore = memory.importance / 3 // Normalize 1-3 to 0.33-1.0
+
+  // Weighted combination
+  const combined = (
+    similarity * 0.60 +      // Semantic match is most important
+    recencyScore * 0.25 +    // Recent memories preferred
+    importanceScore * 0.15   // High importance memories preferred
+  )
+
+  return combined
+}
+
+/**
  * Get relevant memories using semantic similarity
+ * Uses multi-factor scoring: similarity + recency + importance
  */
 export async function getRelevantBySemantic(
   memories: Memory[],
@@ -122,8 +159,8 @@ export async function getRelevantBySemantic(
     syncEnabled?: boolean
   }
 ): Promise<ScoredMemory[]> {
-  const maxResults = settings.maxMemoriesInContext || 5
-  const threshold = settings.minRelevanceScore || 0.25
+  const maxResults = settings.maxMemoriesInContext || 3
+  const threshold = settings.minRelevanceScore || 0.45
 
   // Try database-level semantic search first if sync is enabled
   if (options?.syncEnabled && options?.userId) {
@@ -134,15 +171,24 @@ export async function getRelevantBySemantic(
       const results = await supabaseSync.semanticSearchMemories(
         options.userId,
         queryEmbedding,
-        { threshold, limit: maxResults }
+        { threshold, limit: maxResults * 2 } // Get more for post-filtering
       )
 
       if (results.length > 0) {
-        log.info(`Found ${results.length} memories via database semantic search`)
-        return results.map(r => ({
+        // Apply combined scoring with recency decay
+        const scoredResults = results.map(r => ({
           ...r,
           similarity: r.similarity,
+          combinedScore: calculateCombinedScore(r.similarity || 0, r),
         }))
+
+        // Re-sort by combined score and limit
+        const finalResults = scoredResults
+          .sort((a, b) => (b.combinedScore || 0) - (a.combinedScore || 0))
+          .slice(0, maxResults)
+
+        log.info(`Found ${finalResults.length} memories via database semantic search (with recency decay)`)
+        return finalResults
       }
     } catch (error) {
       log.warn('Database semantic search failed, falling back to local:', error)
@@ -161,23 +207,25 @@ export async function getRelevantBySemantic(
       return getRelevantByKeyword(memories, query, settings)
     }
 
-    // Calculate similarities
+    // Calculate similarities with combined scoring
     const scored = memoriesWithEmbeddings.map(memory => {
       const similarity = cosineSimilarity(queryEmbedding, memory.embedding!)
-      return { memory, similarity }
+      const combinedScore = calculateCombinedScore(similarity, memory)
+      return { memory, similarity, combinedScore }
     })
 
-    // Filter by threshold and sort
+    // Filter by base similarity threshold, then sort by combined score
     const filtered = scored
       .filter(({ similarity }) => similarity >= threshold)
-      .sort((a, b) => b.similarity - a.similarity)
+      .sort((a, b) => b.combinedScore - a.combinedScore)
       .slice(0, maxResults)
 
-    log.info(`Found ${filtered.length} memories via local semantic search`)
+    log.info(`Found ${filtered.length} memories via local semantic search (with recency decay)`)
 
-    return filtered.map(({ memory, similarity }) => ({
+    return filtered.map(({ memory, similarity, combinedScore }) => ({
       ...memory,
       similarity,
+      score: Math.round(combinedScore * 100), // Normalize to 0-100 for display
     }))
   } catch (error) {
     log.error('Semantic search failed:', error)

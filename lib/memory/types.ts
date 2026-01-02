@@ -89,13 +89,13 @@ export interface MaintenanceResult {
 export const DEFAULT_MEMORY_SETTINGS: MemorySettings = {
   enabled: false,
   autoExtract: true,
-  maxMemoriesInContext: 5,
+  maxMemoriesInContext: 3, // Reduced from 5 - most queries need at most 2-3 memories
   importanceThreshold: 2,
   syncToDatabase: false,
   useSemanticSearch: true,
-  similarityThreshold: 0.5,
-  classificationConfidence: 0.8,
-  minRelevanceScore: 0.3,
+  similarityThreshold: 0.65, // Raised from 0.5 - stricter matching for quality
+  classificationConfidence: 0.7, // Lowered from 0.8 - skip more factual queries
+  minRelevanceScore: 0.45, // Raised from 0.3 - prevents weak matches
   alwaysRetrieveForPersonas: true,
   expirationEnabled: true,
   expirationDays: 7,

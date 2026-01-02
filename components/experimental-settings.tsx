@@ -1027,23 +1027,25 @@ export function ExperimentalSettings() {
                   <div className="space-y-1">
                     <Label className="text-sm font-medium">Classification Confidence</Label>
                     <p className="text-xs text-muted-foreground">
-                      Only skip memory if classifier is this confident it's factual
+                      Skip memory retrieval when classifier confidence exceeds this threshold
                     </p>
                   </div>
                   <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                    {((memorySettings.classificationConfidence ?? 0.8) * 100).toFixed(0)}%
+                    {((memorySettings.classificationConfidence ?? 0.7) * 100).toFixed(0)}%
                   </span>
                 </div>
                 <Slider
-                  value={[(memorySettings.classificationConfidence ?? 0.8) * 100]}
+                  value={[(memorySettings.classificationConfidence ?? 0.7) * 100]}
                   onValueChange={([value]) => handleMemorySettingChange({ classificationConfidence: value / 100 })}
                   min={50}
-                  max={99}
+                  max={95}
                   step={5}
                   className="w-full"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Lower = retrieve more often (safer). Higher = skip more factual queries (saves tokens).
+                  Lower = skip more queries (fewer memories injected). Higher = inject memories more often.
+                  <br/>
+                  <span className="text-amber-600 dark:text-amber-400">Tip: 70% is optimal. Above 85% causes over-retrieval.</span>
                 </p>
               </div>
 
@@ -1053,23 +1055,25 @@ export function ExperimentalSettings() {
                   <div className="space-y-1">
                     <Label className="text-sm font-medium">Similarity Threshold</Label>
                     <p className="text-xs text-muted-foreground">
-                      Minimum similarity score to include a memory in results
+                      Minimum semantic similarity to include a memory
                     </p>
                   </div>
                   <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                    {((memorySettings.similarityThreshold ?? 0.5) * 100).toFixed(0)}%
+                    {((memorySettings.similarityThreshold ?? 0.65) * 100).toFixed(0)}%
                   </span>
                 </div>
                 <Slider
-                  value={[(memorySettings.similarityThreshold ?? 0.5) * 100]}
+                  value={[(memorySettings.similarityThreshold ?? 0.65) * 100]}
                   onValueChange={([value]) => handleMemorySettingChange({ similarityThreshold: value / 100 })}
-                  min={20}
-                  max={80}
+                  min={40}
+                  max={85}
                   step={5}
                   className="w-full"
                 />
                 <p className="text-xs text-muted-foreground">
                   Lower = more memories (may include less relevant). Higher = fewer but more relevant.
+                  <br/>
+                  <span className="text-amber-600 dark:text-amber-400">Tip: 65% provides good quality. Below 50% causes noise.</span>
                 </p>
               </div>
 
@@ -1079,33 +1083,39 @@ export function ExperimentalSettings() {
                   <div className="space-y-1">
                     <Label className="text-sm font-medium">Minimum Relevance Score</Label>
                     <p className="text-xs text-muted-foreground">
-                      Skip ALL memories if best match is below this score
+                      Skip ALL memories if best match is below this (safety net)
                     </p>
                   </div>
                   <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                    {((memorySettings.minRelevanceScore ?? 0.3) * 100).toFixed(0)}%
+                    {((memorySettings.minRelevanceScore ?? 0.45) * 100).toFixed(0)}%
                   </span>
                 </div>
                 <Slider
-                  value={[(memorySettings.minRelevanceScore ?? 0.3) * 100]}
+                  value={[(memorySettings.minRelevanceScore ?? 0.45) * 100]}
                   onValueChange={([value]) => handleMemorySettingChange({ minRelevanceScore: value / 100 })}
-                  min={10}
-                  max={50}
+                  min={20}
+                  max={60}
                   step={5}
                   className="w-full"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Prevents irrelevant memories from being injected. Lower = allow more, higher = stricter filter.
+                  This is your safety net - if no memory is relevant enough, inject nothing.
+                  <br/>
+                  <span className="text-amber-600 dark:text-amber-400">Tip: 45% is optimal. Below 30% lets irrelevant memories through.</span>
                 </p>
               </div>
 
               {/* Info Box */}
-              <div className="p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+              <div className="p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg space-y-2">
                 <p className="text-xs text-purple-800 dark:text-purple-200">
-                  <strong>How it works:</strong> When you send a message, the AI first classifies if it needs personal context.
-                  If yes, it searches memories using semantic similarity. Only memories above the threshold are included.
-                  If even the best match is too low, nothing is injected.
+                  <strong>How it works (Self-RAG inspired):</strong>
                 </p>
+                <ol className="text-xs text-purple-800 dark:text-purple-200 list-decimal list-inside space-y-1">
+                  <li>AI classifies your query: factual (skip memory), personal (retrieve), or ambiguous (skip by default)</li>
+                  <li>If retrieval needed: search memories by semantic similarity + recency + importance</li>
+                  <li>Only memories above similarity threshold are considered</li>
+                  <li>If best match is below min relevance, nothing is injected (safety net)</li>
+                </ol>
               </div>
             </div>
           </div>
