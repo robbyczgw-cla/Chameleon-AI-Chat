@@ -495,13 +495,13 @@ async function executeWebSearch(
         requestBody = {
           query,
           type: settings.searchType || "keyword",  // "keyword" is faster than "auto" or "neural"
-          useAutoprompt: false,  // Skip query optimization for speed
+          useAutoprompt: settings.useAutoprompt ?? false,  // User setting, defaults to false for speed
           numResults: settings.maxResults || 3,  // Fewer results for faster streaming
           livecrawl: settings.livecrawl || "never",  // CRITICAL: Avoid unpredictable delays
           contents: {
-            // CRITICAL: Don't fetch full text for automatic search - causes timeouts
-            text: false,  // Disabled to prevent large payloads blocking stream
-            highlights: settings.includeHighlights !== false ? { numSentences: 2 } : false,  // Reduced from 3
+            // Full text can cause timeouts - user setting, defaults to false for speed
+            text: settings.includeFullText ?? false,
+            highlights: settings.includeHighlights !== false ? { numSentences: 2 } : false,
           },
         }
         if (settings.category) requestBody.category = settings.category
