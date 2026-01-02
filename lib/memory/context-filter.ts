@@ -177,9 +177,10 @@ export function filterMemoriesAlreadyInContext(
     return { kept: memories, filtered: [], reasons: new Map() }
   }
 
-  // Build context text from recent messages (excluding system messages)
+  // Build context text from recent messages
+  // IMPORTANT: Include system messages because that's where memories are injected!
+  // This prevents the same memories from being re-injected every turn
   const contextText = recentMessages
-    .filter(m => m.role !== 'system')
     .map(m => m.content)
     .join(' ')
 
