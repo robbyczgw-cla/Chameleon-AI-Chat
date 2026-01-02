@@ -354,11 +354,16 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
   const [editContent, setEditContent] = useState("")
   const { toast } = useToast()
 
+  // Memoize the sub-greeting to prevent it from changing on every render
+  // This fixes the rapid cycling bug when streaming in background
+  const currentChat = chats.find((chat) => chat.id === currentChatId)
+  const lang = useMemo(() => isHifi ? "de" : (settings.language || "en"), [isHifi, settings.language])
+  const memoizedSubGreeting = useMemo(() => getSubGreeting(lang), [lang, currentChatId])
+
   // Advanced mode = NOT simple mode (from settings) - HiFi users are NEVER in advanced mode
   const isAdvancedMode = !settings.simpleMode && !isHifi
 
   // Automatically fetch exact costs for new messages (runs in background, no slowdown!)
-  const currentChat = chats.find((chat) => chat.id === currentChatId)
 
   useAutoFetchCosts(
     currentChat?.messages || [],
@@ -593,14 +598,11 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
 
   // Show greeting when no chat selected OR chat is empty
   if (!currentChat || currentChat.messages.length === 0) {
-    // Get language from settings - HiFi users ALWAYS get German
-    const lang = isHifi ? "de" : (settings.language || "en")
-
     // Get user profile for personalized greeting
     const userProfile = userProfileService.getProfile()
     const userName = userProfile.name?.trim()
     const timeGreeting = getTimeGreeting(lang)
-    const subGreeting = getSubGreeting(lang)
+    const subGreeting = memoizedSubGreeting
 
     // Get persona-specific prompts (6 prompts)
     const personaId = currentPersona?.id || "default"
