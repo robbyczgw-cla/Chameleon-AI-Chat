@@ -17,6 +17,7 @@ import {
   assessMemoryQuality,
   type ConversationMessage
 } from "@/lib/memory/context-filter"
+import { classifyQuery, classifyQuerySync } from "@/lib/memory/classification"
 
 const MEMORY_STORAGE_KEY_PREFIX = "chat_memories" // Base key - user ID appended for security
 const DELETED_MEMORY_STORAGE_KEY_PREFIX = "chat_deleted_memories" // Archived memories storage
@@ -43,14 +44,14 @@ export interface QueryClassification {
 const DEFAULT_SETTINGS: MemorySettings = {
   enabled: false,
   autoExtract: true,
-  maxMemoriesInContext: 5,
+  maxMemoriesInContext: 3, // Reduced from 5 - most queries need at most 2-3 memories
   importanceThreshold: 2,
   syncToDatabase: false,
   useSemanticSearch: true, // Use embeddings for better retrieval
-  similarityThreshold: 0.5, // Minimum similarity score (0-1)
-  // Phase 3: Intelligent retrieval
-  classificationConfidence: 0.8, // Trust classification if confidence >= this
-  minRelevanceScore: 0.3, // Skip memories if best match below this
+  similarityThreshold: 0.65, // Raised from 0.5 - stricter matching for quality
+  // Phase 3: Intelligent retrieval (Self-RAG inspired)
+  classificationConfidence: 0.7, // Lowered from 0.8 - skip more factual queries
+  minRelevanceScore: 0.45, // Raised from 0.3 - prevents weak matches
   alwaysRetrieveForPersonas: true, // Always retrieve for persona chats
   // Memory expiration settings
   expirationEnabled: true, // Enable automatic memory expiration
@@ -2305,124 +2306,29 @@ importance: 1=nice to know, 2=useful, 3=very important`
   }
 
   /**
-   * Classify if a query needs memory context using LLM
-   * This is the intelligent gating mechanism that decides whether to retrieve memories
+   * Classify if a query needs memory context
+   * Uses Self-RAG inspired approach: heuristics first, LLM fallback for ambiguous cases
+   * Default behavior: DON'T retrieve for ambiguous queries (saves tokens)
    */
   async classifyQueryForMemory(
     query: string,
     apiKey?: string
   ): Promise<QueryClassification> {
-    // Default: don't use memory if we can't classify
-    // Use confidence=1.0 so that factual queries get skipped (confidence >= threshold)
-    const defaultResult: QueryClassification = {
-      needsMemory: false,
-      confidence: 1.0,
-      reason: "No API key available - assuming factual query",
-      queryType: "factual"
-    }
+    console.log("[Memory] Classifying query:", query.substring(0, 50))
+    const startTime = Date.now()
 
-    if (!apiKey) {
-      console.log("[Memory] No API key, skipping query classification (will skip memory retrieval)")
-      return defaultResult
-    }
+    // Use the Self-RAG classification from the classification module
+    // This uses heuristics first (fast, free) and LLM only for truly ambiguous cases
+    const classification = await classifyQuery(query, apiKey, this.classifierModel)
 
-    // Skip classification for very short queries (likely commands or simple questions)
-    if (query.trim().length < 5) {
-      console.log("[Memory] Query too short, skipping memory")
-      return {
-        needsMemory: false,
-        confidence: 0.95,
-        reason: "Query too short",
-        queryType: "factual"
-      }
-    }
+    const latency = Date.now() - startTime
+    console.log("[Memory] Query classified:", {
+      query: query.substring(0, 30),
+      ...classification,
+      latency: `${latency}ms`
+    })
 
-    const classificationPrompt = `You are a query classifier. Determine if this user query would benefit from knowing personal information about the user (their preferences, facts about them, goals, skills, etc).
-
-QUERY: "${query}"
-
-CLASSIFICATION RULES:
-- "factual": Generic questions with objective answers. Math, definitions, facts, code syntax, translations, conversions. NO memory needed.
-- "personal": Questions about recommendations, preferences, projects, or anything where knowing the user helps. Memory NEEDED.
-- "ambiguous": Could go either way - lean towards NO memory to save tokens.
-
-EXAMPLES:
-- "What is 2+2?" → factual (math, no personalization needed)
-- "Convert 5kg to lbs" → factual (conversion, no personalization)
-- "What's the capital of France?" → factual (trivia, no personalization)
-- "Explain async/await in JavaScript" → factual (education, no personalization)
-- "Recommend a book for me" → personal (needs preferences)
-- "Help me with my project" → personal (needs context about their project)
-- "What should I learn next?" → personal (needs their goals/skills)
-- "Write an email to my boss" → personal (needs work context)
-- "Continue what we discussed" → personal (explicit memory reference)
-- "Based on my preferences..." → personal (explicit memory reference)
-
-Respond with ONLY valid JSON (no markdown):
-{"needsMemory": true/false, "confidence": 0.0-1.0, "reason": "brief explanation", "queryType": "factual|personal|ambiguous"}`
-
-    try {
-      console.log("[Memory] Classifying query:", query.substring(0, 50))
-      const startTime = Date.now()
-
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-openrouter-api-key": apiKey,
-        },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: classificationPrompt }],
-          model: this.classifierModel,
-          temperature: 0.1, // Very low temp for consistent classification
-          maxTokens: 100, // Classification is tiny
-          stream: false,
-        }),
-      })
-
-      const latency = Date.now() - startTime
-      console.log("[Memory] Classification latency:", latency, "ms")
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error("[Memory] Classification API error:", response.status, errorText)
-        return defaultResult
-      }
-
-      const data = await response.json()
-      const content = data.choices?.[0]?.message?.content || ""
-      console.log("[Memory] Classification response:", content)
-
-      // Parse JSON from response
-      const jsonMatch = content.match(/\{[\s\S]*\}/)
-      if (!jsonMatch) {
-        console.log("[Memory] No valid JSON in classification response")
-        return defaultResult
-      }
-
-      const result = JSON.parse(jsonMatch[0]) as QueryClassification
-
-      // Validate and normalize
-      const classification: QueryClassification = {
-        needsMemory: Boolean(result.needsMemory),
-        confidence: Math.min(1, Math.max(0, result.confidence || 0.5)),
-        reason: result.reason || "Unknown",
-        queryType: ["factual", "personal", "ambiguous"].includes(result.queryType)
-          ? result.queryType
-          : "ambiguous"
-      }
-
-      console.log("[Memory] Query classified:", {
-        query: query.substring(0, 30),
-        ...classification,
-        latency: `${latency}ms`
-      })
-
-      return classification
-    } catch (error) {
-      console.error("[Memory] Classification error:", error)
-      return defaultResult
-    }
+    return classification
   }
 
   /**
