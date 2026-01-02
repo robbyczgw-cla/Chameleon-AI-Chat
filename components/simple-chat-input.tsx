@@ -691,12 +691,19 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
         console.log("[Simple Chat] 🧠 Intelligent memory retrieval for query:", input.trim().substring(0, 50))
 
+        // Pass recent messages for context-aware deduplication (uses intelligent defaults)
+        const recentMessages = messages.slice(-6).map(m => ({
+          role: m.role,
+          content: typeof m.content === 'string' ? m.content : ''
+        }))
+
         const { memories: relevantMemories, decision } =
           await memoryService.getRelevantMemoriesWithClassification(
             input.trim(),
             settings.apiKeys.openRouter,
             settings.memorySettings.maxMemoriesInContext,
-            false // Simple mode doesn't have personas
+            false, // Simple mode doesn't have personas
+            recentMessages
           )
 
         if (decision.action === "skipped") {
