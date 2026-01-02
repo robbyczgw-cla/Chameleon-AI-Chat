@@ -1,8 +1,19 @@
 /**
- * Memory Module - Query Classification
+ * Memory Module - Query Classification (Self-RAG Inspired)
  *
- * Classifies queries to determine if memory retrieval is needed
- * Uses Self-RAG inspired approach: only retrieve when confident it helps
+ * Determines if a user query needs personal memory context to answer well.
+ *
+ * APPROACH:
+ * 1. Fast heuristics first (free, no API call)
+ * 2. LLM fallback only for truly ambiguous cases
+ * 3. Default to NOT retrieving if uncertain (saves tokens, prevents noise)
+ *
+ * CLASSIFICATION TYPES:
+ * - factual: Generic questions (math, definitions, code) → Skip memory
+ * - personal: Questions about user preferences, history → Retrieve memory
+ * - ambiguous: Unclear → Default to skip (Self-RAG principle)
+ *
+ * USED BY: lib/memory-service.ts → classifyQueryForMemory()
  */
 
 import type { QueryClassification } from './types'

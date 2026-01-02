@@ -1,8 +1,24 @@
 /**
  * Memory Module - Context-Aware Filtering
  *
- * Filters out memories that are already present in the conversation context
- * to prevent redundant information injection.
+ * Prevents redundant memory injection by filtering out memories
+ * already present in the conversation context.
+ *
+ * KEY FEATURES:
+ * 1. filterMemoriesAlreadyInContext() - Main filter function
+ *    - Checks if memory content is already in recent messages
+ *    - IMPORTANT: Includes system messages (where memories are injected!)
+ *    - Uses 60% phrase coverage threshold for matching
+ *
+ * 2. isTransientContent() - Filters temporary content during extraction
+ *    - "currently debugging" → skip
+ *    - "line 42" → skip (too granular)
+ *
+ * 3. assessMemoryQuality() - Quality scoring for extraction
+ *    - Returns 0-1 score
+ *    - Threshold: 0.3 (balanced, not too strict)
+ *
+ * USED BY: lib/memory-service.ts → performMemoryRetrieval()
  */
 
 import type { Memory } from './types'
