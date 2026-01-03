@@ -278,11 +278,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...defaults.experimental,
         ...(parsed.experimental || {}),
       },
-      // Shopify settings for HiFi mode - must persist across reloads
-      shopifySettings: {
-        ...defaults.shopifySettings,
-        ...(parsed.shopifySettings || {}),
-      },
     }
   }
 
