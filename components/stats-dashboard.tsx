@@ -35,7 +35,6 @@ import {
   Globe,
   Youtube,
   CloudSun,
-  ShoppingCart,
   Link,
   FileText,
   ImageIcon,
