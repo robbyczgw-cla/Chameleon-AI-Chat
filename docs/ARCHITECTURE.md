@@ -668,7 +668,7 @@ interface Persona {
   prompt: string;       // System prompt (main personality)
   color: string;        // Gradient colors
   category?: PersonaCategory; // Category for organization
-  hidden?: boolean;     // Hidden from UI (e.g., HiFi Berater)
+  hidden?: boolean;     // Hidden from UI (for special personas)
 }
 ```
 
@@ -3403,11 +3403,11 @@ Removed unnecessary bottom padding on desktop for more chat space.
 
 ---
 
-### 5b. Simple Mode Layout Fix (HiFi Desktop)
+### 5b. Simple Mode Layout Fix (Desktop)
 
 **Commit**: `d4ae0f3` (2025-12-10)
 
-Fixed HiFi mode desktop layout where chat input was cut off at the bottom.
+Fixed Simple Mode desktop layout where chat input was cut off at the bottom.
 
 **Root Cause**: CSS Grid container had `md:pb-4` padding + missing `min-h-0` on flex/grid children.
 

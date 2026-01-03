@@ -141,9 +141,8 @@ Right-click on selected text:
 - AI-assisted form completion
 - Draft cover letters, applications, reviews
 
-#### Shopping Assistant (Shopify Integration)
-- Already have HiFi mode in main app
-- Extend to product comparison on any e-commerce site
+#### Shopping Assistant
+- Product comparison on any e-commerce site
 - Price tracking, review summarization
 
 #### Email/Document Helper

@@ -65,7 +65,7 @@ This document outlines potential improvements for Chameleon AI Chat's 5 core dif
 - ✅ **Avatar Generation** - Vision model avatar generation
 
 **Tool Use:**
-- ✅ **5 Tools** - Web search, URL fetch, YouTube transcript, Weather, Shopify
+- ✅ **4 Tools** - Web search, URL fetch, YouTube transcript, Weather
 - ✅ **Multi-Provider Search** - Tavily, Serper, Exa support
 - ✅ **Tool Caching** - 5-min search cache, 10-min weather cache
 - ✅ **Tool History** - streamingHistory tracks all tool executions per message
@@ -209,7 +209,7 @@ This document outlines potential improvements for Chameleon AI Chat's 5 core dif
 ## 4. Tool Use Pipeline
 
 ### Current State ✅ (Solid Foundation)
-- **5 tools** ✅ (Web Search, URL Fetch, YouTube Transcript, Weather, Shopify)
+- **4 tools** ✅ (Web Search, URL Fetch, YouTube Transcript, Weather)
 - **Multi-provider search** ✅ (Tavily, Serper, Exa)
 - **Smart caching** ✅ (5-min search, 10-min weather)
 - **Tool calling support** ✅ (50+ models via `modelSupportsToolCalling()`)

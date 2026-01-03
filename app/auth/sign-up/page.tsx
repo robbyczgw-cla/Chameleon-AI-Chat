@@ -115,8 +115,8 @@ export default function Page() {
         .single()
 
       // Check if user is registering with enterprise email domain for special access
-      // Enterprise domain is configurable via environment variable (default: @hifiteam.at for backwards compatibility)
-      const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
+      // Enterprise domain is configurable via environment variable
+      const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
       const isEnterpriseEmail = enterpriseDomain && email.toLowerCase().endsWith(enterpriseDomain.toLowerCase())
       const accessTier = isEnterpriseEmail ? "hifi" : "standard"
 
