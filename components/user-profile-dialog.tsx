@@ -29,8 +29,8 @@ export function UserProfileDialog({ open, onOpenChange, onProfileUpdate }: UserP
   // Check if user is in HiFi tier (simplified profile - name only)
   // Check BOTH settings AND email directly - email check needed for new users before settings sync
   const userEmail = user?.email?.toLowerCase() || ""
-  // Enterprise email domain is configurable via environment variable
-  const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
+  // Enterprise email domain is configurable via environment variable (default: @hifiteam.at for backwards compatibility)
+  const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
   const isHifiByEmail = enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())
   const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
 

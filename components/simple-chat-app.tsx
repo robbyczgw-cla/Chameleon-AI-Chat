@@ -609,8 +609,8 @@ export function SimpleChatApp() {
   useEffect(() => {
     // HiFi tier users skip onboarding entirely
     const userEmail = user?.email?.toLowerCase() || ""
-    // Enterprise email domain is configurable via environment variable
-    const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
+    // Enterprise email domain is configurable via environment variable (default: @hifiteam.at for backwards compatibility)
+    const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || "@hifiteam.at"
     const isHifiUser = (enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())) || settings.accessTier === "hifi"
     if (isHifiUser) {
       localStorage.setItem("simple-mode-onboarding-complete", "true")
