@@ -45,7 +45,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast"
 import { type Persona, PERSONA_EXAMPLE_PROMPTS, getPersonaById } from "@/lib/personas"
 import { useIOSPWA } from "@/hooks/use-ios-pwa"
-import { isHifiTier, getFeatureFlags } from "@/lib/feature-flags"
+import { getFeatureFlags } from "@/lib/feature-flags"
 import { QuickPersonaPicker } from "@/components/quick-persona-picker"
 
 // Translations for Simple Mode
@@ -506,7 +506,6 @@ export function SimpleChatApp() {
   const [isMemoryOpen, setIsMemoryOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [imageMode, setImageMode] = useState(false)
-  const [isHelpOpen, setIsHelpOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [animatedTitleIds, setAnimatedTitleIds] = useState<Set<string>>(new Set())
@@ -607,16 +606,6 @@ export function SimpleChatApp() {
   // Check if onboarding should be shown (first time Simple Mode user)
   // IMPORTANT: This is designed to prevent duplicate onboarding on iOS PWA where localStorage can be unreliable
   useEffect(() => {
-    // HiFi tier users skip onboarding entirely
-    const userEmail = user?.email?.toLowerCase() || ""
-    // Enterprise email domain is configurable via environment variable
-    const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
-    const isHifiUser = (enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())) || settings.accessTier === "hifi"
-    if (isHifiUser) {
-      localStorage.setItem("simple-mode-onboarding-complete", "true")
-      return
-    }
-
     const onboardingComplete = localStorage.getItem("simple-mode-onboarding-complete")
 
     // Already completed - skip
@@ -676,7 +665,7 @@ export function SimpleChatApp() {
     // Truly new user - show onboarding
     console.log("[Simple Mode] New user detected, showing onboarding")
     setShowOnboarding(true)
-  }, [user, chats.length, settings.accessTier])
+  }, [user, chats.length])
 
   // Handle events from other components
   useEffect(() => {
@@ -756,25 +745,14 @@ export function SimpleChatApp() {
     }, 100)
   }
 
-  // Get feature flags based on access tier - check BOTH settings AND email directly
-  // Email check is needed because settings may not be synced yet for new users
-  const userEmail = user?.email?.toLowerCase() || ""
-  // Enterprise email domain is configurable via environment variable
-  const enterpriseDomainForFlags = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
-  const isHifiByEmail = enterpriseDomainForFlags && userEmail.endsWith(enterpriseDomainForFlags.toLowerCase())
-  const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
-  const effectiveAccessTier = isHifi ? "hifi" : settings.accessTier
-  const featureFlags = getFeatureFlags(true, effectiveAccessTier) // Always simple mode in SimpleChatApp
+  // Get feature flags for simple mode
+  const featureFlags = getFeatureFlags(true) // Always simple mode in SimpleChatApp
 
-  // For enterprise tier: Force enterprise persona, otherwise use selected or default to Cami
-  const selectedPersona = isHifi
-    ? getPersonaById("enterprise-advisor")
-    : (settings.selectedPersona || getPersonaById("friendly"))
+  // Use selected persona or default to Cami
+  const selectedPersona = settings.selectedPersona || getPersonaById("friendly")
 
-  // For enterprise tier: Use user's language preference
-  const lang = isHifi
-    ? (settings.language || "en")
-    : (settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en")
+  // Get language from settings
+  const lang = settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en"
   const t = translations[lang as keyof typeof translations]
 
   // Default model for all users: Gemini 3 Flash (thinking model with reasoning)
@@ -892,16 +870,10 @@ export function SimpleChatApp() {
             <div className="p-4 border-b border-border/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {isHifi ? (
-                    <ChameleonLogo size={28} isHifi={true} />
-                  ) : (
-                    <>
-                      <ChameleonLogo size={32} />
-                      <span className="font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                        Chameleon
-                      </span>
-                    </>
-                  )}
+                  <ChameleonLogo size={32} />
+                  <span className="font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    Chameleon
+                  </span>
                 </div>
                 <Button
                   variant="ghost"
@@ -1048,10 +1020,7 @@ export function SimpleChatApp() {
                     <div className="min-w-0">
                       <p className="font-medium text-sm truncate">{selectedPersona.name}</p>
                       {/* Description with responsive max-width */}
-                      <p className={cn(
-                        "text-xs text-muted-foreground whitespace-nowrap",
-                        isHifi ? "overflow-hidden text-ellipsis max-w-[250px] sm:max-w-[350px] md:max-w-[450px]" : "truncate max-w-[200px] sm:max-w-[300px] md:max-w-[400px]"
-                      )}>{selectedPersona.description}</p>
+                      <p className="text-xs text-muted-foreground whitespace-nowrap truncate max-w-[200px] sm:max-w-[300px] md:max-w-[400px]">{selectedPersona.description}</p>
                     </div>
                   </div>
                 ) : (
@@ -1078,18 +1047,6 @@ export function SimpleChatApp() {
                     <Users className="h-5 w-5 sm:h-4 sm:w-4" />
                   </Button>
                 </>
-              )}
-              {/* Help button - only for HiFi users */}
-              {isHifi && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsHelpOpen(true)}
-                  className="h-10 w-10 sm:h-9 sm:w-9"
-                  title="Hilfe"
-                >
-                  <HelpCircle className="h-5 w-5 sm:h-4 sm:w-4" />
-                </Button>
               )}
               {/* Share button - only when there's a chat with messages */}
               {currentChat && currentChat.messages && currentChat.messages.length > 0 && (
@@ -1163,77 +1120,6 @@ export function SimpleChatApp() {
         />
       )}
 
-      {/* Enterprise Help Dialog */}
-      {isHifi && (
-        <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
-          <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <HelpCircle className="h-5 w-5 text-primary" />
-                Help - Enterprise Advisor
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              {/* Introduction */}
-              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
-                <h3 className="font-semibold mb-2">Welcome to Enterprise Advisor</h3>
-                <p className="text-sm text-muted-foreground">
-                  Your AI assistant for sales and customer support.
-                </p>
-              </div>
-
-              {/* What you can ask */}
-              <div className="space-y-2">
-                <h4 className="font-semibold text-sm">What you can ask:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
-                  <li className="flex gap-2">
-                    <span className="text-primary">•</span>
-                    <span>Product comparisons and specifications</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-primary">•</span>
-                    <span>Price inquiries and availability</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-primary">•</span>
-                    <span>Product recommendations for customers</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-primary">•</span>
-                    <span>Technical specifications and details</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Tips */}
-              <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Tips for better answers:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
-                  <li className="flex gap-2">
-                    <span className="text-green-500">•</span>
-                    <span>Mention a budget for tailored recommendations</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-green-500">•</span>
-                    <span>Describe the use case or requirements</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-green-500">•</span>
-                    <span>Ask for current prices - I'll search the inventory</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Note */}
-              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <p className="text-xs text-amber-700 dark:text-amber-400">
-                  Note: Enterprise Advisor uses web search to fetch current prices and availability when configured.
-                </p>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
 
       {/* Onboarding for first-time Simple Mode users */}
       <SimpleModeOnboarding

@@ -15,7 +15,6 @@ import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
-import { isHifiTier } from "@/lib/feature-flags"
 
 // Translations for Simple Settings
 const translations = {
@@ -417,15 +416,8 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
   const { toast } = useToast()
 
-  // Check if user is in HiFi tier - check BOTH settings AND email directly
-  const userEmail = user?.email?.toLowerCase() || ""
-  // Enterprise email domain is configurable via environment variable
-  const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
-  const isHifiByEmail = enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())
-  const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
-
-  // Get translations based on language - HiFi users ALWAYS get German
-  const lang = isHifi ? "de" : (settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en")
+  // Get translations based on language setting
+  const lang = settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en"
   const t = translations[lang as keyof typeof translations]
 
   useEffect(() => {
@@ -532,8 +524,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full min-w-0">
-          {/* HiFi users have 8 tabs (no settings/advanced mode tab) */}
-          <TabsList className={cn("grid gap-1 w-full", isHifi ? "grid-cols-8" : "grid-cols-9")}>
+          <TabsList className="grid gap-1 w-full grid-cols-9">
             <TabsTrigger value="profile" className="text-xs gap-1 px-1">
               <User className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.profile}</span>
@@ -562,20 +553,14 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               <Key className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.api}</span>
             </TabsTrigger>
-            {/* Help tab - Hidden for HiFi users (they have dedicated help button) */}
-            {!isHifi && (
-              <TabsTrigger value="help" className="text-xs gap-1 px-1">
-                <HelpCircle className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{t.help}</span>
-              </TabsTrigger>
-            )}
-            {/* Hide settings/advanced mode tab for HiFi users - they cannot switch modes */}
-            {!isHifi && (
-              <TabsTrigger value="settings" className="text-xs gap-1 px-1">
-                <Settings2 className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{t.advancedSettings}</span>
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="help" className="text-xs gap-1 px-1">
+              <HelpCircle className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t.help}</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs gap-1 px-1">
+              <Settings2 className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t.advancedSettings}</span>
+            </TabsTrigger>
           </TabsList>
 
           <div className="mt-4">
@@ -631,17 +616,14 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 </div>
               </div>
 
-              {/* Hide full profile edit for HiFi users - they only need name */}
-              {!isHifi && (
-                <Button
-                  variant="outline"
-                  className="w-full justify-between"
-                  onClick={() => window.dispatchEvent(new Event("openProfile"))}
-                >
-                  <span>{t.editFullProfile}</span>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                className="w-full justify-between"
+                onClick={() => window.dispatchEvent(new Event("openProfile"))}
+              >
+                <span>{t.editFullProfile}</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </TabsContent>
 
             {/* AI Model Tab */}
@@ -807,35 +789,33 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
 
             {/* Appearance Tab */}
             <TabsContent value="appearance" className="space-y-4 mt-0">
-              {/* Language Pills - Hidden for HiFi users (German only) */}
-              {!isHifi && (
-                <div className="space-y-2">
-                  <Label className="text-sm">{t.language}</Label>
-                  <div className="flex gap-2 flex-wrap">
-                    {[
-                      { value: "en", label: "English", flag: "🇬🇧" },
-                      { value: "de", label: "Deutsch", flag: "🇩🇪" },
-                      { value: "es", label: "Español", flag: "🇪🇸" },
-                    ].map((langOption) => (
-                      <button
-                        key={langOption.value}
-                        type="button"
-                        onClick={() => setLocalSettings({ ...localSettings, language: langOption.value as "en" | "de" | "es" })}
-                        className={cn(
-                          "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-                          "border border-border/60 hover:border-primary/40",
-                          localSettings.language === langOption.value
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-background/50 hover:bg-primary/5"
-                        )}
-                      >
-                        <span>{langOption.flag}</span>
-                        <span>{langOption.label}</span>
-                      </button>
-                    ))}
-                  </div>
+              {/* Language Pills */}
+              <div className="space-y-2">
+                <Label className="text-sm">{t.language}</Label>
+                <div className="flex gap-2 flex-wrap">
+                  {[
+                    { value: "en", label: "English", flag: "🇬🇧" },
+                    { value: "de", label: "Deutsch", flag: "🇩🇪" },
+                    { value: "es", label: "Español", flag: "🇪🇸" },
+                  ].map((langOption) => (
+                    <button
+                      key={langOption.value}
+                      type="button"
+                      onClick={() => setLocalSettings({ ...localSettings, language: langOption.value as "en" | "de" | "es" })}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
+                        "border border-border/60 hover:border-primary/40",
+                        localSettings.language === langOption.value
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background/50 hover:bg-primary/5"
+                      )}
+                    >
+                      <span>{langOption.flag}</span>
+                      <span>{langOption.label}</span>
+                    </button>
+                  ))}
                 </div>
-              )}
+              </div>
 
               {/* Theme Cards - Blocks Style */}
               <div className="space-y-2">
@@ -945,24 +925,21 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 </p>
               </div>
 
-              {/* Auto search toggle - hidden for HiFi (tool calling is always enabled) */}
-              {!isHifi && (
-                <div className="flex items-center justify-between py-2">
-                  <div>
-                    <Label className="text-sm">{t.autoSearch}</Label>
-                    <p className="text-xs text-muted-foreground">{t.autoSearchDesc}</p>
-                  </div>
-                  <Switch
-                    checked={localSettings.enableAutoToolUse ?? (!isHifi)}
-                    onCheckedChange={(checked) =>
-                      setLocalSettings({
-                        ...localSettings,
-                        enableAutoToolUse: checked,
-                      })
-                    }
-                  />
+              <div className="flex items-center justify-between py-2">
+                <div>
+                  <Label className="text-sm">{t.autoSearch}</Label>
+                  <p className="text-xs text-muted-foreground">{t.autoSearchDesc}</p>
                 </div>
-              )}
+                <Switch
+                  checked={localSettings.enableAutoToolUse ?? true}
+                  onCheckedChange={(checked) =>
+                    setLocalSettings({
+                      ...localSettings,
+                      enableAutoToolUse: checked,
+                    })
+                  }
+                />
+              </div>
 
               <div className="flex items-center justify-between py-2">
                 <div>
@@ -1087,7 +1064,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   <p className="text-xs text-muted-foreground">{t.letAiRemember}</p>
                 </div>
                 <Switch
-                  checked={localSettings.memorySettings?.enabled ?? (!isHifi)}
+                  checked={localSettings.memorySettings?.enabled ?? true}
                   onCheckedChange={(checked) =>
                     setLocalSettings({
                       ...localSettings,
@@ -1256,8 +1233,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               </div>
             </TabsContent>
 
-            {/* Help Tab - Hidden for HiFi users (they have dedicated help button) */}
-            {!isHifi && (
+            {/* Help Tab */}
             <TabsContent value="help" className="space-y-4 mt-0">
               <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
                 <div className="flex items-center gap-3 mb-2">
@@ -1357,12 +1333,9 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 <p className="text-xs text-muted-foreground">{t.privacyText}</p>
               </div>
             </TabsContent>
-            )}
 
-
-            {/* Settings Tab - Hidden for HiFi users (cannot switch modes) */}
-            {!isHifi && (
-              <TabsContent value="settings" className="space-y-4 mt-0">
+            {/* Settings Tab */}
+            <TabsContent value="settings" className="space-y-4 mt-0">
                 <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-violet-500/10 border border-purple-500/20">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
@@ -1383,8 +1356,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   <span>{t.switchToAdvanced}</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
-              </TabsContent>
-            )}
+            </TabsContent>
           </div>
         </Tabs>
 

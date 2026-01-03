@@ -1,13 +1,9 @@
 /**
  * Feature Flags System
  *
- * Centralizes feature availability based on mode (simple vs advanced) and access tier.
+ * Centralizes feature availability based on mode (simple vs advanced).
  * This ensures simple mode users get a streamlined experience while
  * advanced users get all features.
- *
- * Access Tiers:
- * - standard: Normal users with full mode selection
- * - hifi: Team users with locked simple mode and HiFi persona only
  *
  * WHY THIS HELPS:
  * 1. Reduces bundle size for simple mode (lazy loading can skip unused code)
@@ -16,8 +12,6 @@
  * 4. Easier testing - can test each mode independently
  * 5. Performance - fewer features = faster load times on mobile
  */
-
-import type { AccessTier } from "@/types"
 
 export interface FeatureFlags {
   // UI Features
@@ -49,7 +43,7 @@ export interface FeatureFlags {
   // Experimental
   showExperimentalFeatures: boolean  // Beta features toggle
 
-  // Access Tier Features
+  // UI Options
   showPersonaPicker: boolean        // Allow persona selection
   showModeSelector: boolean         // Allow mode switching
   showLanguageSelector: boolean     // Allow language selection
@@ -91,7 +85,7 @@ export function getSimpleModeFeatures(): FeatureFlags {
     // Experimental - Hide
     showExperimentalFeatures: false, // Only for advanced users
 
-    // Access Tier - Standard users can change everything
+    // UI Options - All available
     showPersonaPicker: true,         // Allow persona selection
     showModeSelector: true,          // Allow mode switching
     showLanguageSelector: true,      // Allow language selection
@@ -134,7 +128,7 @@ export function getAdvancedModeFeatures(): FeatureFlags {
     // Experimental - Available
     showExperimentalFeatures: true,
 
-    // Access Tier - Standard users can change everything
+    // UI Options - All available
     showPersonaPicker: true,         // Allow persona selection
     showModeSelector: true,          // Allow mode switching
     showLanguageSelector: true,      // Allow language selection
@@ -143,45 +137,21 @@ export function getAdvancedModeFeatures(): FeatureFlags {
 }
 
 /**
- * Get feature flags for hifi mode (team access)
- * HiFi mode = simple mode with fixed persona and German only
+ * Get current feature flags based on mode
  */
-export function getHifiModeFeatures(): FeatureFlags {
-  // Start with simple mode features
-  const simpleFeatures = getSimpleModeFeatures()
-
-  return {
-    ...simpleFeatures,
-
-    // Override: HiFi users cannot change these
-    showPersonaPicker: false,        // Locked to HiFi persona
-    showModeSelector: false,         // Cannot switch modes
-    showLanguageSelector: false,     // German only
-    showFullProfile: false,          // Simplified profile (name only)
-  }
-}
-
-/**
- * Get current feature flags based on mode and access tier
- */
-export function getFeatureFlags(isSimpleMode: boolean, accessTier?: AccessTier): FeatureFlags {
-  // HiFi tier always uses HiFi mode features
-  if (accessTier === "hifi") {
-    return getHifiModeFeatures()
-  }
+export function getFeatureFlags(isSimpleMode: boolean): FeatureFlags {
   return isSimpleMode ? getSimpleModeFeatures() : getAdvancedModeFeatures()
 }
 
 /**
  * Check if a specific feature is enabled
- * Usage: if (isFeatureEnabled('showSlashCommands', settings.simpleMode, settings.accessTier)) { ... }
+ * Usage: if (isFeatureEnabled('showSlashCommands', settings.simpleMode)) { ... }
  */
 export function isFeatureEnabled(
   feature: keyof FeatureFlags,
-  isSimpleMode: boolean,
-  accessTier?: AccessTier
+  isSimpleMode: boolean
 ): boolean {
-  const flags = getFeatureFlags(isSimpleMode, accessTier)
+  const flags = getFeatureFlags(isSimpleMode)
   return flags[feature]
 }
 
@@ -189,14 +159,7 @@ export function isFeatureEnabled(
  * Hook-friendly feature flag getter
  * Returns a function that checks features
  */
-export function createFeatureChecker(isSimpleMode: boolean, accessTier?: AccessTier) {
-  const flags = getFeatureFlags(isSimpleMode, accessTier)
+export function createFeatureChecker(isSimpleMode: boolean) {
+  const flags = getFeatureFlags(isSimpleMode)
   return (feature: keyof FeatureFlags): boolean => flags[feature]
-}
-
-/**
- * Check if user is in HiFi tier (team access)
- */
-export function isHifiTier(accessTier?: AccessTier): boolean {
-  return accessTier === "hifi"
 }

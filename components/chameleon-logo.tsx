@@ -9,35 +9,14 @@ interface ChameleonLogoProps {
   size?: number
   animated?: boolean
   colorShift?: boolean
-  isHifi?: boolean
 }
 
 export function ChameleonLogo({
   className = "",
   size = 24,
   animated = false,
-  colorShift = false,
-  isHifi = false
+  colorShift = false
 }: ChameleonLogoProps) {
-  // Enterprise mode shows custom logo - constrained width
-  if (isHifi) {
-    return (
-      <Image
-        src="/enterprise-logo.svg"
-        alt="Enterprise Logo"
-        width={size * 2.5}
-        height={size}
-        className={cn(
-          "object-contain flex-shrink-0",
-          className,
-          animated && "animate-pulse"
-        )}
-        style={{ maxWidth: `${size * 2.5}px`, height: 'auto' }}
-        priority
-      />
-    )
-  }
-
   return (
     <Image
       src="/chameleon-logo.jpg"
