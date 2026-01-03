@@ -216,85 +216,10 @@ DO NOT use for:
 }
 
 /**
- * Shopify Tool Definition
- *
- * Search products, check inventory, and get product details from Shopify store
- * Only available for HiFi tier users with configured Shopify credentials
- */
-export const shopifyTool: ToolDefinition = {
-  type: "function",
-  function: {
-    name: "shopify_products",
-    description: `PRIMÄRE QUELLE für Produktinformationen aus unserem Shop!
-
-⚠️ IMMER ZUERST dieses Tool verwenden für:
-- Preise (unser aktueller Verkaufspreis!)
-- Lagerbestand und Verfügbarkeit
-- Produktdetails aus unserem Sortiment
-
-VERFÜGBARE DATEN pro Produkt:
-- Titel, Beschreibung
-- **PRODUKTBILD** (als Markdown-Bild - IMMER anzeigen!)
-- Preis in Euro mit **UVP/Vergleichspreis** und Rabatt-%
-- Lagerbestand, Verfügbarkeit
-- SKU (Artikelnummer)
-- Direkter LINK zum Produkt
-- Varianten (Farben, Größen, etc.)
-
-Verwende dieses Tool wenn:
-- "Habt ihr...?", "Was kostet...?", "Zeig mir..."
-- "Ist ... auf Lager?", "Wie viele ... habt ihr?"
-- "Preis von...", "Link zu..."
-- Jede Frage zu Produkten die wir führen könnten
-
-WICHTIG für die Antwort:
-- IMMER Produktbild einbinden (![alt](url))
-- Bei Angeboten beide Preise: "€1599 ~~€1799~~ (-11%)"
-- Link zum Produkt immer angeben
-
-Verwende web_search NUR für:
-- Externe Infos (Testberichte, Reviews, Herstellerdetails)
-- Produkte die wir NICHT führen
-- Preisvergleiche mit anderen Shops`,
-    parameters: {
-      type: "object",
-      properties: {
-        action: {
-          type: "string",
-          description: "Die gewünschte Aktion",
-          enum: ["search_products", "list_products", "get_product", "get_inventory"]
-        },
-        query: {
-          type: "string",
-          description: "Suchbegriff für Produktsuche (für search_products). Z.B. 'Wanduhr', 'Holz Tisch', 'Lampe blau'"
-        },
-        product_id: {
-          type: "string",
-          description: "Produkt-ID für get_product Aktion"
-        },
-        limit: {
-          type: "string",
-          description: "Maximale Anzahl der Ergebnisse (Standard: 10, Max: 50)"
-        }
-      },
-      required: ["action"]
-    }
-  }
-}
-
-/**
  * Get all available tools for the chat API
- * @param options - Optional settings to control which tools are available
  */
-export function getAvailableTools(options?: { includeShopify?: boolean }): ToolDefinition[] {
-  const tools = [webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool]
-
-  // Add Shopify tool only if explicitly enabled (for HiFi users)
-  if (options?.includeShopify) {
-    tools.push(shopifyTool)
-  }
-
-  return tools
+export function getAvailableTools(): ToolDefinition[] {
+  return [webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool]
 }
 
 /**

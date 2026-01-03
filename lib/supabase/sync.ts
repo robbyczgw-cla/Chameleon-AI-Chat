@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client"
-import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt, Memory, DeletedMemory, AccessTier, ChatShare, SharedChatData } from "@/types"
+import type { Chat, Folder, Message, AppSettings, ComparisonSession, SystemPrompt, Memory, DeletedMemory, ChatShare, SharedChatData } from "@/types"
 import { removeFollowUpInstructions, hasFollowUpInstructions } from "@/lib/system-prompt-builder"
 
 // Types for secure API key storage
@@ -277,7 +277,6 @@ export class SupabaseSync {
 
       const settingsData = {
         simple_mode: settings.simpleMode ?? false,
-        access_tier: settings.accessTier || "standard",
         system_prompt: cleanSystemPrompt,
         temperature: settings.modelParameters?.temperature,
         max_tokens: settings.modelParameters?.maxTokens,
@@ -323,10 +322,6 @@ export class SupabaseSync {
           : '[]',
         experimental_settings: settings.experimental
           ? JSON.stringify(settings.experimental)
-          : '{}',
-        // Shopify settings for HiFi mode
-        shopify_settings: settings.shopifySettings
-          ? JSON.stringify(settings.shopifySettings)
           : '{}',
         updated_at: new Date().toISOString(),
       }
@@ -1160,7 +1155,6 @@ export class SupabaseSync {
 
     return {
       simpleMode: dbSettings.simple_mode ?? false,
-      accessTier: (dbSettings.access_tier as AccessTier) || "standard",
       systemPrompt,
       modelParameters: {
         temperature: Number.parseFloat(dbSettings.temperature) || 0.7,
@@ -1237,17 +1231,6 @@ export class SupabaseSync {
           : {}
 
         console.log("[Supabase] Parsed experimental settings:", parsed)
-        return parsed
-      })(),
-      // Shopify settings for HiFi mode
-      shopifySettings: (() => {
-        if (!dbSettings.shopify_settings) return undefined
-
-        const parsed = typeof dbSettings.shopify_settings === "string"
-          ? JSON.parse(dbSettings.shopify_settings)
-          : dbSettings.shopify_settings
-
-        console.log("[Supabase] Parsed shopifySettings:", parsed?.storeUrl ? "***configured***" : "empty")
         return parsed
       })(),
     }

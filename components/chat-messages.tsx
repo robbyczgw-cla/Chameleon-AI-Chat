@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX, ChevronDown, ChevronRight, Lightbulb, Pencil, X, Save, ZoomIn } from "lucide-react"
+import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX, ChevronDown, ChevronRight, Lightbulb, Pencil, X, Save } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, memo, useCallback, useMemo } from "react"
 import dynamic from "next/dynamic"
@@ -30,7 +30,6 @@ import { type Persona, getPersonaExamplePrompts } from "@/lib/personas"
 import type { MessageContent } from "@/types"
 import { contentToText } from "@/lib/multimodal-utils"
 import { RichContentParser } from "@/lib/rich-content-parser"
-import { isHifiTier } from "@/lib/feature-flags"
 // Lazy load Mermaid to avoid ~400KB in initial bundle
 import { LazyMermaid } from "@/components/rich-content/lazy-mermaid"
 import { MessageStatus, MessageStatusVerbose, StreamingHistoryDisplay } from "@/components/message-status"
@@ -338,14 +337,8 @@ const MessageWrapper = memo(({ children, className, messageId }: MessageWrapperP
 })
 
 export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) => {
-  const { chats, currentChatId, addMessage, updateChat, setChats, settings, isChatLoading, streamingPhase, currentTool, searchQuery, currentStreamingDetails, user } = useApp()
+  const { chats, currentChatId, addMessage, updateChat, setChats, settings, isChatLoading, streamingPhase, currentTool, searchQuery, currentStreamingDetails } = useApp()
 
-  // Check if user is in HiFi tier - check BOTH settings AND email directly
-  const userEmail = user?.email?.toLowerCase() || ""
-  // Enterprise email domain is configurable via environment variable
-  const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
-  const isHifiByEmail = enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())
-  const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [speakingId, setSpeakingId] = useState<string | null>(null)
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set())
@@ -357,11 +350,11 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
   // Memoize the sub-greeting to prevent it from changing on every render
   // This fixes the rapid cycling bug when streaming in background
   const currentChat = chats.find((chat) => chat.id === currentChatId)
-  const lang = useMemo(() => isHifi ? "de" : (settings.language || "en"), [isHifi, settings.language])
+  const lang = useMemo(() => settings.language || "en", [settings.language])
   const memoizedSubGreeting = useMemo(() => getSubGreeting(lang), [lang, currentChatId])
 
-  // Advanced mode = NOT simple mode (from settings) - HiFi users are NEVER in advanced mode
-  const isAdvancedMode = !settings.simpleMode && !isHifi
+  // Advanced mode = NOT simple mode (from settings)
+  const isAdvancedMode = !settings.simpleMode
 
   // Automatically fetch exact costs for new messages (runs in background, no slowdown!)
 
@@ -639,8 +632,8 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
               </p>
             </div>
 
-            {/* Persona info if selected - only for non-HiFi mode */}
-            {currentPersona && !isHifi && (
+            {/* Persona info if selected */}
+            {currentPersona && (
               <div className="flex flex-col items-center gap-2 mt-3 sm:mt-4 animate-fade-in w-full" style={{ animationDelay: "300ms" }}>
                 <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20">
                   <span className="text-xl sm:text-2xl flex-shrink-0">{currentPersona.emoji}</span>
@@ -909,37 +902,14 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                             </code>
                           )
                         },
-                        img: ({ src, alt }) => {
-                          // HiFi mode: clickable images that open in new tab
-                          if (isHifi) {
-                            return (
-                              <span
-                                className="inline-block not-prose relative group cursor-pointer max-w-[600px]"
-                                style={{ maxWidth: '600px' }}
-                                onClick={() => src && window.open(src, '_blank')}
-                              >
-                                <img
-                                  src={src}
-                                  alt={alt || "Product image"}
-                                  className="w-full h-auto rounded-lg border border-border transition-opacity group-hover:opacity-90 my-1.5"
-                                  loading="lazy"
-                                />
-                                <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-lg pointer-events-none">
-                                  <ZoomIn className="h-8 w-8 text-white drop-shadow-lg" />
-                                </span>
-                              </span>
-                            )
-                          }
-                          // Normal mode: no click handling
-                          return (
-                            <img
-                              src={src}
-                              alt={alt || "Image"}
-                              className="max-w-full sm:max-w-sm md:max-w-md h-auto rounded-lg border border-border my-4"
-                              loading="lazy"
-                            />
-                          )
-                        },
+                        img: ({ src, alt }) => (
+                          <img
+                            src={src}
+                            alt={alt || "Image"}
+                            className="max-w-full sm:max-w-sm md:max-w-md h-auto rounded-lg border border-border my-4"
+                            loading="lazy"
+                          />
+                        ),
                               }}
                             >
                               {richContentParsed.content}

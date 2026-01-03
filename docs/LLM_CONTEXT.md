@@ -60,7 +60,6 @@ Each persona has unique:
 - **Lifestyle** - Health & wellness (Chef Marco, Zen, Wellbeing, Fit, Family, Lisa Knight, Coach Thompson)
 - **Learning** - Education (Herr Müller, Scholar, Lingua)
 - **Curator** - Recommendations (Vibe, Aria)
-- **Special** - Hidden/business-specific (HiFi Berater)
 
 **Featured Personas:**
 - **Cami** 🦎 - Adaptive chameleon with emotion detection (default)

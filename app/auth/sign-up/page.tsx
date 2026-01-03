@@ -114,16 +114,6 @@ export default function Page() {
         .eq("user_id", signUpData.user.id)
         .single()
 
-      // Check if user is registering with enterprise email domain for special access
-      // Enterprise domain is configurable via environment variable
-      const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
-      const isEnterpriseEmail = enterpriseDomain && email.toLowerCase().endsWith(enterpriseDomain.toLowerCase())
-      const accessTier = isEnterpriseEmail ? "hifi" : "standard"
-
-      if (isEnterpriseEmail) {
-        console.log("[v0] Enterprise email detected, setting access tier to hifi")
-      }
-
       if (!existingSettings) {
         console.log("[v0] Settings don't exist, creating...")
         const { error: settingsError } = await supabase.from("user_settings").insert({
@@ -141,9 +131,7 @@ export default function Page() {
           tavily_max_results: 5,
           tavily_include_images: true,
           tavily_include_answer: true,
-          // Team access configuration
-          access_tier: accessTier,
-          simple_mode: !!isEnterpriseEmail, // Enterprise users always start in simple mode
+          simple_mode: false, // Default to advanced mode for new users
         })
 
         if (settingsError) {

@@ -35,7 +35,6 @@ import {
   Globe,
   Youtube,
   CloudSun,
-  ShoppingCart,
   Link,
   FileText,
   ImageIcon,
@@ -453,8 +452,6 @@ Provide analysis in this JSON format:
       youtube_transcript: { icon: <Youtube className="h-4 w-4" />, color: "text-red-600", label: "YouTube Transcript" },
       weather: { icon: <CloudSun className="h-4 w-4" />, color: "text-yellow-600", label: "Weather" },
       get_weather: { icon: <CloudSun className="h-4 w-4" />, color: "text-yellow-600", label: "Weather" },
-      shopify_products: { icon: <ShoppingCart className="h-4 w-4" />, color: "text-purple-600", label: "Shopify Products" },
-      shopify: { icon: <ShoppingCart className="h-4 w-4" />, color: "text-purple-600", label: "Shopify" },
       read_file: { icon: <FileText className="h-4 w-4" />, color: "text-orange-600", label: "Read File" },
       write_file: { icon: <FileText className="h-4 w-4" />, color: "text-orange-600", label: "Write File" },
       generate_image: { icon: <ImageIcon className="h-4 w-4" />, color: "text-pink-600", label: "Generate Image" },
@@ -944,8 +941,6 @@ Provide analysis in this JSON format:
                                   ? "bg-gradient-to-r from-red-500 to-pink-500"
                                   : toolName.includes("weather")
                                   ? "bg-gradient-to-r from-yellow-500 to-orange-500"
-                                  : toolName.includes("shopify")
-                                  ? "bg-gradient-to-r from-purple-500 to-pink-500"
                                   : "bg-gradient-to-r from-gray-500 to-gray-400"
                               )}
                               style={{ width: `${(data.count / maxCount) * 100}%` }}

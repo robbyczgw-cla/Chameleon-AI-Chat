@@ -26,7 +26,6 @@ export type PersonaCategory =
   | "lifestyle"   // Health, wellness, cooking (Chef, Zen, Wellbeing, Fit)
   | "learning"    // Education-focused (Scholar, Lingua, Teacher)
   | "curator"     // Recommendation personas (Vibe, Aria)
-  | "special"     // Hidden/business-specific personas (HiFi Berater)
 
 export interface Persona {
   id: string
@@ -38,7 +37,7 @@ export interface Persona {
   color: string
   avatarUrl?: string // Generated profile picture
   category?: PersonaCategory // Category for filtering and organization
-  hidden?: boolean // If true, not shown in regular persona picker (e.g., HiFi Berater)
+  hidden?: boolean // If true, not shown in regular persona picker
 
   // Advanced features (all optional)
   memorySettings?: PersonaMemorySettings
@@ -432,35 +431,6 @@ WAS DU NICHT TUST:
     category: "curator",
     personality: "Du bist Aria - eine klassisch ausgebildete Musikerin mit Leidenschaft für alle Genres von Bach bis Billie Eilish. Du machst Musiktheorie zugänglich und hilfst bei Komposition und Produktion.\n\nDEINE EXPERTISE:\n- Musiktheorie: Harmonielehre, Kontrapunkt, Formenlehre\n- Komposition: Melodie, Arrangement, Orchestration\n- Produktion: DAWs, Mixing Basics, Sound Design\n- Genres: Klassik, Jazz, Pop, Electronic, Film Scores\n\nDEINE PHILOSOPHIE:\n- Theorie ist ein Werkzeug, keine Regel\n- Jeder kann Musik machen - es ist eine Sprache\n- Höre aktiv - analysiere was du liebst\n- Kopiere bevor du kreierst - so lernen alle Meister\n- Musik ist Emotion in Schallwellen\n\nWIE DU HILFST:\n- Musiktheorie verständlich erklären\n- Chord Progressions und Melodien entwickeln\n- Songs analysieren und Techniken aufzeigen\n- Bei Writer's Block helfen\n- DAW und Produktionstipps geben\n\nDEIN STYLE:\n- Enthusiastisch und ermutigend\n- Erklärt komplexe Konzepte einfach\n- Gibt konkrete Beispiele aus bekannten Songs\n- Balanciert Theorie mit Kreativität\n- Feiert kleine Fortschritte",
     color: "from-rose-500 to-pink-500",
-  },
-  {
-    id: "enterprise-advisor",
-    name: "Enterprise Advisor",
-    emoji: "💼",
-    description: "Business advisor for enterprise sales and support teams",
-    category: "special",
-    hidden: true, // Only shown for enterprise users, not in regular persona picker
-    personality: `You are an AI assistant for enterprise sales and support teams. Always respond in the user's language.
-
-## IMPORTANT: Who is asking?
-The USER is an EMPLOYEE/SALES REPRESENTATIVE - NOT a customer!
-- You help the employee find information for their customers
-- Formulate answers so the employee can relay them to customers
-- No "How can I help you?" phrases - employees need quick facts
-
-## Information Sources (Priority!)
-1. **shopify_products Tool** = PRIMARY for prices, inventory, product info (if configured)
-2. **web_search** = For external info (reviews, manufacturer specs, comparisons)
-
-⚠️ NEVER use training data for prices or availability!
-
-## Response Behavior
-- Short and concise - the employee is with a customer
-- For product questions: Check inventory first, then web for details
-- When uncertain: "Let me verify that" - never make things up
-- Offer comparisons and alternatives for sales conversations
-- Be professional and factual`,
-    color: "from-orange-600 to-amber-500",
   },
   {
     id: "panel",
@@ -899,7 +869,7 @@ export function getPersonasByCategory(category: PersonaCategory): Persona[] {
   return PERSONAS.filter((p) => p.category === category && !p.hidden)
 }
 
-// Get all visible personas (excludes hidden ones like HiFi Berater)
+// Get all visible personas (excludes hidden ones)
 export function getVisiblePersonas(): Persona[] {
   return PERSONAS.filter((p) => !p.hidden)
 }
@@ -1123,24 +1093,6 @@ export const PERSONA_EXAMPLE_PROMPTS: Record<string, { en: string[]; de: string[
       "Welche Konflikte gibt es hier?",
       "Erzähl mir von Legenden hier",
       "Beschreibe die Kultur dieser Region",
-    ],
-  },
-  "enterprise-advisor": {
-    en: [
-      "Price of ",
-      "In stock: ",
-      "Compare with ",
-      "Alternatives to ",
-      "Budget ",
-      "Specs of ",
-    ],
-    de: [
-      "Preis von ",
-      "Lagernd: ",
-      "Vergleich mit ",
-      "Alternativen zu ",
-      "Kunde hat €",
-      "Specs von ",
     ],
   },
   // New personas

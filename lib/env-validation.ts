@@ -93,20 +93,6 @@ const ENV_VARS: EnvVarConfig[] = [
     clientSide: true,
   },
 
-  // Shopify (Enterprise mode)
-  {
-    name: 'SHOPIFY_ADMIN_API_TOKEN',
-    type: 'string',
-    required: false,
-    description: 'Shopify admin API token for enterprise features',
-  },
-  {
-    name: 'SHOPIFY_SHOP_URL',
-    type: 'url',
-    required: false,
-    description: 'Shopify shop URL',
-  },
-
   // Vercel-specific
   {
     name: 'VERCEL_ENV',

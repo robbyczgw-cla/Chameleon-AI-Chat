@@ -382,14 +382,10 @@ export interface ExperimentalSettings {
   enableAnimations?: boolean // Enable animated loading indicators
 }
 
-// Access tier determines user privileges and UI restrictions
-export type AccessTier = "standard" | "hifi"
-
 export interface AppSettings {
   theme?: "light" | "dark"
   language?: "en" | "de" | "es" // UI language: English, German, or Spanish
   simpleMode?: boolean // Simple Mode: Clean UI focused on personas & profile
-  accessTier?: AccessTier // Access tier: standard (default) or hifi (team-only)
   privateChatMode?: boolean // Private Chat Mode: No memory, no persistence, auto-delete on close
   enableAutoToolUse?: boolean // Enable automatic tool use (web search, weather, etc.) via tool calling (AI decides when to use tools)
   apiKeys: {
@@ -416,7 +412,6 @@ export interface AppSettings {
   exaSettings?: ExaSettings
   comparisonMode?: ComparisonMode
   memorySettings?: MemorySettings
-  shopifySettings?: ShopifySettings // HiFi mode: Shopify store connection
   fontSize?: "small" | "medium" | "large"
   fontFamily?: "inter" | "roboto" | "atkinson" | "opendyslexic" | "jetbrains" | "system" | "dmsans" | "poppins"
   messageDensity?: "compact" | "comfortable" | "spacious"
@@ -502,11 +497,6 @@ export interface DeletedMemory extends Memory {
   originalImportance?: 1 | 2 | 3 // Original importance before demotion (for high importance memories)
 }
 
-export interface ShopifySettings {
-  storeUrl?: string // e.g., "my-store.myshopify.com"
-  accessToken?: string // Shopify Admin API access token
-}
-
 /**
  * Chat Sharing Types
  * For creating shareable read-only links to chats
@@ -583,65 +573,6 @@ export interface ToolCallResult {
   name: string
   input: Record<string, unknown>
   output: string | Record<string, unknown>
-}
-
-/**
- * Shopify product variant
- */
-export interface ShopifyVariant {
-  node: {
-    id: string
-    title: string
-    price: string
-    availableForSale: boolean
-    sku?: string
-  }
-}
-
-/**
- * Shopify product edge
- */
-export interface ShopifyProductEdge {
-  node: {
-    id: string
-    title: string
-    description?: string
-    handle: string
-    status: string
-    totalInventory: number
-    priceRangeV2: {
-      minVariantPrice: {
-        amount: string
-        currencyCode: string
-      }
-      maxVariantPrice: {
-        amount: string
-        currencyCode: string
-      }
-    }
-    variants: {
-      edges: ShopifyVariant[]
-    }
-    images: {
-      edges: Array<{
-        node: {
-          url: string
-          altText?: string
-        }
-      }>
-    }
-    collections: {
-      edges: Array<{
-        node: {
-          title: string
-        }
-      }>
-    }
-    tags: string[]
-    vendor: string
-    createdAt: string
-    updatedAt: string
-  }
 }
 
 /**

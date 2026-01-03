@@ -7,7 +7,6 @@ import {
   getFeatureFlags,
   getSimpleModeFeatures,
   getAdvancedModeFeatures,
-  isHifiTier
 } from "@/lib/feature-flags"
 
 /**
@@ -27,21 +26,10 @@ import {
  * ```
  */
 export function useFeatureFlags() {
-  const { settings, user } = useApp()
-
-  // Check if user is in HiFi tier - check BOTH settings AND email directly
-  const userEmail = user?.email?.toLowerCase() || ""
-  // Enterprise email domain is configurable via environment variable
-  const enterpriseDomain = process.env.NEXT_PUBLIC_ENTERPRISE_EMAIL_DOMAIN || ""
-  const isHifiByEmail = enterpriseDomain && userEmail.endsWith(enterpriseDomain.toLowerCase())
-  const isHifi = isHifiTier(settings.accessTier) || isHifiByEmail
-  const effectiveAccessTier = isHifi ? "hifi" : settings.accessTier
+  const { settings } = useApp()
 
   // Determine mode - check multiple sources for reliability
   const isSimpleMode = useMemo(() => {
-    // HiFi tier is always simple mode
-    if (isHifi) return true
-
     // Primary: settings.simpleMode
     if (settings.simpleMode !== undefined) {
       return settings.simpleMode
@@ -55,12 +43,12 @@ export function useFeatureFlags() {
 
     // Default to simple mode for new users
     return true
-  }, [settings.simpleMode, isHifi])
+  }, [settings.simpleMode])
 
-  // Get feature flags for current mode AND access tier
+  // Get feature flags for current mode
   const features = useMemo(() => {
-    return getFeatureFlags(isSimpleMode, effectiveAccessTier)
-  }, [isSimpleMode, effectiveAccessTier])
+    return getFeatureFlags(isSimpleMode)
+  }, [isSimpleMode])
 
   // Helper function to check a specific feature
   const can = useMemo(() => {
@@ -71,7 +59,6 @@ export function useFeatureFlags() {
     features,
     isSimpleMode,
     isAdvancedMode: !isSimpleMode,
-    isHifi, // Expose HiFi tier status for special handling
     can,
     // Expose mode-specific flag getters for reference
     simpleModeFeatures: getSimpleModeFeatures(),

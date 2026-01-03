@@ -56,7 +56,7 @@ export function PersonasManager() {
   ]
 
   useEffect(() => {
-    // Use getVisiblePersonas to exclude hidden personas like HiFi Berater
+    // Use getVisiblePersonas to exclude hidden personas
     setPersonas(getVisiblePersonas())
     loadCustomPersonas()
   }, [])
