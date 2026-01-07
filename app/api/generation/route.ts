@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { validateGenerationId } from "@/lib/api-validation"
 
 export const runtime = "edge"
 
@@ -8,15 +9,19 @@ export const runtime = "edge"
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  const generationId = searchParams.get("id")
+  const rawId = searchParams.get("id")
 
-  if (!generationId) {
-    return NextResponse.json({ error: "Missing generation ID" }, { status: 400 })
+  // Validate generation ID format
+  const validationResult = validateGenerationId(rawId)
+  if (!validationResult.success) {
+    return NextResponse.json({ error: validationResult.error }, { status: 400 })
   }
+  const generationId = validationResult.data!
 
   const apiKey = request.headers.get("x-api-key") || process.env.OPENROUTER_API_KEY
 
-  console.log(`[Generation] Request for ID: ${generationId}, apiKey: ${apiKey ? `provided (${  apiKey.slice(-4)  })` : "missing"}`)
+  // Avoid logging partial API keys - log only presence
+  console.log(`[Generation] Request for ID: ${generationId}, apiKey: ${apiKey ? "provided" : "missing"}`)
 
   if (!apiKey) {
     console.error(`[Generation] Missing API key - header: ${request.headers.get("x-api-key") ? "present" : "absent"}, env: ${process.env.OPENROUTER_API_KEY ? "present" : "absent"}`)

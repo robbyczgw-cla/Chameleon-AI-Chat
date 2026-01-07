@@ -36,12 +36,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Chat not found or access denied" }, { status: 404 })
     }
 
-    // Generate a unique share token
+    // Generate a cryptographically secure share token
+    // Using Web Crypto API instead of Math.random() for security
+    // Increased from 12 to 16 chars for ~95 bits of entropy
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    let shareToken = ''
-    for (let i = 0; i < 12; i++) {
-      shareToken += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
+    const tokenLength = 16
+    const randomValues = new Uint32Array(tokenLength)
+    crypto.getRandomValues(randomValues)
+    const shareToken = Array.from(randomValues)
+      .map(val => chars.charAt(val % chars.length))
+      .join('')
 
     const now = new Date().toISOString()
 
