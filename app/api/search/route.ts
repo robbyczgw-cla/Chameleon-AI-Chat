@@ -1,6 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server"
+import {
+  validateSearchQuery,
+  validatePositiveInt,
+  validateEnum,
+  validateDomainArray
+} from "@/lib/api-validation"
 
 export const runtime = "edge"
+
+const SEARCH_DEPTHS = ["basic", "advanced"] as const
+const TOPICS = ["general", "news"] as const
 
 interface SearchRequest {
   query: string
@@ -15,16 +24,58 @@ interface SearchRequest {
 
 export async function POST(req: NextRequest) {
   try {
-    const {
-      query,
-      maxResults = 5,
-      searchDepth = "basic",
-      includeImages = false,
-      includeDomains,
-      excludeDomains,
-      includeRawContent = false,
-      topic = "general"
-    } = (await req.json()) as SearchRequest
+    const body = await req.json() as SearchRequest
+
+    // Validate query
+    const queryResult = validateSearchQuery(body.query)
+    if (!queryResult.success) {
+      return NextResponse.json({ error: queryResult.error }, { status: 400 })
+    }
+    const query = queryResult.data!
+
+    // Validate maxResults (1-20)
+    const maxResultsResult = validatePositiveInt(body.maxResults ?? 5, 1, 20, "maxResults")
+    if (!maxResultsResult.success) {
+      return NextResponse.json({ error: maxResultsResult.error }, { status: 400 })
+    }
+    const maxResults = maxResultsResult.data!
+
+    // Validate searchDepth
+    const searchDepthResult = validateEnum(body.searchDepth ?? "basic", SEARCH_DEPTHS, "searchDepth")
+    if (!searchDepthResult.success) {
+      return NextResponse.json({ error: searchDepthResult.error }, { status: 400 })
+    }
+    const searchDepth = searchDepthResult.data!
+
+    // Validate topic
+    const topicResult = validateEnum(body.topic ?? "general", TOPICS, "topic")
+    if (!topicResult.success) {
+      return NextResponse.json({ error: topicResult.error }, { status: 400 })
+    }
+    const topic = topicResult.data!
+
+    // Validate domain arrays if provided
+    let includeDomains: string[] | undefined
+    let excludeDomains: string[] | undefined
+
+    if (body.includeDomains) {
+      const includeResult = validateDomainArray(body.includeDomains)
+      if (!includeResult.success) {
+        return NextResponse.json({ error: includeResult.error }, { status: 400 })
+      }
+      includeDomains = includeResult.data
+    }
+
+    if (body.excludeDomains) {
+      const excludeResult = validateDomainArray(body.excludeDomains)
+      if (!excludeResult.success) {
+        return NextResponse.json({ error: excludeResult.error }, { status: 400 })
+      }
+      excludeDomains = excludeResult.data
+    }
+
+    const includeImages = Boolean(body.includeImages)
+    const includeRawContent = Boolean(body.includeRawContent)
 
     const apiKey = process.env.TAVILY_API_KEY || req.headers.get("x-tavily-api-key")
 
