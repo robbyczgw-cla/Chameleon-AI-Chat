@@ -159,17 +159,66 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
+## Guest Mode vs Account
+
+You can use Chameleon AI Chat without creating an account. Here's what each mode offers:
+
+### Guest Mode (No Account Required)
+
+| Feature | Status |
+|---------|--------|
+| AI Chat with 100+ models | ✅ Full access |
+| All 31 personas | ✅ Full access |
+| Real-time cost tracking | ✅ Works |
+| Voice input/output | ✅ Works |
+| Web search | ✅ Works |
+| Image generation | ✅ Works |
+| All 12+ themes | ✅ Works |
+| Settings & preferences | ✅ Stored locally |
+| API keys storage | ✅ Browser localStorage |
+
+**Limitations in Guest Mode:**
+- Data stored in browser only (cleared if you clear browser data)
+- No cross-device sync
+- No AI memory system (requires database)
+- No chat sharing
+
+### Authenticated Mode (Free Account)
+
+Everything in Guest Mode, plus:
+
+| Feature | Benefit |
+|---------|---------|
+| Cloud sync | Access chats from any device |
+| AI Memory | Long-term context across conversations |
+| Chat sharing | Share conversations via public links |
+| Backup | Data persists even if browser data is cleared |
+
+**Note:** Both modes require you to bring your own API keys (OpenRouter, etc.). We never store or proxy your API keys through our servers.
+
+---
+
 ## API Keys & Services
 
-| Service | Purpose | Required |
-|---------|---------|----------|
-| **OpenRouter** | AI model access (100+ models) | ✅ Yes |
-| **Supabase** | Database, auth, vector search | ✅ Yes |
-| **Tavily** | AI-optimized web search | ❌ Optional |
-| **Serper** | Google Search API | ❌ Optional |
-| **Exa** | Neural semantic search | ❌ Optional |
-| **OpenAI** | Whisper voice, DALL-E images | ❌ Optional |
-| **WeatherAPI** | Weather tool integration | ❌ Optional |
+| Service | Purpose | Required | Cost |
+|---------|---------|----------|------|
+| **OpenRouter** | AI model access (100+ models) | ✅ Yes | Pay-per-use (~$0.0001-$0.06/1K tokens) |
+| **Supabase** | Database, auth, vector search | ✅ For sync | Free tier available |
+| **Tavily** | AI-optimized web search | ❌ Optional | Free tier (1,000 searches/month) |
+| **Serper** | Google Search API | ❌ Optional | Free tier (2,500 searches/month) |
+| **Exa** | Neural semantic search | ❌ Optional | Free tier available |
+| **OpenAI** | Whisper voice, DALL-E images | ❌ Optional | Pay-per-use |
+| **WeatherAPI** | Weather tool integration | ❌ Optional | Free tier available |
+
+### Estimated Monthly Costs
+
+| Usage Level | Models Used | Estimated Cost |
+|-------------|-------------|----------------|
+| **Casual** | GPT-4o-mini, Claude Haiku, free models | $1-5/month |
+| **Regular** | GPT-4o, Claude Sonnet | $10-20/month |
+| **Power User** | GPT-4o, Claude Opus, with vision/voice | $30-50/month |
+
+*Costs depend on usage. Many free models available (Llama, Mistral, etc.)*
 
 ---
 
