@@ -28,7 +28,7 @@ import { ResponseAnalyzer } from "@/lib/response-analyzer"
 import type { FileAttachment } from "@/lib/file-handler"
 import { type Persona, getPersonaExamplePrompts } from "@/lib/personas"
 import type { MessageContent } from "@/types"
-import { contentToText } from "@/lib/multimodal-utils"
+import { contentToText, hasImages } from "@/lib/multimodal-utils"
 import { RichContentParser } from "@/lib/rich-content-parser"
 // Lazy load Mermaid to avoid ~400KB in initial bundle
 import { LazyMermaid } from "@/components/rich-content/lazy-mermaid"
@@ -721,18 +721,29 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                 ? "w-fit max-w-[80%] sm:max-w-[70%] md:max-w-[60%]"
                 : "w-full"
             )}>
-              {message.attachments && message.attachments.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
-                  {message.attachments.map((attachment) => (
-                    <FilePreviewInline
-                      key={attachment.id}
-                      file={attachment as FileAttachment}
-                      showRemove={false}
-                      compact={false}
-                    />
-                  ))}
-                </div>
-              )}
+              {message.attachments && message.attachments.length > 0 && (() => {
+                // Filter out image attachments if images are already displayed in content
+                // This prevents duplicate display (image shown both as attachment card AND inline)
+                const contentHasImages = hasImages(message.content)
+                const attachmentsToShow = contentHasImages
+                  ? message.attachments.filter(a => !a.type.startsWith('image/'))
+                  : message.attachments
+
+                if (attachmentsToShow.length === 0) return null
+
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
+                    {attachmentsToShow.map((attachment) => (
+                      <FilePreviewInline
+                        key={attachment.id}
+                        file={attachment as FileAttachment}
+                        showRemove={false}
+                        compact={false}
+                      />
+                    ))}
+                  </div>
+                )
+              })()}
 
               <div
                 className={cn(
