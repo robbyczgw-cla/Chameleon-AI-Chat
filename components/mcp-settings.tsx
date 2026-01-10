@@ -161,7 +161,7 @@ const PRESET_MCP_SERVERS: Omit<MCPServerConfig, "id" | "status">[] = [
   {
     name: "PostgreSQL",
     command: "npx",
-    args: "-y @modelcontextprotocol/server-postgres postgres://user:pass@localhost/db",
+    args: "-y @modelcontextprotocol/server-postgres postgres://<username>:<password>@localhost/<database>",
     description: "PostgreSQL database read-only access",
     category: "Database",
     enabled: true,

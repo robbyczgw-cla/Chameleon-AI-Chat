@@ -58,3 +58,29 @@ logs
 # Temporary files
 tmp/
 temp/
+
+# Secrets & credentials (additional patterns)
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+credentials.json
+service-account*.json
+*-credentials.json
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Android build artifacts
+android/app/build/
+android/.gradle/
+*.apk
+*.aab
+
+# iOS build artifacts (if added later)
+ios/Pods/
+ios/build/
+*.ipa
