@@ -142,7 +142,7 @@ When running Chameleon AI locally or on a server you control, MCP works with:
 {
   "name": "Production DB",
   "command": "npx",
-  "args": "-y @modelcontextprotocol/server-postgres postgresql://user:pass@host:5432/dbname"
+  "args": "-y @modelcontextprotocol/server-postgres postgresql://<username>:<password>@<host>:5432/<database>"
 }
 ```
 

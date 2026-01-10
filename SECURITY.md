@@ -103,10 +103,24 @@ User-generated content is sanitized using the `lib/sanitize-html.ts` utility whi
 - Validates URLs (blocks javascript: protocol)
 - Sanitizes CSS (removes expression(), javascript:, etc.)
 
+## Rate Limiting
+
+This application implements rate limiting to prevent abuse:
+
+- **Chat API**: 100 requests per minute per IP address
+- **Share Token Lookup**: 20 requests per minute per IP address (prevents brute-force enumeration)
+- **Backend**: Supports both in-memory (development) and distributed Redis/Upstash (production)
+
+For production deployments, configure Upstash Redis for distributed rate limiting:
+```env
+UPSTASH_REDIS_REST_URL=https://your-instance.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-upstash-token
+```
+
 ## Known Limitations
 
 1. **Browser Storage**: API keys in localStorage are readable by browser extensions. Consider using incognito mode for sensitive keys.
-2. **Rate Limiting**: Current in-memory rate limiting doesn't persist across server restarts.
+2. **In-Memory Rate Limiting**: Without Upstash Redis, rate limiting doesn't persist across server restarts or multiple instances.
 3. **Guest Mode**: Unauthenticated users can access limited functionality. Configure for your use case.
 
 ## Secure Deployment Checklist

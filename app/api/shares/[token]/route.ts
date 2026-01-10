@@ -1,16 +1,41 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { checkRateLimitAsync, getRateLimitHeaders, type RateLimitConfig } from "@/lib/rate-limit"
+
+// Rate limit config for share token lookups: 20 requests per minute per IP
+// This prevents brute-force token enumeration while allowing legitimate use
+const SHARE_RATE_LIMIT: RateLimitConfig = {
+  limit: 20,
+  windowMs: 60 * 1000, // 1 minute
+}
 
 /**
  * GET /api/shares/[token]
  * Get a shared chat by its share token
  * This is a PUBLIC endpoint - no authentication required
+ * Rate limited to prevent token enumeration attacks
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
   try {
+    // Get client IP for rate limiting
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+               request.headers.get("x-real-ip") ||
+               "anonymous"
+
+    // Check rate limit
+    const rateLimitResult = await checkRateLimitAsync(`share:${ip}`, SHARE_RATE_LIMIT)
+    const rateLimitHeaders = getRateLimitHeaders(rateLimitResult, SHARE_RATE_LIMIT)
+
+    if (rateLimitResult.limited) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429, headers: rateLimitHeaders }
+      )
+    }
+
     const { token } = await params
     const supabase = await createClient()
 

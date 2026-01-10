@@ -1334,7 +1334,7 @@ Complete Spanish onboarding flow:
 ## Commit #8: Merge Pull Request #194 - Revert CSS That Broke Dialogs
 
 **Commit Hash**: `5c8951613113aff4b8ad2d715d5cbc46ea67b60f`
-**Author**: Robby <robbyczgw@gmail.com>
+**Author**: Robby
 **Date**: December 1, 2025 at 22:41:33 CET
 **Type**: Merge
 
@@ -1390,7 +1390,7 @@ When working with component libraries like Radix UI, global CSS changes can have
 ## Commit #10: Merge Pull Request #193 - Refactor and Translate
 
 **Commit Hash**: `d0528f947f583edb78be1efbf16991951f2271c6`
-**Author**: Robby <robbyczgw@gmail.com>
+**Author**: Robby
 **Date**: December 1, 2025 at 22:38:29 CET
 **Type**: Merge
 
