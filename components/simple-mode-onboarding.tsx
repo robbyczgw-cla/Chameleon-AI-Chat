@@ -1,6 +1,6 @@
 "use client"
 
-import { CaretRight, Check, Heart, Key, MapPin, Palette, Sparkle, Target, User } from "@phosphor-icons/react";
+import { ArrowSquareOut, CaretLeft, CaretRight, Check, Diamond, Heart, Key, MagicWand, MapPin, Moon, Palette, Sparkle, Sun, Target, User, Waves, X } from "@phosphor-icons/react";
 import { useState, useEffect, type ChangeEvent } from "react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -281,11 +281,11 @@ const themes = [
   { id: "light", icon: Sun, gradient: "from-amber-400 to-orange-500" },
   { id: "dark", icon: Moon, gradient: "from-slate-600 to-slate-800" },
   { id: "soft-sunrise", icon: Sun, gradient: "from-orange-300 to-rose-300" },
-  { id: "claude", icon: Sparkles, gradient: "from-orange-400 to-amber-300" },
+  { id: "claude", icon: Sparkle, gradient: "from-orange-400 to-amber-300" },
   { id: "girly-violet", icon: Heart, gradient: "from-pink-400 to-violet-500" },
   { id: "kawaii-pink", icon: Heart, gradient: "from-pink-300 to-pink-500" },
-  { id: "aurora", icon: Sparkles, gradient: "from-violet-400 to-orange-300" },
-  { id: "amber-pro", icon: Gem, gradient: "from-orange-400 to-amber-500" },
+  { id: "aurora", icon: Sparkle, gradient: "from-violet-400 to-orange-300" },
+  { id: "amber-pro", icon: Diamond, gradient: "from-orange-400 to-amber-500" },
   { id: "ocean-breeze", icon: Waves, gradient: "from-teal-400 to-blue-500" },
 ]
 
@@ -724,7 +724,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
                       className="text-xs text-violet-500 hover:text-violet-600 flex items-center gap-1"
                     >
                       {t.getKey}
-                      <ExternalLink className="h-3 w-3" />
+                      <ArrowSquareOut className="h-3 w-3" />
                     </a>
                   </div>
                   <Input
@@ -756,7 +756,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
                       className="text-xs text-violet-500 hover:text-violet-600 flex items-center gap-1"
                     >
                       {t.getKey}
-                      <ExternalLink className="h-3 w-3" />
+                      <ArrowSquareOut className="h-3 w-3" />
                     </a>
                   </div>
                   <Input
@@ -788,7 +788,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
                       className="text-xs text-violet-500 hover:text-violet-600 flex items-center gap-1"
                     >
                       {t.getKey}
-                      <ExternalLink className="h-3 w-3" />
+                      <ArrowSquareOut className="h-3 w-3" />
                     </a>
                   </div>
                   <Input
@@ -815,7 +815,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
             <div className="space-y-5">
               <div className="text-center">
                 <div className="h-20 w-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-                  <Wand2 className="h-10 w-10 text-white" />
+                  <MagicWand className="h-10 w-10 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{t.step5Title}</h3>
                 <p className="text-muted-foreground">{t.step5Desc}</p>
@@ -945,7 +945,7 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
           <div>
             {currentStep > 0 && (
               <Button variant="ghost" onClick={handleBack} className="gap-1">
-                <ChevronLeft className="h-4 w-4" />
+                <CaretLeft className="h-4 w-4" />
                 {t.back}
               </Button>
             )}

@@ -17,7 +17,7 @@ interface FollowUpSuggestionsProps {
 // Category-specific styling configuration
 const categoryStyles = {
   quick: {
-    icon: Zap,
+    icon: Lightning,
     label: "Quick",
     containerBg: "bg-gradient-to-r from-emerald-50/80 to-green-50/50 dark:from-emerald-950/30 dark:to-green-950/20",
     labelBg: "bg-emerald-100 dark:bg-emerald-900/50",
@@ -41,7 +41,7 @@ const categoryStyles = {
     gradient: "from-violet-500 to-purple-500",
   },
   related: {
-    icon: Link2,
+    icon: LinkSimple,
     label: "Related",
     containerBg: "bg-gradient-to-r from-cyan-50/80 to-blue-50/50 dark:from-cyan-950/30 dark:to-blue-950/20",
     labelBg: "bg-cyan-100 dark:bg-cyan-900/50",

@@ -29,7 +29,7 @@ const memoryTypeConfig: Record<string, { icon: React.ElementType; color: string;
     label: { en: "Fact", de: "Fakt", es: "Hecho" }
   },
   context: {
-    icon: Sparkles,
+    icon: Sparkle,
     color: "text-purple-500",
     label: { en: "Context", de: "Kontext", es: "Contexto" }
   },
