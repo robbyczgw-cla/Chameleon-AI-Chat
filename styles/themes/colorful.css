@@ -1,0 +1,301 @@
+/**
+ * Colorful Themes
+ *
+ * Vibrant, expressive themes with distinctive color palettes.
+ * - Aurora: Northern lights inspired
+ * - Amber Pro: Warm professional orange
+ * - Girly Violet: Soft pink and violet
+ * - Kawaii Pink: Cute pastel pink
+ * - Ocean Breeze: Cool aqua and teal
+ * - Paper Mint: Warm paper with mint accents
+ * - Chameleon: Iridescent green brand theme
+ */
+
+/* ============================================================================
+   AURORA - Revolutionary 2025 design with ethereal light gradients
+   Inspired by: Northern lights, soft dawn, modern glassmorphism
+   ============================================================================ */
+.aurora {
+  --background: oklch(0.985 0.008 280);
+  --foreground: oklch(0.15 0.02 280);
+  --card: oklch(0.995 0.005 280);
+  --card-foreground: oklch(0.15 0.02 280);
+  --popover: oklch(0.995 0.006 280);
+  --popover-foreground: oklch(0.15 0.02 280);
+  /* Electric violet-blue primary - sophisticated yet vibrant */
+  --primary: oklch(0.52 0.22 275);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.015 280);
+  --secondary-foreground: oklch(0.18 0.02 280);
+  --muted: oklch(0.95 0.012 280);
+  --muted-foreground: oklch(0.45 0.03 280);
+  /* Warm coral-peach accent - energetic yet soft */
+  --accent: oklch(0.72 0.16 35);
+  --accent-foreground: oklch(0.15 0 0);
+  --destructive: oklch(0.58 0.22 18);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.9 0.02 280);
+  --input: oklch(0.92 0.015 280);
+  --ring: oklch(0.52 0.22 275);
+  /* Aurora-inspired chart colors: violet, coral, mint, gold, rose */
+  --chart-1: oklch(0.52 0.22 275);
+  --chart-2: oklch(0.72 0.16 35);
+  --chart-3: oklch(0.7 0.14 165);
+  --chart-4: oklch(0.75 0.15 85);
+  --chart-5: oklch(0.68 0.18 350);
+  --radius: 1rem;
+  --sidebar: oklch(0.99 0.008 280);
+  --sidebar-foreground: oklch(0.15 0.02 280);
+  --sidebar-primary: oklch(0.52 0.22 275);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.96 0.015 280);
+  --sidebar-accent-foreground: oklch(0.18 0.02 280);
+  --sidebar-border: oklch(0.9 0.02 280);
+  --sidebar-ring: oklch(0.52 0.22 275);
+}
+
+/* ============================================================================
+   AMBER PRO - Premium warm elegance
+   Primary color: #f07900 - warm, inviting, professional
+   ============================================================================ */
+.amber-pro {
+  --background: #FFFBF5;
+  --foreground: #1a1612;
+  --card: #FFFFFF;
+  --card-foreground: #1a1612;
+  --popover: #FFFFFF;
+  --popover-foreground: #1a1612;
+  /* Amber Pro Primary - warm, professional, recognizable */
+  --primary: #f07900;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FFF5EB;
+  --secondary-foreground: #1a1612;
+  --muted: #F5EDE5;
+  --muted-foreground: #6B5D52;
+  /* Gold accent - premium, elegant complement to orange */
+  --accent: #D4A855;
+  --accent-foreground: #1a1612;
+  --destructive: #DC4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E8DED4;
+  --input: #F5EDE5;
+  --ring: #f07900;
+  /* Chart colors - warm palette with amber anchoring */
+  --chart-1: #f07900;
+  --chart-2: #D4A855;
+  --chart-3: #4A7C6F;
+  --chart-4: #8B6B4A;
+  --chart-5: #C45D35;
+  --radius: 0.875rem;
+  --sidebar: #FAF5EF;
+  --sidebar-foreground: #1a1612;
+  --sidebar-primary: #f07900;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FFF5EB;
+  --sidebar-accent-foreground: #1a1612;
+  --sidebar-border: #E8DED4;
+  --sidebar-ring: #f07900;
+}
+
+/* ============================================================================
+   GIRLY VIOLET - Soft pink and violet tones with better contrast
+   ============================================================================ */
+.girly-violet {
+  --background: oklch(0.97 0.02 320);
+  --foreground: oklch(0.22 0.08 320);
+  --card: oklch(0.99 0.01 320);
+  --card-foreground: oklch(0.22 0.08 320);
+  --popover: oklch(0.99 0.015 320);
+  --popover-foreground: oklch(0.22 0.08 320);
+  /* Soft violet primary - deeper for contrast */
+  --primary: oklch(0.6 0.2 300);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.93 0.03 320);
+  --secondary-foreground: oklch(0.22 0.08 320);
+  --muted: oklch(0.94 0.025 320);
+  --muted-foreground: oklch(0.45 0.08 320);
+  /* Pink accent - deeper */
+  --accent: oklch(0.65 0.22 340);
+  --accent-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.55 0.24 10);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.85 0.05 320);
+  --input: oklch(0.85 0.05 320);
+  --ring: oklch(0.6 0.2 300);
+  --chart-1: oklch(0.6 0.2 300);
+  --chart-2: oklch(0.65 0.22 340);
+  --chart-3: oklch(0.63 0.18 280);
+  --chart-4: oklch(0.68 0.17 320);
+  --chart-5: oklch(0.58 0.24 350);
+  --sidebar: oklch(0.98 0.02 320);
+  --sidebar-foreground: oklch(0.22 0.08 320);
+  --sidebar-primary: oklch(0.6 0.2 300);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.93 0.03 320);
+  --sidebar-accent-foreground: oklch(0.22 0.08 320);
+  --sidebar-border: oklch(0.85 0.05 320);
+  --sidebar-ring: oklch(0.6 0.2 300);
+}
+
+/* ============================================================================
+   KAWAII PINK - Super cute girly pink with playful pastels
+   ============================================================================ */
+.kawaii-pink {
+  --background: oklch(0.98 0.03 340);
+  --foreground: oklch(0.25 0.06 340);
+  --card: oklch(0.995 0.015 340);
+  --card-foreground: oklch(0.25 0.06 340);
+  --popover: oklch(0.995 0.02 340);
+  --popover-foreground: oklch(0.25 0.06 340);
+  /* Cute pink primary - vibrant but soft */
+  --primary: oklch(0.68 0.24 345);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.94 0.04 340);
+  --secondary-foreground: oklch(0.25 0.06 340);
+  --muted: oklch(0.95 0.03 340);
+  --muted-foreground: oklch(0.48 0.08 340);
+  /* Mauve/purple accent - dreamy */
+  --accent: oklch(0.72 0.18 300);
+  --accent-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.62 0.26 20);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.88 0.06 340);
+  --input: oklch(0.88 0.06 340);
+  --ring: oklch(0.68 0.24 345);
+  --chart-1: oklch(0.68 0.24 345);
+  --chart-2: oklch(0.72 0.18 300);
+  --chart-3: oklch(0.75 0.16 280);
+  --chart-4: oklch(0.7 0.2 10);
+  --chart-5: oklch(0.76 0.14 50);
+  --radius: 1.2rem;
+  --sidebar: oklch(0.985 0.025 340);
+  --sidebar-foreground: oklch(0.25 0.06 340);
+  --sidebar-primary: oklch(0.68 0.24 345);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.94 0.04 340);
+  --sidebar-accent-foreground: oklch(0.25 0.06 340);
+  --sidebar-border: oklch(0.88 0.06 340);
+  --sidebar-ring: oklch(0.68 0.24 345);
+}
+
+/* ============================================================================
+   OCEAN BREEZE - Cool aqua and teal with better contrast
+   ============================================================================ */
+.ocean-breeze {
+  --background: oklch(0.96 0.02 210);
+  --foreground: oklch(0.15 0.06 210);
+  --card: oklch(0.99 0.01 210);
+  --card-foreground: oklch(0.15 0.06 210);
+  --popover: oklch(0.99 0.015 210);
+  --popover-foreground: oklch(0.15 0.06 210);
+  /* Ocean teal primary - deeper */
+  --primary: oklch(0.52 0.18 200);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.93 0.03 210);
+  --secondary-foreground: oklch(0.15 0.06 210);
+  --muted: oklch(0.94 0.02 210);
+  --muted-foreground: oklch(0.42 0.08 210);
+  /* Aqua accent - deeper */
+  --accent: oklch(0.62 0.2 180);
+  --accent-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.52 0.24 15);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.85 0.04 210);
+  --input: oklch(0.85 0.04 210);
+  --ring: oklch(0.52 0.18 200);
+  --chart-1: oklch(0.52 0.18 200);
+  --chart-2: oklch(0.62 0.2 180);
+  --chart-3: oklch(0.57 0.16 190);
+  --chart-4: oklch(0.6 0.17 220);
+  --chart-5: oklch(0.55 0.19 170);
+  --sidebar: oklch(0.97 0.02 210);
+  --sidebar-foreground: oklch(0.15 0.06 210);
+  --sidebar-primary: oklch(0.52 0.18 200);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.93 0.03 210);
+  --sidebar-accent-foreground: oklch(0.15 0.06 210);
+  --sidebar-border: oklch(0.85 0.04 210);
+  --sidebar-ring: oklch(0.52 0.18 200);
+}
+
+/* ============================================================================
+   PAPER MINT - Warm paper base with crisp mint & ink accents
+   ============================================================================ */
+.paper-mint {
+  --background: #f9f6ef;
+  --foreground: #111419;
+  --card: #ffffff;
+  --card-foreground: #111419;
+  --popover: #ffffff;
+  --popover-foreground: #111419;
+  --primary: #2fbf9f;
+  --primary-foreground: #041814;
+  --secondary: #f1ecde;
+  --secondary-foreground: #1e252d;
+  --muted: #ece6d8;
+  --muted-foreground: #4d5764;
+  --accent: #ffb454;
+  --accent-foreground: #1c1205;
+  --destructive: #d64242;
+  --destructive-foreground: #fdf7f4;
+  --border: #e0d7c6;
+  --input: #e0d7c6;
+  --ring: #2fbf9f;
+  --chart-1: #2fbf9f;
+  --chart-2: #ffb454;
+  --chart-3: #6fa7ff;
+  --chart-4: #c07bff;
+  --chart-5: #f47c6c;
+  --radius: 1.05rem;
+  --sidebar: #f6f1e4;
+  --sidebar-foreground: #111419;
+  --sidebar-primary: #2fbf9f;
+  --sidebar-primary-foreground: #041814;
+  --sidebar-accent: #f1ecde;
+  --sidebar-accent-foreground: #1e252d;
+  --sidebar-border: #e3d9c8;
+  --sidebar-ring: #2fbf9f;
+}
+
+/* ============================================================================
+   CHAMELEON - Iridescent greens + aqua + sunlit highlights (Brand theme)
+   ============================================================================ */
+.chameleon {
+  --background: oklch(0.985 0.014 150);
+  --foreground: oklch(0.18 0.02 155);
+  --card: oklch(0.995 0.01 150);
+  --card-foreground: oklch(0.18 0.02 155);
+  --popover: oklch(0.995 0.01 155);
+  --popover-foreground: oklch(0.18 0.02 155);
+  /* Signature chameleon green */
+  --primary: oklch(0.67 0.19 145);
+  --primary-foreground: oklch(0.99 0 0);
+  /* Cool supporting surface */
+  --secondary: oklch(0.955 0.02 165);
+  --secondary-foreground: oklch(0.22 0.02 155);
+  --muted: oklch(0.95 0.015 155);
+  --muted-foreground: oklch(0.48 0.02 155);
+  /* Iridescent aqua accent (feels "alive" without being neon) */
+  --accent: oklch(0.72 0.12 200);
+  --accent-foreground: oklch(0.12 0.02 155);
+  --destructive: oklch(0.58 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.89 0.02 155);
+  --input: oklch(0.89 0.02 155);
+  --ring: oklch(0.67 0.19 145);
+  /* Charts: green -> aqua -> violet shimmer */
+  --chart-1: oklch(0.67 0.19 145);
+  --chart-2: oklch(0.72 0.12 200);
+  --chart-3: oklch(0.66 0.16 260);
+  --chart-4: oklch(0.74 0.14 85);
+  --chart-5: oklch(0.62 0.18 25);
+  --radius: 1.1rem;
+  --sidebar: oklch(0.992 0.01 150);
+  --sidebar-foreground: oklch(0.18 0.02 155);
+  --sidebar-primary: oklch(0.67 0.19 145);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.955 0.02 165);
+  --sidebar-accent-foreground: oklch(0.22 0.02 155);
+  --sidebar-border: oklch(0.89 0.02 155);
+  --sidebar-ring: oklch(0.67 0.19 145);
+}
