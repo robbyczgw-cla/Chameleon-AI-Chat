@@ -164,7 +164,7 @@ Each persona has custom system prompts, communication styles, and specialized kn
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/Chameleon-AI-Chat.git
+git clone https://github.com/robbyczgw-cla/Chameleon-AI-Chat.git
 cd Chameleon-AI-Chat
 
 # Install dependencies
@@ -318,10 +318,10 @@ We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guideline
 
 ### Quick Links
 
-- [Report a Bug](https://github.com/your-username/Chameleon-AI-Chat/issues/new?template=bug_report.md)
-- [Request a Feature](https://github.com/your-username/Chameleon-AI-Chat/issues/new?template=feature_request.md)
-- [Discussions](https://github.com/your-username/Chameleon-AI-Chat/discussions)
-- [Security Vulnerabilities](https://github.com/your-username/Chameleon-AI-Chat/security/advisories/new)
+- [Report a Bug](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=bug_report.md)
+- [Request a Feature](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=feature_request.md)
+- [Discussions](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions)
+- [Security Vulnerabilities](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/security/advisories/new)
 
 ---
 
