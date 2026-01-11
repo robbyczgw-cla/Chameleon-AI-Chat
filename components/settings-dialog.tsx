@@ -680,23 +680,56 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   </Label>
                   <select
                     id="search-provider"
-                    value={localSettings.searchProvider || "tavily"}
+                    value={localSettings.searchProvider || "openrouter"}
                     onChange={(e) =>
                       setLocalSettings({
                         ...localSettings,
-                        searchProvider: e.target.value as "tavily" | "serper" | "exa",
+                        searchProvider: e.target.value as "openrouter" | "tavily" | "serper" | "exa",
                       })
                     }
                     className="w-full rounded-md border bg-background px-3 py-2 text-sm sm:text-base min-h-[44px]"
                   >
+                    <option value="openrouter">🚀 OpenRouter - No extra key needed (~$0.02/search)</option>
                     <option value="tavily">🌐 Tavily - LLM-optimiert (~$0.01/search)</option>
                     <option value="serper">🔍 Serper - Google Search (~$0.001/search)</option>
                     <option value="exa">🔮 Exa - Neural/Semantic Search (~$0.01/search)</option>
                   </select>
                   <p className="text-xs text-muted-foreground">
-                    Wähle den Suchanbieter für die Web-Suche. Exa bietet semantische Suche für beste RAG-Ergebnisse.
+                    {localSettings.searchProvider === "openrouter"
+                      ? "Uses your OpenRouter API key - no additional setup required"
+                      : "Wähle den Suchanbieter für die Web-Suche. Exa bietet semantische Suche für beste RAG-Ergebnisse."}
                   </p>
                 </div>
+
+                {/* OpenRouter Search Info */}
+                {(localSettings.searchProvider === "openrouter" || !localSettings.searchProvider) && (
+                  <div className="rounded-lg border p-3 sm:p-4 bg-green-50 dark:bg-green-950/20">
+                    <h4 className="font-medium mb-2 text-sm sm:text-base">🚀 OpenRouter Web Search</h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Web search is ready to use with your existing OpenRouter API key. No additional setup required.
+                    </p>
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <Label className="text-sm sm:text-base">
+                          Max Results: {localSettings.openRouterSearchSettings?.maxResults || 5}
+                        </Label>
+                        <Slider
+                          value={[localSettings.openRouterSearchSettings?.maxResults || 5]}
+                          onValueChange={([value]) =>
+                            setLocalSettings({
+                              ...localSettings,
+                              openRouterSearchSettings: { ...localSettings.openRouterSearchSettings, maxResults: value } as any,
+                            })
+                          }
+                          min={1}
+                          max={10}
+                          step={1}
+                          className="touch-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {localSettings.searchProvider === "serper" && (
                   <div className="rounded-lg border p-3 sm:p-4 bg-blue-50 dark:bg-blue-950/20">
@@ -1061,7 +1094,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   </div>
                 )}
 
-                {(!localSettings.searchProvider || localSettings.searchProvider === "tavily") && (
+                {localSettings.searchProvider === "tavily" && (
                   <div className="space-y-3">
                     <h4 className="font-medium mb-3 text-sm sm:text-base">📡 Tavily Einstellungen</h4>
 
