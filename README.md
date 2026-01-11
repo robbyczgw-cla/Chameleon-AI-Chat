@@ -7,6 +7,7 @@ An open-source AI chat application with real-time cost tracking, 31 conversation
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Version-1.0_Beta-orange.svg" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" alt="Next.js">
   <img src="https://img.shields.io/badge/TypeScript-5-blue?logo=typescript" alt="TypeScript">
@@ -41,11 +42,25 @@ An open-source AI chat application with real-time cost tracking, 31 conversation
 
 ## Try It Now
 
+### Hosted Version (Recommended)
+
 **No installation required!** Use Chameleon AI Chat instantly at **[camiai.xyz](https://camiai.xyz)**
 
 - Bring your own API keys (OpenRouter, etc.)
 - Start chatting with 100+ AI models immediately
 - All features available - personas, themes, voice, and more
+- Free to use - you only pay for your API usage
+
+### Self-Hosted Version
+
+Want full control? Self-host your own instance:
+
+1. Clone the repo and run `npm install`
+2. Set up Supabase (free tier works great)
+3. Configure environment variables
+4. Deploy to Vercel, Netlify, or your own server
+
+See [Quick Start](#quick-start) for detailed instructions.
 
 ---
 
@@ -82,6 +97,26 @@ Most AI chat apps are either too simple (ChatGPT wrapper) or too complex (develo
 | **Streaming History** | Review past streaming sessions with performance metrics and reasoning traces |
 | **Model Comparison** | Run the same prompt through 2-4 models side-by-side |
 | **Conversation Branching** | Explore alternative responses by branching conversations |
+
+#### Smart Follow-up Suggestions
+
+Never wonder "what should I ask next?" again. After every AI response, you'll see color-coded follow-up suggestions:
+
+- **⚡ Quick** (Green) - Fast clarification questions
+- **🧠 Deep Dive** (Purple) - Technical deep dives and detailed exploration
+- **🔗 Related** (Blue) - Connected topics and comparisons
+
+One click sends the question - no typing required. Mobile-optimized with 6 suggestions (2 per category) to keep the interface clean.
+
+#### Streaming History & Transparency
+
+See exactly what the AI is doing in real-time, like Claude Code:
+
+- **Phase tracking** - Thinking → Searching → Tool Use → Responding
+- **Tool details** - See search queries, parameters, and result counts
+- **Performance metrics** - Time to first token, tokens/second, total duration
+- **Collapsible history** - Review all steps after completion with timing breakdown
+- **Customizable display** - Choose what to show: Minimal, Balanced, or Maximum detail
 
 ### Privacy & Security
 
@@ -164,7 +199,7 @@ Each persona has custom system prompts, communication styles, and specialized kn
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/Chameleon-AI-Chat.git
+git clone https://github.com/robbyczgw-cla/Chameleon-AI-Chat.git
 cd Chameleon-AI-Chat
 
 # Install dependencies
@@ -318,10 +353,10 @@ We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guideline
 
 ### Quick Links
 
-- [Report a Bug](https://github.com/your-username/Chameleon-AI-Chat/issues/new?template=bug_report.md)
-- [Request a Feature](https://github.com/your-username/Chameleon-AI-Chat/issues/new?template=feature_request.md)
-- [Discussions](https://github.com/your-username/Chameleon-AI-Chat/discussions)
-- [Security Vulnerabilities](https://github.com/your-username/Chameleon-AI-Chat/security/advisories/new)
+- [Report a Bug](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=bug_report.md)
+- [Request a Feature](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=feature_request.md)
+- [Discussions](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions)
+- [Security Vulnerabilities](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/security/advisories/new)
 
 ---
 
