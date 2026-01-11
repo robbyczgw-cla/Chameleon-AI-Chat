@@ -10,7 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Brain, ChartBar, Check, Columns, DotsThree, Download, FileCode, FileText, FolderOpen, Gear, Globe, Link, MagicWand, Moon, ShareNetwork, Sparkle, Sun, Sword, User } from "@phosphor-icons/react";
+import { Brain, ChartBar, Check, Columns, DotsThree, Download, FileCode, FileText, FolderOpen, Gear, Globe, Link, MagicWand, Moon, ShareNetwork, Sparkle, Sun, UsersThree, User } from "@phosphor-icons/react";
 import { useApp } from "@/contexts/app-context"
 import { cn } from "@/lib/utils"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
@@ -285,7 +285,7 @@ export function MobileMoreMenu({
 
           <div className="border-t pt-2 space-y-1">
             <MenuItem icon={Columns} label="Model Comparison" onClick={onComparisonClick} />
-            <MenuItem icon={Sword} label="AI Discussion" onClick={onDebateClick} />
+            <MenuItem icon={UsersThree} label="AI Discussion" onClick={onDebateClick} />
             <MenuItem
               icon={FileCode}
               label="Prompt Inspector"

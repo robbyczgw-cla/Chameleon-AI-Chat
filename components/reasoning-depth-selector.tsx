@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Brain, CaretDown, Check, Fire, Gauge, Lightning, Sparkle } from "@phosphor-icons/react";
+import { Atom, Brain, CaretDown, Check, Feather, Lightning, Scales } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 export type ReasoningDepth = "minimal" | "low" | "medium" | "high"
@@ -38,7 +38,7 @@ const REASONING_DEPTHS: ReasoningDepthConfig[] = [
     name: "Low",
     shortName: "Low",
     description: "Quick responses, basic reasoning",
-    icon: <Gauge className="h-3.5 w-3.5" />,
+    icon: <Feather className="h-3.5 w-3.5" />,
     color: "text-blue-500",
   },
   {
@@ -46,7 +46,7 @@ const REASONING_DEPTHS: ReasoningDepthConfig[] = [
     name: "Medium",
     shortName: "Med",
     description: "Balanced quality & speed",
-    icon: <Sparkle className="h-3.5 w-3.5" />,
+    icon: <Scales className="h-3.5 w-3.5" />,
     color: "text-purple-500",
   },
   {
@@ -54,7 +54,7 @@ const REASONING_DEPTHS: ReasoningDepthConfig[] = [
     name: "High",
     shortName: "High",
     description: "Maximum reasoning depth",
-    icon: <Fire className="h-3.5 w-3.5" />,
+    icon: <Atom className="h-3.5 w-3.5" />,
     color: "text-orange-500",
   },
 ]

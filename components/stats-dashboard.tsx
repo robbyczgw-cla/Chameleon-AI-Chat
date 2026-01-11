@@ -9,7 +9,7 @@ import { useApp } from "@/contexts/app-context"
 import { getCostTracker, type CostEntry, type CostStats, type GenerationData } from "@/lib/cost-tracker"
 import { formatCost, formatTokens } from "@/lib/token-tracker"
 import { streamChatMessage } from "@/lib/openrouter"
-import { ArrowsClockwise, Brain, ChartBar, Chat, CircleNotch, Clock, CloudSun, Cpu, CurrencyDollar, Database, Download, FileText, Gauge, Globe, HardDrives, Image, Lightning, Link, MagnifyingGlass, Medal, Pulse, Robot, Sparkle, Target, Timer, Trash, TrendUp, Wrench, YoutubeLogo } from "@phosphor-icons/react";
+import { ArrowsClockwise, Brain, ChartBar, Chat, CircleNotch, Clock, CloudSun, Cpu, CurrencyDollar, Database, Download, FileArrowDown, FileArrowUp, FileText, Gauge, Globe, HardDrives, Image, Lightning, Link, MagnifyingGlass, Medal, Pulse, Robot, Sparkle, Target, Timer, Trash, TrendUp, Wrench, YoutubeLogo } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 
@@ -422,8 +422,8 @@ Provide analysis in this JSON format:
       youtube_transcript: { icon: <YoutubeLogo className="h-4 w-4" />, color: "text-red-600", label: "YouTube Transcript" },
       weather: { icon: <CloudSun className="h-4 w-4" />, color: "text-yellow-600", label: "Weather" },
       get_weather: { icon: <CloudSun className="h-4 w-4" />, color: "text-yellow-600", label: "Weather" },
-      read_file: { icon: <FileText className="h-4 w-4" />, color: "text-orange-600", label: "Read File" },
-      write_file: { icon: <FileText className="h-4 w-4" />, color: "text-orange-600", label: "Write File" },
+      read_file: { icon: <FileArrowDown className="h-4 w-4" />, color: "text-cyan-600", label: "Read File" },
+      write_file: { icon: <FileArrowUp className="h-4 w-4" />, color: "text-violet-600", label: "Write File" },
       generate_image: { icon: <Image className="h-4 w-4" />, color: "text-pink-600", label: "Generate Image" },
       image_generation: { icon: <Image className="h-4 w-4" />, color: "text-pink-600", label: "Image Generation" },
     }

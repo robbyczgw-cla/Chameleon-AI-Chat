@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Brain, CaretDown, CaretRight, Lightbulb, Sparkle, Star, Target, Wrench } from "@phosphor-icons/react";
+import { Brain, CaretDown, CaretRight, Lightbulb, Stack, Star, Target, Wrench } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import type { UsedMemory } from "@/types"
 
@@ -29,7 +29,7 @@ const memoryTypeConfig: Record<string, { icon: React.ElementType; color: string;
     label: { en: "Fact", de: "Fakt", es: "Hecho" }
   },
   context: {
-    icon: Sparkle,
+    icon: Stack,
     color: "text-purple-500",
     label: { en: "Context", de: "Kontext", es: "Contexto" }
   },

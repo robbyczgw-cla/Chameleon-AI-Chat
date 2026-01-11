@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowSquareOut, CaretLeft, CaretRight, Check, Diamond, Heart, Key, MagicWand, MapPin, Moon, Palette, Sparkle, Sun, Target, User, Waves, X } from "@phosphor-icons/react";
+import { ArrowSquareOut, CaretLeft, CaretRight, Check, Diamond, Heart, Key, MagicWand, MapPin, Moon, Palette, Rainbow, Robot, Sparkle, Star, Sun, SunHorizon, Target, User, Waves, X } from "@phosphor-icons/react";
 import { useState, useEffect, type ChangeEvent } from "react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -280,11 +280,11 @@ interface SimpleModeOnboardingProps {
 const themes = [
   { id: "light", icon: Sun, gradient: "from-amber-400 to-orange-500" },
   { id: "dark", icon: Moon, gradient: "from-slate-600 to-slate-800" },
-  { id: "soft-sunrise", icon: Sun, gradient: "from-orange-300 to-rose-300" },
-  { id: "claude", icon: Sparkle, gradient: "from-orange-400 to-amber-300" },
+  { id: "soft-sunrise", icon: SunHorizon, gradient: "from-orange-300 to-rose-300" },
+  { id: "claude", icon: Robot, gradient: "from-orange-400 to-amber-300" },
   { id: "girly-violet", icon: Heart, gradient: "from-pink-400 to-violet-500" },
-  { id: "kawaii-pink", icon: Heart, gradient: "from-pink-300 to-pink-500" },
-  { id: "aurora", icon: Sparkle, gradient: "from-violet-400 to-orange-300" },
+  { id: "kawaii-pink", icon: Star, gradient: "from-pink-300 to-pink-500" },
+  { id: "aurora", icon: Rainbow, gradient: "from-violet-400 to-orange-300" },
   { id: "amber-pro", icon: Diamond, gradient: "from-orange-400 to-amber-500" },
   { id: "ocean-breeze", icon: Waves, gradient: "from-teal-400 to-blue-500" },
 ]

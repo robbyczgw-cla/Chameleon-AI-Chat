@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { CheckCircle, CircleNotch, Lightbulb, Scales, Sparkle, Sword, Target, TrendUp, Trophy, WarningCircle, XCircle } from "@phosphor-icons/react";
+import { CheckCircle, CircleNotch, Lightbulb, Scales, Sparkle, UsersThree, Target, TrendUp, Trophy, WarningCircle, XCircle } from "@phosphor-icons/react";
 import { streamChatMessage } from "@/lib/openrouter"
 import { getUserSelectedModels } from "@/lib/model-preferences"
 import { POPULAR_OPENROUTER_MODELS } from "@/lib/openrouter"
@@ -532,7 +532,7 @@ Sei objektiv und fair in deiner Bewertung!`
       <div className="border-b border-border/50 bg-gradient-to-r from-background/95 to-muted/20 p-3 sm:p-4 md:p-6">
         <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
           <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 shadow-lg flex items-center justify-center flex-shrink-0">
-            <Sword className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            <UsersThree className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-lg sm:text-xl font-bold truncate">AI Discussion</h2>
@@ -750,7 +750,7 @@ Sei objektiv und fair in deiner Bewertung!`
               </>
             ) : (
               <>
-                <Sword className="mr-2 h-4 w-4" />
+                <UsersThree className="mr-2 h-4 w-4" />
                 Start Discussion ({maxRounds} Rounds)
               </>
             )}
@@ -762,7 +762,7 @@ Sei objektiv und fair in deiner Bewertung!`
       <ScrollArea className="flex-1 p-3 sm:p-4 md:p-6">
         {debateMessages.length === 0 && !isDebating && (
           <div className="text-center py-8 sm:py-12 text-muted-foreground">
-            <Sword className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 opacity-50" />
+            <UsersThree className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 opacity-50" />
             <p className="text-base sm:text-lg font-medium">Ready to see what models really think?</p>
             <p className="text-xs sm:text-sm mt-2">Choose a topic, style, and two models</p>
           </div>

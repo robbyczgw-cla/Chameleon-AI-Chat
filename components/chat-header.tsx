@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
-import { BookBookmark, Brain, ChartBar, Columns, DotsThree, FileCode, FolderOpen, Gear, List, MagicWand, Microphone, Moon, ShareNetwork, Sidebar, SidebarSimple, Sliders, Sparkle, Sun, Sword, User } from "@phosphor-icons/react";
+import { BookBookmark, Brain, ChartBar, Columns, DotsThree, FileCode, FolderOpen, Gear, List, MagicWand, Microphone, Moon, ShareNetwork, Sidebar, SidebarSimple, Sliders, Sparkle, Sun, UsersThree, User } from "@phosphor-icons/react";
 import { useEffect } from "react"
 import { ModelSelector } from "@/components/model-selector"
 import { SettingsDialog } from "@/components/settings-dialog"
@@ -359,7 +359,7 @@ export function ChatHeader() {
             title="AI Debate Mode"
             className="hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
-            <Sword className="h-4 w-4 md:h-4.5 md:w-4.5" />
+            <UsersThree className="h-4 w-4 md:h-4.5 md:w-4.5" />
           </Button>
           {/* Prompt Inspector */}
           <Button
@@ -432,7 +432,7 @@ export function ChatHeader() {
         <DialogContent className="sm:max-w-[95vw] lg:max-w-[1200px] max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sword className="h-5 w-5 text-primary" />
+              <UsersThree className="h-5 w-5 text-primary" />
               AI Debate Mode
             </DialogTitle>
           </DialogHeader>
