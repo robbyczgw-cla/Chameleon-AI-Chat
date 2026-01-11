@@ -660,41 +660,17 @@ export async function POST(req: NextRequest) {
 
     // Add tools if enabled - conditionally include tools based on settings
     if (shouldIncludeTools) {
-      // For OpenRouter search provider, use native web plugin instead of web_search tool
-      // This is more efficient and uses OpenRouter's built-in Exa integration
-      // See: https://openrouter.ai/docs/guides/features/plugins/web-search
-      if (searchProvider === "openrouter") {
-        // Use OpenRouter's native web search plugin
-        openRouterBody.plugins = [
-          {
-            id: "web",
-            max_results: body.openRouterSearchSettings?.maxResults || 5
-          }
-        ]
-        console.log("[Chat] OpenRouter native web search plugin enabled")
-
-        // Only include non-search tools
-        const tools = []
-        if (enableWeatherTool) tools.push(weatherTool)
-        if (enableUrlFetchTool) tools.push(urlFetchTool)
-        if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
-
-        if (tools.length > 0) {
-          openRouterBody.tools = tools
-          openRouterBody.tool_choice = "auto"
-          console.log("[Chat] Additional tools enabled:", tools.map(t => t.function.name).join(", "))
-        }
-      } else {
-        // For other providers (Tavily, Serper, Exa), use tool calling with web_search
-        const tools = [webSearchTool] // Web search tool for external providers
-        if (enableWeatherTool) tools.push(weatherTool)
-        if (enableUrlFetchTool) tools.push(urlFetchTool)
-        if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
-        openRouterBody.tools = tools
-        // Note: Some models like GLM 4.7 only support tool_choice: "auto" (not "none" or "required")
-        openRouterBody.tool_choice = "auto"
-        console.log("[Chat] Tools enabled:", tools.map(t => t.function.name).join(", "))
-      }
+      // IMPORTANT: For ALL search providers (including OpenRouter), use tool calling
+      // This allows the model to explicitly decide when to search
+      // The web_search tool will call the appropriate provider (OpenRouter uses executeOpenRouterSearch)
+      const tools = [webSearchTool] // Web search tool for all providers
+      if (enableWeatherTool) tools.push(weatherTool)
+      if (enableUrlFetchTool) tools.push(urlFetchTool)
+      if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
+      openRouterBody.tools = tools
+      // Note: Some models like GLM 4.7 only support tool_choice: "auto" (not "none" or "required")
+      openRouterBody.tool_choice = "auto"
+      console.log(`[Chat] Tools enabled for ${searchProvider}:`, tools.map(t => t.function.name).join(", "))
     }
 
     // Add reasoning parameter if enabled
