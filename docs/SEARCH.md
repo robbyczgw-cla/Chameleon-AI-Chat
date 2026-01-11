@@ -142,6 +142,76 @@ Exa uses neural networks for semantic understanding of queries.
 
 ---
 
+## Provider Comparison: Advantages & Disadvantages
+
+### OpenRouter Search
+
+| Advantages | Disadvantages |
+|------------|---------------|
+| ✅ **No extra API key** - works with your existing OpenRouter key | ❌ **Higher cost** - ~$0.02/search vs $0.001 for others |
+| ✅ **Zero setup** - enabled by default, ready immediately | ❌ **Less control** - fewer configuration options |
+| ✅ **Unified billing** - all costs on one OpenRouter invoice | ❌ **Indirect search** - results come via LLM, not raw API |
+| ✅ **Model flexibility** - uses native search for supported providers | ❌ **Variable quality** - depends on model used for search |
+| ✅ **Fallback support** - automatic retry with different models | ❌ **Slower** - requires full LLM inference for each search |
+
+**Best for**: New users, quick setup, users who don't want multiple API accounts
+
+### Serper (Google Search)
+
+| Advantages | Disadvantages |
+|------------|---------------|
+| ✅ **Google results** - same quality as Google Search | ❌ **Requires API key** - separate account needed |
+| ✅ **Generous free tier** - 2,500 searches/month free | ❌ **No AI summaries** - raw results only |
+| ✅ **Very cheap** - $0.001/search after free tier | ❌ **Less semantic** - keyword-based matching |
+| ✅ **Knowledge graph** - rich structured data | ❌ **US-centric** - best results for English queries |
+| ✅ **Fast** - direct API, no LLM overhead | |
+| ✅ **Regional search** - country and language options | |
+
+**Best for**: Users who want Google-quality results, high-volume searchers, news and current events
+
+### Tavily (AI-Optimized)
+
+| Advantages | Disadvantages |
+|------------|---------------|
+| ✅ **AI-generated summaries** - pre-processed answers | ❌ **Smaller free tier** - 1,000 searches/month |
+| ✅ **Built for AI** - optimized for LLM consumption | ❌ **Requires API key** - separate account needed |
+| ✅ **Relevance scoring** - ranked by actual relevance | ❌ **Limited regions** - less international coverage |
+| ✅ **Domain filtering** - include/exclude specific sites | ❌ **Advanced mode slower** - thorough search takes time |
+| ✅ **News mode** - specialized for news queries | |
+| ✅ **Clean content** - extracts main content, removes ads | |
+
+**Best for**: Research tasks, users who want pre-summarized results, AI agent workflows
+
+### Exa (Neural Search)
+
+| Advantages | Disadvantages |
+|------------|---------------|
+| ✅ **Semantic understanding** - finds conceptually similar content | ❌ **Smaller free tier** - 1,000 searches/month |
+| ✅ **Full text extraction** - complete page content | ❌ **Requires API key** - separate account needed |
+| ✅ **Live crawling** - freshest content available | ❌ **Can be slow** - especially with livecrawl enabled |
+| ✅ **Highlights** - extracts most relevant passages | ❌ **Less predictable** - neural search can miss obvious matches |
+| ✅ **High result limit** - up to 100 results | ❌ **Overkill for simple queries** - best for complex searches |
+| ✅ **Category filtering** - papers, GitHub, news, etc. | |
+| ✅ **Cheapest** - $0.0005/search | |
+
+**Best for**: Research, finding similar content, technical documentation, academic papers
+
+### Quick Decision Guide
+
+| Use Case | Recommended Provider |
+|----------|---------------------|
+| **Just getting started** | OpenRouter |
+| **Highest volume (>1000/month)** | Serper |
+| **Research and summaries** | Tavily |
+| **Technical/academic content** | Exa |
+| **News and current events** | Serper or Tavily (news mode) |
+| **Finding similar content** | Exa |
+| **Minimal setup** | OpenRouter |
+| **Lowest cost per search** | Exa ($0.0005) or Serper ($0.001) |
+| **Best Google results** | Serper |
+
+---
+
 ## How Search Works
 
 ### Auto Tool Use (Recommended)
