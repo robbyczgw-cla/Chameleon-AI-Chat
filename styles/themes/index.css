@@ -1,0 +1,18 @@
+/**
+ * Theme Index
+ *
+ * Central import file for all themes.
+ * Import this file to get all available themes.
+ *
+ * Available themes:
+ * - Base: :root (light), .dark
+ * - Claude: .claude, .claude-grey
+ * - Minimal: .clean-slate, .soft-sunrise
+ * - Colorful: .aurora, .amber-pro, .girly-violet, .kawaii-pink,
+ *             .ocean-breeze, .paper-mint, .chameleon
+ */
+
+@import "./base.css";
+@import "./claude.css";
+@import "./minimal.css";
+@import "./colorful.css";

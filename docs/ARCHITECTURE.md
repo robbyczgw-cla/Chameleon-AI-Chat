@@ -95,9 +95,14 @@ Chameleon is a **Next.js 16** Progressive Web App (PWA) that provides a sophisti
 **Tailwind CSS 4.1**
 - Utility-first styling
 - Custom theme (dark/light + custom themes)
-  - Theme tokens live in `app/globals.css` as CSS variables (OKLCH-first)
+  - Theme definitions in `styles/themes/` directory (modular CSS files)
+    - `base.css` - :root (light) and .dark base themes
+    - `claude.css` - .claude and .claude-grey themes
+    - `minimal.css` - .clean-slate and .soft-sunrise themes
+    - `colorful.css` - aurora, amber-pro, girly-violet, kawaii-pink, ocean-breeze, paper-mint, chameleon
+  - Theme tokens use CSS variables (OKLCH color space for better color interpolation)
   - Theme selection applies a class on `<html>` (e.g. `dark`, `chameleon`, `aurora`)
-  - Some themes add lightweight “texture layers” (e.g. Chameleon (Light) scales); these auto-disable in `performance-mode`
+  - Some themes add lightweight "texture layers" (e.g. Chameleon (Light) scales); these auto-disable in `performance-mode`
 - Responsive design
 - Gradient system
 
@@ -225,9 +230,21 @@ Chameleon-AI-Chat/
 │   │   ├── server.ts             # Server client
 │   │   ├── middleware.ts         # Auth middleware
 │   │   └── sync.ts               # Data sync ⭐
+│   ├── memory/                   # Memory system modules (NEW) 🧠
+│   │   ├── index.ts              # Unified exports
+│   │   ├── types.ts              # Type definitions
+│   │   ├── storage-service.ts    # localStorage & DB sync
+│   │   ├── retrieval-service.ts  # Query classification & search
+│   │   ├── extraction-service.ts # LLM-based extraction
+│   │   ├── maintenance-service.ts# Expiration & consolidation
+│   │   ├── duplicate-detection.ts# Duplicate detection
+│   │   ├── classification.ts     # Self-RAG query classification
+│   │   └── context-filter.ts     # Context-aware filtering
+│   ├── personas/                 # Persona system modules (NEW) 🎭
+│   │   └── types.ts              # Persona type definitions
 │   ├── openrouter.ts             # LLM integration
 │   ├── personas.ts               # Persona definitions 🎭
-│   ├── memory-service.ts         # Long-term memory 🧠
+│   ├── memory-service.ts         # Long-term memory orchestrator 🧠
 │   ├── voice.ts                  # Voice input/output 🎙️
 │   ├── cost-tracker.ts           # Cost calculations 💸
 │   ├── branch-manager.ts         # Conversation branching
@@ -236,6 +253,18 @@ Chameleon-AI-Chat/
 │   ├── tavily.ts                 # Tavily search
 │   ├── serper.ts                 # Serper search
 │   └── [30+ utility modules]
+│
+├── styles/                       # Stylesheets (NEW)
+│   └── themes/                   # Theme definitions
+│       ├── index.css             # Theme imports
+│       ├── base.css              # :root & .dark themes
+│       ├── claude.css            # Claude-inspired themes
+│       ├── minimal.css           # Clean, neutral themes
+│       └── colorful.css          # Vibrant themes
+│
+├── hooks/                        # Custom React hooks
+│   ├── use-message-preprocessing.ts # Shared memory retrieval logic (NEW)
+│   └── [other hooks]
 │
 ├── types/                        # TypeScript types
 │   └── index.ts                  # Shared types

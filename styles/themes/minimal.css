@@ -1,0 +1,92 @@
+/**
+ * Minimal Themes
+ *
+ * Clean, neutral themes focused on readability and simplicity.
+ * - Clean Slate: Minimal & neutral, easy on the eyes
+ * - Soft Sunrise: Warm, inviting with peach & lavender
+ */
+
+/* ============================================================================
+   CLEAN SLATE - Minimal & Neutral, easy on the eyes
+   ============================================================================ */
+.clean-slate {
+  --background: #F4F5F7;
+  --foreground: #111827;
+  --card: #FFFFFF;
+  --card-foreground: #111827;
+  --popover: #FFFFFF;
+  --popover-foreground: #111827;
+  /* Calm blue primary */
+  --primary: #2563EB;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EEF2FF;
+  --secondary-foreground: #2563EB;
+  --muted: #F9FAFB;
+  --muted-foreground: #6B7280;
+  /* Subtle sky accent */
+  --accent: #38BDF8;
+  --accent-foreground: #0C4A6E;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E7EB;
+  --input: #F9FAFB;
+  --ring: #2563EB;
+  /* Chart colors */
+  --chart-1: #2563EB;
+  --chart-2: #38BDF8;
+  --chart-3: #16A34A;
+  --chart-4: #F59E0B;
+  --chart-5: #8B5CF6;
+  --radius: 0.75rem;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #2563EB;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #EEF2FF;
+  --sidebar-accent-foreground: #2563EB;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #2563EB;
+}
+
+/* ============================================================================
+   SOFT SUNRISE - Warm, inviting light theme with peach & lavender
+   Inspired by morning golden hour, calm and refreshing
+   ============================================================================ */
+.soft-sunrise {
+  --background: #FDF8F5;
+  --foreground: #2D2A3E;
+  --card: #FFFFFF;
+  --card-foreground: #2D2A3E;
+  --popover: #FFFFFF;
+  --popover-foreground: #2D2A3E;
+  /* Soft Coral Primary - warm and friendly */
+  --primary: #E8786B;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FFF5F0;
+  --secondary-foreground: #2D2A3E;
+  --muted: #F5EDE8;
+  --muted-foreground: #6B6680;
+  /* Lavender Accent - calming and modern */
+  --accent: #9B8EC4;
+  --accent-foreground: #FFFFFF;
+  --destructive: #DC4A4A;
+  --destructive-foreground: #FFFFFF;
+  --border: #EDE5DF;
+  --input: #F5EDE8;
+  --ring: #E8786B;
+  /* Warm sunrise palette for charts */
+  --chart-1: #E8786B;
+  --chart-2: #9B8EC4;
+  --chart-3: #5BB5A6;
+  --chart-4: #F4A261;
+  --chart-5: #7BAFD4;
+  --radius: 0.875rem;
+  --sidebar: #FAF5F2;
+  --sidebar-foreground: #2D2A3E;
+  --sidebar-primary: #E8786B;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FFF5F0;
+  --sidebar-accent-foreground: #2D2A3E;
+  --sidebar-border: #EDE5DF;
+  --sidebar-ring: #E8786B;
+}

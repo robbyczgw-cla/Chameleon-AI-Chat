@@ -707,6 +707,51 @@ CREATE POLICY "Users can insert their own memories" ON public.memories
 
 ---
 
+## Module Architecture
+
+The memory system is organized into focused modules for maintainability:
+
+```
+lib/
+├── memory-service.ts        # Main orchestrator (MemoryService class)
+└── memory/                  # Focused modules
+    ├── index.ts             # Unified exports for direct module usage
+    ├── types.ts             # Shared type definitions
+    ├── storage-service.ts   # localStorage & Supabase sync
+    ├── retrieval-service.ts # Intelligent memory retrieval
+    ├── extraction-service.ts# LLM-based memory extraction
+    ├── maintenance-service.ts# Expiration & consolidation
+    ├── duplicate-detection.ts# Duplicate detection algorithms
+    ├── classification.ts    # Self-RAG query classification
+    └── context-filter.ts    # Context-aware filtering
+```
+
+### Module Responsibilities
+
+| Module | Purpose |
+|--------|---------|
+| `storage-service.ts` | User-scoped localStorage, database sync, migration |
+| `retrieval-service.ts` | Keyword & semantic search, dynamic limiting |
+| `extraction-service.ts` | Pattern matching & LLM extraction from conversations |
+| `maintenance-service.ts` | Memory expiration, importance adjustment, consolidation |
+| `duplicate-detection.ts` | Multi-strategy duplicate detection |
+| `classification.ts` | Query classification (factual/personal/ambiguous) |
+| `context-filter.ts` | Filters memories already in conversation context |
+
+### Usage
+
+The main `memoryService` singleton (from `lib/memory-service.ts`) remains the primary interface. The modules can also be imported directly for advanced use cases:
+
+```typescript
+// Standard usage (recommended)
+import { memoryService } from '@/lib/memory-service'
+
+// Direct module usage (advanced)
+import { classifyQuery, filterMemoriesAlreadyInContext } from '@/lib/memory'
+```
+
+---
+
 ## API Reference
 
 ### MemoryService Methods

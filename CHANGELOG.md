@@ -6,6 +6,66 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
+## [1.1.1] - 2026-01-11
+
+### 🏗️ Codebase Refactoring for Maintainability
+
+Major refactoring to improve code organization and maintainability.
+
+#### Memory System Modularization
+
+Split the monolithic `lib/memory-service.ts` into focused modules:
+
+```
+lib/memory/
+├── index.ts              # Unified exports
+├── types.ts              # Type definitions
+├── storage-service.ts    # localStorage & database sync
+├── retrieval-service.ts  # Query classification & memory search
+├── extraction-service.ts # LLM-based memory extraction
+├── maintenance-service.ts# Expiration, consolidation, cleanup
+├── duplicate-detection.ts# Duplicate detection algorithms
+├── classification.ts     # Self-RAG query classification
+└── context-filter.ts     # Context-aware filtering
+```
+
+- **No breaking changes** - `memoryService` API unchanged
+- Modules can be imported directly: `import { classifyQuery } from '@/lib/memory'`
+
+#### Theme System Reorganization
+
+Split 12 theme definitions from `app/globals.css` into organized files:
+
+```
+styles/themes/
+├── index.css    # Central imports
+├── base.css     # :root (light) & .dark themes
+├── claude.css   # .claude & .claude-grey themes
+├── minimal.css  # .clean-slate & .soft-sunrise
+└── colorful.css # aurora, amber-pro, girly-violet, kawaii-pink,
+                 # ocean-breeze, paper-mint, chameleon
+```
+
+- Reduced `globals.css` by ~630 lines
+- Easier to maintain individual themes
+- Same CSS variable system (OKLCH color space)
+
+#### New Shared Hook
+
+Created `hooks/use-message-preprocessing.ts`:
+- Consolidates memory retrieval logic shared between Simple and Advanced chat modes
+- Reduces code duplication (~150 lines)
+- Provides `retrieveMemoryContext`, `injectMemoryContext`, `getRecentMessagesForContext`
+
+#### Persona Types Module
+
+Added `lib/personas/types.ts`:
+- Type definitions for Persona, PersonaCategory, and related interfaces
+- Helper functions: `filterPersonasByCategory`, `getVisiblePersonas`
+- Foundation for future personas system modularization
+
+---
+
 ## [1.1.0] - 2026-01-11
 
 ### 🎨 Icon System Migration
