@@ -218,7 +218,7 @@ export default function Page() {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-1.5 p-2 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10">
                   <span className="text-sm">🦎</span>
-                  <span className="font-semibold text-foreground text-[11px]">18+ Personas</span>
+                  <span className="font-semibold text-foreground text-[11px]">31 Personas</span>
                 </div>
                 <div className="flex items-center gap-1.5 p-2 rounded-lg bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-white/10">
                   <span className="text-sm">🤖</span>
