@@ -775,12 +775,14 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           const searchQuery = input.trim()
           let searchResults: SearchResponse
 
-          // Default to Tavily, but respect user settings
+          // Default to OpenRouter (no extra key needed), but respect user settings
           // AUTO-FIX: If selected provider has no key, use an available one
-          let searchProvider = settings.searchProvider || "tavily"
+          let searchProvider = settings.searchProvider || "openrouter"
 
-          // Check if selected provider has a key, otherwise auto-switch
-          const hasSelectedKey = searchProvider === "serper" ? settings.apiKeys.serper :
+          // Check if selected provider has a key (OpenRouter doesn't need one)
+          const hasSelectedKey = searchProvider === "openrouter" ? true :
+                                 searchProvider === "serper" ? settings.apiKeys.serper :
+                                 searchProvider === "exa" ? settings.apiKeys.exa :
                                  searchProvider === "youcom" ? settings.apiKeys.youcom :
                                  settings.apiKeys.tavily
 
@@ -791,15 +793,41 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
             } else if (settings.apiKeys.tavily) {
               console.log("[Simple Chat] ⚠️ Manual search: Auto-switching to Tavily")
               searchProvider = "tavily"
+            } else if (settings.apiKeys.exa) {
+              console.log("[Simple Chat] ⚠️ Manual search: Auto-switching to Exa")
+              searchProvider = "exa"
             } else if (settings.apiKeys.youcom) {
               console.log("[Simple Chat] ⚠️ Manual search: Auto-switching to You.com")
               searchProvider = "youcom"
+            } else {
+              // Fall back to OpenRouter if no keys available
+              console.log("[Simple Chat] ⚠️ Manual search: No API keys, using OpenRouter native search")
+              searchProvider = "openrouter"
             }
           }
 
           console.log(`[Simple Chat] 🔍 Using search provider: ${searchProvider.toUpperCase()}`)
 
-          if (searchProvider === "serper") {
+          if (searchProvider === "openrouter") {
+            // OpenRouter native search - uses web plugin with Exa backend
+            console.log("[Simple Chat] Using OpenRouter native search (web plugin)")
+            const response = await fetch("/api/openrouter-search", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                query: searchQuery,
+                maxResults: settings.openRouterSearchSettings?.maxResults || 5,
+                searchModel: settings.openRouterSearchSettings?.searchModel || "google/gemini-2.0-flash-001",
+                includeCitations: settings.openRouterSearchSettings?.includeCitations ?? true,
+              }),
+            })
+            const data = await response.json()
+            searchResults = {
+              results: data.results || [],
+              images: [],
+              answer: data.answer
+            }
+          } else if (searchProvider === "serper") {
             console.log("[Simple Chat] Using Serper (Google Search)")
             searchResults = await searchWithSerper(searchQuery, {
               maxResults: settings.serperSettings?.maxResults || 5,
@@ -981,25 +1009,44 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       }
 
       // Get the appropriate search API key for tool calling
-      // Note: API route supports tavily, serper, exa - fallback to tavily if youcom is selected
-      const rawSearchProvider = settings.searchProvider || "tavily"
+      // Note: API route supports openrouter, tavily, serper, exa
+      // OpenRouter search doesn't need a separate key - it uses the OpenRouter API key
+      const rawSearchProvider = settings.searchProvider || "openrouter"
       let searchProviderForTools = rawSearchProvider === "youcom" ? "tavily" : rawSearchProvider
-      let searchApiKeyForTools = searchProviderForTools === "serper"
-        ? settings.apiKeys.serper
-        : settings.apiKeys.tavily // exa would use tavily key as fallback
+      let searchApiKeyForTools: string | undefined
 
-      // AUTO-FIX: If selected provider has no key, try to use another available key
-      if (!searchApiKeyForTools) {
-        if (settings.apiKeys.serper) {
-          console.log("[Simple Chat] ⚠️ Auto-switching to Serper (Tavily key missing)")
-          searchProviderForTools = "serper"
-          searchApiKeyForTools = settings.apiKeys.serper
-        } else if (settings.apiKeys.tavily) {
-          console.log("[Simple Chat] ⚠️ Auto-switching to Tavily (Serper key missing)")
-          searchProviderForTools = "tavily"
-          searchApiKeyForTools = settings.apiKeys.tavily
-        } else {
-          console.warn("[Simple Chat] ❌ NO SEARCH API KEY AVAILABLE - Tool calling will NOT work!")
+      // OpenRouter search uses the OpenRouter API key, not a separate search key
+      if (searchProviderForTools === "openrouter") {
+        searchApiKeyForTools = undefined // Not needed for OpenRouter search
+        console.log("[Simple Chat] 🔍 Using OpenRouter native web search (no extra key needed)")
+      } else {
+        // Get the appropriate search API key for the selected provider
+        searchApiKeyForTools = searchProviderForTools === "serper"
+          ? settings.apiKeys.serper
+          : searchProviderForTools === "exa"
+          ? settings.apiKeys.exa
+          : settings.apiKeys.tavily
+
+        // AUTO-FIX: If selected provider has no key, try to use another available key
+        if (!searchApiKeyForTools) {
+          if (settings.apiKeys.serper) {
+            console.log("[Simple Chat] ⚠️ Auto-switching to Serper (selected provider key missing)")
+            searchProviderForTools = "serper"
+            searchApiKeyForTools = settings.apiKeys.serper
+          } else if (settings.apiKeys.tavily) {
+            console.log("[Simple Chat] ⚠️ Auto-switching to Tavily (selected provider key missing)")
+            searchProviderForTools = "tavily"
+            searchApiKeyForTools = settings.apiKeys.tavily
+          } else if (settings.apiKeys.exa) {
+            console.log("[Simple Chat] ⚠️ Auto-switching to Exa (selected provider key missing)")
+            searchProviderForTools = "exa"
+            searchApiKeyForTools = settings.apiKeys.exa
+          } else {
+            // Fall back to OpenRouter search if no other keys available
+            console.log("[Simple Chat] ⚠️ No search API keys - falling back to OpenRouter native search")
+            searchProviderForTools = "openrouter"
+            searchApiKeyForTools = undefined
+          }
         }
       }
 
@@ -1044,9 +1091,13 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         onReasoning,
         // Tool calling for AI-driven tool use
         enableAutoToolUse: enableToolCallingSearch,
-        searchProvider: searchProviderForTools as "tavily" | "serper" | "exa",
+        searchProvider: searchProviderForTools as "openrouter" | "tavily" | "serper" | "exa",
         searchApiKey: searchApiKeyForTools,
-        searchSettings: searchProviderForTools === "serper" ? settings.serperSettings : settings.tavilySettings,
+        searchSettings: searchProviderForTools === "openrouter" ? settings.openRouterSearchSettings :
+                       searchProviderForTools === "serper" ? settings.serperSettings :
+                       searchProviderForTools === "exa" ? settings.exaSettings :
+                       settings.tavilySettings,
+        openRouterSearchSettings: settings.openRouterSearchSettings,
         // Experimental tool settings
         enableUrlFetchTool: settings.experimental?.enableUrlFetchTool !== false,
         enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,

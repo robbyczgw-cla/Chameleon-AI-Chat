@@ -215,9 +215,15 @@ export async function streamChatMessage(
     onReasoning?: (content: string) => void
     // Auto tool use options (tool calling)
     enableAutoToolUse?: boolean
-    searchProvider?: "tavily" | "serper" | "exa"
+    searchProvider?: "openrouter" | "tavily" | "serper" | "exa"
     searchApiKey?: string
     searchSettings?: Record<string, any>
+    openRouterSearchSettings?: {
+      maxResults?: number
+      searchModel?: string
+      includeImages?: boolean
+      includeCitations?: boolean
+    }
     // Experimental tool settings
     enableUrlFetchTool?: boolean
     enableYouTubeTool?: boolean
@@ -266,9 +272,10 @@ export async function streamChatMessage(
     onReasoning,
     // Auto tool use
     enableAutoToolUse = true,
-    searchProvider = "tavily",
+    searchProvider = "openrouter", // Default to OpenRouter (no extra key needed)
     searchApiKey,
     searchSettings = {},
+    openRouterSearchSettings,
     // Experimental tool settings
     enableUrlFetchTool = true,
     enableYouTubeTool = true,
@@ -323,16 +330,22 @@ export async function streamChatMessage(
   }
 
   // Add auto tool use parameters if enabled
-  if (enableAutoToolUse && searchApiKey) {
+  // For OpenRouter search, we don't need a separate searchApiKey - it uses the OpenRouter API key
+  const hasSearchCapability = searchApiKey || searchProvider === "openrouter"
+  if (enableAutoToolUse && hasSearchCapability) {
     requestBody.enableAutoToolUse = true
     requestBody.searchProvider = searchProvider
-    requestBody.searchApiKey = searchApiKey
+    requestBody.searchApiKey = searchApiKey // May be undefined for OpenRouter search
     requestBody.searchSettings = searchSettings
+    // Pass OpenRouter search settings for native web plugin
+    if (searchProvider === "openrouter" && openRouterSearchSettings) {
+      requestBody.openRouterSearchSettings = openRouterSearchSettings
+    }
     // Pass experimental tool settings
     requestBody.enableUrlFetchTool = enableUrlFetchTool
     requestBody.enableYouTubeTool = enableYouTubeTool
     requestBody.enableWeatherTool = enableWeatherTool
-    console.log("[v0] Auto tool use enabled with provider:", searchProvider, "tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool, weather: enableWeatherTool })
+    console.log("[v0] Auto tool use enabled with provider:", searchProvider, "| hasSearchCapability:", hasSearchCapability, "| tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool, weather: enableWeatherTool })
   }
 
   // REMOVED: Large console.log of full request body was causing memory pressure during streaming

@@ -49,9 +49,16 @@ interface ChatRequest {
   reasoningDepth?: "minimal" | "low" | "medium" | "high"
   // Tool calling options
   enableAutoToolUse?: boolean
-  searchProvider?: "tavily" | "serper" | "exa"
+  searchProvider?: "openrouter" | "tavily" | "serper" | "exa"
   searchApiKey?: string
   searchSettings?: Record<string, any>
+  // OpenRouter search settings (when searchProvider is "openrouter")
+  openRouterSearchSettings?: {
+    maxResults?: number
+    searchModel?: string
+    includeImages?: boolean
+    includeCitations?: boolean
+  }
   // Experimental tool settings
   enableUrlFetchTool?: boolean
   enableYouTubeTool?: boolean
@@ -174,14 +181,203 @@ function getAQIDescription(index: number): string {
 }
 
 /**
+ * Execute web search using OpenRouter's native web search plugin
+ *
+ * OpenRouter's web plugin works as follows:
+ * 1. For OpenAI, Anthropic, Perplexity, xAI models - uses provider's native search
+ * 2. For other models (Google, DeepSeek, etc.) - uses Exa API ($0.02 per 5-result search)
+ *
+ * We use the `plugins: [{id: "web"}]` parameter to enable native web search.
+ * This is integrated directly into the model request (no separate API call needed).
+ *
+ * See: https://openrouter.ai/docs/guides/features/plugins/web-search
+ */
+async function executeOpenRouterSearch(
+  query: string,
+  openRouterApiKey: string,
+  settings: {
+    maxResults?: number
+    searchModel?: string
+    includeImages?: boolean
+    includeCitations?: boolean
+  } = {}
+): Promise<{ content: string; results: any[] }> {
+  const {
+    maxResults = 5,
+    // Use a fast, cheap model for search queries
+    // The web plugin works with any model - Exa provides search for non-native models
+    searchModel = "google/gemini-2.0-flash-001",
+    includeCitations = true
+  } = settings
+
+  console.log(`[Tool] 🔍 Executing OpenRouter native search: "${query}" via ${searchModel} with web plugin`)
+
+  // Check cache
+  const cacheKey = `openrouter:${query}`
+  const cached = searchCache.get(cacheKey)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log(`[Tool] ✅ OpenRouter search cache hit for: "${query}"`)
+    return cached.result
+  }
+
+  try {
+    // Create a search-optimized prompt
+    const searchPrompt = `Search the web and provide current, accurate information about: "${query}"
+
+Requirements:
+1. Provide a direct, factual answer
+2. Include key facts and details from reliable sources
+${includeCitations ? "3. Cite your sources with URLs in markdown format: [Source Title](URL)" : ""}
+4. Focus on the most recent and relevant information
+
+Be factual, accurate, and cite your sources.`
+
+    // Build the request body with web plugin enabled
+    const requestBody: any = {
+      model: searchModel,
+      messages: [
+        {
+          role: "user",
+          content: searchPrompt
+        }
+      ],
+      max_tokens: 2048,
+      temperature: 0.1, // Low temperature for factual responses
+      // OpenRouter native web search plugin
+      // Uses provider's native search OR Exa for non-native models
+      plugins: [
+        {
+          id: "web",
+          max_results: maxResults
+        }
+      ]
+    }
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${openRouterApiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        "X-Title": "Chameleon AI Chat - Search",
+      },
+      body: JSON.stringify(requestBody),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`[Tool] ❌ OpenRouter search error:`, response.status, errorText)
+
+      // Try fallback models in order of preference
+      const fallbackModels = [
+        "openai/gpt-4o-mini", // Has native search
+        "anthropic/claude-3-haiku", // Has native search
+        "google/gemini-2.0-flash-001" // Uses Exa
+      ]
+
+      for (const fallbackModel of fallbackModels) {
+        if (searchModel !== fallbackModel) {
+          console.log(`[Tool] 🔄 Trying fallback model: ${fallbackModel}`)
+          try {
+            return await executeOpenRouterSearch(query, openRouterApiKey, {
+              ...settings,
+              searchModel: fallbackModel
+            })
+          } catch (e) {
+            continue // Try next fallback
+          }
+        }
+      }
+
+      return {
+        content: `Search failed: ${response.status} - ${errorText.substring(0, 200)}. Try rephrasing your query.`,
+        results: []
+      }
+    }
+
+    const data = await response.json()
+    const message = data.choices?.[0]?.message
+    const content = message?.content || "No search results found."
+
+    // Parse sources from the response
+    const rawResults: any[] = []
+
+    // First, check for OpenRouter's annotation format (url_citation objects)
+    // The web plugin returns citations in this format
+    if (message?.annotations && Array.isArray(message.annotations)) {
+      for (const annotation of message.annotations) {
+        if (annotation.type === "url_citation" && rawResults.length < maxResults) {
+          rawResults.push({
+            title: annotation.title || annotation.url,
+            url: annotation.url,
+            content: annotation.content || "",
+            score: 1 - rawResults.length * 0.1,
+          })
+        }
+      }
+    }
+
+    // Fallback: Parse markdown links from content
+    if (rawResults.length === 0) {
+      const sourceRegex = /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g
+      let match
+      while ((match = sourceRegex.exec(content)) !== null && rawResults.length < maxResults) {
+        // Skip if it looks like a duplicate
+        const url = match[2]
+        if (!rawResults.some(r => r.url === url)) {
+          rawResults.push({
+            title: match[1],
+            url: url,
+            content: "",
+            score: 1 - rawResults.length * 0.1,
+          })
+        }
+      }
+    }
+
+    // Additional fallback: Parse numbered list format
+    if (rawResults.length === 0) {
+      const numberedSourceRegex = /\d+\.\s*\[?([^\]\n]+)\]?\s*[:\-]?\s*(?:\(?(https?:\/\/[^\s\)\]]+)\)?)?/g
+      let match
+      while ((match = numberedSourceRegex.exec(content)) !== null && rawResults.length < maxResults) {
+        if (match[2]) {
+          rawResults.push({
+            title: match[1].trim(),
+            url: match[2],
+            content: "",
+            score: 1 - rawResults.length * 0.1,
+          })
+        }
+      }
+    }
+
+    const formattedContent = `## Web Search Results for "${query}"\n\n${content}\n\n---\n*Search provider: OpenRouter Web Plugin (${searchModel} + Exa)*`
+    const result = { content: formattedContent, results: rawResults }
+
+    // Cache the result
+    searchCache.set(cacheKey, { result, timestamp: Date.now() })
+
+    console.log(`[Tool] ✅ OpenRouter search completed: ${rawResults.length} sources found`)
+    return result
+  } catch (error) {
+    console.error("[Tool] ❌ OpenRouter search failed:", error)
+    return {
+      content: `Search failed: ${error instanceof Error ? error.message : "Unknown error"}. Please try rephrasing your query.`,
+      results: []
+    }
+  }
+}
+
+/**
  * Execute web search using the specified provider
  * Returns both formatted text and raw search results for UI display
  */
 async function executeWebSearch(
   query: string,
-  provider: "tavily" | "serper" | "exa",
+  provider: "openrouter" | "tavily" | "serper" | "exa",
   apiKey: string,
-  settings: Record<string, any> = {}
+  settings: Record<string, any> = {},
+  openRouterApiKey?: string
 ): Promise<{ content: string; results: any[] }> {
   console.log(`[Tool] 🔍 Executing web_search: "${query}" via ${provider}`)
 
@@ -199,6 +395,19 @@ async function executeWebSearch(
     const headers: Record<string, string> = { "Content-Type": "application/json" }
 
     switch (provider) {
+      case "openrouter":
+        // OpenRouter native search - use the executeOpenRouterSearch function
+        // This uses Perplexity Sonar or other search-enabled models
+        if (!openRouterApiKey) {
+          return { content: "Error: OpenRouter API key required for OpenRouter search", results: [] }
+        }
+        return executeOpenRouterSearch(query, openRouterApiKey, {
+          maxResults: settings.maxResults || 5,
+          searchModel: settings.searchModel || "perplexity/sonar",
+          includeImages: settings.includeImages || false,
+          includeCitations: settings.includeCitations !== false,
+        })
+
       case "tavily":
         searchUrl = "https://api.tavily.com/search"
         requestBody = {
@@ -432,9 +641,11 @@ export async function POST(req: NextRequest) {
 
     // Determine if we should include tools
     const modelSupportsTool = modelSupportsToolCalling(model)
-    const shouldIncludeTools = enableAutoToolUse && searchApiKey && modelSupportsTool
+    // For OpenRouter search, we don't need a separate searchApiKey - we use the OpenRouter API key
+    const hasSearchCapability = searchApiKey || searchProvider === "openrouter"
+    const shouldIncludeTools = enableAutoToolUse && hasSearchCapability && modelSupportsTool
 
-    console.log("[Chat] Include tools:", shouldIncludeTools, "| Model supports tools:", modelSupportsTool, "| enableAutoToolUse:", enableAutoToolUse, "| hasSearchApiKey:", !!searchApiKey)
+    console.log("[Chat] Include tools:", shouldIncludeTools, "| Model supports tools:", modelSupportsTool, "| enableAutoToolUse:", enableAutoToolUse, "| hasSearchCapability:", hasSearchCapability, "| searchProvider:", searchProvider)
 
     const openRouterBody: Record<string, any> = {
       model,
@@ -449,14 +660,41 @@ export async function POST(req: NextRequest) {
 
     // Add tools if enabled - conditionally include tools based on settings
     if (shouldIncludeTools) {
-      const tools = [webSearchTool] // Web search is always included when auto tool use is enabled
-      if (enableWeatherTool) tools.push(weatherTool)
-      if (enableUrlFetchTool) tools.push(urlFetchTool)
-      if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
-      openRouterBody.tools = tools
-      // Note: Some models like GLM 4.7 only support tool_choice: "auto" (not "none" or "required")
-      openRouterBody.tool_choice = "auto"
-      console.log("[Chat] Tools enabled:", tools.map(t => t.function.name).join(", "))
+      // For OpenRouter search provider, use native web plugin instead of web_search tool
+      // This is more efficient and uses OpenRouter's built-in Exa integration
+      // See: https://openrouter.ai/docs/guides/features/plugins/web-search
+      if (searchProvider === "openrouter") {
+        // Use OpenRouter's native web search plugin
+        openRouterBody.plugins = [
+          {
+            id: "web",
+            max_results: body.openRouterSearchSettings?.maxResults || 5
+          }
+        ]
+        console.log("[Chat] OpenRouter native web search plugin enabled")
+
+        // Only include non-search tools
+        const tools = []
+        if (enableWeatherTool) tools.push(weatherTool)
+        if (enableUrlFetchTool) tools.push(urlFetchTool)
+        if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
+
+        if (tools.length > 0) {
+          openRouterBody.tools = tools
+          openRouterBody.tool_choice = "auto"
+          console.log("[Chat] Additional tools enabled:", tools.map(t => t.function.name).join(", "))
+        }
+      } else {
+        // For other providers (Tavily, Serper, Exa), use tool calling with web_search
+        const tools = [webSearchTool] // Web search tool for external providers
+        if (enableWeatherTool) tools.push(weatherTool)
+        if (enableUrlFetchTool) tools.push(urlFetchTool)
+        if (enableYouTubeTool) tools.push(youtubeTranscriptTool)
+        openRouterBody.tools = tools
+        // Note: Some models like GLM 4.7 only support tool_choice: "auto" (not "none" or "required")
+        openRouterBody.tool_choice = "auto"
+        console.log("[Chat] Tools enabled:", tools.map(t => t.function.name).join(", "))
+      }
     }
 
     // Add reasoning parameter if enabled
@@ -531,13 +769,17 @@ export async function POST(req: NextRequest) {
       console.log("[Chat] ⚠️ MiMo: Disabled reasoning because tools are enabled (OpenRouter recommendation)")
     }
 
+    // Extract openRouterSearchSettings from request
+    const { openRouterSearchSettings } = body as ChatRequest
+
     // Non-streaming request with tool calling
     if (!stream) {
-      return handleNonStreamingRequest(openRouterBody, apiKey, searchApiKey!, searchProvider, searchSettings)
+      return handleNonStreamingRequest(openRouterBody, apiKey, searchApiKey!, searchProvider, searchSettings, openRouterSearchSettings)
     }
 
     // Streaming request - more complex handling for tool calls
-    return handleStreamingRequest(openRouterBody, apiKey, searchApiKey, searchProvider, searchSettings, Boolean(shouldIncludeTools))
+    // Pass the OpenRouter API key for OpenRouter search provider
+    return handleStreamingRequest(openRouterBody, apiKey, searchApiKey, searchProvider, searchSettings, Boolean(shouldIncludeTools), openRouterSearchSettings)
   } catch (error) {
     console.error("[Chat] API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
@@ -551,8 +793,14 @@ async function handleNonStreamingRequest(
   openRouterBody: Record<string, any>,
   apiKey: string,
   searchApiKey: string,
-  searchProvider: "tavily" | "serper" | "exa",
-  searchSettings: Record<string, any>
+  searchProvider: "openrouter" | "tavily" | "serper" | "exa",
+  searchSettings: Record<string, any>,
+  openRouterSearchSettings?: {
+    maxResults?: number
+    searchModel?: string
+    includeImages?: boolean
+    includeCitations?: boolean
+  }
 ) {
   const MAX_ITERATIONS = 3
   let iterations = 0
@@ -599,7 +847,17 @@ async function handleNonStreamingRequest(
           const args = parseToolArguments(toolCall.function.arguments)
 
           if (toolCall.function.name === "web_search") {
-            const searchResult = await executeWebSearch(args.query || "", searchProvider, searchApiKey, searchSettings)
+            // For OpenRouter search, merge settings with openRouterSearchSettings
+            const effectiveSettings = searchProvider === "openrouter"
+              ? { ...searchSettings, ...openRouterSearchSettings }
+              : searchSettings
+            const searchResult = await executeWebSearch(
+              args.query || "",
+              searchProvider,
+              searchApiKey, // May be empty for openrouter provider
+              effectiveSettings,
+              apiKey // Pass OpenRouter API key for OpenRouter search
+            )
             return {
               tool_call_id: toolCall.id,
               role: "tool" as const,
@@ -644,9 +902,15 @@ async function handleStreamingRequest(
   openRouterBody: Record<string, any>,
   apiKey: string,
   searchApiKey: string | undefined,
-  searchProvider: "tavily" | "serper" | "exa",
+  searchProvider: "openrouter" | "tavily" | "serper" | "exa",
   searchSettings: Record<string, any>,
-  toolsEnabled: boolean
+  toolsEnabled: boolean,
+  openRouterSearchSettings?: {
+    maxResults?: number
+    searchModel?: string
+    includeImages?: boolean
+    includeCitations?: boolean
+  }
 ) {
   const encoder = new TextEncoder()
 
@@ -1040,16 +1304,28 @@ async function handleStreamingRequest(
               const args = parseToolArguments(toolCall.function.arguments)
 
               if (toolCall.function.name === "web_search") {
-                if (!searchApiKey) {
+                // For OpenRouter search, we use the OpenRouter API key, not a separate search API key
+                const hasSearchCapability = searchApiKey || searchProvider === "openrouter"
+                if (!hasSearchCapability) {
                   return {
                     tool_call_id: toolCall.id,
                     role: "tool" as const,
                     name: "web_search",
-                    content: "Error: No search API key configured",
+                    content: "Error: No search API key configured. Please add a search provider key in Settings, or switch to OpenRouter search (no extra key needed).",
                     searchResults: [],
                   }
                 }
-                const searchResult = await executeWebSearch(args.query || "", searchProvider, searchApiKey, searchSettings)
+                // For OpenRouter search, merge settings with openRouterSearchSettings
+                const effectiveSettings = searchProvider === "openrouter"
+                  ? { ...searchSettings, ...openRouterSearchSettings }
+                  : searchSettings
+                const searchResult = await executeWebSearch(
+                  args.query || "",
+                  searchProvider,
+                  searchApiKey || "", // May be empty for openrouter provider
+                  effectiveSettings,
+                  apiKey // Pass OpenRouter API key for OpenRouter search
+                )
                 return {
                   tool_call_id: toolCall.id,
                   role: "tool" as const,

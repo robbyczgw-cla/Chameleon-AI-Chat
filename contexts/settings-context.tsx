@@ -26,7 +26,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   },
   selectedModel: "google/gemini-3-flash-preview",
   selectedModels: ["google/gemini-3-flash-preview"],
-  searchProvider: "tavily",
+  // Default to OpenRouter search - no extra API key needed, works with just OpenRouter key
+  searchProvider: "openrouter",
   modelParameters: {
     temperature: 0.7,
     maxTokens: 8192,
@@ -58,6 +59,13 @@ export const DEFAULT_SETTINGS: AppSettings = {
     highlightsPerResult: 3,
     maxTextCharacters: 3000,
     livecrawl: "fallback",
+  },
+  // OpenRouter native search - uses search-enabled models, no extra API key needed
+  openRouterSearchSettings: {
+    maxResults: 5,
+    searchModel: "perplexity/sonar", // Fast, cheap, great for search
+    includeImages: false,
+    includeCitations: true,
   },
   memorySettings: {
     enabled: true, // Enabled by default for personalized experience
@@ -114,6 +122,10 @@ export function deepMergeSettings(defaults: AppSettings, parsed: Partial<AppSett
     youcomSettings: {
       ...defaults.youcomSettings,
       ...(parsed.youcomSettings || {}),
+    },
+    openRouterSearchSettings: {
+      ...defaults.openRouterSearchSettings,
+      ...(parsed.openRouterSearchSettings || {}),
     },
     apiKeys: mergedApiKeys,
     voiceSettings: {

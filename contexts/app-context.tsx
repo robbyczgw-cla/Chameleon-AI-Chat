@@ -82,7 +82,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   },
   selectedModel: "google/gemini-3-flash-preview",
   selectedModels: ["google/gemini-3-flash-preview"],
-  searchProvider: "tavily", // Default to Tavily, can switch to Serper
+  // Default to OpenRouter search - no extra API key needed, works with just OpenRouter key
+  searchProvider: "openrouter",
   modelParameters: {
     temperature: 0.7,
     maxTokens: 8192,
@@ -114,6 +115,13 @@ const DEFAULT_SETTINGS: AppSettings = {
     highlightsPerResult: 3,
     maxTextCharacters: 3000,
     livecrawl: "fallback", // Crawl if content is stale
+  },
+  // OpenRouter native search - uses search-enabled models, no extra API key needed
+  openRouterSearchSettings: {
+    maxResults: 5,
+    searchModel: "perplexity/sonar", // Fast, cheap, great for search
+    includeImages: false,
+    includeCitations: true,
   },
   memorySettings: {
     enabled: true, // Enable by default for profile integration and better context
@@ -263,6 +271,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       youcomSettings: {
         ...defaults.youcomSettings,
         ...(parsed.youcomSettings || {}),
+      },
+      openRouterSearchSettings: {
+        ...defaults.openRouterSearchSettings,
+        ...(parsed.openRouterSearchSettings || {}),
       },
       apiKeys: mergedApiKeys,
       voiceSettings: {

@@ -251,6 +251,18 @@ export interface ExaSettings {
   excludeDomains?: string[] // Exclude these domains
 }
 
+/**
+ * OpenRouter Native Search Settings
+ * Uses OpenRouter's built-in search capabilities via search-enabled models
+ * No external API key required - uses your OpenRouter API key
+ */
+export interface OpenRouterSearchSettings {
+  maxResults: number // 1-10 (parsed from response)
+  searchModel: string // Model to use for search (e.g., "perplexity/sonar-small-online")
+  includeImages: boolean // Request image URLs in search results
+  includeCitations: boolean // Include source citations in response
+}
+
 export interface KeyboardShortcut {
   key: string
   ctrl?: boolean
@@ -404,12 +416,13 @@ export interface AppSettings {
   temperature?: number
   maxTokens?: number
   systemPrompt: string
-  searchProvider?: "tavily" | "serper" | "exa" // Which search API to use
+  searchProvider?: "openrouter" | "tavily" | "serper" | "exa" // Which search API to use (openrouter = no extra key needed)
   modelParameters?: ModelParameters
   voiceSettings?: VoiceSettings
   tavilySettings?: TavilySettings
   serperSettings?: SerperSettings
   exaSettings?: ExaSettings
+  openRouterSearchSettings?: OpenRouterSearchSettings
   comparisonMode?: ComparisonMode
   memorySettings?: MemorySettings
   fontSize?: "small" | "medium" | "large"

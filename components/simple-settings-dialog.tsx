@@ -904,26 +904,133 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 </p>
               </div>
 
+              {/* Search Provider Selection */}
               <div className="space-y-2">
-                <Label htmlFor="serper-key" className="text-sm">{t.serperApiKey}</Label>
-                <Input
-                  id="serper-key"
-                  type="password"
-                  placeholder={t.enterSerperKey}
-                  value={localSettings.apiKeys?.serper || ""}
+                <Label className="text-sm">Search Provider</Label>
+                <select
+                  value={localSettings.searchProvider || "openrouter"}
                   onChange={(e) =>
                     setLocalSettings({
                       ...localSettings,
-                      apiKeys: { ...localSettings.apiKeys, serper: e.target.value },
-                      searchProvider: "serper", // Auto-select Serper when key is added
+                      searchProvider: e.target.value as any,
                     })
                   }
-                  className="h-10"
-                />
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[44px]"
+                >
+                  <option value="openrouter">OpenRouter (No extra key needed)</option>
+                  <option value="serper">Google via Serper (Free tier available)</option>
+                  <option value="tavily">Tavily (AI-optimized search)</option>
+                  <option value="exa">Exa (Neural search)</option>
+                </select>
                 <p className="text-xs text-muted-foreground">
-                  {t.getFreeKey} <a href="https://serper.dev" target="_blank" rel="noopener noreferrer" className="underline">serper.dev</a> {t.freeSearches}
+                  {localSettings.searchProvider === "openrouter"
+                    ? "Uses your OpenRouter key - no additional setup required"
+                    : localSettings.searchProvider === "serper"
+                    ? "Google search results via Serper API"
+                    : localSettings.searchProvider === "tavily"
+                    ? "AI-optimized search with answer extraction"
+                    : "Neural/semantic search engine"}
                 </p>
               </div>
+
+              {/* OpenRouter Search Info */}
+              {(localSettings.searchProvider === "openrouter" || !localSettings.searchProvider) && (
+                <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                  <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
+                    <span>✓</span> Web search ready - uses Perplexity via OpenRouter
+                  </p>
+                </div>
+              )}
+
+              {/* Serper API Key (only shown when Serper is selected) */}
+              {localSettings.searchProvider === "serper" && (
+                <div className="space-y-2">
+                  <Label htmlFor="serper-key" className="text-sm">{t.serperApiKey}</Label>
+                  <Input
+                    id="serper-key"
+                    type="password"
+                    placeholder={t.enterSerperKey}
+                    value={localSettings.apiKeys?.serper || ""}
+                    onChange={(e) =>
+                      setLocalSettings({
+                        ...localSettings,
+                        apiKeys: { ...localSettings.apiKeys, serper: e.target.value },
+                      })
+                    }
+                    className="h-10"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t.getFreeKey} <a href="https://serper.dev" target="_blank" rel="noopener noreferrer" className="underline">serper.dev</a> {t.freeSearches}
+                  </p>
+                  {localSettings.apiKeys?.serper && (
+                    <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
+                        <span>✓</span> {t.webSearchReady}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tavily API Key (only shown when Tavily is selected) */}
+              {localSettings.searchProvider === "tavily" && (
+                <div className="space-y-2">
+                  <Label htmlFor="tavily-key" className="text-sm">Tavily API Key</Label>
+                  <Input
+                    id="tavily-key"
+                    type="password"
+                    placeholder="Enter your Tavily API key"
+                    value={localSettings.apiKeys?.tavily || ""}
+                    onChange={(e) =>
+                      setLocalSettings({
+                        ...localSettings,
+                        apiKeys: { ...localSettings.apiKeys, tavily: e.target.value },
+                      })
+                    }
+                    className="h-10"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Get a free key at <a href="https://tavily.com" target="_blank" rel="noopener noreferrer" className="underline">tavily.com</a> (1000 free searches/month)
+                  </p>
+                  {localSettings.apiKeys?.tavily && (
+                    <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
+                        <span>✓</span> Tavily search ready
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Exa API Key (only shown when Exa is selected) */}
+              {localSettings.searchProvider === "exa" && (
+                <div className="space-y-2">
+                  <Label htmlFor="exa-key" className="text-sm">Exa API Key</Label>
+                  <Input
+                    id="exa-key"
+                    type="password"
+                    placeholder="Enter your Exa API key"
+                    value={localSettings.apiKeys?.exa || ""}
+                    onChange={(e) =>
+                      setLocalSettings({
+                        ...localSettings,
+                        apiKeys: { ...localSettings.apiKeys, exa: e.target.value },
+                      })
+                    }
+                    className="h-10"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Get a key at <a href="https://exa.ai" target="_blank" rel="noopener noreferrer" className="underline">exa.ai</a> (1000 free searches/month)
+                  </p>
+                  {localSettings.apiKeys?.exa && (
+                    <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
+                        <span>✓</span> Exa search ready
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex items-center justify-between py-2">
                 <div>
@@ -947,23 +1054,41 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   <p className="text-xs text-muted-foreground">{t.showImagesInSearch}</p>
                 </div>
                 <Switch
-                  checked={localSettings.serperSettings?.includeImages || false}
-                  onCheckedChange={(checked) =>
-                    setLocalSettings({
-                      ...localSettings,
-                      serperSettings: { ...localSettings.serperSettings, includeImages: checked } as any,
-                    })
+                  checked={
+                    localSettings.searchProvider === "openrouter"
+                      ? localSettings.openRouterSearchSettings?.includeImages || false
+                      : localSettings.searchProvider === "serper"
+                      ? localSettings.serperSettings?.includeImages || false
+                      : localSettings.searchProvider === "tavily"
+                      ? localSettings.tavilySettings?.includeImages || false
+                      : localSettings.exaSettings?.includeImages || false
                   }
+                  onCheckedChange={(checked) => {
+                    const provider = localSettings.searchProvider || "openrouter"
+                    if (provider === "openrouter") {
+                      setLocalSettings({
+                        ...localSettings,
+                        openRouterSearchSettings: { ...localSettings.openRouterSearchSettings, includeImages: checked } as any,
+                      })
+                    } else if (provider === "serper") {
+                      setLocalSettings({
+                        ...localSettings,
+                        serperSettings: { ...localSettings.serperSettings, includeImages: checked } as any,
+                      })
+                    } else if (provider === "tavily") {
+                      setLocalSettings({
+                        ...localSettings,
+                        tavilySettings: { ...localSettings.tavilySettings, includeImages: checked } as any,
+                      })
+                    } else {
+                      setLocalSettings({
+                        ...localSettings,
+                        exaSettings: { ...localSettings.exaSettings, includeImages: checked } as any,
+                      })
+                    }
+                  }}
                 />
               </div>
-
-              {localSettings.apiKeys?.serper && (
-                <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                  <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
-                    <span>✓</span> {t.webSearchReady}
-                  </p>
-                </div>
-              )}
             </TabsContent>
 
             {/* Voice Tab */}

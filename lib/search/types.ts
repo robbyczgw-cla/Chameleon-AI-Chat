@@ -33,7 +33,8 @@ export interface SearchResponse {
 }
 
 // Available search providers
-export type SearchProvider = "tavily" | "serper" | "exa"
+// "openrouter" uses OpenRouter's built-in search via search-enabled models (no extra API key needed)
+export type SearchProvider = "openrouter" | "tavily" | "serper" | "exa"
 
 // Base search options - common across providers
 export interface BaseSearchOptions {
@@ -73,8 +74,20 @@ export interface ExaSearchOptions extends BaseSearchOptions {
   livecrawl?: "never" | "fallback" | "always"
 }
 
+/**
+ * OpenRouter Native Search Options
+ * Uses search-enabled models on OpenRouter (like Perplexity Sonar)
+ * No separate API key required - uses your OpenRouter API key
+ */
+export interface OpenRouterSearchOptions extends BaseSearchOptions {
+  searchModel?: string // Model to use (default: perplexity/sonar-small-online)
+  includeImages?: boolean // Request images in response
+  includeCitations?: boolean // Include source citations
+  openRouterApiKey?: string // OpenRouter API key for authentication
+}
+
 // Union type for all search options
-export type SearchOptions = TavilySearchOptions | SerperSearchOptions | ExaSearchOptions
+export type SearchOptions = TavilySearchOptions | SerperSearchOptions | ExaSearchOptions | OpenRouterSearchOptions
 
 // Search provider interface - all providers must implement this
 export interface SearchProviderInterface {
