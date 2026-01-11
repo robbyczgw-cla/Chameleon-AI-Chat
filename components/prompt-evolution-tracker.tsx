@@ -6,17 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  TrendingUp,
-  Loader2,
-  Zap,
-  Target,
-  BookOpen,
-  Calendar,
-  Award,
-  LineChart,
-  RefreshCw
-} from "lucide-react"
+import { ArrowsClockwise, BookOpen, Calendar, ChartLine, CircleNotch, Lightning, Medal, Target, TrendUp } from "@phosphor-icons/react";
 import { streamChatMessage } from "@/lib/openrouter"
 import { cn } from "@/lib/utils"
 
@@ -191,8 +181,8 @@ Antworte NUR mit dem JSON-Objekt.`
   }
 
   const getTrendIcon = (trend: string) => {
-    if (trend === "improving") return <TrendingUp className="h-4 w-4 text-green-500" />
-    if (trend === "declining") return <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />
+    if (trend === "improving") return <TrendUp className="h-4 w-4 text-green-500" />
+    if (trend === "declining") return <TrendUp className="h-4 w-4 text-red-500 rotate-180" />
     return <Target className="h-4 w-4 text-blue-500" />
   }
 
@@ -202,7 +192,7 @@ Antworte NUR mit dem JSON-Objekt.`
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
-            <LineChart className="h-5 w-5 text-white" />
+            <ChartLine className="h-5 w-5 text-white" />
           </div>
           <div>
             <h3 className="font-semibold text-base">Prompt Evolution Tracker</h3>
@@ -218,17 +208,17 @@ Antworte NUR mit dem JSON-Objekt.`
         >
           {isAnalyzing ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <CircleNotch className="h-4 w-4 mr-2 animate-spin" />
               Analysiere...
             </>
           ) : analysis ? (
             <>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <ArrowsClockwise className="h-4 w-4 mr-2" />
               Aktualisieren
             </>
           ) : (
             <>
-              <Zap className="h-4 w-4 mr-2" />
+              <Lightning className="h-4 w-4 mr-2" />
               Evolution Analysieren
             </>
           )}
@@ -242,7 +232,7 @@ Antworte NUR mit dem JSON-Objekt.`
           <Card className="p-4 bg-gradient-to-br from-blue-500/10 via-cyan-500/10 to-background border-blue-500/30">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <Award className="h-8 w-8 text-blue-500" />
+                <Medal className="h-8 w-8 text-blue-500" />
                 <div>
                   <h4 className="font-semibold text-lg">Evolution Score</h4>
                   <p className="text-xs text-muted-foreground">
@@ -313,7 +303,7 @@ Antworte NUR mit dem JSON-Objekt.`
           {/* Top Topics */}
           <Card className="p-4">
             <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-green-500" />
+              <TrendUp className="h-4 w-4 text-green-500" />
               Top Themen
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -328,7 +318,7 @@ Antworte NUR mit dem JSON-Objekt.`
           {/* Recommendations */}
           <Card className="p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 border-yellow-500/30">
             <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-              <Zap className="h-4 w-4 text-yellow-500" />
+              <Lightning className="h-4 w-4 text-yellow-500" />
               Verbesserungsvorschläge
             </h4>
             <ul className="space-y-2">
@@ -362,7 +352,7 @@ Antworte NUR mit dem JSON-Objekt.`
       {/* Empty State */}
       {!analysis && !isAnalyzing && collectAllPrompts().length < 5 && (
         <Card className="p-6 text-center bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-dashed">
-          <LineChart className="h-12 w-12 mx-auto mb-3 text-blue-500 opacity-70" />
+          <ChartLine className="h-12 w-12 mx-auto mb-3 text-blue-500 opacity-70" />
           <p className="text-sm text-muted-foreground mb-2">
             Noch nicht genug Daten
           </p>

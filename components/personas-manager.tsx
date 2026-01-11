@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus, Edit2, Trash2, X, Sparkles, Loader2, Settings, Info } from "lucide-react"
+import { CircleNotch, Gear, Info, PencilSimple, Plus, Sparkle, Trash, X } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast"
 import { useApp } from "@/contexts/app-context"
 import { PersonaAdvancedSettings } from "@/components/persona-advanced-settings"
@@ -437,12 +437,12 @@ WICHTIG: Schreibe NUR die Persönlichkeits-Beschreibung, keine Erklärungen davo
                 >
                   {generatingAvatar ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <CircleNotch className="h-4 w-4 animate-spin" />
                       Generiere Avatar...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="h-4 w-4" />
+                      <Sparkle className="h-4 w-4" />
                       {formData.avatarUrl ? "Neuen Avatar generieren" : "Avatar generieren"}
                     </>
                   )}
@@ -467,7 +467,7 @@ WICHTIG: Schreibe NUR die Persönlichkeits-Beschreibung, keine Erklärungen davo
               {/* AI-Assisted Personality Generation */}
               <div className="space-y-2 p-4 bg-muted/30 rounded-lg border border-border/40">
                 <Label htmlFor="prompt-description" className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
+                  <Sparkle className="h-4 w-4 text-primary" />
                   <span>KI-gestützte Persönlichkeits-Generierung</span>
                 </Label>
                 <p className="text-xs text-muted-foreground">
@@ -490,12 +490,12 @@ WICHTIG: Schreibe NUR die Persönlichkeits-Beschreibung, keine Erklärungen davo
                 >
                   {generatingPrompt ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <CircleNotch className="h-4 w-4 animate-spin" />
                       Generiere Persönlichkeit mit KI...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="h-4 w-4" />
+                      <Sparkle className="h-4 w-4" />
                       Persönlichkeit generieren
                     </>
                   )}
@@ -569,7 +569,7 @@ WICHTIG: Schreibe NUR die Persönlichkeits-Beschreibung, keine Erklärungen davo
                     className="h-8 w-8 p-0"
                     title="Bearbeiten"
                   >
-                    <Edit2 className="h-4 w-4" />
+                    <PencilSimple className="h-4 w-4" />
                   </Button>
                   <Button
                     size="sm"
@@ -578,7 +578,7 @@ WICHTIG: Schreibe NUR die Persönlichkeits-Beschreibung, keine Erklärungen davo
                     className="h-8 w-8 p-0"
                     title="Erweiterte Einstellungen"
                   >
-                    <Settings className="h-4 w-4" />
+                    <Gear className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -624,7 +624,7 @@ WICHTIG: Schreibe NUR die Persönlichkeits-Beschreibung, keine Erklärungen davo
                       className="h-8 w-8 p-0"
                       title="Bearbeiten"
                     >
-                      <Edit2 className="h-4 w-4" />
+                      <PencilSimple className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
@@ -633,7 +633,7 @@ WICHTIG: Schreibe NUR die Persönlichkeits-Beschreibung, keine Erklärungen davo
                       className="h-8 w-8 p-0"
                       title="Erweiterte Einstellungen"
                     >
-                      <Settings className="h-4 w-4" />
+                      <Gear className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
@@ -642,7 +642,7 @@ WICHTIG: Schreibe NUR die Persönlichkeits-Beschreibung, keine Erklärungen davo
                       className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                       title="Löschen"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

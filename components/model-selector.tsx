@@ -10,7 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, Sparkles } from "lucide-react"
+import { CaretDown, Sparkle } from "@phosphor-icons/react";
 import { POPULAR_OPENROUTER_MODELS } from "@/lib/openrouter"
 import { getUserSelectedModels } from "@/lib/model-preferences"
 
@@ -82,15 +82,15 @@ export function ModelSelector() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="gap-2 bg-transparent">
-          <Sparkles className="h-4 w-4" />
+          <Sparkle className="h-4 w-4" />
           <span className="max-w-[150px] truncate">{getModelDisplay(currentModel)}</span>
-          <ChevronDown className="h-4 w-4 opacity-50" />
+          <CaretDown className="h-4 w-4 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[280px] max-h-[500px] overflow-y-auto">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Cloud Models</span>
-          <Sparkles className="h-4 w-4" />
+          <Sparkle className="h-4 w-4" />
         </DropdownMenuLabel>
         {availableModels.map((model) => (
           <DropdownMenuItem

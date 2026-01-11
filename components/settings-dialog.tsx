@@ -29,7 +29,7 @@ function TabLoadingFallback() {
     </div>
   )
 }
-import { Brain, FlaskRound, Mic, MicOff, CheckCircle2, XCircle, AlertCircle, Settings, Key, Search, Volume2, Loader2, Puzzle } from "lucide-react"
+import { Brain, CheckCircle, CircleNotch, Flask, Gear, Key, MagnifyingGlass, Microphone, MicrophoneSlash, PuzzlePiece, SpeakerHigh, WarningCircle, XCircle } from "@phosphor-icons/react";
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
 
@@ -265,7 +265,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
           <div className="flex-shrink-0 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto sm:overflow-x-visible">
             <TabsList className="inline-flex w-auto min-w-full h-auto gap-1 justify-start sm:grid sm:grid-cols-4 sm:w-full sm:gap-1.5">
               <TabsTrigger value="general" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
-                <Settings className="h-3.5 w-3.5 mr-1.5 inline-block" />
+                <Gear className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 {translations.settings.general}
               </TabsTrigger>
               <TabsTrigger value="memory" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
@@ -277,21 +277,21 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                 API Keys
               </TabsTrigger>
               <TabsTrigger value="search" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
-                <Search className="h-3.5 w-3.5 mr-1.5 inline-block" />
+                <MagnifyingGlass className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 Search
               </TabsTrigger>
               <TabsTrigger value="mcp" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
-                <Puzzle className="h-3.5 w-3.5 mr-1.5 inline-block" />
+                <PuzzlePiece className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 MCP
               </TabsTrigger>
               {!hideOptions.includes("voice") && (
                 <TabsTrigger value="voice" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
-                  <Volume2 className="h-3.5 w-3.5 mr-1.5 inline-block" />
+                  <SpeakerHigh className="h-3.5 w-3.5 mr-1.5 inline-block" />
                   Voice
                 </TabsTrigger>
               )}
               <TabsTrigger value="experimental" className="text-xs sm:text-sm py-2 px-3 whitespace-nowrap">
-                <FlaskRound className="h-3.5 w-3.5 mr-1.5 inline-block" />
+                <Flask className="h-3.5 w-3.5 mr-1.5 inline-block" />
                 Labs
               </TabsTrigger>
             </TabsList>
@@ -1425,7 +1425,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                         </>
                       ) : micPermission === 'granted' ? (
                         <>
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          <CheckCircle className="h-4 w-4 text-green-500" />
                           Microphone OK
                         </>
                       ) : micPermission === 'denied' ? (
@@ -1435,7 +1435,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                         </>
                       ) : (
                         <>
-                          <Mic className="h-4 w-4" />
+                          <Microphone className="h-4 w-4" />
                           Test Microphone
                         </>
                       )}
@@ -1443,7 +1443,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
 
                     {micPermission === 'granted' && (
                       <span className="text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
-                        <CheckCircle2 className="h-4 w-4" /> Ready to use
+                        <CheckCircle className="h-4 w-4" /> Ready to use
                       </span>
                     )}
                   </div>
@@ -1451,7 +1451,7 @@ export function SettingsDialog({ open, onOpenChange, hideOptions = [] }: Extende
                   {micPermission === 'denied' && (
                     <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-3 space-y-2">
                       <p className="text-sm font-medium text-destructive flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4" />
+                        <WarningCircle className="h-4 w-4" />
                         Microphone access blocked
                       </p>
                       <div className="text-xs text-muted-foreground space-y-1">

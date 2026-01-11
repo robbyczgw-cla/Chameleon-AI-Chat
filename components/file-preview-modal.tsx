@@ -3,16 +3,7 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import {
-  X,
-  Download,
-  ZoomIn,
-  ZoomOut,
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-  Check
-} from "lucide-react"
+import { CaretLeft, CaretRight, Check, Copy, Download, MagnifyingGlassMinus, MagnifyingGlassPlus, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import { getFileCategory, formatFileSize, type FileAttachment } from "@/lib/file-handler"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -92,7 +83,7 @@ export function FilePreviewModal({ file, open, onOpenChange }: FilePreviewModalP
                     onClick={() => setZoom(Math.max(50, zoom - 10))}
                     disabled={zoom <= 50}
                   >
-                    <ZoomOut className="h-4 w-4" />
+                    <MagnifyingGlassMinus className="h-4 w-4" />
                   </Button>
                   <span className="text-sm font-medium min-w-[3rem] text-center">
                     {zoom}%
@@ -103,7 +94,7 @@ export function FilePreviewModal({ file, open, onOpenChange }: FilePreviewModalP
                     onClick={() => setZoom(Math.min(200, zoom + 10))}
                     disabled={zoom >= 200}
                   >
-                    <ZoomIn className="h-4 w-4" />
+                    <MagnifyingGlassPlus className="h-4 w-4" />
                   </Button>
                 </>
               )}

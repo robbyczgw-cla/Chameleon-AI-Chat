@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Bot, ChevronDown, Check } from "lucide-react"
+import { CaretDown, Check, Robot } from "@phosphor-icons/react";
 import { POPULAR_OPENROUTER_MODELS } from "@/lib/openrouter"
 import { getUserSelectedModels } from "@/lib/model-preferences"
 import { getModelDescription, getModelCategory } from "@/lib/model-descriptions"
@@ -94,7 +94,7 @@ export function QuickModelPicker() {
           size="sm"
           className="h-7 md:h-8 px-2 md:px-3 rounded-md border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all text-xs"
         >
-          <Bot className="h-3 w-3 md:h-3.5 md:w-3.5 mr-1.5 text-primary" />
+          <Robot className="h-3 w-3 md:h-3.5 md:w-3.5 mr-1.5 text-primary" />
           {/* Mobile: 18 chars, Desktop: full name with CSS truncate */}
           <span className="font-medium md:hidden">
             {getModelDisplay(currentModel, 18)}
@@ -102,7 +102,7 @@ export function QuickModelPicker() {
           <span className="font-medium hidden md:inline max-w-[120px] truncate">
             {getModelDisplay(currentModel)}
           </span>
-          <ChevronDown className="h-3 w-3 ml-1 opacity-60" />
+          <CaretDown className="h-3 w-3 ml-1 opacity-60" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

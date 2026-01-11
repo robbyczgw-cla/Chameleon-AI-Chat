@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Bot, User, Copy, Check, Eye, ExternalLink, MessageSquare } from "lucide-react"
+import { ArrowSquareOut, Chat, Check, Copy, Eye, Robot, User } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import ReactMarkdown from "react-markdown"
@@ -124,7 +124,7 @@ export function SharedChatView({ chat, shareToken }: SharedChatViewProps) {
               className="gap-1.5"
             >
               <a href="/" target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4" />
+                <ArrowSquareOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Try Chameleon</span>
               </a>
             </Button>
@@ -136,7 +136,7 @@ export function SharedChatView({ chat, shareToken }: SharedChatViewProps) {
       <main className="max-w-4xl mx-auto px-4 py-6">
         {/* Info Banner */}
         <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/10 flex items-start gap-3">
-          <MessageSquare className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+          <Chat className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm text-foreground">
               This is a read-only view of a shared conversation.
@@ -171,7 +171,7 @@ export function SharedChatView({ chat, shareToken }: SharedChatViewProps) {
                 {message.role === "user" ? (
                   <User className="h-5 w-5" />
                 ) : (
-                  <Bot className="h-5 w-5 text-primary" />
+                  <Robot className="h-5 w-5 text-primary" />
                 )}
               </div>
 

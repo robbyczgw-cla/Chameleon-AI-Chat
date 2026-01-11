@@ -1,10 +1,10 @@
 "use client"
 
 import type React from "react"
+import { Camera, CircleNotch, FolderOpen, Image, Plus, Upload } from "@phosphor-icons/react";
 
 import { useRef, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Plus, Upload, Loader2, Camera, FolderOpen } from "lucide-react"
 import { processFile, type FileAttachment } from "@/lib/file-handler"
 import { useToast } from "@/hooks/use-toast"
 import { FilePreviewInline } from "@/components/file-preview-inline"
@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { haptics } from "@/lib/haptics"
 import { Capacitor } from "@capacitor/core"
-import { ImageIcon } from "lucide-react"
 
 interface FileUploadProps {
   onFilesChange: (files: FileAttachment[]) => void
@@ -228,7 +227,7 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
               title="Attach files or take photo"
             >
               {isProcessing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <CircleNotch className="h-4 w-4 animate-spin" />
               ) : (
                 <Plus className="h-4 w-4" />
               )}
@@ -240,7 +239,7 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
               <span>Take Photo</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleGallerySelect} className="gap-2 cursor-pointer">
-              <ImageIcon className="h-4 w-4" />
+              <Image className="h-4 w-4" />
               <span>Gallery</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={openFilePicker} className="gap-2 cursor-pointer">
@@ -261,7 +260,7 @@ export function FileUpload({ onFilesChange, files }: FileUploadProps) {
           title="Attach files"
         >
           {isProcessing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <CircleNotch className="h-4 w-4 animate-spin" />
           ) : (
             <Plus className="h-4 w-4" />
           )}

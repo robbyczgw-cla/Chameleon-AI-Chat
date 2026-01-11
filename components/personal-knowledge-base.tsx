@@ -9,17 +9,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import {
-  Database,
-  Search,
-  Loader2,
-  BookOpen,
-  MessageSquare,
-  Calendar,
-  Sparkles,
-  Info,
-  ExternalLink
-} from "lucide-react"
+import { ArrowSquareOut, BookOpen, Calendar, Chat, CircleNotch, Database, Info, MagnifyingGlass, Sparkle } from "@phosphor-icons/react";
 import { streamChatMessage } from "@/lib/openrouter"
 import { cn } from "@/lib/utils"
 
@@ -237,9 +227,9 @@ Antworte NUR mit dem JSON-Objekt.`
             />
             <Button onClick={handleSearch} disabled={isSearching || !searchQuery.trim()}>
               {isSearching ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <CircleNotch className="h-4 w-4 animate-spin" />
               ) : (
-                <Search className="h-4 w-4" />
+                <MagnifyingGlass className="h-4 w-4" />
               )}
             </Button>
           </div>
@@ -247,7 +237,7 @@ Antworte NUR mit dem JSON-Objekt.`
 
         <div className="flex items-center justify-between pt-2 border-t">
           <Label htmlFor="ai-search" className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-purple-500" />
+            <Sparkle className="h-4 w-4 text-purple-500" />
             <span>AI-gestützte Suche (verbraucht Tokens)</span>
           </Label>
           <Switch
@@ -275,7 +265,7 @@ Antworte NUR mit dem JSON-Objekt.`
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <MessageSquare className="h-4 w-4 text-primary shrink-0" />
+                      <Chat className="h-4 w-4 text-primary shrink-0" />
                       <span className="font-medium text-sm truncate">{result.chatTitle}</span>
                     </div>
                     {result.relevanceScore && (
@@ -304,7 +294,7 @@ Antworte NUR mit dem JSON-Objekt.`
 
                   <Button variant="ghost" size="sm" className="h-7 text-xs">
                     Zur Konversation
-                    <ExternalLink className="h-3 w-3 ml-1" />
+                    <ArrowSquareOut className="h-3 w-3 ml-1" />
                   </Button>
                 </Card>
               ))}
@@ -316,7 +306,7 @@ Antworte NUR mit dem JSON-Objekt.`
       {/* Empty State - No Results */}
       {!isSearching && searchQuery && searchResults.length === 0 && (
         <Card className="p-6 text-center bg-muted/30 border-dashed">
-          <Search className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+          <MagnifyingGlass className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
           <p className="text-sm text-muted-foreground">
             Keine Ergebnisse für "{searchQuery}"
           </p>

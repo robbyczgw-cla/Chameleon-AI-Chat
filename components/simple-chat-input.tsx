@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { Send, Globe, Square, Lightbulb, Mic, MicOff, Image } from "lucide-react"
+import { Globe, Image, Lightbulb, Microphone, MicrophoneSlash, PaperPlaneRight, Square } from "@phosphor-icons/react";
 import { useState, useEffect, useRef, useMemo } from "react"
 import { Capacitor } from "@capacitor/core"
 import { useApp } from "@/contexts/app-context"
@@ -1566,7 +1566,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
               {isChatLoading ? (
                 <Square className="h-3.5 w-3.5" />
               ) : (
-                <Send className="h-3.5 w-3.5" />
+                <PaperPlaneRight className="h-3.5 w-3.5" />
               )}
             </Button>
           </div>
@@ -1610,7 +1610,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
                 )}
                 onClick={handleVoice}
               >
-                {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                {isListening ? <MicrophoneSlash className="h-4 w-4" /> : <Microphone className="h-4 w-4" />}
               </Button>
 
               {/* Image mode - always visible, cycles: off → normal → high → off */}

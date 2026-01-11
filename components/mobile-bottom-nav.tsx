@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, Menu, Settings, Sliders, MoreHorizontal } from "lucide-react"
+import { DotsThree, Gear, List, Plus, Sliders } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
 import { MobileMoreMenu } from "@/components/mobile-more-menu"
@@ -64,7 +64,7 @@ export function MobileBottomNav({
               : "text-muted-foreground hover:text-foreground active:scale-95"
           )}
         >
-          <Menu className={cn("h-5 w-5 transition-transform", activeView === "chats" && "scale-110")} />
+          <List className={cn("h-5 w-5 transition-transform", activeView === "chats" && "scale-110")} />
           <span className="text-[10px] font-semibold tracking-wide">Chats</span>
           {activeView === "chats" && (
             <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary" />
@@ -81,7 +81,7 @@ export function MobileBottomNav({
               : "text-muted-foreground hover:text-foreground active:scale-95"
           )}
         >
-          <Settings className={cn("h-5 w-5 transition-transform", activeView === "settings" && "scale-110")} />
+          <Gear className={cn("h-5 w-5 transition-transform", activeView === "settings" && "scale-110")} />
           <span className="text-[10px] font-semibold tracking-wide">Settings</span>
           {activeView === "settings" && (
             <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary" />

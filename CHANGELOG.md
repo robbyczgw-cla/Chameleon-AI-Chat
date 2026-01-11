@@ -6,6 +6,26 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
+## [Unreleased]
+
+### 🎨 Icon System Migration
+
+**Migrated from Lucide Icons to Phosphor Icons** for a more distinctive visual identity.
+
+- **Why?** Lucide has become ubiquitous in AI-generated UIs, creating visual homogeneity
+- **What changed:**
+  - Replaced `lucide-react` with `@phosphor-icons/react`
+  - 110+ icons migrated across 80+ components
+  - Updated `components.json` to use Phosphor as the icon library
+- **Benefits:**
+  - 6 icon weights (thin, light, regular, bold, fill, duotone)
+  - 9,000+ icons available
+  - More distinctive, polished visual style
+  - Same tree-shaking benefits as Lucide
+- **For contributors:** See [docs/ICON-MIGRATION.md](./docs/ICON-MIGRATION.md) for the icon mapping reference
+
+---
+
 ## [1.0.0-beta] - 2026-01-11
 
 ### 🎉 Public Release

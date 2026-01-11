@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Zap, Brain, Link2, Sparkles } from "lucide-react"
+import { ArrowRight, Brain, Lightning, LinkSimple, Sparkle } from "@phosphor-icons/react";
 import type { CategorizedFollowUp } from "@/lib/follow-up-parser"
 import { cn, generateKey } from "@/lib/utils"
 // NOTE: We pass settings as a prop from the parent (ChatMessages) to avoid
@@ -17,7 +17,7 @@ interface FollowUpSuggestionsProps {
 // Category-specific styling configuration
 const categoryStyles = {
   quick: {
-    icon: Zap,
+    icon: Lightning,
     label: "Quick",
     containerBg: "bg-gradient-to-r from-emerald-50/80 to-green-50/50 dark:from-emerald-950/30 dark:to-green-950/20",
     labelBg: "bg-emerald-100 dark:bg-emerald-900/50",
@@ -41,7 +41,7 @@ const categoryStyles = {
     gradient: "from-violet-500 to-purple-500",
   },
   related: {
-    icon: Link2,
+    icon: LinkSimple,
     label: "Related",
     containerBg: "bg-gradient-to-r from-cyan-50/80 to-blue-50/50 dark:from-cyan-950/30 dark:to-blue-950/20",
     labelBg: "bg-cyan-100 dark:bg-cyan-900/50",
@@ -214,7 +214,7 @@ export function FollowUpSuggestions({ suggestions, categorizedSuggestions, onSel
         {/* Header */}
         <div className="flex items-center gap-2 mb-2.5">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
-            <Sparkles className="h-3.5 w-3.5" />
+            <Sparkle className="h-3.5 w-3.5" />
             <span>Suggestions</span>
           </div>
           <div className="h-px flex-1 bg-gradient-to-r from-primary/30 to-transparent" />

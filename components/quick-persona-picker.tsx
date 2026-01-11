@@ -16,7 +16,7 @@ import {
   DropdownMenuPortal,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu"
-import { User, ChevronDown, Check } from "lucide-react"
+import { CaretDown, Check, User } from "@phosphor-icons/react";
 import { type Persona, type PersonaCategory, getVisiblePersonas, getPersonasByCategory, CATEGORY_LABELS } from "@/lib/personas"
 import { PersonasStorageService } from "@/lib/personas-storage"
 import { cn } from "@/lib/utils"
@@ -164,7 +164,7 @@ export function QuickPersonaPicker({ flat = false }: QuickPersonaPickerProps) {
           <span className="font-medium max-w-[80px] md:max-w-[120px] truncate">
             {getPersonaDisplay()}
           </span>
-          <ChevronDown className="h-3 w-3 ml-1 opacity-60" />
+          <CaretDown className="h-3 w-3 ml-1 opacity-60" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

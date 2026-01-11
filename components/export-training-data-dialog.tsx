@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useApp } from "@/contexts/app-context"
-import { Download, FileJson } from "lucide-react"
+import { Download, FileCode } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast"
 import type { Chat, Message } from "@/types"
 
@@ -168,7 +168,7 @@ export function ExportTrainingDataDialog({ open, onOpenChange }: ExportTrainingD
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FileJson className="h-5 w-5" />
+            <FileCode className="h-5 w-5" />
             Export as Training Data
           </DialogTitle>
         </DialogHeader>

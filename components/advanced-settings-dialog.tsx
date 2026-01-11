@@ -11,7 +11,7 @@ import { useApp } from "@/contexts/app-context"
 import type { ModelParameters } from "@/types"
 import { ModelManagement } from "@/components/model-management"
 import { ShareDialog } from "@/components/share-dialog"
-import { Share2 } from "lucide-react"
+import { ShareNetwork } from "@phosphor-icons/react";
 
 interface AdvancedSettingsDialogProps {
   open: boolean
@@ -178,7 +178,7 @@ export function AdvancedSettingsDialog({ open, onOpenChange }: AdvancedSettingsD
           <TabsContent value="share" className="flex-1 overflow-y-auto mt-3">
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
               <div className="p-4 rounded-full bg-primary/10">
-                <Share2 className="h-8 w-8 text-primary" />
+                <ShareNetwork className="h-8 w-8 text-primary" />
               </div>
               <div className="text-center space-y-2">
                 <h3 className="text-lg font-semibold">Share This Chat</h3>
@@ -191,7 +191,7 @@ export function AdvancedSettingsDialog({ open, onOpenChange }: AdvancedSettingsD
                   onClick={() => setIsShareOpen(true)}
                   className="gap-2"
                 >
-                  <Share2 className="h-4 w-4" />
+                  <ShareNetwork className="h-4 w-4" />
                   Share Chat
                 </Button>
               ) : (

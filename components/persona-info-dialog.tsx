@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import { Brain, Mic, Clock, Heart, TrendingUp, Calendar, MessageCircle } from "lucide-react"
+import { Brain, Calendar, ChatCircle, Clock, Heart, Microphone, TrendUp } from "@phosphor-icons/react";
 import type { Persona } from "@/lib/personas"
 import { personaMemoryService } from "@/lib/persona-memory-service"
 import { personaPreferencesService } from "@/lib/persona-preferences-service"
@@ -106,7 +106,7 @@ export function PersonaInfoDialog({ persona, open, onOpenChange }: PersonaInfoDi
 
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="flex items-center gap-2">
-                      <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                      <ChatCircle className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <div className="text-muted-foreground">Gespräche</div>
                         <div className="font-semibold">{relationshipStats.totalInteractions}</div>
@@ -134,7 +134,7 @@ export function PersonaInfoDialog({ persona, open, onOpenChange }: PersonaInfoDi
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-blue-500" />
+                  <TrendUp className="h-5 w-5 text-blue-500" />
                   <CardTitle>Gelernte Präferenzen</CardTitle>
                 </div>
                 <CardDescription>
@@ -212,7 +212,7 @@ export function PersonaInfoDialog({ persona, open, onOpenChange }: PersonaInfoDi
               </div>
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <Mic className="h-4 w-4" />
+                  <Microphone className="h-4 w-4" />
                   <span>Persona Voice</span>
                 </div>
                 <Badge variant={persona.voiceSettings?.enabled ? "default" : "secondary"}>

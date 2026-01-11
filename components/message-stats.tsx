@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, ChevronRight } from "lucide-react"
+import { CaretDown, CaretRight } from "@phosphor-icons/react";
 import type { Message, StatsDisplaySettings } from "@/types"
 
 interface MessageStatsProps {
@@ -34,7 +34,7 @@ function CollapsibleSection({
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center gap-1.5 text-left font-semibold text-muted-foreground mb-1 hover:text-foreground transition-colors min-w-0"
       >
-        {isOpen ? <ChevronDown className="h-3 w-3 shrink-0" /> : <ChevronRight className="h-3 w-3 shrink-0" />}
+        {isOpen ? <CaretDown className="h-3 w-3 shrink-0" /> : <CaretRight className="h-3 w-3 shrink-0" />}
         <span className="flex items-center gap-2 min-w-0 truncate">
           <span className="shrink-0">{icon}</span>
           <span className="truncate">{title}</span>

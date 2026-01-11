@@ -8,25 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
-import {
-  Brain,
-  Sparkles,
-  Target,
-  User,
-  Lightbulb,
-  TrendingUp,
-  Trash2,
-  Info,
-  Download,
-  Upload,
-  Shield,
-  Cloud,
-  AlertTriangle,
-  RotateCcw,
-  Clock,
-  Archive,
-  Timer,
-} from "lucide-react"
+import { Archive, ArrowCounterClockwise, Brain, Clock, Cloud, Download, Info, Lightbulb, Shield, Sparkle, Target, Timer, Trash, TrendUp, Upload, User, Warning } from "@phosphor-icons/react";
 import { memoryService } from "@/lib/memory-service"
 import type { Memory, DeletedMemory } from "@/types"
 import { cn } from "@/lib/utils"
@@ -315,9 +297,9 @@ export function AIMemoryHub() {
       case "fact":
         return <Lightbulb className="h-4 w-4" />
       case "context":
-        return <Sparkles className="h-4 w-4" />
+        return <Sparkle className="h-4 w-4" />
       case "skill":
-        return <TrendingUp className="h-4 w-4" />
+        return <TrendUp className="h-4 w-4" />
       case "goal":
         return <Target className="h-4 w-4" />
     }
@@ -382,7 +364,7 @@ export function AIMemoryHub() {
                   {syncToDatabase ? "Cloud Sync Enabled" : "Local Storage Only"}
                   {syncToDatabase && (
                     <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-600">
-                      <AlertTriangle className="h-2.5 w-2.5 mr-1" />
+                      <Warning className="h-2.5 w-2.5 mr-1" />
                       Less Private
                     </Badge>
                   )}
@@ -409,7 +391,7 @@ export function AIMemoryHub() {
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 shadow-lg flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-white" />
+                <Sparkle className="h-5 w-5 text-white" />
               </div>
               <div className="flex-1">
                 <h4 className="font-medium text-sm">Auto-Extract Memories</h4>
@@ -477,7 +459,7 @@ export function AIMemoryHub() {
             {translations.memory.disabledDescription}
           </p>
           <Button onClick={() => toggleMemorySystem(true)} size="sm">
-            <Sparkles className="h-4 w-4 mr-2" />
+            <Sparkle className="h-4 w-4 mr-2" />
             {translations.memory.enableButton}
           </Button>
         </Card>
@@ -624,7 +606,7 @@ export function AIMemoryHub() {
                               onClick={() => deleteMemory(memory.id)}
                               className="h-8 w-8 p-0 shrink-0"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash className="h-4 w-4" />
                             </Button>
                           </div>
                         </Card>
@@ -700,7 +682,7 @@ export function AIMemoryHub() {
                                 onClick={() => restoreMemory(memory.id)}
                                 className="h-8 px-2 text-green-600 border-green-500/50 hover:bg-green-50 dark:hover:bg-green-950/30"
                               >
-                                <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                                <ArrowCounterClockwise className="h-3.5 w-3.5 mr-1" />
                                 Restore
                               </Button>
                               <Button
@@ -709,7 +691,7 @@ export function AIMemoryHub() {
                                 onClick={() => permanentlyDeleteFromArchive(memory.id)}
                                 className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash className="h-4 w-4" />
                               </Button>
                             </div>
                           </div>

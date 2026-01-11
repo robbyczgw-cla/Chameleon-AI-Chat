@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useApp } from "@/contexts/app-context"
 import { estimateTokens } from "@/lib/token-tracker"
-import { Coins, Type } from "lucide-react"
+import { Coins, TextT } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 interface TokenCounterPreviewProps {
@@ -41,7 +41,7 @@ export function TokenCounterPreview({ input }: TokenCounterPreviewProps) {
         className="flex items-center gap-1.5 text-muted-foreground"
         title="Characters typed"
       >
-        <Type className="h-3.5 w-3.5" />
+        <TextT className="h-3.5 w-3.5" />
         <span className="font-medium tabular-nums">{charCount.toLocaleString()}</span>
       </div>
 

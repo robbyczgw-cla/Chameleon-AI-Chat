@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { conversationStarters, creativeActions, simpleStatsService, type ConversationStarter, type CreativeAction } from "@/lib/simple-mode-features"
 import { cn } from "@/lib/utils"
-import { Sparkles, MessageCircle, Lightbulb, Palette, BookOpen, X, ChevronRight } from "lucide-react"
+import { BookOpen, CaretRight, ChatCircle, Lightbulb, Palette, Sparkle, X } from "@phosphor-icons/react";
 
 const translations = {
   en: {
@@ -119,7 +119,7 @@ export function StartersDialog({ open, onOpenChange, onSelectPrompt, lang }: Sta
       <DialogContent className="sm:max-w-md max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5 text-violet-500" />
+            <ChatCircle className="h-5 w-5 text-violet-500" />
             {t.starters}
           </DialogTitle>
           <DialogDescription>{t.startersDesc}</DialogDescription>
@@ -154,7 +154,7 @@ export function StartersDialog({ open, onOpenChange, onSelectPrompt, lang }: Sta
             >
               <span className="text-2xl">{starter.emoji}</span>
               <span className="flex-1 font-medium text-sm">{starter.label[lang]}</span>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <CaretRight className="h-4 w-4 text-muted-foreground" />
             </button>
           ))}
         </div>
@@ -238,7 +238,7 @@ export function CreativeCornerDialog({ open, onOpenChange, onGenerate, lang }: C
                   <p className="font-medium">{action.label[lang]}</p>
                   <p className="text-sm text-muted-foreground">{action.description[lang]}</p>
                 </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                <CaretRight className="h-5 w-5 text-muted-foreground" />
               </button>
             ))}
           </div>
@@ -281,7 +281,7 @@ export function CreativeCornerDialog({ open, onOpenChange, onGenerate, lang }: C
                 onClick={handleGenerate}
                 className="flex-1 bg-gradient-to-r from-purple-500 to-violet-600"
               >
-                <Sparkles className="h-4 w-4 mr-2" />
+                <Sparkle className="h-4 w-4 mr-2" />
                 {t.generate}
               </Button>
             </div>

@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Sparkles, Shield } from "lucide-react"
+import { Shield, Sparkle } from "@phosphor-icons/react"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { LegalFooter } from "@/components/legal-footer"
 
@@ -275,7 +275,7 @@ export default function Page() {
                           </>
                         ) : (
                           <>
-                            <Sparkles className="w-4 h-4" />
+                            <Sparkle className="w-4 h-4" />
                             Create Account
                           </>
                         )}

@@ -322,7 +322,7 @@ See [docs/README.md](./docs/README.md) for the complete documentation index.
 | Layer | Technologies |
 |-------|-------------|
 | **Frontend** | Next.js 16, React 19, TypeScript 5, Tailwind CSS 4 |
-| **UI Components** | shadcn/ui, Radix UI primitives, Lucide icons |
+| **UI Components** | shadcn/ui, Radix UI primitives, Phosphor icons |
 | **Database** | Supabase (PostgreSQL + pgvector for embeddings) |
 | **AI Provider** | OpenRouter API (100+ models unified API) |
 | **Auth** | Supabase Auth with Row-Level Security |

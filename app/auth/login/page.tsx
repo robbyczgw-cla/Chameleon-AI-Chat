@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Sparkles, Shield, Lock } from "lucide-react"
+import { Lock, Shield, Sparkle } from "@phosphor-icons/react"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { LegalFooter } from "@/components/legal-footer"
 
@@ -149,7 +149,7 @@ export default function Page() {
                           </>
                         ) : (
                           <>
-                            <Sparkles className="w-4 h-4" />
+                            <Sparkle className="w-4 h-4" />
                             Sign In
                           </>
                         )}
@@ -186,7 +186,7 @@ export default function Page() {
                       }}
                     >
                       <span className="relative flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        <Sparkles className="w-4 h-4 text-green-600" />
+                        <Sparkle className="w-4 h-4 text-green-600" />
                         Try Without Login
                       </span>
                     </Button>

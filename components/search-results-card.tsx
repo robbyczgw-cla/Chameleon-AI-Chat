@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { ChevronDown, ChevronRight, ExternalLink, FileSearch, Image as ImageIcon } from "lucide-react"
+import { ArrowSquareOut, CaretDown, CaretRight, FileMagnifyingGlass, Image } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import type { SearchResult } from "@/lib/search/types"
 
@@ -93,11 +93,11 @@ export function SearchResultsCard({
         className="w-full flex items-center gap-2 p-2 sm:p-2.5 hover:bg-cyan-500/20 transition-colors"
       >
         {isExpanded ? (
-          <ChevronDown className="w-4 h-4 text-cyan-500 flex-shrink-0" />
+          <CaretDown className="w-4 h-4 text-cyan-500 flex-shrink-0" />
         ) : (
-          <ChevronRight className="w-4 h-4 text-cyan-500 flex-shrink-0" />
+          <CaretRight className="w-4 h-4 text-cyan-500 flex-shrink-0" />
         )}
-        <FileSearch className="w-4 h-4 text-cyan-500 flex-shrink-0" />
+        <FileMagnifyingGlass className="w-4 h-4 text-cyan-500 flex-shrink-0" />
         <div className="flex-1 text-left">
           <span className="text-xs sm:text-sm font-medium text-cyan-600 dark:text-cyan-400">
             {l.title}
@@ -126,7 +126,7 @@ export function SearchResultsCard({
                 onClick={() => setShowImages(!showImages)}
                 className="flex items-center gap-2 text-xs text-cyan-600 dark:text-cyan-400 hover:underline"
               >
-                <ImageIcon className="w-3.5 h-3.5" />
+                <Image className="w-3.5 h-3.5" />
                 {showImages ? l.hideImages : l.showImages}
               </button>
             </div>
@@ -174,7 +174,7 @@ export function SearchResultsCard({
                   <span className="text-sm font-medium text-foreground group-hover:underline line-clamp-2 flex-1">
                     {result.title}
                   </span>
-                  <ExternalLink className="w-3 h-3 text-cyan-500/50 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ArrowSquareOut className="w-3 h-3 text-cyan-500/50 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </a>
 
                 {/* Result URL */}

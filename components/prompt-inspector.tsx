@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
-import { Copy, FileCode, MessageSquare, Network } from "lucide-react"
+import { Chat, Copy, FileCode, Graph } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 
@@ -88,15 +88,15 @@ export function PromptInspector({ open, onOpenChange, data }: PromptInspectorPro
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-4">
             <TabsTrigger value="system-prompt" className="text-xs sm:text-sm">
-              <MessageSquare className="h-4 w-4 mr-1.5" />
+              <Chat className="h-4 w-4 mr-1.5" />
               System Prompt
             </TabsTrigger>
             <TabsTrigger value="messages" className="text-xs sm:text-sm">
-              <MessageSquare className="h-4 w-4 mr-1.5" />
+              <Chat className="h-4 w-4 mr-1.5" />
               Nachrichten
             </TabsTrigger>
             <TabsTrigger value="parameters" className="text-xs sm:text-sm">
-              <Network className="h-4 w-4 mr-1.5" />
+              <Graph className="h-4 w-4 mr-1.5" />
               Parameter
             </TabsTrigger>
             <TabsTrigger value="raw" className="text-xs sm:text-sm">

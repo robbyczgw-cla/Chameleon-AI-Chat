@@ -23,7 +23,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Brain, Plus, Trash2, Edit2, Search, TrendingUp, Zap, Target, Info, Download, Upload, Sparkles, Wrench } from "lucide-react"
+import { Brain, Download, Info, Lightning, MagnifyingGlass, PencilSimple, Plus, Sparkle, Target, Trash, TrendUp, Upload, Wrench } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { useApp } from "@/contexts/app-context"
@@ -304,13 +304,13 @@ export function MemoryManager() {
   const getTypeIcon = (type: Memory["type"]) => {
     switch (type) {
       case "preference":
-        return <Zap className="h-3 w-3" />
+        return <Lightning className="h-3 w-3" />
       case "fact":
         return <Info className="h-3 w-3" />
       case "context":
         return <Brain className="h-3 w-3" />
       case "skill":
-        return <TrendingUp className="h-3 w-3" />
+        return <TrendUp className="h-3 w-3" />
       case "goal":
         return <Target className="h-3 w-3" />
     }
@@ -380,7 +380,7 @@ export function MemoryManager() {
             onClick={handleGenerateEmbeddings}
             disabled={isGeneratingEmbeddings || memories.length === 0}
           >
-            <Sparkles className="h-4 w-4 mr-1" />
+            <Sparkle className="h-4 w-4 mr-1" />
             {isGeneratingEmbeddings ? "Generating..." : "Generate Embeddings"}
           </Button>
           <Button variant="outline" size="sm" onClick={handleExport} disabled={memories.length === 0}>
@@ -425,7 +425,7 @@ export function MemoryManager() {
       <div className="flex flex-wrap gap-2">
         <div className="flex-1 min-w-[200px]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search memories..."
               value={searchQuery}
@@ -507,7 +507,7 @@ export function MemoryManager() {
                       className="h-7 w-7"
                       onClick={() => setEditingMemory(memory)}
                     >
-                      <Edit2 className="h-3 w-3" />
+                      <PencilSimple className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -515,7 +515,7 @@ export function MemoryManager() {
                       className="h-7 w-7 text-destructive"
                       onClick={() => handleDeleteMemory(memory.id)}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>

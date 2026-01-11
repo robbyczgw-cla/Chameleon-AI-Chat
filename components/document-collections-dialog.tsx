@@ -12,7 +12,7 @@ import { generateDocumentEmbeddings } from "@/lib/semantic-search"
 import { useApp } from "@/contexts/app-context"
 import { getBackgroundModel } from "@/components/experimental-settings"
 import { deleteEmbedding } from "@/lib/embeddings-store"
-import { FolderOpen, Plus, Trash2, Upload, FileText } from "lucide-react"
+import { FileText, FolderOpen, Plus, Trash, Upload } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import type { DocumentCollection } from "@/types"
 
@@ -191,7 +191,7 @@ export function DocumentCollectionsDialog({ open, onOpenChange, onSelectCollecti
                           handleDeleteCollection(collection.id)
                         }}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash className="h-4 w-4" />
                       </Button>
                     </div>
                   ))
@@ -272,7 +272,7 @@ export function DocumentCollectionsDialog({ open, onOpenChange, onSelectCollecti
                             className="h-7 w-7 shrink-0"
                             onClick={() => handleRemoveDocument(selectedCollection.id, doc.id)}
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       ))

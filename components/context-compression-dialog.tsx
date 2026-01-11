@@ -11,7 +11,7 @@ import { useApp } from "@/contexts/app-context"
 import { contextWindowService, type CompressionResult } from "@/lib/context-window-service"
 import { streamChatMessage } from "@/lib/openrouter"
 import { cn } from "@/lib/utils"
-import { Shrink, Loader2, Check, AlertTriangle, Sparkles, FileText } from "lucide-react"
+import { ArrowsIn, Check, CircleNotch, FileText, Sparkle, Warning } from "@phosphor-icons/react";
 import { getBackgroundModel, DEFAULT_BACKGROUND_MODELS } from "@/components/experimental-settings"
 
 interface ContextCompressionDialogProps {
@@ -153,7 +153,7 @@ export function ContextCompressionDialog({ open, onOpenChange }: ContextCompress
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Shrink className="h-5 w-5 text-primary" />
+            <ArrowsIn className="h-5 w-5 text-primary" />
             Compress Conversation
           </DialogTitle>
           <DialogDescription>
@@ -243,12 +243,12 @@ export function ContextCompressionDialog({ open, onOpenChange }: ContextCompress
             >
               {isCompressing ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <CircleNotch className="h-4 w-4 animate-spin" />
                   Generating Summary...
                 </>
               ) : (
                 <>
-                  <Sparkles className="h-4 w-4" />
+                  <Sparkle className="h-4 w-4" />
                   Generate Summary
                 </>
               )}
@@ -258,7 +258,7 @@ export function ContextCompressionDialog({ open, onOpenChange }: ContextCompress
           {/* Error Display */}
           {error && (
             <div className="p-3 rounded-md bg-red-500/10 text-red-600 text-sm flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <Warning className="h-4 w-4 mt-0.5 flex-shrink-0" />
               {error}
             </div>
           )}

@@ -1,7 +1,7 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Circle } from "lucide-react"
+import { Circle } from "@phosphor-icons/react";
 
 export interface TimelineEvent {
   date: string

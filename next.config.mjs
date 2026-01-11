@@ -37,9 +37,9 @@ const nextConfig = {
   experimental: {
     turbopackUseSystemTlsCerts: true,
     // Enable optimized package imports for better tree-shaking
-    // lucide-react is already optimized by its own package, no need for modularizeImports
+    // @phosphor-icons/react and other packages benefit from this optimization
     optimizePackageImports: [
-      'lucide-react',
+      '@phosphor-icons/react',
       'date-fns',
       '@radix-ui/react-icons',
       'recharts',

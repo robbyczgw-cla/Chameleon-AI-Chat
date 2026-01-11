@@ -1,17 +1,8 @@
 "use client"
 
+import { CaretRight, Check, Code, GearSix, Heart, Lightning, PuzzlePiece, Sparkle } from "@phosphor-icons/react";
 import { useState } from "react"
 import { ChameleonLogo } from "@/components/chameleon-logo"
-import { Sparkles } from "lucide-react"
-import {
-  Zap,
-  Heart,
-  Settings2,
-  Code2,
-  Puzzle,
-  ChevronRight,
-  Check,
-} from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // Translations
@@ -156,19 +147,19 @@ export function ModeSelectionDialog({ open, onSelectMode }: ModeSelectionDialogP
                   <p className="text-sm text-muted-foreground mb-3">{t.simpleDesc}</p>
                   <ul className="space-y-1.5">
                     <li className="flex items-center gap-2 text-sm">
-                      <Sparkles className="h-4 w-4 text-violet-500 flex-shrink-0" />
+                      <Sparkle className="h-4 w-4 text-violet-500 flex-shrink-0" />
                       <span>{t.simpleFeature1}</span>
                     </li>
                     <li className="flex items-center gap-2 text-sm">
-                      <Sparkles className="h-4 w-4 text-violet-500 flex-shrink-0" />
+                      <Sparkle className="h-4 w-4 text-violet-500 flex-shrink-0" />
                       <span>{t.simpleFeature2}</span>
                     </li>
                     <li className="flex items-center gap-2 text-sm">
-                      <Sparkles className="h-4 w-4 text-violet-500 flex-shrink-0" />
+                      <Sparkle className="h-4 w-4 text-violet-500 flex-shrink-0" />
                       <span>{t.simpleFeature3}</span>
                     </li>
                     <li className="flex items-center gap-2 text-sm">
-                      <Sparkles className="h-4 w-4 text-violet-500 flex-shrink-0" />
+                      <Sparkle className="h-4 w-4 text-violet-500 flex-shrink-0" />
                       <span>{t.simpleFeature4}</span>
                     </li>
                   </ul>
@@ -191,7 +182,7 @@ export function ModeSelectionDialog({ open, onSelectMode }: ModeSelectionDialogP
                     : "bg-muted hover:bg-violet-100 dark:hover:bg-violet-900/30"
                 )}>
                   {t.chooseSimple}
-                  <ChevronRight className="h-4 w-4" />
+                  <CaretRight className="h-4 w-4" />
                 </span>
               </div>
             </button>
@@ -211,26 +202,26 @@ export function ModeSelectionDialog({ open, onSelectMode }: ModeSelectionDialogP
             >
               <div className="flex items-start gap-4">
                 <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center flex-shrink-0">
-                  <Zap className="h-6 w-6 text-white" />
+                  <Lightning className="h-6 w-6 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-lg font-semibold mb-1">{t.advancedMode}</h3>
                   <p className="text-sm text-muted-foreground mb-3">{t.advancedDesc}</p>
                   <ul className="space-y-1.5">
                     <li className="flex items-center gap-2 text-sm">
-                      <Settings2 className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      <GearSix className="h-4 w-4 text-blue-500 flex-shrink-0" />
                       <span>{t.advancedFeature1}</span>
                     </li>
                     <li className="flex items-center gap-2 text-sm">
-                      <Puzzle className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      <PuzzlePiece className="h-4 w-4 text-blue-500 flex-shrink-0" />
                       <span>{t.advancedFeature2}</span>
                     </li>
                     <li className="flex items-center gap-2 text-sm">
-                      <Code2 className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      <Code className="h-4 w-4 text-blue-500 flex-shrink-0" />
                       <span>{t.advancedFeature3}</span>
                     </li>
                     <li className="flex items-center gap-2 text-sm">
-                      <Zap className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      <Lightning className="h-4 w-4 text-blue-500 flex-shrink-0" />
                       <span>{t.advancedFeature4}</span>
                     </li>
                   </ul>
@@ -253,7 +244,7 @@ export function ModeSelectionDialog({ open, onSelectMode }: ModeSelectionDialogP
                     : "bg-muted hover:bg-blue-100 dark:hover:bg-blue-900/30"
                 )}>
                   {t.chooseAdvanced}
-                  <ChevronRight className="h-4 w-4" />
+                  <CaretRight className="h-4 w-4" />
                 </span>
               </div>
             </button>

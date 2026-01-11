@@ -363,7 +363,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig = {
   // ... existing config
   experimental: {
-    optimizePackageImports: ['lucide-react', 'react-markdown'], // Tree-shake
+    optimizePackageImports: ['@phosphor-icons/react', 'react-markdown'], // Tree-shake
   },
 }
 
@@ -699,14 +699,14 @@ input, textarea, select {
 'use client'
 
 import { Drawer } from 'vaul'
-import { Settings } from 'lucide-react'
+import { Gear } from '@phosphor-icons/react'
 
 function SettingsDrawer() {
   return (
     <Drawer.Root>
       <Drawer.Trigger asChild>
         <button className="p-2 rounded-full">
-          <Settings className="w-6 h-6" />
+          <Gear className="w-6 h-6" />
         </button>
       </Drawer.Trigger>
 

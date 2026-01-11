@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CONVERSATION_TEMPLATES, TEMPLATE_CATEGORIES, getTemplatesByCategory, type ConversationTemplate } from "@/lib/templates"
 import { useApp } from "@/contexts/app-context"
-import { Sparkles, X } from "lucide-react"
+import { Sparkle, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 interface ConversationTemplatesDialogProps {
@@ -52,7 +52,7 @@ export function ConversationTemplatesDialog({ open, onOpenChange }: Conversation
         <DialogHeader className="px-6 pt-6 pb-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-white" />
+              <Sparkle className="h-5 w-5 text-white" />
             </div>
             <div>
               <DialogTitle className="text-2xl">Conversation Templates</DialogTitle>

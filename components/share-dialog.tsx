@@ -8,18 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { useApp } from "@/contexts/app-context"
-import {
-  Share2,
-  Copy,
-  Check,
-  Trash2,
-  ExternalLink,
-  Eye,
-  Link2,
-  Loader2,
-  AlertCircle,
-  Globe,
-} from "lucide-react"
+import { ArrowSquareOut, Check, CircleNotch, Copy, Eye, Globe, LinkSimple, ShareNetwork, Trash, WarningCircle } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 interface ShareDialogProps {
@@ -196,12 +185,12 @@ export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDial
       >
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
-              <Share2 className="h-5 w-5 text-primary" />
+              <ShareNetwork className="h-5 w-5 text-primary" />
               Share Chat
             </DialogTitle>
           </DialogHeader>
           <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center py-8 text-center">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+            <WarningCircle className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">
               Sign in to share
             </h3>
@@ -225,7 +214,7 @@ export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDial
       >
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
-            <Share2 className="h-5 w-5 text-primary" />
+            <ShareNetwork className="h-5 w-5 text-primary" />
             Share Chat
           </DialogTitle>
           <DialogDescription>
@@ -259,10 +248,10 @@ export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDial
               />
               <Button onClick={createShare} disabled={creating}>
                 {creating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <CircleNotch className="h-4 w-4 animate-spin" />
                 ) : (
                   <>
-                    <Link2 className="h-4 w-4 mr-2" />
+                    <LinkSimple className="h-4 w-4 mr-2" />
                     Create Link
                   </>
                 )}
@@ -273,7 +262,7 @@ export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDial
           {/* Existing Shares */}
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <CircleNotch className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : shares.length > 0 ? (
             <div className="space-y-3">
@@ -350,7 +339,7 @@ export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDial
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          <ExternalLink className="h-4 w-4" />
+                          <ArrowSquareOut className="h-4 w-4" />
                         </a>
                       </Button>
                       <Button
@@ -359,7 +348,7 @@ export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDial
                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={() => deleteShare(share.id)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -368,7 +357,7 @@ export function ShareDialog({ open, onOpenChange, chatId, chatTitle }: ShareDial
             </div>
           ) : (
             <div className="text-center py-6 text-muted-foreground">
-              <Share2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <ShareNetwork className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm">No share links yet</p>
               <p className="text-xs mt-1">
                 Create a link to share this conversation

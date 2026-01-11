@@ -1,5 +1,6 @@
 "use client"
 
+import { Brain, CaretRight, GearSix, Key, Lightning, MagnifyingGlass, Palette, Question, Robot, Sparkle, SpeakerHigh, User } from "@phosphor-icons/react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useState, useEffect, type ChangeEvent } from "react"
 import { useApp } from "@/contexts/app-context"
@@ -9,8 +10,6 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { User, Palette, Key, Volume2, Settings2, ChevronRight, Search, Brain, HelpCircle, Bot } from "lucide-react"
-import { Sparkles, Zap, Shield, DollarSign } from "lucide-react"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { useToast } from "@/hooks/use-toast"
@@ -518,7 +517,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
       <DialogContent className="w-[min(96vw,900px)] sm:max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
+              <Sparkle className="h-5 w-5 text-primary" />
               {t.settings}
             </DialogTitle>
           </DialogHeader>
@@ -530,7 +529,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               <span className="hidden sm:inline">{t.profile}</span>
             </TabsTrigger>
             <TabsTrigger value="model" className="text-xs gap-1 px-1">
-              <Bot className="h-3.5 w-3.5" />
+              <Robot className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.aiModel}</span>
             </TabsTrigger>
             <TabsTrigger value="appearance" className="text-xs gap-1 px-1">
@@ -538,11 +537,11 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               <span className="hidden sm:inline">{t.look}</span>
             </TabsTrigger>
             <TabsTrigger value="search" className="text-xs gap-1 px-1">
-              <Search className="h-3.5 w-3.5" />
+              <MagnifyingGlass className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.search}</span>
             </TabsTrigger>
             <TabsTrigger value="voice" className="text-xs gap-1 px-1">
-              <Volume2 className="h-3.5 w-3.5" />
+              <SpeakerHigh className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.voice}</span>
             </TabsTrigger>
             <TabsTrigger value="memory" className="text-xs gap-1 px-1">
@@ -554,11 +553,11 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               <span className="hidden sm:inline">{t.api}</span>
             </TabsTrigger>
             <TabsTrigger value="help" className="text-xs gap-1 px-1">
-              <HelpCircle className="h-3.5 w-3.5" />
+              <Question className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.help}</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="text-xs gap-1 px-1">
-              <Settings2 className="h-3.5 w-3.5" />
+              <GearSix className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.advancedSettings}</span>
             </TabsTrigger>
           </TabsList>
@@ -622,7 +621,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 onClick={() => window.dispatchEvent(new Event("openProfile"))}
               >
                 <span>{t.editFullProfile}</span>
-                <ChevronRight className="h-4 w-4" />
+                <CaretRight className="h-4 w-4" />
               </Button>
             </TabsContent>
 
@@ -631,7 +630,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                    <Bot className="h-5 w-5 text-primary-foreground" />
+                    <Robot className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <div>
                     <h3 className="font-semibold">{t.chooseAiModel}</h3>
@@ -663,7 +662,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">{t.modelCodexDesc}</p>
                       <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400">
-                        <Sparkles className="h-3 w-3" />
+                        <Sparkle className="h-3 w-3" />
                         <span>Thinking Model • Great Value • {t.fast}</span>
                       </div>
                     </div>
@@ -697,7 +696,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">{t.modelGeminiDesc}</p>
                       <div className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400">
-                        <Zap className="h-3 w-3" />
+                        <Lightning className="h-3 w-3" />
                         <span>{t.modelGeminiStrengths}</span>
                       </div>
                     </div>
@@ -731,7 +730,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">{t.modelHaikuDesc}</p>
                       <div className="flex items-center gap-1.5 text-xs text-purple-600 dark:text-purple-400">
-                        <Zap className="h-3 w-3" />
+                        <Lightning className="h-3 w-3" />
                         <span>{t.modelHaikuStrengths}</span>
                       </div>
                     </div>
@@ -765,7 +764,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">{t.modelGrokDesc}</p>
                       <div className="flex items-center gap-1.5 text-xs text-orange-600 dark:text-orange-400">
-                        <Zap className="h-3 w-3" />
+                        <Lightning className="h-3 w-3" />
                         <span>{t.modelGrokStrengths}</span>
                       </div>
                     </div>
@@ -1179,7 +1178,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                     onClick={() => window.dispatchEvent(new Event("openMemory"))}
                   >
                     <span>{t.manageMemories}</span>
-                    <ChevronRight className="h-4 w-4" />
+                    <CaretRight className="h-4 w-4" />
                   </Button>
                   <p className="text-xs text-muted-foreground text-center">{t.viewAndEdit}</p>
                 </>
@@ -1238,7 +1237,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
               <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
-                    <HelpCircle className="h-5 w-5 text-white" />
+                    <Question className="h-5 w-5 text-white" />
                   </div>
                   <div>
                     <h3 className="font-semibold">{t.helpTitle}</h3>
@@ -1339,7 +1338,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                 <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-violet-500/10 border border-purple-500/20">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
-                      <Settings2 className="h-5 w-5 text-white" />
+                      <GearSix className="h-5 w-5 text-white" />
                     </div>
                     <div>
                       <h3 className="font-semibold">{t.advancedMode}</h3>
@@ -1354,7 +1353,7 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                   onClick={switchToAdvancedMode}
                 >
                   <span>{t.switchToAdvanced}</span>
-                  <ChevronRight className="h-4 w-4" />
+                  <CaretRight className="h-4 w-4" />
                 </Button>
             </TabsContent>
           </div>

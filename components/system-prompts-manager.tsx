@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Trash2, Edit, Plus, Check } from "lucide-react"
+import { Check, PencilSimple, Plus, Trash } from "@phosphor-icons/react";
 import { supabaseSync } from "@/lib/supabase/sync"
 import { createClient } from "@/lib/supabase/client"
 import type { SystemPrompt } from "@/types"
@@ -173,7 +173,7 @@ export function SystemPromptsManager() {
                     </Button>
                   )}
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenDialog(prompt)}>
-                    <Edit className="h-4 w-4" />
+                    <PencilSimple className="h-4 w-4" />
                   </Button>
                   {!prompt.isDefault && (
                     <Button
@@ -182,7 +182,7 @@ export function SystemPromptsManager() {
                       className="h-8 w-8 text-destructive"
                       onClick={() => handleDeletePrompt(prompt.id)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash className="h-4 w-4" />
                     </Button>
                   )}
                 </div>

@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Bot, User, Copy, Check, RefreshCw, Trash2, Volume2, VolumeX, ChevronDown, ChevronRight, Lightbulb, Pencil, X, Save } from "lucide-react"
+import { ArrowsClockwise, CaretDown, CaretRight, Check, Copy, FloppyDisk, Lightbulb, Pencil, Robot, SpeakerHigh, SpeakerSlash, Trash, User, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import { useState, memo, useCallback, useMemo } from "react"
 import dynamic from "next/dynamic"
@@ -707,7 +707,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                     </AvatarFallback>
                   ) : (
                     <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                      <Bot className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+                      <Robot className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                     </AvatarFallback>
                   )}
                 </Avatar>
@@ -781,7 +781,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                         onClick={() => handleEditSave(index)}
                         className="h-7 px-2"
                       >
-                        <Save className="h-3 w-3 mr-1" />
+                        <FloppyDisk className="h-3 w-3 mr-1" />
                         Save & Regenerate
                       </Button>
                     </div>
@@ -821,9 +821,9 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                           className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-amber-700 dark:text-amber-400 hover:bg-amber-100/50 dark:hover:bg-amber-900/30 transition-colors"
                         >
                           {expandedReasoning.has(message.id) ? (
-                            <ChevronDown className="h-4 w-4" />
+                            <CaretDown className="h-4 w-4" />
                           ) : (
-                            <ChevronRight className="h-4 w-4" />
+                            <CaretRight className="h-4 w-4" />
                           )}
                           <Lightbulb className="h-4 w-4" />
                           <span>Reasoning</span>
@@ -1059,7 +1059,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                     onClick={() => handleSpeak(message.content, message.id)}
                     title={speakingId === message.id ? "Stop speaking" : "Read aloud"}
                   >
-                    {speakingId === message.id ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
+                    {speakingId === message.id ? <SpeakerSlash className="h-3 w-3" /> : <SpeakerHigh className="h-3 w-3" />}
                   </Button>
                 )}
                 {message.role === "assistant" && (
@@ -1070,7 +1070,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                     onClick={() => handleRegenerate(index)}
                     title="Regenerate response"
                   >
-                    <RefreshCw className="h-3 w-3" />
+                    <ArrowsClockwise className="h-3 w-3" />
                   </Button>
                 )}
                 {message.role === "user" && editingMessageId !== message.id && (
@@ -1091,7 +1091,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                   onClick={() => handleDelete(index)}
                   title="Delete message"
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash className="h-3 w-3" />
                 </Button>
               </div>
             </div>
@@ -1125,7 +1125,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                   </AvatarFallback>
                 ) : (
                   <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                    <Bot className="h-4 w-4" />
+                    <Robot className="h-4 w-4" />
                   </AvatarFallback>
                 )}
               </Avatar>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, Edit2, Trash2, Save, X } from "lucide-react"
+import { FloppyDisk, PencilSimple, Plus, Trash, X } from "@phosphor-icons/react";
 import { generateUUID } from "@/lib/utils"
 import type { RAGDocument } from "@/lib/rag-service"
 import {
@@ -142,7 +142,7 @@ export function RAGManager() {
                       size="sm"
                       onClick={() => startEditing(doc)}
                     >
-                      <Edit2 className="h-4 w-4" />
+                      <PencilSimple className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -150,7 +150,7 @@ export function RAGManager() {
                       onClick={() => handleDelete(doc.id)}
                       className="text-destructive hover:text-destructive"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -195,7 +195,7 @@ function DocumentForm({ document, onSave, onCancel, isAdding }: DocumentFormProp
         </h4>
         <div className="flex gap-2">
           <Button type="submit" size="sm">
-            <Save className="h-4 w-4 mr-2" />
+            <FloppyDisk className="h-4 w-4 mr-2" />
             Speichern
           </Button>
           <Button type="button" variant="ghost" size="sm" onClick={onCancel}>

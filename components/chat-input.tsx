@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { FolderOpen, Send, Mic, Globe, MicOff, Square, Zap, Image } from "lucide-react"
+import { FolderOpen, Globe, Image, Lightning, Microphone, MicrophoneSlash, PaperPlaneRight, Square } from "@phosphor-icons/react";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { Capacitor } from "@capacitor/core"
 import { useApp } from "@/contexts/app-context"
@@ -1630,7 +1630,7 @@ export function ChatInput() {
                 <div className="absolute bottom-full left-0 right-0 mb-3 md:mb-4 bg-background border-2 border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[300px] md:max-h-[350px] overflow-y-auto animate-slide-in-down">
                   <div className="p-3 md:p-3.5 border-b border-border/40 gradient-glass">
                     <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground font-semibold">
-                      <Zap className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary glow-subtle" />
+                      <Lightning className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary glow-subtle" />
                       <span>Slash Commands</span>
                     </div>
                   </div>
@@ -1704,7 +1704,7 @@ export function ChatInput() {
                     onClick={toggleVoiceInput}
                     title="Voice input - Click to start speaking"
                   >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    {isListening ? <MicrophoneSlash className="h-4 w-4" /> : <Microphone className="h-4 w-4" />}
                   </Button>
                   {/* File upload */}
                   <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
@@ -1759,7 +1759,7 @@ export function ChatInput() {
               {isLoading ? (
                 <Square className="h-4 w-4 md:h-6 md:w-6" />
               ) : (
-                <Send className="h-4 w-4 md:h-6 md:w-6" />
+                <PaperPlaneRight className="h-4 w-4 md:h-6 md:w-6" />
               )}
             </Button>
           </div>
@@ -1798,7 +1798,7 @@ export function ChatInput() {
                 )}
                 onClick={toggleVoiceInput}
               >
-                {isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+                {isListening ? <MicrophoneSlash className="h-3.5 w-3.5" /> : <Microphone className="h-3.5 w-3.5" />}
               </Button>
               {/* File upload */}
               <FileUpload files={attachedFiles} onFilesChange={setAttachedFiles} />
