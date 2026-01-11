@@ -6,7 +6,7 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
-## [Unreleased]
+## [1.1.0] - 2026-01-11
 
 ### 🎨 Icon System Migration
 
@@ -22,7 +22,26 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
   - 9,000+ icons available
   - More distinctive, polished visual style
   - Same tree-shaking benefits as Lucide
-- **For contributors:** See [docs/ICON-MIGRATION.md](./docs/ICON-MIGRATION.md) for the icon mapping reference
+
+### 🎯 Semantic Icon Improvements
+
+Improved icon choices for better visual communication:
+
+| Component | Before | After | Reason |
+|-----------|--------|-------|--------|
+| Reasoning Low | Gauge | Feather | Lightweight processing |
+| Reasoning Medium | Sparkle | Scales | Balanced quality/speed |
+| Reasoning High | Fire | Atom | Deep/complex thinking |
+| Memory Context | Sparkle | Stack | Layered context data |
+| Theme: soft-sunrise | Sun | SunHorizon | Sunrise on horizon |
+| Theme: claude | Sparkle | Robot | AI/bot theme |
+| Theme: kawaii-pink | Heart | Star | Differentiated |
+| Theme: aurora | Sparkle | Rainbow | Aurora colors |
+| AI Debate Mode | Sword | UsersThree | Multiple perspectives |
+| Read File | FileText | FileArrowDown | Shows data direction |
+| Write File | FileText | FileArrowUp | Shows data direction |
+
+- **For contributors:** See [docs/ICON-MIGRATION.md](./docs/ICON-MIGRATION.md) for the full icon mapping reference
 
 ---
 
