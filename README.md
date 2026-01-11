@@ -2,15 +2,50 @@
 
 An open-source AI chat application with real-time cost tracking, 31 conversational personas, semantic memory, and training data export. Access 100+ AI models through a beautiful, privacy-focused interface.
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
-![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase)
+<p align="center">
+  <a href="https://camiai.xyz"><img src="https://img.shields.io/badge/Try_It_Now-camiai.xyz-22c55e?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwSj0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xOCA4QTYgNiAwIDAgMCA2IDhjMCA3LTMgOS0zIDloMThjMC0zLTMtMi0zLTlaIi8+PC9zdmc+" alt="Try It Now"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
+  <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" alt="Next.js">
+  <img src="https://img.shields.io/badge/TypeScript-5-blue?logo=typescript" alt="TypeScript">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react" alt="React">
+  <img src="https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase" alt="Supabase">
+</p>
 
 ---
 
 ![Chameleon AI Chat Screenshot](./docs/screenshot.png)
+
+---
+
+## Table of Contents
+
+- [Try It Now](#try-it-now)
+- [Why Chameleon?](#why-chameleon)
+- [Features](#features)
+- [Personas](#personas)
+- [Themes](#themes)
+- [Quick Start](#quick-start)
+- [Guest Mode vs Account](#guest-mode-vs-account)
+- [API Keys & Services](#api-keys--services)
+- [Documentation](#documentation)
+- [Tech Stack](#tech-stack)
+- [Privacy & Security](#privacy--security)
+- [Contributing](#contributing)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
+- [License](#license)
+
+---
+
+## Try It Now
+
+**No installation required!** Use Chameleon AI Chat instantly at **[camiai.xyz](https://camiai.xyz)**
+
+- Bring your own API keys (OpenRouter, etc.)
+- Start chatting with 100+ AI models immediately
+- All features available - personas, themes, voice, and more
 
 ---
 
@@ -129,7 +164,7 @@ Each persona has custom system prompts, communication styles, and specialized kn
 
 ```bash
 # Clone the repository
-git clone https://github.com/robbyczgw-cla/Chameleon-AI-Chat.git
+git clone https://github.com/your-username/Chameleon-AI-Chat.git
 cd Chameleon-AI-Chat
 
 # Install dependencies
@@ -210,16 +245,6 @@ Everything in Guest Mode, plus:
 | **OpenAI** | Whisper voice, DALL-E images | ❌ Optional | Pay-per-use |
 | **WeatherAPI** | Weather tool integration | ❌ Optional | Free tier available |
 
-### Estimated Monthly Costs
-
-| Usage Level | Models Used | Estimated Cost |
-|-------------|-------------|----------------|
-| **Casual** | GPT-4o-mini, Claude Haiku, free models | $1-5/month |
-| **Regular** | GPT-4o, Claude Sonnet | $10-20/month |
-| **Power User** | GPT-4o, Claude Opus, with vision/voice | $30-50/month |
-
-*Costs depend on usage. Many free models available (Llama, Mistral, etc.)*
-
 ---
 
 ## Documentation
@@ -293,10 +318,10 @@ We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guideline
 
 ### Quick Links
 
-- [Report a Bug](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=bug_report.md)
-- [Request a Feature](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=feature_request.md)
-- [Discussions](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions)
-- [Security Vulnerabilities](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/security/advisories/new)
+- [Report a Bug](https://github.com/your-username/Chameleon-AI-Chat/issues/new?template=bug_report.md)
+- [Request a Feature](https://github.com/your-username/Chameleon-AI-Chat/issues/new?template=feature_request.md)
+- [Discussions](https://github.com/your-username/Chameleon-AI-Chat/discussions)
+- [Security Vulnerabilities](https://github.com/your-username/Chameleon-AI-Chat/security/advisories/new)
 
 ---
 
