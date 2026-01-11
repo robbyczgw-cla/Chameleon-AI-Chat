@@ -9,37 +9,7 @@ import { useApp } from "@/contexts/app-context"
 import { getCostTracker, type CostEntry, type CostStats, type GenerationData } from "@/lib/cost-tracker"
 import { formatCost, formatTokens } from "@/lib/token-tracker"
 import { streamChatMessage } from "@/lib/openrouter"
-import {
-  BarChart3,
-  MessageSquare,
-  Clock,
-  TrendingUp,
-  DollarSign,
-  Zap,
-  Activity,
-  Download,
-  Trash2,
-  RefreshCw,
-  Server,
-  Gauge,
-  Brain,
-  Sparkles,
-  Search,
-  Target,
-  Award,
-  Timer,
-  Cpu,
-  Database,
-  Loader2,
-  Wrench,
-  Globe,
-  Youtube,
-  CloudSun,
-  Link,
-  FileText,
-  ImageIcon,
-  Bot,
-} from "lucide-react"
+import { ArrowsClockwise, Brain, ChartBar, Chat, CircleNotch, Clock, CloudSun, Cpu, CurrencyDollar, Database, Download, FileText, Gauge, Globe, HardDrives, Image, Lightning, Link, MagnifyingGlass, Medal, Pulse, Robot, Sparkle, Target, Timer, Trash, TrendUp, Wrench, YoutubeLogo } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 
@@ -445,17 +415,17 @@ Provide analysis in this JSON format:
   const getToolMeta = (toolName: string): { icon: React.ReactNode; color: string; label: string } => {
     const toolMap: Record<string, { icon: React.ReactNode; color: string; label: string }> = {
       web_search: { icon: <Globe className="h-4 w-4" />, color: "text-blue-600", label: "Web Search" },
-      search: { icon: <Search className="h-4 w-4" />, color: "text-blue-600", label: "Search" },
+      search: { icon: <MagnifyingGlass className="h-4 w-4" />, color: "text-blue-600", label: "Search" },
       url_fetch: { icon: <Link className="h-4 w-4" />, color: "text-green-600", label: "URL Fetch" },
       fetch_url: { icon: <Link className="h-4 w-4" />, color: "text-green-600", label: "URL Fetch" },
-      youtube: { icon: <Youtube className="h-4 w-4" />, color: "text-red-600", label: "YouTube" },
-      youtube_transcript: { icon: <Youtube className="h-4 w-4" />, color: "text-red-600", label: "YouTube Transcript" },
+      youtube: { icon: <YoutubeLogo className="h-4 w-4" />, color: "text-red-600", label: "YouTube" },
+      youtube_transcript: { icon: <YoutubeLogo className="h-4 w-4" />, color: "text-red-600", label: "YouTube Transcript" },
       weather: { icon: <CloudSun className="h-4 w-4" />, color: "text-yellow-600", label: "Weather" },
       get_weather: { icon: <CloudSun className="h-4 w-4" />, color: "text-yellow-600", label: "Weather" },
       read_file: { icon: <FileText className="h-4 w-4" />, color: "text-orange-600", label: "Read File" },
       write_file: { icon: <FileText className="h-4 w-4" />, color: "text-orange-600", label: "Write File" },
-      generate_image: { icon: <ImageIcon className="h-4 w-4" />, color: "text-pink-600", label: "Generate Image" },
-      image_generation: { icon: <ImageIcon className="h-4 w-4" />, color: "text-pink-600", label: "Image Generation" },
+      generate_image: { icon: <Image className="h-4 w-4" />, color: "text-pink-600", label: "Generate Image" },
+      image_generation: { icon: <Image className="h-4 w-4" />, color: "text-pink-600", label: "Image Generation" },
     }
     return toolMap[toolName.toLowerCase()] || {
       icon: <Wrench className="h-4 w-4" />,
@@ -488,7 +458,7 @@ Provide analysis in this JSON format:
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-2">
-              <BarChart3 className="h-6 w-6 text-primary" />
+              <ChartBar className="h-6 w-6 text-primary" />
               Statistics
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
@@ -533,7 +503,7 @@ Provide analysis in this JSON format:
             <TabsTrigger value="performance" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0">Perf</TabsTrigger>
             <TabsTrigger value="providers" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0">Providers</TabsTrigger>
             <TabsTrigger value="insights" className="text-xs sm:text-sm py-2 px-3 flex-shrink-0 flex items-center gap-1">
-              <Sparkles className="h-3 w-3" />
+              <Sparkle className="h-3 w-3" />
               Insights
             </TabsTrigger>
           </TabsList>
@@ -545,7 +515,7 @@ Provide analysis in this JSON format:
               <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30">
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                    <DollarSign className="h-4 w-4 text-green-600" />
+                    <CurrencyDollar className="h-4 w-4 text-green-600" />
                     Total Cost
                   </div>
                   <div className="text-2xl font-bold">{formatCost(stats?.totalCost || 0)}</div>
@@ -558,7 +528,7 @@ Provide analysis in this JSON format:
               <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                    <Zap className="h-4 w-4 text-blue-600" />
+                    <Lightning className="h-4 w-4 text-blue-600" />
                     Total Tokens
                   </div>
                   <div className="text-2xl font-bold">{formatTokens(stats?.totalTokens || 0)}</div>
@@ -571,7 +541,7 @@ Provide analysis in this JSON format:
               <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                    <MessageSquare className="h-4 w-4 text-purple-600" />
+                    <Chat className="h-4 w-4 text-purple-600" />
                     Messages
                   </div>
                   <div className="text-2xl font-bold">{totalMessages}</div>
@@ -601,7 +571,7 @@ Provide analysis in this JSON format:
                 <Card className="bg-muted/30">
                   <CardContent className="pt-4">
                     <div className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4" />
+                      <TrendUp className="h-4 w-4" />
                       Monthly Projection
                     </div>
                     <div className="text-lg">
@@ -620,7 +590,7 @@ Provide analysis in this JSON format:
                 <Card className="bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30">
                   <CardContent className="pt-4">
                     <div className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-indigo-600" />
+                      <CurrencyDollar className="h-4 w-4 text-indigo-600" />
                       OpenRouter Credits
                     </div>
                     <div className="text-lg">
@@ -642,7 +612,7 @@ Provide analysis in this JSON format:
             {/* Actions */}
             <div className="flex gap-2 flex-wrap">
               <Button onClick={fetchExactCosts} disabled={refreshing} variant="outline" size="sm">
-                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+                <ArrowsClockwise className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
                 Fetch Exact Costs
                 {entriesNeedingUpdate > 0 && (
                   <Badge variant="secondary" className="ml-2">{entriesNeedingUpdate}</Badge>
@@ -653,7 +623,7 @@ Provide analysis in this JSON format:
                 Export Data
               </Button>
               <Button onClick={handleClear} variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash className="h-4 w-4 mr-2" />
                 Clear Data
               </Button>
             </div>
@@ -662,7 +632,7 @@ Provide analysis in this JSON format:
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
+                  <Chat className="h-5 w-5" />
                   Message Distribution
                 </CardTitle>
               </CardHeader>
@@ -704,7 +674,7 @@ Provide analysis in this JSON format:
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
+                  <CurrencyDollar className="h-5 w-5" />
                   Cost by Model
                 </CardTitle>
                 <CardDescription>Top 5 models by spending</CardDescription>
@@ -734,7 +704,7 @@ Provide analysis in this JSON format:
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Activity className="h-5 w-5" />
+                    <Pulse className="h-5 w-5" />
                     Cost Over Time
                   </CardTitle>
                   <CardDescription>Last 14 days</CardDescription>
@@ -842,7 +812,7 @@ Provide analysis in this JSON format:
               <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30">
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                    <Bot className="h-4 w-4 text-green-600" />
+                    <Robot className="h-4 w-4 text-green-600" />
                     Tool Usage Rate
                   </div>
                   <div className="text-2xl font-bold">{toolUsageRate}%</div>
@@ -855,7 +825,7 @@ Provide analysis in this JSON format:
               <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                    <Search className="h-4 w-4 text-purple-600" />
+                    <MagnifyingGlass className="h-4 w-4 text-purple-600" />
                     Search Queries
                   </div>
                   <div className="text-2xl font-bold">
@@ -887,7 +857,7 @@ Provide analysis in this JSON format:
               <Card className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                    <DollarSign className="h-4 w-4 text-red-600" />
+                    <CurrencyDollar className="h-4 w-4 text-red-600" />
                     Tool Call Costs
                   </div>
                   <div className="text-2xl font-bold text-red-600">
@@ -976,7 +946,7 @@ Provide analysis in this JSON format:
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Search className="h-5 w-5" />
+                    <MagnifyingGlass className="h-5 w-5" />
                     Recent Search Queries
                   </CardTitle>
                   <CardDescription>Searches performed by AI tools</CardDescription>
@@ -1102,7 +1072,7 @@ Provide analysis in this JSON format:
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Activity className="h-5 w-5" />
+                    <Pulse className="h-5 w-5" />
                     Most Used Models
                   </CardTitle>
                   <CardDescription>By number of chats</CardDescription>
@@ -1132,7 +1102,7 @@ Provide analysis in this JSON format:
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Search className="h-5 w-5" />
+                  <MagnifyingGlass className="h-5 w-5" />
                   Search Configuration
                 </CardTitle>
               </CardHeader>
@@ -1182,7 +1152,7 @@ Provide analysis in this JSON format:
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Server className="h-5 w-5" />
+                  <HardDrives className="h-5 w-5" />
                   OpenRouter Provider Usage
                 </CardTitle>
                 <CardDescription>Which providers are serving your requests</CardDescription>
@@ -1214,7 +1184,7 @@ Provide analysis in this JSON format:
                   </div>
                 ) : (
                   <div className="text-sm text-muted-foreground p-8 text-center border rounded-lg">
-                    <Server className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <HardDrives className="h-8 w-8 mx-auto mb-2 opacity-50" />
                     <p>No provider data yet.</p>
                     <p className="text-xs mt-1">Provider info is collected from exact cost fetches.</p>
                   </div>
@@ -1276,12 +1246,12 @@ Provide analysis in this JSON format:
                 <Button onClick={generateAIInsights} disabled={isAnalyzing || chats.length === 0}>
                   {isAnalyzing ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <CircleNotch className="h-4 w-4 mr-2 animate-spin" />
                       Analyzing...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="h-4 w-4 mr-2" />
+                      <Sparkle className="h-4 w-4 mr-2" />
                       Generate Insights
                     </>
                   )}
@@ -1307,7 +1277,7 @@ Provide analysis in this JSON format:
                         onClick={generateAIInsights}
                         disabled={isAnalyzing}
                       >
-                        <Sparkles className="h-3 w-3 mr-1" />
+                        <Sparkle className="h-3 w-3 mr-1" />
                         Regenerate
                       </Button>
                     </div>
@@ -1324,7 +1294,7 @@ Provide analysis in this JSON format:
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2 text-green-600">
-                        <Award className="h-5 w-5" />
+                        <Medal className="h-5 w-5" />
                         Strengths
                       </CardTitle>
                     </CardHeader>

@@ -1,7 +1,7 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Check, X } from "lucide-react"
+import { Check, X } from "@phosphor-icons/react";
 
 export interface ComparisonOption {
   title: string

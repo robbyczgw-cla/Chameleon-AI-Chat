@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Swords, Sparkles, Loader2, Trophy, Scale, Lightbulb, Target, CheckCircle2, XCircle, AlertCircle, TrendingUp } from "lucide-react"
+import { CheckCircle, CircleNotch, Lightbulb, Scales, Sparkle, Sword, Target, TrendUp, Trophy, WarningCircle, XCircle } from "@phosphor-icons/react";
 import { streamChatMessage } from "@/lib/openrouter"
 import { getUserSelectedModels } from "@/lib/model-preferences"
 import { POPULAR_OPENROUTER_MODELS } from "@/lib/openrouter"
@@ -532,7 +532,7 @@ Sei objektiv und fair in deiner Bewertung!`
       <div className="border-b border-border/50 bg-gradient-to-r from-background/95 to-muted/20 p-3 sm:p-4 md:p-6">
         <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
           <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 shadow-lg flex items-center justify-center flex-shrink-0">
-            <Swords className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            <Sword className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-lg sm:text-xl font-bold truncate">AI Discussion</h2>
@@ -673,7 +673,7 @@ Sei objektiv und fair in deiner Bewertung!`
 
             <div>
               <Label className="text-xs sm:text-sm font-medium mb-2 flex items-center gap-1">
-                <Scale className="h-3 w-3" />
+                <Scales className="h-3 w-3" />
                 Richter (optional)
               </Label>
               <div className="flex gap-2">
@@ -727,7 +727,7 @@ Sei objektiv und fair in deiner Bewertung!`
               disabled={isDebating}
               className="h-auto py-2 flex-col items-center gap-1"
             >
-              <TrendingUp className="h-4 w-4" />
+              <TrendUp className="h-4 w-4" />
               <span className="text-xs">Live Score</span>
             </Button>
             <Button
@@ -737,7 +737,7 @@ Sei objektiv und fair in deiner Bewertung!`
               disabled={isDebating}
               className="h-auto py-2 flex-col items-center gap-1"
             >
-              <Sparkles className="h-4 w-4" />
+              <Sparkle className="h-4 w-4" />
               <span className="text-xs">Arg. Map</span>
             </Button>
           </div>
@@ -745,12 +745,12 @@ Sei objektiv und fair in deiner Bewertung!`
           <Button onClick={startDebate} disabled={isDebating || !topic.trim()} className="w-full h-10 sm:h-11 font-semibold text-sm">
             {isDebating ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
                 Round {currentRound} of {maxRounds}...
               </>
             ) : (
               <>
-                <Swords className="mr-2 h-4 w-4" />
+                <Sword className="mr-2 h-4 w-4" />
                 Start Discussion ({maxRounds} Rounds)
               </>
             )}
@@ -762,7 +762,7 @@ Sei objektiv und fair in deiner Bewertung!`
       <ScrollArea className="flex-1 p-3 sm:p-4 md:p-6">
         {debateMessages.length === 0 && !isDebating && (
           <div className="text-center py-8 sm:py-12 text-muted-foreground">
-            <Swords className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 opacity-50" />
+            <Sword className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 opacity-50" />
             <p className="text-base sm:text-lg font-medium">Ready to see what models really think?</p>
             <p className="text-xs sm:text-sm mt-2">Choose a topic, style, and two models</p>
           </div>
@@ -785,7 +785,7 @@ Sei objektiv und fair in deiner Bewertung!`
                       Round {round}
                     </Badge>
                     {round <= currentRound && roundMessages.length < 2 && isDebating && (
-                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      <CircleNotch className="h-4 w-4 animate-spin text-primary" />
                     )}
                   </div>
 
@@ -798,7 +798,7 @@ Sei objektiv und fair in deiner Bewertung!`
                           <Badge className="bg-purple-500 text-white text-xs">
                             {roundMessages.find((msg) => msg.model === model1)?.modelName}
                           </Badge>
-                          <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500" />
+                          <Sparkle className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500" />
                         </div>
                         <p className="text-xs sm:text-sm leading-relaxed">
                           {roundMessages.find((msg) => msg.model === model1)?.content}
@@ -813,7 +813,7 @@ Sei objektiv und fair in deiner Bewertung!`
                           <Badge className="bg-orange-500 text-white text-xs">
                             {roundMessages.find((msg) => msg.model === model2)?.modelName}
                           </Badge>
-                          <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
+                          <Sparkle className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
                         </div>
                         <p className="text-xs sm:text-sm leading-relaxed">
                           {roundMessages.find((msg) => msg.model === model2)?.content}
@@ -829,7 +829,7 @@ Sei objektiv und fair in deiner Bewertung!`
             {showScoreDashboard && debateMessages.length > 0 && (
               <Card className="p-4 sm:p-6 bg-gradient-to-br from-blue-500/10 to-background border-blue-500/30">
                 <div className="flex items-center gap-2 sm:gap-3 mb-4">
-                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />
+                  <TrendUp className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />
                   <h3 className="text-base sm:text-lg font-bold">Live Scoring Dashboard</h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -896,7 +896,7 @@ Sei objektiv und fair in deiner Bewertung!`
             {showArgumentMap && argumentMap.length > 0 && (
               <Card className="p-4 sm:p-6 bg-gradient-to-br from-green-500/10 to-background border-green-500/30">
                 <div className="flex items-center gap-2 sm:gap-3 mb-4">
-                  <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
+                  <Sparkle className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
                   <h3 className="text-base sm:text-lg font-bold">Argument Map</h3>
                 </div>
                 <div className="space-y-3">
@@ -949,9 +949,9 @@ Sei objektiv und fair in deiner Bewertung!`
                           )}
                         >
                           {check.confidence === "high" ? (
-                            <CheckCircle2 className="h-3 w-3 text-green-500" />
+                            <CheckCircle className="h-3 w-3 text-green-500" />
                           ) : check.confidence === "medium" ? (
-                            <AlertCircle className="h-3 w-3 text-yellow-500" />
+                            <WarningCircle className="h-3 w-3 text-yellow-500" />
                           ) : (
                             <XCircle className="h-3 w-3 text-red-500" />
                           )}
@@ -992,7 +992,7 @@ Sei objektiv und fair in deiner Bewertung!`
             {judgeVerdict && !isDebating && (
               <Card className="p-4 sm:p-6 bg-gradient-to-br from-amber-500/10 to-background border-amber-500/30">
                 <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                  <Scale className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
+                  <Scales className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
                   <h3 className="text-base sm:text-lg font-bold">Richter-Entscheidung</h3>
                   <Badge className="bg-amber-500 text-white text-xs">{judgeModel && getModelName(judgeModel)}</Badge>
                 </div>

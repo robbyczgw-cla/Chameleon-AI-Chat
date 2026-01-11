@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { XIcon } from 'lucide-react'
+import { X } from "@phosphor-icons/react";
 
 import { cn } from '@/lib/utils'
 
@@ -98,7 +98,7 @@ function DialogContent({
               cursor: 'pointer',
             }}
           >
-            <XIcon style={{ width: '14px', height: '14px' }} />
+            <X style={{ width: '14px', height: '14px' }} />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}

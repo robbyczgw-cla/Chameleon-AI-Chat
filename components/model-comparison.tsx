@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Columns2, Columns3, Grid2x2, X, History, Globe } from "lucide-react"
+import { ClockCounterClockwise, Columns, Globe, GridFour, X } from "@phosphor-icons/react";
 import type { Message } from "@/types"
 import { POPULAR_OPENROUTER_MODELS } from "@/lib/openrouter"
 import { getUserSelectedModels } from "@/lib/model-preferences"
@@ -410,7 +410,7 @@ export function ModelComparison() {
               title="Show History"
               className="h-9 w-9 sm:min-h-[44px] sm:min-w-[44px]"
             >
-              <History className="h-4 w-4" />
+              <ClockCounterClockwise className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
@@ -466,7 +466,7 @@ export function ModelComparison() {
             onClick={() => setLayout("2-column")}
             className="min-h-[44px] min-w-[44px]"
           >
-            <Columns2 className="h-4 w-4 mr-2" />
+            <Columns className="h-4 w-4 mr-2" />
             2 Col
           </Button>
           <Button
@@ -475,7 +475,7 @@ export function ModelComparison() {
             onClick={() => setLayout("3-column")}
             className="min-h-[44px] min-w-[44px]"
           >
-            <Columns3 className="h-4 w-4 mr-2" />
+            <Columns className="h-4 w-4 mr-2" />
             3 Col
           </Button>
           <Button
@@ -484,7 +484,7 @@ export function ModelComparison() {
             onClick={() => setLayout("4-column")}
             className="min-h-[44px] min-w-[44px]"
           >
-            <Grid2x2 className="h-4 w-4 mr-2" />
+            <GridFour className="h-4 w-4 mr-2" />
             4 Col
           </Button>
           {panels.length < 4 && (

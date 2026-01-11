@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Sparkles, Copy, Send, Lightbulb, BookOpen, CheckCircle2, XCircle } from "lucide-react"
+import { BookOpen, CheckCircle, Copy, Lightbulb, PaperPlaneRight, Sparkle, XCircle } from "@phosphor-icons/react";
 import { PROMPT_ENGINEERING_TIPS, PROMPT_TEMPLATES, improvePrompt } from "@/lib/prompt-engineering"
 import { useApp } from "@/contexts/app-context"
 import { getBackgroundModel } from "@/components/experimental-settings"
@@ -73,7 +73,7 @@ export function PromptHelperDialog({ open, onOpenChange, onUsePrompt }: PromptHe
       <DialogContent className="w-[95vw] !max-w-[95vw] md:w-[67vw] md:!max-w-[67vw] h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col">
         <DialogHeader className="pb-4 flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <Sparkles className="h-6 w-6 text-primary" />
+            <Sparkle className="h-6 w-6 text-primary" />
             Prompt Engineering Helper
           </DialogTitle>
           <DialogDescription className="text-sm">
@@ -102,7 +102,7 @@ export function PromptHelperDialog({ open, onOpenChange, onUsePrompt }: PromptHe
                     {PROMPT_ENGINEERING_TIPS.map((tip, index) => (
                       <div key={index} className="space-y-2 p-3 rounded-lg bg-muted/30">
                         <h4 className="font-semibold text-sm flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          <CheckCircle className="h-4 w-4 text-green-500" />
                           {tip.title}
                         </h4>
                         <p className="text-xs text-muted-foreground">{tip.description}</p>
@@ -112,7 +112,7 @@ export function PromptHelperDialog({ open, onOpenChange, onUsePrompt }: PromptHe
                             <span className="text-red-600/80">{tip.example.bad}</span>
                           </div>
                           <div className="flex items-start gap-2">
-                            <CheckCircle2 className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
                             <span className="text-green-600/80">{tip.example.good}</span>
                           </div>
                         </div>
@@ -163,7 +163,7 @@ export function PromptHelperDialog({ open, onOpenChange, onUsePrompt }: PromptHe
               />
               <div className="flex items-center gap-2">
                 <Button onClick={handleImprove} disabled={isImproving || !draftPrompt.trim()} className="gap-2">
-                  <Sparkles className="h-4 w-4" />
+                  <Sparkle className="h-4 w-4" />
                   {isImproving ? "Improving..." : "Improve Prompt"}
                 </Button>
                 {error && <span className="text-sm text-red-500">{error}</span>}
@@ -181,7 +181,7 @@ export function PromptHelperDialog({ open, onOpenChange, onUsePrompt }: PromptHe
                 />
                 <div className="flex items-center gap-2">
                   <Button onClick={handleUseNow} className="gap-2">
-                    <Send className="h-4 w-4" />
+                    <PaperPlaneRight className="h-4 w-4" />
                     Use in Chat
                   </Button>
                   <Button onClick={handleCopy} variant="outline" className="gap-2">
@@ -196,7 +196,7 @@ export function PromptHelperDialog({ open, onOpenChange, onUsePrompt }: PromptHe
             {!improvedPrompt && !isImproving && (
               <div className="flex items-center justify-center border-2 border-dashed rounded-lg h-[200px] md:h-[350px]">
                 <div className="text-center text-muted-foreground p-8">
-                  <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                  <Sparkle className="h-12 w-12 mx-auto mb-4 opacity-20" />
                   <p className="text-sm">Your improved prompt will appear here</p>
                   <p className="text-xs mt-2">Enter a draft above and click "Improve Prompt"</p>
                 </div>
@@ -207,7 +207,7 @@ export function PromptHelperDialog({ open, onOpenChange, onUsePrompt }: PromptHe
             {isImproving && (
               <div className="flex items-center justify-center border-2 border-dashed rounded-lg h-[200px] md:h-[350px]">
                 <div className="text-center text-muted-foreground p-8">
-                  <Sparkles className="h-12 w-12 mx-auto mb-4 animate-pulse text-primary" />
+                  <Sparkle className="h-12 w-12 mx-auto mb-4 animate-pulse text-primary" />
                   <p className="text-sm">Analyzing and improving your prompt...</p>
                 </div>
               </div>

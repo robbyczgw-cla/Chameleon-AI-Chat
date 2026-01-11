@@ -10,27 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import {
-  Settings,
-  User,
-  Brain,
-  Columns2,
-  FolderOpen,
-  Swords,
-  FileCode,
-  BarChart3,
-  Moon,
-  Sun,
-  MoreHorizontal,
-  Wand2,
-  Sparkles,
-  Download,
-  FileText,
-  Globe,
-  Link,
-  Check,
-  Share2,
-} from "lucide-react"
+import { Brain, ChartBar, Check, Columns, DotsThree, Download, FileCode, FileText, FolderOpen, Gear, Globe, Link, MagicWand, Moon, ShareNetwork, Sparkle, Sun, Sword, User } from "@phosphor-icons/react";
 import { useApp } from "@/contexts/app-context"
 import { cn } from "@/lib/utils"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
@@ -259,7 +239,7 @@ export function MobileMoreMenu({
               : "flex-1 flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-lg"
           )}
         >
-          <MoreHorizontal className={compact ? "h-4 w-4" : "h-5 w-5"} />
+          <DotsThree className={compact ? "h-4 w-4" : "h-5 w-5"} />
           {!compact && <span className="text-[10px] font-medium">More</span>}
         </Button>
       </SheetTrigger>
@@ -286,9 +266,9 @@ export function MobileMoreMenu({
           </div>
 
           <div className="border-t pt-2 space-y-1">
-            <MenuItem icon={Wand2} label="Personas" onClick={onPersonasClick} />
+            <MenuItem icon={MagicWand} label="Personas" onClick={onPersonasClick} />
             <MenuItem
-              icon={Sparkles}
+              icon={Sparkle}
               label="Prompt Helper"
               onClick={onPromptHelperClick}
             />
@@ -304,8 +284,8 @@ export function MobileMoreMenu({
           </div>
 
           <div className="border-t pt-2 space-y-1">
-            <MenuItem icon={Columns2} label="Model Comparison" onClick={onComparisonClick} />
-            <MenuItem icon={Swords} label="AI Discussion" onClick={onDebateClick} />
+            <MenuItem icon={Columns} label="Model Comparison" onClick={onComparisonClick} />
+            <MenuItem icon={Sword} label="AI Discussion" onClick={onDebateClick} />
             <MenuItem
               icon={FileCode}
               label="Prompt Inspector"
@@ -313,7 +293,7 @@ export function MobileMoreMenu({
               badge={!!inspectorData}
               badgeColor="bg-blue-500"
             />
-            <MenuItem icon={BarChart3} label="Statistics" onClick={onStatsClick} />
+            <MenuItem icon={ChartBar} label="Statistics" onClick={onStatsClick} />
           </div>
 
           {/* Export & Share Section */}
@@ -357,7 +337,7 @@ export function MobileMoreMenu({
                 }}
                 disabled={!currentChat || !currentChat.messages?.length}
               >
-                <Share2 className="h-4 w-4" />
+                <ShareNetwork className="h-4 w-4" />
                 <span>Share Online</span>
               </Button>
             )}

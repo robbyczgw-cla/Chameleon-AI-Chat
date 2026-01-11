@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, Circle } from "lucide-react"
+import { CheckCircle, Circle } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 export interface PollData {
@@ -107,7 +107,7 @@ export function Poll({ poll, pollId, className }: PollProps) {
               <div className="relative flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {isSelected ? (
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                   ) : (
                     <Circle className="h-4 w-4 text-muted-foreground" />
                   )}

@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-import { X, LogOut, User } from "lucide-react"
-import { Sparkles } from "lucide-react"
+import { ChatDots, Folder, FolderPlus, MagnifyingGlass, PencilSimple, PushPin, ShieldCheck, SignOut, Trash, User, X } from "@phosphor-icons/react";
 
 import { useState, useMemo, useEffect, useCallback } from "react"
 import { Capacitor } from "@capacitor/core"
@@ -11,7 +10,6 @@ import { searchService } from "@/lib/search-service"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { MessageSquarePlus, Search, Trash2, Edit2, Pin, FolderPlus, Folder, ShieldCheck } from "lucide-react"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -264,7 +262,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
                   onClick={(e) => handleTogglePin(chat.id, e)}
                   title={chat.pinned ? "Unpin" : "Pin"}
                 >
-                  <Pin className={cn("h-3.5 w-3.5", chat.pinned && "fill-current")} />
+                  <PushPin className={cn("h-3.5 w-3.5", chat.pinned && "fill-current")} />
                 </Button>
                 <Button
                   variant="ghost"
@@ -273,7 +271,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
                   onClick={(e) => handleEditStart(chat.id, chat.title, e)}
                   title="Rename"
                 >
-                  <Edit2 className="h-3.5 w-3.5" />
+                  <PencilSimple className="h-3.5 w-3.5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -282,7 +280,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
                   onClick={(e) => handleDeleteChat(chat.id, e)}
                   title="Delete"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>
@@ -337,7 +335,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
 
       <div className="flex items-center gap-2 border-b border-hairline p-4 md:p-5">
         <Button onClick={handleNewChat} className="flex-1 gap-2 h-10 md:h-11 font-semibold" size="sm">
-          <MessageSquarePlus className="h-4 w-4" />
+          <ChatDots className="h-4 w-4" />
           <span>New Chat</span>
         </Button>
         <Dialog open={isNewFolderOpen} onOpenChange={setIsNewFolderOpen}>
@@ -380,13 +378,13 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
           title="Delete All Chats"
           disabled={chats.length === 0}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash className="h-4 w-4" />
         </Button>
       </div>
 
       <div className="p-3 md:p-4">
         <div className="relative surface-subtle rounded-2xl p-2">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
+          <MagnifyingGlass className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
           <Input
             placeholder="Search titles & messages..."
             value={searchQuery}
@@ -470,7 +468,7 @@ export function ChatSidebar({ onClose }: { onClose?: () => void }) {
               onClick={() => signOut()}
               title="Sign Out"
             >
-              <LogOut className="h-4 w-4" />
+              <SignOut className="h-4 w-4" />
             </Button>
           </div>
         </div>

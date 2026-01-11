@@ -1,7 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { Loader2 } from "lucide-react"
+import { CircleNotch } from "@phosphor-icons/react";
 
 /**
  * Lazy Loading for Advanced-Only Components
@@ -23,7 +23,7 @@ import { Loader2 } from "lucide-react"
 function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center p-8">
-      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <CircleNotch className="h-6 w-6 animate-spin text-muted-foreground" />
     </div>
   )
 }
@@ -32,7 +32,7 @@ function LoadingSpinner() {
 function LoadingPanel() {
   return (
     <div className="flex flex-col items-center justify-center p-12 gap-2">
-      <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
+      <CircleNotch className="h-8 w-8 animate-spin text-violet-500" />
       <p className="text-sm text-muted-foreground">Loading...</p>
     </div>
   )

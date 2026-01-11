@@ -287,7 +287,7 @@ td: ({ children }) => (
 'use client'
 
 import { useState } from 'react'
-import { ExternalLink } from 'lucide-react'
+import { ArrowSquareOut } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import { SearchResultsCard } from './search-results-card'
 
@@ -1075,11 +1075,11 @@ lib/
 **Icon Change**: Paperclip → Plus:
 ```tsx
 // BEFORE:
-import { Paperclip, Upload, Loader2 } from "lucide-react"
+import { Paperclip, Upload, CircleNotch } from "@phosphor-icons/react"
 <Paperclip className="h-3.5 w-3.5" />
 
 // AFTER:
-import { Plus, Upload, Loader2 } from "lucide-react"
+import { Plus, Upload, CircleNotch } from "@phosphor-icons/react"
 <Plus className="h-4 w-4" />
 ```
 

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
-import { MoreVertical, Download, FileText, Share2, Globe, Link, Check } from "lucide-react"
+import { Check, DotsThreeVertical, Download, FileText, Globe, Link, ShareNetwork } from "@phosphor-icons/react";
 import { useApp } from "@/contexts/app-context"
 import { useToast } from "@/hooks/use-toast"
 import { useState } from "react"
@@ -238,7 +238,7 @@ export function QuickActionsMenu({
           className="hover:bg-primary/10 h-9 w-9 sm:h-10 sm:w-10 hover:scale-105 transition-all rounded-lg"
           title="More Actions"
         >
-          <MoreVertical className="h-4 w-4 md:h-4.5 md:w-4.5" />
+          <DotsThreeVertical className="h-4 w-4 md:h-4.5 md:w-4.5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
@@ -263,7 +263,7 @@ export function QuickActionsMenu({
         {/* Share options hidden for private chats */}
         {onShareClick && !currentChat?.isPrivate && (
           <DropdownMenuItem onClick={onShareClick} disabled={!currentChat || !currentChat.messages?.length}>
-            <Share2 className="h-4 w-4 mr-2" />
+            <ShareNetwork className="h-4 w-4 mr-2" />
             Share Online
           </DropdownMenuItem>
         )}

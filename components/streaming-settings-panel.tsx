@@ -3,7 +3,7 @@
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
-import { Zap, Search, Brain, TrendingUp, Clock, AlertTriangle, Info } from "lucide-react"
+import { Brain, Clock, Info, Lightning, MagnifyingGlass, TrendUp, Warning } from "@phosphor-icons/react";
 import type { StreamingVisualizationSettings } from "@/types"
 
 interface StreamingSettingsPanelProps {
@@ -237,7 +237,7 @@ export function StreamingSettingsPanel({ settings, onSettingsChange, language = 
       <Separator />
 
       {/* Core Information */}
-      <Section title={t.coreInfo[language]} icon={Zap}>
+      <Section title={t.coreInfo[language]} icon={Lightning}>
         <SettingItem
           label={language === "de" ? "Aktuelle Aktion" : language === "es" ? "Acción actual" : "Current Action"}
           description="Show what the AI is currently doing in real-time"
@@ -261,7 +261,7 @@ export function StreamingSettingsPanel({ settings, onSettingsChange, language = 
       <Separator />
 
       {/* Search & Results */}
-      <Section title={t.searchResults[language]} icon={Search}>
+      <Section title={t.searchResults[language]} icon={MagnifyingGlass}>
         <SettingItem
           label={language === "de" ? "Suchergebnisse" : language === "es" ? "Resultados de búsqueda" : "Search Results"}
           description="Show preview of actual search results content"
@@ -297,7 +297,7 @@ export function StreamingSettingsPanel({ settings, onSettingsChange, language = 
       <Separator />
 
       {/* Performance Metrics */}
-      <Section title={t.performance[language]} icon={TrendingUp}>
+      <Section title={t.performance[language]} icon={TrendUp}>
         <SettingItem
           label={language === "de" ? "Detaillierte Stats" : language === "es" ? "Estadísticas detalladas" : "Detailed Stats"}
           description="Show detailed stats at end of message: tokens, cost, performance, search info"
@@ -393,7 +393,7 @@ export function StreamingSettingsPanel({ settings, onSettingsChange, language = 
       <Separator />
 
       {/* Warnings & Errors */}
-      <Section title={t.warnings[language]} icon={AlertTriangle}>
+      <Section title={t.warnings[language]} icon={Warning}>
         <SettingItem
           label={language === "de" ? "Rate-Limit-Warnungen" : language === "es" ? "Advertencias de límite de velocidad" : "Rate Limit Warnings"}
           description="Show when approaching rate limits"

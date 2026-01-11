@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
-import { Brain, Mic, Clock, Trash2 } from "lucide-react"
+import { Brain, Clock, Microphone, Trash } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast"
 import type { Persona, PersonaMemorySettings, PersonaVoiceSettings, PersonaContextSettings } from "@/lib/personas"
 import { voiceService } from "@/lib/voice"
@@ -172,7 +172,7 @@ export function PersonaAdvancedSettings({ persona, open, onOpenChange, onSave }:
                         onClick={handleClearMemories}
                         className="w-full gap-2 mt-2"
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash className="h-3 w-3" />
                         Alle Erinnerungen löschen
                       </Button>
                     </div>
@@ -186,7 +186,7 @@ export function PersonaAdvancedSettings({ persona, open, onOpenChange, onSave }:
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Mic className="h-5 w-5 text-primary" />
+                <Microphone className="h-5 w-5 text-primary" />
                 <CardTitle>Persona Voice</CardTitle>
               </div>
               <CardDescription>

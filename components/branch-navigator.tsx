@@ -2,7 +2,7 @@
 
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
-import { GitBranch, Home, Trash2 } from "lucide-react"
+import { GitBranch, House, Trash } from "@phosphor-icons/react";
 import {
   getAllBranches,
   switchToBranch,
@@ -146,7 +146,7 @@ export function BranchNavigator() {
                     handleDeleteBranch(branch.id, branch.name)
                   }}
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash className="h-3 w-3" />
                 </Button>
               </div>
             )
@@ -162,7 +162,7 @@ export function BranchNavigator() {
           className="h-7 text-xs"
           onClick={handleReturnToMain}
         >
-          <Home className="h-3 w-3 mr-1" />
+          <House className="h-3 w-3 mr-1" />
           Return to Main
         </Button>
       )}

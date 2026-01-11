@@ -7,43 +7,10 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
-import {
-  Puzzle,
-  Plus,
-  Trash2,
-  Check,
-  AlertCircle,
-  Loader2,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
-  Zap,
-  FolderOpen,
-  Globe,
-  Database,
-  GitBranch,
-  Clock,
-  Brain,
-  Play,
-  Search,
-  FileText,
-  MessageSquare,
-  Download,
-  Upload,
-  Code2,
-  Music,
-  CheckSquare,
-  BookOpen,
-  Sparkles,
-  Video,
-  Settings2,
-  LayoutGrid,
-  Cloud,
-  Terminal,
-} from "lucide-react"
+import { ArrowSquareOut, BookOpen, Brain, CaretDown, CaretUp, Chat, Check, CheckSquare, CircleNotch, Clock, Cloud, Code, Database, Download, FileText, FolderOpen, GearSix, GitBranch, Globe, GridNine, Lightning, MagnifyingGlass, MusicNote, Play, Plus, PuzzlePiece, Sparkle, Terminal, Trash, Upload, VideoCamera, WarningCircle } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast"
 
-// MCP Server configuration type
+// MCP HardDrives configuration type
 export interface MCPServerConfig {
   id: string
   name: string
@@ -274,16 +241,16 @@ const PRESET_MCP_SERVERS: Omit<MCPServerConfig, "id" | "status">[] = [
 ]
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  Core: <Zap className="h-4 w-4" />,
-  Search: <Search className="h-4 w-4" />,
-  Development: <Code2 className="h-4 w-4" />,
+  Core: <Lightning className="h-4 w-4" />,
+  Search: <MagnifyingGlass className="h-4 w-4" />,
+  Development: <Code className="h-4 w-4" />,
   Web: <Globe className="h-4 w-4" />,
   Database: <Database className="h-4 w-4" />,
-  Utilities: <Settings2 className="h-4 w-4" />,
-  Communication: <MessageSquare className="h-4 w-4" />,
+  Utilities: <GearSix className="h-4 w-4" />,
+  Communication: <Chat className="h-4 w-4" />,
   Storage: <Cloud className="h-4 w-4" />,
   Productivity: <CheckSquare className="h-4 w-4" />,
-  Media: <Video className="h-4 w-4" />,
+  Media: <VideoCamera className="h-4 w-4" />,
 }
 
 const MCP_STORAGE_KEY = "chameleon-mcp-servers"
@@ -340,7 +307,7 @@ export function MCPSettings() {
     setShowAddCustom(false)
 
     toast({
-      title: "Server Added",
+      title: "HardDrives Added",
       description: `${newServer.name} has been added to your MCP servers.`,
     })
   }
@@ -366,7 +333,7 @@ export function MCPSettings() {
     saveMcpServers([...mcpServers, newServer])
 
     toast({
-      title: "Server Added",
+      title: "HardDrives Added",
       description: `${preset.name} has been added. Configure any required API keys.`,
     })
   }
@@ -375,8 +342,8 @@ export function MCPSettings() {
     const server = mcpServers.find(s => s.id === serverId)
     saveMcpServers(mcpServers.filter(s => s.id !== serverId))
     toast({
-      title: "Server Removed",
-      description: server?.name || "Server removed",
+      title: "HardDrives Removed",
+      description: server?.name || "HardDrives removed",
     })
   }
 
@@ -403,7 +370,7 @@ export function MCPSettings() {
     const server = mcpServers.find(s => s.id === serverId)
     toast({
       title: "Connection Test",
-      description: `${server?.name || "Server"} connection simulated (full implementation requires backend).`,
+      description: `${server?.name || "HardDrives"} connection simulated (full implementation requires backend).`,
     })
   }
 
@@ -514,7 +481,7 @@ export function MCPSettings() {
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1 flex-1">
             <div className="flex items-center gap-2">
-              <Puzzle className="h-5 w-5 text-violet-500 flex-shrink-0" />
+              <PuzzlePiece className="h-5 w-5 text-violet-500 flex-shrink-0" />
               <h3 className="font-semibold text-sm sm:text-base">Model Context Protocol</h3>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground">
@@ -534,7 +501,7 @@ export function MCPSettings() {
             rel="noopener noreferrer"
             className="text-xs text-violet-500 hover:text-violet-600 flex items-center gap-1"
           >
-            Learn more <ExternalLink className="h-3 w-3" />
+            Learn more <ArrowSquareOut className="h-3 w-3" />
           </a>
           <span className="text-xs text-muted-foreground hidden sm:inline">•</span>
           <a
@@ -543,7 +510,7 @@ export function MCPSettings() {
             rel="noopener noreferrer"
             className="text-xs text-violet-500 hover:text-violet-600 flex items-center gap-1"
           >
-            Official Servers <ExternalLink className="h-3 w-3" />
+            Official Servers <ArrowSquareOut className="h-3 w-3" />
           </a>
         </div>
         <p className="mt-3 text-[11px] text-muted-foreground bg-muted/50 rounded px-2 py-1.5">
@@ -603,7 +570,7 @@ export function MCPSettings() {
                       ? "bg-gradient-to-br from-violet-500/20 to-purple-500/20"
                       : "bg-muted"
                   )}>
-                    {CATEGORY_ICONS[server.category || "Core"] || <Puzzle className="h-5 w-5 text-violet-500" />}
+                    {CATEGORY_ICONS[server.category || "Core"] || <PuzzlePiece className="h-5 w-5 text-violet-500" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -623,11 +590,11 @@ export function MCPSettings() {
                   {/* Status indicator */}
                   <div className="flex items-center gap-1.5">
                     {server.status === "connecting" ? (
-                      <Loader2 className="h-3.5 w-3.5 text-yellow-500 animate-spin" />
+                      <CircleNotch className="h-3.5 w-3.5 text-yellow-500 animate-spin" />
                     ) : server.status === "connected" ? (
                       <Check className="h-3.5 w-3.5 text-green-500" />
                     ) : (
-                      <AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                      <WarningCircle className="h-3.5 w-3.5 text-muted-foreground" />
                     )}
                   </div>
                   {/* Toggle */}
@@ -654,7 +621,7 @@ export function MCPSettings() {
                     className="h-10 w-10 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive"
                     onClick={() => handleRemoveServer(server.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -663,24 +630,24 @@ export function MCPSettings() {
         </div>
       )}
 
-      {/* Add Custom Server */}
+      {/* Add Custom HardDrives */}
       <div className="space-y-3">
         <Button
           variant="outline"
           className="w-full justify-start gap-2 h-11"
           onClick={() => setShowAddCustom(!showAddCustom)}
         >
-          {showAddCustom ? <ChevronUp className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-          Add Custom Server
+          {showAddCustom ? <CaretUp className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+          Add Custom HardDrives
         </Button>
 
         {showAddCustom && (
           <div className="p-4 rounded-xl border border-violet-500/30 bg-violet-500/5 space-y-3 animate-in fade-in slide-in-from-top-2">
             <div className="space-y-1.5">
-              <Label htmlFor="server-name" className="text-sm">Server Name</Label>
+              <Label htmlFor="server-name" className="text-sm">HardDrives Name</Label>
               <Input
                 id="server-name"
-                placeholder="My Custom Server"
+                placeholder="My Custom HardDrives"
                 value={newServerName}
                 onChange={(e) => setNewServerName(e.target.value)}
                 className="h-11"
@@ -726,7 +693,7 @@ export function MCPSettings() {
                 onClick={handleAddCustomServer}
                 disabled={!newServerName.trim() || !newServerCommand.trim()}
               >
-                Add Server
+                Add HardDrives
               </Button>
             </div>
           </div>
@@ -740,7 +707,7 @@ export function MCPSettings() {
           className="w-full justify-start gap-2 h-11"
           onClick={() => setShowPresets(!showPresets)}
         >
-          {showPresets ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {showPresets ? <CaretUp className="h-4 w-4" /> : <CaretDown className="h-4 w-4" />}
           Browse Popular Servers ({PRESET_MCP_SERVERS.length})
         </Button>
 
@@ -784,7 +751,7 @@ export function MCPSettings() {
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-violet-500/10 to-purple-500/10 flex items-center justify-center flex-shrink-0">
-                        {CATEGORY_ICONS[preset.category || "Core"] || <Puzzle className="h-5 w-5 text-violet-500" />}
+                        {CATEGORY_ICONS[preset.category || "Core"] || <PuzzlePiece className="h-5 w-5 text-violet-500" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -836,7 +803,7 @@ export function MCPSettings() {
       {/* Empty State */}
       {mcpServers.length === 0 && !showPresets && (
         <div className="text-center py-8 text-muted-foreground">
-          <Puzzle className="h-12 w-12 mx-auto mb-3 opacity-30" />
+          <PuzzlePiece className="h-12 w-12 mx-auto mb-3 opacity-30" />
           <p className="text-sm font-medium">No MCP servers configured</p>
           <p className="text-xs mt-1">Add a server from the presets or create a custom one</p>
         </div>

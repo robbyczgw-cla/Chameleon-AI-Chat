@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { ArrowUpDown, ArrowUp, ArrowDown, Search } from "lucide-react"
+import { ArrowDown, ArrowUp, ArrowsDownUp, MagnifyingGlass } from "@phosphor-icons/react";
 import { cn, generateKey, generateCompositeKey } from "@/lib/utils"
 
 export interface RichTableData {
@@ -74,7 +74,7 @@ export function RichTable({ data, className }: RichTableProps) {
       {data.searchable && (
         <div className="p-3 border-b bg-muted/30">
           <div className="relative">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <MagnifyingGlass className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search table..."
               value={searchQuery}
@@ -109,7 +109,7 @@ export function RichTable({ data, className }: RichTableProps) {
                             <ArrowDown className="h-3 w-3" />
                           )
                         ) : (
-                          <ArrowUpDown className="h-3 w-3 opacity-50" />
+                          <ArrowsDownUp className="h-3 w-3 opacity-50" />
                         )}
                       </span>
                     )}

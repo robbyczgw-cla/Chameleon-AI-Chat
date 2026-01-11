@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { FileText, FileImage, FileIcon, Eye, X } from "lucide-react"
+import { Eye, File, FileText, Image, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import { getFileCategory, formatFileSize, type FileAttachment } from "@/lib/file-handler"
 import { FilePreviewModal } from "./file-preview-modal"
@@ -28,11 +28,11 @@ export function FilePreviewInline({
       case "text":
         return <FileText className="h-4 w-4" />
       case "image":
-        return <FileImage className="h-4 w-4" />
+        return <Image className="h-4 w-4" />
       case "document":
-        return <FileIcon className="h-4 w-4" />
+        return <File className="h-4 w-4" />
       default:
-        return <FileIcon className="h-4 w-4" />
+        return <File className="h-4 w-4" />
     }
   }
 

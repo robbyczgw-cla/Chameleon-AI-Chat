@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Brain, ChevronDown, Check, Zap, Gauge, Sparkles, Flame } from "lucide-react"
+import { Brain, CaretDown, Check, Fire, Gauge, Lightning, Sparkle } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 export type ReasoningDepth = "minimal" | "low" | "medium" | "high"
@@ -30,7 +30,7 @@ const REASONING_DEPTHS: ReasoningDepthConfig[] = [
     name: "Minimal",
     shortName: "Min",
     description: "Fastest, simple tasks",
-    icon: <Zap className="h-3.5 w-3.5" />,
+    icon: <Lightning className="h-3.5 w-3.5" />,
     color: "text-gray-500",
   },
   {
@@ -46,7 +46,7 @@ const REASONING_DEPTHS: ReasoningDepthConfig[] = [
     name: "Medium",
     shortName: "Med",
     description: "Balanced quality & speed",
-    icon: <Sparkles className="h-3.5 w-3.5" />,
+    icon: <Sparkle className="h-3.5 w-3.5" />,
     color: "text-purple-500",
   },
   {
@@ -54,7 +54,7 @@ const REASONING_DEPTHS: ReasoningDepthConfig[] = [
     name: "High",
     shortName: "High",
     description: "Maximum reasoning depth",
-    icon: <Flame className="h-3.5 w-3.5" />,
+    icon: <Fire className="h-3.5 w-3.5" />,
     color: "text-orange-500",
   },
 ]
@@ -130,7 +130,7 @@ export function ReasoningDepthSelector({ compact = false }: ReasoningDepthSelect
           <span className="font-medium">
             {compact ? currentConfig.shortName : currentConfig.name}
           </span>
-          <ChevronDown className="h-3 w-3 ml-1 opacity-60" />
+          <CaretDown className="h-3 w-3 ml-1 opacity-60" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

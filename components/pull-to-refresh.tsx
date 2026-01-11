@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
-import { RefreshCw } from "lucide-react"
+import { ArrowsClockwise } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import { haptics } from "@/lib/haptics"
 
@@ -142,7 +142,7 @@ export function PullToRefresh({
             isRefreshing && "animate-pulse"
           )}
         >
-          <RefreshCw
+          <ArrowsClockwise
             className={cn(
               "w-5 h-5 text-primary transition-transform",
               isRefreshing && "animate-spin"

@@ -4,7 +4,7 @@ import { useState, useMemo } from "react"
 import { useApp } from "@/contexts/app-context"
 import { contextWindowService, type ContextUsage } from "@/lib/context-window-service"
 import { cn } from "@/lib/utils"
-import { Gauge, AlertTriangle, Zap, Shrink, ChevronDown, ChevronUp } from "lucide-react"
+import { ArrowsIn, CaretDown, CaretUp, Gauge, Lightning, Warning } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button"
 
 interface ContextWindowMeterProps {
@@ -69,7 +69,7 @@ export function ContextWindowMeter({ onCompress, compact = false, className }: C
           </span>
         </div>
         {usage.status === "critical" && (
-          <AlertTriangle className="h-3 w-3 text-red-500 animate-pulse" />
+          <Warning className="h-3 w-3 text-red-500 animate-pulse" />
         )}
       </div>
     )
@@ -92,7 +92,7 @@ export function ContextWindowMeter({ onCompress, compact = false, className }: C
           <Gauge className={cn("h-4 w-4", contextWindowService.getStatusColor(usage.status))} />
           <span className="text-sm font-medium">Context Window</span>
           {usage.status !== "safe" && (
-            <AlertTriangle className={cn(
+            <Warning className={cn(
               "h-3.5 w-3.5",
               usage.status === "critical" ? "text-red-500 animate-pulse" : "text-orange-500"
             )} />
@@ -106,9 +106,9 @@ export function ContextWindowMeter({ onCompress, compact = false, className }: C
             {percentageDisplay}%
           </span>
           {isExpanded ? (
-            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            <CaretUp className="h-4 w-4 text-muted-foreground" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            <CaretDown className="h-4 w-4 text-muted-foreground" />
           )}
         </div>
       </button>
@@ -171,7 +171,7 @@ export function ContextWindowMeter({ onCompress, compact = false, className }: C
               onClick={onCompress}
               className="w-full gap-2 border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
             >
-              <Shrink className="h-4 w-4" />
+              <ArrowsIn className="h-4 w-4" />
               Compress Conversation
             </Button>
           )}
@@ -233,7 +233,7 @@ export function ContextWindowMini({ className }: { className?: string }) {
       )}
       title={`${usage.usedTokens.toLocaleString()} / ${usage.maxTokens.toLocaleString()} tokens`}
     >
-      <Zap className="h-3 w-3" />
+      <Lightning className="h-3 w-3" />
       <span className="font-medium">{percentageDisplay}%</span>
     </div>
   )

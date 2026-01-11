@@ -3,28 +3,7 @@
 import { useState } from "react"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
-import {
-  Settings,
-  Menu,
-  Columns2,
-  BookTemplate,
-  FolderOpen,
-  BarChart3,
-  Sliders,
-  Sparkles,
-  Moon,
-  Sun,
-  Brain,
-  User,
-  Wand2,
-  PanelLeftClose,
-  PanelLeft,
-  Swords,
-  FileCode,
-  Mic,
-  MoreHorizontal,
-  Share2,
-} from "lucide-react"
+import { BookBookmark, Brain, ChartBar, Columns, DotsThree, FileCode, FolderOpen, Gear, List, MagicWand, Microphone, Moon, ShareNetwork, Sidebar, SidebarSimple, Sliders, Sparkle, Sun, Sword, User } from "@phosphor-icons/react";
 import { useEffect } from "react"
 import { ModelSelector } from "@/components/model-selector"
 import { SettingsDialog } from "@/components/settings-dialog"
@@ -175,7 +154,7 @@ export function ChatHeader() {
             }}
             title="Chats"
           >
-            <Menu className="h-5 w-5" />
+            <List className="h-5 w-5" />
           </Button>
 
           {/* Center: Logo and title */}
@@ -205,7 +184,7 @@ export function ChatHeader() {
                 }}
                 title={translations.chatHeader.share}
               >
-                <Share2 className="h-4 w-4" />
+                <ShareNetwork className="h-4 w-4" />
               </Button>
             )}
             <Button
@@ -218,7 +197,7 @@ export function ChatHeader() {
               }}
               title={translations.chatHeader.settings}
             >
-              <Settings className="h-4 w-4" />
+              <Gear className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
@@ -258,7 +237,7 @@ export function ChatHeader() {
             onClick={toggleDesktopSidebar}
             title={translations.chatHeader.toggleSidebar}
           >
-            <PanelLeftClose className="h-5 w-5" />
+            <SidebarSimple className="h-5 w-5" />
           </Button>
 
           <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
@@ -322,7 +301,7 @@ export function ChatHeader() {
             title="Modellvergleich"
             className="hidden md:flex hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
-            <Columns2 className="h-4 w-4 md:h-4.5 md:w-4.5" />
+            <Columns className="h-4 w-4 md:h-4.5 md:w-4.5" />
           </Button>
           {/* Prompt Library - Hidden for now */}
           {/*
@@ -333,7 +312,7 @@ export function ChatHeader() {
             title="Prompt-Bibliothek"
             className="hover:bg-primary/10 h-8 w-8 sm:h-9 sm:w-9"
           >
-            <BookTemplate className="h-4 w-4" />
+            <BookBookmark className="h-4 w-4" />
           </Button>
           */}
           <Button
@@ -343,7 +322,7 @@ export function ChatHeader() {
             title="Personas Manager"
             className="hidden md:flex hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
-            <Wand2 className="h-4 w-4 md:h-4.5 md:w-4.5" />
+            <MagicWand className="h-4 w-4 md:h-4.5 md:w-4.5" />
           </Button>
           <Button
             variant="ghost"
@@ -361,7 +340,7 @@ export function ChatHeader() {
             title="Prompt Helper (Strg+Shift+P)"
             className="hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
-            <Sparkles className="h-4 w-4 md:h-4.5 md:w-4.5 text-yellow-500" />
+            <Sparkle className="h-4 w-4 md:h-4.5 md:w-4.5 text-yellow-500" />
           </Button>
           <Button
             variant="ghost"
@@ -380,7 +359,7 @@ export function ChatHeader() {
             title="AI Debate Mode"
             className="hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
-            <Swords className="h-4 w-4 md:h-4.5 md:w-4.5" />
+            <Sword className="h-4 w-4 md:h-4.5 md:w-4.5" />
           </Button>
           {/* Prompt Inspector */}
           <Button
@@ -413,7 +392,7 @@ export function ChatHeader() {
             title={translations.chatHeader.settings}
             className="hover:bg-accent hover:text-accent-foreground h-9 w-9 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:scale-105 transition-all rounded-lg"
           >
-            <Settings className="h-4 w-4 md:h-4.5 md:w-4.5" />
+            <Gear className="h-4 w-4 md:h-4.5 md:w-4.5" />
           </Button>
         </div>
       </header>
@@ -453,7 +432,7 @@ export function ChatHeader() {
         <DialogContent className="sm:max-w-[95vw] lg:max-w-[1200px] max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Swords className="h-5 w-5 text-primary" />
+              <Sword className="h-5 w-5 text-primary" />
               AI Debate Mode
             </DialogTitle>
           </DialogHeader>

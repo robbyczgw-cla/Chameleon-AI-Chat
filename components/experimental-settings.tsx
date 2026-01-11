@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useApp } from "@/contexts/app-context"
-import { FlaskRound, AlertTriangle, Zap, Monitor, Brain, Link, Youtube, Wrench, CloudSun, BarChart2, Sparkles, Palette, Code2, GitBranch, Cpu, ChevronDown, ChevronUp, Heart } from "lucide-react"
+import { Brain, CaretDown, CaretUp, ChartBar, CloudSun, Code, Cpu, Flask, GitBranch, Heart, Lightning, Link, Monitor, Palette, Sparkle, Warning, Wrench, YoutubeLogo } from "@phosphor-icons/react";
 import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
 import { getUserSelectedModels } from "@/lib/model-preferences"
@@ -92,7 +92,7 @@ export function ExperimentalSettings() {
     <div className="space-y-6">
       {/* Warning Banner */}
       <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-        <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
+        <Warning className="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
         <div className="space-y-1">
           <h4 className="text-sm font-semibold text-amber-900 dark:text-amber-100">Experimental Features</h4>
           <p className="text-xs text-amber-800 dark:text-amber-200">
@@ -106,7 +106,7 @@ export function ExperimentalSettings() {
       {isAdvancedMode && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
+            <Sparkle className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold">Default Model</h3>
           </div>
 
@@ -154,9 +154,9 @@ export function ExperimentalSettings() {
               <Cpu className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-semibold flex-1 text-left">Background AI Models</h3>
               {isBackgroundModelsOpen ? (
-                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                <CaretUp className="h-4 w-4 text-muted-foreground" />
               ) : (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                <CaretDown className="h-4 w-4 text-muted-foreground" />
               )}
             </CollapsibleTrigger>
 
@@ -169,7 +169,7 @@ export function ExperimentalSettings() {
               {/* Text Generation Tasks */}
               <div className="space-y-3 p-4 border rounded-lg bg-muted/20">
                 <h4 className="text-sm font-semibold flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-purple-500" />
+                  <Sparkle className="h-4 w-4 text-purple-500" />
                   Text Generation Tasks
                 </h4>
 
@@ -465,7 +465,7 @@ export function ExperimentalSettings() {
       {/* Response Analysis Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <FlaskRound className="h-5 w-5 text-primary" />
+          <Flask className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold">Response Analysis</h3>
         </div>
 
@@ -563,7 +563,7 @@ export function ExperimentalSettings() {
       {/* Performance Mode Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Zap className="h-5 w-5 text-primary" />
+          <Lightning className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold">Performance Mode</h3>
         </div>
 
@@ -611,7 +611,7 @@ export function ExperimentalSettings() {
       {/* Message Stats Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <BarChart2 className="h-5 w-5 text-primary" />
+          <ChartBar className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold">Message Statistics</h3>
         </div>
 
@@ -830,7 +830,7 @@ export function ExperimentalSettings() {
           <div className="flex items-center justify-between p-4 border rounded-lg border-red-500/30 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20">
             <div className="space-y-1 flex-1">
               <div className="flex items-center gap-2">
-                <Youtube className="h-4 w-4 text-red-600 dark:text-red-400" />
+                <YoutubeLogo className="h-4 w-4 text-red-600 dark:text-red-400" />
                 <Label className="text-sm font-medium">YouTube Transcript Tool</Label>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -864,7 +864,7 @@ export function ExperimentalSettings() {
           <div className="flex items-center justify-between p-4 border rounded-lg border-purple-500/30 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/20 dark:to-violet-950/20">
             <div className="space-y-1 flex-1">
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <Lightning className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                 <Label className="text-sm font-medium">Auto Context Compression</Label>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -920,7 +920,7 @@ export function ExperimentalSettings() {
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-2">
-                  <Code2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <Code className="h-4 w-4 text-green-600 dark:text-green-400" />
                   <Label className="text-sm font-medium">Code Syntax Highlighting</Label>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -937,7 +937,7 @@ export function ExperimentalSettings() {
             <div className="flex items-center justify-between p-4 border rounded-lg border-emerald-500/30 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20">
               <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <Lightning className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   <Label className="text-sm font-medium">Dedicated Follow-Up Model ⚡ NEW</Label>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -954,7 +954,7 @@ export function ExperimentalSettings() {
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                  <Sparkle className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                   <Label className="text-sm font-medium">Categorized Follow-up Suggestions</Label>
                 </div>
                 <p className="text-xs text-muted-foreground">

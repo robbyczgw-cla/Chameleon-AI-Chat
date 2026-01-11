@@ -1,11 +1,7 @@
 "use client"
 
 import { memo, useState, useEffect } from "react"
-import {
-  Loader2, Brain, MessageSquare, CheckCircle2, Globe, Wrench,
-  Zap, Cpu, Network, FileSearch, Sparkles, Clock, ChevronDown, ChevronRight,
-  Activity, BarChart3, Lightbulb, Link, Youtube, CloudSun
-} from "lucide-react"
+import { Brain, CaretDown, CaretRight, ChartBar, Chat, CheckCircle, CircleNotch, Clock, CloudSun, Cpu, FileMagnifyingGlass, Globe, Graph, Lightbulb, Lightning, Link, Pulse, Sparkle, Wrench, YoutubeLogo } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import { useApp } from "@/contexts/app-context"
 import { SearchResultsCard } from "./search-results-card"
@@ -320,7 +316,7 @@ export const MessageStatusVerbose = memo(({
           if (toolName === "youtube_transcript" && toolArgs.url) {
             return (
               <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 rounded-lg bg-red-500/15 border border-red-500/30">
-                <Youtube className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 flex-shrink-0 animate-pulse" />
+                <YoutubeLogo className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 flex-shrink-0 animate-pulse" />
                 <div className="flex-1 min-w-0">
                   <span className="text-[11px] sm:text-xs font-medium text-red-600 dark:text-red-400 mr-1 sm:mr-2">YouTube:</span>
                   <span className="text-xs sm:text-sm text-red-700 dark:text-red-300 break-all">{toolArgs.url}</span>
@@ -351,7 +347,7 @@ export const MessageStatusVerbose = memo(({
           if (streamingDetails?.action) {
             return (
               <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 rounded-lg bg-primary/15 border border-primary/30">
-                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary flex-shrink-0 animate-pulse" />
+                <Lightning className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary flex-shrink-0 animate-pulse" />
                 <span className="text-xs sm:text-sm text-foreground break-words">{streamingDetails.action}</span>
               </div>
             )
@@ -472,7 +468,7 @@ export const MessageStatusVerbose = memo(({
     labelActive: respondingInfo.labelActive,
     description: respondingInfo.description,
     status: getStepStatus("responding"),
-    icon: <MessageSquare className="w-4 h-4" />,
+    icon: <Chat className="w-4 h-4" />,
     subSteps: respondingInfo.subSteps,
   })
 
@@ -484,7 +480,7 @@ export const MessageStatusVerbose = memo(({
           <Cpu className="w-3.5 h-3.5" />
           <span className="font-medium">{modelName || "AI Model"}</span>
           <span className="text-muted-foreground/60">•</span>
-          <Activity className="w-3.5 h-3.5 text-green-500 animate-pulse" />
+          <Pulse className="w-3.5 h-3.5 text-green-500 animate-pulse" />
           <span className="text-green-500">Processing</span>
         </div>
         <div className="flex items-center gap-1.5 tabular-nums">
@@ -493,7 +489,7 @@ export const MessageStatusVerbose = memo(({
         </div>
       </div>
 
-      {/* Current Activity Banner - Always visible summary */}
+      {/* Current Pulse Banner - Always visible summary */}
       {(searchQuery || streamingDetails?.searchQuery || streamingDetails?.action || streamingDetails?.reasoningContent || streamingDetails?.toolName || streamingDetails?.toolInput) && (
         <div className="mb-3 space-y-2">
           {/* Tool-specific banners */}
@@ -535,7 +531,7 @@ export const MessageStatusVerbose = memo(({
             if (toolName === "youtube_transcript" && toolArgs.url) {
               return (
                 <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/15 border border-red-500/30">
-                  <Youtube className="w-4 h-4 text-red-500 flex-shrink-0 animate-pulse" />
+                  <YoutubeLogo className="w-4 h-4 text-red-500 flex-shrink-0 animate-pulse" />
                   <div className="flex-1 min-w-0">
                     <span className="text-xs font-medium text-red-600 dark:text-red-400 mr-2">YouTube Transcript:</span>
                     <span className="text-sm text-red-700 dark:text-red-300 break-all">{toolArgs.url}</span>
@@ -568,7 +564,7 @@ export const MessageStatusVerbose = memo(({
           {/* Generic action */}
           {streamingDetails?.action && !searchQuery && !streamingDetails?.toolName && !streamingDetails.searchQuery && (
             <div className="flex items-center gap-2 p-2.5 rounded-lg bg-primary/15 border border-primary/30">
-              <Zap className="w-4 h-4 text-primary flex-shrink-0 animate-pulse" />
+              <Lightning className="w-4 h-4 text-primary flex-shrink-0 animate-pulse" />
               <span className="text-sm text-foreground break-words">{streamingDetails.action}</span>
             </div>
           )}
@@ -590,7 +586,7 @@ export const MessageStatusVerbose = memo(({
           {streamingDetails?.searchResultsPreview && (
             <div className="p-2 sm:p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
               <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-                <FileSearch className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500 flex-shrink-0" />
+                <FileMagnifyingGlass className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500 flex-shrink-0" />
                 <span className="text-[11px] sm:text-xs font-medium text-cyan-600 dark:text-cyan-400">
                   {lang === "de" ? "Suchergebnisse" : lang === "es" ? "Resultados" : "Results Preview"}
                 </span>
@@ -632,7 +628,7 @@ export const MessageStatusVerbose = memo(({
                 className="w-full flex items-center gap-3 p-3 text-left"
               >
                 <div className="flex-shrink-0 text-muted-foreground">
-                  {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  {isExpanded ? <CaretDown className="w-4 h-4" /> : <CaretRight className="w-4 h-4" />}
                 </div>
 
                 <div className="relative flex-shrink-0">
@@ -643,7 +639,7 @@ export const MessageStatusVerbose = memo(({
                       <div className="relative p-2 rounded-full bg-primary/20 text-primary">{step.icon}</div>
                     </div>
                   ) : isCompleted ? (
-                    <div className="p-2 rounded-full bg-green-500/20 text-green-500"><CheckCircle2 className="w-4 h-4" /></div>
+                    <div className="p-2 rounded-full bg-green-500/20 text-green-500"><CheckCircle className="w-4 h-4" /></div>
                   ) : (
                     <div className="p-2 rounded-full bg-muted text-muted-foreground">{step.icon}</div>
                   )}
@@ -659,7 +655,7 @@ export const MessageStatusVerbose = memo(({
                     )}>
                       {isActive ? step.labelActive : step.label}
                     </span>
-                    {isActive && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+                    {isActive && <CircleNotch className="w-4 h-4 animate-spin text-primary" />}
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">{step.description}</p>
                 </div>
@@ -691,9 +687,9 @@ export const MessageStatusVerbose = memo(({
                         )}
                       >
                         {subStatus === "completed" ? (
-                          <CheckCircle2 className="w-3 h-3 text-green-500" />
+                          <CheckCircle className="w-3 h-3 text-green-500" />
                         ) : subStatus === "active" ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <CircleNotch className="w-3 h-3 animate-spin" />
                         ) : (
                           <div className="w-3 h-3 rounded-full border border-current" />
                         )}
@@ -786,7 +782,7 @@ export const MessageStatus = memo(({
     label: phaseInfo.responding[lang].label,
     labelActive: phaseInfo.responding[lang].labelActive,
     status: getStepStatus("responding"),
-    icon: <MessageSquare className="w-4 h-4" />,
+    icon: <Chat className="w-4 h-4" />,
   })
 
   return (
@@ -812,7 +808,7 @@ export const MessageStatus = memo(({
               </div>
             ) : step.status === "completed" ? (
               <div className="p-1.5 rounded-full bg-green-500/20 text-green-500">
-                <CheckCircle2 className="w-4 h-4" />
+                <CheckCircle className="w-4 h-4" />
               </div>
             ) : (
               <div className="p-1.5 rounded-full bg-muted text-muted-foreground">
@@ -832,7 +828,7 @@ export const MessageStatus = memo(({
                 {step.status === "active" ? step.labelActive : step.label}
               </span>
               {step.status === "active" && (
-                <Loader2 className="w-3 h-3 animate-spin text-primary flex-shrink-0" />
+                <CircleNotch className="w-3 h-3 animate-spin text-primary flex-shrink-0" />
               )}
             </div>
             {step.detail && step.status === "active" && (
@@ -895,9 +891,9 @@ export const StreamingHistoryDisplay = memo(({
       case "thinking": return <Brain className="w-3 h-3" />
       case "searching": return <Globe className="w-3 h-3" />
       case "tool_use": return <Wrench className="w-3 h-3" />
-      case "responding": return <MessageSquare className="w-3 h-3" />
-      case "done": return <CheckCircle2 className="w-3 h-3" />
-      default: return <Zap className="w-3 h-3" />
+      case "responding": return <Chat className="w-3 h-3" />
+      case "done": return <CheckCircle className="w-3 h-3" />
+      default: return <Lightning className="w-3 h-3" />
     }
   }
 
@@ -938,8 +934,8 @@ export const StreamingHistoryDisplay = memo(({
         className="w-full flex items-center gap-2 px-2 sm:px-3 py-2 hover:bg-muted/40 transition-colors overflow-hidden"
       >
         <div className="flex items-center gap-1.5 text-muted-foreground">
-          {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          <BarChart3 className="w-3.5 h-3.5" />
+          {collapsed ? <CaretRight className="w-3.5 h-3.5" /> : <CaretDown className="w-3.5 h-3.5" />}
+          <ChartBar className="w-3.5 h-3.5" />
         </div>
         <span className="text-muted-foreground font-medium">
           {summaryText[lang]}
@@ -1107,7 +1103,7 @@ export const MessageStatusInline = memo(({
         }
       case "responding":
         return {
-          icon: <MessageSquare className="w-3.5 h-3.5" />,
+          icon: <Chat className="w-3.5 h-3.5" />,
           label: phaseInfo.responding[lang].labelActive,
           color: "text-green-500",
           bgColor: "bg-green-500/10",
@@ -1128,7 +1124,7 @@ export const MessageStatusInline = memo(({
     )}>
       <span className="animate-pulse">{info.icon}</span>
       <span>{info.label}</span>
-      <Loader2 className="w-3 h-3 animate-spin" />
+      <CircleNotch className="w-3 h-3 animate-spin" />
     </div>
   )
 })

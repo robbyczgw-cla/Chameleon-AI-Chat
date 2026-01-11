@@ -1,7 +1,7 @@
 "use client"
 
 import React, { Component, type ReactNode } from "react"
-import { AlertTriangle, RefreshCw, Home, Bug } from "lucide-react"
+import { ArrowsClockwise, Bug, House, Warning } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -142,7 +142,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           role="alert"
           aria-live="assertive"
         >
-          <AlertTriangle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+          <Warning className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
           <span>{errorMessage || "Something went wrong"}</span>
           <Button
             variant="ghost"
@@ -151,7 +151,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             className="ml-auto h-7 px-2"
             aria-label="Try again"
           >
-            <RefreshCw className="h-3 w-3 mr-1" aria-hidden="true" />
+            <ArrowsClockwise className="h-3 w-3 mr-1" aria-hidden="true" />
             Retry
           </Button>
         </div>
@@ -168,7 +168,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <Card className="w-full max-w-md">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" aria-hidden="true" />
+              <Warning className="h-5 w-5 text-destructive" aria-hidden="true" />
               <CardTitle>Something went wrong</CardTitle>
             </div>
             <CardDescription>
@@ -192,11 +192,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
           <CardFooter className="flex gap-2 flex-wrap">
             <Button onClick={this.handleRetry} variant="default" aria-label="Try loading again">
-              <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
+              <ArrowsClockwise className="h-4 w-4 mr-2" aria-hidden="true" />
               Try Again
             </Button>
             <Button onClick={this.handleGoHome} variant="outline" aria-label="Go to home page">
-              <Home className="h-4 w-4 mr-2" aria-hidden="true" />
+              <House className="h-4 w-4 mr-2" aria-hidden="true" />
               Go Home
             </Button>
             <Button onClick={this.handleReportBug} variant="ghost" aria-label="Report this bug">

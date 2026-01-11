@@ -5,7 +5,7 @@ import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Brain, Sparkles, Loader2 } from "lucide-react"
+import { Brain, CircleNotch, Sparkle } from "@phosphor-icons/react";
 import { streamChatMessage } from "@/lib/openrouter"
 import { getBackgroundModel, DEFAULT_BACKGROUND_MODELS } from "@/components/experimental-settings"
 import { sanitizeHtml } from "@/lib/sanitize-html"
@@ -157,7 +157,7 @@ Erstelle eine strukturierte Persönlichkeitsanalyse mit folgenden Punkten:
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" />
+              <Sparkle className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium">
                 Aktuelle Prompts: <span className="text-primary">{currentPromptCount}</span>
               </span>
@@ -176,7 +176,7 @@ Erstelle eine strukturierte Persönlichkeitsanalyse mit folgenden Punkten:
           >
             {isAnalyzing ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
                 Analysiere deine Persönlichkeit...
               </>
             ) : (

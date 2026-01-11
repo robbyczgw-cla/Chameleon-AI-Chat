@@ -27,16 +27,7 @@ import { languageService } from "@/lib/languages"
 import type { FileAttachment } from "@/lib/file-handler"
 import type { Persona } from "@/lib/personas"
 import { useDraft } from "@/hooks/use-draft"
-import {
-  Send,
-  Square,
-  Globe,
-  Lightbulb,
-  ArrowUp,
-  Sparkles,
-  Paperclip,
-  Image,
-} from "lucide-react"
+import { ArrowUp, Globe, Image, Lightbulb, PaperPlaneRight, Paperclip, Sparkle, Square } from "@phosphor-icons/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -346,7 +337,7 @@ export function BlocksChatInput({
                   "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <Sparkles className="h-3 w-3 text-violet-500" />
+                <Sparkle className="h-3 w-3 text-violet-500" />
                 <span className="truncate max-w-[150px] sm:max-w-[200px]">{prompt}</span>
               </button>
             ))}

@@ -1,5 +1,6 @@
 "use client"
 
+import { CaretRight, Check, Heart, Key, MapPin, Palette, Sparkle, Target, User } from "@phosphor-icons/react";
 import { useState, useEffect, type ChangeEvent } from "react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -11,25 +12,6 @@ import { Badge } from "@/components/ui/badge"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { useApp } from "@/contexts/app-context"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
-import { Sparkles } from "lucide-react"
-import {
-  User,
-  Palette,
-  Key,
-  ChevronRight,
-  ChevronLeft,
-  Check,
-  ExternalLink,
-  Sun,
-  Moon,
-  Wand2,
-  Waves,
-  Heart,
-  Gem,
-  MapPin,
-  Target,
-  X,
-} from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // Interest tags with emojis
@@ -977,11 +959,11 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
             {currentStep < totalSteps - 1 ? (
               <Button onClick={handleNext} className="gap-1 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700">
                 {t.next}
-                <ChevronRight className="h-4 w-4" />
+                <CaretRight className="h-4 w-4" />
               </Button>
             ) : (
               <Button onClick={handleComplete} className="gap-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700">
-                <Sparkles className="h-4 w-4" />
+                <Sparkle className="h-4 w-4" />
                 {t.getStarted}
               </Button>
             )}

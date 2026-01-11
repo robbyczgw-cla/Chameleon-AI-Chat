@@ -7,7 +7,7 @@ import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { History, Trash2, Download, AlertCircle } from "lucide-react"
+import { ClockCounterClockwise, Download, Trash, WarningCircle } from "@phosphor-icons/react";
 import { formatDistanceToNow } from "date-fns"
 import { de } from "date-fns/locale"
 import type { ComparisonSession } from "@/types"
@@ -62,7 +62,7 @@ export function ComparisonHistoryDialog({ open, onOpenChange, onLoadSession }: C
       <DialogContent className="max-w-[95vw] sm:max-w-xl lg:max-w-2xl max-h-[85vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <History className="h-4 w-4 sm:h-5 sm:w-5" />
+            <ClockCounterClockwise className="h-4 w-4 sm:h-5 sm:w-5" />
             Vergleichs-Historie
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm">
@@ -81,7 +81,7 @@ export function ComparisonHistoryDialog({ open, onOpenChange, onLoadSession }: C
               onClick={handleDeleteAll}
               className="min-h-[44px] text-xs sm:text-sm w-full sm:w-auto"
             >
-              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+              <Trash className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
               {deleteAllConfirm ? "Wirklich alle löschen?" : "Alle löschen"}
             </Button>
           )}
@@ -90,7 +90,7 @@ export function ComparisonHistoryDialog({ open, onOpenChange, onLoadSession }: C
         <ScrollArea className="flex-1 pr-2 sm:pr-4">
           {comparisonSessions.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center p-6 sm:p-8">
-              <AlertCircle className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mb-4" />
+              <WarningCircle className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mb-4" />
               <p className="text-sm sm:text-base text-muted-foreground">Keine gespeicherten Vergleiche</p>
               <p className="text-xs sm:text-sm text-muted-foreground mt-2">
                 Vergleichssitzungen werden automatisch gespeichert, wenn Sie Nachrichten senden
@@ -144,7 +144,7 @@ export function ComparisonHistoryDialog({ open, onOpenChange, onLoadSession }: C
                         className="text-destructive hover:text-destructive min-h-[44px] min-w-[44px]"
                         title="Löschen"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>

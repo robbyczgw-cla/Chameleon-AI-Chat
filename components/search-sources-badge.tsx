@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ExternalLink, Globe, Search } from "lucide-react"
+import { ArrowSquareOut, Globe, MagnifyingGlass } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import { SearchResultsCard } from "./search-results-card"
 import type { SearchResult } from "@/lib/search/types"
@@ -63,7 +63,7 @@ export function SearchSourcesBadge({
           "max-w-full overflow-hidden"
         )}
       >
-        <Search className="w-3.5 h-3.5" />
+        <MagnifyingGlass className="w-3.5 h-3.5" />
         <span className="font-medium">{l.sources}</span>
 
         {/* Result count */}
@@ -105,7 +105,7 @@ export function SearchSourcesBadge({
         </div>
 
         {/* Expand/collapse indicator */}
-        <ExternalLink className={cn(
+        <ArrowSquareOut className={cn(
           "w-3 h-3 transition-transform",
           isExpanded && "rotate-90"
         )} />

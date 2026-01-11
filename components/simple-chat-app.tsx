@@ -18,22 +18,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { userProfileService } from "@/lib/user-profile"
-import {
-  MessageSquarePlus,
-  Users,
-  Settings,
-  User,
-  Menu,
-  X,
-  ChevronLeft,
-  Trash2,
-  MoreVertical,
-  ImagePlus,
-  Lightbulb,
-  Search,
-  HelpCircle,
-  Share2,
-} from "lucide-react"
+import { CaretLeft, ChatDots, DotsThreeVertical, Gear, ImageSquare, Lightbulb, List, MagnifyingGlass, Question, ShareNetwork, Trash, User, Users, X } from "@phosphor-icons/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -892,13 +877,13 @@ export function SimpleChatApp() {
                 onClick={handleNewChat}
                 className="flex-1 gap-2 bg-gradient-to-r from-primary to-accent text-primary-foreground hover:brightness-95 active:brightness-90"
               >
-                <MessageSquarePlus className="h-4 w-4" />
+                <ChatDots className="h-4 w-4" />
                 {t.newChat}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className="shrink-0">
-                    <MoreVertical className="h-4 w-4" />
+                    <DotsThreeVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -907,7 +892,7 @@ export function SimpleChatApp() {
                     className="text-destructive focus:text-destructive"
                     disabled={chats.length === 0}
                   >
-                    <Trash2 className="h-4 w-4 mr-2" />
+                    <Trash className="h-4 w-4 mr-2" />
                     {t.deleteAllChats}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -917,7 +902,7 @@ export function SimpleChatApp() {
             {/* Search Input */}
             <div className="px-3 pb-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder={t.searchChats}
@@ -962,7 +947,7 @@ export function SimpleChatApp() {
                         onClick={(e) => handleDeleteChat(chat.id, e)}
                         title={t.deleteChat}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                        <Trash className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
                       </Button>
                     </div>
                   ))}
@@ -999,7 +984,7 @@ export function SimpleChatApp() {
                 className="md:hidden h-10 w-10 shrink-0"
                 onClick={() => setIsSidebarOpen(true)}
               >
-                <Menu className="h-5 w-5" />
+                <List className="h-5 w-5" />
               </Button>
 
               {currentChatId && (
@@ -1009,7 +994,7 @@ export function SimpleChatApp() {
                   className="hidden md:flex h-9 w-9 shrink-0"
                   onClick={() => setCurrentChat(null)}
                 >
-                  <ChevronLeft className="h-5 w-5" />
+                  <CaretLeft className="h-5 w-5" />
                 </Button>
               )}
 
@@ -1057,7 +1042,7 @@ export function SimpleChatApp() {
                   className="h-10 w-10 sm:h-9 sm:w-9"
                   title="Share"
                 >
-                  <Share2 className="h-5 w-5 sm:h-4 sm:w-4" />
+                  <ShareNetwork className="h-5 w-5 sm:h-4 sm:w-4" />
                 </Button>
               )}
               <Button
@@ -1066,7 +1051,7 @@ export function SimpleChatApp() {
                 onClick={() => setIsSettingsOpen(true)}
                 className="h-10 w-10 sm:h-9 sm:w-9"
               >
-                <Settings className="h-5 w-5 sm:h-4 sm:w-4" />
+                <Gear className="h-5 w-5 sm:h-4 sm:w-4" />
               </Button>
             </div>
           </header>

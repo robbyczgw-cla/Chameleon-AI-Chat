@@ -6,17 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  Sparkles,
-  Loader2,
-  Brain,
-  Target,
-  Lightbulb,
-  TrendingUp,
-  ChevronDown,
-  ChevronUp,
-  RefreshCw
-} from "lucide-react"
+import { ArrowsClockwise, Brain, CaretDown, CaretUp, CircleNotch, Lightbulb, Sparkle, Target, TrendUp } from "@phosphor-icons/react";
 import { streamChatMessage } from "@/lib/openrouter"
 import { cn } from "@/lib/utils"
 import { getBackgroundModel, DEFAULT_BACKGROUND_MODELS } from "@/components/experimental-settings"
@@ -171,17 +161,17 @@ Antworte NUR mit dem JSON-Objekt, ohne zusätzlichen Text.`
         >
           {isAnalyzing ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <CircleNotch className="h-4 w-4 mr-2 animate-spin" />
               Analysiere...
             </>
           ) : insights ? (
             <>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <ArrowsClockwise className="h-4 w-4 mr-2" />
               Aktualisieren
             </>
           ) : (
             <>
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Sparkle className="h-4 w-4 mr-2" />
               Insights Generieren
             </>
           )}
@@ -199,7 +189,7 @@ Antworte NUR mit dem JSON-Objekt, ohne zusätzlichen Text.`
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="h-4 w-4 text-purple-500" />
+                  <Sparkle className="h-4 w-4 text-purple-500" />
                   <h4 className="font-semibold text-sm">Zusammenfassung</h4>
                   <Badge variant="outline" className="text-xs">
                     {new Date(insights.timestamp).toLocaleDateString("de-DE")}
@@ -211,9 +201,9 @@ Antworte NUR mit dem JSON-Objekt, ohne zusätzlichen Text.`
               </div>
               <Button variant="ghost" size="sm" className="shrink-0">
                 {isExpanded ? (
-                  <ChevronUp className="h-4 w-4" />
+                  <CaretUp className="h-4 w-4" />
                 ) : (
-                  <ChevronDown className="h-4 w-4" />
+                  <CaretDown className="h-4 w-4" />
                 )}
               </Button>
             </div>
@@ -226,7 +216,7 @@ Antworte NUR mit dem JSON-Objekt, ohne zusätzlichen Text.`
               {insights.topics.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="h-4 w-4 text-blue-500" />
+                    <TrendUp className="h-4 w-4 text-blue-500" />
                     <h5 className="font-medium text-sm">Hauptthemen</h5>
                   </div>
                   <div className="flex flex-wrap gap-2">

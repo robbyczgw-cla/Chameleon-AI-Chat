@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Brain, ChevronDown, ChevronRight, Sparkles, Lightbulb, Target, Wrench, Star } from "lucide-react"
+import { Brain, CaretDown, CaretRight, Lightbulb, Sparkle, Star, Target, Wrench } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import type { UsedMemory } from "@/types"
 
@@ -156,9 +156,9 @@ export function MemorySurfacingBadge({
 
         {/* Expand/collapse indicator */}
         {isExpanded ? (
-          <ChevronDown className="w-3 h-3" />
+          <CaretDown className="w-3 h-3" />
         ) : (
-          <ChevronRight className="w-3 h-3" />
+          <CaretRight className="w-3 h-3" />
         )}
       </button>
 

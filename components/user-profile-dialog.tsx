@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { X, Plus, User, Heart, Briefcase, MapPin, Target } from "lucide-react"
+import { Briefcase, Heart, MapPin, Plus, Target, User, X } from "@phosphor-icons/react";
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { useToast } from "@/hooks/use-toast"
 import { useApp } from "@/contexts/app-context"

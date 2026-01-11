@@ -8,7 +8,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { keyboardShortcutService } from "@/lib/keyboard-shortcuts"
-import { Keyboard } from "lucide-react"
+import { Keyboard } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 interface KeyboardShortcutsDialogProps {

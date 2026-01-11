@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
-import { X, Plus, Lock, Sparkles, Search } from "lucide-react"
+import { Lock, MagnifyingGlass, Plus, Sparkle, X } from "@phosphor-icons/react";
 import { POPULAR_OPENROUTER_MODELS } from "@/lib/openrouter"
 import type { OpenRouterModel } from "@/lib/openrouter"
 import {
@@ -207,7 +207,7 @@ export function ModelManagement() {
         <div className="space-y-2">
           {selectedModels.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
-              <Sparkles className="h-8 w-8 mb-2 opacity-50" />
+              <Sparkle className="h-8 w-8 mb-2 opacity-50" />
               <p className="text-sm">Keine Modelle ausgewählt</p>
               <p className="text-xs">Klicke auf "Add Model" um zu starten</p>
             </div>
@@ -264,7 +264,7 @@ export function ModelManagement() {
           <div className="space-y-3 flex-1 flex flex-col min-h-0 overflow-hidden">
             {/* Search */}
             <div className="relative flex-shrink-0">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Suche... (z.B. Gemini, Claude)"
                 value={searchQuery}
@@ -281,7 +281,7 @@ export function ModelManagement() {
                 </div>
               ) : filteredModels.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-                  <Search className="h-8 w-8 mb-2 opacity-50" />
+                  <MagnifyingGlass className="h-8 w-8 mb-2 opacity-50" />
                   <p className="text-sm">Keine Modelle gefunden</p>
                   <p className="text-xs">Versuche einen anderen Suchbegriff</p>
                 </div>

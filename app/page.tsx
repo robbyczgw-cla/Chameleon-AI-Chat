@@ -22,7 +22,7 @@ import { haptics } from "@/lib/haptics"
 import { KeyboardShortcutsDialog } from "@/components/keyboard-shortcuts-dialog"
 import { useFeatureFlags } from "@/hooks/use-feature-flags"
 import { ErrorBoundary } from "@/components/error-boundary"
-import { ShieldCheck, ShieldOff } from "lucide-react"
+import { ShieldCheck, ShieldSlash } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useMaterialMotion } from "@/hooks/use-material-motion"
@@ -486,7 +486,7 @@ function ChatApp() {
                         {settings.privateChatMode ? (
                           <ShieldCheck className="h-4 w-4" />
                         ) : (
-                          <ShieldOff className="h-4 w-4" />
+                          <ShieldSlash className="h-4 w-4" />
                         )}
                         {settings.privateChatMode && (
                           <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 bg-emerald-500 rounded-full animate-pulse shadow-sm shadow-emerald-500/50" />

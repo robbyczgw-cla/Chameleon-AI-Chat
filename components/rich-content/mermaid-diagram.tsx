@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo, memo } from "react"
 import mermaid from "mermaid"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Download, Maximize2 } from "lucide-react"
+import { ArrowsOut, Download } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast"
 
 interface MermaidDiagramProps {
@@ -212,7 +212,7 @@ export const MermaidDiagram = memo(({ chart, className }: MermaidDiagramProps) =
           className="h-7 px-2"
           onClick={handleFullscreen}
         >
-          <Maximize2 className="h-3 w-3" />
+          <ArrowsOut className="h-3 w-3" />
         </Button>
       </div>
       <div

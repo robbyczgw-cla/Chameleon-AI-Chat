@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { TrendingUp, Target, AlertCircle, BookOpen, Clock, FileText, Quote } from "lucide-react"
+import { BookOpen, Clock, FileText, Quotes, Target, TrendUp, WarningCircle } from "@phosphor-icons/react";
 import { type ResponseAnalysis } from "@/lib/response-analyzer"
 import { cn } from "@/lib/utils"
 
@@ -41,7 +41,7 @@ export function ResponseAnalysisPanel({ analysis, className }: ResponseAnalysisP
         {/* Sentiment */}
         <div className="space-y-1">
           <div className="flex items-center gap-1.5">
-            <TrendingUp className="h-3 w-3 md:h-3.5 md:w-3.5 text-muted-foreground" />
+            <TrendUp className="h-3 w-3 md:h-3.5 md:w-3.5 text-muted-foreground" />
             <span className="text-muted-foreground">Sentiment</span>
           </div>
           <div className="flex items-center gap-2">
@@ -90,7 +90,7 @@ export function ResponseAnalysisPanel({ analysis, className }: ResponseAnalysisP
         {analysis.citations.length > 0 && (
           <div className="space-y-1">
             <div className="flex items-center gap-1.5">
-              <Quote className="h-3 w-3 md:h-3.5 md:w-3.5 text-muted-foreground" />
+              <Quotes className="h-3 w-3 md:h-3.5 md:w-3.5 text-muted-foreground" />
               <span className="text-muted-foreground">Citations</span>
             </div>
             <span className="font-medium">{analysis.citations.length}</span>
@@ -102,7 +102,7 @@ export function ResponseAnalysisPanel({ analysis, className }: ResponseAnalysisP
       {analysis.hedgingPhrases.length > 0 && (
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <AlertCircle className="h-3 w-3 md:h-3.5 md:w-3.5 text-amber-500" />
+            <WarningCircle className="h-3 w-3 md:h-3.5 md:w-3.5 text-amber-500" />
             <span className="text-xs text-muted-foreground">
               Hedging Detected ({analysis.hedgingPhrases.length})
             </span>
