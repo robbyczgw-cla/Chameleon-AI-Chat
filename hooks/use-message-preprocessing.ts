@@ -11,8 +11,8 @@
 
 import { useCallback } from 'react'
 import { memoryService } from '@/lib/memory-service'
-import { getBackgroundModel } from '@/lib/background-ai-models'
-import type { Memory, UsedMemory, Settings, Message, StreamingHistoryEntry } from '@/types'
+import { getBackgroundModel } from '@/components/experimental-settings'
+import type { Memory, UsedMemory, Message, StreamingHistoryEntry, MemorySettings, BackgroundAIModelsSettings } from '@/types'
 
 export interface MemoryRetrievalOptions {
   /** User query to retrieve memories for */
@@ -26,9 +26,9 @@ export interface MemoryRetrievalOptions {
   /** Recent messages for context-aware deduplication */
   recentMessages?: Array<{ role: string; content: string }>
   /** Background AI model settings */
-  backgroundAIModels?: Settings['experimental']['backgroundAIModels']
+  backgroundAIModels?: BackgroundAIModelsSettings
   /** Memory settings from user settings */
-  memorySettings?: Settings['memorySettings']
+  memorySettings?: MemorySettings
   /** Whether this is a private chat (skip memory) */
   isPrivateChat?: boolean
 }
@@ -278,5 +278,3 @@ export function useMessagePreprocessing() {
     getRecentMessagesForContext
   }
 }
-
-export type { MemoryRetrievalOptions, MemoryRetrievalResult }
