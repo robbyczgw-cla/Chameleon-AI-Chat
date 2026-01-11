@@ -63,7 +63,7 @@ describe('Personas', () => {
     test('emojis are single characters or emoji sequences', () => {
       PERSONAS.forEach((persona) => {
         expect(persona.emoji.length).toBeGreaterThan(0)
-        expect(persona.emoji.length).toBeLessThan(10) // Reasonable emoji length
+        expect(persona.emoji.length).toBeLessThan(15) // Allow for complex emoji sequences
       })
     })
   })
