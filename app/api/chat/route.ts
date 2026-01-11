@@ -299,20 +299,35 @@ Be factual, accurate, and cite your sources.`
     const message = data.choices?.[0]?.message
     const content = message?.content || "No search results found."
 
+    // Debug: Log the full response structure to understand annotation format
+    console.log(`[Tool] 🔍 OpenRouter search response structure:`, JSON.stringify({
+      hasAnnotations: !!message?.annotations,
+      annotationsCount: message?.annotations?.length || 0,
+      annotationTypes: message?.annotations?.map((a: any) => a.type) || [],
+      firstAnnotation: message?.annotations?.[0] ? JSON.stringify(message.annotations[0]).substring(0, 500) : 'none',
+      contentLength: content.length,
+    }))
+
     // Parse sources from the response
     const rawResults: any[] = []
 
     // First, check for OpenRouter's annotation format (url_citation objects)
-    // The web plugin returns citations in this format
+    // The web plugin returns citations in nested format: { type: "url_citation", url_citation: { url, title, content } }
     if (message?.annotations && Array.isArray(message.annotations)) {
+      console.log(`[Tool] 📋 Found ${message.annotations.length} annotations in response`)
       for (const annotation of message.annotations) {
         if (annotation.type === "url_citation" && rawResults.length < maxResults) {
-          rawResults.push({
-            title: annotation.title || annotation.url,
-            url: annotation.url,
-            content: annotation.content || "",
-            score: 1 - rawResults.length * 0.1,
-          })
+          // Handle nested url_citation format
+          const citation = annotation.url_citation || annotation
+          if (citation.url) {
+            rawResults.push({
+              title: citation.title || citation.url,
+              url: citation.url,
+              content: citation.content || "",
+              score: 1 - rawResults.length * 0.1,
+            })
+            console.log(`[Tool] 📎 Added citation: ${citation.title || citation.url}`)
+          }
         }
       }
     }
