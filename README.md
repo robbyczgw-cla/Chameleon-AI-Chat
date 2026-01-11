@@ -14,6 +14,12 @@ An open-source AI chat application with real-time cost tracking, 31 conversation
 
 ---
 
+## Try It Now
+
+**[camiai.xyz](https://camiai.xyz)** - Use Chameleon AI Chat instantly without any setup. Bring your own API keys and start chatting with 100+ AI models.
+
+---
+
 ## Why Chameleon?
 
 Most AI chat apps are either too simple (ChatGPT wrapper) or too complex (developer-only tools). Chameleon gives you the best of both worlds:
@@ -209,16 +215,6 @@ Everything in Guest Mode, plus:
 | **Exa** | Neural semantic search | ❌ Optional | Free tier available |
 | **OpenAI** | Whisper voice, DALL-E images | ❌ Optional | Pay-per-use |
 | **WeatherAPI** | Weather tool integration | ❌ Optional | Free tier available |
-
-### Estimated Monthly Costs
-
-| Usage Level | Models Used | Estimated Cost |
-|-------------|-------------|----------------|
-| **Casual** | GPT-4o-mini, Claude Haiku, free models | $1-5/month |
-| **Regular** | GPT-4o, Claude Sonnet | $10-20/month |
-| **Power User** | GPT-4o, Claude Opus, with vision/voice | $30-50/month |
-
-*Costs depend on usage. Many free models available (Llama, Mistral, etc.)*
 
 ---
 
