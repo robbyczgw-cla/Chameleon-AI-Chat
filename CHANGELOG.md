@@ -2,7 +2,56 @@
 
 All notable changes to Chameleon AI Chat are documented in this file.
 
-This project is in **beta stage** (v0.10-beta). Core features are stable with exact cost tracking.
+This project is now **v1.0 Beta** - feature-complete and ready for public release!
+
+---
+
+## [1.0.0-beta] - 2026-01-11
+
+### 🎉 Public Release
+
+**Chameleon AI Chat is now open source and available to everyone!**
+
+**Try it now:** [camiai.xyz](https://camiai.xyz) - No installation required, bring your own API keys.
+
+### ✨ Highlights
+
+- **31 AI Personas** - Unique personalities for every use case
+- **100+ AI Models** - Via OpenRouter (Claude, GPT, Gemini, Grok, Llama, and more)
+- **Real Cost Tracking** - Exact billing data from OpenRouter's Generation API
+- **Smart Follow-ups** - Color-coded suggestions (Quick/Deep/Related) after every response
+- **Streaming History** - See exactly what AI is doing in real-time with full transparency
+- **Two Modes** - Simple Mode for beginners, Advanced Mode for power users
+- **Training Export** - Export conversations as JSONL for fine-tuning
+- **Semantic Memory** - AI remembers context across conversations
+- **Web Search** - Integrated Tavily, Serper, and Exa search providers
+- **12+ Themes** - Beautiful customization options
+- **Cross-Platform** - PWA, Android APK, iOS Safari
+
+### 🔗 Key Features Explained
+
+**Smart Follow-up Suggestions**
+- ⚡ Quick (Green) - Fast clarification questions
+- 🧠 Deep Dive (Purple) - Technical exploration
+- 🔗 Related (Blue) - Connected topics and comparisons
+- One-click to continue conversations naturally
+
+**Streaming History & Transparency**
+- Real-time phase tracking: Thinking → Searching → Tool Use → Responding
+- Tool details with search queries, parameters, and result counts
+- Performance metrics: TTFT, tokens/sec, duration
+- Customizable display presets: Minimal, Balanced, Maximum
+
+### 📖 Documentation
+
+- Comprehensive [User Guide](./docs/user-guide.md) for all features
+- [Self-hosting guide](./docs/deployment.md) for running your own instance
+- [API documentation](./docs/api.md) for developers
+- [Architecture overview](./docs/ARCHITECTURE.md) for contributors
+
+### 🙏 Thank You
+
+Thanks to everyone who helped test and improve Chameleon AI Chat during development!
 
 ---
 

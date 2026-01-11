@@ -1,8 +1,45 @@
 # 📖 Chameleon Chat User Guide - Master All Features
 
-**Version 0.10-beta** | Last updated: December 2025
+**Version 1.0 Beta** | Last updated: January 2026
 
 Complete guide to getting the most out of Chameleon Chat's power user features.
+
+---
+
+## 🌐 Two Ways to Use Chameleon
+
+### Option 1: Hosted Version (Easiest)
+
+**[camiai.xyz](https://camiai.xyz)** - Start chatting in seconds!
+
+1. Go to [camiai.xyz](https://camiai.xyz)
+2. Click "Continue as Guest" or create an account
+3. Go to Settings → API Keys
+4. Add your OpenRouter API key
+5. Start chatting!
+
+**Benefits:**
+- No installation required
+- Always up-to-date
+- Works on any device
+- Free to use (you pay for API usage only)
+
+### Option 2: Self-Hosted (Full Control)
+
+Run your own instance for complete control over your data.
+
+1. Clone the repository
+2. Set up Supabase (free tier works great)
+3. Configure environment variables
+4. Deploy to Vercel, Netlify, or your own server
+
+See [Deployment Guide](./deployment.md) for detailed instructions.
+
+**Benefits:**
+- Full control over your data
+- Customize branding and features
+- No dependency on external hosting
+- Can run air-gapped for maximum privacy
 
 ---
 
