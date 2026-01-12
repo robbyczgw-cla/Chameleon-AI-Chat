@@ -309,16 +309,21 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
     if (open) {
       setLocalSettings(settings)
       const existingProfile = userProfileService.getProfile()
+
+      // Try to get name from: 1) existing profile, 2) Google OAuth metadata, 3) empty
+      const googleName = user?.user_metadata?.full_name || user?.user_metadata?.name
+      const prefillName = existingProfile.name || (typeof googleName === 'string' ? googleName : "")
+
       setProfile({
         ...existingProfile,
-        name: existingProfile.name || "",
+        name: prefillName,
         interests: existingProfile.interests || [],
         goals: existingProfile.goals || [],
       })
       const savedTheme = localStorage.getItem("chameleon-theme") || "light"
       setCurrentTheme(savedTheme)
     }
-  }, [open, settings])
+  }, [open, settings, user])
 
   const applyTheme = (theme: string) => {
     const html = document.documentElement
