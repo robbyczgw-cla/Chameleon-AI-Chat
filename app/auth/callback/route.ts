@@ -36,15 +36,18 @@ export async function GET(request: Request) {
     )
 
     try {
-      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+      const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
       if (exchangeError) {
-        console.error("[Auth Callback] Code exchange error:", exchangeError.message)
+        console.error("[Auth Callback] Code exchange error:", exchangeError.message, exchangeError)
         return NextResponse.redirect(`${origin}/auth/login?error=${encodeURIComponent(exchangeError.message)}`)
       }
+
+      console.log("[Auth Callback] Session created for user:", data?.user?.email)
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Authentication failed"
       console.error("[Auth Callback] Unexpected error:", err)
-      return NextResponse.redirect(`${origin}/auth/login?error=Authentication%20failed`)
+      return NextResponse.redirect(`${origin}/auth/login?error=${encodeURIComponent(errorMessage)}`)
     }
   }
 
