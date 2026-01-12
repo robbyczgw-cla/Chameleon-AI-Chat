@@ -116,7 +116,7 @@ export function ModeSelectionDialog({ open, onSelectMode }: ModeSelectionDialogP
         </div>
 
         {/* Mode Selection Cards */}
-        <div className="p-6 flex-1 overflow-y-auto">
+        <div className="p-6 pt-8 flex-1 overflow-y-auto">
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Simple Mode Card */}
             <button
