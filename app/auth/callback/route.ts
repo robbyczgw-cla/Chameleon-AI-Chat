@@ -1,8 +1,7 @@
 import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get("code")
   const error = requestUrl.searchParams.get("error")
@@ -16,7 +15,8 @@ export async function GET(request: Request) {
   }
 
   if (code) {
-    const cookieStore = await cookies()
+    // Create response first so we can set cookies on it
+    const response = NextResponse.redirect(`${origin}/`)
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,11 +24,11 @@ export async function GET(request: Request) {
       {
         cookies: {
           getAll() {
-            return cookieStore.getAll()
+            return request.cookies.getAll()
           },
           setAll(cookiesToSet) {
             cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options)
+              response.cookies.set(name, value, options)
             })
           },
         },
@@ -44,6 +44,7 @@ export async function GET(request: Request) {
       }
 
       console.log("[Auth Callback] Session created for user:", data?.user?.email)
+      return response
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Authentication failed"
       console.error("[Auth Callback] Unexpected error:", err)
