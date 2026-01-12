@@ -598,14 +598,9 @@ export function SimpleChatApp() {
       return
     }
 
-    // Check if mode was already selected (set by mode-wrapper.tsx for existing users)
-    // This catches users switching from Advanced Mode to Simple Mode
-    const modeAlreadySelected = localStorage.getItem("chameleon-mode-selected")
-    if (modeAlreadySelected) {
-      console.log("[Simple Mode] Mode already selected (existing user), marking onboarding complete")
-      localStorage.setItem("simple-mode-onboarding-complete", "true")
-      return
-    }
+    // Note: We removed the check for "chameleon-mode-selected" here because
+    // the mode-selection-dialog sets it for ALL users (including new ones).
+    // The checks below for profile, chats, settings, etc. already handle existing users.
 
     // Check if user has a profile with data set - this is more reliable than localStorage flags
     // If the user has profile data, they've already completed onboarding before
