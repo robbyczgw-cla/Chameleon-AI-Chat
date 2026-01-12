@@ -111,10 +111,6 @@ export function deepMergeSettings(defaults: AppSettings, parsed: Partial<AppSett
       ...defaults.exaSettings,
       ...(parsed.exaSettings || {}),
     },
-    youcomSettings: {
-      ...defaults.youcomSettings,
-      ...(parsed.youcomSettings || {}),
-    },
     apiKeys: mergedApiKeys,
     voiceSettings: {
       ...defaults.voiceSettings,

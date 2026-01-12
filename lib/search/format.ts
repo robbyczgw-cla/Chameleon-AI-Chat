@@ -73,10 +73,10 @@ export function buildSearchContext(
   response: SearchResponse,
   options: {
     includeImages?: boolean
-    language?: "en" | "de"
+    language?: "en" | "de" | "es"
   } = {}
 ): string {
-  const { includeImages = false, language = "de" } = options
+  const { includeImages = false, language = "en" } = options
 
   const labels = {
     de: {
@@ -96,6 +96,15 @@ export function buildSearchContext(
       optimized: "Optimized search",
       instruction: "Please use the above web search results to provide an accurate and up-to-date answer to the user's question.",
       imageInstruction: " For images, please include URLs in Markdown format: ![Description](URL)"
+    },
+    es: {
+      searchFor: "Resultados de búsqueda web para",
+      summary: "Resumen",
+      results: "Resultados detallados",
+      images: "Imágenes",
+      optimized: "Búsqueda optimizada",
+      instruction: "Por favor, utiliza los resultados de búsqueda anteriores para proporcionar una respuesta precisa y actualizada a la pregunta del usuario.",
+      imageInstruction: " Para las imágenes, incluye las URLs en formato Markdown: ![Descripción](URL)"
     }
   }
 
