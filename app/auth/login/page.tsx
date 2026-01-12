@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Lock, Shield, Sparkle } from "@phosphor-icons/react"
+import { GoogleLogo, Shield, Sparkle } from "@phosphor-icons/react"
 import { ChameleonLogo } from "@/components/chameleon-logo"
 import { LegalFooter } from "@/components/legal-footer"
 
@@ -37,6 +37,25 @@ export default function Page() {
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    const supabase = createClient()
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+      if (error) throw error
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "Google login failed")
       setIsLoading(false)
     }
   }
@@ -154,6 +173,30 @@ export default function Page() {
                           </>
                         )}
                       </span>
+                    </Button>
+
+                    {/* Divider */}
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-white dark:bg-slate-900 px-2 text-muted-foreground">
+                          or
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Google Login Button */}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-10 text-sm font-semibold border-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300"
+                      onClick={handleGoogleLogin}
+                      disabled={isLoading}
+                    >
+                      <GoogleLogo className="w-5 h-5 mr-2" weight="bold" />
+                      Continue with Google
                     </Button>
 
                     {/* Guest Mode Button */}
