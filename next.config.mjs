@@ -77,7 +77,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://*.vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; media-src 'self' blob:; connect-src 'self' https://*.supabase.co https://openrouter.ai https://api.openai.com https://api.anthropic.com https://api.tavily.com https://google.serper.dev https://vercel.live https://*.vercel.live wss://*.vercel.live; frame-src https://vercel.live https://*.vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://*.vercel.live https://*.codesandbox.io; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; media-src 'self' blob:; connect-src 'self' https://*.supabase.co https://openrouter.ai https://api.openai.com https://api.anthropic.com https://api.tavily.com https://google.serper.dev https://vercel.live https://*.vercel.live wss://*.vercel.live https://*.codesandbox.io wss://*.codesandbox.io https://unpkg.com https://cdn.skypack.dev; frame-src https://vercel.live https://*.vercel.live https://*.codesandbox.io https://*.sandpack.codesandbox.io; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
           },
         ],
       },

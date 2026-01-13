@@ -290,9 +290,9 @@ const CodeBlock = memo(({ language, code, onCopy, enableSandbox = false }: CodeB
               variant="ghost"
               size="sm"
               className={cn(
-                "h-7 text-xs transition-opacity",
+                "h-7 text-xs transition-opacity text-zinc-300 hover:text-zinc-100 hover:bg-zinc-700",
                 showSandbox
-                  ? "opacity-100 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"
+                  ? "opacity-100 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300"
                   : "opacity-0 group-hover/code:opacity-100"
               )}
               onClick={toggleSandbox}
@@ -313,7 +313,7 @@ const CodeBlock = memo(({ language, code, onCopy, enableSandbox = false }: CodeB
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 text-xs opacity-0 group-hover/code:opacity-100 transition-opacity"
+            className="h-7 text-xs opacity-0 group-hover/code:opacity-100 transition-opacity text-zinc-300 hover:text-zinc-100 hover:bg-zinc-700"
             onClick={() => onCopy(code)}
           >
             <Copy className="h-3 w-3 mr-1" />
