@@ -6,6 +6,60 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
+## [1.2.0] - 2026-01-13
+
+### 🚀 Live Code Sandbox
+
+Run React, HTML, Vue, and JavaScript code directly in chat messages! Powered by [Sandpack](https://sandpack.codesandbox.io/) from CodeSandbox.
+
+#### Features
+
+- **Run button on code blocks** - Hover over jsx/tsx/html/vue/js code blocks to see a "Run" button
+- **Live preview** - See your code execute in real-time below the code block
+- **[SANDBOX] tag support** - AI can explicitly create sandboxes with `[SANDBOX template="react"]...[/SANDBOX]`
+- **Multiple templates** - React, vanilla JS, static HTML, Vue, and Svelte
+- **Interactive controls** - Toggle code editor, console, fullscreen mode
+- **Auto-dependency detection** - npm imports are automatically detected and installed
+- **Tailwind CSS included** - CDN version loaded by default
+- **Theme sync** - Matches your light/dark theme
+
+#### How to Enable
+
+1. Go to **Settings → Labs** (Advanced Mode only)
+2. Toggle **"Live Code Sandbox"** ON
+3. Syntax highlighting is auto-enabled
+
+#### Technical Details
+
+- **Zero server cost** - Runs entirely in browser
+- **~300KB lazy-loaded** - Only loads when you click "Run"
+- **Sandboxed iframe** - Code cannot access parent window or storage
+- **CSP configured** - Sandpack domains whitelisted in security headers
+
+#### Security
+
+- Template input validated against whitelist
+- Title attribute sanitized (HTML stripped, max 100 chars)
+- All code runs in isolated iframe sandbox
+- Cannot access main app's cookies, localStorage, or DOM
+
+#### Files Added
+
+- `lib/sandpack-utils.ts` - Template detection & file generation
+- `components/rich-content/sandpack-preview.tsx` - Main sandbox component
+- `components/rich-content/lazy-sandpack.tsx` - Lazy loader
+- `docs/features/live-code-sandbox.md` - Full documentation
+
+#### Files Modified
+
+- `next.config.mjs` - Added CSP rules for Sandpack domains
+- `types/index.ts` - Added `enableLiveCodeSandbox` setting
+- `components/experimental-settings.tsx` - Added toggle UI
+- `components/chat-messages.tsx` - Added Run button to CodeBlock
+- `lib/rich-content-parser.tsx` - Added [SANDBOX] tag parser
+
+---
+
 ## [1.1.2] - 2026-01-13
 
 ### 🔍 Search Experience Optimizations
