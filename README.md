@@ -97,6 +97,7 @@ Most AI chat apps are either too simple (ChatGPT wrapper) or too complex (develo
 | **Streaming History** | Review past streaming sessions with performance metrics and reasoning traces |
 | **Model Comparison** | Run the same prompt through 2-4 models side-by-side |
 | **Conversation Branching** | Explore alternative responses by branching conversations |
+| **Live Code Sandbox** | Run React, HTML, Vue, and JavaScript code directly in chat (Sandpack-powered) |
 
 #### Smart Follow-up Suggestions
 
@@ -312,6 +313,7 @@ Everything in Guest Mode, plus:
 | [Follow-up Suggestions](./docs/FOLLOW_UP_SUGGESTIONS.md) | Smart conversation continuers |
 | [Private Chat Mode](./docs/PRIVATE_CHAT_MODE.md) | Ephemeral conversations |
 | [Search Providers](./docs/SEARCH-PROVIDERS-GUIDE.md) | Web search integration |
+| [Live Code Sandbox](./docs/features/live-code-sandbox.md) | Run code in chat messages |
 
 See [docs/README.md](./docs/README.md) for the complete documentation index.
 
@@ -390,6 +392,7 @@ MIT License - see [LICENSE](./LICENSE)
 - [Vercel](https://vercel.com) - Hosting and deployment
 - [Lucide](https://lucide.dev) - Icon library
 - [Mermaid](https://mermaid.js.org) - Diagram rendering
+- [Sandpack](https://sandpack.codesandbox.io) - Live code sandbox from CodeSandbox
 
 ---
 
