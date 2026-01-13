@@ -97,6 +97,19 @@ Most AI chat apps are either too simple (ChatGPT wrapper) or too complex (develo
 | **Streaming History** | Review past streaming sessions with performance metrics and reasoning traces |
 | **Model Comparison** | Run the same prompt through 2-4 models side-by-side |
 | **Live Code Sandbox** | Run React, HTML, Vue, and JavaScript code directly in chat (Sandpack-powered) |
+| **Agent Mode** | Autonomous multi-step research with task planning, 10 tool calls, and clarifying questions (Advanced Mode) |
+
+#### Agent Mode (Advanced Mode)
+
+Transform Chameleon from a simple Q&A tool into an autonomous task executor:
+
+- **🤖 Toggle** - Click the Robot button in chat input to enable
+- **📋 Task Planning** - AI breaks complex requests into subtasks before executing
+- **🔍 Deep Research** - Up to 10 tool calls (vs 3 in normal mode) for thorough research
+- **❓ Smart Clarification** - Asks 1-2 questions on broad requests before researching
+- **📊 Progress Display** - See planned tasks with real-time completion status
+
+Best for: Research tasks, comparisons, multi-source synthesis. Simple questions don't need it.
 
 #### Smart Follow-up Suggestions
 
