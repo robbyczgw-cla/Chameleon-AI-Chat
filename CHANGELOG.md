@@ -6,6 +6,36 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
+## [1.3.1] - 2026-01-13
+
+### 🌍 Labs Settings German Translation
+
+Complete German (Deutsch) localization for the Labs/Experimental Settings section.
+
+#### What's Translated
+
+All Labs settings now display in German when language is set to "Deutsch":
+
+- **Warning Banner** - "Experimentelle Funktionen"
+- **Default Model** - "Standard-Modell für neue Chats"
+- **Background AI Models** - All 12 background task model selectors
+- **Response Analysis** - "Antwort-Analyse aktivieren"
+- **Emotion Detection** - "Cami Emotions-Bewusstsein" with all emotion descriptions
+- **Performance Mode** - "Ultra-Performance-Modus"
+- **Message Statistics** - "Nachrichten-Statistiken"
+- **AI Tools** - URL-Abruf, YouTube-Transkript, Wetter-Tool, Auto-Kontext-Komprimierung
+- **Agent Mode** - "Agent-Modus", "Maximale Tool-Aufrufe", "Aufgabenplan anzeigen"
+- **Rich Content** - Mermaid-Diagramme, Code-Syntax, Live Code Sandbox
+- **Memory Intelligence** - "Memory-Intelligenz" with all threshold settings
+- **Streaming Visualization** - "Streaming-Visualisierung"
+
+#### Files Modified
+
+- `lib/i18n.ts` - Added 100+ new translation keys in `labs` namespace
+- `components/experimental-settings.tsx` - Updated to use translation system
+
+---
+
 ## [1.3.0] - 2026-01-13
 
 ### 🤖 Agent Mode

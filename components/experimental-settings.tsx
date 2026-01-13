@@ -12,6 +12,7 @@ import { getUserSelectedModels } from "@/lib/model-preferences"
 import { useEffect, useState } from "react"
 import type { BackgroundAIModelsSettings } from "@/types"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { useTranslation } from "@/lib/i18n"
 
 // Default models for background tasks
 export const DEFAULT_BACKGROUND_MODELS: Required<BackgroundAIModelsSettings> = {
@@ -41,6 +42,8 @@ export function getBackgroundModel(
 
 export function ExperimentalSettings() {
   const { settings, updateSettings } = useApp()
+  const currentLanguage = settings.language || "en"
+  const { translations: tr } = useTranslation(currentLanguage)
   const experimental = settings.experimental || {}
   const memorySettings = settings.memorySettings || {}
   const backgroundModels = experimental.backgroundAIModels || {}
@@ -94,10 +97,9 @@ export function ExperimentalSettings() {
       <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
         <Warning className="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <h4 className="text-sm font-semibold text-amber-900 dark:text-amber-100">Experimental Features</h4>
+          <h4 className="text-sm font-semibold text-amber-900 dark:text-amber-100">{tr.labs.warningTitle}</h4>
           <p className="text-xs text-amber-800 dark:text-amber-200">
-            These features are experimental and may change or be removed in future updates. Use at your own
-            discretion.
+            {tr.labs.warningDescription}
           </p>
         </div>
       </div>
@@ -107,15 +109,15 @@ export function ExperimentalSettings() {
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Sparkle className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Default Model</h3>
+            <h3 className="text-lg font-semibold">{tr.labs.defaultModel}</h3>
           </div>
 
           <div className="space-y-4 pl-7">
             <div className="p-4 border rounded-lg space-y-3">
               <div className="space-y-1">
-                <Label className="text-sm font-medium">Default Model for New Chats</Label>
+                <Label className="text-sm font-medium">{tr.labs.defaultModelLabel}</Label>
 <p className="text-xs text-muted-foreground">
-                  Choose your preferred model for new conversations. System default: google/gemini-3-flash-preview
+                  {tr.labs.defaultModelDescription}
                 </p>
               </div>
               <Select
@@ -139,7 +141,7 @@ export function ExperimentalSettings() {
             {/* Info Box */}
             <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <p className="text-xs text-blue-800 dark:text-blue-200">
-                <strong>Tip:</strong> Add more models to this list from the Model Management dialog (model icon in chat header). Your custom default is saved and synced across sessions.
+                <strong>Tip:</strong> {tr.labs.defaultModelTip}
               </p>
             </div>
           </div>
@@ -152,7 +154,7 @@ export function ExperimentalSettings() {
           <Collapsible open={isBackgroundModelsOpen} onOpenChange={setIsBackgroundModelsOpen}>
             <CollapsibleTrigger className="flex items-center gap-2 w-full hover:text-primary transition-colors">
               <Cpu className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold flex-1 text-left">Background AI Models</h3>
+              <h3 className="text-lg font-semibold flex-1 text-left">{tr.labs.backgroundModels}</h3>
               {isBackgroundModelsOpen ? (
                 <CaretUp className="h-4 w-4 text-muted-foreground" />
               ) : (
@@ -162,21 +164,20 @@ export function ExperimentalSettings() {
 
             <CollapsibleContent className="space-y-4 pt-4">
               <p className="text-xs text-muted-foreground">
-                Configure which models are used for background tasks. These run automatically without user interaction.
-                Select from your available models or keep the defaults.
+                {tr.labs.backgroundModelsDescription}
               </p>
 
               {/* Text Generation Tasks */}
               <div className="space-y-3 p-4 border rounded-lg bg-muted/20">
                 <h4 className="text-sm font-semibold flex items-center gap-2">
                   <Sparkle className="h-4 w-4 text-purple-500" />
-                  Text Generation Tasks
+                  {tr.labs.textGenerationTasks}
                 </h4>
 
                 {/* Title Generation */}
                 <div className="space-y-1">
-                  <Label className="text-xs font-medium">Chat Title Generation</Label>
-                  <p className="text-[10px] text-muted-foreground mb-1">Generates titles for new conversations</p>
+                  <Label className="text-xs font-medium">{tr.labs.titleGeneration}</Label>
+                  <p className="text-[10px] text-muted-foreground mb-1">{tr.labs.titleGenerationDesc}</p>
                   <Select
                     value={backgroundModels.titleGeneration || "__default__"}
                     onValueChange={(v) => handleBackgroundModelChange("titleGeneration", v)}
@@ -466,16 +467,16 @@ export function ExperimentalSettings() {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Flask className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold">Response Analysis</h3>
+          <h3 className="text-lg font-semibold">{tr.labs.responseAnalysis}</h3>
         </div>
 
         <div className="space-y-4 pl-7">
           {/* Enable Response Analysis */}
           <div className="flex items-center justify-between p-4 border rounded-lg">
             <div className="space-y-1">
-              <Label className="text-sm font-medium">Enable Response Analysis</Label>
+              <Label className="text-sm font-medium">{tr.labs.enableResponseAnalysis}</Label>
               <p className="text-xs text-muted-foreground">
-                Analyze AI responses for sentiment, confidence, complexity, and more
+                {tr.labs.enableResponseAnalysisDesc}
               </p>
             </div>
             <Switch
@@ -500,17 +501,17 @@ export function ExperimentalSettings() {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Heart className="h-5 w-5 text-pink-500" />
-          <h3 className="text-lg font-semibold">Emotion Detection</h3>
+          <h3 className="text-lg font-semibold">{tr.labs.emotionDetection}</h3>
         </div>
 
         <div className="space-y-4 pl-7">
           {/* Enable Emotion Detection */}
           <div className="flex items-center justify-between p-4 border rounded-lg border-pink-500/30 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-950/20">
             <div className="space-y-1 flex-1">
-              <Label className="text-sm font-medium">🦎 Cami Emotion Awareness</Label>
+              <Label className="text-sm font-medium">{tr.labs.camiEmotionAwareness}</Label>
               <p className="text-xs text-muted-foreground">
-                Detect user emotions (frustration, excitement, confusion, sarcasm) and adapt responses accordingly.
-                {settings.simpleMode ? " Default: ON in Simple Mode" : " Default: OFF in Advanced Mode"}
+                {tr.labs.emotionDetectionDesc}
+                {settings.simpleMode ? ` ${tr.labs.emotionDetectionDescSimple}` : ` ${tr.labs.emotionDetectionDescAdvanced}`}
               </p>
             </div>
             <Switch
@@ -532,14 +533,14 @@ export function ExperimentalSettings() {
           ) && (
             <div className="p-3 bg-pink-50 dark:bg-pink-950/20 border border-pink-200 dark:border-pink-800 rounded-lg space-y-2">
               <p className="text-xs text-pink-800 dark:text-pink-200">
-                <strong>How it works:</strong> Cami detects emotional cues in your messages and adapts her response style:
+                <strong>{tr.labs.howItWorks}</strong> Cami detects emotional cues in your messages and adapts her response style:
               </p>
               <ul className="text-xs text-pink-800 dark:text-pink-200 space-y-1 list-disc list-inside">
-                <li><strong>Frustrated/Sarcastic:</strong> Empathetic acknowledgment, then direct help</li>
-                <li><strong>Excited:</strong> Matches your energy and enthusiasm</li>
-                <li><strong>Confused:</strong> Simpler explanations, step-by-step, more examples</li>
-                <li><strong>Discouraged:</strong> Encouraging tone, breaks problems into smaller steps</li>
-                <li><strong>Urgent:</strong> Direct answers, skips pleasantries</li>
+                <li><strong>{tr.labs.emotionFrustrated.split(':')[0]}:</strong> {tr.labs.emotionFrustrated.split(':')[1]}</li>
+                <li><strong>{tr.labs.emotionExcited.split(':')[0]}:</strong> {tr.labs.emotionExcited.split(':')[1]}</li>
+                <li><strong>{tr.labs.emotionConfused.split(':')[0]}:</strong> {tr.labs.emotionConfused.split(':')[1]}</li>
+                <li><strong>{tr.labs.emotionDiscouraged.split(':')[0]}:</strong> {tr.labs.emotionDiscouraged.split(':')[1]}</li>
+                <li><strong>{tr.labs.emotionUrgent.split(':')[0]}:</strong> {tr.labs.emotionUrgent.split(':')[1]}</li>
               </ul>
             </div>
           )}
@@ -564,16 +565,16 @@ export function ExperimentalSettings() {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Lightning className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold">Performance Mode</h3>
+          <h3 className="text-lg font-semibold">{tr.labs.performanceMode}</h3>
         </div>
 
         <div className="space-y-4 pl-7">
           {/* Enable Animations */}
           <div className="flex items-center justify-between p-4 border rounded-lg">
             <div className="space-y-1">
-              <Label className="text-sm font-medium">Enable Animations</Label>
+              <Label className="text-sm font-medium">{tr.labs.enableAnimations}</Label>
               <p className="text-xs text-muted-foreground">
-                Show animated loading indicators (e.g. "Analyzing your message" blinking icon)
+                {tr.labs.enableAnimationsDesc}
               </p>
             </div>
             <Switch
@@ -585,9 +586,9 @@ export function ExperimentalSettings() {
           {/* Enable Performance Mode */}
           <div className="flex items-center justify-between p-4 border rounded-lg">
             <div className="space-y-1">
-              <Label className="text-sm font-medium">Ultra Performance Mode</Label>
+              <Label className="text-sm font-medium">{tr.labs.ultraPerformanceMode}</Label>
               <p className="text-xs text-muted-foreground">
-                Disable GPU-intensive visual effects for maximum performance
+                {tr.labs.ultraPerformanceModeDesc}
               </p>
             </div>
             <Switch
@@ -600,8 +601,7 @@ export function ExperimentalSettings() {
           {experimental.performanceMode && (
             <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg">
               <p className="text-xs text-green-800 dark:text-green-200">
-                <strong>Disabled effects:</strong> Chameleon logo color-shift, memory icon pulse, avatar glows,
-                background animations, and other GPU-intensive visual effects. GPU usage should be minimal.
+                {tr.labs.disabledEffects}
               </p>
             </div>
           )}
@@ -612,16 +612,16 @@ export function ExperimentalSettings() {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <ChartBar className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold">Message Statistics</h3>
+          <h3 className="text-lg font-semibold">{tr.labs.messageStatistics}</h3>
         </div>
 
         <div className="space-y-4 pl-7">
           {/* Show Message Stats (Main Toggle) */}
           <div className="flex items-center justify-between p-4 border-2 border-primary/30 rounded-lg bg-gradient-to-r from-primary/5 to-primary/10">
             <div className="space-y-1">
-              <Label className="text-sm font-medium">💰 Show Detailed Message Stats</Label>
+              <Label className="text-sm font-medium">{tr.labs.showDetailedStats}</Label>
               <p className="text-xs text-muted-foreground">
-                Display stats after each AI message: exact costs, tokens, performance metrics (Advanced Mode, all platforms)
+                {tr.labs.showDetailedStatsDesc}
               </p>
             </div>
             <Switch
@@ -801,12 +801,12 @@ export function ExperimentalSettings() {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Wrench className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold">AI Tools</h3>
+          <h3 className="text-lg font-semibold">{tr.labs.aiTools}</h3>
         </div>
 
         <div className="space-y-4 pl-7">
           <p className="text-xs text-muted-foreground">
-            Enable additional tools that the AI can use when Auto Tool Use is enabled. The AI will decide when to use these tools based on your questions.
+            {tr.labs.aiToolsDescription}
           </p>
 
           {/* URL Fetch Tool */}
@@ -891,21 +891,21 @@ export function ExperimentalSettings() {
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Robot className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Agent Mode</h3>
+            <h3 className="text-lg font-semibold">{tr.labs.agentMode}</h3>
           </div>
 
           <div className="space-y-4 pl-7">
             <p className="text-xs text-muted-foreground">
-              Use the 🤖 button in chat to enable Agent Mode. When active, AI can make more tool calls and shows its task planning.
+              {tr.labs.agentModeDescription}
             </p>
 
             {/* Max Iterations Slider */}
             <div className="p-4 border rounded-lg space-y-3">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="text-sm font-medium">Maximum Tool Calls</Label>
+                  <Label className="text-sm font-medium">{tr.labs.maxToolCalls}</Label>
                   <p className="text-xs text-muted-foreground">
-                    How many tool calls AI can make per request (normal mode: 3)
+                    {tr.labs.maxToolCallsDesc}
                   </p>
                 </div>
                 <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
@@ -925,16 +925,16 @@ export function ExperimentalSettings() {
                 className="w-full"
               />
               <p className="text-xs text-muted-foreground">
-                Higher = more thorough research but higher cost. 10 is recommended.
+                {tr.labs.maxToolCallsNote}
               </p>
             </div>
 
             {/* Show Task Plan */}
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="space-y-1">
-                <Label className="text-sm font-medium">Show Task Plan</Label>
+                <Label className="text-sm font-medium">{tr.labs.showTaskPlan}</Label>
                 <p className="text-xs text-muted-foreground">
-                  Display AI&apos;s planned subtasks before execution
+                  {tr.labs.showTaskPlanDesc}
                 </p>
               </div>
               <Switch
@@ -949,7 +949,7 @@ export function ExperimentalSettings() {
 
             {/* Tip */}
             <p className="text-xs text-muted-foreground italic">
-              💡 Best for research, comparisons, and multi-step tasks. Simple questions don&apos;t need Agent Mode.
+              {tr.labs.agentModeTip}
             </p>
           </div>
         </div>
@@ -960,12 +960,12 @@ export function ExperimentalSettings() {
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Palette className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Rich Content Rendering</h3>
+            <h3 className="text-lg font-semibold">{tr.labs.richContent}</h3>
           </div>
 
           <div className="space-y-4 pl-7">
             <p className="text-xs text-muted-foreground">
-              Control how AI responses display special content. Polls, timelines, tables, and math are always enabled. These features can be performance-intensive.
+              {tr.labs.richContentDescription}
             </p>
 
             {/* Mermaid Diagrams */}
@@ -1078,9 +1078,9 @@ export function ExperimentalSettings() {
             <div className="flex items-center gap-2">
               <Brain className="h-5 w-5 text-primary" />
               <div>
-                <h3 className="text-lg font-semibold">Memory Intelligence</h3>
+                <h3 className="text-lg font-semibold">{tr.labs.memoryIntelligence}</h3>
                 <p className="text-xs text-muted-foreground">
-                  Fine-tune how the AI decides when and what memories to retrieve
+                  {tr.labs.memoryIntelligenceDesc}
                 </p>
               </div>
             </div>
@@ -1223,9 +1223,9 @@ export function ExperimentalSettings() {
             <div className="flex items-center gap-2">
               <Monitor className="h-5 w-5 text-primary" />
               <div>
-                <h3 className="text-lg font-semibold">Streaming Visualization</h3>
+                <h3 className="text-lg font-semibold">{tr.labs.streamingVisualization}</h3>
                 <p className="text-xs text-muted-foreground">
-                  Advanced Mode only - Control what you see during AI responses
+                  {tr.labs.streamingVisualizationDesc}
                 </p>
               </div>
             </div>
@@ -1234,10 +1234,9 @@ export function ExperimentalSettings() {
               {/* Detailed Streaming Toggle */}
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="space-y-1">
-                  <Label className="text-sm font-medium">Detailed Streaming Mode</Label>
+                  <Label className="text-sm font-medium">{tr.labs.detailedStreaming}</Label>
                   <p className="text-xs text-muted-foreground">
-                    Show full step-by-step progress with phases, sub-steps, timer, and progress bar.
-                    When off, only shows current action and reasoning tokens.
+                    {tr.labs.detailedStreamingDesc}
                   </p>
                 </div>
                 <Switch
