@@ -230,8 +230,16 @@ export class RichContentParser {
         const templateMatch = attrs.match(/template=["']?(\w+)["']?/)
         const titleMatch = attrs.match(/title=["']([^"']+)["']/)
 
-        const template = (templateMatch ? templateMatch[1] : "react") as SandpackTemplate
-        const title = titleMatch ? titleMatch[1] : undefined
+        // Validate template against allowed values
+        const allowedTemplates = ["react", "vanilla", "static", "vue", "svelte"]
+        const rawTemplate = templateMatch ? templateMatch[1] : "react"
+        const template = (allowedTemplates.includes(rawTemplate) ? rawTemplate : "react") as SandpackTemplate
+
+        // Sanitize title - strip HTML tags and limit length
+        const rawTitle = titleMatch ? titleMatch[1] : undefined
+        const title = rawTitle
+          ? rawTitle.replace(/<[^>]*>/g, "").slice(0, 100)
+          : undefined
 
         const id = `sandbox-${Date.now()}-${this.idCounter++}`
         sandboxes.push({
