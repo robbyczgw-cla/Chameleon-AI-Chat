@@ -1,7 +1,7 @@
 "use client"
 
 import { memo } from "react"
-import { CircleWavyQuestion, Lightning } from "@phosphor-icons/react"
+import { Question, Lightning } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import type { ClarifyingQuestion } from "@/lib/agent-prompts"
@@ -50,7 +50,7 @@ export const ClarifyingQuestionsCard = memo(({
       {/* Header Banner */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md">
-          <CircleWavyQuestion className="w-5 h-5 text-white" weight="fill" />
+          <Question className="w-5 h-5 text-white" weight="fill" />
         </div>
         <div>
           <h3 className="text-sm font-semibold text-amber-700 dark:text-amber-300">
