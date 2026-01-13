@@ -8,7 +8,6 @@ import { ChatSidebar } from "@/components/chat-sidebar"
 import { ChatHeader } from "@/components/chat-header"
 import { ChatMessages } from "@/components/chat-messages"
 import { ChatInput } from "@/components/chat-input"
-import { BranchNavigator } from "@/components/branch-navigator"
 import { AppProvider, useApp } from "@/contexts/app-context"
 import { ModeWrapper } from "@/components/mode-wrapper"
 import { keyboardShortcutService } from "@/lib/keyboard-shortcuts"
@@ -541,7 +540,6 @@ function ChatApp() {
                   <ChatMessages currentPersona={settings.selectedPersona} />
                 </div>
                 <div className="flex-shrink-0">
-                  <BranchNavigator />
                   <ChatInput />
                 </div>
               </>

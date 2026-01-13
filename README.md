@@ -96,7 +96,6 @@ Most AI chat apps are either too simple (ChatGPT wrapper) or too complex (develo
 | **Live Streaming** | Watch responses generate in real-time with token-by-token streaming |
 | **Streaming History** | Review past streaming sessions with performance metrics and reasoning traces |
 | **Model Comparison** | Run the same prompt through 2-4 models side-by-side |
-| **Conversation Branching** | Explore alternative responses by branching conversations |
 
 #### Smart Follow-up Suggestions
 

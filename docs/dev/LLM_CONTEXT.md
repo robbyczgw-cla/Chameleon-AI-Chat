@@ -40,7 +40,6 @@
 - Complete settings panel (temperature, max tokens, penalties)
 - 7 collapsible message statistics sections
 - MCP server configuration
-- Conversation branching
 - Training data export
 - Cost tracking dashboard
 
@@ -148,7 +147,6 @@ AI generates contextual next-step questions using `[FOLLOWUP]` tags:
 ### 9. Additional Features
 
 - **RAG System** - Upload PDFs/docs, get context-aware answers
-- **Conversation Branching** - Explore alternate paths
 - **Training Data Export** - JSONL format for fine-tuning
 - **Chat Link Sharing** - Base64-encoded URL sharing
 - **Image Generation** - DALL-E integration (normal/high quality)

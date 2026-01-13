@@ -102,15 +102,6 @@ export interface Message {
     toolCallTokensPerSecond?: number // Average TPS for tool call generations
   }
   streamingHistory?: StreamingHistoryEntry[] // History of streaming phases for verbose display
-  branches?: ConversationBranch[] // Alternate conversation paths from this message
-}
-
-export interface ConversationBranch {
-  id: string
-  name: string
-  messages: Message[]
-  createdAt: number
-  parentMessageId: string // The message this branch diverges from
 }
 
 export interface ConversationInsight {
@@ -131,7 +122,6 @@ export interface Chat {
   model: string
   folderId?: string
   pinned?: boolean
-  currentBranchPath?: string[] // Array of branch IDs representing the current branch path
   insights?: ConversationInsight // AI-generated conversation insights
   titleGeneratedAt?: number // Timestamp when AI generated the title (for animation)
   isPrivate?: boolean // Private chat: no memory, no persistence, auto-delete on close

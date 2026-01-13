@@ -1464,7 +1464,6 @@ AI: Since you're using Next.js, Vercel is perfect - made by same team.
 - 🔗 **Related (Blue)** - Explore connected topics
 
 **Click follow-ups to:**
-- Branch conversations naturally
 - Discover related topics you didn't consider
 - Keep momentum going
 - Explore at different depths (quick vs deep)
@@ -1569,11 +1568,6 @@ AI: Since you're using Next.js, Vercel is perfect - made by same team.
 - Image generation mode
 
 ### 10. Experimental Features
-
-**Branch Navigator (Beta):**
-- Create alternate conversation paths
-- Explore "what if" scenarios
-- Compare different approaches
 
 **Model Comparison:**
 - Ask same question to 2+ models
