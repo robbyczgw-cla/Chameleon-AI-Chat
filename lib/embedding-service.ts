@@ -3,6 +3,8 @@
  * Uses OpenRouter to generate embeddings via OpenAI's text-embedding-3-small model
  */
 
+import { getOpenRouterHeaders } from "@/lib/utils"
+
 // Default embedding model (can be overridden)
 export const DEFAULT_EMBEDDING_MODEL = "openai/text-embedding-3-small"
 const EMBEDDING_DIMENSIONS = 1536
@@ -47,8 +49,7 @@ export async function generateEmbeddings(
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
-        "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "https://chameleon-ai-chat.vercel.app",
-        "X-Title": "Chameleon AI Chat",
+        ...getOpenRouterHeaders("Embeddings"),
       },
       body: JSON.stringify({
         model: model,

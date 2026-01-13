@@ -258,6 +258,5 @@ We welcome contributions! See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelin
 
 1. **Use keyboard shortcuts**: Press `Cmd/Ctrl + K` to open command palette
 2. **Quick model switch**: Press `Cmd/Ctrl + ,` to change models
-3. **Branch conversations**: Click the branch icon to explore alternative responses
-4. **Export chats**: Settings → Export for backup or training data
-5. **Follow-up suggestions**: After each response, see AI-suggested follow-up questions
+3. **Export chats**: Settings → Export for backup or training data
+4. **Follow-up suggestions**: After each response, see AI-suggested follow-up questions

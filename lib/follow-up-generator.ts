@@ -10,6 +10,7 @@
 
 import type { Message, CategorizedFollowUp } from "@/types"
 import { parseFollowUps } from "./follow-up-parser"
+import { getOpenRouterHeaders } from "@/lib/utils"
 
 // Fast, cheap models for follow-up generation
 const DEFAULT_FOLLOWUP_MODEL = "openai/gpt-oss-120b"
@@ -111,8 +112,7 @@ async function tryGenerateFollowUps(
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
-      'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://chameleon-ai.chat',
-      'X-Title': 'Chameleon AI Chat - Follow-Up Generation'
+      ...getOpenRouterHeaders("Follow-Ups"),
     },
     body: JSON.stringify({
       model: followUpModel,

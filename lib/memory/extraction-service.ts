@@ -8,7 +8,7 @@
  */
 
 import type { Memory } from '@/types'
-import { generateUUID } from '@/lib/utils'
+import { generateUUID, getOpenRouterHeaders } from '@/lib/utils'
 import { isTransientContent, assessMemoryQuality } from './context-filter'
 import { loggers } from '@/lib/logger'
 
@@ -331,7 +331,7 @@ export async function integrateProfile(
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': typeof window !== 'undefined' ? window.location.href : 'https://chameleon-ai.chat',
+        ...getOpenRouterHeaders("Memory Extraction"),
       },
       body: JSON.stringify({
         model: extractionModel,

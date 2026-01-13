@@ -13,6 +13,7 @@ import { CircleNotch, Gear, Info, PencilSimple, Plus, Sparkle, Trash, X } from "
 import { useToast } from "@/hooks/use-toast"
 import { useApp } from "@/contexts/app-context"
 import { PersonaAdvancedSettings } from "@/components/persona-advanced-settings"
+import { getOpenRouterHeaders } from "@/lib/utils"
 import { PersonaInfoDialog } from "@/components/persona-info-dialog"
 import { getPersonaDescription } from "@/lib/languages"
 import {
@@ -175,7 +176,7 @@ WICHTIG: Schreibe NUR die Persönlichkeits-Beschreibung, keine Erklärungen davo
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${settings.apiKeys.openRouter}`,
-          'HTTP-Referer': window.location.origin,
+          ...getOpenRouterHeaders("Persona Builder"),
         },
         body: JSON.stringify({
           model: personaModel,

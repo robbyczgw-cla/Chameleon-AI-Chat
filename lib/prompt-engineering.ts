@@ -3,6 +3,8 @@
  * System prompt and utilities for improving user prompts
  */
 
+import { getOpenRouterHeaders } from "@/lib/utils"
+
 export const PROMPT_ENGINEERING_SYSTEM_PROMPT = `You are an expert prompt engineering assistant. Your job is to transform vague, unclear, or basic prompts into highly effective, well-structured prompts that get better AI responses.
 
 Apply these core techniques:
@@ -559,8 +561,7 @@ export async function improvePrompt(
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "",
-      "X-Title": "Chameleon Chat - Prompt Helper",
+      ...getOpenRouterHeaders("Prompt Helper"),
     },
     body: JSON.stringify({
       model: model,

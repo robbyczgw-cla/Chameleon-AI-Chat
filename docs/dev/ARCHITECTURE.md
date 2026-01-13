@@ -247,7 +247,6 @@ Chameleon-AI-Chat/
 │   ├── memory-service.ts         # Long-term memory orchestrator 🧠
 │   ├── voice.ts                  # Voice input/output 🎙️
 │   ├── cost-tracker.ts           # Cost calculations 💸
-│   ├── branch-manager.ts         # Conversation branching
 │   ├── rag-service.ts            # RAG implementation 📚
 │   ├── embeddings-store.ts       # Vector embeddings
 │   ├── tavily.ts                 # Tavily search
@@ -1721,7 +1720,7 @@ Two distinct interface modes for different user needs.
 │ ┌──────────────────────────────┐ [Send]   │
 │ │ Type your message...         │          │
 │ └──────────────────────────────┘          │
-│ [Web|Voice|File|Image] [Stats|Branch]      │
+│ [Web|Voice|File|Image] [Stats]             │
 └────────────────────────────────────────────┘
 ```
 
@@ -1736,7 +1735,6 @@ Two distinct interface modes for different user needs.
 - AI debate mode
 - Cost tracking dashboard
 - Training data export
-- Conversation branching
 
 **File:** `components/chat-input.tsx`
 
@@ -1865,31 +1863,6 @@ const toolCalls = messages.flatMap(msg => {
 
 ## Chat Architecture
 
-### Conversation Branching
-
-**Location**: `lib/branch-manager.ts`
-
-Users can explore alternate conversation paths:
-
-```
-Message 1
-    ↓
-Message 2
-    ├──→ Branch A (Message 3a)
-    │        ↓
-    │    Message 4a
-    │
-    └──→ Branch B (Message 3b)
-             ↓
-         Message 4b
-```
-
-**Features**:
-- Create branches at any message
-- Switch between branches
-- Merge branches (manual selection)
-- Visual branch tree UI
-
 ### Export & Training Data
 
 **Location**: `components/export-training-data-dialog.tsx`
@@ -2012,7 +1985,6 @@ interface AppContextType {
   regenerateMessage: (messageId: string) => Promise<void>
   editMessage: (id: string, newContent: string) => Promise<void>
   deleteMessage: (id: string) => void
-  branchFromMessage: (id: string) => void
 
   // Settings
   settings: AppSettings
@@ -2342,7 +2314,6 @@ CREATE TABLE messages (
   content TEXT NOT NULL,
   model TEXT,
   metadata JSONB, -- { tokens, cost, searchResults, ragContext, ... }
-  parent_id UUID REFERENCES messages(id), -- For branching
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

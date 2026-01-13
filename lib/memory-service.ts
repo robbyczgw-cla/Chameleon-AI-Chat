@@ -8,7 +8,7 @@
  */
 
 import type { Memory, MemorySettings, DeletedMemory } from "@/types"
-import { generateUUID } from "@/lib/utils"
+import { generateUUID, getOpenRouterHeaders } from "@/lib/utils"
 import { supabaseSync } from "@/lib/supabase/sync"
 import { generateEmbedding, findSimilar, cosineSimilarity } from "@/lib/embedding-service"
 import {
@@ -1650,7 +1650,7 @@ Return ONLY the JSON array, no other text.`
         headers: {
           "Authorization": `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": typeof window !== "undefined" ? window.location.href : "https://chameleon-ai.chat",
+          ...getOpenRouterHeaders("Memory Extraction"),
         },
         body: JSON.stringify({
           model: this.extractionModel,

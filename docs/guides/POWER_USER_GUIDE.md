@@ -96,24 +96,7 @@ Welcome, power user! This guide reveals the advanced features, hidden shortcuts,
 
 ---
 
-### 4. Conversation Branching
-
-**What**: Explore alternate conversation paths from any message.
-
-**How**:
-1. Click on any message in history
-2. "Branch from here" option appears
-3. Creates new conversation path
-4. Switch between branches anytime
-
-**Use cases**:
-- Test different approaches without losing original
-- Explore multiple solutions simultaneously
-- Save different versions of creative work
-
----
-
-### 5. Web Search Integration
+### 4. Web Search Integration
 
 **What**: Inject real-time web search results into AI context.
 

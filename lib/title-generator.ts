@@ -3,6 +3,8 @@
  * Uses a small, cheap open-source model to generate concise titles from user messages
  */
 
+import { getOpenRouterHeaders } from "@/lib/utils"
+
 // Default model for title generation
 export const DEFAULT_TITLE_MODEL = "openai/gpt-oss-20b"
 
@@ -44,8 +46,7 @@ export async function generateChatTitle(
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
-        "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "https://chameleon-ai.app",
-        "X-Title": "Chameleon AI Chat",
+        ...getOpenRouterHeaders("Title Generation"),
       },
       body: JSON.stringify({
         model: model,

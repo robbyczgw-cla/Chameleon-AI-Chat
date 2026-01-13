@@ -14,6 +14,7 @@
 import { retry, type RetryOptions } from './retry'
 import { loggers } from './logger'
 import type { APIError } from '@/types'
+import { getOpenRouterHeaders } from '@/lib/utils'
 
 const log = loggers.api
 
@@ -437,8 +438,7 @@ export function createOpenRouterClient(apiKey: string): APIClient {
     baseURL: 'https://openrouter.ai/api/v1',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
-      'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : '',
-      'X-Title': 'Chameleon AI Chat',
+      ...getOpenRouterHeaders(),
     },
     timeout: 60000,
     retry: {

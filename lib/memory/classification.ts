@@ -19,6 +19,7 @@
 import type { QueryClassification } from './types'
 import { MEMORY_MODELS } from './types'
 import { loggers } from '@/lib/logger'
+import { getOpenRouterHeaders } from '@/lib/utils'
 
 const log = loggers.memory
 
@@ -149,8 +150,7 @@ export async function classifyQuery(
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : '',
-        'X-Title': 'Chameleon AI Chat',
+        ...getOpenRouterHeaders("Query Classification"),
       },
       body: JSON.stringify({
         model: classificationModel,
