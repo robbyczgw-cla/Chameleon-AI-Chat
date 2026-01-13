@@ -260,10 +260,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...defaults.exaSettings,
         ...(parsed.exaSettings || {}),
       },
-      youcomSettings: {
-        ...defaults.youcomSettings,
-        ...(parsed.youcomSettings || {}),
-      },
       apiKeys: mergedApiKeys,
       voiceSettings: {
         ...defaults.voiceSettings,

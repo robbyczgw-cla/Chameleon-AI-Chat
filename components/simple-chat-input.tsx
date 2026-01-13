@@ -10,10 +10,10 @@ import { Textarea } from "@/components/ui/textarea"
 import type { Message, StreamingHistoryEntry, UsedMemory, CategorizedFollowUp } from "@/types"
 import { streamChatMessage, REASONING_MODELS } from "@/lib/openrouter"
 import { modelSupportsToolCalling } from "@/lib/tools"
-import { searchWeb, formatSearchResults as formatTavilyResults } from "@/lib/tavily"
-import { searchWithSerper, formatSearchResults as formatSerperResults } from "@/lib/serper"
-import { searchWithYoucom, formatSearchResults as formatYoucomResults } from "@/lib/youcom"
-import type { SearchResponse } from "@/lib/serper"
+import { searchWeb } from "@/lib/tavily"
+import { searchWithSerper, type SearchResponse } from "@/lib/serper"
+import { buildSearchContext } from "@/lib/search/format"
+import type { SearchResponse as UnifiedSearchResponse } from "@/lib/search/types"
 import { useToast } from "@/hooks/use-toast"
 import { generateUUID, cn } from "@/lib/utils"
 import { supabaseSync } from "@/lib/supabase/sync"
@@ -780,9 +780,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           let searchProvider = settings.searchProvider || "tavily"
 
           // Check if selected provider has a key, otherwise auto-switch
-          const hasSelectedKey = searchProvider === "serper" ? settings.apiKeys.serper :
-                                 searchProvider === "youcom" ? settings.apiKeys.youcom :
-                                 settings.apiKeys.tavily
+          const hasSelectedKey = searchProvider === "serper" ? settings.apiKeys.serper : settings.apiKeys.tavily
 
           if (!hasSelectedKey) {
             if (settings.apiKeys.serper) {
@@ -791,9 +789,6 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
             } else if (settings.apiKeys.tavily) {
               console.log("[Simple Chat] ⚠️ Manual search: Auto-switching to Tavily")
               searchProvider = "tavily"
-            } else if (settings.apiKeys.youcom) {
-              console.log("[Simple Chat] ⚠️ Manual search: Auto-switching to You.com")
-              searchProvider = "youcom"
             }
           }
 
@@ -801,45 +796,56 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
 
           if (searchProvider === "serper") {
             console.log("[Simple Chat] Using Serper (Google Search)")
+            // Simple mode optimizations for Serper: more results, auto-detect news
+            const isNewsQuery = searchHeuristics.realtimeKeywords?.some(k =>
+              ['news', 'latest', 'today', 'breaking', 'current'].includes(k.toLowerCase())
+            ) || /\b(news|nachrichten|aktuell|noticias|últimas|actualidad)\b/i.test(searchQuery)
+            const autoType = isNewsQuery ? "news" : (settings.serperSettings?.type || "search")
+            // Use user's UI language for search locale
+            const searchLangCode = settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en"
+            const searchCountry = settings.language === "de" ? "at" : settings.language === "es" ? "es" : "us"
+
             searchResults = await searchWithSerper(searchQuery, {
-              maxResults: settings.serperSettings?.maxResults || 5,
+              // Simple mode: more results for better context (8 vs 5)
+              maxResults: settings.serperSettings?.maxResults || 8,
               includeImages: settings.serperSettings?.includeImages ?? true,
-              country: settings.serperSettings?.country || "at",
-              language: settings.serperSettings?.language || "de",
-              type: settings.serperSettings?.type || "search",
+              country: settings.serperSettings?.country || searchCountry,
+              language: settings.serperSettings?.language || searchLangCode,
+              // Auto-detect news queries
+              type: autoType,
               timeRange: settings.serperSettings?.timeRange || "none",
               autocorrect: settings.serperSettings?.autocorrect ?? true,
               page: settings.serperSettings?.page || 1,
               apiKey: settings.apiKeys.serper,
             })
-          } else if (searchProvider === "youcom") {
-            console.log("[Simple Chat] Using You.com (with livecrawl)")
-            const youcomResults = await searchWithYoucom(searchQuery, {
-              maxResults: settings.youcomSettings?.maxResults || 5,
-              country: settings.youcomSettings?.country || "at",
-              livecrawl: settings.youcomSettings?.livecrawl ?? true,
-              safeSearch: settings.youcomSettings?.safeSearch || "moderate",
-              freshness: settings.youcomSettings?.freshness || "none",
-              apiKey: settings.apiKeys.youcom,
-            })
-            // Convert You.com response to SearchResponse format
-            searchResults = {
-              results: youcomResults.results as any,
-              images: youcomResults.images || [],
-              answer: youcomResults.answer
+            if (isNewsQuery) {
+              console.log("[Simple Chat] 📰 Auto-detected news query, using type: news")
             }
           } else {
             console.log("[Simple Chat] Using Tavily")
+            // Simple mode optimizations: more results, better depth, include AI answer
+            // Also auto-detect news queries to use news topic
+            const isNewsQuery = searchHeuristics.realtimeKeywords?.some(k =>
+              ['news', 'latest', 'today', 'breaking', 'current'].includes(k.toLowerCase())
+            ) || /\b(news|nachrichten|aktuell|noticias|últimas|actualidad)\b/i.test(searchQuery)
+            const autoTopic = isNewsQuery ? "news" : (settings.tavilySettings?.topic || "general")
+
             searchResults = await searchWeb(searchQuery, {
-              maxResults: settings.tavilySettings?.maxResults || 5,
-              searchDepth: settings.tavilySettings?.searchDepth || "basic",
+              // Simple mode: more results for better context (8 vs 5)
+              maxResults: settings.tavilySettings?.maxResults || 8,
+              // Simple mode: use advanced search for better quality
+              searchDepth: settings.tavilySettings?.searchDepth || "advanced",
               includeImages: settings.tavilySettings?.includeImages ?? true,
               includeDomains: settings.tavilySettings?.includeDomains,
               excludeDomains: settings.tavilySettings?.excludeDomains,
               includeRawContent: settings.tavilySettings?.includeRawContent || false,
-              topic: settings.tavilySettings?.topic || "general",
+              // Auto-detect news topic for realtime queries
+              topic: autoTopic,
               apiKey: settings.apiKeys.tavily,
             })
+            if (isNewsQuery) {
+              console.log("[Simple Chat] 📰 Auto-detected news query, using topic: news")
+            }
           }
 
           const searchEndTime = performance.now()
@@ -876,36 +882,34 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           })
           console.log("[Simple Chat] 🐛 DEBUG - After addStreamingHistoryEntry, check if it was added")
 
-          let searchContext = `Websuchergebnisse für: "${input.trim()}"\n\n`
-
-          if (searchResults.answer) {
-            searchContext += `Zusammenfassung: ${searchResults.answer}\n\n`
+          // Build unified search response for consistent formatting
+          const unifiedResponse: UnifiedSearchResponse = {
+            query: input.trim(),
+            answer: searchResults.answer || "",
+            results: searchResults.results.map((r: any, i: number) => ({
+              title: r.title,
+              url: r.url,
+              content: r.content,
+              score: r.score ?? (1 - i * 0.1),
+              publishedDate: r.published_date || r.publishedDate,
+            })),
+            images: searchResults.images,
+            responseTime: searchTimeSeconds * 1000,
+            provider: searchProvider as "tavily" | "serper" | "exa",
           }
 
-          // Use appropriate formatter
-          const formatResults =
-            searchProvider === "serper" ? formatSerperResults :
-            searchProvider === "youcom" ? formatYoucomResults :
-            formatTavilyResults
+          // Use unified formatter with user's UI language preference
+          const searchLang = settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en"
+          const searchContext = buildSearchContext(unifiedResponse, {
+            includeImages: !!(searchResults.images && searchResults.images.length > 0),
+            language: searchLang,
+          })
 
-          searchContext += `Detaillierte Ergebnisse:\n${formatResults(searchResults.results)}`
-
-          // Add images if available
-          if (searchResults.images && searchResults.images.length > 0) {
-            searchContext += `\n\nProduktbilder:\n${searchResults.images.map((url, i) => `![Produktbild ${i + 1}](${url})`).join('\n')}`
-            console.log("[Simple Chat] 📷 Added", searchResults.images.length, "product images")
-          } else {
-            console.log("[Simple Chat] ⚠️ No images in search results:", searchResults.images)
-          }
-
-          searchContext += `\n\nBitte verwende die obigen Websuchergebnisse für eine aktuelle Antwort.`
+          console.log(`[Simple Chat] 🌍 Using ${searchLang} language for search context`)
 
           messages.splice(-1, 0, { role: "system" as const, content: searchContext })
 
           console.log("[Simple Chat] Web search context added to messages (length:", searchContext.length, "chars)")
-
-          // Toast removed - SearchSourcesBadge provides feedback
-          const imageCount = searchResults.images?.length || 0
         } catch (searchError) {
           console.error("[Simple Chat] ❌ Web search error:", searchError)
           toast({
@@ -981,9 +985,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       }
 
       // Get the appropriate search API key for tool calling
-      // Note: API route supports tavily, serper, exa - fallback to tavily if youcom is selected
-      const rawSearchProvider = settings.searchProvider || "tavily"
-      let searchProviderForTools = rawSearchProvider === "youcom" ? "tavily" : rawSearchProvider
+      // Note: API route supports tavily, serper, exa
+      let searchProviderForTools = settings.searchProvider || "tavily"
       let searchApiKeyForTools = searchProviderForTools === "serper"
         ? settings.apiKeys.serper
         : settings.apiKeys.tavily // exa would use tavily key as fallback

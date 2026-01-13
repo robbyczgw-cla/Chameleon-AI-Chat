@@ -42,7 +42,6 @@ const SEARCH_PRICING: Record<string, number> = {
   tavily: 0.001,    // $1 per 1000 searches
   serper: 0.0002,   // $2 per 10,000 searches
   exa: 0.0005,      // $5 per 10,000 searches (2x cheaper than Tavily)
-  youcom: 0.0,      // Free tier available
 }
 
 export class CostTracker {

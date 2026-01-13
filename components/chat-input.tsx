@@ -716,9 +716,11 @@ export function ChatInput() {
           // Use unified search function
           const searchResponse = await search(searchProvider, input.trim(), searchOptions)
 
-          // Build context using unified formatter
+          // Build context using unified formatter with user's language
+          const searchLang = settings.language === "de" ? "de" : settings.language === "es" ? "es" : "en"
           const searchContext = buildSearchContext(searchResponse, {
             includeImages: settings.tavilySettings?.includeImages || settings.serperSettings?.includeImages || settings.exaSettings?.includeImages,
+            language: searchLang,
           })
 
           messages.splice(-1, 0, { role: "system" as const, content: searchContext })
