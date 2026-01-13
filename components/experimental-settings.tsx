@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useApp } from "@/contexts/app-context"
-import { Brain, CaretDown, CaretUp, ChartBar, CloudSun, Code, Cpu, Flask, GitBranch, Heart, Lightning, Link, Monitor, Palette, Sparkle, Warning, Wrench, YoutubeLogo } from "@phosphor-icons/react";
+import { Brain, CaretDown, CaretUp, ChartBar, CloudSun, Code, Cpu, Flask, GitBranch, Heart, Lightning, Link, Monitor, Palette, Play, Sparkle, Warning, Wrench, YoutubeLogo } from "@phosphor-icons/react";
 import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
 import { getUserSelectedModels } from "@/lib/model-preferences"
@@ -930,6 +930,30 @@ export function ExperimentalSettings() {
               <Switch
                 checked={experimental.enableCodeBlockHighlighting || false}
                 onCheckedChange={(checked) => handleExperimentalChange({ enableCodeBlockHighlighting: checked })}
+              />
+            </div>
+
+            {/* Live Code Sandbox */}
+            <div className="flex items-center justify-between p-4 border rounded-lg border-blue-500/30 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center gap-2">
+                  <Play className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <Label className="text-sm font-medium">Live Code Sandbox ⚡ NEW</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Run React, HTML, and Vue code directly in chat. Adds &quot;Run&quot; button to code blocks. Auto-enables syntax highlighting. Loads ~300KB on first use, runs client-side.
+                </p>
+              </div>
+              <Switch
+                checked={experimental.enableLiveCodeSandbox || false}
+                onCheckedChange={(checked) => {
+                  // Auto-enable syntax highlighting when sandbox is enabled (required for Run button)
+                  if (checked && !experimental.enableCodeBlockHighlighting) {
+                    handleExperimentalChange({ enableLiveCodeSandbox: checked, enableCodeBlockHighlighting: true })
+                  } else {
+                    handleExperimentalChange({ enableLiveCodeSandbox: checked })
+                  }
+                }}
               />
             </div>
 

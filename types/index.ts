@@ -372,6 +372,7 @@ export interface ExperimentalSettings {
   // Rich Content Settings (Advanced Mode only)
   enableMermaidDiagrams?: boolean // Render Mermaid diagrams in code blocks (default: false)
   enableCodeBlockHighlighting?: boolean // Syntax highlighting for code blocks (default: false)
+  enableLiveCodeSandbox?: boolean // Run React/HTML/Vue code in live sandbox (default: false)
   showInputStats?: boolean // Show token/cost estimate below chat input
   // Follow-up Suggestions (Advanced Mode only)
   showCategorizedFollowUps?: boolean // Show category labels (Quick/Deep Dive/Related) in follow-up suggestions (default: false for minimalistic look)

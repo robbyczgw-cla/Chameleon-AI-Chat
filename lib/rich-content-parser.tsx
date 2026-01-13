@@ -6,6 +6,14 @@ import { Timeline, type TimelineEvent } from "@/components/rich-content/timeline
 import { ProgressBar } from "@/components/rich-content/progress-bar"
 import { ComparisonCard, type ComparisonOption } from "@/components/rich-content/comparison-card"
 import { RichTable, type RichTableData } from "@/components/rich-content/rich-table"
+import { LazySandpack } from "@/components/rich-content/lazy-sandpack"
+import type { SandpackTemplate } from "@/lib/sandpack-utils"
+
+export interface SandboxData {
+  code: string
+  template: SandpackTemplate
+  title?: string
+}
 
 /**
  * Parse and extract rich content tags from markdown text
@@ -202,6 +210,47 @@ export class RichContentParser {
   }
 
   /**
+   * Parse [SANDBOX] tags
+   * Format: [SANDBOX template="react" title="Optional Title"]code here[/SANDBOX]
+   * Supported templates: react, vanilla, static, vue, svelte
+   */
+  static parseSandbox(text: string): { content: string; sandboxes: Array<{ id: string; sandbox: SandboxData; position: number }> } {
+    const sandboxes: Array<{ id: string; sandbox: SandboxData; position: number }> = []
+    const sandboxRegex = /\[SANDBOX([^\]]*)\]([\s\S]*?)\[\/SANDBOX\]/g
+
+    let content = text
+    let match
+
+    while ((match = sandboxRegex.exec(text)) !== null) {
+      try {
+        const attrs = match[1] || ""
+        const code = match[2].trim()
+
+        // Parse attributes
+        const templateMatch = attrs.match(/template=["']?(\w+)["']?/)
+        const titleMatch = attrs.match(/title=["']([^"']+)["']/)
+
+        const template = (templateMatch ? templateMatch[1] : "react") as SandpackTemplate
+        const title = titleMatch ? titleMatch[1] : undefined
+
+        const id = `sandbox-${Date.now()}-${this.idCounter++}`
+        sandboxes.push({
+          id,
+          sandbox: { code, template, title },
+          position: match.index
+        })
+
+        // Replace with placeholder
+        content = content.replace(match[0], `__SANDBOX_${id}__`)
+      } catch (err) {
+        console.error("Failed to parse sandbox:", err)
+      }
+    }
+
+    return { content, sandboxes }
+  }
+
+  /**
    * Parse all rich content from text
    */
   static parseAll(text: string) {
@@ -210,15 +259,17 @@ export class RichContentParser {
     const { content: c3, progressBars } = this.parseProgress(c2)
     const { content: c4, comparisons } = this.parseComparison(c3)
     const { content: c5, tables } = this.parseTable(c4)
+    const { content: c6, sandboxes } = this.parseSandbox(c5)
 
     return {
-      content: c5,
+      content: c6,
       richContent: {
         polls,
         timelines,
         progressBars,
         comparisons,
         tables,
+        sandboxes,
       },
     }
   }
@@ -269,6 +320,22 @@ export class RichContentParser {
       const table = richContent.tables.find((t: any) => t.id === id)
       if (table) {
         return <RichTable key={id} data={table.data} />
+      }
+    }
+
+    // Sandbox
+    if (placeholder.startsWith("__SANDBOX_")) {
+      const id = placeholder.replace("__SANDBOX_", "").replace("__", "")
+      const sandbox = richContent.sandboxes?.find((s: any) => s.id === id)
+      if (sandbox) {
+        return (
+          <LazySandpack
+            key={id}
+            code={sandbox.sandbox.code}
+            template={sandbox.sandbox.template}
+            title={sandbox.sandbox.title}
+          />
+        )
       }
     }
 
