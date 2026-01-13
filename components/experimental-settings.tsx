@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useApp } from "@/contexts/app-context"
-import { Brain, CaretDown, CaretUp, ChartBar, CloudSun, Code, Cpu, Flask, GitBranch, Heart, Lightning, Link, Monitor, Palette, Play, Sparkle, Warning, Wrench, YoutubeLogo } from "@phosphor-icons/react";
+import { Brain, CaretDown, CaretUp, ChartBar, CloudSun, Code, Cpu, Flask, GitBranch, Heart, Lightning, Link, Monitor, Palette, Play, Robot, Sparkle, Warning, Wrench, YoutubeLogo } from "@phosphor-icons/react";
 import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
 import { getUserSelectedModels } from "@/lib/model-preferences"
@@ -885,6 +885,75 @@ export function ExperimentalSettings() {
           </div>
         </div>
       </div>
+
+      {/* Agent Mode Section (Advanced Mode Only) */}
+      {isAdvancedMode && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Robot className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold">Agent Mode</h3>
+          </div>
+
+          <div className="space-y-4 pl-7">
+            <p className="text-xs text-muted-foreground">
+              Use the 🤖 button in chat to enable Agent Mode. When active, AI can make more tool calls and shows its task planning.
+            </p>
+
+            {/* Max Iterations Slider */}
+            <div className="p-4 border rounded-lg space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium">Maximum Tool Calls</Label>
+                  <p className="text-xs text-muted-foreground">
+                    How many tool calls AI can make per request (normal mode: 3)
+                  </p>
+                </div>
+                <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                  {experimental.agentMode?.maxIterations || 10}
+                </span>
+              </div>
+              <Slider
+                value={[experimental.agentMode?.maxIterations || 10]}
+                onValueChange={([value]) =>
+                  handleExperimentalChange({
+                    agentMode: { ...experimental.agentMode, enabled: experimental.agentMode?.enabled || false, maxIterations: value, showTaskPlan: experimental.agentMode?.showTaskPlan ?? true, autoVerify: experimental.agentMode?.autoVerify || false },
+                  })
+                }
+                min={3}
+                max={15}
+                step={1}
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground">
+                Higher = more thorough research but higher cost. 10 is recommended.
+              </p>
+            </div>
+
+            {/* Show Task Plan */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">Show Task Plan</Label>
+                <p className="text-xs text-muted-foreground">
+                  Display AI&apos;s planned subtasks before execution
+                </p>
+              </div>
+              <Switch
+                checked={experimental.agentMode?.showTaskPlan ?? true}
+                onCheckedChange={(checked) =>
+                  handleExperimentalChange({
+                    agentMode: { ...experimental.agentMode, enabled: experimental.agentMode?.enabled || false, maxIterations: experimental.agentMode?.maxIterations || 10, showTaskPlan: checked, autoVerify: experimental.agentMode?.autoVerify || false },
+                  })
+                }
+              />
+            </div>
+
+            {/* Tip */}
+            <p className="text-xs text-muted-foreground italic">
+              💡 Best for research, comparisons, and multi-step tasks. Simple questions don&apos;t need Agent Mode.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Rich Content Settings (Advanced Mode Only) */}
       {isAdvancedMode && (

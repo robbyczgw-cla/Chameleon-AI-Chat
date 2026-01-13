@@ -450,6 +450,62 @@ data: {"choices":[{"delta":{"content":"Bitcoin is..."}}]}
 
 **Files:** `app/api/chat/route.ts:430-750`
 
+#### Agent Mode (Advanced Feature)
+
+Agent Mode transforms the tool calling system from reactive (AI decides if it needs tools) to proactive (AI plans a research strategy).
+
+**Key Differences from Normal Mode:**
+
+| Aspect | Normal Mode | Agent Mode |
+|--------|-------------|------------|
+| Max iterations | 3 | 10 (configurable 3-15) |
+| Planning | None | Creates task plan before execution |
+| Clarification | Never | Asks 1-2 questions for broad requests |
+| Progress UI | Basic tool status | Full task plan with completion tracking |
+
+**How It Works:**
+
+```
+1. User enables Agent Mode (🤖 button)
+2. Request sent with agentMode=true
+3. Backend injects AGENT_PLANNING_PROMPT into system message
+4. AI may ask clarifying questions (broad requests)
+5. AI creates <agent-plan>...</agent-plan> block
+6. Plan parsed and displayed in UI
+7. Tool calling loop executes (up to agentMaxIterations)
+8. Each task marked complete as corresponding tool finishes
+9. AI synthesizes final response
+```
+
+**Backend Changes:**
+
+```typescript
+// Dynamic iteration limit
+const MAX_ITERATIONS = agentMode ? agentMaxIterations : 3
+
+// Planning prompt injection (route.ts:422-429)
+if (agentMode) {
+  enhancedContent += "\n\n" + AGENT_PLANNING_PROMPT
+}
+
+// Initial phase (route.ts:697-704)
+await writer.write(
+  encoder.encode(`data: ${JSON.stringify({
+    choices: [{ delta: {
+      phase: agentMode ? "planning" : "thinking",
+      isAgentMode: agentMode
+    }}]
+  })}\n\n`)
+)
+```
+
+**Files:**
+- `lib/agent-prompts.ts` - Planning prompt, plan parser
+- `components/agent-task-item.tsx` - Task progress UI
+- `types/index.ts` - `AgentTask` type, settings interface
+
+**See also:** `docs/features/agent-mode.md` for full documentation.
+
 ---
 
 ### 2. Chat System

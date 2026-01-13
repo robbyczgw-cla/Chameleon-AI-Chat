@@ -148,6 +148,21 @@ const normalizeMarkdownChars = (text: string): string => {
     .replace(/[\uFF5E\u223C]/g, '~')
 }
 
+// Convert <agent-plan> tags to markdown-friendly blockquote format
+// This prevents rehypeSanitize from stripping them (it removes unknown HTML tags)
+const processAgentPlanTags = (text: string): string => {
+  return text.replace(
+    /<agent-plan>([\s\S]*?)<\/agent-plan>/gi,
+    (match, content) => {
+      const lines = content.trim().split('\n')
+      const formattedLines = lines
+        .map((line: string) => `> ${line.trim()}`)
+        .join('\n')
+      return `\n> **🤖 Agent Plan**\n${formattedLines}\n`
+    }
+  )
+}
+
 // Time-of-day greetings in different languages
 const getTimeGreeting = (lang: string): string => {
   const hour = new Date().getHours()
@@ -894,7 +909,8 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                     {(() => {
                       const raw = typeof message.content === "string" ? message.content : contentToText(message.content)
                       const normalized = normalizeMarkdownChars(raw)
-                      const followUpsParsed = parseFollowUps(normalized)
+                      const agentPlanProcessed = processAgentPlanTags(normalized)
+                      const followUpsParsed = parseFollowUps(agentPlanProcessed)
                       const richContentParsed = RichContentParser.parseAll(followUpsParsed.content)
 
                       return (

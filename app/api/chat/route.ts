@@ -3,6 +3,7 @@ import { checkRateLimit } from "@/lib/rate-limit"
 import { webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
 import { fetchUrlContent, fetchYouTubeTranscript, formatUrlFetchResult, formatYouTubeResult } from "@/lib/url-tools"
 import { getOpenRouterHeaders } from "@/lib/utils"
+import { AGENT_PLANNING_PROMPT } from "@/lib/agent-prompts"
 
 export const runtime = "edge"
 
@@ -57,6 +58,10 @@ interface ChatRequest {
   enableUrlFetchTool?: boolean
   enableYouTubeTool?: boolean
   enableWeatherTool?: boolean
+  // Agent mode settings
+  agentMode?: boolean
+  agentMaxIterations?: number
+  agentModeModel?: string // Override model for agent mode tasks
 }
 
 // Search cache to reduce duplicate searches
@@ -397,6 +402,10 @@ export async function POST(req: NextRequest) {
       enableUrlFetchTool = true,
       enableYouTubeTool = true,
       enableWeatherTool = true,
+      // Agent mode settings
+      agentMode = false,
+      agentMaxIterations = 10,
+      agentModeModel,
     } = body as ChatRequest
 
     const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
@@ -410,10 +419,15 @@ export async function POST(req: NextRequest) {
     })
     const dateContext = `\n\n[CURRENT DATE: ${currentDate}. When searching for "current", "latest", or "recent" information, use ${new Date().getFullYear()} as the year, not previous years.]`
 
-    // Add date context to the first system message
+    // Add date context (and agent prompt if enabled) to the first system message
     const messagesWithDate = messages.map((msg: Message, index: number) => {
       if (msg.role === "system" && index === 0 && typeof msg.content === "string") {
-        return { ...msg, content: msg.content + dateContext }
+        let enhancedContent = msg.content + dateContext
+        // Inject agent planning prompt when agent mode is enabled
+        if (agentMode) {
+          enhancedContent += "\n\n" + AGENT_PLANNING_PROMPT
+        }
+        return { ...msg, content: enhancedContent }
       }
       return msg
     })
@@ -423,6 +437,7 @@ export async function POST(req: NextRequest) {
     console.log("[Chat] Stream:", stream)
     console.log("[Chat] Auto Tool Use:", enableAutoToolUse)
     console.log("[Chat] Search Provider:", searchProvider)
+    console.log("[Chat] Agent Mode:", agentMode, "| Max Iterations:", agentMode ? agentMaxIterations : 3)
 
     // Get API key from environment or request headers
     const apiKey = process.env.OPENROUTER_API_KEY || req.headers.get("x-openrouter-api-key")
@@ -431,14 +446,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "OpenRouter API key not configured" }, { status: 401 })
     }
 
-    // Determine if we should include tools
-    const modelSupportsTool = modelSupportsToolCalling(model)
+    // Determine which model to use (agent mode can override)
+    const effectiveModel = agentMode && agentModeModel ? agentModeModel : model
+
+    // Log model override if applicable
+    if (agentMode && agentModeModel) {
+      console.log("[Chat] Agent Mode Model Override:", model, "→", effectiveModel)
+    }
+
+    // Determine if we should include tools (use effective model for the check)
+    const modelSupportsTool = modelSupportsToolCalling(effectiveModel)
     const shouldIncludeTools = enableAutoToolUse && searchApiKey && modelSupportsTool
 
     console.log("[Chat] Include tools:", shouldIncludeTools, "| Model supports tools:", modelSupportsTool, "| enableAutoToolUse:", enableAutoToolUse, "| hasSearchApiKey:", !!searchApiKey)
 
     const openRouterBody: Record<string, any> = {
-      model,
+      model: effectiveModel,
       messages: messagesWithDate,
       temperature,
       max_tokens: maxTokens,
@@ -534,11 +557,11 @@ export async function POST(req: NextRequest) {
 
     // Non-streaming request with tool calling
     if (!stream) {
-      return handleNonStreamingRequest(openRouterBody, apiKey, searchApiKey!, searchProvider, searchSettings)
+      return handleNonStreamingRequest(openRouterBody, apiKey, searchApiKey!, searchProvider, searchSettings, agentMode, agentMaxIterations)
     }
 
     // Streaming request - more complex handling for tool calls
-    return handleStreamingRequest(openRouterBody, apiKey, searchApiKey, searchProvider, searchSettings, Boolean(shouldIncludeTools))
+    return handleStreamingRequest(openRouterBody, apiKey, searchApiKey, searchProvider, searchSettings, Boolean(shouldIncludeTools), agentMode, agentMaxIterations)
   } catch (error) {
     console.error("[Chat] API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
@@ -553,9 +576,12 @@ async function handleNonStreamingRequest(
   apiKey: string,
   searchApiKey: string,
   searchProvider: "tavily" | "serper" | "exa",
-  searchSettings: Record<string, any>
+  searchSettings: Record<string, any>,
+  agentMode: boolean = false,
+  agentMaxIterations: number = 10
 ) {
-  const MAX_ITERATIONS = 3
+  // Agent mode allows more iterations for complex multi-step tasks
+  const MAX_ITERATIONS = agentMode ? agentMaxIterations : 3
   let iterations = 0
   const currentMessages = [...openRouterBody.messages]
 
@@ -646,7 +672,9 @@ async function handleStreamingRequest(
   searchApiKey: string | undefined,
   searchProvider: "tavily" | "serper" | "exa",
   searchSettings: Record<string, any>,
-  toolsEnabled: boolean
+  toolsEnabled: boolean,
+  agentMode: boolean = false,
+  agentMaxIterations: number = 10
 ) {
   const encoder = new TextEncoder()
 
@@ -659,17 +687,18 @@ async function handleStreamingRequest(
     try {
       const currentMessages = [...openRouterBody.messages]
       let iterations = 0
-      const MAX_ITERATIONS = 3
+      // Agent mode allows more iterations for complex multi-step tasks
+      const MAX_ITERATIONS = agentMode ? agentMaxIterations : 3
       let hasStartedResponding = false
       let hasStartedReasoning = false // Track if we've sent the initial reasoning phase
       const allGenerationIds: string[] = [] // Track ALL generation IDs for tool calling cost tracking
       let lastToolCallIteration = 0 // Track which iteration had tool calls (for fallback logic)
 
-      // Send initial thinking phase
+      // Send initial thinking phase (or planning for agent mode)
       await writer.write(
         encoder.encode(
           `data: ${JSON.stringify({
-            choices: [{ delta: { phase: "thinking" } }],
+            choices: [{ delta: { phase: agentMode ? "planning" : "thinking", isAgentMode: agentMode } }],
           })}\n\n`
         )
       )

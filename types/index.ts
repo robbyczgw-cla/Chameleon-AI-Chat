@@ -16,8 +16,21 @@ export interface MessageContentPart {
  * Streaming history entry for step-by-step visualization
  * Enhanced to show detailed, real-time information like Claude.ai
  */
+/**
+ * Agent Mode task for step-by-step autonomous execution
+ */
+export interface AgentTask {
+  id: string
+  description: string
+  status: "pending" | "active" | "completed" | "failed"
+  toolUsed?: string
+  result?: string
+  duration?: number
+  startedAt?: number
+}
+
 export interface StreamingHistoryEntry {
-  phase: "thinking" | "searching" | "tool_use" | "responding" | "done"
+  phase: "thinking" | "planning" | "searching" | "tool_use" | "responding" | "done"
   timestamp: number
   detail?: string // e.g., search query, tool name (deprecated in favor of structured fields)
   description?: string // Human-readable description of what happened in this phase
@@ -45,6 +58,10 @@ export interface StreamingHistoryEntry {
     searchMethod?: "semantic" | "keyword"
     confidence?: number
   }
+  // Agent Mode fields
+  agentPlan?: AgentTask[]      // Planned subtasks for agent mode
+  currentTaskIndex?: number    // Which task is currently active (0-indexed)
+  isAgentMode?: boolean        // Whether this streaming session is in agent mode
 }
 
 /**
@@ -340,6 +357,8 @@ export interface BackgroundAIModelsSettings {
   imageGenHigh?: string // Default: google/gemini-3-pro-image-preview
   // Embedding tasks
   embeddings?: string // Default: openai/text-embedding-3-small
+  // Agent Mode model override
+  agentModeModel?: string // Override model for Agent Mode tasks (default: use chat model)
 }
 
 export interface ExperimentalSettings {
@@ -371,6 +390,13 @@ export interface ExperimentalSettings {
   backgroundAIModels?: BackgroundAIModelsSettings // Configure models for background tasks
   // Animation Settings
   enableAnimations?: boolean // Enable animated loading indicators
+  // Agent Mode Settings (Advanced Mode only)
+  agentMode?: {
+    enabled: boolean           // Master toggle for agent mode
+    maxIterations: number      // Maximum tool calls per request (default: 10)
+    showTaskPlan: boolean      // Show AI's planned subtasks in UI
+    autoVerify: boolean        // Enable self-verification step (future)
+  }
 }
 
 export interface AppSettings {

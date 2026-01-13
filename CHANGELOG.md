@@ -6,6 +6,73 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
+## [1.3.0] - 2026-01-13
+
+### 🤖 Agent Mode
+
+Transform Chameleon from a simple Q&A tool into an autonomous task executor with multi-step research capabilities.
+
+#### Features
+
+- **One-click toggle** - Robot button (🤖) in chat input enables Agent Mode
+- **Task planning** - AI breaks complex requests into 1-5 discrete subtasks
+- **Increased iterations** - 10 tool calls (configurable 3-15) vs normal mode's 3
+- **Smart clarification** - Asks 1-2 questions on broad/ambiguous requests before researching
+- **Visual progress** - Purple task plan panel shows planned steps with real-time completion
+- **Model override** - Optionally use a different model for Agent Mode tasks
+
+#### How to Enable
+
+1. Switch to **Advanced Mode** (Agent Mode is hidden in Simple Mode)
+2. Click the **🤖 Robot button** in the chat input toolbar
+3. Optionally configure in **Settings → Labs → Agent Mode**
+
+#### Settings (Settings → Labs)
+
+- **Maximum Tool Calls** - Slider from 3-15 (default: 10)
+- **Show Task Plan** - Toggle the visual progress display (default: ON)
+
+#### How It Works
+
+```
+User: "Research TypeScript ORMs for a REST API"
+
+🤖 AI asks: "Before I research - what matters most: performance,
+             type safety, ease of use, or bundle size?"
+
+User: "Type safety and bundle size"
+
+🤖 Agent Plan:
+   ├─ 1. Search for TypeScript ORM comparisons 2026 ✓
+   ├─ 2. Fetch Prisma documentation ✓
+   ├─ 3. Fetch Drizzle documentation ✓
+   ├─ 4. Compare type safety features (in progress...)
+   └─ 5. Synthesize into comparison table
+```
+
+#### Technical Details
+
+- **Planning prompt injection** - Agent prompt added to system message when enabled
+- **Dynamic MAX_ITERATIONS** - Backend respects `agentMaxIterations` setting
+- **Generation ID tracking** - All iteration costs tracked for accurate billing
+- **`<agent-plan>` tags** - Parsed and displayed in UI (custom rehype plugin whitelists them)
+
+#### Files Added
+
+- `lib/agent-prompts.ts` - Planning prompt, plan parser, complexity detection
+- `components/agent-task-item.tsx` - Task progress display component
+
+#### Files Modified
+
+- `types/index.ts` - Added `agentMode` settings interface, `AgentTask` type
+- `app/api/chat/route.ts` - Dynamic iterations, planning prompt injection
+- `components/chat-input.tsx` - Robot toggle button in toolbar
+- `components/message-status.tsx` - Agent plan display integration
+- `components/experimental-settings.tsx` - Agent Mode settings UI
+- `lib/message-renderer.tsx` - Whitelist `<agent-plan>` tags in rehype-sanitize
+
+---
+
 ## [1.2.0] - 2026-01-13
 
 ### 🚀 Live Code Sandbox
