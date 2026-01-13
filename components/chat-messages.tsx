@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowsClockwise, CaretDown, CaretRight, Check, Copy, FloppyDisk, Lightbulb, Pencil, Robot, SpeakerHigh, SpeakerSlash, Trash, User, X } from "@phosphor-icons/react";
+import { ArrowsClockwise, CaretDown, CaretRight, Check, Copy, FloppyDisk, Lightbulb, Pencil, Play, Robot, SpeakerHigh, SpeakerSlash, Stop, Trash, User, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import { useState, memo, useCallback, useMemo } from "react"
 import dynamic from "next/dynamic"
@@ -32,6 +32,9 @@ import { contentToText, hasImages } from "@/lib/multimodal-utils"
 import { RichContentParser } from "@/lib/rich-content-parser"
 // Lazy load Mermaid to avoid ~400KB in initial bundle
 import { LazyMermaid } from "@/components/rich-content/lazy-mermaid"
+// Lazy load Sandpack to avoid ~300KB in initial bundle
+import { LazySandpack } from "@/components/rich-content/lazy-sandpack"
+import { isSandpackSupported, detectSandpackTemplate } from "@/lib/sandpack-utils"
 import { MessageStatus, MessageStatusVerbose, StreamingHistoryDisplay } from "@/components/message-status"
 import { userProfileService } from "@/lib/user-profile"
 import { useAutoFetchCosts } from "@/hooks/use-auto-fetch-costs"
@@ -263,22 +266,60 @@ interface CodeBlockProps {
   language: string
   code: string
   onCopy: (code: string) => void
+  enableSandbox?: boolean
 }
 
-const CodeBlock = memo(({ language, code, onCopy }: CodeBlockProps) => {
+const CodeBlock = memo(({ language, code, onCopy, enableSandbox = false }: CodeBlockProps) => {
+  const [showSandbox, setShowSandbox] = useState(false)
+
+  // Check if this language supports sandbox execution
+  const canRunSandbox = enableSandbox && isSandpackSupported(language)
+  const sandpackTemplate = canRunSandbox ? detectSandpackTemplate(code, language) : null
+
+  const toggleSandbox = useCallback(() => {
+    setShowSandbox(prev => !prev)
+  }, [])
+
   return (
     <div className="relative group/code my-4 rounded-lg w-full max-w-full overflow-hidden">
       <div className="flex items-center justify-between bg-zinc-800 px-4 py-2 rounded-t-lg w-full">
         <span className="text-xs text-zinc-400 font-mono">{language}</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 text-xs opacity-0 group-hover/code:opacity-100 transition-opacity"
-          onClick={() => onCopy(code)}
-        >
-          <Copy className="h-3 w-3 mr-1" />
-          Copy
-        </Button>
+        <div className="flex items-center gap-1">
+          {canRunSandbox && sandpackTemplate && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "h-7 text-xs transition-opacity text-zinc-300 hover:text-zinc-100 hover:bg-zinc-700",
+                showSandbox
+                  ? "opacity-100 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300"
+                  : "opacity-0 group-hover/code:opacity-100"
+              )}
+              onClick={toggleSandbox}
+            >
+              {showSandbox ? (
+                <>
+                  <Stop className="h-3 w-3 mr-1" />
+                  Stop
+                </>
+              ) : (
+                <>
+                  <Play className="h-3 w-3 mr-1" />
+                  Run
+                </>
+              )}
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs opacity-0 group-hover/code:opacity-100 transition-opacity text-zinc-300 hover:text-zinc-100 hover:bg-zinc-700"
+            onClick={() => onCopy(code)}
+          >
+            <Copy className="h-3 w-3 mr-1" />
+            Copy
+          </Button>
+        </div>
       </div>
       <SyntaxHighlighterWithStyle
         language={language}
@@ -289,8 +330,8 @@ const CodeBlock = memo(({ language, code, onCopy }: CodeBlockProps) => {
           margin: 0,
           borderTopLeftRadius: 0,
           borderTopRightRadius: 0,
-          borderBottomLeftRadius: "0.5rem",
-          borderBottomRightRadius: "0.5rem",
+          borderBottomLeftRadius: showSandbox ? 0 : "0.5rem",
+          borderBottomRightRadius: showSandbox ? 0 : "0.5rem",
           width: "100%",
           maxWidth: "100%",
           overflow: "auto",
@@ -304,6 +345,18 @@ const CodeBlock = memo(({ language, code, onCopy }: CodeBlockProps) => {
       >
         {code}
       </SyntaxHighlighterWithStyle>
+
+      {/* Live Sandbox Preview */}
+      {showSandbox && sandpackTemplate && (
+        <div className="border-t border-zinc-700">
+          <LazySandpack
+            code={code}
+            template={sandpackTemplate}
+            language={language}
+            className="my-0 rounded-t-none border-0"
+          />
+        </div>
+      )}
     </div>
   )
 })
@@ -891,12 +944,14 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
 
                           // Use memoized CodeBlock for syntax highlighting (if enabled in experimental settings)
                           const useHighlighting = settings.experimental?.enableCodeBlockHighlighting
+                          const useSandbox = settings.experimental?.enableLiveCodeSandbox
                           return !inline && match ? (
                             useHighlighting ? (
                               <CodeBlock
                                 language={language}
                                 code={codeString}
                                 onCopy={handleCopyCode}
+                                enableSandbox={useSandbox}
                               />
                             ) : (
                               // Plain code block without syntax highlighting
