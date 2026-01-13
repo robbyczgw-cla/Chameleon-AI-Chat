@@ -920,99 +920,95 @@ export function ExperimentalSettings() {
               />
             </div>
 
-            {/* Agent Mode Settings - Only show when enabled */}
-            {experimental.agentMode?.enabled && (
-              <>
-                {/* Max Iterations Slider */}
-                <div className="p-4 border rounded-lg space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">Maximum Tool Calls</Label>
-                      <p className="text-xs text-muted-foreground">
-                        How many tool calls AI can make per request (normal mode: 3)
-                      </p>
-                    </div>
-                    <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                      {experimental.agentMode?.maxIterations || 10}
+            {/* Agent Mode Settings - Always visible for configuration */}
+            {/* Max Iterations Slider */}
+            <div className="p-4 border rounded-lg space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium">Maximum Tool Calls</Label>
+                  <p className="text-xs text-muted-foreground">
+                    How many tool calls AI can make per request (normal mode: 3)
+                  </p>
+                </div>
+                <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                  {experimental.agentMode?.maxIterations || 10}
+                </span>
+              </div>
+              <Slider
+                value={[experimental.agentMode?.maxIterations || 10]}
+                onValueChange={([value]) =>
+                  handleExperimentalChange({
+                    agentMode: { ...experimental.agentMode, enabled: experimental.agentMode?.enabled || false, maxIterations: value, showTaskPlan: experimental.agentMode?.showTaskPlan ?? true, autoVerify: experimental.agentMode?.autoVerify || false },
+                  })
+                }
+                min={3}
+                max={15}
+                step={1}
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground">
+                Higher = more thorough research but higher cost. 10 is recommended for most tasks.
+              </p>
+            </div>
+
+            {/* Show Task Plan */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">Show Task Plan</Label>
+                <p className="text-xs text-muted-foreground">
+                  Display AI&apos;s planned subtasks before execution
+                </p>
+              </div>
+              <Switch
+                checked={experimental.agentMode?.showTaskPlan ?? true}
+                onCheckedChange={(checked) =>
+                  handleExperimentalChange({
+                    agentMode: { ...experimental.agentMode, enabled: experimental.agentMode?.enabled || false, maxIterations: experimental.agentMode?.maxIterations || 10, showTaskPlan: checked, autoVerify: experimental.agentMode?.autoVerify || false },
+                  })
+                }
+              />
+            </div>
+
+            {/* Agent Mode Model Override */}
+            <div className="space-y-2 p-4 border rounded-lg border-violet-500/30 bg-violet-500/5">
+              <div className="flex items-center gap-2">
+                <Robot className="h-4 w-4 text-violet-500" />
+                <Label className="text-sm font-medium">Agent Mode Model</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Override which model to use for Agent Mode tasks. Leave as default to use your chat model.
+              </p>
+              <Select
+                value={backgroundModels.agentModeModel || "__default__"}
+                onValueChange={(v) => handleBackgroundModelChange("agentModeModel", v)}
+              >
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Use Chat Model (Default)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__default__">
+                    <span className="flex items-center gap-2">
+                      <span>🔄</span>
+                      <span>Use Chat Model (Default)</span>
                     </span>
-                  </div>
-                  <Slider
-                    value={[experimental.agentMode?.maxIterations || 10]}
-                    onValueChange={([value]) =>
-                      handleExperimentalChange({
-                        agentMode: { ...experimental.agentMode, enabled: true, maxIterations: value, showTaskPlan: experimental.agentMode?.showTaskPlan ?? true, autoVerify: experimental.agentMode?.autoVerify || false },
-                      })
-                    }
-                    min={3}
-                    max={15}
-                    step={1}
-                    className="w-full"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Higher = more thorough research but higher cost. 10 is recommended for most tasks.
-                  </p>
-                </div>
-
-                {/* Show Task Plan */}
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="space-y-1">
-                    <Label className="text-sm font-medium">Show Task Plan</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Display AI&apos;s planned subtasks before execution
-                    </p>
-                  </div>
-                  <Switch
-                    checked={experimental.agentMode?.showTaskPlan ?? true}
-                    onCheckedChange={(checked) =>
-                      handleExperimentalChange({
-                        agentMode: { ...experimental.agentMode, enabled: true, maxIterations: experimental.agentMode?.maxIterations || 10, showTaskPlan: checked, autoVerify: experimental.agentMode?.autoVerify || false },
-                      })
-                    }
-                  />
-                </div>
-
-                {/* Agent Mode Model Override */}
-                <div className="space-y-2 p-4 border rounded-lg border-violet-500/30 bg-violet-500/5">
-                  <div className="flex items-center gap-2">
-                    <Robot className="h-4 w-4 text-violet-500" />
-                    <Label className="text-sm font-medium">Agent Mode Model</Label>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Override which model to use for Agent Mode tasks. Leave as default to use your chat model.
-                  </p>
-                  <Select
-                    value={backgroundModels.agentModeModel || "__default__"}
-                    onValueChange={(v) => handleBackgroundModelChange("agentModeModel", v)}
-                  >
-                    <SelectTrigger className="h-9 text-xs">
-                      <SelectValue placeholder="Use Chat Model (Default)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__default__">
-                        <span className="flex items-center gap-2">
-                          <span>🔄</span>
-                          <span>Use Chat Model (Default)</span>
-                        </span>
+                  </SelectItem>
+                  {availableModels.length > 0 ? (
+                    availableModels.map((model) => (
+                      <SelectItem key={model} value={model}>
+                        <span className="truncate">{model}</span>
                       </SelectItem>
-                      {availableModels.length > 0 ? (
-                        availableModels.map((model) => (
-                          <SelectItem key={model} value={model}>
-                            <span className="truncate">{model}</span>
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="__no_models__" disabled>
-                          No models available - add in Model Preferences
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-[10px] text-muted-foreground">
-                    💡 Tip: Use a cheaper model (gpt-4o-mini) for cost savings, or a smarter model (claude-opus-4) for complex research.
-                  </p>
-                </div>
-              </>
-            )}
+                    ))
+                  ) : (
+                    <SelectItem value="__no_models__" disabled>
+                      No models available - add in Model Preferences
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground">
+                💡 Tip: Use a cheaper model (gpt-4o-mini) for cost savings, or a smarter model (claude-opus-4) for complex research.
+              </p>
+            </div>
 
             {/* Info Box */}
             <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg space-y-2">
