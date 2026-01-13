@@ -414,8 +414,8 @@ Based on production testing with automatic search:
 - **DeepSeek V3.2 + Exa**: Only 75% success (causes streaming issues)
 
 See comprehensive guides:
-- [Search Providers Guide](./SEARCH-PROVIDERS-GUIDE.md)
-- [Best Models Dec 2025](./BEST-MODELS-TOOL-CALLING-DEC-2025.md)
+- [Search Providers Guide](../guides/SEARCH-PROVIDERS-GUIDE.md)
+- [Best Models Dec 2025](../archive/BEST-MODELS-TOOL-CALLING-DEC-2025.md)
 
 #### Streaming with Tool Calling
 
@@ -666,7 +666,7 @@ Semantic similarity: 0.72 → HIGH MATCH (conceptually related)
   - `scripts/031_fix_memories_rls.sql` - RLS policies
   - `scripts/032_add_semantic_search.sql` - pgvector function
 
-📚 **Full documentation**: [docs/MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md)
+📚 **Full documentation**: [MEMORY_SYSTEM.md](../guides/MEMORY_SYSTEM.md)
 
 ---
 
@@ -1266,7 +1266,7 @@ Three bugs were fixed to make exact cost tracking work:
 2. **API key not passed** - Added apiKey parameter to useAutoFetchCosts
 3. **Response not unwrapped** - Fixed `data.data || data` in /api/generation
 
-📚 **Full guide**: [docs/EXACT_COST_TRACKING.md](./EXACT_COST_TRACKING.md)
+📚 **Full guide**: [EXACT_COST_TRACKING.md](../features/EXACT_COST_TRACKING.md)
 
 ---
 
@@ -1473,7 +1473,7 @@ export function modelSupportsToolCalling(modelId: string): boolean {
 - Best for: Research papers, technical docs, semantic queries
 - ⚠️ Not recommended for automatic search (see SEARCH-PROVIDERS-GUIDE.md)
 
-📚 **Detailed comparison**: [docs/SEARCH-PROVIDERS-GUIDE.md](./SEARCH-PROVIDERS-GUIDE.md)
+📚 **Detailed comparison**: [SEARCH-PROVIDERS-GUIDE.md](../guides/SEARCH-PROVIDERS-GUIDE.md)
 
 ---
 
@@ -1661,7 +1661,7 @@ const categoryStyles = {
 | `components/follow-up-suggestions.tsx` | Visual rendering with categories |
 | `lib/follow-up-parser.test.ts` | 15+ test cases for parsing |
 
-📚 **Full documentation**: [docs/FOLLOW_UP_SUGGESTIONS.md](./FOLLOW_UP_SUGGESTIONS.md)
+📚 **Full documentation**: [FOLLOW_UP_SUGGESTIONS.md](../guides/FOLLOW_UP_SUGGESTIONS.md)
 
 ---
 

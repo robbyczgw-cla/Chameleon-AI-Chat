@@ -780,7 +780,7 @@ Same schema as PostgreSQL, but:
 ## Next Steps
 
 1. **Read:** [Database Schema](./database.md) - Current Chameleon AI schema
-2. **Read:** [Supabase Setup](../SUPABASE_SETUP.md) - How to run migrations
+2. **Read:** [Supabase Setup](./SUPABASE_SETUP.md) - How to run migrations
 3. **Explore:** `/scripts/*.sql` - All migration files
 4. **Deploy:** [Deployment Guide](./deployment.md) - Production setup
 

@@ -6,6 +6,32 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
+## [1.1.2] - 2026-01-13
+
+### 🔍 Search Experience Optimizations
+
+Improved search quality for Simple Mode users with smarter defaults and multi-language support.
+
+#### Search Provider Improvements
+
+- **Increased default results** from 5 to 8 for better AI context
+- **Tavily**: Changed default searchDepth from "basic" to "advanced" for higher quality results
+- **Auto news detection**: Queries containing news-related keywords (news, latest, breaking, nachrichten, noticias, etc.) automatically use the "news" topic/type for more relevant results
+
+#### Multi-language Search Context
+
+The search context formatter now supports **English, German, and Spanish**:
+- Automatically matches UI language setting
+- Translated labels (summary, results, images, etc.)
+- Applied to both Simple Mode and Advanced Mode
+
+#### Code Cleanup
+
+- Removed unused You.com search provider code (`lib/youcom.ts` and related imports)
+- Unified search context formatting across all providers
+
+---
+
 ## [1.1.1] - 2026-01-11
 
 ### 🏗️ Codebase Refactoring for Maintainability

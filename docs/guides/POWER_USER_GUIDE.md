@@ -634,7 +634,7 @@ Chameleon now tracks **EXACT COSTS** from OpenRouter's generation API instead of
 - Fetches exact costs for recent messages (<30 days)
 - Updates estimated costs with real billing data
 
-📚 **Full guide**: [docs/EXACT_COST_TRACKING.md](./EXACT_COST_TRACKING.md)
+📚 **Full guide**: [EXACT_COST_TRACKING.md](../features/EXACT_COST_TRACKING.md)
 
 ### Cost Optimization Techniques
 

@@ -10,94 +10,113 @@ Welcome to the Chameleon AI Chat documentation! This directory contains comprehe
 
 | Goal | Guide |
 |------|-------|
-| Learn how to use Chameleon like a pro | [POWER_USER_GUIDE.md](./POWER_USER_GUIDE.md) |
-| Set up the intelligent memory system | [MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md) |
-| Understand the codebase | [ARCHITECTURE.md](./ARCHITECTURE.md) |
-| Set up the database | [DATABASE_IMPLEMENTATION_GUIDE.md](./DATABASE_IMPLEMENTATION_GUIDE.md) |
-| Deploy my own instance | [deployment.md](./deployment.md) |
-| Contribute a new feature | [contributing.md](./contributing.md) |
-| Learn about the 31 personas | [personas.md](./personas.md) |
-| Understand the vision | [CHAMELEON_VISION.md](./CHAMELEON_VISION.md) |
-| Get answers to common questions | [FAQ.md](./FAQ.md) |
+| Learn how to use Chameleon like a pro | [guides/POWER_USER_GUIDE.md](./guides/POWER_USER_GUIDE.md) |
+| Set up the intelligent memory system | [guides/MEMORY_SYSTEM.md](./guides/MEMORY_SYSTEM.md) |
+| Understand the codebase | [dev/ARCHITECTURE.md](./dev/ARCHITECTURE.md) |
+| Set up the database | [dev/DATABASE_IMPLEMENTATION_GUIDE.md](./dev/DATABASE_IMPLEMENTATION_GUIDE.md) |
+| Deploy my own instance | [dev/deployment.md](./dev/deployment.md) |
+| Learn about search providers | [guides/SEARCH-PROVIDERS-GUIDE.md](./guides/SEARCH-PROVIDERS-GUIDE.md) |
+| Learn about the 31 personas | [guides/personas.md](./guides/personas.md) |
+| Get answers to common questions | [guides/FAQ.md](./guides/FAQ.md) |
 
 ---
 
-## Documentation Index
+## Documentation Structure
 
-### For Users
+```
+docs/
+├── README.md              # This file
+├── screenshot.png         # App screenshot
+├── guides/                # User-facing documentation
+├── dev/                   # Developer documentation
+├── features/              # Feature-specific docs
+└── archive/               # Historical planning docs
+```
 
-| Guide | Description |
-|-------|-------------|
-| [FAQ.md](./FAQ.md) | Frequently asked questions - start here! |
-| [user-guide.md](./user-guide.md) | Complete walkthrough for new users |
-| [POWER_USER_GUIDE.md](./POWER_USER_GUIDE.md) | Advanced features, shortcuts, tips & tricks |
-| [personas.md](./personas.md) | All 31 AI personas explained with use cases |
-| [MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md) | How semantic memory works and settings |
-| [FOLLOW_UP_SUGGESTIONS.md](./FOLLOW_UP_SUGGESTIONS.md) | Smart conversation continuers explained |
-| [PRIVATE_CHAT_MODE.md](./PRIVATE_CHAT_MODE.md) | Ephemeral conversations that leave no trace |
-| [SEARCH-PROVIDERS-GUIDE.md](./SEARCH-PROVIDERS-GUIDE.md) | Web search integration (Tavily, Serper, Exa) |
-| [REASONING-MODES.md](./REASONING-MODES.md) | Understanding AI reasoning and thinking modes |
-| [MCP_GUIDE.md](./MCP_GUIDE.md) | Model Context Protocol integration |
+---
 
-### For Developers
+## User Guides (`guides/`)
 
-| Guide | Description |
-|-------|-------------|
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | Technical deep dive into the codebase |
-| [database.md](./database.md) | Complete Supabase PostgreSQL schema |
-| [DATABASE_IMPLEMENTATION_GUIDE.md](./DATABASE_IMPLEMENTATION_GUIDE.md) | Step-by-step database setup |
-| [api.md](./api.md) | API endpoints reference |
-| [deployment.md](./deployment.md) | Self-hosting and Vercel deployment |
-| [CAPACITOR_ANDROID.md](./CAPACITOR_ANDROID.md) | Building the native Android app |
-| [TESTING.md](./TESTING.md) | Testing guidelines and setup |
-| [LLM_CONTEXT.md](./LLM_CONTEXT.md) | Context for AI coding assistants |
-
-### Feature Documentation
+Essential documentation for using Chameleon AI Chat.
 
 | Guide | Description |
 |-------|-------------|
-| [STREAMING-VISUALIZATION.md](./STREAMING-VISUALIZATION.md) | Real-time streaming UI system |
-| [UNIFIED-VISUALIZATION-SETTINGS.md](./UNIFIED-VISUALIZATION-SETTINGS.md) | Visualization configuration |
-| [EXACT_COST_TRACKING.md](./EXACT_COST_TRACKING.md) | Real-time cost tracking implementation |
-| [DEDICATED_FOLLOWUP_MODEL.md](./DEDICATED_FOLLOWUP_MODEL.md) | Follow-up suggestion system |
-| [RICH_CONTENT_GUIDE.md](./RICH_CONTENT_GUIDE.md) | Markdown, code, and diagram rendering |
-| [LLM-CHAT-IMAGE-FIXES.md](./LLM-CHAT-IMAGE-FIXES.md) | Image handling fixes |
-| [PWA_MODERNIZATION.md](./PWA_MODERNIZATION.md) | Progressive Web App features |
-| [PWA-MOBILE-OPTIMIZATION-DEC-2025.md](./PWA-MOBILE-OPTIMIZATION-DEC-2025.md) | Mobile optimization details |
+| [FAQ.md](./guides/FAQ.md) | Frequently asked questions - start here! |
+| [user-guide.md](./guides/user-guide.md) | Complete walkthrough for new users |
+| [POWER_USER_GUIDE.md](./guides/POWER_USER_GUIDE.md) | Advanced features, shortcuts, tips & tricks |
+| [personas.md](./guides/personas.md) | All 31 AI personas explained with use cases |
+| [MEMORY_SYSTEM.md](./guides/MEMORY_SYSTEM.md) | How semantic memory works and settings |
+| [SEARCH-PROVIDERS-GUIDE.md](./guides/SEARCH-PROVIDERS-GUIDE.md) | Web search integration (Tavily, Serper, Exa) |
+| [FOLLOW_UP_SUGGESTIONS.md](./guides/FOLLOW_UP_SUGGESTIONS.md) | Smart conversation continuers explained |
+| [PRIVATE_CHAT_MODE.md](./guides/PRIVATE_CHAT_MODE.md) | Ephemeral conversations that leave no trace |
+| [REASONING-MODES.md](./guides/REASONING-MODES.md) | Understanding AI reasoning and thinking modes |
+| [MCP_GUIDE.md](./guides/MCP_GUIDE.md) | Model Context Protocol integration |
+| [RICH_CONTENT_GUIDE.md](./guides/RICH_CONTENT_GUIDE.md) | Markdown, code, and diagram rendering |
 
-### For Contributors
+---
 
-| Guide | Description |
-|-------|-------------|
-| [contributing.md](./contributing.md) | How to contribute, code style, PR process |
-| [CHAMELEON_VISION.md](./CHAMELEON_VISION.md) | Project philosophy and principles |
+## Developer Documentation (`dev/`)
 
-### Roadmaps & Planning
-
-| Guide | Description |
-|-------|-------------|
-| [FUTURE_FEATURES.md](./FUTURE_FEATURES.md) | Planned features and improvements |
-| [COMPREHENSIVE_FEATURES_ROADMAP.md](./COMPREHENSIVE_FEATURES_ROADMAP.md) | Full feature roadmap |
-| [CORE_FEATURES_ROADMAP.md](./CORE_FEATURES_ROADMAP.md) | Core feature priorities |
-| [DECEMBER-2025-ROADMAP.md](./DECEMBER-2025-ROADMAP.md) | December 2025 development plan |
-| [FEATURE-RECOMMENDATIONS-2025.md](./FEATURE-RECOMMENDATIONS-2025.md) | 2025 feature recommendations |
-| [POWER_USER_INNOVATIONS.md](./POWER_USER_INNOVATIONS.md) | Power user feature ideas |
-| [SECURITY_PERFORMANCE_PLAN.md](./SECURITY_PERFORMANCE_PLAN.md) | Security and performance roadmap |
-| [BROWSER_EXTENSION_DESIGN.md](./BROWSER_EXTENSION_DESIGN.md) | Browser extension design doc |
-
-### Research & Analysis
+Technical documentation for developers and contributors.
 
 | Guide | Description |
 |-------|-------------|
-| [2025-DEEP-RESEARCH-FINDINGS.md](./2025-DEEP-RESEARCH-FINDINGS.md) | Research findings and analysis |
-| [BEST-MODELS-TOOL-CALLING-DEC-2025.md](./BEST-MODELS-TOOL-CALLING-DEC-2025.md) | Model comparison for tool calling |
-| [RESEARCH-PROMPTS.md](./RESEARCH-PROMPTS.md) | Research prompt templates |
+| [ARCHITECTURE.md](./dev/ARCHITECTURE.md) | Technical deep dive into the codebase |
+| [database.md](./dev/database.md) | Complete Supabase PostgreSQL schema |
+| [DATABASE_IMPLEMENTATION_GUIDE.md](./dev/DATABASE_IMPLEMENTATION_GUIDE.md) | Step-by-step database setup |
+| [SUPABASE_SETUP.md](./dev/SUPABASE_SETUP.md) | Quick Supabase configuration |
+| [api.md](./dev/api.md) | API endpoints reference |
+| [deployment.md](./dev/deployment.md) | Self-hosting and Vercel deployment |
+| [CAPACITOR_ANDROID.md](./dev/CAPACITOR_ANDROID.md) | Building the native Android app |
+| [TESTING.md](./dev/TESTING.md) | Testing guidelines and setup |
+| [contributing.md](./dev/contributing.md) | How to contribute, code style, PR process |
+| [LLM_CONTEXT.md](./dev/LLM_CONTEXT.md) | Context for AI coding assistants |
 
-### Release Notes
+---
+
+## Feature Documentation (`features/`)
+
+Detailed documentation for specific features.
 
 | Guide | Description |
 |-------|-------------|
-| [RECENT_COMMITS_SUMMARY.md](./RECENT_COMMITS_SUMMARY.md) | Recent development activity |
+| [STREAMING-VISUALIZATION.md](./features/STREAMING-VISUALIZATION.md) | Real-time streaming UI system |
+| [UNIFIED-VISUALIZATION-SETTINGS.md](./features/UNIFIED-VISUALIZATION-SETTINGS.md) | Visualization configuration |
+| [EXACT_COST_TRACKING.md](./features/EXACT_COST_TRACKING.md) | Real-time cost tracking implementation |
+| [DEDICATED_FOLLOWUP_MODEL.md](./features/DEDICATED_FOLLOWUP_MODEL.md) | Follow-up suggestion system |
+| [PWA_MODERNIZATION.md](./features/PWA_MODERNIZATION.md) | Progressive Web App features |
+| [LLM-CHAT-IMAGE-FIXES.md](./features/LLM-CHAT-IMAGE-FIXES.md) | Image handling fixes |
+
+---
+
+## Archive (`archive/`)
+
+Historical planning documents, roadmaps, and research. These are kept for reference but may be outdated.
+
+| Guide | Description |
+|-------|-------------|
+| [CHAMELEON_VISION.md](./archive/CHAMELEON_VISION.md) | Original project philosophy |
+| [FUTURE_FEATURES.md](./archive/FUTURE_FEATURES.md) | Planned features (may be outdated) |
+| [COMPREHENSIVE_FEATURES_ROADMAP.md](./archive/COMPREHENSIVE_FEATURES_ROADMAP.md) | Full feature roadmap |
+| [DECEMBER-2025-ROADMAP.md](./archive/DECEMBER-2025-ROADMAP.md) | December 2025 development plan |
+| [ANDROID_2025_ROADMAP.md](./archive/ANDROID_2025_ROADMAP.md) | Android feature roadmap |
+| [2025-DEEP-RESEARCH-FINDINGS.md](./archive/2025-DEEP-RESEARCH-FINDINGS.md) | Research findings |
+| [BEST-MODELS-TOOL-CALLING-DEC-2025.md](./archive/BEST-MODELS-TOOL-CALLING-DEC-2025.md) | Model comparison for tool calling |
+| ... and more |
+
+---
+
+## Root Documentation
+
+Standard files in the repository root:
+
+| File | Description |
+|------|-------------|
+| [README.md](../README.md) | Project overview and quick start |
+| [CHANGELOG.md](../CHANGELOG.md) | Version history and release notes |
+| [CONTRIBUTING.md](../CONTRIBUTING.md) | Contribution guidelines |
+| [SECURITY.md](../SECURITY.md) | Security policy |
+| [CLAUDE.md](../CLAUDE.md) | Claude Code guidance |
 
 ---
 
@@ -117,10 +136,6 @@ When contributing documentation:
 
 ## External Resources
 
-- **Main README**: [../README.md](../README.md)
-- **Security Policy**: [../SECURITY.md](../SECURITY.md)
-- **Contributing**: [../CONTRIBUTING.md](../CONTRIBUTING.md)
-- **Changelog**: [../CHANGELOG.md](../CHANGELOG.md)
 - **GitHub Issues**: https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues
 - **OpenRouter Docs**: https://openrouter.ai/docs
 - **Supabase Docs**: https://supabase.com/docs

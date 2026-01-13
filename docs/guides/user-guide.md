@@ -545,7 +545,7 @@ Enable "Sync to Database" to:
 - Use faster pgvector semantic search
 - Survive browser data clear
 
-📚 **Full guide**: [docs/MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md)
+📚 **Full guide**: [MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md)
 
 ---
 
@@ -1230,7 +1230,7 @@ When AI uses web search, a compact **SearchSourcesBadge** appears below the resp
 - Best for: Research papers, technical docs
 - ⚠️ Not recommended for automatic search
 
-📚 **Full comparison**: [docs/SEARCH-PROVIDERS-GUIDE.md](./SEARCH-PROVIDERS-GUIDE.md)
+📚 **Full comparison**: [SEARCH-PROVIDERS-GUIDE.md](./SEARCH-PROVIDERS-GUIDE.md)
 
 ### Enabling Web Search
 

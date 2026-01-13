@@ -127,19 +127,25 @@ Simple, fast, reliable.
 - Localized content (region-specific results)
 - Production apps where reliability > cost
 
-**Current Implementation Analysis:**
+**Current Implementation (Updated January 2026):**
 ```typescript
-// Your settings in executeWebSearch()
 case "serper":
   requestBody = {
     q: query,
-    gl: settings.country || "us",      // ✅ Good
-    hl: settings.language || "en",     // ✅ Good
-    num: settings.maxResults || 5,     // ✅ Perfect for streaming
+    gl: settings.country || searchCountry,  // ✅ Auto-detects from UI language
+    hl: settings.language || searchLangCode, // ✅ Auto-detects from UI language
+    num: settings.maxResults || 8,           // ✅ Increased for better context
     autocorrect: settings.autocorrect !== false,  // ✅ Helpful
+    type: autoType,  // ✅ Auto-detects "news" for current events
   }
 ```
-✅ **Your Serper settings are already optimized!**
+✅ **Serper settings optimized!**
+
+**Recent Improvements (v1.1.2):**
+- Default results increased from 5 to 8 for better AI context
+- Auto news detection: queries with keywords like "news", "latest", "breaking", "nachrichten" (DE), "noticias" (ES) automatically use type: "news"
+- Language/country auto-detection based on UI language setting (en/us, de/at, es/es)
+- Multi-language search context formatting (EN/DE/ES)
 
 ---
 
@@ -166,22 +172,26 @@ case "serper":
 - General knowledge queries
 - Development and testing
 
-**Current Implementation:**
+**Current Implementation (Updated January 2026):**
 ```typescript
 case "tavily":
   requestBody = {
     api_key: apiKey,
     query,
-    max_results: settings.maxResults || 5,        // ✅ Good
-    search_depth: settings.searchDepth || "basic",// ✅ Perfect for streaming
+    max_results: settings.maxResults || 8,           // ✅ Increased for better context
+    search_depth: settings.searchDepth || "advanced",// ✅ Higher quality results
     include_images: settings.includeImages || false,
     include_answer: settings.includeAnswer !== false,  // ✅ Valuable
-    topic: settings.topic || "general",
+    topic: autoTopic,  // ✅ Auto-detects "news" for current events
   }
 ```
-✅ **Your Tavily settings are well-optimized!**
+✅ **Tavily settings optimized for quality!**
 
-**Recommendation:** Set `search_depth: "basic"` for automatic search to ensure speed.
+**Recent Improvements (v1.1.2):**
+- Default results increased from 5 to 8 for better AI context
+- Search depth changed to "advanced" for higher quality results
+- Auto news detection: queries with keywords like "news", "latest", "breaking", "nachrichten" (DE), "noticias" (ES) automatically use topic: "news"
+- Multi-language search context formatting (EN/DE/ES)
 
 ---
 
@@ -273,16 +283,16 @@ Based on your implementation and automatic tool calling:
 
 ## Recommended Settings
 
-### 🏆 Serper (Optimal - No changes needed)
+### 🏆 Serper (Optimal - Auto-configured)
 
-**Current settings are perfect:**
+**Current settings (v1.1.2):**
 ```typescript
 {
-  maxResults: 5,           // ✅ Perfect for streaming
+  maxResults: 8,           // ✅ Increased for better AI context
   includeImages: true,     // ✅ Good for product queries
-  country: "at",           // ✅ Austria localization
-  language: "de",          // ✅ German results
-  type: "search",          // ✅ Standard search
+  country: "auto",         // ✅ Auto-detects from UI language (us/at/es)
+  language: "auto",        // ✅ Auto-detects from UI language (en/de/es)
+  type: "auto",            // ✅ Auto-detects news queries
   timeRange: "none",       // ✅ All time (can adjust per query)
   autocorrect: true,       // ✅ Helpful
   page: 1                  // ✅ First page only
@@ -303,24 +313,25 @@ type: "videos"    // YouTube/video results
 
 ---
 
-### 🏆 Tavily (Optimal - Minor tweaks)
+### 🏆 Tavily (Optimal - Auto-configured)
 
-**Recommended settings:**
+**Current settings (v1.1.2):**
 ```typescript
 {
-  maxResults: 5,              // ✅ Perfect
-  searchDepth: "basic",       // ⚠️ Change from "advanced" to "basic"
+  maxResults: 8,              // ✅ Increased for better AI context
+  searchDepth: "advanced",    // ✅ Higher quality results (worth the extra ~1s)
   includeImages: false,       // ✅ Reduce payload
   includeAnswer: true,        // ✅ Valuable AI summaries
-  topic: "general",           // ✅ Or "news" for current events
+  topic: "auto",              // ✅ Auto-detects news queries
   includeRawContent: false,   // ✅ Don't fetch full HTML
 }
 ```
 
-**Why "basic" depth:**
+**Why we changed to "advanced" depth:**
 - "basic": ~1-2 seconds, good relevance
-- "advanced": ~3-5 seconds, marginal improvement
-- For automatic search, speed > perfection
+- "advanced": ~2-3 seconds, significantly better quality
+- The extra ~1s is worth it for improved AI responses
+- Auto news detection compensates with topic-specific optimization
 
 ---
 

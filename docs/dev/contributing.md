@@ -468,9 +468,9 @@ npx shadcn-ui@latest add badge
 
 **Where to update:**
 - `README.md` - Overview & quick start
-- `docs/user-guide.md` - User features
-- `docs/api.md` - API changes
-- `docs/architecture.md` - Technical changes
+- `docs/guides/user-guide.md` - User features
+- `docs/dev/api.md` - API changes
+- `docs/dev/ARCHITECTURE.md` - Technical changes
 - Code comments - Complex logic
 
 ### Writing Good Docs

@@ -4,7 +4,7 @@ Thanks for your interest in contributing!
 
 ## Quick Links
 
-- **Full Contributing Guide**: [docs/contributing.md](./docs/contributing.md)
+- **Full Contributing Guide**: [docs/dev/contributing.md](./docs/dev/contributing.md)
 - **Report a Bug**: [GitHub Issues](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=bug_report.md)
 - **Request a Feature**: [GitHub Issues](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/issues/new?template=feature_request.md)
 - **Ask Questions**: [GitHub Discussions](https://github.com/robbyczgw-cla/Chameleon-AI-Chat/discussions)
@@ -29,7 +29,7 @@ npm run dev
 
 ## Code Style
 
-We use TypeScript with strict mode. Avoid `any` types when possible. Check out the [full guide](./docs/contributing.md) for details on code standards and best practices.
+We use TypeScript with strict mode. Avoid `any` types when possible. Check out the [full guide](./docs/dev/contributing.md) for details on code standards and best practices.
 
 ## License
 
