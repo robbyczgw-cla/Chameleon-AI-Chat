@@ -896,31 +896,9 @@ export function ExperimentalSettings() {
 
           <div className="space-y-4 pl-7">
             <p className="text-xs text-muted-foreground">
-              Transform AI into an autonomous task executor. Agent Mode enables complex multi-step research, planning, and synthesis with up to 10 tool calls.
+              Use the 🤖 button in chat to enable Agent Mode. When active, AI can make more tool calls and shows its task planning.
             </p>
 
-            {/* Enable Agent Mode */}
-            <div className="flex items-center justify-between p-4 border rounded-lg border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10">
-              <div className="space-y-1 flex-1">
-                <div className="flex items-center gap-2">
-                  <Robot className="h-4 w-4 text-primary" />
-                  <Label className="text-sm font-medium">Enable Agent Mode ⚡ NEW</Label>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  AI autonomously breaks down complex tasks, uses multiple tools, and synthesizes comprehensive answers.
-                </p>
-              </div>
-              <Switch
-                checked={experimental.agentMode?.enabled || false}
-                onCheckedChange={(checked) =>
-                  handleExperimentalChange({
-                    agentMode: { ...experimental.agentMode, enabled: checked, maxIterations: experimental.agentMode?.maxIterations || 10, showTaskPlan: experimental.agentMode?.showTaskPlan ?? true, autoVerify: experimental.agentMode?.autoVerify || false },
-                  })
-                }
-              />
-            </div>
-
-            {/* Agent Mode Settings - Always visible for configuration */}
             {/* Max Iterations Slider */}
             <div className="p-4 border rounded-lg space-y-3">
               <div className="flex items-center justify-between">
@@ -947,7 +925,7 @@ export function ExperimentalSettings() {
                 className="w-full"
               />
               <p className="text-xs text-muted-foreground">
-                Higher = more thorough research but higher cost. 10 is recommended for most tasks.
+                Higher = more thorough research but higher cost. 10 is recommended.
               </p>
             </div>
 
@@ -969,62 +947,10 @@ export function ExperimentalSettings() {
               />
             </div>
 
-            {/* Agent Mode Model Override */}
-            <div className="space-y-2 p-4 border rounded-lg border-violet-500/30 bg-violet-500/5">
-              <div className="flex items-center gap-2">
-                <Robot className="h-4 w-4 text-violet-500" />
-                <Label className="text-sm font-medium">Agent Mode Model</Label>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Override which model to use for Agent Mode tasks. Leave as default to use your chat model.
-              </p>
-              <Select
-                value={backgroundModels.agentModeModel || "__default__"}
-                onValueChange={(v) => handleBackgroundModelChange("agentModeModel", v)}
-              >
-                <SelectTrigger className="h-9 text-xs">
-                  <SelectValue placeholder="Use Chat Model (Default)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__default__">
-                    <span className="flex items-center gap-2">
-                      <span>🔄</span>
-                      <span>Use Chat Model (Default)</span>
-                    </span>
-                  </SelectItem>
-                  {availableModels.length > 0 ? (
-                    availableModels.map((model) => (
-                      <SelectItem key={model} value={model}>
-                        <span className="truncate">{model}</span>
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="__no_models__" disabled>
-                      No models available - add in Model Preferences
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-              <p className="text-[10px] text-muted-foreground">
-                💡 Tip: Use a cheaper model (gpt-4o-mini) for cost savings, or a smarter model (claude-opus-4) for complex research.
-              </p>
-            </div>
-
-            {/* Info Box */}
-            <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg space-y-2">
-              <p className="text-xs text-foreground">
-                <strong>How Agent Mode works:</strong>
-              </p>
-              <ol className="text-xs text-muted-foreground list-decimal list-inside space-y-1">
-                <li>AI analyzes your request and creates a task plan</li>
-                <li>Executes each subtask using available tools (search, URL fetch, weather, etc.)</li>
-                <li>Cross-references multiple sources for accuracy</li>
-                <li>Synthesizes findings into a comprehensive response</li>
-              </ol>
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
-                <strong>Tip:</strong> Best for research, comparisons, and multi-step analysis. Simple questions don&apos;t need Agent Mode.
-              </p>
-            </div>
+            {/* Tip */}
+            <p className="text-xs text-muted-foreground italic">
+              💡 Best for research, comparisons, and multi-step tasks. Simple questions don&apos;t need Agent Mode.
+            </p>
           </div>
         </div>
       )}
