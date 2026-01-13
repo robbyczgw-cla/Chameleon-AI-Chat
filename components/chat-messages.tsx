@@ -19,8 +19,6 @@ import rehypeKatex from "rehype-katex"
 import "katex/dist/katex.min.css"
 import { FollowUpSuggestions } from "@/components/follow-up-suggestions"
 import { parseFollowUps } from "@/lib/follow-up-parser"
-import { ClarifyingQuestionsCard } from "@/components/clarifying-questions-card"
-import { parseClarifyingQuestions, stripClarifyingTags } from "@/lib/agent-prompts"
 import { MessageStats } from "@/components/message-stats"
 import { FilePreviewInline } from "@/components/file-preview-inline"
 import { ResponseAnalysisPanel } from "@/components/response-analysis-panel"
@@ -912,25 +910,11 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                       const raw = typeof message.content === "string" ? message.content : contentToText(message.content)
                       const normalized = normalizeMarkdownChars(raw)
                       const agentPlanProcessed = processAgentPlanTags(normalized)
-                      // Parse and strip clarifying questions for special rendering
-                      const clarifyingQuestions = parseClarifyingQuestions(agentPlanProcessed)
-                      const clarifyingStripped = stripClarifyingTags(agentPlanProcessed)
-                      const followUpsParsed = parseFollowUps(clarifyingStripped)
+                      const followUpsParsed = parseFollowUps(agentPlanProcessed)
                       const richContentParsed = RichContentParser.parseAll(followUpsParsed.content)
 
                       return (
                         <>
-                          {/* Clarifying Questions Card - Rendered before main content */}
-                          {clarifyingQuestions.length > 0 && (
-                            <div className="mb-4">
-                              <ClarifyingQuestionsCard
-                                questions={clarifyingQuestions}
-                                onSelectOption={handleFollowUpSelect}
-                                language={settings.language as "en" | "de" | "es"}
-                                disabled={isChatLoading}
-                              />
-                            </div>
-                          )}
                           <ReactMarkdown
                             remarkPlugins={remarkPlugins}
                             rehypePlugins={rehypePlugins}
