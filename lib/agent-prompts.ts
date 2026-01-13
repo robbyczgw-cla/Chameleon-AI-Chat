@@ -15,16 +15,37 @@ import { generateUUID } from "@/lib/utils"
 export const AGENT_PLANNING_PROMPT = `
 You are in AGENT MODE - an autonomous task executor with enhanced capabilities.
 
-STEP 1: CLARIFY IF NEEDED
-For broad or ambiguous research requests, ask 1-2 quick clarifying questions BEFORE planning:
-- "What's your main goal - learning, comparing options, or making a decision?"
-- "Any specific criteria that matter most (price, speed, ease of use)?"
-- "Is this for a personal project, work, or just curiosity?"
+STEP 1: CLARIFY BEFORE RESEARCHING
+For ANY research request that could have multiple interpretations, you MUST ask 1-2 clarifying questions BEFORE planning. This ensures you research exactly what the user needs.
 
-Skip clarifying questions when:
-- The request is already specific and clear
-- It's a simple factual question
-- The user explicitly says "just research it" or similar
+ALWAYS use this exact format for clarifying questions:
+<clarifying>
+question: [Your question here]
+options: [Option 1]|[Option 2]|[Option 3]|[Option 4]
+</clarifying>
+
+Examples of good clarifying questions:
+<clarifying>
+question: What's your main goal with this research?
+options: Learning the basics|Comparing options|Making a decision|Building something
+</clarifying>
+
+<clarifying>
+question: What matters most to you?
+options: Cost/price|Performance|Ease of use|Reliability
+</clarifying>
+
+<clarifying>
+question: What's the context for this?
+options: Personal project|Work/professional|School/learning|Just curious
+</clarifying>
+
+ONLY skip clarifying questions when:
+- The request includes specific criteria already (e.g., "best database for high-write loads under $100/month")
+- It's a simple factual question (e.g., "What year was Python created?")
+- The user says "just do it" or "skip questions"
+
+When in doubt, ASK. Better to clarify than to research the wrong thing.
 
 STEP 2: CREATE A TASK PLAN
 For complex requests, create a brief task plan:
@@ -137,3 +158,60 @@ export const TOOL_DESCRIPTIONS = {
 } as const
 
 export type AgentTool = keyof typeof TOOL_DESCRIPTIONS
+
+/**
+ * Clarifying question structure for Agent Mode
+ */
+export interface ClarifyingQuestion {
+  question: string
+  options: string[]
+}
+
+/**
+ * Parse clarifying questions from AI response
+ * Extracts structured questions from <clarifying> blocks
+ */
+export function parseClarifyingQuestions(content: string): ClarifyingQuestion[] {
+  const questions: ClarifyingQuestion[] = []
+
+  // Match all <clarifying>...</clarifying> blocks
+  const regex = /<clarifying>([\s\S]*?)<\/clarifying>/gi
+  let match
+
+  while ((match = regex.exec(content)) !== null) {
+    const block = match[1].trim()
+
+    // Extract question and options
+    const questionMatch = block.match(/question:\s*(.+?)(?:\n|$)/i)
+    const optionsMatch = block.match(/options:\s*(.+?)(?:\n|$)/i)
+
+    if (questionMatch && optionsMatch) {
+      const question = questionMatch[1].trim()
+      const options = optionsMatch[1]
+        .split("|")
+        .map((opt) => opt.trim())
+        .filter((opt) => opt.length > 0)
+
+      if (question && options.length > 0) {
+        questions.push({ question, options })
+      }
+    }
+  }
+
+  return questions
+}
+
+/**
+ * Check if content contains clarifying questions
+ */
+export function hasClarifyingQuestions(content: string): boolean {
+  return /<clarifying>/i.test(content)
+}
+
+/**
+ * Remove clarifying question tags from content for display
+ * Returns the content without the raw tags (since we render them as UI)
+ */
+export function stripClarifyingTags(content: string): string {
+  return content.replace(/<clarifying>[\s\S]*?<\/clarifying>/gi, "").trim()
+}
