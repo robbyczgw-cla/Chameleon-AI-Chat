@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { getOpenRouterHeaders } from "@/lib/utils"
 
 export const runtime = "edge"
 
@@ -49,8 +50,7 @@ export async function POST(req: NextRequest) {
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-        "X-Title": "AI Chat Interface - Embeddings",
+        ...getOpenRouterHeaders("Embeddings"),
       },
       body: JSON.stringify({
         model,

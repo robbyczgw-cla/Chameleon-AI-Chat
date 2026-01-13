@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { webSearchTool, urlFetchTool, youtubeTranscriptTool, weatherTool, modelSupportsToolCalling, parseToolArguments } from "@/lib/tools"
 import { fetchUrlContent, fetchYouTubeTranscript, formatUrlFetchResult, formatYouTubeResult } from "@/lib/url-tools"
+import { getOpenRouterHeaders } from "@/lib/utils"
 
 export const runtime = "edge"
 
@@ -566,8 +567,7 @@ async function handleNonStreamingRequest(
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-        "X-Title": "Chameleon AI Chat",
+        ...getOpenRouterHeaders(),
       },
       body: JSON.stringify({ ...openRouterBody, messages: currentMessages }),
     })
@@ -730,8 +730,7 @@ async function handleStreamingRequest(
           headers: {
             Authorization: `Bearer ${apiKey}`,
             "Content-Type": "application/json",
-            "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-            "X-Title": "Chameleon AI Chat",
+            ...getOpenRouterHeaders(),
           },
           body: JSON.stringify({ ...openRouterBody, messages: currentMessages }),
         })

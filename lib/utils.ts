@@ -52,3 +52,31 @@ export function generateKey(prefix: string, value: string, index?: number): stri
 export function generateCompositeKey(...parts: (string | number | undefined)[]): string {
   return parts.filter(Boolean).join('-')
 }
+
+/**
+ * App identification constants for OpenRouter API
+ * These ensure consistent app attribution in OpenRouter dashboard
+ */
+export const APP_NAME = "Chameleon AI Chat"
+export const APP_URL = "https://camiai.xyz"
+
+/**
+ * Get OpenRouter headers for API requests
+ * Ensures consistent app identification across all API calls
+ *
+ * @param suffix - Optional suffix to append to app name (e.g., "Memory Extraction")
+ * @returns Headers object with HTTP-Referer and X-Title
+ */
+export function getOpenRouterHeaders(suffix?: string): { "HTTP-Referer": string; "X-Title": string } {
+  // Use window.location.origin if available (client-side), otherwise use production URL
+  const referer = typeof window !== "undefined"
+    ? window.location.origin
+    : (process.env.NEXT_PUBLIC_APP_URL || APP_URL)
+
+  const title = suffix ? `${APP_NAME} - ${suffix}` : APP_NAME
+
+  return {
+    "HTTP-Referer": referer,
+    "X-Title": title,
+  }
+}

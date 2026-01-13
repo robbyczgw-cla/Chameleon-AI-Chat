@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { getOpenRouterHeaders } from '@/lib/utils'
 
 export const runtime = 'edge'
 
@@ -81,8 +82,7 @@ export async function POST(req: NextRequest) {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-        'X-Title': 'Chameleon Chat',
+        ...getOpenRouterHeaders("Image Generation"),
       },
       body: JSON.stringify({
         model: IMAGE_MODEL,

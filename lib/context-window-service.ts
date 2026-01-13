@@ -4,6 +4,7 @@
  */
 
 import { estimateTokens } from "./token-tracker"
+import { getOpenRouterHeaders } from "@/lib/utils"
 
 // Model context window sizes (in tokens) - Updated November 2025
 // Source: OpenRouter API and official model documentation
@@ -363,8 +364,7 @@ SUMMARY:`
         headers: {
           "Authorization": `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "https://chameleon.ai",
-          "X-Title": "Chameleon AI Chat - Context Compression",
+          ...getOpenRouterHeaders("Context Compression"),
         },
         body: JSON.stringify({
           model: summaryModel,
