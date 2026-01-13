@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { FolderOpen, Globe, Image, Lightning, Microphone, MicrophoneSlash, PaperPlaneRight, Square } from "@phosphor-icons/react";
+import { FolderOpen, Globe, Image, Lightning, Microphone, MicrophoneSlash, PaperPlaneRight, Robot, Square } from "@phosphor-icons/react";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { Capacitor } from "@capacitor/core"
 import { useApp } from "@/contexts/app-context"
@@ -1162,6 +1162,10 @@ export function ChatInput() {
         enableUrlFetchTool: settings.experimental?.enableUrlFetchTool !== false,
         enableYouTubeTool: settings.experimental?.enableYouTubeTool !== false,
         enableWeatherTool: settings.experimental?.enableWeatherTool !== false,
+        // Agent mode settings
+        agentMode: settings.experimental?.agentMode?.enabled || false,
+        agentMaxIterations: settings.experimental?.agentMode?.maxIterations || 10,
+        agentModeModel: settings.experimental?.backgroundAIModels?.agentModeModel || undefined,
         onSearchStart: (query) => {
           // Toast removed - MessageStatus provides real-time feedback
           console.log("[Advanced Chat] 🔍 AI search started:", query)
@@ -1678,7 +1682,7 @@ export function ChatInput() {
               />
               {/* Desktop: Action Buttons inside textarea - hidden on mobile */}
               <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 right-3 items-center">
-                {/* Left group: Search + Voice + File (utilities) */}
+                {/* Left group: Search + Agent + Voice + File (utilities) */}
                 <div className="flex items-center gap-2 pr-3 border-r border-border/30">
                   {/* Web search */}
                   <Button
@@ -1694,6 +1698,41 @@ export function ChatInput() {
                   >
                     <Globe className="h-4 w-4" />
                   </Button>
+                  {/* Agent Mode toggle - Advanced mode only */}
+                  {!settings.simpleMode && (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant={settings.experimental?.agentMode?.enabled ? "default" : "ghost"}
+                      className={cn(
+                        "h-9 w-9 rounded-lg transition-all duration-200 relative",
+                        settings.experimental?.agentMode?.enabled
+                          ? "bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md hover:shadow-lg"
+                          : "hover:bg-muted/80"
+                      )}
+                      onClick={() => {
+                        haptics.trigger('selection')
+                        const currentAgentMode = settings.experimental?.agentMode || { enabled: false, maxIterations: 10, showTaskPlan: true, autoVerify: false }
+                        updateSettings({
+                          experimental: {
+                            ...settings.experimental,
+                            agentMode: {
+                              ...currentAgentMode,
+                              enabled: !currentAgentMode.enabled,
+                            },
+                          },
+                        })
+                      }}
+                      title={settings.experimental?.agentMode?.enabled
+                        ? "Agent Mode ON - AI executes multi-step research tasks autonomously. Click to disable."
+                        : "Agent Mode - Enable autonomous multi-step task execution with planning"}
+                    >
+                      <Robot className="h-4 w-4" weight={settings.experimental?.agentMode?.enabled ? "fill" : "regular"} />
+                      {settings.experimental?.agentMode?.enabled && (
+                        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full shadow-sm border border-white/50 animate-pulse" />
+                      )}
+                    </Button>
+                  )}
                   {/* Voice input */}
                   <Button
                     type="button"

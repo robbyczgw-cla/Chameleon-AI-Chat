@@ -222,10 +222,14 @@ export async function streamChatMessage(
     enableUrlFetchTool?: boolean
     enableYouTubeTool?: boolean
     enableWeatherTool?: boolean
+    // Agent mode settings
+    agentMode?: boolean
+    agentMaxIterations?: number
+    agentModeModel?: string // Override model for agent mode tasks
     onSearchStart?: (query: string) => void
     onSearchComplete?: () => void
     // Phase tracking callbacks for step-by-step visualization
-    onPhaseChange?: (phase: "thinking" | "searching" | "tool_use" | "responding" | "done") => void
+    onPhaseChange?: (phase: "thinking" | "planning" | "searching" | "tool_use" | "responding" | "done") => void
     onToolUse?: (toolName: string) => void
     onSearchQuery?: (query: string) => void
     // Generation ID callback for exact cost tracking
@@ -273,6 +277,10 @@ export async function streamChatMessage(
     enableUrlFetchTool = true,
     enableYouTubeTool = true,
     enableWeatherTool = true,
+    // Agent mode settings
+    agentMode = false,
+    agentMaxIterations = 10,
+    agentModeModel,
     onSearchStart,
     onSearchComplete,
     // Phase tracking
@@ -332,7 +340,13 @@ export async function streamChatMessage(
     requestBody.enableUrlFetchTool = enableUrlFetchTool
     requestBody.enableYouTubeTool = enableYouTubeTool
     requestBody.enableWeatherTool = enableWeatherTool
-    console.log("[v0] Auto tool use enabled with provider:", searchProvider, "tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool, weather: enableWeatherTool })
+    // Pass agent mode settings
+    requestBody.agentMode = agentMode
+    requestBody.agentMaxIterations = agentMaxIterations
+    if (agentModeModel) {
+      requestBody.agentModeModel = agentModeModel
+    }
+    console.log("[v0] Auto tool use enabled with provider:", searchProvider, "tools:", { urlFetch: enableUrlFetchTool, youtube: enableYouTubeTool, weather: enableWeatherTool }, "agentMode:", agentMode, "agentModeModel:", agentModeModel || "(using chat model)")
   }
 
   // REMOVED: Large console.log of full request body was causing memory pressure during streaming

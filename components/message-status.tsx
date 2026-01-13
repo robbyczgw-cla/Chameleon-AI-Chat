@@ -5,8 +5,10 @@ import { Brain, CaretDown, CaretRight, ChartBar, Chat, CheckCircle, CircleNotch,
 import { cn } from "@/lib/utils"
 import { useApp } from "@/contexts/app-context"
 import { SearchResultsCard } from "./search-results-card"
+import { AgentTaskPlan } from "./agent-task-item"
+import type { AgentTask } from "@/types"
 
-export type StreamingPhase = "idle" | "thinking" | "searching" | "tool_use" | "responding" | "done"
+export type StreamingPhase = "idle" | "thinking" | "planning" | "searching" | "tool_use" | "responding" | "done"
 
 interface Step {
   id: string
@@ -44,6 +46,10 @@ export interface MessageStatusProps {
     searchResults?: any[] // Full search results array (SearchResult[] from search/types.ts)
     reasoningContent?: string
     reasoningTokens?: number
+    // Agent Mode fields
+    agentPlan?: AgentTask[]
+    currentTaskIndex?: number
+    isAgentMode?: boolean
   }
 }
 
@@ -93,6 +99,26 @@ const phaseInfo = {
       labelActive: "Procesando solicitud...",
       description: "Analizando contexto y formulando estrategia de respuesta",
       subSteps: ["Analizando entrada", "Analizando contexto", "Planificando respuesta"]
+    }
+  },
+  planning: {
+    en: {
+      label: "Agent Planning",
+      labelActive: "Creating task plan...",
+      description: "Breaking down the request into autonomous subtasks",
+      subSteps: ["Analyzing complexity", "Identifying tools needed", "Creating execution plan"]
+    },
+    de: {
+      label: "Agent-Planung",
+      labelActive: "Erstelle Aufgabenplan...",
+      description: "Aufteilen der Anfrage in autonome Teilaufgaben",
+      subSteps: ["Komplexität analysieren", "Benötigte Tools identifizieren", "Ausführungsplan erstellen"]
+    },
+    es: {
+      label: "Planificación del Agente",
+      labelActive: "Creando plan de tareas...",
+      description: "Dividiendo la solicitud en subtareas autónomas",
+      subSteps: ["Analizando complejidad", "Identificando herramientas", "Creando plan de ejecución"]
     }
   },
   searching: {
@@ -254,6 +280,11 @@ export const MessageStatusVerbose = memo(({
           en: "Generating response...",
           de: "Antwort wird generiert...",
           es: "Generando respuesta..."
+        },
+        planning: {
+          en: "Creating task plan...",
+          de: "Erstelle Aufgabenplan...",
+          es: "Creando plan de tareas..."
         }
       }
       const phaseText = phaseMessages[currentPhase]?.[lang] || phaseMessages.thinking[lang]
@@ -380,6 +411,16 @@ export const MessageStatusVerbose = memo(({
             language={lang}
             maxResults={3}
             className="mt-2"
+          />
+        )}
+
+        {/* Agent Mode Task Plan - Show planned subtasks during autonomous execution */}
+        {streamingDetails?.isAgentMode && streamingDetails?.agentPlan && streamingDetails.agentPlan.length > 0 && (
+          <AgentTaskPlan
+            tasks={streamingDetails.agentPlan}
+            currentTaskIndex={streamingDetails.currentTaskIndex}
+            isAgentMode={streamingDetails.isAgentMode}
+            language={lang}
           />
         )}
       </div>
@@ -889,6 +930,7 @@ export const StreamingHistoryDisplay = memo(({
   const getPhaseIcon = (phase: StreamingHistoryEntry["phase"]) => {
     switch (phase) {
       case "thinking": return <Brain className="w-3 h-3" />
+      case "planning": return <Lightning className="w-3 h-3" weight="fill" />
       case "searching": return <Globe className="w-3 h-3" />
       case "tool_use": return <Wrench className="w-3 h-3" />
       case "responding": return <Chat className="w-3 h-3" />
@@ -900,6 +942,7 @@ export const StreamingHistoryDisplay = memo(({
   const getPhaseLabel = (phase: StreamingHistoryEntry["phase"]) => {
     const labels: Record<StreamingHistoryEntry["phase"], Record<string, string>> = {
       thinking: { en: "Thinking", de: "Denken", es: "Pensando" },
+      planning: { en: "Agent Planning", de: "Agent-Planung", es: "Planificación" },
       searching: { en: "Searching", de: "Suchen", es: "Buscando" },
       tool_use: { en: "Tool", de: "Tool", es: "Herramienta" },
       responding: { en: "Responding", de: "Antworten", es: "Respondiendo" },
@@ -911,6 +954,7 @@ export const StreamingHistoryDisplay = memo(({
   const getPhaseColor = (phase: StreamingHistoryEntry["phase"]) => {
     switch (phase) {
       case "thinking": return "text-purple-500 bg-purple-500/10"
+      case "planning": return "text-violet-500 bg-violet-500/10"
       case "searching": return "text-blue-500 bg-blue-500/10"
       case "tool_use": return "text-orange-500 bg-orange-500/10"
       case "responding": return "text-green-500 bg-green-500/10"
@@ -1019,6 +1063,17 @@ export const StreamingHistoryDisplay = memo(({
                     />
                   </div>
                 )}
+                {/* Agent Task Plan - Show in history when agent mode was used */}
+                {entry.isAgentMode && entry.agentPlan && entry.agentPlan.length > 0 && (
+                  <div className="mt-2">
+                    <AgentTaskPlan
+                      tasks={entry.agentPlan}
+                      currentTaskIndex={entry.currentTaskIndex}
+                      isAgentMode={entry.isAgentMode}
+                      language={lang}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Duration */}
@@ -1043,6 +1098,7 @@ export const StreamingHistoryDisplay = memo(({
                     className={cn(
                       "h-full",
                       entry.phase === "thinking" && "bg-purple-500",
+                      entry.phase === "planning" && "bg-violet-500",
                       entry.phase === "searching" && "bg-blue-500",
                       entry.phase === "tool_use" && "bg-orange-500",
                       entry.phase === "responding" && "bg-green-500",
@@ -1084,6 +1140,13 @@ export const MessageStatusInline = memo(({
           label: phaseInfo.thinking[lang].label,
           color: "text-purple-500",
           bgColor: "bg-purple-500/10",
+        }
+      case "planning":
+        return {
+          icon: <Lightning className="w-3.5 h-3.5" weight="fill" />,
+          label: phaseInfo.planning[lang].labelActive,
+          color: "text-violet-500",
+          bgColor: "bg-violet-500/10",
         }
       case "searching":
         return {
