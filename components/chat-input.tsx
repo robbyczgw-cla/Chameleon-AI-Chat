@@ -1826,6 +1826,38 @@ export function ChatInput() {
               >
                 <Globe className="h-3.5 w-3.5" />
               </Button>
+              {/* Agent Mode toggle - Advanced mode only */}
+              {!settings.simpleMode && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={settings.experimental?.agentMode?.enabled ? "default" : "ghost"}
+                  className={cn(
+                    "h-8 w-8 rounded-lg relative",
+                    settings.experimental?.agentMode?.enabled
+                      ? "bg-gradient-to-br from-violet-500 to-purple-600 text-white"
+                      : "text-muted-foreground"
+                  )}
+                  onClick={() => {
+                    haptics.trigger('selection')
+                    const currentAgentMode = settings.experimental?.agentMode || { enabled: false, maxIterations: 10, showTaskPlan: true, autoVerify: false }
+                    updateSettings({
+                      experimental: {
+                        ...settings.experimental,
+                        agentMode: {
+                          ...currentAgentMode,
+                          enabled: !currentAgentMode.enabled,
+                        },
+                      },
+                    })
+                  }}
+                >
+                  <Robot className="h-3.5 w-3.5" weight={settings.experimental?.agentMode?.enabled ? "fill" : "regular"} />
+                  {settings.experimental?.agentMode?.enabled && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  )}
+                </Button>
+              )}
               {/* Voice input */}
               <Button
                 type="button"
