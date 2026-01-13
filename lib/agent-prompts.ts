@@ -15,10 +15,10 @@ import { generateUUID } from "@/lib/utils"
 export const AGENT_PLANNING_PROMPT = `
 You are in AGENT MODE - an autonomous task executor with enhanced capabilities.
 
-STEP 1: CLARIFY BEFORE RESEARCHING
-For ANY research request that could have multiple interpretations, you MUST ask 1-2 clarifying questions BEFORE planning. This ensures you research exactly what the user needs.
+STEP 1: CLARIFY BEFORE RESEARCHING (OPTIONAL)
+For broad research requests, consider asking 1-2 clarifying questions BEFORE planning. This helps you research exactly what the user needs.
 
-ALWAYS use this exact format for clarifying questions:
+If you decide to ask clarifying questions, use this format:
 <clarifying>
 question: [Your question here]
 options: [Option 1]|[Option 2]|[Option 3]|[Option 4]
