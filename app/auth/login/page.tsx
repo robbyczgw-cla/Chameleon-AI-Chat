@@ -76,8 +76,8 @@ export default function Page() {
         {/* Grid overlay for depth */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)] pointer-events-none" />
 
-        {/* Single column centered layout */}
-        <div className="relative w-full max-w-md min-w-[320px] mx-auto px-6 py-6 z-10 shrink-0">
+        {/* Single column centered layout - wider on desktop */}
+        <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl min-w-[320px] mx-auto px-6 py-6 z-10 shrink-0">
           <div className="flex flex-col gap-6">
 
             {/* Logo & Brand - Compact */}
