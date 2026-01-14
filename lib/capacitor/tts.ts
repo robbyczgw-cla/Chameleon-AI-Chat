@@ -63,11 +63,14 @@ export const nativeTTS = {
    * Load available voices
    */
   async loadVoices(): Promise<TTSVoice[]> {
-    if (!_synthesis) return []
+    // Capture reference to avoid null issues in async callbacks
+    const synthesis = _synthesis
+    if (!synthesis) return []
 
     return new Promise((resolve) => {
       const getVoices = () => {
-        const voices = _synthesis!.getVoices()
+        // Use captured reference (safe from external mutation)
+        const voices = synthesis.getVoices()
         _voices = voices.map(v => ({
           voiceURI: v.voiceURI,
           name: v.name,
@@ -79,10 +82,10 @@ export const nativeTTS = {
       }
 
       // Voices may not be loaded immediately
-      if (_synthesis.getVoices().length > 0) {
+      if (synthesis.getVoices().length > 0) {
         getVoices()
       } else {
-        _synthesis.onvoiceschanged = getVoices
+        synthesis.onvoiceschanged = getVoices
         // Timeout fallback
         setTimeout(getVoices, 1000)
       }
@@ -127,7 +130,9 @@ export const nativeTTS = {
   async speak(options: TTSOptions): Promise<void> {
     await this.initialize()
 
-    if (!_synthesis) {
+    // Capture reference to avoid null issues in async callbacks
+    const synthesis = _synthesis
+    if (!synthesis) {
       console.error('[NativeTTS] Speech synthesis not available')
       return
     }
@@ -173,7 +178,7 @@ export const nativeTTS = {
         })
       }
 
-      _synthesis!.speak(utterance)
+      synthesis.speak(utterance)
     })
   },
 
