@@ -1,28 +1,64 @@
 /**
  * Personas Module
- * Unified exports for persona-related functionality
+ *
+ * Unified exports for persona-related functionality.
+ *
+ * Usage:
+ *   import { PERSONAS, getPersonaById, Persona } from "@/lib/personas"
  */
 
-// Core persona types and data
+// ==================== Types ====================
 export type {
   Persona,
   PersonaMemorySettings,
   PersonaVoiceSettings,
   PersonaContextSettings,
-} from "../personas"
+  PersonaCategory,
+} from "./types"
+export { filterPersonasByCategory, getVisiblePersonas as getVisiblePersonasFromTypes } from "./types"
 
-export { PERSONAS, getPersonaById, getDefaultPersona } from "../personas"
+// ==================== Persona Definitions ====================
+export { PERSONAS } from "./definitions"
+export {
+  corePersonas,
+  creativePersonas,
+  professionalPersonas,
+  philosophyPersonas,
+  lifestylePersonas,
+  learningPersonas,
+  curatorPersonas,
+} from "./definitions"
 
-// Persona storage (custom personas)
+// ==================== Helper Functions ====================
+export {
+  getPersonaById,
+  getDefaultPersona,
+  getPersonasByCategory,
+  getVisiblePersonas,
+  getCorePersonas,
+  getPersonasByCategories,
+} from "./helpers"
+
+// ==================== Example Prompts ====================
+export {
+  CATEGORY_LABELS,
+  PERSONA_EXAMPLE_PROMPTS,
+  getPersonaExamplePrompts,
+} from "./example-prompts"
+
+// ==================== Storage (Custom Personas) ====================
 export { PersonasStorageService } from "../personas-storage"
 
-// Persona memory service
-export type { PersonaConversation, PersonaMemoryStore } from "../persona-memory-service"
+// ==================== Memory Service ====================
+export type {
+  PersonaConversation,
+  PersonaMemoryStore,
+} from "../persona-memory-service"
 export { personaMemoryService } from "../persona-memory-service"
 
-// Persona context awareness (mood, time, topics)
+// ==================== Context Awareness ====================
 export type { ContextAwarenessData } from "../persona-context-awareness"
 export { personaContextAwareness } from "../persona-context-awareness"
 
-// Persona preferences learning
+// ==================== Preferences Learning ====================
 export { personaPreferencesService } from "../persona-preferences-service"
