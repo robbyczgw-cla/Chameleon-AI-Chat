@@ -103,8 +103,14 @@ async function checkRateLimitUpstash(
   identifier: string,
   config: RateLimitConfig
 ): Promise<RateLimitResult> {
-  const url = process.env.UPSTASH_REDIS_REST_URL!
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN!
+  const url = process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN
+
+  // Defensive check - should never happen if called via isUpstashConfigured()
+  if (!url || !token) {
+    console.error("[RateLimit] Upstash credentials missing, falling back to in-memory")
+    return checkRateLimitInMemory(identifier, config)
+  }
 
   const now = Date.now()
   const windowStart = now - config.windowMs

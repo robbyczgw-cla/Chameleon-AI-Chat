@@ -399,8 +399,12 @@ class PersonaPreferencesService {
     // Group by category
     const grouped = new Map<PreferenceCategory, LearnedPreference[]>()
     prefs.forEach((pref) => {
-      if (!grouped.has(pref.category)) grouped.set(pref.category, [])
-      grouped.get(pref.category)!.push(pref)
+      const existing = grouped.get(pref.category)
+      if (existing) {
+        existing.push(pref)
+      } else {
+        grouped.set(pref.category, [pref])
+      }
     })
 
     grouped.forEach((preferences, category) => {

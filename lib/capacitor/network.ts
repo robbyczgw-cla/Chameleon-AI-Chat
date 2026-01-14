@@ -26,6 +26,8 @@ let _currentState: NetworkState = {
 }
 const _listeners: Set<(state: NetworkState) => void> = new Set()
 let _initialized = false
+let _webOnlineHandler: (() => void) | null = null
+let _webOfflineHandler: (() => void) | null = null
 
 /**
  * Convert ConnectionStatus to NetworkState
@@ -98,15 +100,18 @@ export const nativeNetwork = {
           isNone: !navigator.onLine,
         }
 
-        window.addEventListener('online', () => {
+        // Store handlers for cleanup
+        _webOnlineHandler = () => {
           _currentState = { ..._currentState, connected: true, isNone: false }
           notifyListeners(_currentState)
-        })
-
-        window.addEventListener('offline', () => {
+        }
+        _webOfflineHandler = () => {
           _currentState = { ..._currentState, connected: false, isNone: true }
           notifyListeners(_currentState)
-        })
+        }
+
+        window.addEventListener('online', _webOnlineHandler)
+        window.addEventListener('offline', _webOfflineHandler)
       }
 
       console.log('[NativeNetwork] Initialized, connected:', _currentState.connected)
@@ -159,20 +164,21 @@ export const nativeNetwork = {
    * Check connectivity with actual request (more reliable than just checking status)
    */
   async checkConnectivity(timeout: number = 5000): Promise<boolean> {
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), timeout)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
 
-      const response = await fetch('https://www.google.com/favicon.ico', {
+    try {
+      await fetch('https://www.google.com/favicon.ico', {
         mode: 'no-cors',
         cache: 'no-store',
         signal: controller.signal,
       })
 
-      clearTimeout(timeoutId)
       return true
     } catch {
       return false
+    } finally {
+      clearTimeout(timeoutId)
     }
   },
 
@@ -206,6 +212,27 @@ export const nativeNetwork = {
     if (_currentState.isWifi) return 'high'
     if (_currentState.isCellular) return 'medium'
     return 'low'
+  },
+
+  /**
+   * Cleanup resources (remove event listeners)
+   */
+  destroy(): void {
+    // Clean up web event listeners
+    if (_webOnlineHandler) {
+      window.removeEventListener('online', _webOnlineHandler)
+      _webOnlineHandler = null
+    }
+    if (_webOfflineHandler) {
+      window.removeEventListener('offline', _webOfflineHandler)
+      _webOfflineHandler = null
+    }
+
+    // Clear all listeners
+    _listeners.clear()
+    _initialized = false
+
+    // Native cleanup handled by Capacitor's Network.removeAllListeners() if needed
   },
 }
 

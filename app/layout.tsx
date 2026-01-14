@@ -187,6 +187,9 @@ export default function RootLayout({
                 navigator.serviceWorker.getRegistrations().then(function(registrations) {
                   registrations.forEach(function(r) { r.unregister(); });
                   setTimeout(function() { location.reload(); }, 100);
+                }).catch(function(err) {
+                  console.error('[PWA] Failed to unregister service workers:', err);
+                  location.reload();
                 });
               } else {
                 location.reload();
@@ -220,6 +223,8 @@ export default function RootLayout({
                     }
                   }, 3000);
                 }
+              }).catch(function(err) {
+                console.error('[PWA] SW health check failed:', err);
               });
             }
           }
