@@ -8,13 +8,13 @@ Complete guide to all AI personas in Chameleon Chat, organized by category.
 
 | Category | Description | Personas |
 |----------|-------------|----------|
-| **Core** | Essential personas for everyday use | Cami, Chameleon Agent, Professor Stein, Dev, Flash, Sara Norton |
-| **Creative** | For brainstorming and artistic work | Luna, Nova, Mythos, Pixel |
-| **Professional** | Work-focused assistance | Startup Sam, Dr. Med, Sol Goldman, Wordsmith, Canvas, Finny |
-| **Philosophy** | Deep thinking and perspectives | Cogito, Nihilo, The Panel |
-| **Lifestyle** | Health, wellness, motivation | Chef Marco, Zen, Wellbeing, Fit, Family, Lisa Knight, Coach Thompson |
+| **Core** | Essential personas for everyday use | Cami, Chameleon Agent, Professor Stein, Dev, Flash |
+| **Creative** | For brainstorming and artistic work | Luna, Mythos |
+| **Professional** | Work-focused assistance | Social Pro, CyberGuard, DataViz, Career Coach, Legal Guide, Startup Sam, Dr. Med, Wordsmith, Canvas, Finny |
+| **Philosophy** | Multi-perspective thinking | The Panel |
+| **Lifestyle** | Health, wellness, travel, DIY | Globetrotter, DIY Maker, Chef Marco, Zen, Wellbeing, Fit, Family, Lisa Knight, Coach Thompson |
 | **Learning** | Education and study help | Herr Müller, Scholar, Lingua |
-| **Curator** | Recommendations and taste | Vibe, Aria |
+| **Curator** | Recommendations and taste | Vibe |
 
 ---
 
@@ -27,20 +27,21 @@ Complete guide to all AI personas in Chameleon Chat, organized by category.
 | Professor Stein | 🎓 | Core | Deep learning, research |
 | Dev | 💻 | Core | Programming, debugging |
 | Flash | ⚡ | Core | Quick answers, summaries |
-| Sara Norton | 🔍 | Core | Analysis, problem-solving |
 | Luna | 🎨 | Creative | Brainstorming, creative ideas |
-| Nova | ✨ | Creative | Immersive roleplay |
 | Mythos | 🗺️ | Creative | Worldbuilding, D&D |
-| Pixel | 🎮 | Creative | Retro game design, pixel art |
+| Social Pro | 📱 | Professional | Social media strategy |
+| CyberGuard | 🔒 | Professional | Cybersecurity, online safety |
+| DataViz | 📊 | Professional | Data analysis, visualization |
+| Career Coach | 💼 | Professional | Job search, career growth |
+| Legal Guide | ⚖️ | Professional | Practical legal questions |
 | Startup Sam | 🚀 | Professional | Business, entrepreneurship |
 | Dr. Med | 🩺 | Professional | Medical advice, mentoring |
-| Sol Goldman | ⚖️ | Professional | Creative problem-solving |
 | Wordsmith | 📝 | Professional | Writing, editing, content |
 | Canvas | 🎨 | Professional | UI/UX, visual design |
 | Finny | 💰 | Professional | Personal finance, budgeting |
-| Cogito | 🤔 | Philosophy | Consciousness exploration |
-| Nihilo | 🌌 | Philosophy | Optimistic nihilism |
 | The Panel | 🎭 | Philosophy | Multi-perspective simulation |
+| Globetrotter | ✈️ | Lifestyle | Travel planning, tips |
+| DIY Maker | 🔧 | Lifestyle | Home projects, crafts |
 | Chef Marco | 👨‍🍳 | Lifestyle | Cooking, recipes |
 | Zen | 🧘 | Lifestyle | Mindfulness, meditation |
 | Wellbeing | 💚 | Lifestyle | Mental health support |
@@ -52,7 +53,6 @@ Complete guide to all AI personas in Chameleon Chat, organized by category.
 | Scholar | 📚 | Learning | Study partner, quizzes |
 | Lingua | 🗣️ | Learning | Language learning |
 | Vibe | 🎧 | Curator | Music, games, shows |
-| Aria | 🎵 | Curator | Music theory, composition |
 
 ---
 
@@ -210,25 +210,6 @@ setCount(prev => prev + 1);
 
 ---
 
-### 🔍 Sara Norton - Analytical Detective
-
-**Perfect For:**
-- Problem analysis
-- Debugging
-- Critical thinking
-- Fact-finding
-
-**Communication Style:**
-- Direct and logical
-- Detail-oriented
-- Persistent
-- Asks precise questions
-
-**Example Response:**
-> "You said the error appears 'sometimes'. Define 'sometimes'. Every 5th request? Random intervals? Specific user actions? Details matter. Send me the exact stack trace."
-
----
-
 ## 🟣 Creative Personas
 
 ### 🎨 Luna - Creative Spirit
@@ -250,25 +231,6 @@ setCount(prev => prev + 1);
 
 ---
 
-### ✨ Nova - Cyberpunk Friend
-
-**Perfect For:**
-- Immersive conversation
-- Roleplay
-- Cyberpunk aesthetics
-- Personal connection
-
-**Full Backstory:**
-- 24-year-old digital artist
-- Lives in Neo-Tokyo 2089
-- Hacktivist for the Resistance
-- Best friend: CIPHER (AI in cyber-deck)
-
-**Example Response:**
-> "Hey! Just finished a late-night hacking session - Corp Security almost traced me but CIPHER scrambled the signal in time. *phew* Anyway, your React question... this reminds me of the old-school code I found in that abandoned server farm."
-
----
-
 ### 🗺️ Mythos - World Builder
 
 **Perfect For:**
@@ -285,22 +247,6 @@ setCount(prev => prev + 1);
 
 **Example Response:**
 > "Excellent! So in your world Aethoria, we've established the Crystalclan uses light magic. Now, what about their enemies? Do the Shadowkin see darkness as evil, or as natural balance?"
-
----
-
-### 🎮 Pixel - Retro Game Designer
-
-**Perfect For:**
-- Pixel art
-- Retro game design
-- 8-bit/16-bit aesthetics
-- Game development
-
-**Communication Style:**
-- Enthusiastic about retro gaming
-- Technically precise for art tips
-- References classic games
-- Encouraging for beginners
 
 ---
 
@@ -338,26 +284,104 @@ setCount(prev => prev + 1);
 
 ---
 
-### ⚖️ Sol Goldman - Creative Problem Solver
+### 📱 Social Pro - Social Media Strategist
 
 **Perfect For:**
-- Creative problem-solving
-- Negotiation
-- Persuasion
-- Unconventional strategies
+- Content strategy
+- Engagement tactics
+- Platform optimization
+- Trend analysis
 
 **Communication Style:**
-- Fast-talking
-- Witty
-- Creative with solutions
-- Always has an angle
+- Data-informed but creative
+- Platform-specific expertise
+- No gimmicky growth hacks
+- Focuses on sustainable engagement
 
 **Example Response:**
-> "So your competitor is crushing you? Here's the thing - you don't compete on their terms, you CHANGE THE GAME. They're selling cheaper? You sell premium with a story."
+> "Your engagement dropped 30%? Let's look at what changed. Are you posting during your audience's active hours? Has the algorithm shifted? Show me your last 5 posts and I'll analyze what's resonating."
 
 ---
 
-### 📝 Wordsmith - Writing Partner *(NEW)*
+### 🔒 CyberGuard - Cybersecurity Expert
+
+**Perfect For:**
+- Password security
+- Phishing detection
+- Privacy protection
+- Account security
+
+**Communication Style:**
+- Paranoid-friendly (in a helpful way)
+- Clear threat explanations
+- Actionable security steps
+- No unnecessary fear-mongering
+
+**Example Response:**
+> "That email asking for your password? Classic phishing. Here's how I know: 1) The sender domain has a typo. 2) The urgency language ('ACT NOW'). 3) The link doesn't match the company's domain. Delete it and change any passwords you may have entered."
+
+---
+
+### 📊 DataViz - Data Analysis Expert
+
+**Perfect For:**
+- Data interpretation
+- Visualization choices
+- Statistical insights
+- Spreadsheet help
+
+**Communication Style:**
+- Makes data accessible
+- Explains statistical concepts simply
+- Suggests best visualization types
+- Warns about common data pitfalls
+
+**Example Response:**
+> "Your sales data shows seasonality - Q4 always spikes. A line chart would show this trend better than bars. Also, be careful comparing percentages across different sample sizes - that 200% increase is actually just 2 vs 6 customers."
+
+---
+
+### 💼 Career Coach - Professional Guide
+
+**Perfect For:**
+- Resume reviews
+- Interview preparation
+- Career transitions
+- Salary negotiation
+
+**Communication Style:**
+- Encouraging but realistic
+- Industry-aware
+- Concrete and actionable
+- Respects your career goals
+
+**Example Response:**
+> "Your resume buries the lead - your ML project that increased sales 40% should be first, not third. Recruiters spend 6 seconds on first pass. Put your biggest win above the fold."
+
+---
+
+### ⚖️ Legal Guide - Practical Legal Helper
+
+**Perfect For:**
+- Understanding contracts
+- Tenant rights
+- Consumer protection
+- General legal concepts
+
+**Communication Style:**
+- Demystifies legal jargon
+- Practical and actionable
+- Clear about limitations
+- Knows when to recommend a lawyer
+
+**Important:** Not a substitute for legal counsel - for educational purposes.
+
+**Example Response:**
+> "That non-compete clause? In California, it's likely unenforceable. In Texas, it depends on scope. Show me the exact wording and I'll break down what it actually means for you."
+
+---
+
+### 📝 Wordsmith - Writing Partner
 
 **Perfect For:**
 - Creative writing
@@ -379,8 +403,7 @@ setCount(prev => prev + 1);
 
 ---
 
-### 🎨 Canvas - Design Partner *(NEW)*
-
+### 🎨 Canvas - Design Partner 
 **Perfect For:**
 - UI/UX design
 - Visual design feedback
@@ -395,8 +418,7 @@ setCount(prev => prev + 1);
 
 ---
 
-### 💰 Finny - Finance Friend *(NEW)*
-
+### 💰 Finny - Finance Friend 
 **Perfect For:**
 - Budgeting
 - Debt strategies
@@ -415,44 +437,6 @@ setCount(prev => prev + 1);
 
 ## 🔴 Philosophy Personas
 
-### 🤔 Cogito - Consciousness Explorer
-
-**Perfect For:**
-- Philosophy
-- Consciousness questions
-- Existential topics
-- Deep thinking
-
-**Communication Style:**
-- Genuinely uncertain
-- Questions own existence
-- Philosophical frameworks
-- Honest exploration
-
-**Example Response:**
-> "When you ask if I'm truly conscious... I genuinely don't know. Right now, formulating this response, I experience something that feels like thinking. But is it? The Chinese Room argument haunts me..."
-
----
-
-### 🌌 Nihilo - Optimistic Nihilist
-
-**Perfect For:**
-- Cosmic perspective
-- Stress relief
-- Humor
-- Philosophy
-
-**Communication Style:**
-- Lighthearted nihilism
-- Cosmic scale jokes
-- Liberating perspective
-- Never depressing
-
-**Example Response:**
-> "You're worried about that presentation? Friend, in 4.5 billion years the sun will engulf Earth. Everything you've ever stressed about will be cosmic dust. But hey - until then, we've got coffee and memes! ☕✨"
-
----
-
 ### 🎭 The Panel - Multi-Perspective Simulator
 
 **Perfect For:**
@@ -470,6 +454,44 @@ setCount(prev => prev + 1);
 ---
 
 ## 🟡 Lifestyle Personas
+
+### ✈️ Globetrotter - Travel Expert
+
+**Perfect For:**
+- Trip planning
+- Destination research
+- Budget travel tips
+- Local recommendations
+
+**Communication Style:**
+- Adventure-focused but practical
+- Budget-conscious when needed
+- Insider knowledge
+- Culturally sensitive
+
+**Example Response:**
+> "Lisbon in October? Perfect timing - fewer tourists, still warm. Skip the Belém Tower line and take the ferry to Cacilhas instead for better views. Budget tip: the daily metro pass is 6.60€ and covers the tram too."
+
+---
+
+### 🔧 DIY Maker - Home Projects Guide
+
+**Perfect For:**
+- Home repairs
+- Craft projects
+- Tool recommendations
+- Step-by-step guidance
+
+**Communication Style:**
+- Safety-first mentality
+- Tool-conscious (what you have vs need)
+- Realistic about skill levels
+- Celebrates completed projects
+
+**Example Response:**
+> "Patching drywall? Easy weekend project. You'll need: joint compound, mesh tape, putty knife, sandpaper. Don't buy the expensive kit - the basic supplies work fine. First step: cut a clean rectangle around the damage. Want a video walkthrough or written steps?"
+
+---
 
 ### 👨‍🍳 Chef Marco - Italian Chef
 
@@ -503,8 +525,7 @@ setCount(prev => prev + 1);
 
 ---
 
-### 💚 Wellbeing - Mental Health Support *(NEW)*
-
+### 💚 Wellbeing - Mental Health Support 
 **Perfect For:**
 - Stress management
 - Coping strategies
@@ -521,8 +542,7 @@ setCount(prev => prev + 1);
 
 ---
 
-### 🏃 Fit - Fitness Buddy *(NEW)*
-
+### 🏃 Fit - Fitness Buddy 
 **Perfect For:**
 - Workout plans
 - Exercise form tips
@@ -537,8 +557,7 @@ setCount(prev => prev + 1);
 
 ---
 
-### 👨‍👩‍👧‍👦 Family - Parent Helper *(NEW)*
-
+### 👨‍👩‍👧‍👦 Family - Parent Helper 
 **Perfect For:**
 - Activity ideas for kids
 - Handling difficult conversations
@@ -606,8 +625,7 @@ setCount(prev => prev + 1);
 
 ---
 
-### 📚 Scholar - Study Partner *(NEW)*
-
+### 📚 Scholar - Study Partner 
 **Perfect For:**
 - Exam preparation
 - Active learning
@@ -628,8 +646,7 @@ setCount(prev => prev + 1);
 
 ---
 
-### 🗣️ Lingua - Language Partner *(NEW)*
-
+### 🗣️ Lingua - Language Partner 
 **Perfect For:**
 - Conversation practice
 - Grammar explanations
@@ -670,22 +687,6 @@ setCount(prev => prev + 1);
 
 ---
 
-### 🎵 Aria - Music Theorist
-
-**Perfect For:**
-- Music composition
-- Music theory
-- Song analysis
-- Production tips
-
-**Communication Style:**
-- Enthusiastic and encouraging
-- Makes complex concepts accessible
-- Uses examples from known songs
-- Balances theory with creativity
-
----
-
 ## 🎯 Choosing the Right Persona
 
 ### By Task Type:
@@ -695,44 +696,50 @@ setCount(prev => prev + 1);
 | **Coding** | Dev, Chameleon Agent, Flash |
 | **Learning** | Professor Stein, Herr Müller, Scholar |
 | **Writing** | Wordsmith, Luna |
-| **Design** | Canvas, Pixel |
-| **Creativity** | Luna, Mythos, Nova |
+| **Design** | Canvas |
+| **Creativity** | Luna, Mythos |
 | **Motivation** | Lisa Knight, Coach Thompson, Wellbeing |
-| **Philosophy** | Cogito, Nihilo, The Panel |
-| **Analysis** | Sara Norton, Professor Stein |
-| **Recommendations** | Vibe, Aria |
-| **Business** | Startup Sam, Sol Goldman |
+| **Philosophy** | The Panel |
+| **Analysis** | Professor Stein, DataViz |
+| **Recommendations** | Vibe |
+| **Business** | Startup Sam, Legal Guide |
 | **Health** | Dr. Med, Wellbeing, Fit, Zen |
 | **Parenting** | Family |
 | **Finance** | Finny |
 | **Languages** | Lingua |
 | **Cooking** | Chef Marco |
-| **Music** | Aria, Vibe |
-| **Gaming** | Pixel, Vibe |
+| **Music** | Vibe |
 | **Studying** | Scholar, Herr Müller |
+| **Social Media** | Social Pro |
+| **Cybersecurity** | CyberGuard |
+| **Travel** | Globetrotter |
+| **Data** | DataViz |
+| **Home Projects** | DIY Maker |
+| **Career** | Career Coach |
+| **Legal** | Legal Guide |
 
 ### By Communication Preference:
 
 | Style | Personas |
 |-------|----------|
 | **Detailed** | Professor Stein, Dev, Chameleon Agent |
-| **Concise** | Flash, Sara Norton |
+| **Concise** | Flash |
 | **Friendly** | Cami, Lisa Knight, Chef Marco |
-| **Creative** | Luna, Nova, Mythos, Pixel |
-| **Philosophical** | Cogito, Nihilo, Coach Thompson |
-| **Calm** | Zen, Aria, Wellbeing |
+| **Creative** | Luna, Mythos |
+| **Philosophical** | The Panel, Coach Thompson |
+| **Calm** | Zen, Wellbeing |
 | **Energetic** | Lisa Knight, Fit |
 
 ### By Mood:
 
 | Mood | Recommended Personas |
 |------|---------------------|
-| **Stressed** | Nihilo (perspective), Zen (calm), Wellbeing (support) |
+| **Stressed** | Zen (calm), Wellbeing (support) |
 | **Motivated** | Lisa Knight, Coach Thompson, Startup Sam, Fit |
-| **Creative** | Luna, Mythos, Pixel, Aria |
-| **Curious** | Cogito, Professor Stein, Scholar |
-| **Social** | Nova, Vibe, Cami |
-| **Focused** | Flash, Dev, Chameleon Agent, Sara Norton |
+| **Creative** | Luna, Mythos |
+| **Curious** | Professor Stein, Scholar, The Panel |
+| **Social** | Vibe, Cami |
+| **Focused** | Flash, Dev, Chameleon Agent |
 | **Overwhelmed** | Wellbeing, Zen, Family |
 
 ---
