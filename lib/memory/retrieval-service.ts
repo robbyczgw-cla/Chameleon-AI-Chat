@@ -64,8 +64,10 @@ export function applyDynamicLimit(
     const current = scored[i]
     const previous = scored[i - 1]
 
-    // Calculate score drop percentage
-    const dropPercent = ((previous.score - current.score) / previous.score) * 100
+    // Calculate score drop percentage (guard against division by zero)
+    const dropPercent = previous.score > 0
+      ? ((previous.score - current.score) / previous.score) * 100
+      : 0
 
     // Stop if significant drop (30%+) after getting at least 1 memory
     if (dropPercent >= 30 && result.length >= 1) {

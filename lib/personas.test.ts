@@ -63,7 +63,8 @@ describe('Personas', () => {
     test('emojis are single characters or emoji sequences', () => {
       PERSONAS.forEach((persona) => {
         expect(persona.emoji.length).toBeGreaterThan(0)
-        expect(persona.emoji.length).toBeLessThan(10) // Reasonable emoji length
+        // ZWJ sequences (like 👨‍💼) can have string length > 10 due to UTF-16 encoding
+        expect(persona.emoji.length).toBeLessThan(20)
       })
     })
   })

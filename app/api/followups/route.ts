@@ -20,13 +20,14 @@ interface FollowUpRequest {
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limiting
-    const rateLimitResult = await checkRateLimit(req)
-    if (!rateLimitResult.success) {
+    // Rate limiting - extract IP and check synchronously
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0] || req.headers.get("x-real-ip") || "unknown"
+    const rateLimitResult = checkRateLimit(`followups:${clientIp}`, { limit: 60, windowMs: 60000 })
+    if (rateLimitResult.limited) {
       return NextResponse.json(
         {
           error: "Rate limit exceeded",
-          retryAfter: rateLimitResult.retryAfter
+          retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
         },
         { status: 429 }
       )

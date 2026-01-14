@@ -111,8 +111,21 @@ export async function POST(req: NextRequest) {
     })
 
     if (!response.ok) {
-      const error = await response.json()
-      return NextResponse.json({ error: error.error || "Tavily API error" }, { status: response.status })
+      // Safely parse error response - API might return non-JSON on some errors
+      let errorMessage = "Tavily API error"
+      try {
+        const errorBody = await response.json()
+        errorMessage = errorBody.error || errorMessage
+      } catch {
+        // If JSON parsing fails, try to get raw text
+        try {
+          const errorText = await response.text()
+          if (errorText) errorMessage = errorText.slice(0, 200)
+        } catch {
+          // Ignore if text parsing also fails
+        }
+      }
+      return NextResponse.json({ error: errorMessage }, { status: response.status })
     }
 
     const data = await response.json()

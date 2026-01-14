@@ -1695,6 +1695,8 @@ export function ChatInput() {
                     )}
                     onClick={() => setWebSearchEnabled(!webSearchEnabled)}
                     title="Web search - Search the internet for current information"
+                    aria-label={webSearchEnabled ? "Disable web search" : "Enable web search"}
+                    aria-pressed={webSearchEnabled}
                   >
                     <Globe className="h-4 w-4" />
                   </Button>
@@ -1726,6 +1728,8 @@ export function ChatInput() {
                       title={settings.experimental?.agentMode?.enabled
                         ? "Agent Mode ON - AI executes multi-step research tasks autonomously. Click to disable."
                         : "Agent Mode - Enable autonomous multi-step task execution with planning"}
+                      aria-label={settings.experimental?.agentMode?.enabled ? "Disable agent mode" : "Enable agent mode"}
+                      aria-pressed={settings.experimental?.agentMode?.enabled}
                     >
                       <Robot className="h-4 w-4" weight={settings.experimental?.agentMode?.enabled ? "fill" : "regular"} />
                       {settings.experimental?.agentMode?.enabled && (
@@ -1744,6 +1748,8 @@ export function ChatInput() {
                     )}
                     onClick={toggleVoiceInput}
                     title="Voice input - Click to start speaking"
+                    aria-label={isListening ? "Stop voice input" : "Start voice input"}
+                    aria-pressed={isListening}
                   >
                     {isListening ? <MicrophoneSlash className="h-4 w-4" /> : <Microphone className="h-4 w-4" />}
                   </Button>
@@ -1769,6 +1775,8 @@ export function ChatInput() {
                       setImageMode(nextState)
                     }}
                     title={imageMode === "off" ? "Image generation - Click to enable" : imageMode === "normal" ? "Normal quality - Click for high quality" : "High quality mode - Click to disable"}
+                    aria-label={imageMode === "off" ? "Enable image generation" : imageMode === "normal" ? "Switch to high quality" : "Disable image generation"}
+                    aria-pressed={imageMode !== "off"}
                   >
                     <Image className="h-4 w-4" />
                     {imageMode === "high" && (
@@ -1823,6 +1831,8 @@ export function ChatInput() {
                   haptics.trigger('selection')
                   setWebSearchEnabled(!webSearchEnabled)
                 }}
+                aria-label={webSearchEnabled ? "Disable web search" : "Enable web search"}
+                aria-pressed={webSearchEnabled}
               >
                 <Globe className="h-3.5 w-3.5" />
               </Button>
@@ -1851,6 +1861,8 @@ export function ChatInput() {
                       },
                     })
                   }}
+                  aria-label={settings.experimental?.agentMode?.enabled ? "Disable agent mode" : "Enable agent mode"}
+                  aria-pressed={settings.experimental?.agentMode?.enabled}
                 >
                   <Robot className="h-3.5 w-3.5" weight={settings.experimental?.agentMode?.enabled ? "fill" : "regular"} />
                   {settings.experimental?.agentMode?.enabled && (
@@ -1870,6 +1882,8 @@ export function ChatInput() {
                     : "text-muted-foreground"
                 )}
                 onClick={toggleVoiceInput}
+                aria-label={isListening ? "Stop voice input" : "Start voice input"}
+                aria-pressed={isListening}
               >
                 {isListening ? <MicrophoneSlash className="h-3.5 w-3.5" /> : <Microphone className="h-3.5 w-3.5" />}
               </Button>
@@ -1891,6 +1905,8 @@ export function ChatInput() {
                   const nextState = imageMode === "off" ? "normal" : imageMode === "normal" ? "high" : "off"
                   setImageMode(nextState)
                 }}
+                aria-label={imageMode === "off" ? "Enable image generation" : imageMode === "normal" ? "Switch to high quality" : "Disable image generation"}
+                aria-pressed={imageMode !== "off"}
               >
                 <Image className="h-3.5 w-3.5" />
                 {imageMode === "high" && (
