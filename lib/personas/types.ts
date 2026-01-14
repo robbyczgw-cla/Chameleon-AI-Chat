@@ -25,13 +25,14 @@ export interface PersonaContextSettings {
 
 // Persona categories for organization and filtering
 export type PersonaCategory =
-  | "core"        // Essential personas shown in Simple Mode (Cami, Dev, Flash, etc.)
-  | "creative"    // Creative and roleplay personas (Luna, Mythos, Nova, Pixel)
-  | "professional" // Work-focused personas (Startup Sam, Dr. Med, Wordsmith)
-  | "philosophy"  // Deep thinking personas (Cogito, Nihilo, The Panel)
-  | "lifestyle"   // Health, wellness, cooking (Chef, Zen, Wellbeing, Fit)
-  | "learning"    // Education-focused (Scholar, Lingua, Teacher)
-  | "curator"     // Recommendation personas (Vibe, Aria)
+  | "core"        // Essential personas shown in Simple Mode (Cami, Agent, Dev, Flash, Expert)
+  | "creative"    // Creative and roleplay personas (Luna, Mythos)
+  | "professional" // Work-focused (Legal, Career, DataViz, Social, CyberGuard, Dr. Med, Canvas, Startup Sam)
+  | "philosophy"  // Multi-perspective thinking (The Panel)
+  | "lifestyle"   // Health, wellness, travel, DIY (Globetrotter, DIY Maker, Chef, Zen, Fit, Family)
+  | "learning"    // Education-focused (Scholar, Lingua, Herr Müller)
+  | "curator"     // Recommendation personas (Vibe)
+  | "special"     // Special-purpose personas (Kids Mode, etc.)
 
 export interface Persona {
   id: string
