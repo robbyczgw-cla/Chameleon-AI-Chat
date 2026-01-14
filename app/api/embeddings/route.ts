@@ -78,8 +78,16 @@ export async function POST(req: NextRequest) {
     const data = await response.json()
     console.log(`[Embeddings] Successfully generated ${data.data?.length || 0} embeddings`)
 
-    // Extract embeddings from response
-    const embeddings = data.data.map((item: any) => item.embedding)
+    // Extract embeddings from response (with safety check)
+    if (!data.data || !Array.isArray(data.data)) {
+      console.error("[Embeddings] Unexpected response format:", JSON.stringify(data).slice(0, 200))
+      return NextResponse.json(
+        { error: "Unexpected response format from embeddings API" },
+        { status: 500 }
+      )
+    }
+
+    const embeddings = data.data.map((item: { embedding: number[] }) => item.embedding)
 
     return NextResponse.json({
       embeddings,

@@ -558,7 +558,7 @@ export async function POST(req: NextRequest) {
 
     // Non-streaming request with tool calling
     if (!stream) {
-      return handleNonStreamingRequest(openRouterBody, apiKey, searchApiKey!, searchProvider, searchSettings, agentMode, agentMaxIterations)
+      return handleNonStreamingRequest(openRouterBody, apiKey, searchApiKey, searchProvider, searchSettings, agentMode, agentMaxIterations)
     }
 
     // Streaming request - more complex handling for tool calls
@@ -575,7 +575,7 @@ export async function POST(req: NextRequest) {
 async function handleNonStreamingRequest(
   openRouterBody: Record<string, any>,
   apiKey: string,
-  searchApiKey: string,
+  searchApiKey: string | undefined,
   searchProvider: "tavily" | "serper" | "exa",
   searchSettings: Record<string, any>,
   agentMode: boolean = false,
@@ -626,6 +626,15 @@ async function handleNonStreamingRequest(
           const args = parseToolArguments(toolCall.function.arguments)
 
           if (toolCall.function.name === "web_search") {
+            if (!searchApiKey) {
+              return {
+                tool_call_id: toolCall.id,
+                role: "tool" as const,
+                name: "web_search",
+                content: "Error: No search API key configured",
+                searchResults: [],
+              }
+            }
             const searchResult = await executeWebSearch(args.query || "", searchProvider, searchApiKey, searchSettings)
             return {
               tool_call_id: toolCall.id,

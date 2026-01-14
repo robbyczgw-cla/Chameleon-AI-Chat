@@ -89,6 +89,29 @@ const inFlightRequests = new Map<string, Promise<unknown>>()
 // Response cache
 const responseCache = new Map<string, CacheEntry<unknown>>()
 
+// Track last cache cleanup time
+let lastCacheCleanup = Date.now()
+const CACHE_CLEANUP_INTERVAL = 60000 // Clean up expired entries every 60 seconds
+
+/**
+ * Cleanup expired cache entries to prevent memory leaks
+ */
+function cleanupExpiredCache(): void {
+  const now = Date.now()
+  let cleaned = 0
+
+  for (const [key, entry] of responseCache.entries()) {
+    if (now - entry.timestamp > entry.ttl) {
+      responseCache.delete(key)
+      cleaned++
+    }
+  }
+
+  if (cleaned > 0) {
+    console.debug(`[APIClient] Cleaned up ${cleaned} expired cache entries`)
+  }
+}
+
 /**
  * API Client class
  */
@@ -193,9 +216,16 @@ export class APIClient {
    * Cache a response
    */
   private setCache<T>(key: string, data: T, ttl: number): void {
+    // Periodically cleanup expired entries to prevent memory leaks
+    const now = Date.now()
+    if (now - lastCacheCleanup > CACHE_CLEANUP_INTERVAL) {
+      lastCacheCleanup = now
+      cleanupExpiredCache()
+    }
+
     responseCache.set(key, {
       data,
-      timestamp: Date.now(),
+      timestamp: now,
       ttl,
     })
   }
