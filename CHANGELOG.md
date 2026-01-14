@@ -6,6 +6,50 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
+## [1.3.2] - 2026-01-14
+
+### 🎭 Persona Refresh - 7 New Practical Personas
+
+Replaced 7 niche personas with practical alternatives that serve everyday needs.
+
+#### New Personas
+
+| Emoji | Name | Category | Purpose |
+|-------|------|----------|---------|
+| 📱 | **Social Pro** | Professional | Social media strategy & engagement |
+| 🔒 | **CyberGuard** | Professional | Cybersecurity & online safety |
+| 📊 | **DataViz** | Professional | Data analysis & visualization |
+| 💼 | **Career Coach** | Professional | Job search & career growth |
+| ⚖️ | **Legal Guide** | Professional | Practical legal questions |
+| ✈️ | **Globetrotter** | Lifestyle | Travel planning & tips |
+| 🔧 | **DIY Maker** | Lifestyle | Home projects & repairs |
+
+#### Retired Personas
+
+- Nova (cyberpunk roleplay) → Social Pro
+- Cogito (consciousness philosophy) → CyberGuard
+- Nihilo (optimistic nihilism) → Globetrotter
+- Sara Norton (detective character) → DataViz
+- Pixel (retro game design) → DIY Maker
+- Aria (music theory) → Career Coach
+- Sol Goldman (creative negotiator) → Legal Guide
+
+#### Key Changes
+
+- All new personas have distinct personalities without repetitive catchphrases
+- Added bilingual example prompts (EN/DE) for all 7 new personas
+- Updated `PersonaCategory` type to include "special" category
+- Fixed category comments in types to reference current personas
+- Total personas: 31 (unchanged)
+
+#### Files Modified
+
+- `lib/personas.ts` - Replaced 7 persona definitions, added example prompts
+- `lib/personas/types.ts` - Updated category comments, added "special" type
+- `docs/guides/personas.md` - Comprehensive documentation update
+
+---
+
 ## [1.3.1] - 2026-01-13
 
 ### 🌍 Labs Settings German Translation
