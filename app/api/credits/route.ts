@@ -7,10 +7,12 @@ export const runtime = "edge"
  * Fetches remaining credits and rate limit info for the current API key
  */
 export async function GET(request: NextRequest) {
-  const apiKey = request.headers.get("x-api-key") || process.env.OPENROUTER_API_KEY
+  // SECURITY: Only use client-provided API key, never fall back to server key
+  // This prevents exposing server API key balance to unauthenticated users
+  const apiKey = request.headers.get("x-api-key")
 
   if (!apiKey) {
-    return NextResponse.json({ error: "Missing API key" }, { status: 401 })
+    return NextResponse.json({ error: "API key required in x-api-key header" }, { status: 401 })
   }
 
   try {

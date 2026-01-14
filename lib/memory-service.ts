@@ -117,6 +117,8 @@ class MemoryService {
   private settings: MemorySettings = DEFAULT_SETTINGS
   private userId: string | null = null
   private syncEnabled: boolean = false
+  // Flag to track when database sync is in progress to prevent race conditions
+  private syncInProgress: boolean = false
   // Configurable models (can be set from UI settings)
   private extractionModel: string = DEFAULT_EXTRACTION_MODEL
   private classifierModel: string = DEFAULT_CLASSIFIER_MODEL
@@ -198,6 +200,7 @@ class MemoryService {
 
   /**
    * Load memories from database (for initial sync)
+   * Uses a flag to prevent race conditions with concurrent memory additions
    */
   async loadFromDatabase(): Promise<void> {
     if (!this.userId || !this.syncEnabled) {
@@ -205,16 +208,45 @@ class MemoryService {
       return
     }
 
-    const deletedMemoryIds = new Set(this.deletedMemories.map(m => m.id))
-    const mergedMemories = await DatabaseSync.loadFromDatabase(
-      this.userId,
-      this.memories,
-      deletedMemoryIds
-    )
+    // Prevent concurrent sync operations
+    if (this.syncInProgress) {
+      console.log("[Memory] Database sync already in progress, skipping")
+      return
+    }
 
-    this.memories = mergedMemories
-    this.saveMemories()
-    console.log("[Memory] Database sync complete. Total memories:", this.memories.length)
+    this.syncInProgress = true
+    const memoriesBeforeSync = [...this.memories] // Snapshot current state
+
+    try {
+      const deletedMemoryIds = new Set(this.deletedMemories.map(m => m.id))
+      const mergedFromDatabase = await DatabaseSync.loadFromDatabase(
+        this.userId,
+        memoriesBeforeSync, // Use snapshot, not live reference
+        deletedMemoryIds
+      )
+
+      // After async operation, merge with any memories added during sync
+      // Get IDs of memories that were added during sync (not in our snapshot)
+      const snapshotIds = new Set(memoriesBeforeSync.map(m => m.id))
+      const addedDuringSync = this.memories.filter(m => !snapshotIds.has(m.id))
+
+      if (addedDuringSync.length > 0) {
+        console.log("[Memory] Preserving", addedDuringSync.length, "memories added during sync")
+      }
+
+      // Combine database results with any locally-added memories
+      const mergedIds = new Set(mergedFromDatabase.map(m => m.id))
+      const finalMemories = [
+        ...mergedFromDatabase,
+        ...addedDuringSync.filter(m => !mergedIds.has(m.id)) // Avoid duplicates
+      ]
+
+      this.memories = finalMemories
+      this.saveMemories()
+      console.log("[Memory] Database sync complete. Total memories:", this.memories.length)
+    } finally {
+      this.syncInProgress = false
+    }
   }
 
   /**

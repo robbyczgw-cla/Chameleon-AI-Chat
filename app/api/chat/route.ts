@@ -408,7 +408,8 @@ export async function POST(req: NextRequest) {
       agentModeModel,
     } = body as ChatRequest
 
-    const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
+    // Use requested max tokens or default to 16000 (don't force minimum - user can request lower)
+    const maxTokens = requestedMaxTokens || 16000
 
     // Inject current date into system message so AI knows the current date for search queries
     const currentDate = new Date().toLocaleDateString("en-US", {
@@ -631,7 +632,40 @@ async function handleNonStreamingRequest(
               role: "tool" as const,
               name: "web_search",
               content: searchResult.content,
-              searchResults: searchResult.results, // Store raw results for frontend
+              searchResults: searchResult.results,
+            }
+          }
+
+          if (toolCall.function.name === "url_fetch") {
+            console.log("[Chat] Non-streaming: Executing url_fetch:", args.url)
+            const result = await fetchUrlContent(args.url || "")
+            return {
+              tool_call_id: toolCall.id,
+              role: "tool" as const,
+              name: "url_fetch",
+              content: formatUrlFetchResult(result),
+            }
+          }
+
+          if (toolCall.function.name === "youtube_transcript") {
+            console.log("[Chat] Non-streaming: Executing youtube_transcript:", args.url)
+            const result = await fetchYouTubeTranscript(args.url || "")
+            return {
+              tool_call_id: toolCall.id,
+              role: "tool" as const,
+              name: "youtube_transcript",
+              content: formatYouTubeResult(result),
+            }
+          }
+
+          if (toolCall.function.name === "get_weather") {
+            console.log("[Chat] Non-streaming: Executing get_weather:", args.location, args.type)
+            const result = await executeWeather(args.location || "", args.type || "current")
+            return {
+              tool_call_id: toolCall.id,
+              role: "tool" as const,
+              name: "get_weather",
+              content: result,
             }
           }
 

@@ -267,11 +267,21 @@ export class APIClient {
     const timeoutController = new AbortController()
     const timeoutId = setTimeout(() => timeoutController.abort(), timeout)
 
-    // Combine signals if both exist
+    // Combine signals if both exist - store handler for cleanup
+    let abortHandler: (() => void) | undefined
     if (requestConfig.signal) {
-      requestConfig.signal.addEventListener('abort', () => timeoutController.abort())
+      abortHandler = () => timeoutController.abort()
+      requestConfig.signal.addEventListener('abort', abortHandler)
     }
     fetchOptions.signal = timeoutController.signal
+
+    // Cleanup function to remove event listener and clear timeout
+    const cleanup = () => {
+      clearTimeout(timeoutId)
+      if (abortHandler && requestConfig.signal) {
+        requestConfig.signal.removeEventListener('abort', abortHandler)
+      }
+    }
 
     // Execute request (with optional retry)
     const executeRequest = async (): Promise<APIResponse<T>> => {
@@ -279,7 +289,7 @@ export class APIClient {
         log.debug(`${method} ${path}`)
         const response = await fetch(url, fetchOptions)
 
-        clearTimeout(timeoutId)
+        cleanup()
 
         // Handle streaming responses
         if (requestConfig.stream) {
@@ -343,7 +353,7 @@ export class APIClient {
 
         return result
       } catch (error) {
-        clearTimeout(timeoutId)
+        cleanup()
 
         if (error instanceof APIClientError) {
           throw error
