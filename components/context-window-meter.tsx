@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import { useApp } from "@/contexts/app-context"
 import { contextWindowService, type ContextUsage } from "@/lib/context-window-service"
-import { cn } from "@/lib/utils"
+import { cn, getTextContent } from "@/lib/utils"
 import { ArrowsIn, CaretDown, CaretUp, Gauge, Lightning, Warning } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button"
 
@@ -24,7 +24,7 @@ export function ContextWindowMeter({ onCompress, compact = false, className }: C
   const usage: ContextUsage = useMemo(() => {
     const messagesForCalc = messages.map(m => ({
       role: m.role as "user" | "assistant" | "system",
-      content: m.content
+      content: getTextContent(m.content)
     }))
     return contextWindowService.getContextUsage(messagesForCalc, model)
   }, [messages, model])
@@ -214,7 +214,7 @@ export function ContextWindowMini({ className }: { className?: string }) {
   const usage = useMemo(() => {
     const messagesForCalc = messages.map(m => ({
       role: m.role as "user" | "assistant" | "system",
-      content: m.content
+      content: getTextContent(m.content)
     }))
     return contextWindowService.getContextUsage(messagesForCalc, model)
   }, [messages, model])

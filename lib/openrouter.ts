@@ -13,9 +13,11 @@ export interface OpenRouterModel {
   category?: string
 }
 
+import type { MessageContent } from "@/types"
+
 export interface ChatMessage {
   role: "user" | "assistant" | "system"
-  content: string
+  content: MessageContent
 }
 
 export interface ChatCompletionResponse {

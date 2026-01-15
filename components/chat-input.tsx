@@ -7,7 +7,7 @@ import { Capacitor } from "@capacitor/core"
 import { useApp } from "@/contexts/app-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/lib/utils"
+import { cn, getTextContent } from "@/lib/utils"
 import type { Message, StreamingHistoryEntry, UsedMemory, CategorizedFollowUp } from "@/types"
 import { streamChatMessage, REASONING_MODELS } from "@/lib/openrouter"
 import { search, buildSearchContext } from "@/lib/search"
@@ -889,7 +889,7 @@ export function ChatInput() {
         console.log("[ChatInput] 🎯 Adding context awareness for:", settings.selectedPersona.name)
 
         const currentChatMessages = currentChat?.messages || []
-        const userMessages = currentChatMessages.filter((m) => m.role === "user").map((m) => m.content)
+        const userMessages = currentChatMessages.filter((m) => m.role === "user").map((m) => getTextContent(m.content))
         userMessages.push(input.trim()) // Add current message
 
         const contextData = personaContextAwareness.generateContextData(userMessages)
@@ -1000,7 +1000,7 @@ export function ChatInput() {
         systemPrompt,
         messages: messages.map((m) => ({
           role: m.role,
-          content: m.content,
+          content: getTextContent(m.content),
         })),
         modelParams: {
           model,
@@ -1474,10 +1474,10 @@ export function ChatInput() {
         // PRIVATE MODE: Skip for private chats
         if (settings.selectedPersona && !isPrivateChatForLearning) {
           const currentChatMessages = chats.find((c) => c.id === chatId)?.messages || []
-          const userMessages = currentChatMessages.filter((m) => m.role === "user").map((m) => m.content)
+          const userMessages = currentChatMessages.filter((m) => m.role === "user").map((m) => getTextContent(m.content))
           const assistantMessages = currentChatMessages
             .filter((m) => m.role === "assistant")
-            .map((m) => m.content)
+            .map((m) => getTextContent(m.content))
 
           // Add the new messages
           userMessages.push(messageContent)
