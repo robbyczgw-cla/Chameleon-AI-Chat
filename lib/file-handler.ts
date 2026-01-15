@@ -136,9 +136,10 @@ export async function extractPdfText(file: File): Promise<string> {
 
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
-      disableWorker: true,  // This is the key setting
       isEvalSupported: false,
-      useSystemFonts: true
+      useSystemFonts: true,
+      // @ts-expect-error disableWorker is a valid option but not in the type definitions
+      disableWorker: true,
     })
     const pdf = await loadingTask.promise
 

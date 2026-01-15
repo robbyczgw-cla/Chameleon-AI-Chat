@@ -64,7 +64,7 @@ export async function withViewTransition(
  */
 export function enableFastTap(element: HTMLElement): void {
   element.style.touchAction = 'manipulation'
-  element.style.webkitTapHighlightColor = 'transparent'
+  ;(element.style as any).webkitTapHighlightColor = 'transparent'
   element.style.userSelect = 'none'
   ;(element.style as any).webkitUserSelect = 'none'
 }

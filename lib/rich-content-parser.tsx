@@ -140,7 +140,7 @@ export class RichContentParser {
             const text = line.trim().replace(/^[-*]\s*/, "")
             // Determine if it's a pro or con (simple heuristic: contains negative words = con)
             const negativeWords = ["con", "disadvantage", "slow", "expensive", "hard", "difficult", "bad"]
-            const type = negativeWords.some((word) => text.toLowerCase().includes(word)) ? "con" : "pro"
+            const type: "pro" | "con" = negativeWords.some((word) => text.toLowerCase().includes(word)) ? "con" : "pro"
             return { text, type }
           })
 
