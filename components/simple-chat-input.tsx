@@ -216,7 +216,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   }
 
   const handleVoice = async () => {
-    const openAiKey = settings.apiKeys.openai
+    const openAiKey = settings.apiKeys.openAI
     if (!openAiKey) {
       toast({
         title: getTranslation("apiKeyRequired", settings.language),

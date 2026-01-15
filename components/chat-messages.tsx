@@ -737,8 +737,6 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
               ? "Tippe auf eine Frage oder schreib deine eigene"
               : lang === "es"
               ? "Toca una sugerencia o escribe la tuya"
-              : lang === "fr"
-              ? "Touchez une suggestion ou écrivez la vôtre"
               : "Tap a prompt or type your own"
             }
           </p>

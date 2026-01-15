@@ -30,6 +30,7 @@ export const DEFAULT_BACKGROUND_MODELS: Required<BackgroundAIModelsSettings> = {
   imageGenNormal: "google/gemini-2.5-flash-image",
   imageGenHigh: "google/gemini-3-pro-image-preview",
   embeddings: "openai/text-embedding-3-small",
+  agentModeModel: "", // Empty string = use current chat model
 }
 
 // Helper to get the model with fallback to default

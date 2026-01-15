@@ -215,13 +215,13 @@ Provide analysis in this JSON format:
       await streamChatMessage(
         [{ role: "user", content: analysisPrompt }],
         settings.selectedModel,
+        (chunk: string) => {
+          result += chunk
+        },
         {
           temperature: 0.7,
           maxTokens: 500,
           apiKey: settings.apiKeys.openRouter,
-          onChunk: (chunk: string) => {
-            result += chunk
-          }
         }
       )
 

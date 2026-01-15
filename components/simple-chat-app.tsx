@@ -124,7 +124,8 @@ const getPersonaTips = (personaId: string, lang: "en" | "de" | "es"): string[] =
 }
 
 // Extended persona tips for personas not in shared config
-const extendedPersonaTips: Record<string, { en: string[]; de: string[] }> = {
+// Note: es (Spanish) is optional - fallback to English if not provided
+const extendedPersonaTips: Record<string, { en: string[]; de: string[]; es?: string[] }> = {
   // Cogito - consciousness philosophy
   cogito: {
     en: [

@@ -512,7 +512,7 @@ export function ChatInput() {
       } finally {
         setIsLoading(false)
         setIsChatLoading(false)
-        setImageMode(false) // Reset image mode after generation
+        setImageMode("off") // Reset image mode after generation
       }
       return
     }
