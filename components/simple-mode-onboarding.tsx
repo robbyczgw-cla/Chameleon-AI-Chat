@@ -13,6 +13,7 @@ import { ChameleonLogo } from "@/components/chameleon-logo"
 import { useApp } from "@/contexts/app-context"
 import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { cn } from "@/lib/utils"
+import type { AppSettings, MemorySettings } from "@/types"
 
 // Interest tags with emojis
 const interestOptions = {
@@ -397,13 +398,13 @@ export function SimpleModeOnboarding({ open, onComplete }: SimpleModeOnboardingP
 
   const handleComplete = async () => {
     // Enable memory by default for simple mode users (for personalized experience)
-    const updatedSettings = {
+    const updatedSettings: AppSettings = {
       ...localSettings,
       memorySettings: {
         ...localSettings.memorySettings,
         enabled: true, // Always enable memory for simple mode
         autoExtract: true,
-      },
+      } as MemorySettings,
       enableAutoToolUse: true, // Enable auto tool use (search, etc.)
     }
     setLocalSettings(updatedSettings)

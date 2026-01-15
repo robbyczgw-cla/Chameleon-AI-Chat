@@ -45,12 +45,15 @@ export function PersonalKnowledgeBase() {
 
     chats.forEach((chat) => {
       chat.messages.forEach((message) => {
+        // Skip system messages - users typically don't want to search through system prompts
+        if (message.role === "system") return
+
         if (message.content.toLowerCase().includes(queryLower)) {
           results.push({
             chatId: chat.id,
             chatTitle: chat.title,
             messageContent: message.content,
-            role: message.role,
+            role: message.role as "user" | "assistant",
             timestamp: message.timestamp,
           })
         }
@@ -134,11 +137,13 @@ Antworte NUR mit dem JSON-Objekt.`
       const chat = chats[result.chatIndex]
       if (chat && chat.messages[result.messageIndex]) {
         const message = chat.messages[result.messageIndex]
+        // Skip system messages
+        if (message.role === "system") return
         results.push({
           chatId: chat.id,
           chatTitle: chat.title,
           messageContent: message.content,
-          role: message.role,
+          role: message.role as "user" | "assistant",
           timestamp: message.timestamp,
           relevanceScore: result.relevanceScore,
         })

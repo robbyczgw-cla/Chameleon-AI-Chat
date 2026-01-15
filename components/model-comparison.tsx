@@ -539,7 +539,7 @@ export function ModelComparison() {
               )}
             </div>
             <div
-              ref={(el) => (scrollRefs.current[mobileActivePanel] = el)}
+              ref={(el) => { scrollRefs.current[mobileActivePanel] = el }}
               className="flex-1 overflow-y-auto p-3"
               style={{ minHeight: 0 }}
             >
@@ -641,7 +641,7 @@ export function ModelComparison() {
               )}
             </div>
             <div
-              ref={(el) => (scrollRefs.current[index] = el)}
+              ref={(el) => { scrollRefs.current[index] = el }}
               className="flex-1 overflow-y-auto p-4"
               style={{ minHeight: 0 }}
             >

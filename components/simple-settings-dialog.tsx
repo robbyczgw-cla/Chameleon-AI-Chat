@@ -14,6 +14,7 @@ import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import type { MemorySettings } from "@/types"
 
 // Translations for Simple Settings
 const translations = {
@@ -1077,11 +1078,11 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                             maxMemoriesInContext: localSettings.memorySettings?.maxMemoriesInContext ?? 5,
                             importanceThreshold: localSettings.memorySettings?.importanceThreshold ?? 2,
                             syncToDatabase: localSettings.memorySettings?.syncToDatabase ?? false,
-                          }
+                          } as MemorySettings
                         : {
                             ...localSettings.memorySettings,
                             enabled: false,
-                          },
+                          } as MemorySettings,
                     })
                   }
                 />

@@ -74,12 +74,12 @@ export function ExperimentalSettings() {
     })
   }
 
-  const handleMemorySettingChange = (updates: Partial<typeof memorySettings>) => {
+  const handleMemorySettingChange = (updates: Partial<MemorySettings>) => {
     updateSettings({
       memorySettings: {
         ...memorySettings,
         ...updates,
-      },
+      } as MemorySettings,
     })
   }
 

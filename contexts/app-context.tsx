@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo, type ReactNode } from "react"
-import type { Chat, AppSettings, Message, ChatFolder, ComparisonSession, StreamingHistoryEntry } from "@/types"
+import type { Chat, AppSettings, Message, ChatFolder, ComparisonSession, StreamingHistoryEntry, ModelParameters, TavilySettings, SerperSettings, ExaSettings, VoiceSettings, MemorySettings } from "@/types"
 import type { StreamingPhase } from "@/components/message-status"
 import { createClient } from "@/lib/supabase/client"
 import { supabaseSync } from "@/lib/supabase/sync"
@@ -247,29 +247,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
       modelParameters: {
         ...defaults.modelParameters,
         ...(parsed.modelParameters || {}),
-      },
+      } as ModelParameters,
       tavilySettings: {
         ...defaults.tavilySettings,
         ...(parsed.tavilySettings || {}),
-      },
+      } as TavilySettings,
       serperSettings: {
         ...defaults.serperSettings,
         ...(parsed.serperSettings || {}),
-      },
+      } as SerperSettings,
       exaSettings: {
         ...defaults.exaSettings,
         ...(parsed.exaSettings || {}),
-      },
+      } as ExaSettings,
       apiKeys: mergedApiKeys,
       voiceSettings: {
         ...defaults.voiceSettings,
         ...(parsed.voiceSettings || {}),
-      },
+      } as VoiceSettings,
       // Standard merge: defaults first, then parsed (new values) override
       memorySettings: {
         ...defaults.memorySettings,
         ...(parsed.memorySettings || {}),
-      },
+      } as MemorySettings,
       experimental: {
         ...defaults.experimental,
         ...(parsed.experimental || {}),
@@ -355,8 +355,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("[v0] Auth state changed:", event, session?.user?.email)
 
-      if (event === "SIGNED_IN") {
-        setUser(session?.user ?? null)
+      if (event === "SIGNED_IN" && session?.user) {
+        setUser(session.user)
 
         // CRITICAL FIX: Do NOT block UI with setIsLoading(true)!
         // Background sync should happen silently without blocking the UI
@@ -365,11 +365,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           console.log("[v0] 🔄 onAuthStateChange: SIGNED_IN - syncing in background...")
           // NO setIsLoading(true) - this was blocking the UI!
 
+          // Capture user ID for async closure
+          const userId = session.user.id
+
           // Run in background without blocking
-          (async () => {
+          ;(async () => {
             try {
-              await migrateToSupabase(session.user.id)
-              await loadFromSupabase(session.user.id)
+              await migrateToSupabase(userId)
+              await loadFromSupabase(userId)
               setHasInitiallyLoaded(true)
               console.log("[v0] ✅ onAuthStateChange: Background sync complete")
             } catch (error) {
@@ -558,7 +561,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const startTime = Date.now()
 
       // Increased timeout to 30 seconds (Supabase free tier can be slow)
-      const timeoutPromise = new Promise((_, reject) =>
+      const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error("Supabase load timeout (30s) - using cached data")), 30000)
       )
 
