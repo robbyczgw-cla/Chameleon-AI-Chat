@@ -69,6 +69,7 @@ Technical documentation for developers and contributors.
 | [deployment.md](./dev/deployment.md) | Self-hosting and Vercel deployment |
 | [CAPACITOR_ANDROID.md](./dev/CAPACITOR_ANDROID.md) | Building the native Android app |
 | [TESTING.md](./dev/TESTING.md) | Testing guidelines and setup |
+| [TYPESCRIPT_CLEANUP.md](./dev/TYPESCRIPT_CLEANUP.md) | TypeScript patterns and type safety fixes |
 | [contributing.md](./dev/contributing.md) | How to contribute, code style, PR process |
 | [LLM_CONTEXT.md](./dev/LLM_CONTEXT.md) | Context for AI coding assistants |
 
