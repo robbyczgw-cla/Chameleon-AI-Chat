@@ -22,7 +22,7 @@ export function parseFollowUps(content: string): ParsedMessage {
   let cleanContent = content
 
   // Extract follow-up questions (AI asks user) from [FOLLOWUP]...[/FOLLOWUP] tags
-  const followUpRegex = /\[FOLLOWUP\](.*?)\[\/FOLLOWUP\]/gs
+  const followUpRegex = /\[FOLLOWUP\]([\s\S]*?)\[\/FOLLOWUP\]/g
   const followUpMatches = content.match(followUpRegex)
   const followUps: string[] = []
   const categorizedFollowUps: CategorizedFollowUp[] = []

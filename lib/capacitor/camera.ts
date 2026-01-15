@@ -67,7 +67,7 @@ export const nativeCamera = {
       correctOrientation: true,
       width: 1920,
       height: 1920,
-      presentationStyle: 'fullScreen',
+      presentationStyle: 'fullscreen',
     })
 
     if (!photo.dataUrl) return null
@@ -133,7 +133,8 @@ export const nativeCamera = {
     if (isNative && Capacitor.isPluginAvailable('Camera')) {
       const { Camera } = await import('@capacitor/camera')
       const { camera } = await Camera.checkPermissions()
-      return camera
+      // CameraPermissionState may include 'limited' on iOS, map to 'granted'
+      return camera === 'limited' ? 'granted' : camera as 'granted' | 'denied' | 'prompt'
     }
 
     // Web permission check
@@ -152,7 +153,8 @@ export const nativeCamera = {
     if (isNative && Capacitor.isPluginAvailable('Camera')) {
       const { Camera } = await import('@capacitor/camera')
       const { camera } = await Camera.requestPermissions({ permissions: ['camera'] })
-      return camera
+      // CameraPermissionState may include 'limited' on iOS, map to 'granted'
+      return camera === 'limited' ? 'granted' : camera as 'granted' | 'denied' | 'prompt'
     }
 
     // Web - permissions are requested when accessing the camera

@@ -16,7 +16,7 @@ import { ChameleonLogo } from "@/components/chameleon-logo"
 import { MemoryManager } from "@/components/memory-manager"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import { cn, getTextContent } from "@/lib/utils"
 import { userProfileService } from "@/lib/user-profile"
 import { CaretLeft, ChatDots, DotsThreeVertical, Gear, ImageSquare, Lightbulb, List, MagnifyingGlass, Question, ShareNetwork, Trash, User, Users, X } from "@phosphor-icons/react";
 import {
@@ -109,22 +109,26 @@ const translations = {
 // Use shared persona example prompts from lib/personas.ts
 // getPersonaTips combines shared prompts with extended prompts for additional personas
 const getPersonaTips = (personaId: string, lang: "en" | "de" | "es"): string[] => {
+  // Shared prompts only have en/de, so fallback for es
+  const sharedLang = lang === "es" ? "en" : lang
+
   // First check shared prompts
   const sharedPrompts = PERSONA_EXAMPLE_PROMPTS[personaId]
   if (sharedPrompts) {
-    return sharedPrompts[lang] || sharedPrompts["en"]
+    return sharedPrompts[sharedLang] || sharedPrompts["en"]
   }
-  // Then check extended prompts
+  // Then check extended prompts (supports es)
   const extendedPrompts = extendedPersonaTips[personaId]
   if (extendedPrompts) {
     return extendedPrompts[lang] || extendedPrompts["en"]
   }
   // Fallback to default
-  return PERSONA_EXAMPLE_PROMPTS.default[lang] || PERSONA_EXAMPLE_PROMPTS.default["en"]
+  return PERSONA_EXAMPLE_PROMPTS.default[sharedLang] || PERSONA_EXAMPLE_PROMPTS.default["en"]
 }
 
 // Extended persona tips for personas not in shared config
-const extendedPersonaTips: Record<string, { en: string[]; de: string[] }> = {
+// Note: es (Spanish) is optional - fallback to English if not provided
+const extendedPersonaTips: Record<string, { en: string[]; de: string[]; es?: string[] }> = {
   // Cogito - consciousness philosophy
   cogito: {
     en: [
@@ -744,7 +748,7 @@ export function SimpleChatApp() {
   const filteredChats = searchQuery.trim()
     ? chats.filter((chat) =>
         chat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        chat.messages.some((msg) => msg.content.toLowerCase().includes(searchQuery.toLowerCase()))
+        chat.messages.some((msg) => getTextContent(msg.content).toLowerCase().includes(searchQuery.toLowerCase()))
       )
     : chats
 

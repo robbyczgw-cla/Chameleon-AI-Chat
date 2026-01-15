@@ -61,8 +61,9 @@ export const nativeAuth = {
    * Setup deep link listener for OAuth callbacks
    */
   setupDeepLinkListener(): void {
-    document.addEventListener('chameleon:deep-link', async (e: CustomEvent) => {
-      const url = e.detail?.url
+    document.addEventListener('chameleon:deep-link', async (e: Event) => {
+      const event = e as CustomEvent
+      const url = event.detail?.url
       if (!url) return
 
       try {

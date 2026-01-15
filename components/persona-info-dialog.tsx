@@ -121,7 +121,7 @@ export function PersonaInfoDialog({ persona, open, onOpenChange }: PersonaInfoDi
                     </div>
                     <div className="col-span-2">
                       <div className="text-muted-foreground">Zuletzt gesehen</div>
-                      <div className="font-medium">{formatDate(relationshipStats.lastSeen)}</div>
+                      <div className="font-medium">{formatDate(relationshipStats.lastSeen ?? 0)}</div>
                     </div>
                   </div>
                 </>

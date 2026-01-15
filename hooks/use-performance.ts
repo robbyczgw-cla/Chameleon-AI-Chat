@@ -147,7 +147,7 @@ export function useIsMounted(): React.MutableRefObject<boolean> {
  * }
  */
 export function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T>()
+  const ref = useRef<T | undefined>(undefined)
 
   useEffect(() => {
     ref.current = value
@@ -263,7 +263,7 @@ export function useRenderCount(componentName: string): {
  */
 export function useDeepMemo<T>(factory: () => T, deps: unknown[]): T {
   const prevDeps = useRef<unknown[]>([])
-  const value = useRef<T>()
+  const value = useRef<T | undefined>(undefined)
 
   const depsChanged = deps.some((dep, i) => {
     return !deepEqual(dep, prevDeps.current[i])
@@ -358,7 +358,7 @@ export function useVirtualScroll<T>(
   visibleItems: Array<{ item: T; index: number; style: React.CSSProperties }>
   totalHeight: number
   scrollToIndex: (index: number) => void
-  containerRef: React.RefObject<HTMLDivElement>
+  containerRef: React.RefObject<HTMLDivElement | null>
 } {
   const containerRef = useRef<HTMLDivElement>(null)
   const [scrollTop, setScrollTop] = useState(0)

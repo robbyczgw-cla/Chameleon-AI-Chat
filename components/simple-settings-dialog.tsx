@@ -14,6 +14,7 @@ import { userProfileService, type UserProfile } from "@/lib/user-profile"
 import { voiceService, OPENAI_TTS_VOICES } from "@/lib/voice"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import type { MemorySettings } from "@/types"
 
 // Translations for Simple Settings
 const translations = {
@@ -130,6 +131,7 @@ const translations = {
     modelDeepseekDesc: "China's top open model. Exceptional reasoning and coding. Great value when available.",
     modelDeepseekStrengths: "Strong reasoning • Great at coding • Open source",
     speed: "Speed",
+    fast: "Fast",
     recommended: "Recommended",
     premium: "Premium",
     budget: "Budget",
@@ -248,6 +250,7 @@ const translations = {
     modelDeepseekDesc: "Chinas bestes Open-Source Modell. Hervorragendes Reasoning und Coding. Gutes Preis-Leistungs-Verhältnis.",
     modelDeepseekStrengths: "Starkes Reasoning • Coding-Profi • Open Source",
     speed: "Schnell",
+    fast: "Schnell",
     recommended: "Empfohlen",
     premium: "Premium",
     budget: "Budget",
@@ -366,6 +369,7 @@ const translations = {
     modelDeepseekDesc: "El mejor modelo abierto de China. Razonamiento y programación excepcionales. Gran valor cuando está disponible.",
     modelDeepseekStrengths: "Razonamiento fuerte • Excelente para código • Código abierto",
     speed: "Rápido",
+    fast: "Rápido",
     recommended: "Recomendado",
     premium: "Premium",
     budget: "Económico",
@@ -1074,11 +1078,11 @@ export function SimpleSettingsDialog({ open, onOpenChange }: SimpleSettingsDialo
                             maxMemoriesInContext: localSettings.memorySettings?.maxMemoriesInContext ?? 5,
                             importanceThreshold: localSettings.memorySettings?.importanceThreshold ?? 2,
                             syncToDatabase: localSettings.memorySettings?.syncToDatabase ?? false,
-                          }
+                          } as MemorySettings
                         : {
                             ...localSettings.memorySettings,
                             enabled: false,
-                          },
+                          } as MemorySettings,
                     })
                   }
                 />

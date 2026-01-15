@@ -216,7 +216,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
   }
 
   const handleVoice = async () => {
-    const openAiKey = settings.apiKeys.openai
+    const openAiKey = settings.apiKeys.openAI
     if (!openAiKey) {
       toast({
         title: getTranslation("apiKeyRequired", settings.language),
@@ -593,8 +593,9 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     )
 
     const autoCompressionEnabled = settings.experimental?.enableAutoContextCompression !== false
+    const openRouterApiKey = settings.apiKeys.openRouter
 
-    if (autoCompressionEnabled && contextWindowService.shouldCompress(contextUsage)) {
+    if (autoCompressionEnabled && openRouterApiKey && contextWindowService.shouldCompress(contextUsage)) {
       console.log("[Simple Chat] 📦 Context getting full, auto-compressing...")
 
       // Show compression toast
@@ -615,7 +616,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       const compressionResult = await contextWindowService.autoCompress(
         messagesForCompression,
         model,
-        settings.apiKeys.openRouter,
+        openRouterApiKey,
         6, // Keep last 6 messages intact
         compressionModel
       )
@@ -797,7 +798,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           if (searchProvider === "serper") {
             console.log("[Simple Chat] Using Serper (Google Search)")
             // Simple mode optimizations for Serper: more results, auto-detect news
-            const isNewsQuery = searchHeuristics.realtimeKeywords?.some(k =>
+            const isNewsQuery = searchHeuristics.detectedKeywords?.some((k: string) =>
               ['news', 'latest', 'today', 'breaking', 'current'].includes(k.toLowerCase())
             ) || /\b(news|nachrichten|aktuell|noticias|últimas|actualidad)\b/i.test(searchQuery)
             const autoType = isNewsQuery ? "news" : (settings.serperSettings?.type || "search")
@@ -825,7 +826,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
             console.log("[Simple Chat] Using Tavily")
             // Simple mode optimizations: more results, better depth, include AI answer
             // Also auto-detect news queries to use news topic
-            const isNewsQuery = searchHeuristics.realtimeKeywords?.some(k =>
+            const isNewsQuery = searchHeuristics.detectedKeywords?.some((k: string) =>
               ['news', 'latest', 'today', 'breaking', 'current'].includes(k.toLowerCase())
             ) || /\b(news|nachrichten|aktuell|noticias|últimas|actualidad)\b/i.test(searchQuery)
             const autoTopic = isNewsQuery ? "news" : (settings.tavilySettings?.topic || "general")
@@ -1113,19 +1114,21 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         // Enhanced streaming details for advanced mode
         onStreamingDetails: (details) => {
           // Accumulate reasoning content instead of replacing it
+          // Cast details.phase from string to the expected union type
+          const typedDetails = details as Partial<StreamingHistoryEntry>
           setCurrentStreamingDetails((prev): Partial<StreamingHistoryEntry> | null => {
             // If we have new reasoning content, accumulate it
             if (details.reasoningContent) {
               return {
                 ...prev,
-                ...details,
+                ...typedDetails,
                 reasoningContent: (prev?.reasoningContent || '') + details.reasoningContent
               }
             }
             // For other details (search query, action, etc.), merge with previous
             return {
               ...prev,
-              ...details
+              ...typedDetails
             }
           })
           // Only add to streaming history for significant events (NOT every reasoning chunk)

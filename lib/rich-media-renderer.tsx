@@ -3,6 +3,7 @@
  * Supports: YouTube, Twitter/X, CodeSandbox, StackBlitz, Spotify, and more
  */
 
+import type { ReactElement } from "react"
 import { Card } from "@/components/ui/card"
 
 export interface RichMediaProps {
@@ -13,7 +14,7 @@ export interface RichMediaProps {
 /**
  * Detect URL type and render appropriate embed
  */
-export function detectAndRenderMedia(url: string): JSX.Element | null {
+export function detectAndRenderMedia(url: string): ReactElement | null {
   // YouTube
   if (url.includes("youtube.com") || url.includes("youtu.be")) {
     return <YouTubeEmbed url={url} />

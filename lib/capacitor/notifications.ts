@@ -127,7 +127,9 @@ export const nativeNotifications = {
   async checkPermissions(): Promise<'granted' | 'denied' | 'prompt'> {
     if (!isNative) {
       if ('Notification' in window) {
-        return Notification.permission as 'granted' | 'denied' | 'prompt'
+        // Map 'default' to 'prompt' for web API compatibility
+        const perm = Notification.permission
+        return perm === 'default' ? 'prompt' : perm
       }
       return 'denied'
     }
@@ -136,7 +138,7 @@ export const nativeNotifications = {
 
     const { LocalNotifications } = await import('@capacitor/local-notifications')
     const { display } = await LocalNotifications.checkPermissions()
-    return display
+    return display as 'granted' | 'denied' | 'prompt'
   },
 
   /**
@@ -146,7 +148,8 @@ export const nativeNotifications = {
     if (!isNative) {
       if ('Notification' in window) {
         const result = await Notification.requestPermission()
-        return result
+        // Map 'default' to 'prompt' for web API compatibility
+        return result === 'default' ? 'prompt' : result
       }
       return 'denied'
     }
@@ -155,7 +158,7 @@ export const nativeNotifications = {
 
     const { LocalNotifications } = await import('@capacitor/local-notifications')
     const { display } = await LocalNotifications.requestPermissions()
-    return display
+    return display as 'granted' | 'denied' | 'prompt'
   },
 
   /**

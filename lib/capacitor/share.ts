@@ -79,15 +79,20 @@ export const nativeShare = {
         })
 
         return { shared: true, platform: 'web' }
-      } else {
-        // Fallback to clipboard
+      }
+
+      // Fallback to clipboard (use globalThis to avoid type narrowing from 'share' check)
+      const nav = globalThis.navigator
+      if (nav?.clipboard) {
         const content = [options.title, options.text, options.url]
           .filter(Boolean)
           .join('\n')
-        await navigator.clipboard.writeText(content)
+        await nav.clipboard.writeText(content)
 
         return { shared: true, platform: 'clipboard' }
       }
+
+      return { shared: false }
     } catch (error: any) {
       // User cancelled share
       if (error.name === 'AbortError') {

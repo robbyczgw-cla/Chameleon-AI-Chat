@@ -10,7 +10,7 @@ import { StreamingSettingsPanel } from "@/components/streaming-settings-panel"
 import { Separator } from "@/components/ui/separator"
 import { getUserSelectedModels } from "@/lib/model-preferences"
 import { useEffect, useState } from "react"
-import type { BackgroundAIModelsSettings } from "@/types"
+import type { BackgroundAIModelsSettings, MemorySettings } from "@/types"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useTranslation } from "@/lib/i18n"
 
@@ -30,6 +30,7 @@ export const DEFAULT_BACKGROUND_MODELS: Required<BackgroundAIModelsSettings> = {
   imageGenNormal: "google/gemini-2.5-flash-image",
   imageGenHigh: "google/gemini-3-pro-image-preview",
   embeddings: "openai/text-embedding-3-small",
+  agentModeModel: "", // Empty string = use current chat model
 }
 
 // Helper to get the model with fallback to default
@@ -45,7 +46,7 @@ export function ExperimentalSettings() {
   const currentLanguage = settings.language || "en"
   const { translations: tr } = useTranslation(currentLanguage)
   const experimental = settings.experimental || {}
-  const memorySettings = settings.memorySettings || {}
+  const memorySettings: Partial<MemorySettings> = settings.memorySettings || {}
   const backgroundModels = experimental.backgroundAIModels || {}
   const isAdvancedMode = !settings.simpleMode
   const [availableModels, setAvailableModels] = useState<string[]>([])
@@ -73,12 +74,12 @@ export function ExperimentalSettings() {
     })
   }
 
-  const handleMemorySettingChange = (updates: Partial<typeof memorySettings>) => {
+  const handleMemorySettingChange = (updates: Partial<MemorySettings>) => {
     updateSettings({
       memorySettings: {
         ...memorySettings,
         ...updates,
-      },
+      } as MemorySettings,
     })
   }
 

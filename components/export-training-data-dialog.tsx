@@ -9,6 +9,7 @@ import { useApp } from "@/contexts/app-context"
 import { Download, FileCode } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast"
 import type { Chat, Message } from "@/types"
+import { getTextContent } from "@/lib/utils"
 
 interface ExportTrainingDataDialogProps {
   open: boolean
@@ -62,7 +63,7 @@ export function ExportTrainingDataDialog({ open, onOpenChange }: ExportTrainingD
       if (includeSystemPrompt && chat.messages[0]?.role === "system") {
         messages.push({
           role: "system",
-          content: chat.messages[0].content,
+          content: getTextContent(chat.messages[0].content),
         })
       }
 
@@ -71,7 +72,7 @@ export function ExportTrainingDataDialog({ open, onOpenChange }: ExportTrainingD
         if (message.role === "user" || message.role === "assistant") {
           messages.push({
             role: message.role,
-            content: message.content,
+            content: getTextContent(message.content),
           })
         }
       }

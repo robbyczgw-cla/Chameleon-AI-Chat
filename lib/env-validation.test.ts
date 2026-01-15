@@ -121,19 +121,24 @@ describe('Environment Validation', () => {
   })
 
   describe('Environment checks', () => {
+    // Helper to mutate NODE_ENV in tests (TypeScript marks it as readonly)
+    const setNodeEnv = (value: string) => {
+      (process.env as Record<string, string>).NODE_ENV = value
+    }
+
     it('isProduction should check NODE_ENV', () => {
-      process.env.NODE_ENV = 'production'
+      setNodeEnv('production')
       expect(isProduction()).toBe(true)
 
-      process.env.NODE_ENV = 'development'
+      setNodeEnv('development')
       expect(isProduction()).toBe(false)
     })
 
     it('isDevelopment should check NODE_ENV', () => {
-      process.env.NODE_ENV = 'development'
+      setNodeEnv('development')
       expect(isDevelopment()).toBe(true)
 
-      process.env.NODE_ENV = 'production'
+      setNodeEnv('production')
       expect(isDevelopment()).toBe(false)
     })
 
@@ -161,14 +166,14 @@ describe('Environment Validation', () => {
       expect(getEnvironment()).toBe('preview')
 
       delete process.env.VERCEL_ENV
-      process.env.NODE_ENV = 'development'
+      setNodeEnv('development')
       expect(getEnvironment()).toBe('development')
 
       // Restore
       if (originalVercelEnv) {
         process.env.VERCEL_ENV = originalVercelEnv
       }
-      process.env.NODE_ENV = originalNodeEnv
+      if (originalNodeEnv) setNodeEnv(originalNodeEnv)
     })
   })
 

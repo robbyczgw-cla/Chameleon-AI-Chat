@@ -9,7 +9,7 @@ import type { Message } from "@/types"
 import { POPULAR_OPENROUTER_MODELS } from "@/lib/openrouter"
 import { getUserSelectedModels } from "@/lib/model-preferences"
 import ReactMarkdown from "react-markdown"
-import { cn } from "@/lib/utils"
+import { cn, getTextContent } from "@/lib/utils"
 import { ComparisonHistoryDialog } from "./comparison-history-dialog"
 import type { ComparisonSession } from "@/types"
 import { searchWeb, formatSearchResults } from "@/lib/tavily"
@@ -539,7 +539,7 @@ export function ModelComparison() {
               )}
             </div>
             <div
-              ref={(el) => (scrollRefs.current[mobileActivePanel] = el)}
+              ref={(el) => { scrollRefs.current[mobileActivePanel] = el }}
               className="flex-1 overflow-y-auto p-3"
               style={{ minHeight: 0 }}
             >
@@ -588,11 +588,11 @@ export function ModelComparison() {
                             },
                           }}
                         >
-                          {msg.content}
+                          {getTextContent(msg.content)}
                         </ReactMarkdown>
                       </div>
                     ) : (
-                      <p className="text-xs leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                      <p className="text-xs leading-relaxed whitespace-pre-wrap">{getTextContent(msg.content)}</p>
                     )}
                   </div>
                 </div>
@@ -641,7 +641,7 @@ export function ModelComparison() {
               )}
             </div>
             <div
-              ref={(el) => (scrollRefs.current[index] = el)}
+              ref={(el) => { scrollRefs.current[index] = el }}
               className="flex-1 overflow-y-auto p-4"
               style={{ minHeight: 0 }}
             >
@@ -690,11 +690,11 @@ export function ModelComparison() {
                             },
                           }}
                         >
-                          {msg.content}
+                          {getTextContent(msg.content)}
                         </ReactMarkdown>
                       </div>
                     ) : (
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{getTextContent(msg.content)}</p>
                     )}
                   </div>
                 </div>

@@ -3,6 +3,11 @@
  * Works for both Chrome (Service Worker) and Firefox (Background Page)
  */
 
+import type { Browser } from "webextension-polyfill"
+
+// Declare browser global for Firefox
+declare const browser: Browser | undefined
+
 import { getSettings, setSettings, type ExtensionSettings } from "../shared/storage"
 import { chat } from "../shared/api"
 import { getPersonaById, getDefaultPersona } from "../shared/personas"
@@ -180,7 +185,7 @@ function getPromptForAction(menuItemId: string, selectedText: string): string {
 /**
  * Handle context menu clicks
  */
-contextMenus.onClicked.addListener(async (info, tab) => {
+contextMenus.onClicked.addListener(async (info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) => {
   const menuItemId = info.menuItemId as string
   console.log("[Chameleon] Context menu clicked:", menuItemId)
 
@@ -281,8 +286,8 @@ contextMenus.onClicked.addListener(async (info, tab) => {
 /**
  * Send message to content script
  */
-function sendMessageToContent(tabId: number, message: any) {
-  tabs.sendMessage(tabId, message).catch((error) => {
+function sendMessageToContent(tabId: number, message: unknown) {
+  tabs.sendMessage(tabId, message).catch((error: unknown) => {
     console.error("[Chameleon] Error sending message to content script:", error)
   })
 }
@@ -290,7 +295,7 @@ function sendMessageToContent(tabId: number, message: any) {
 /**
  * Handle messages from popup/content/options
  */
-runtime.onMessage.addListener((message, sender, sendResponse) => {
+runtime.onMessage.addListener((message: { type: string; [key: string]: unknown }, sender: chrome.runtime.MessageSender, sendResponse: (response?: unknown) => void) => {
   console.log("[Chameleon] Message received:", message.type)
 
   switch (message.type) {

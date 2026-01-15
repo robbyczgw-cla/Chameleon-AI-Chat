@@ -144,7 +144,7 @@ export function findSimilar<T extends { embedding?: number[] }>(
     .slice(0, maxResults)
 }
 
-export { DEFAULT_EMBEDDING_MODEL, EMBEDDING_DIMENSIONS }
+export { EMBEDDING_DIMENSIONS }
 
 // Backwards compatibility alias
 export const EMBEDDING_MODEL = DEFAULT_EMBEDDING_MODEL

@@ -820,7 +820,13 @@ const translations: Record<Language, Translations> = {
       via: "via",
     },
   },
+  // TODO: Add proper Spanish translations
+  // For now, fallback to English to satisfy type system
+  es: {} as Translations, // Will be populated below
 }
+
+// Use English as fallback for Spanish until proper translations are added
+translations.es = translations.en
 
 /**
  * Get translation for a key in the current language

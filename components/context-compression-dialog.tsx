@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useApp } from "@/contexts/app-context"
 import { contextWindowService, type CompressionResult } from "@/lib/context-window-service"
 import { streamChatMessage } from "@/lib/openrouter"
-import { cn } from "@/lib/utils"
+import { cn, getTextContent } from "@/lib/utils"
 import { ArrowsIn, Check, CircleNotch, FileText, Sparkle, Warning } from "@phosphor-icons/react";
 import { getBackgroundModel, DEFAULT_BACKGROUND_MODELS } from "@/components/experimental-settings"
 
@@ -40,7 +40,7 @@ export function ContextCompressionDialog({ open, onOpenChange }: ContextCompress
 
   const messagesForCalc = messages.map(m => ({
     role: m.role as "user" | "assistant" | "system",
-    content: m.content
+    content: getTextContent(m.content)
   }))
   const currentUsage = contextWindowService.getContextUsage(messagesForCalc, settings.selectedModel)
 
@@ -89,7 +89,7 @@ export function ContextCompressionDialog({ open, onOpenChange }: ContextCompress
         {
           temperature: 0.3, // Low temperature for consistency
           maxTokens: 2000,
-          apiKey: settings.openRouterApiKey
+          apiKey: settings.apiKeys?.openRouter
         }
       )
 
@@ -227,7 +227,7 @@ export function ContextCompressionDialog({ open, onOpenChange }: ContextCompress
                     )}>
                       {m.role}
                     </span>
-                    <span className="truncate text-muted-foreground">{m.content.slice(0, 100)}...</span>
+                    <span className="truncate text-muted-foreground">{getTextContent(m.content).slice(0, 100)}...</span>
                   </div>
                 ))
               )}

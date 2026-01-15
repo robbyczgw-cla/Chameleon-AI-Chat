@@ -1,4 +1,5 @@
 import type { CapacitorConfig } from '@capacitor/cli'
+import { KeyboardResize } from '@capacitor/keyboard'
 
 const config: CapacitorConfig = {
   appId: 'com.chameleon.ai.chat',
@@ -70,11 +71,9 @@ const config: CapacitorConfig = {
 
     // Keyboard Configuration
     Keyboard: {
-      // Use 'native' to work WITH Android's adjustPan
-      resize: 'native',
+      // Use Native to work WITH Android's adjustPan
+      resize: KeyboardResize.Native,
       resizeOnFullScreen: true,
-      // Don't add extra scroll - let CSS handle layout
-      scrollPadding: false,
     },
 
     // Push Notifications

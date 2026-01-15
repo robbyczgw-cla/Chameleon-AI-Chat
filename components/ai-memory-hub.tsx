@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 import { Archive, ArrowCounterClockwise, Brain, Clock, Cloud, Download, Info, Lightbulb, Shield, Sparkle, Target, Timer, Trash, TrendUp, Upload, User, Warning } from "@phosphor-icons/react";
 import { memoryService } from "@/lib/memory-service"
-import type { Memory, DeletedMemory } from "@/types"
+import type { Memory, DeletedMemory, MemorySettings } from "@/types"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
@@ -57,15 +57,12 @@ export function AIMemoryHub() {
     })
     setIsEnabled(enabled)
 
-    const newMemorySettings = {
-      ...settings.memorySettings,
-      enabled,
-    }
-    console.log("[AIMemoryHub] Calling updateSettings with:", newMemorySettings)
-
     // CRITICAL: Preserve existing memorySettings, only update enabled flag
     updateSettings({
-      memorySettings: newMemorySettings,
+      memorySettings: {
+        ...settings.memorySettings,
+        enabled,
+      } as MemorySettings,
     })
   }
 
@@ -77,7 +74,7 @@ export function AIMemoryHub() {
       memorySettings: {
         ...settings.memorySettings,
         syncToDatabase: enabled,
-      },
+      } as MemorySettings,
     })
 
     if (enabled) {
@@ -103,7 +100,7 @@ export function AIMemoryHub() {
       memorySettings: {
         ...settings.memorySettings,
         autoExtract: enabled,
-      },
+      } as MemorySettings,
     })
 
     if (enabled) {
@@ -129,7 +126,7 @@ export function AIMemoryHub() {
       memorySettings: {
         ...settings.memorySettings,
         expirationEnabled: enabled,
-      },
+      } as MemorySettings,
     })
 
     if (enabled) {

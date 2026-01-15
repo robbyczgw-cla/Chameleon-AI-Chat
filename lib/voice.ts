@@ -12,7 +12,7 @@ export type OpenAIVoiceId = typeof OPENAI_TTS_VOICES[number]['id']
 
 export class VoiceService {
   private recognition: any
-  private synthesis: SpeechSynthesis
+  private synthesis!: SpeechSynthesis
   private isListening = false
   private mediaRecorder: MediaRecorder | null = null
   private audioChunks: Blob[] = []

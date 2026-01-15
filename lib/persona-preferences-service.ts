@@ -336,7 +336,7 @@ class PersonaPreferencesService {
     const formalWords = userMessages.join(" ").match(/\b(please|thank you|appreciate|kindly|regards)\b/gi)
     const casualWords = userMessages.join(" ").match(/\b(hey|yeah|nah|cool|awesome|lol)\b/gi)
 
-    if (formalWords && formalWords.length > casualWords?.length || 0) {
+    if (formalWords && formalWords.length > (casualWords?.length ?? 0)) {
       this.learnPreference(personaId, "communication_style", "formality", "formal", "Uses formal language")
     } else if (casualWords && casualWords.length > 2) {
       this.learnPreference(personaId, "communication_style", "formality", "casual", "Uses casual language")

@@ -11,7 +11,7 @@ import { formatCost, formatTokens } from "@/lib/token-tracker"
 import { streamChatMessage } from "@/lib/openrouter"
 import { ArrowsClockwise, Brain, ChartBar, Chat, CircleNotch, Clock, CloudSun, Cpu, CurrencyDollar, Database, Download, FileArrowDown, FileArrowUp, FileText, Gauge, Globe, HardDrives, Image, Lightning, Link, MagnifyingGlass, Medal, Pulse, Robot, Sparkle, Target, Timer, Trash, TrendUp, Wrench, YoutubeLogo } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast"
-import { cn } from "@/lib/utils"
+import { cn, getTextContent } from "@/lib/utils"
 
 interface AIInsights {
   summary: string
@@ -196,7 +196,7 @@ export function StatsDashboard() {
         chat.messages
           .filter((m) => m.role === "user")
           .slice(-3)
-          .forEach((m) => recentPrompts.push(m.content))
+          .forEach((m) => recentPrompts.push(getTextContent(m.content)))
       })
 
       const analysisPrompt = `Analyze the following user prompts and create a brief analysis (max 150 words):
@@ -215,13 +215,13 @@ Provide analysis in this JSON format:
       await streamChatMessage(
         [{ role: "user", content: analysisPrompt }],
         settings.selectedModel,
+        (chunk: string) => {
+          result += chunk
+        },
         {
           temperature: 0.7,
           maxTokens: 500,
           apiKey: settings.apiKeys.openRouter,
-          onChunk: (chunk) => {
-            result += chunk
-          }
         }
       )
 

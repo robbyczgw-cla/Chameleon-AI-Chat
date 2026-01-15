@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sheet"
 import { Brain, ChartBar, Check, Columns, DotsThree, Download, FileCode, FileText, FolderOpen, Gear, Globe, Link, MagicWand, Moon, ShareNetwork, Sparkle, Sun, UsersThree, User } from "@phosphor-icons/react";
 import { useApp } from "@/contexts/app-context"
-import { cn } from "@/lib/utils"
+import { cn, getTextContent } from "@/lib/utils"
 import { usePromptInspectorStore } from "@/lib/prompt-inspector-store"
 import { haptics } from "@/lib/haptics"
 import { useToast } from "@/hooks/use-toast"
@@ -22,6 +22,7 @@ interface MobileMoreMenuProps {
   onProfileClick: () => void
   onMemoryClick: () => void
   onComparisonClick: () => void
+  onSearchClick?: () => void
   onDocCollectionsClick: () => void
   onDebateClick: () => void
   onInspectorClick: () => void
@@ -143,7 +144,7 @@ export function MobileMoreMenu({
       const roleClass = msg.role === "user" ? "user" : "assistant"
       const roleIcon = msg.role === "user" ? "👤" : "🤖"
       const roleName = msg.role === "user" ? "User" : "Assistant"
-      html += `<div class="message"><div class="message-header ${roleClass}"><span>${roleIcon}</span><span>${roleName}</span></div><div class="message-content">${msg.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div></div>`
+      html += `<div class="message"><div class="message-header ${roleClass}"><span>${roleIcon}</span><span>${roleName}</span></div><div class="message-content">${getTextContent(msg.content).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div></div>`
     })
     html += `</body></html>`
     const blob = new Blob([html], { type: "text/html" })

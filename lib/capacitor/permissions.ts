@@ -22,6 +22,12 @@ export interface PermissionState {
 // Permission state cache
 let _permissionState: Partial<PermissionState> = {}
 
+// Map Capacitor permission states to our PermissionStatus
+const mapPermissionState = (state: string): PermissionStatus => {
+  if (state === 'prompt-with-rationale') return 'prompt'
+  return state as PermissionStatus
+}
+
 /**
  * Native Permissions Service
  */
@@ -60,8 +66,9 @@ export const nativePermissions = {
 
     const { Camera } = await import('@capacitor/camera')
     const { camera } = await Camera.checkPermissions()
-    _permissionState.camera = camera
-    return camera
+    const status = mapPermissionState(camera)
+    _permissionState.camera = status
+    return status
   },
 
   /**
@@ -88,8 +95,9 @@ export const nativePermissions = {
 
     const { Camera } = await import('@capacitor/camera')
     const { camera } = await Camera.requestPermissions()
-    _permissionState.camera = camera
-    return camera
+    const status = mapPermissionState(camera)
+    _permissionState.camera = status
+    return status
   },
 
   // ==================== MICROPHONE ====================
@@ -157,8 +165,9 @@ export const nativePermissions = {
 
     const { LocalNotifications } = await import('@capacitor/local-notifications')
     const { display } = await LocalNotifications.checkPermissions()
-    _permissionState.notifications = display
-    return display
+    const status = mapPermissionState(display)
+    _permissionState.notifications = status
+    return status
   },
 
   /**
@@ -168,7 +177,8 @@ export const nativePermissions = {
     if (!isNative) {
       if ('Notification' in window) {
         const result = await Notification.requestPermission()
-        return result as PermissionStatus
+        // Map 'default' to 'prompt'
+        return result === 'default' ? 'prompt' : result
       }
       return 'denied'
     }
@@ -183,8 +193,9 @@ export const nativePermissions = {
 
     const { LocalNotifications } = await import('@capacitor/local-notifications')
     const { display } = await LocalNotifications.requestPermissions()
-    _permissionState.notifications = display
-    return display
+    const status = mapPermissionState(display)
+    _permissionState.notifications = status
+    return status
   },
 
   // ==================== PHOTOS/GALLERY ====================
@@ -199,8 +210,9 @@ export const nativePermissions = {
 
     const { Camera } = await import('@capacitor/camera')
     const { photos } = await Camera.checkPermissions()
-    _permissionState.photos = photos
-    return photos
+    const status = mapPermissionState(photos)
+    _permissionState.photos = status
+    return status
   },
 
   /**
@@ -219,8 +231,9 @@ export const nativePermissions = {
 
     const { Camera } = await import('@capacitor/camera')
     const { photos } = await Camera.requestPermissions({ permissions: ['photos'] })
-    _permissionState.photos = photos
-    return photos
+    const status = mapPermissionState(photos)
+    _permissionState.photos = status
+    return status
   },
 
   // ==================== BIOMETRIC ====================
