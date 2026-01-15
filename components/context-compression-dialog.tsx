@@ -89,7 +89,7 @@ export function ContextCompressionDialog({ open, onOpenChange }: ContextCompress
         {
           temperature: 0.3, // Low temperature for consistency
           maxTokens: 2000,
-          apiKey: settings.openRouterApiKey
+          apiKey: settings.apiKeys?.openRouter
         }
       )
 

@@ -797,7 +797,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
           if (searchProvider === "serper") {
             console.log("[Simple Chat] Using Serper (Google Search)")
             // Simple mode optimizations for Serper: more results, auto-detect news
-            const isNewsQuery = searchHeuristics.realtimeKeywords?.some(k =>
+            const isNewsQuery = searchHeuristics.detectedKeywords?.some((k: string) =>
               ['news', 'latest', 'today', 'breaking', 'current'].includes(k.toLowerCase())
             ) || /\b(news|nachrichten|aktuell|noticias|últimas|actualidad)\b/i.test(searchQuery)
             const autoType = isNewsQuery ? "news" : (settings.serperSettings?.type || "search")
@@ -825,7 +825,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
             console.log("[Simple Chat] Using Tavily")
             // Simple mode optimizations: more results, better depth, include AI answer
             // Also auto-detect news queries to use news topic
-            const isNewsQuery = searchHeuristics.realtimeKeywords?.some(k =>
+            const isNewsQuery = searchHeuristics.detectedKeywords?.some((k: string) =>
               ['news', 'latest', 'today', 'breaking', 'current'].includes(k.toLowerCase())
             ) || /\b(news|nachrichten|aktuell|noticias|últimas|actualidad)\b/i.test(searchQuery)
             const autoTopic = isNewsQuery ? "news" : (settings.tavilySettings?.topic || "general")

@@ -219,7 +219,7 @@ Provide analysis in this JSON format:
           temperature: 0.7,
           maxTokens: 500,
           apiKey: settings.apiKeys.openRouter,
-          onChunk: (chunk) => {
+          onChunk: (chunk: string) => {
             result += chunk
           }
         }

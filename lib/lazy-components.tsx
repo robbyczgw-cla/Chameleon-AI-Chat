@@ -61,41 +61,11 @@ export const LazyContextWindowMeter = dynamic(
   }
 )
 
-// Model Selector Panel - Advanced model selection
-export const LazyModelSelectorPanel = dynamic(
-  () => import("@/components/model-selector-panel").then(mod => ({ default: mod.ModelSelectorPanel })),
-  {
-    loading: () => <LoadingSpinner />,
-    ssr: false,
-  }
-)
-
-// Advanced Settings Dialog - Temperature, top_p, etc.
-export const LazyAdvancedSettingsContent = dynamic(
-  () => import("@/components/advanced-settings-content").then(mod => mod),
-  {
-    loading: () => <LoadingPanel />,
-    ssr: false,
-  }
-)
-
-// Streaming Details Panel - Verbose streaming phases
-export const LazyStreamingDetailsPanel = dynamic(
-  () => import("@/components/streaming-details-panel").then(mod => ({ default: mod.StreamingDetailsPanel })),
-  {
-    loading: () => <LoadingSpinner />,
-    ssr: false,
-  }
-)
-
-// Search Provider Settings
-export const LazySearchProviderSettings = dynamic(
-  () => import("@/components/search-provider-settings").then(mod => mod),
-  {
-    loading: () => <LoadingSpinner />,
-    ssr: false,
-  }
-)
+// NOTE: Removed dead lazy imports for non-existent components:
+// - LazyModelSelectorPanel (model-selector-panel.tsx never created)
+// - LazyAdvancedSettingsContent (advanced-settings-content.tsx never created)
+// - LazyStreamingDetailsPanel (streaming-details-panel.tsx never created)
+// - LazySearchProviderSettings (search-provider-settings.tsx never created)
 
 /**
  * SHARED COMPONENTS (loaded for both modes but lazy for performance)

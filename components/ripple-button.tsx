@@ -23,7 +23,7 @@ export const RippleButton = forwardRef<HTMLButtonElement, RippleButtonProps>(
 
       // Remove existing ripples
       const existingRipples = button.querySelectorAll('.ripple')
-      existingRipples.forEach(ripple => ripple.remove())
+      existingRipples.forEach((ripple: Element) => ripple.remove())
 
       // Get click/touch position
       const rect = button.getBoundingClientRect()
@@ -110,7 +110,7 @@ export function withRipple<P extends object>(
       if (!container) return
 
       const existingRipples = container.querySelectorAll('.ripple')
-      existingRipples.forEach(ripple => ripple.remove())
+      existingRipples.forEach((ripple: Element) => ripple.remove())
 
       const rect = container.getBoundingClientRect()
       let x: number, y: number

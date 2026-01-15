@@ -586,7 +586,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       // Load messages in parallel for better performance
       const chatsWithMessages = await Promise.all(
-        chatsData.map(async (chat) => {
+        chatsData.map(async (chat: Omit<Chat, "messages">) => {
           const messages = await supabaseSync.syncMessages(chat.id).catch((err) => {
             console.error(`[v0] Error syncing messages for chat ${chat.id}:`, err)
             return []
