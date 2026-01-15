@@ -411,6 +411,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         memoryService.setModels({
           extractionModel: backgroundModels.memoryExtraction,
           classifierModel: backgroundModels.queryClassification,
+          consolidationModel: backgroundModels.memoryConsolidation,
+          embeddingModel: backgroundModels.embeddings,
         })
       }
 

@@ -235,6 +235,26 @@ export function ExperimentalSettings() {
                   </Select>
                 </div>
 
+                {/* Memory Consolidation */}
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium">Memory Consolidation</Label>
+                  <p className="text-[10px] text-muted-foreground mb-1">Merges duplicate/similar memories using LLM analysis</p>
+                  <Select
+                    value={backgroundModels.memoryConsolidation || "__default__"}
+                    onValueChange={(v) => handleBackgroundModelChange("memoryConsolidation", v)}
+                  >
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[200px] z-[9999]">
+                      <SelectItem value="__default__">Default ({DEFAULT_BACKGROUND_MODELS.memoryConsolidation})</SelectItem>
+                      {availableModels.map((model) => (
+                        <SelectItem key={model} value={model} className="text-xs">{model}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Prompt Helper */}
                 <div className="space-y-1">
                   <Label className="text-xs font-medium">Prompt Helper / Improvement</Label>
