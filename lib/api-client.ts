@@ -19,7 +19,7 @@ import { getOpenRouterHeaders } from '@/lib/utils'
 const log = loggers.api
 
 // Request configuration
-export interface RequestConfig extends Omit<RequestInit, 'body'> {
+export interface RequestConfig extends Omit<RequestInit, 'body' | 'cache'> {
   /** Request body (will be JSON stringified if object) */
   body?: unknown
   /** Query parameters */
@@ -68,7 +68,7 @@ export class APIClientError extends Error {
 }
 
 // Request interceptor type
-type RequestInterceptor = (config: RequestConfig & { url: string }) => RequestConfig & { url: string } | Promise<RequestConfig & { url: string }>
+type RequestInterceptor = (config: RequestConfig & { url: string; method: string }) => RequestConfig & { url: string; method: string } | Promise<RequestConfig & { url: string; method: string }>
 
 // Response interceptor type
 type ResponseInterceptor = <T>(response: APIResponse<T>) => APIResponse<T> | Promise<APIResponse<T>>

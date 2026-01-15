@@ -576,8 +576,9 @@ export function ChatInput() {
     )
 
     const autoCompressionEnabled = settings.experimental?.enableAutoContextCompression !== false
+    const openRouterApiKey = settings.apiKeys.openRouter
 
-    if (autoCompressionEnabled && contextWindowService.shouldCompress(contextUsage)) {
+    if (autoCompressionEnabled && openRouterApiKey && contextWindowService.shouldCompress(contextUsage)) {
       console.log("[Advanced Chat] 📦 Context getting full, auto-compressing...")
 
       // Show compression toast
@@ -600,7 +601,7 @@ export function ChatInput() {
       const compressionResult = await contextWindowService.autoCompress(
         messagesForCompression,
         model,
-        settings.apiKeys.openRouter,
+        openRouterApiKey,
         6, // Keep last 6 messages intact
         compressionModel
       )
@@ -1003,11 +1004,11 @@ export function ChatInput() {
         })),
         modelParams: {
           model,
-          temperature: modelParams.temperature,
-          maxTokens: modelParams.maxTokens,
-          topP: modelParams.topP,
-          frequencyPenalty: modelParams.frequencyPenalty,
-          presencePenalty: modelParams.presencePenalty,
+          temperature: modelParams.temperature ?? 0.7,
+          maxTokens: modelParams.maxTokens ?? 4096,
+          topP: modelParams.topP ?? 0.9,
+          frequencyPenalty: modelParams.frequencyPenalty ?? 0,
+          presencePenalty: modelParams.presencePenalty ?? 0,
           // Reasoning parameters (default: medium = ON)
           reasoning: !!(settings.reasoningDepth || "medium"),
           reasoningDepth: settings.reasoningDepth || "medium",
@@ -1230,19 +1231,21 @@ export function ChatInput() {
         // Enhanced streaming details for advanced mode
         onStreamingDetails: (details) => {
           // Accumulate reasoning content instead of replacing it
+          // Cast details.phase from string to the expected union type
+          const typedDetails = details as Partial<StreamingHistoryEntry>
           setCurrentStreamingDetails((prev): Partial<StreamingHistoryEntry> | null => {
             // If we have new reasoning content, accumulate it
             if (details.reasoningContent) {
               return {
                 ...prev,
-                ...details,
+                ...typedDetails,
                 reasoningContent: (prev?.reasoningContent || '') + details.reasoningContent
               }
             }
             // For other details (search query, action, searchResults, etc.), merge with previous
             return {
               ...prev,
-              ...details
+              ...typedDetails
             }
           })
           // Only add to streaming history for significant events (NOT every reasoning chunk)

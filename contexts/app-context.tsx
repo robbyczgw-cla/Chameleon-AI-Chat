@@ -891,8 +891,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         if (user) {
           // Logged-in user: Save settings WITHOUT API keys to localStorage
-          const settingsWithoutKeys = { ...settings }
-          delete settingsWithoutKeys.apiKeys
+          const { apiKeys: _excluded, ...settingsWithoutKeys } = settings
           localStorage.setItem("settings", JSON.stringify(settingsWithoutKeys))
           console.log("[v0] ✅ Settings saved to localStorage (API keys excluded - stored in Supabase)")
         } else {
@@ -1101,12 +1100,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Generate AI title asynchronously for first user message (skip for private chats)
     const chatForTitle = chats.find((c) => c.id === chatId)
     const isFirstUserMessage = chatForTitle && chatForTitle.messages.length === 0 && message.role === "user"
-    const shouldGenerateTitle = isFirstUserMessage && !chatForTitle?.isPrivate && settings.apiKeys.openRouter && textContent.length >= 10
+    const openRouterKey = settings.apiKeys.openRouter
+    const shouldGenerateTitle = isFirstUserMessage && !chatForTitle?.isPrivate && openRouterKey && textContent.length >= 10
 
     if (shouldGenerateTitle) {
       // Generate title in background (don't block UI)
       const titleModel = getBackgroundModel('titleGeneration', settings.experimental?.backgroundAIModels)
-      generateChatTitle(textContent, settings.apiKeys.openRouter, { model: titleModel })
+      generateChatTitle(textContent, openRouterKey, { model: titleModel })
         .then(({ title: aiTitle, success }) => {
           if (success) {
             // Update chat with AI-generated title and timestamp for animation

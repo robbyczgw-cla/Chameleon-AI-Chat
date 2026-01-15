@@ -593,8 +593,9 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
     )
 
     const autoCompressionEnabled = settings.experimental?.enableAutoContextCompression !== false
+    const openRouterApiKey = settings.apiKeys.openRouter
 
-    if (autoCompressionEnabled && contextWindowService.shouldCompress(contextUsage)) {
+    if (autoCompressionEnabled && openRouterApiKey && contextWindowService.shouldCompress(contextUsage)) {
       console.log("[Simple Chat] 📦 Context getting full, auto-compressing...")
 
       // Show compression toast
@@ -615,7 +616,7 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       const compressionResult = await contextWindowService.autoCompress(
         messagesForCompression,
         model,
-        settings.apiKeys.openRouter,
+        openRouterApiKey,
         6, // Keep last 6 messages intact
         compressionModel
       )
@@ -1113,19 +1114,21 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         // Enhanced streaming details for advanced mode
         onStreamingDetails: (details) => {
           // Accumulate reasoning content instead of replacing it
+          // Cast details.phase from string to the expected union type
+          const typedDetails = details as Partial<StreamingHistoryEntry>
           setCurrentStreamingDetails((prev): Partial<StreamingHistoryEntry> | null => {
             // If we have new reasoning content, accumulate it
             if (details.reasoningContent) {
               return {
                 ...prev,
-                ...details,
+                ...typedDetails,
                 reasoningContent: (prev?.reasoningContent || '') + details.reasoningContent
               }
             }
             // For other details (search query, action, etc.), merge with previous
             return {
               ...prev,
-              ...details
+              ...typedDetails
             }
           })
           // Only add to streaming history for significant events (NOT every reasoning chunk)

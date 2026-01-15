@@ -22,6 +22,12 @@ export interface PermissionState {
 // Permission state cache
 let _permissionState: Partial<PermissionState> = {}
 
+// Map Capacitor permission states to our PermissionStatus
+const mapPermissionState = (state: string): PermissionStatus => {
+  if (state === 'prompt-with-rationale') return 'prompt'
+  return state as PermissionStatus
+}
+
 /**
  * Native Permissions Service
  */
@@ -60,8 +66,9 @@ export const nativePermissions = {
 
     const { Camera } = await import('@capacitor/camera')
     const { camera } = await Camera.checkPermissions()
-    _permissionState.camera = camera
-    return camera
+    const status = mapPermissionState(camera)
+    _permissionState.camera = status
+    return status
   },
 
   /**
@@ -88,8 +95,9 @@ export const nativePermissions = {
 
     const { Camera } = await import('@capacitor/camera')
     const { camera } = await Camera.requestPermissions()
-    _permissionState.camera = camera
-    return camera
+    const status = mapPermissionState(camera)
+    _permissionState.camera = status
+    return status
   },
 
   // ==================== MICROPHONE ====================

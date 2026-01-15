@@ -148,6 +148,7 @@ export interface ChatFolder {
   id: string
   name: string
   createdAt: number
+  updatedAt: number
 }
 
 export interface Folder {
