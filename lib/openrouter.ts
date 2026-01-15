@@ -1,3 +1,5 @@
+import type { MessageContent } from "@/types"
+
 export interface OpenRouterModel {
   id: string
   name: string
@@ -12,8 +14,6 @@ export interface OpenRouterModel {
   }
   category?: string
 }
-
-import type { MessageContent } from "@/types"
 
 export interface ChatMessage {
   role: "user" | "assistant" | "system"
