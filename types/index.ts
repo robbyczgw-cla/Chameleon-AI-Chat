@@ -329,6 +329,7 @@ export interface StatsDisplaySettings {
   showPerformance?: boolean // ⚡ Response time, TTFT, tokens/sec
   showGeneration?: boolean // 🎛️ Model, provider, stop reason
   showSearch?: boolean // 🔍 Web search stats
+  showSearchResults?: boolean // 🔍 Show search results preview in stats
   showEfficiency?: boolean // 📈 Cost per token, chars/token
   // Default expand state
   defaultExpandReasoning?: boolean // Auto-expand reasoning section
@@ -397,10 +398,38 @@ export interface ExperimentalSettings {
     showTaskPlan: boolean      // Show AI's planned subtasks in UI
     autoVerify: boolean        // Enable self-verification step (future)
   }
+  // Context Compression
+  enableAutoContextCompression?: boolean // Automatically summarize older messages when chat gets long
+  // Persona Settings (Advanced Mode only - simple mode uses good defaults)
+  personaSettings?: {
+    showRecommendations: boolean      // Show "Suggested for you" section in picker (default: true)
+    showRelationshipStats: boolean    // Show relationship emoji/depth in picker (default: true)
+    showRecentlyUsed: boolean         // Show "Recently used" section in picker (default: true)
+    fastRelationshipBuilding: boolean // Enable quality bonuses for faster relationship growth (default: true)
+    relationshipBuildingSpeed: "slow" | "normal" | "fast" // How quickly relationships develop (default: "normal")
+  }
 }
 
+export type ThemeName =
+  | "light"
+  | "dark"
+  | "girly-violet"
+  | "ocean-breeze"
+  | "chameleon"
+  | "paper-mint"
+  | "claude"
+  | "claude-grey"
+  | "clean-slate"
+  | "kawaii-pink"
+  | "aurora"
+  | "amber-pro"
+  | "soft-sunrise"
+  | "blueprint"
+  | "minimal"
+  | "colorful"
+
 export interface AppSettings {
-  theme?: "light" | "dark"
+  theme?: ThemeName
   language?: "en" | "de" | "es" // UI language: English, German, or Spanish
   simpleMode?: boolean // Simple Mode: Clean UI focused on personas & profile
   privateChatMode?: boolean // Private Chat Mode: No memory, no persistence, auto-delete on close
@@ -673,3 +702,6 @@ export interface RateLimitInfo {
   tokens_remaining?: number
   reset_at?: string
 }
+
+// Re-export from other modules for convenience
+export type { CategorizedFollowUp } from "@/lib/follow-up-parser"

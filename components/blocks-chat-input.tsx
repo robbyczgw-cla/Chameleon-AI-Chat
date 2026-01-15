@@ -52,7 +52,7 @@ export function BlocksChatInput({
   quickPrompts = [],
   onQuickPrompt,
 }: BlocksChatInputProps = {}) {
-  const { currentChatId, createChat, settings, isChatLoading } = useApp()
+  const { currentChatId, createChat, settings, updateSettings, isChatLoading } = useApp()
 
   // Draft auto-save system
   const { draft, saveDraft, clearDraft, isRestored } = useDraft(currentChatId)
@@ -141,7 +141,7 @@ export function BlocksChatInput({
     // Create chat if needed, then dispatch to SimpleChatInput to handle streaming
     // This prevents the component unmount from killing the stream
     if (!currentChatId) {
-      createChat(model)
+      createChat(overrideModel || settings.selectedModel)
     }
 
     // Small delay to let the chat be created and UI switch to SimpleChatInput
