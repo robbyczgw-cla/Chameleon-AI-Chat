@@ -6,6 +6,53 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
+## [1.3.3] - 2026-01-15
+
+### 🔧 TypeScript Stability Improvements
+
+Focused stability pass to fix type definitions and catch real runtime bugs that were hidden by `ignoreBuildErrors: true`.
+
+#### Bug Fixes
+
+| File | Issue | Impact |
+|------|-------|--------|
+| `blocks-chat-input.tsx` | `model` variable undefined | Would crash when creating new chat |
+| `blocks-chat-input.tsx` | `updateSettings` not destructured | Would crash on reasoning toggle |
+| `user-profile-dialog.tsx` | `user` reference after auth removal | Would crash on profile save |
+
+#### Type System Improvements
+
+- **ThemeName**: New union type with all 16 themes (was only `"light" | "dark"`)
+- **Language**: Added `"es"` (Spanish) to i18n Language type
+- **ExperimentalSettings**: Added `enableAutoContextCompression`, `personaSettings`
+- **StatsDisplaySettings**: Added `showSearchResults`
+- **CategorizedFollowUp**: Re-exported from `@/types` for convenience
+
+#### New Utilities
+
+- `getTextContent(content: MessageContent): string` - Helper to extract text from multimodal message content (handles both string and MessageContentPart[] formats)
+
+#### Dependencies
+
+- Added `@types/chrome` and `@types/webextension-polyfill` for browser extension TypeScript support
+
+#### Metrics
+
+- TypeScript errors reduced: **215 → 180** (16% reduction)
+- Remaining errors are mostly `MessageContent` vs `string` mismatches requiring dedicated refactor
+- All 235 unit tests passing
+
+#### Files Modified
+
+- `types/index.ts` - Added ThemeName, personaSettings, enableAutoContextCompression, showSearchResults, CategorizedFollowUp re-export
+- `lib/i18n.ts` - Added "es" to Language type
+- `lib/utils.ts` - Added getTextContent() utility
+- `components/blocks-chat-input.tsx` - Fixed undefined variable bugs
+- `components/user-profile-dialog.tsx` - Fixed user reference after auth removal
+- `package.json` - Added @types/chrome, @types/webextension-polyfill
+
+---
+
 ## [1.3.2] - 2026-01-14
 
 ### 🎭 Persona Refresh - 7 New Practical Personas
