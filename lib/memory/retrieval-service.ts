@@ -95,6 +95,36 @@ export function applyDynamicLimit(
 }
 
 /**
+ * Expand keywords for context-dependent queries
+ * E.g., "weather" should also search for location-related terms
+ */
+function expandKeywordsForContext(tokens: string[]): string[] {
+  const expanded = new Set(tokens)
+
+  // Weather/forecast → also search for location
+  if (tokens.some(t => /^(weather|forecast|temperature|rain|snow)$/i.test(t))) {
+    ['location', 'city', 'lives', 'based', 'from', 'home', 'address', 'country', 'region'].forEach(k => expanded.add(k))
+  }
+
+  // Time/timezone → also search for location
+  if (tokens.some(t => /^(time|timezone)$/i.test(t))) {
+    ['location', 'city', 'timezone', 'country', 'region'].forEach(k => expanded.add(k))
+  }
+
+  // Recommend/suggest → also search for preferences
+  if (tokens.some(t => /^(recommend|suggest|suggestion)$/i.test(t))) {
+    ['prefer', 'favorite', 'like', 'love', 'enjoy', 'location', 'city'].forEach(k => expanded.add(k))
+  }
+
+  // Nearby/local → also search for location
+  if (tokens.some(t => /^(nearby|local|near)$/i.test(t))) {
+    ['location', 'city', 'lives', 'based', 'home', 'address'].forEach(k => expanded.add(k))
+  }
+
+  return Array.from(expanded)
+}
+
+/**
  * Get relevant memories using keyword matching
  */
 export function getRelevantMemoriesKeyword(
@@ -106,8 +136,14 @@ export function getRelevantMemoriesKeyword(
   const threshold = config.importanceThreshold
   const minScore = 15
 
-  // Tokenize query
-  const queryTokens = query.toLowerCase().split(/\s+/).filter(t => t.length > 2)
+  // Tokenize query and expand for context-dependent queries
+  const rawTokens = query.toLowerCase().split(/\s+/).filter(t => t.length > 2)
+  const queryTokens = expandKeywordsForContext(rawTokens)
+
+  // Log if keywords were expanded
+  if (queryTokens.length > rawTokens.length) {
+    log.debug(`🔍 Keyword expansion: "${rawTokens.join(', ')}" → "${queryTokens.join(', ')}"`)
+  }
 
   // Score each memory
   const scored = memories
