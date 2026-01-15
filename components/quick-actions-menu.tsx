@@ -12,6 +12,7 @@ import {
 import { Check, DotsThreeVertical, Download, FileText, Globe, Link, ShareNetwork } from "@phosphor-icons/react";
 import { useApp } from "@/contexts/app-context"
 import { useToast } from "@/hooks/use-toast"
+import { getTextContent } from "@/lib/utils"
 import { useState } from "react"
 
 interface QuickActionsMenuProps {
@@ -172,7 +173,7 @@ export function QuickActionsMenu({
       <span>${roleIcon}</span>
       <span>${roleName}</span>
     </div>
-    <div class="message-content">${msg.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+    <div class="message-content">${getTextContent(msg.content).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
   </div>
 `
     })

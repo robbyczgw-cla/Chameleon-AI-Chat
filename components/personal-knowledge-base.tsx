@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { ArrowSquareOut, BookOpen, Calendar, Chat, CircleNotch, Database, Info, MagnifyingGlass, Sparkle } from "@phosphor-icons/react";
 import { streamChatMessage } from "@/lib/openrouter"
-import { cn } from "@/lib/utils"
+import { cn, getTextContent } from "@/lib/utils"
 
 interface SearchResult {
   chatId: string
@@ -48,11 +48,12 @@ export function PersonalKnowledgeBase() {
         // Skip system messages - users typically don't want to search through system prompts
         if (message.role === "system") return
 
-        if (message.content.toLowerCase().includes(queryLower)) {
+        const textContent = getTextContent(message.content)
+        if (textContent.toLowerCase().includes(queryLower)) {
           results.push({
             chatId: chat.id,
             chatTitle: chat.title,
-            messageContent: message.content,
+            messageContent: textContent,
             role: message.role as "user" | "assistant",
             timestamp: message.timestamp,
           })
@@ -142,7 +143,7 @@ Antworte NUR mit dem JSON-Objekt.`
         results.push({
           chatId: chat.id,
           chatTitle: chat.title,
-          messageContent: message.content,
+          messageContent: getTextContent(message.content),
           role: message.role as "user" | "assistant",
           timestamp: message.timestamp,
           relevanceScore: result.relevanceScore,

@@ -16,7 +16,7 @@ import { ChameleonLogo } from "@/components/chameleon-logo"
 import { MemoryManager } from "@/components/memory-manager"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import { cn, getTextContent } from "@/lib/utils"
 import { userProfileService } from "@/lib/user-profile"
 import { CaretLeft, ChatDots, DotsThreeVertical, Gear, ImageSquare, Lightbulb, List, MagnifyingGlass, Question, ShareNetwork, Trash, User, Users, X } from "@phosphor-icons/react";
 import {
@@ -748,7 +748,7 @@ export function SimpleChatApp() {
   const filteredChats = searchQuery.trim()
     ? chats.filter((chat) =>
         chat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        chat.messages.some((msg) => msg.content.toLowerCase().includes(searchQuery.toLowerCase()))
+        chat.messages.some((msg) => getTextContent(msg.content).toLowerCase().includes(searchQuery.toLowerCase()))
       )
     : chats
 

@@ -9,6 +9,7 @@ import { Brain, CircleNotch, Sparkle } from "@phosphor-icons/react";
 import { streamChatMessage } from "@/lib/openrouter"
 import { getBackgroundModel, DEFAULT_BACKGROUND_MODELS } from "@/components/experimental-settings"
 import { sanitizeHtml } from "@/lib/sanitize-html"
+import { getTextContent } from "@/lib/utils"
 
 interface PersonalityAnalysis {
   analysis: string
@@ -39,7 +40,7 @@ export function PersonalityAnalysis() {
     chats.forEach((chat) => {
       chat.messages.forEach((message) => {
         if (message.role === "user") {
-          allPrompts.push(message.content)
+          allPrompts.push(getTextContent(message.content))
         }
       })
     })

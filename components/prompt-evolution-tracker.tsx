@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ArrowsClockwise, BookOpen, Calendar, ChartLine, CircleNotch, Lightning, Medal, Target, TrendUp } from "@phosphor-icons/react";
 import { streamChatMessage } from "@/lib/openrouter"
-import { cn } from "@/lib/utils"
+import { cn, getTextContent } from "@/lib/utils"
 
 interface PromptAnalysis {
   totalPrompts: number
@@ -56,7 +56,7 @@ export function PromptEvolutionTracker() {
     chats.forEach((chat) => {
       chat.messages.forEach((message) => {
         if (message.role === "user") {
-          allPrompts.push(message.content)
+          allPrompts.push(getTextContent(message.content))
         }
       })
     })
@@ -71,7 +71,7 @@ export function PromptEvolutionTracker() {
     chats.forEach((chat) => {
       chat.messages.forEach((message) => {
         if (message.role === "user") {
-          allPrompts.push(message.content)
+          allPrompts.push(getTextContent(message.content))
         }
       })
     })
