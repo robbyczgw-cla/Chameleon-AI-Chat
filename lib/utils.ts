@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import type { MessageContent, MessageContentPart } from "@/types"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -79,4 +80,24 @@ export function getOpenRouterHeaders(suffix?: string): { "HTTP-Referer": string;
     "HTTP-Referer": referer,
     "X-Title": title,
   }
+}
+
+/**
+ * Extract text content from MessageContent (handles both string and multimodal formats)
+ * Use this when you need a plain string from message content that may contain images
+ *
+ * @param content - The message content (string or MessageContentPart[])
+ * @returns The text content as a string
+ */
+export function getTextContent(content: MessageContent): string {
+  if (typeof content === "string") {
+    return content
+  }
+  // Extract text parts from multimodal content
+  return content
+    .filter((part): part is MessageContentPart & { type: "text"; text: string } =>
+      part.type === "text" && typeof part.text === "string"
+    )
+    .map(part => part.text)
+    .join("\n")
 }

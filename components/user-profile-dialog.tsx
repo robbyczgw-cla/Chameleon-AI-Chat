@@ -55,7 +55,8 @@ export function UserProfileDialog({ open, onOpenChange, onProfileUpdate }: UserP
       }
 
       // Save profile with memory integration if conditions are met
-      await userProfileService.saveProfile(profile, user?.id, {
+      // Note: userId is undefined until auth is re-implemented
+      await userProfileService.saveProfile(profile, undefined, {
         apiKey,
         integrateWithMemory: memoryEnabled && !!apiKey
       })

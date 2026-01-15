@@ -1,9 +1,9 @@
 /**
  * Internationalization (i18n) for UI text
- * Supports English (en) and German (de)
+ * Supports English (en), German (de), and Spanish (es)
  */
 
-export type Language = "en" | "de"
+export type Language = "en" | "de" | "es"
 
 interface Translations {
   // Settings Dialog
