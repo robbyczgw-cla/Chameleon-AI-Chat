@@ -44,8 +44,8 @@ export function buildSystemPrompt(
     if (useDedicatedFollowUpModel && hasFollowUpInstructions) {
       // Remove the follow-up instructions section
       return customPrompt
-        .replace(/At the end of each response.*?\[\/FOLLOWUP\]/s, '')
-        .replace(/IMPORTANT:.*?what might they ask next!/s, '')
+        .replace(/At the end of each response[\s\S]*?\[\/FOLLOWUP\]/, '')
+        .replace(/IMPORTANT:[\s\S]*?what might they ask next!/, '')
         .trim()
     }
 

@@ -79,7 +79,7 @@ export const nativeShare = {
         })
 
         return { shared: true, platform: 'web' }
-      } else if ('clipboard' in navigator) {
+      } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
         // Fallback to clipboard
         const content = [options.title, options.text, options.url]
           .filter(Boolean)
