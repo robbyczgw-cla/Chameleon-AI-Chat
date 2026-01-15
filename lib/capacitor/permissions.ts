@@ -165,8 +165,9 @@ export const nativePermissions = {
 
     const { LocalNotifications } = await import('@capacitor/local-notifications')
     const { display } = await LocalNotifications.checkPermissions()
-    _permissionState.notifications = display
-    return display
+    const status = mapPermissionState(display)
+    _permissionState.notifications = status
+    return status
   },
 
   /**
@@ -176,7 +177,8 @@ export const nativePermissions = {
     if (!isNative) {
       if ('Notification' in window) {
         const result = await Notification.requestPermission()
-        return result as PermissionStatus
+        // Map 'default' to 'prompt'
+        return result === 'default' ? 'prompt' : result
       }
       return 'denied'
     }
@@ -191,8 +193,9 @@ export const nativePermissions = {
 
     const { LocalNotifications } = await import('@capacitor/local-notifications')
     const { display } = await LocalNotifications.requestPermissions()
-    _permissionState.notifications = display
-    return display
+    const status = mapPermissionState(display)
+    _permissionState.notifications = status
+    return status
   },
 
   // ==================== PHOTOS/GALLERY ====================
@@ -207,8 +210,9 @@ export const nativePermissions = {
 
     const { Camera } = await import('@capacitor/camera')
     const { photos } = await Camera.checkPermissions()
-    _permissionState.photos = photos
-    return photos
+    const status = mapPermissionState(photos)
+    _permissionState.photos = status
+    return status
   },
 
   /**
@@ -227,8 +231,9 @@ export const nativePermissions = {
 
     const { Camera } = await import('@capacitor/camera')
     const { photos } = await Camera.requestPermissions({ permissions: ['photos'] })
-    _permissionState.photos = photos
-    return photos
+    const status = mapPermissionState(photos)
+    _permissionState.photos = status
+    return status
   },
 
   // ==================== BIOMETRIC ====================

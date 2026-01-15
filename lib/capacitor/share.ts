@@ -79,7 +79,7 @@ export const nativeShare = {
         })
 
         return { shared: true, platform: 'web' }
-      } else {
+      } else if ('clipboard' in navigator) {
         // Fallback to clipboard
         const content = [options.title, options.text, options.url]
           .filter(Boolean)
@@ -87,6 +87,8 @@ export const nativeShare = {
         await navigator.clipboard.writeText(content)
 
         return { shared: true, platform: 'clipboard' }
+      } else {
+        return { shared: false }
       }
     } catch (error: any) {
       // User cancelled share
