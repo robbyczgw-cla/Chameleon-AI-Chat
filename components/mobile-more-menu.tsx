@@ -22,6 +22,7 @@ interface MobileMoreMenuProps {
   onProfileClick: () => void
   onMemoryClick: () => void
   onComparisonClick: () => void
+  onSearchClick?: () => void
   onDocCollectionsClick: () => void
   onDebateClick: () => void
   onInspectorClick: () => void
