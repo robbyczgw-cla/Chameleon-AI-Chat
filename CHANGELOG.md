@@ -6,6 +6,49 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
+## [1.3.4] - 2026-01-15
+
+### 🧠 Memory Retrieval Fix - Context-Dependent Queries
+
+Fixed a critical issue where queries like "What's the weather tomorrow?" failed to retrieve user location memories, even though location is essential to answer the question.
+
+#### Problem
+
+Two root causes prevented proper memory retrieval for context-dependent queries:
+
+1. **Classification too aggressive**: Weather/time/recommendation queries matched factual patterns (e.g., "What is X?") and were classified as "factual" → memory skipped entirely
+2. **Keyword search too literal**: Tokenized "weather" doesn't match memories like "User lives in Berlin" - needed semantic expansion
+
+#### Solution
+
+| Component | Change |
+|-----------|--------|
+| `classification.ts` | Added **context-dependent patterns** checked BEFORE factual patterns |
+| `retrieval-service.ts` | Added **keyword expansion** for context-dependent terms |
+
+**Context-dependent query types now recognized:**
+- Weather/forecast → needs location
+- Time/timezone → needs location
+- Recommendations → needs preferences + location
+- Nearby/local queries → needs location
+- Commute/travel → needs location
+
+**Keyword expansion examples:**
+- `weather` → also searches: `location`, `city`, `lives`, `based`, `from`, `home`
+- `recommend` → also searches: `prefer`, `favorite`, `like`, `enjoy`, `location`
+- `nearby` → also searches: `location`, `city`, `lives`, `based`, `home`, `address`
+
+#### Files Modified
+
+- `lib/memory/classification.ts` - Added context-dependent patterns (lines 67-91, 291-315)
+- `lib/memory/retrieval-service.ts` - Added `expandKeywordsForContext()` function
+
+#### Testing
+
+- All 235 unit tests passing
+
+---
+
 ## [1.3.3] - 2026-01-15
 
 ### 🔧 TypeScript Stability Improvements

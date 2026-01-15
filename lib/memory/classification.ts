@@ -53,12 +53,40 @@ export async function classifyQuery(
   const queryLength = lowerQuery.split(/\s+/).length
 
   // Very short queries (1-3 words) are usually commands or greetings - skip memory
-  if (queryLength <= 3 && !hasExplicitPersonalReference(lowerQuery)) {
+  // EXCEPT for context-dependent short queries like "weather?" or "recommend?"
+  const isContextDependentShort = /\b(weather|recommend|suggest|nearby|local|around here)\b/i.test(lowerQuery)
+  if (queryLength <= 3 && !hasExplicitPersonalReference(lowerQuery) && !isContextDependentShort) {
     return {
       needsMemory: false,
       confidence: 0.85,
       reason: 'Short query without personal context',
       queryType: 'factual',
+    }
+  }
+
+  // CONTEXT-DEPENDENT QUERIES: Factual questions that need personal context (location, preferences)
+  // These MUST be checked BEFORE factual patterns to ensure they retrieve memory
+  const contextDependentPatterns = [
+    // Weather queries need location
+    /\b(weather|forecast|temperature|rain|snow|sunny|cloudy|humid)\b/i,
+    // Time/timezone queries need location
+    /\b(what time|current time|time zone|timezone|local time)\b/i,
+    // Location-based recommendations
+    /\b(nearby|near me|around here|in my area|local|closest)\b/i,
+    // Recommendation queries often need preferences + location
+    /\b(recommend|suggest|should i (eat|go|visit|watch|read|try))\b/i,
+    // "What should I" queries often need personal context
+    /\bwhat should i (wear|bring|pack|do today)\b/i,
+    // Travel/commute queries need location
+    /\b(commute|traffic|transit|get to work|drive to)\b/i,
+  ]
+
+  if (contextDependentPatterns.some(p => p.test(lowerQuery))) {
+    return {
+      needsMemory: true,
+      confidence: 0.85,
+      reason: 'Context-dependent query (needs location/preferences)',
+      queryType: 'personal',
     }
   }
 
@@ -157,11 +185,14 @@ export async function classifyQuery(
         messages: [
           {
             role: 'system',
-            content: `You are a query classifier. Determine if the query requires PERSONAL context (user preferences, history, facts about them) to answer well.
+            content: `You are a query classifier. Determine if the query requires PERSONAL context (user preferences, history, location, facts about them) to answer well.
 
-IMPORTANT: Default to "factual" unless there's clear evidence personal context is needed.
-- Generic questions, coding help, explanations → factual (no memory needed)
-- Questions about user's preferences, past conversations, personal info → personal (memory needed)
+CLASSIFICATION RULES:
+1. "factual" (no memory): Generic questions, coding help, explanations, definitions
+2. "personal" (needs memory): Questions about user preferences, past conversations, personal info
+3. "personal" (needs memory): CONTEXT-DEPENDENT queries like weather, recommendations, local info - these need user's LOCATION or PREFERENCES even though they seem factual
+
+IMPORTANT: Weather, recommendation, "what should I", nearby/local queries ALWAYS need memory (for location/preferences).
 
 Output ONLY a JSON object (no markdown):
 {
@@ -175,6 +206,8 @@ Examples:
 - "What is the capital of France?" → {"needsMemory": false, "confidence": 0.95, "queryType": "factual", "reason": "General knowledge question"}
 - "Help me write a function" → {"needsMemory": false, "confidence": 0.85, "queryType": "factual", "reason": "Generic coding task"}
 - "What's my preferred coding style?" → {"needsMemory": true, "confidence": 0.95, "queryType": "personal", "reason": "Asks about user preference"}
+- "What's the weather tomorrow?" → {"needsMemory": true, "confidence": 0.9, "queryType": "personal", "reason": "Needs user location"}
+- "Recommend a restaurant" → {"needsMemory": true, "confidence": 0.85, "queryType": "personal", "reason": "Needs location and preferences"}
 - "Can you help me?" → {"needsMemory": false, "confidence": 0.7, "queryType": "ambiguous", "reason": "Generic, no personal context needed"}`,
           },
           {
@@ -244,12 +277,40 @@ export function classifyQuerySync(query: string): QueryClassification {
   const queryLength = lowerQuery.split(/\s+/).length
 
   // Very short queries - skip memory
-  if (queryLength <= 3 && !hasExplicitPersonalReference(lowerQuery)) {
+  // EXCEPT for context-dependent short queries like "weather?" or "recommend?"
+  const isContextDependentShort = /\b(weather|recommend|suggest|nearby|local|around here)\b/i.test(lowerQuery)
+  if (queryLength <= 3 && !hasExplicitPersonalReference(lowerQuery) && !isContextDependentShort) {
     return {
       needsMemory: false,
       confidence: 0.85,
       reason: 'Short query',
       queryType: 'factual',
+    }
+  }
+
+  // CONTEXT-DEPENDENT QUERIES: Factual questions that need personal context (location, preferences)
+  // These MUST be checked BEFORE factual patterns to ensure they retrieve memory
+  const contextDependentPatterns = [
+    // Weather queries need location
+    /\b(weather|forecast|temperature|rain|snow|sunny|cloudy|humid)\b/i,
+    // Time/timezone queries need location
+    /\b(what time|current time|time zone|timezone|local time)\b/i,
+    // Location-based recommendations
+    /\b(nearby|near me|around here|in my area|local|closest)\b/i,
+    // Recommendation queries often need preferences + location
+    /\b(recommend|suggest|should i (eat|go|visit|watch|read|try))\b/i,
+    // "What should I" queries often need personal context
+    /\bwhat should i (wear|bring|pack|do today)\b/i,
+    // Travel/commute queries need location
+    /\b(commute|traffic|transit|get to work|drive to)\b/i,
+  ]
+
+  if (contextDependentPatterns.some(p => p.test(lowerQuery))) {
+    return {
+      needsMemory: true,
+      confidence: 0.85,
+      reason: 'Context-dependent query (needs location/preferences)',
+      queryType: 'personal',
     }
   }
 
