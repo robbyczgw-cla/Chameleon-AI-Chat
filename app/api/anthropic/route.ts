@@ -422,28 +422,34 @@ export async function POST(req: NextRequest) {
           const errorText = await response.text()
           let errorMessage = `Anthropic API error: ${response.status}`
           let originalError = ""
+          let errorType = ""
 
           try {
             const errorJson = JSON.parse(errorText)
-            if (errorJson.error?.message) {
-              originalError = errorJson.error.message
+            console.error("[Anthropic] Full error response:", JSON.stringify(errorJson, null, 2))
+            if (errorJson.error) {
+              originalError = errorJson.error.message || ""
+              errorType = errorJson.error.type || ""
               errorMessage = originalError
             }
           } catch {
             if (errorText) {
-              originalError = errorText.substring(0, 200)
+              console.error("[Anthropic] Raw error text:", errorText)
+              originalError = errorText.substring(0, 500)
               errorMessage = originalError
             }
           }
 
-          console.error("[Anthropic] API Error:", response.status, originalError)
+          console.error("[Anthropic] ==========================================")
+          console.error("[Anthropic] API Error Status:", response.status)
+          console.error("[Anthropic] Error Type:", errorType)
+          console.error("[Anthropic] Error Message:", originalError)
+          console.error("[Anthropic] Token prefix:", token.substring(0, 25))
+          console.error("[Anthropic] ==========================================")
 
-          // Check for token-specific errors - include original error for debugging
+          // Check for token-specific errors - show full error for debugging
           if (response.status === 401 || errorMessage.includes("only authorized for use with Claude Code")) {
-            errorMessage =
-              "Claude Code token error: This token may have expired or is restricted. " +
-              "Run 'claude setup-token' again to generate a fresh token. " +
-              `(Original: ${originalError})`
+            errorMessage = `Auth Error (${response.status}): ${originalError}`
           }
 
           await writer.write(encoder.encode(`data: ${JSON.stringify({ error: errorMessage })}\n\n`))
