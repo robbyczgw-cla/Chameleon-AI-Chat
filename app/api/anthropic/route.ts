@@ -301,12 +301,15 @@ export async function POST(req: NextRequest) {
     // Build Anthropic request
     // Note: For OAuth tokens, we must match Claude Code's exact request shape
     // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
-    const anthropicRequest: AnthropicRequest = {
+    const anthropicRequest: AnthropicRequest & { metadata?: { user_id: string } } = {
       model: apiModelId,
       messages: anthropicMessages,
       max_tokens: maxTokens,
       stream: true,
-      // Don't include tools field if no tools - Claude Code doesn't send it
+      // Add metadata field - PR #15 mentions this is needed for OAuth tokens
+      metadata: {
+        user_id: "chameleon_user",  // Placeholder - Claude Code extracts from ~/.claude.json
+      },
     }
 
     if (system) {
