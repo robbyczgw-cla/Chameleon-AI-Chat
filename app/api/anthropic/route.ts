@@ -355,10 +355,7 @@ export async function POST(req: NextRequest) {
       anthropicRequest.system = system
     }
 
-    // Track if we have real tools
-    let hasTools = false
-
-    // Add tools if enabled
+    // Add tools - PR #15 says tools array should always be present
     // IMPORTANT: For OAuth tokens, tool names MUST be PascalCase
     // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/11
     if (enableAutoToolUse && searchApiKey) {
@@ -373,8 +370,10 @@ export async function POST(req: NextRequest) {
         ...tool,
         name: toPascalCase(tool.name),
       }))
-      hasTools = true
       console.log("[Anthropic] Tools (PascalCase):", anthropicRequest.tools?.map((t) => t.name).join(", "))
+    } else {
+      // PR #15: tools array should always be present, even if empty
+      anthropicRequest.tools = []
     }
 
     // Add extended thinking if reasoning is enabled
