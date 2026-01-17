@@ -34,6 +34,13 @@ export const runtime = "edge"
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 const ANTHROPIC_VERSION = "2023-06-01"
 
+// Beta features required for OAuth token authentication
+// See: https://deepwiki.com/sst/opencode-anthropic-auth
+const ANTHROPIC_BETA_FEATURES = [
+  "oauth-2025-04-20",           // Required for OAuth token auth (Claude Code CLI tokens)
+  "interleaved-thinking-2025-05-14",  // Extended thinking support
+].join(",")
+
 interface Message {
   role: "user" | "assistant" | "system" | "tool"
   content: string | Array<{ type: "text" | "image_url"; text?: string; image_url?: { url: string } }>
@@ -352,6 +359,7 @@ export async function POST(req: NextRequest) {
           headers: {
             "Content-Type": "application/json",
             "anthropic-version": ANTHROPIC_VERSION,
+            "anthropic-beta": ANTHROPIC_BETA_FEATURES,
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(anthropicRequest),
