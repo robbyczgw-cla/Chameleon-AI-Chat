@@ -81,12 +81,15 @@ Detailed documentation for specific features.
 
 | Guide | Description |
 |-------|-------------|
+| [CLAUDE-CODE-CLI-TOKEN.md](./features/CLAUDE-CODE-CLI-TOKEN.md) | **NEW** Use Claude Pro/Max subscription directly |
 | [STREAMING-VISUALIZATION.md](./features/STREAMING-VISUALIZATION.md) | Real-time streaming UI system |
 | [UNIFIED-VISUALIZATION-SETTINGS.md](./features/UNIFIED-VISUALIZATION-SETTINGS.md) | Visualization configuration |
 | [EXACT_COST_TRACKING.md](./features/EXACT_COST_TRACKING.md) | Real-time cost tracking implementation |
 | [DEDICATED_FOLLOWUP_MODEL.md](./features/DEDICATED_FOLLOWUP_MODEL.md) | Follow-up suggestion system |
 | [PWA_MODERNIZATION.md](./features/PWA_MODERNIZATION.md) | Progressive Web App features |
 | [LLM-CHAT-IMAGE-FIXES.md](./features/LLM-CHAT-IMAGE-FIXES.md) | Image handling fixes |
+| [agent-mode.md](./features/agent-mode.md) | Multi-step agent task execution |
+| [live-code-sandbox.md](./features/live-code-sandbox.md) | Live code sandbox with Sandpack |
 
 ---
 

@@ -6,6 +6,67 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
+## [1.4.0] - 2026-01-17
+
+### ⚡ Claude Code CLI Token Support
+
+Use your Claude Pro/Max subscription directly in Chameleon Chat! This major feature allows direct Anthropic API access using your Claude Code CLI token, bypassing OpenRouter for Claude models.
+
+#### How It Works
+
+1. Run `claude setup-token` in your terminal to generate an OAuth token
+2. Paste the token (`sk-ant-oat01-...`) in **Settings > API Keys > Claude Code CLI Token**
+3. "Claude (Direct)" models appear in the model selector with a ⚡ lightning bolt icon
+4. Select one and chat using your Claude subscription credits
+
+#### New Models Available
+
+| Model | Display Name | Context | Features |
+|-------|--------------|---------|----------|
+| `anthropic:claude-opus-4-5` | Claude Opus 4.5 (Direct) | 200K | Vision, Thinking |
+| `anthropic:claude-sonnet-4-5` | Claude Sonnet 4.5 (Direct) | 200K | Vision, Thinking |
+| `anthropic:claude-haiku-4-5` | Claude Haiku 4.5 (Direct) | 200K | Vision |
+
+#### Features Supported
+
+- ✅ Streaming responses
+- ✅ Extended thinking mode
+- ✅ Vision/image input
+- ✅ Tool calling (web search, URL fetch, YouTube, weather)
+- ✅ All personas
+- ✅ Database sync for cross-device token storage
+
+#### Technical Details
+
+- Uses `anthropic:` prefix to distinguish from OpenRouter's `anthropic/` models
+- Direct API calls to `api.anthropic.com` with Bearer token authentication
+- New edge runtime API route at `/api/anthropic`
+- Anthropic SSE format converted to OpenRouter-compatible format for consistent UI
+
+#### Files Added/Modified
+
+| File | Change |
+|------|--------|
+| `lib/anthropic.ts` | **New** - Anthropic API client with models, streaming, message conversion |
+| `app/api/anthropic/route.ts` | **New** - Edge API route for direct Anthropic streaming |
+| `components/model-selector.tsx` | Shows "Claude (Direct)" section when token is set |
+| `components/settings/tabs/api-keys-tab.tsx` | Token input UI |
+| `lib/openrouter.ts` | Routes `anthropic:` models to `/api/anthropic` |
+| `lib/supabase/sync.ts` | Database sync for `claude_code_token` column |
+| `types/index.ts` | Added `claudeCode` to apiKeys interface |
+
+#### Database Migration (Self-Hosted)
+
+```sql
+ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS claude_code_token TEXT;
+```
+
+#### Documentation
+
+See [Claude Code CLI Token Guide](docs/features/CLAUDE-CODE-CLI-TOKEN.md) for detailed setup instructions and troubleshooting.
+
+---
+
 ## [1.3.4] - 2026-01-15
 
 ### 🧠 Memory Retrieval Fix - Context-Dependent Queries
