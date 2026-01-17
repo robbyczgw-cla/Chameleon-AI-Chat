@@ -394,13 +394,11 @@ export async function POST(req: NextRequest) {
 
     // Build beta headers - must match Claude Code's exact pattern
     // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
-    // Start with just oauth beta, add others only when needed
-    const betaParts = [ANTHROPIC_BETA_OAUTH]
+    // IMPORTANT: claude-code-20250219 identifies request as coming from Claude Code
+    // This must ALWAYS be included for OAuth tokens to work
+    const betaParts = [ANTHROPIC_BETA_OAUTH, ANTHROPIC_BETA_CLAUDE_CODE]
     if (reasoning) {
       betaParts.push(ANTHROPIC_BETA_THINKING)
-    }
-    if (hasTools) {
-      betaParts.push(ANTHROPIC_BETA_CLAUDE_CODE)
     }
     const betaFeatures = betaParts.join(",")
 
