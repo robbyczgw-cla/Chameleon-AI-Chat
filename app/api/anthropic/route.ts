@@ -36,9 +36,8 @@ import { fetchUrlContent, fetchYouTubeTranscript, formatUrlFetchResult, formatYo
 // comes from the official CLI, so we need full header control.
 export const runtime = "nodejs"
 
-// IMPORTANT: Add ?beta=true query parameter for OAuth tokens
-// See: https://github.com/anomalyco/opencode-anthropic-auth/pull/11
-const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages?beta=true"
+// Anthropic API endpoint - beta features go in header, not query param
+const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 const ANTHROPIC_VERSION = "2023-06-01"
 
 // Beta features required for OAuth token authentication
@@ -339,14 +338,16 @@ export async function POST(req: NextRequest) {
     // Build Anthropic request
     // Note: For OAuth tokens, we must match Claude Code's exact request shape
     // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
+    // Generate a session-like user_id format that matches Claude Code's format
+    const sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2, 9)
     const anthropicRequest: AnthropicRequest & { metadata?: { user_id: string } } = {
       model: apiModelId,
       messages: anthropicMessages,
       max_tokens: maxTokens,
       stream: true,
-      // Add metadata field - PR #15 mentions this is needed for OAuth tokens
+      // metadata.user_id format from PR #15: user_{id}_account_{uuid}_session_{sessionId}
       metadata: {
-        user_id: "chameleon_user",  // Placeholder - Claude Code extracts from ~/.claude.json
+        user_id: `user_chameleon_session_${sessionId}`,
       },
     }
 
