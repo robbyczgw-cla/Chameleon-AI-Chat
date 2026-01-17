@@ -291,12 +291,12 @@ export async function POST(req: NextRequest) {
     const { system, messages: anthropicMessages } = convertToAnthropicMessages(messages)
 
     // Build Anthropic request
+    // Note: Anthropic API doesn't allow both temperature and top_p - use temperature only
     const anthropicRequest: AnthropicRequest = {
       model: apiModelId,
       messages: anthropicMessages,
       max_tokens: maxTokens,
       temperature,
-      top_p: topP,
       stream: true,
     }
 
