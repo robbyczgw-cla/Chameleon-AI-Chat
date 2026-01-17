@@ -387,6 +387,16 @@ export async function POST(req: NextRequest) {
           )
         )
 
+        // Build headers object for logging
+        const requestHeaders = {
+          "Content-Type": "application/json",
+          "anthropic-version": ANTHROPIC_VERSION,
+          "anthropic-beta": betaFeatures,
+          Authorization: `Bearer ${token.substring(0, 20)}...`,
+          ...CLAUDE_CODE_HEADERS,
+        }
+        console.log("[Anthropic] Headers being sent:", JSON.stringify(requestHeaders, null, 2))
+
         const response = await fetch(ANTHROPIC_API_URL, {
           method: "POST",
           headers: {
