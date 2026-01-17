@@ -36,14 +36,17 @@ import { fetchUrlContent, fetchYouTubeTranscript, formatUrlFetchResult, formatYo
 // comes from the official CLI, so we need full header control.
 export const runtime = "nodejs"
 
-const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
+// IMPORTANT: Add ?beta=true query parameter for OAuth tokens
+// See: https://github.com/anomalyco/opencode-anthropic-auth/pull/11
+const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages?beta=true"
 const ANTHROPIC_VERSION = "2023-06-01"
 
 // Beta features required for OAuth token authentication
 // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
+// IMPORTANT: Order matters and must match Claude Code's exact pattern
 const ANTHROPIC_BETA_OAUTH = "oauth-2025-04-20"
 const ANTHROPIC_BETA_THINKING = "interleaved-thinking-2025-05-14"
-const ANTHROPIC_BETA_CLAUDE_CODE = "claude-code-20250219"  // Required when tools are used
+const ANTHROPIC_BETA_CLAUDE_CODE = "claude-code-20250219"
 
 // Headers to mimic Claude Code CLI - required for OAuth tokens to work
 // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
@@ -51,6 +54,36 @@ const CLAUDE_CODE_HEADERS = {
   "user-agent": "claude-cli/2.1.7 (external, cli)",
   "x-app": "cli",
   "anthropic-dangerous-direct-browser-access": "true",
+  // x-stainless headers to match official SDK
+  "x-stainless-arch": "arm64",
+  "x-stainless-lang": "js",
+  "x-stainless-os": "linux",
+  "x-stainless-package-version": "0.52.0",
+  "x-stainless-retry-count": "0",
+  "x-stainless-runtime": "node",
+  "x-stainless-runtime-version": "v22.12.0",
+}
+
+/**
+ * Convert tool name to PascalCase (required for Claude Code OAuth)
+ * e.g., "web_search" -> "WebSearch"
+ */
+function toPascalCase(name: string): string {
+  return name
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("")
+}
+
+/**
+ * Convert PascalCase tool name back to snake_case for internal processing
+ * e.g., "WebSearch" -> "web_search"
+ */
+function toSnakeCase(name: string): string {
+  return name
+    .replace(/([A-Z])/g, "_$1")
+    .toLowerCase()
+    .replace(/^_/, "")
 }
 
 interface Message {
@@ -325,15 +358,22 @@ export async function POST(req: NextRequest) {
     let hasTools = false
 
     // Add tools if enabled
+    // IMPORTANT: For OAuth tokens, tool names MUST be PascalCase
+    // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/11
     if (enableAutoToolUse && searchApiKey) {
       const openRouterTools = [webSearchTool]
       if (enableWeatherTool) openRouterTools.push(weatherTool)
       if (enableUrlFetchTool) openRouterTools.push(urlFetchTool)
       if (enableYouTubeTool) openRouterTools.push(youtubeTranscriptTool)
 
-      anthropicRequest.tools = convertToAnthropicTools(openRouterTools)
+      // Convert tools and transform names to PascalCase
+      const tools = convertToAnthropicTools(openRouterTools)
+      anthropicRequest.tools = tools.map((tool) => ({
+        ...tool,
+        name: toPascalCase(tool.name),
+      }))
       hasTools = true
-      console.log("[Anthropic] Tools:", anthropicRequest.tools?.map((t) => t.name).join(", "))
+      console.log("[Anthropic] Tools (PascalCase):", anthropicRequest.tools?.map((t) => t.name).join(", "))
     }
 
     // Add extended thinking if reasoning is enabled
@@ -592,8 +632,10 @@ export async function POST(req: NextRequest) {
                       // Execute tool calls
                       for (const toolCall of accumulatedToolCalls) {
                         let result = ""
+                        // Convert PascalCase back to snake_case for matching
+                        const toolNameSnake = toSnakeCase(toolCall.name)
 
-                        if (toolCall.name === "web_search" && searchApiKey) {
+                        if (toolNameSnake === "web_search" && searchApiKey) {
                           const searchResult = await executeWebSearch(
                             toolCall.input.query || "",
                             searchProvider,
@@ -601,15 +643,15 @@ export async function POST(req: NextRequest) {
                             searchSettings
                           )
                           result = searchResult.content
-                        } else if (toolCall.name === "get_weather") {
+                        } else if (toolNameSnake === "get_weather") {
                           result = await executeWeather(
                             toolCall.input.location || "",
                             toolCall.input.type || "current"
                           )
-                        } else if (toolCall.name === "url_fetch") {
+                        } else if (toolNameSnake === "url_fetch") {
                           const fetchResult = await fetchUrlContent(toolCall.input.url || "")
                           result = formatUrlFetchResult(fetchResult)
-                        } else if (toolCall.name === "youtube_transcript") {
+                        } else if (toolNameSnake === "youtube_transcript") {
                           const ytResult = await fetchYouTubeTranscript(toolCall.input.url || "")
                           result = formatYouTubeResult(ytResult)
                         }
