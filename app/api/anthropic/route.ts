@@ -34,12 +34,11 @@ export const runtime = "edge"
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 const ANTHROPIC_VERSION = "2023-06-01"
 
-// Beta features required for OAuth token authentication
+// Beta feature required for OAuth token authentication
 // See: https://deepwiki.com/sst/opencode-anthropic-auth
-const ANTHROPIC_BETA_FEATURES = [
-  "oauth-2025-04-20",           // Required for OAuth token auth (Claude Code CLI tokens)
-  "interleaved-thinking-2025-05-14",  // Extended thinking support
-].join(",")
+const ANTHROPIC_BETA_OAUTH = "oauth-2025-04-20"
+// Extended thinking beta - only add when reasoning is enabled (requires temperature=1)
+const ANTHROPIC_BETA_THINKING = "interleaved-thinking-2025-05-14"
 
 interface Message {
   role: "user" | "assistant" | "system" | "tool"
@@ -318,6 +317,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Add extended thinking if reasoning is enabled
+    // Note: Extended thinking requires temperature=1
     if (reasoning) {
       const budgetMap: Record<string, number> = {
         minimal: 1024,
@@ -329,8 +329,14 @@ export async function POST(req: NextRequest) {
         type: "enabled",
         budget_tokens: budgetMap[reasoningDepth] || 4096,
       }
+      anthropicRequest.temperature = 1 // Required for extended thinking
       console.log("[Anthropic] Thinking enabled with budget:", budgetMap[reasoningDepth])
     }
+
+    // Build beta headers - always include OAuth, conditionally add thinking
+    const betaFeatures = reasoning
+      ? `${ANTHROPIC_BETA_OAUTH},${ANTHROPIC_BETA_THINKING}`
+      : ANTHROPIC_BETA_OAUTH
 
     // Streaming response
     const encoder = new TextEncoder()
@@ -359,7 +365,7 @@ export async function POST(req: NextRequest) {
           headers: {
             "Content-Type": "application/json",
             "anthropic-version": ANTHROPIC_VERSION,
-            "anthropic-beta": ANTHROPIC_BETA_FEATURES,
+            "anthropic-beta": betaFeatures,
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(anthropicRequest),

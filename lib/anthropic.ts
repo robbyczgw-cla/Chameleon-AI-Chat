@@ -289,12 +289,9 @@ export function convertToAnthropicTools(
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 const ANTHROPIC_VERSION = "2023-06-01"
 
-// Beta features required for OAuth token authentication (Claude Code CLI tokens)
+// Beta feature required for OAuth token authentication (Claude Code CLI tokens)
 // See: https://deepwiki.com/sst/opencode-anthropic-auth
-const ANTHROPIC_BETA_FEATURES = [
-  "oauth-2025-04-20",           // Required for OAuth token auth
-  "interleaved-thinking-2025-05-14",  // Extended thinking support
-].join(",")
+const ANTHROPIC_BETA_OAUTH = "oauth-2025-04-20"
 
 /**
  * Make a streaming request to the Anthropic API
@@ -310,7 +307,7 @@ export async function streamAnthropicRequest(
     headers: {
       "Content-Type": "application/json",
       "anthropic-version": ANTHROPIC_VERSION,
-      "anthropic-beta": ANTHROPIC_BETA_FEATURES,
+      "anthropic-beta": ANTHROPIC_BETA_OAUTH,
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
@@ -413,7 +410,7 @@ export async function callAnthropicAPI(
     headers: {
       "Content-Type": "application/json",
       "anthropic-version": ANTHROPIC_VERSION,
-      "anthropic-beta": ANTHROPIC_BETA_FEATURES,
+      "anthropic-beta": ANTHROPIC_BETA_OAUTH,
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
