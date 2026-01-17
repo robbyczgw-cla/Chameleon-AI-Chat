@@ -299,24 +299,24 @@ export async function POST(req: NextRequest) {
     const { system, messages: anthropicMessages } = convertToAnthropicMessages(messages)
 
     // Build Anthropic request
-    // Note: For OAuth tokens, we remove temperature to match Claude Code's request shape
+    // Note: For OAuth tokens, we must match Claude Code's exact request shape
     // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
     const anthropicRequest: AnthropicRequest = {
       model: apiModelId,
       messages: anthropicMessages,
       max_tokens: maxTokens,
       stream: true,
-      tools: [], // Always include tools array for Claude Code compatibility
+      // Don't include tools field if no tools - Claude Code doesn't send it
     }
 
     if (system) {
       anthropicRequest.system = system
     }
 
-    // Track if we have real tools (affects beta headers)
+    // Track if we have real tools
     let hasTools = false
 
-    // Add tools if enabled (convert to PascalCase for Claude Code compatibility)
+    // Add tools if enabled
     if (enableAutoToolUse && searchApiKey) {
       const openRouterTools = [webSearchTool]
       if (enableWeatherTool) openRouterTools.push(weatherTool)
@@ -324,7 +324,6 @@ export async function POST(req: NextRequest) {
       if (enableYouTubeTool) openRouterTools.push(youtubeTranscriptTool)
 
       anthropicRequest.tools = convertToAnthropicTools(openRouterTools)
-      // Note: Don't set tool_choice - Claude Code doesn't use it
       hasTools = true
       console.log("[Anthropic] Tools:", anthropicRequest.tools?.map((t) => t.name).join(", "))
     }
@@ -341,17 +340,30 @@ export async function POST(req: NextRequest) {
         type: "enabled",
         budget_tokens: budgetMap[reasoningDepth] || 4096,
       }
-      // Note: For thinking mode, temperature must be 1 (or omitted)
       console.log("[Anthropic] Thinking enabled with budget:", budgetMap[reasoningDepth])
     }
 
     // Build beta headers - must match Claude Code's exact pattern
     // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
-    const betaParts = [ANTHROPIC_BETA_OAUTH, ANTHROPIC_BETA_THINKING]
+    // Start with just oauth beta, add others only when needed
+    const betaParts = [ANTHROPIC_BETA_OAUTH]
+    if (reasoning) {
+      betaParts.push(ANTHROPIC_BETA_THINKING)
+    }
     if (hasTools) {
       betaParts.push(ANTHROPIC_BETA_CLAUDE_CODE)
     }
     const betaFeatures = betaParts.join(",")
+
+    console.log("[Anthropic] Beta features:", betaFeatures)
+    console.log("[Anthropic] Request (without messages):", JSON.stringify({
+      model: anthropicRequest.model,
+      max_tokens: anthropicRequest.max_tokens,
+      stream: anthropicRequest.stream,
+      hasSystem: !!anthropicRequest.system,
+      toolsCount: anthropicRequest.tools?.length || 0,
+      thinking: anthropicRequest.thinking,
+    }))
 
     // Streaming response
     const encoder = new TextEncoder()
