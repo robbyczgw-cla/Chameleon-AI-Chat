@@ -34,11 +34,19 @@ export const runtime = "edge"
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 const ANTHROPIC_VERSION = "2023-06-01"
 
-// Beta feature required for OAuth token authentication
-// See: https://deepwiki.com/sst/opencode-anthropic-auth
+// Beta features required for OAuth token authentication
+// See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
 const ANTHROPIC_BETA_OAUTH = "oauth-2025-04-20"
-// Extended thinking beta - only add when reasoning is enabled (requires temperature=1)
 const ANTHROPIC_BETA_THINKING = "interleaved-thinking-2025-05-14"
+const ANTHROPIC_BETA_CLAUDE_CODE = "claude-code-20250219"  // Required when tools are used
+
+// Headers to mimic Claude Code CLI - required for OAuth tokens to work
+// See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
+const CLAUDE_CODE_HEADERS = {
+  "user-agent": "claude-cli/2.1.7 (external, cli)",
+  "x-app": "cli",
+  "anthropic-dangerous-direct-browser-access": "true",
+}
 
 interface Message {
   role: "user" | "assistant" | "system" | "tool"
@@ -291,20 +299,24 @@ export async function POST(req: NextRequest) {
     const { system, messages: anthropicMessages } = convertToAnthropicMessages(messages)
 
     // Build Anthropic request
-    // Note: Anthropic API doesn't allow both temperature and top_p - use temperature only
+    // Note: For OAuth tokens, we remove temperature to match Claude Code's request shape
+    // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
     const anthropicRequest: AnthropicRequest = {
       model: apiModelId,
       messages: anthropicMessages,
       max_tokens: maxTokens,
-      temperature,
       stream: true,
+      tools: [], // Always include tools array for Claude Code compatibility
     }
 
     if (system) {
       anthropicRequest.system = system
     }
 
-    // Add tools if enabled
+    // Track if we have real tools (affects beta headers)
+    let hasTools = false
+
+    // Add tools if enabled (convert to PascalCase for Claude Code compatibility)
     if (enableAutoToolUse && searchApiKey) {
       const openRouterTools = [webSearchTool]
       if (enableWeatherTool) openRouterTools.push(weatherTool)
@@ -312,12 +324,12 @@ export async function POST(req: NextRequest) {
       if (enableYouTubeTool) openRouterTools.push(youtubeTranscriptTool)
 
       anthropicRequest.tools = convertToAnthropicTools(openRouterTools)
-      anthropicRequest.tool_choice = { type: "auto" }
+      // Note: Don't set tool_choice - Claude Code doesn't use it
+      hasTools = true
       console.log("[Anthropic] Tools:", anthropicRequest.tools?.map((t) => t.name).join(", "))
     }
 
     // Add extended thinking if reasoning is enabled
-    // Note: Extended thinking requires temperature=1
     if (reasoning) {
       const budgetMap: Record<string, number> = {
         minimal: 1024,
@@ -329,14 +341,17 @@ export async function POST(req: NextRequest) {
         type: "enabled",
         budget_tokens: budgetMap[reasoningDepth] || 4096,
       }
-      anthropicRequest.temperature = 1 // Required for extended thinking
+      // Note: For thinking mode, temperature must be 1 (or omitted)
       console.log("[Anthropic] Thinking enabled with budget:", budgetMap[reasoningDepth])
     }
 
-    // Build beta headers - always include OAuth, conditionally add thinking
-    const betaFeatures = reasoning
-      ? `${ANTHROPIC_BETA_OAUTH},${ANTHROPIC_BETA_THINKING}`
-      : ANTHROPIC_BETA_OAUTH
+    // Build beta headers - must match Claude Code's exact pattern
+    // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
+    const betaParts = [ANTHROPIC_BETA_OAUTH, ANTHROPIC_BETA_THINKING]
+    if (hasTools) {
+      betaParts.push(ANTHROPIC_BETA_CLAUDE_CODE)
+    }
+    const betaFeatures = betaParts.join(",")
 
     // Streaming response
     const encoder = new TextEncoder()
@@ -367,6 +382,8 @@ export async function POST(req: NextRequest) {
             "anthropic-version": ANTHROPIC_VERSION,
             "anthropic-beta": betaFeatures,
             Authorization: `Bearer ${token}`,
+            // Claude Code CLI headers - required for OAuth tokens to work
+            ...CLAUDE_CODE_HEADERS,
           },
           body: JSON.stringify(anthropicRequest),
         })
