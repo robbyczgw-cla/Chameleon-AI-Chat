@@ -374,23 +374,29 @@ export async function POST(req: NextRequest) {
         if (!response.ok) {
           const errorText = await response.text()
           let errorMessage = `Anthropic API error: ${response.status}`
+          let originalError = ""
 
           try {
             const errorJson = JSON.parse(errorText)
             if (errorJson.error?.message) {
-              errorMessage = errorJson.error.message
+              originalError = errorJson.error.message
+              errorMessage = originalError
             }
           } catch {
             if (errorText) {
-              errorMessage = errorText.substring(0, 200)
+              originalError = errorText.substring(0, 200)
+              errorMessage = originalError
             }
           }
 
-          // Check for token-specific errors
+          console.error("[Anthropic] API Error:", response.status, originalError)
+
+          // Check for token-specific errors - include original error for debugging
           if (response.status === 401 || errorMessage.includes("only authorized for use with Claude Code")) {
             errorMessage =
               "Claude Code token error: This token may have expired or is restricted. " +
-              "Run 'claude setup-token' again to generate a fresh token."
+              "Run 'claude setup-token' again to generate a fresh token. " +
+              `(Original: ${originalError})`
           }
 
           await writer.write(encoder.encode(`data: ${JSON.stringify({ error: errorMessage })}\n\n`))
