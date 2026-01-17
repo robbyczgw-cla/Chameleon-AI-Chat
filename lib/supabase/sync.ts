@@ -221,7 +221,7 @@ export class SupabaseSync {
       // Use .maybeSingle() to avoid errors if settings don't exist yet
       const { data: existingSettings, error: fetchError } = await this.supabase
         .from("user_settings")
-        .select("openrouter_api_key, openai_api_key, tavily_api_key, serper_api_key, exa_api_key")
+        .select("openrouter_api_key, openai_api_key, tavily_api_key, serper_api_key, exa_api_key, claude_code_token")
         .eq("user_id", userId)
         .maybeSingle()
 
@@ -233,7 +233,8 @@ export class SupabaseSync {
       // CRITICAL FIX: If we couldn't fetch existing settings AND settings.apiKeys is empty,
       // we must NOT update API key columns at all to prevent accidental deletion
       const hasApiKeysInSettings = settings.apiKeys?.openRouter || settings.apiKeys?.openAI ||
-                                   settings.apiKeys?.tavily || settings.apiKeys?.serper || settings.apiKeys?.exa
+                                   settings.apiKeys?.tavily || settings.apiKeys?.serper || settings.apiKeys?.exa ||
+                                   settings.apiKeys?.claudeCode
       const couldFetchExisting = !fetchError && existingSettings !== null
       const shouldUpdateApiKeys = hasApiKeysInSettings || couldFetchExisting
 
@@ -246,6 +247,7 @@ export class SupabaseSync {
       const tavilyKey = settings.apiKeys?.tavily || existingSettings?.tavily_api_key || null
       const serperKey = settings.apiKeys?.serper || existingSettings?.serper_api_key || null
       const exaKey = settings.apiKeys?.exa || existingSettings?.exa_api_key || null
+      const claudeCodeToken = settings.apiKeys?.claudeCode || existingSettings?.claude_code_token || null
 
       if (existingSettings) {
         if (existingSettings.openrouter_api_key && !settings.apiKeys?.openRouter) {
@@ -262,6 +264,9 @@ export class SupabaseSync {
         }
         if (existingSettings.exa_api_key && !settings.apiKeys?.exa) {
           console.warn("[Supabase] 🛡️ PROTECTION: Preserving existing Exa key, refusing to clear it")
+        }
+        if (existingSettings.claude_code_token && !settings.apiKeys?.claudeCode) {
+          console.warn("[Supabase] 🛡️ PROTECTION: Preserving existing Claude Code token, refusing to clear it")
         }
       }
 
@@ -296,6 +301,7 @@ export class SupabaseSync {
           tavily_api_key: tavilyKey,
           serper_api_key: serperKey,
           exa_api_key: exaKey,
+          claude_code_token: claudeCodeToken,
         }),
         search_provider: settings.searchProvider || "tavily",
         serper_max_results: settings.serperSettings?.maxResults || 5,
@@ -1173,6 +1179,7 @@ export class SupabaseSync {
         tavily: dbSettings.tavily_api_key || undefined,
         serper: dbSettings.serper_api_key || undefined,
         exa: dbSettings.exa_api_key || undefined,
+        claudeCode: dbSettings.claude_code_token || undefined,
       },
       searchProvider: dbSettings.search_provider || "tavily",
       tavilySettings: {

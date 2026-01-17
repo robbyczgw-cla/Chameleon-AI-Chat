@@ -1,4 +1,5 @@
 import type { MessageContent } from "@/types"
+import { isAnthropicDirectModel } from "@/lib/anthropic"
 
 export interface OpenRouterModel {
   id: string
@@ -211,6 +212,7 @@ export async function streamChatMessage(
     frequencyPenalty?: number
     presencePenalty?: number
     apiKey?: string
+    claudeCodeToken?: string // Claude Code CLI token for direct Anthropic access
     signal?: AbortSignal
     reasoning?: boolean
     reasoningDepth?: "minimal" | "low" | "medium" | "high"
@@ -266,6 +268,7 @@ export async function streamChatMessage(
     frequencyPenalty = 0,
     presencePenalty = 0,
     apiKey,
+    claudeCodeToken,
     signal,
     reasoning = false,
     reasoningDepth = "medium",
@@ -296,13 +299,178 @@ export async function streamChatMessage(
     onStreamingDetails,
   } = options
 
-  const maxTokens = Math.max(requestedMaxTokens || 16000, 16000)
+  const maxTokens = requestedMaxTokens || 16000
 
+  // ============================================================================
+  // ANTHROPIC DIRECT ROUTING
+  // If model is anthropic:xxx and we have a Claude Code token, route to Anthropic API
+  // ============================================================================
+  if (isAnthropicDirectModel(model) && claudeCodeToken) {
+    console.log("[v0] ===== ANTHROPIC DIRECT STREAM =====")
+    console.log("[v0] Model:", model)
+    console.log("[v0] Using Claude Code token for direct Anthropic access")
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "x-anthropic-token": claudeCodeToken,
+    }
+
+    const requestBody: Record<string, any> = {
+      messages,
+      model,
+      temperature,
+      maxTokens,
+      topP,
+      stream: true,
+      reasoning,
+      reasoningDepth,
+      enableAutoToolUse,
+      searchProvider,
+      searchApiKey,
+      searchSettings,
+      enableUrlFetchTool,
+      enableYouTubeTool,
+      enableWeatherTool,
+    }
+
+    const response = await fetch("/api/anthropic", {
+      method: "POST",
+      headers,
+      body: JSON.stringify(requestBody),
+      signal,
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("[v0] Anthropic API error:", errorText)
+      try {
+        const error = JSON.parse(errorText)
+        throw new Error(error.error || "Anthropic API error")
+      } catch {
+        throw new Error(errorText || "Anthropic API error")
+      }
+    }
+
+    // Process the Anthropic stream (same format as our standard stream)
+    const reader = response.body?.getReader()
+    const decoder = new TextDecoder()
+
+    if (!reader) {
+      throw new Error("No response body")
+    }
+
+    let buffer = ""
+    let hasStartedReasoning = false
+
+    try {
+      while (true) {
+        if (signal?.aborted) {
+          reader.cancel()
+          throw new DOMException("Aborted", "AbortError")
+        }
+
+        const { done, value } = await reader.read()
+
+        if (done) {
+          console.log("[v0] Anthropic stream complete")
+          break
+        }
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split("\n")
+        buffer = lines.pop() || ""
+
+        for (const line of lines) {
+          const trimmedLine = line.trim()
+
+          if (trimmedLine.startsWith("data: ")) {
+            const data = trimmedLine.slice(6)
+
+            if (data === "[DONE]") {
+              continue
+            }
+
+            try {
+              const parsed = JSON.parse(data)
+
+              // Handle error
+              if (parsed.error) {
+                throw new Error(parsed.error)
+              }
+
+              const delta = parsed.choices?.[0]?.delta
+
+              // Handle phase changes
+              if (delta?.phase && onPhaseChange) {
+                onPhaseChange(delta.phase)
+              }
+
+              // Handle reasoning content
+              if (delta?.reasoning_content && onReasoning) {
+                if (!hasStartedReasoning && onPhaseChange) {
+                  hasStartedReasoning = true
+                  onPhaseChange("thinking")
+                }
+                onReasoning(delta.reasoning_content)
+
+                if (onStreamingDetails) {
+                  onStreamingDetails({
+                    reasoningContent: delta.reasoning_content,
+                  })
+                }
+              }
+
+              // Handle tool use
+              if (delta?.toolName && onToolUse) {
+                onToolUse(delta.toolName)
+              }
+
+              // Handle search query
+              if (delta?.searchQuery && onSearchQuery) {
+                onSearchQuery(delta.searchQuery)
+              }
+
+              // Handle search complete
+              if (delta?.searchComplete && onSearchComplete) {
+                onSearchComplete()
+              }
+
+              // Handle content
+              if (delta?.content) {
+                onChunk(delta.content)
+              }
+
+              // Handle streaming details
+              if (onStreamingDetails && (delta?.toolName || delta?.searchQuery || delta?.resultSummary)) {
+                onStreamingDetails({
+                  toolName: delta.toolName,
+                  searchQuery: delta.searchQuery,
+                  resultSummary: delta.resultSummary,
+                })
+              }
+            } catch (e) {
+              if (e instanceof Error && e.message !== "Aborted") {
+                console.warn("[v0] Failed to parse Anthropic SSE:", data.substring(0, 50))
+              }
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock()
+    }
+
+    return // Exit early - Anthropic request handled
+  }
+
+  // ============================================================================
+  // OPENROUTER ROUTING (default)
+  // ============================================================================
   console.log("[v0] ===== STREAM CHAT MESSAGE CALLED =====")
   console.log("[v0] Model:", model)
   console.log("[v0] Temperature:", temperature)
   console.log("[v0] Requested MaxTokens:", requestedMaxTokens)
-  console.log("[v0] FINAL ENFORCED MaxTokens:", maxTokens, " <<<< THIS IS WHAT OPENROUTER GETS")
+  console.log("[v0] FINAL MaxTokens:", maxTokens, " <<<< THIS IS WHAT OPENROUTER GETS")
   console.log("[v0] Top P:", topP)
   console.log("[v0] Frequency Penalty:", frequencyPenalty)
   console.log("[v0] Presence Penalty:", presencePenalty)

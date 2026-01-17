@@ -79,6 +79,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     tavily: "",
     serper: "",
     exa: "",
+    claudeCode: "", // Claude Code CLI token for direct Anthropic API access
   },
   selectedModel: "google/gemini-3-flash-preview",
   selectedModels: ["google/gemini-3-flash-preview"],
@@ -643,6 +644,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 tavily: localSettings.apiKeys.tavily || "",
                 serper: localSettings.apiKeys.serper || "",
                 exa: localSettings.apiKeys.exa || "",
+                claudeCode: localSettings.apiKeys.claudeCode || "",
               }
             }
             // CRITICAL FIX: Preserve language from localStorage
@@ -1163,6 +1165,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (prev.apiKeys.exa && !merged.apiKeys.exa) {
         console.warn("[v0] 🛡️ PROTECTION: Prevented Exa API key from being cleared!")
         merged.apiKeys.exa = prev.apiKeys.exa
+      }
+      if (prev.apiKeys.claudeCode && !merged.apiKeys.claudeCode) {
+        console.warn("[v0] 🛡️ PROTECTION: Prevented Claude Code token from being cleared!")
+        merged.apiKeys.claudeCode = prev.apiKeys.claudeCode
       }
 
       return merged

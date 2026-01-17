@@ -1148,6 +1148,7 @@ export function ChatInput() {
         frequencyPenalty: modelParams.frequencyPenalty,
         presencePenalty: modelParams.presencePenalty,
         apiKey: settings.apiKeys.openRouter,
+        claudeCodeToken: settings.apiKeys.claudeCode, // For direct Anthropic API access
         signal: abortControllerRef.current?.signal,
         // Reasoning is controlled by reasoningDepth setting (default: medium = ON)
         // Use fallback "medium" so reasoning is enabled by default for supported models

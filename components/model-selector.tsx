@@ -8,11 +8,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { CaretDown, Sparkle } from "@phosphor-icons/react";
+import { CaretDown, Sparkle, Lightning } from "@phosphor-icons/react";
 import { POPULAR_OPENROUTER_MODELS } from "@/lib/openrouter"
 import { getUserSelectedModels } from "@/lib/model-preferences"
+import { ANTHROPIC_DIRECT_MODELS, isAnthropicDirectModel } from "@/lib/anthropic"
 
 export function ModelSelector() {
   const { settings, updateSettings, currentChatId, chats, updateChat } = useApp()
@@ -20,6 +22,9 @@ export function ModelSelector() {
 
   const currentChat = chats.find((c) => c.id === currentChatId)
   const currentModel = currentChat?.model || settings.selectedModel
+
+  // Check if Claude Code token is available
+  const hasClaudeCodeToken = Boolean(settings.apiKeys?.claudeCode)
 
   // Load user's selected models from localStorage
   const loadModels = () => {
@@ -74,20 +79,59 @@ export function ModelSelector() {
 
   const getModelDisplay = (modelId: string) => {
     if (!modelId) return "Unknown Model"
+
+    // Check Anthropic Direct models first
+    if (isAnthropicDirectModel(modelId)) {
+      const anthropicModel = ANTHROPIC_DIRECT_MODELS.find((m) => m.id === modelId)
+      return anthropicModel?.name || modelId
+    }
+
     const model = availableModels.find((m) => m.id === modelId)
     return model?.name || modelId
   }
+
+  // Check if current model is Anthropic Direct
+  const isCurrentModelDirect = isAnthropicDirectModel(currentModel)
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="gap-2 bg-transparent">
-          <Sparkle className="h-4 w-4" />
+          {isCurrentModelDirect ? (
+            <Lightning className="h-4 w-4 text-amber-500" weight="fill" />
+          ) : (
+            <Sparkle className="h-4 w-4" />
+          )}
           <span className="max-w-[150px] truncate">{getModelDisplay(currentModel)}</span>
           <CaretDown className="h-4 w-4 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[280px] max-h-[500px] overflow-y-auto">
+        {/* Anthropic Direct Models - only shown when token is set */}
+        {hasClaudeCodeToken && (
+          <>
+            <DropdownMenuLabel className="flex items-center justify-between">
+              <span>Claude (Direct)</span>
+              <Lightning className="h-4 w-4 text-amber-500" weight="fill" />
+            </DropdownMenuLabel>
+            {ANTHROPIC_DIRECT_MODELS.map((model) => (
+              <DropdownMenuItem
+                key={model.id}
+                onClick={() => handleModelChange(model.id)}
+                className={currentModel === model.id ? "bg-accent" : ""}
+              >
+                <div className="flex flex-col gap-1">
+                  <div className="font-medium flex items-center gap-1.5">
+                    {model.name}
+                  </div>
+                  <div className="text-xs text-muted-foreground">{model.description}</div>
+                </div>
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator />
+          </>
+        )}
+
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Cloud Models</span>
           <Sparkle className="h-4 w-4" />

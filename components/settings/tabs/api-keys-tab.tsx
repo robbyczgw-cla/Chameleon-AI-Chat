@@ -133,6 +133,34 @@ export function ApiKeysTab({ localSettings, setLocalSettings }: ApiKeysTabProps)
           - Best for RAG, semantic search & research (~$0.01/search)
         </p>
       </div>
+
+      <div className="space-y-2 border-t pt-4 mt-4">
+        <Label htmlFor="claude-code-token" className="text-sm sm:text-base flex items-center gap-2">
+          <span className="text-lg">🤖</span>
+          Claude Code CLI Token (Direct Anthropic Access)
+        </Label>
+        <Input
+          id="claude-code-token"
+          type="password"
+          placeholder="sk-ant-oat01-..."
+          value={localSettings.apiKeys?.claudeCode || ""}
+          onChange={(e) =>
+            setLocalSettings({
+              ...localSettings,
+              apiKeys: { ...localSettings.apiKeys, claudeCode: e.target.value },
+            })
+          }
+          className="text-sm sm:text-base min-h-[44px]"
+        />
+        <p className="text-xs text-muted-foreground">
+          Use your Claude Pro/Max subscription directly. Generate token with{" "}
+          <code className="bg-muted px-1 py-0.5 rounded text-[10px]">claude setup-token</code>{" "}
+          in terminal. When set, "Claude (Direct)" models appear in model selector.
+        </p>
+        <p className="text-xs text-amber-600 dark:text-amber-400">
+          ⚠️ This token expires. Re-run <code className="bg-muted px-1 py-0.5 rounded text-[10px]">claude setup-token</code> if API calls fail.
+        </p>
+      </div>
     </div>
   )
 }
