@@ -29,7 +29,12 @@ import {
 } from "@/lib/tools"
 import { fetchUrlContent, fetchYouTubeTranscript, formatUrlFetchResult, formatYouTubeResult } from "@/lib/url-tools"
 
-export const runtime = "edge"
+// IMPORTANT: Using Node.js runtime instead of Edge because:
+// Vercel Edge Functions CANNOT override the user-agent header in fetch requests
+// (see GitHub issues #31085, #35546). The user-agent gets forced to "Next.js Middleware".
+// For Claude Code CLI token auth, Anthropic checks user-agent to verify the request
+// comes from the official CLI, so we need full header control.
+export const runtime = "nodejs"
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 const ANTHROPIC_VERSION = "2023-06-01"
