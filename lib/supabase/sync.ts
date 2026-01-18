@@ -248,6 +248,7 @@ export class SupabaseSync {
       const serperKey = settings.apiKeys?.serper || existingSettings?.serper_api_key || null
       const exaKey = settings.apiKeys?.exa || existingSettings?.exa_api_key || null
       const claudeCodeToken = settings.apiKeys?.claudeCode || existingSettings?.claude_code_token || null
+      const anthropicApiKey = settings.apiKeys?.anthropicApiKey || existingSettings?.anthropic_api_key || null
 
       if (existingSettings) {
         if (existingSettings.openrouter_api_key && !settings.apiKeys?.openRouter) {
@@ -267,6 +268,9 @@ export class SupabaseSync {
         }
         if (existingSettings.claude_code_token && !settings.apiKeys?.claudeCode) {
           console.warn("[Supabase] 🛡️ PROTECTION: Preserving existing Claude Code token, refusing to clear it")
+        }
+        if (existingSettings.anthropic_api_key && !settings.apiKeys?.anthropicApiKey) {
+          console.warn("[Supabase] 🛡️ PROTECTION: Preserving existing Anthropic API key, refusing to clear it")
         }
       }
 
@@ -302,6 +306,7 @@ export class SupabaseSync {
           serper_api_key: serperKey,
           exa_api_key: exaKey,
           claude_code_token: claudeCodeToken,
+          anthropic_api_key: anthropicApiKey,
         }),
         search_provider: settings.searchProvider || "tavily",
         serper_max_results: settings.serperSettings?.maxResults || 5,

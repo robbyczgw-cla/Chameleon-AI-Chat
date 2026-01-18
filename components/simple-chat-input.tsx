@@ -1041,7 +1041,8 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
         frequencyPenalty: 0,
         presencePenalty: 0,
         apiKey: settings.apiKeys.openRouter,
-        claudeCodeToken: settings.apiKeys.claudeCode, // For direct Anthropic API access
+        claudeCodeToken: settings.apiKeys.claudeCode, // For direct Anthropic API access (OAuth)
+        anthropicApiKey: settings.apiKeys.anthropicApiKey, // For direct Anthropic API access (recommended)
         signal: chatAbortControllerRef.current?.signal,
         // Reasoning controlled by settings (depth selector in advanced mode)
         reasoning: !!settings.reasoningDepth && modelSupportsReasoning,

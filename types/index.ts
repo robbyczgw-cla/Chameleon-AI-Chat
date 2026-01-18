@@ -442,6 +442,7 @@ export interface AppSettings {
     serper?: string
     exa?: string
     claudeCode?: string // Claude Code CLI token (sk-ant-oat01-...) for direct Anthropic API access
+    anthropicApiKey?: string // Anthropic API key (sk-ant-api03-...) for direct API access (recommended)
   }
   selectedModel: string
   defaultModel?: string // User's custom default model for new chats (Advanced Mode setting)

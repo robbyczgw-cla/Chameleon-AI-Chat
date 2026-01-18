@@ -147,7 +147,7 @@ export const ANTHROPIC_DIRECT_MODELS: AnthropicModel[] = [
   },
   {
     id: "anthropic:claude-haiku-4-5",
-    apiId: "claude-3-5-haiku-20241022",
+    apiId: "claude-haiku-4-5-20250501",
     name: "Claude Haiku 4.5 (Direct)",
     description: "Fastest model for quick tasks and high-volume processing",
     contextWindow: 200000,

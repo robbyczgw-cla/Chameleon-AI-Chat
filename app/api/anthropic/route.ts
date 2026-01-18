@@ -49,8 +49,10 @@ const ANTHROPIC_BETA_CLAUDE_CODE = "claude-code-20250219"
 
 // Headers to mimic Claude Code CLI - required for OAuth tokens to work
 // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
+// IMPORTANT: Version should match current Claude Code CLI version
+const CLAUDE_CODE_VERSION = "2.1.12"
 const CLAUDE_CODE_HEADERS = {
-  "user-agent": "claude-cli/2.1.7 (external, cli)",
+  "user-agent": `claude-cli/${CLAUDE_CODE_VERSION} (external, cli)`,
   "x-app": "cli",
   "anthropic-dangerous-direct-browser-access": "true",
   // x-stainless headers to match official SDK
@@ -60,7 +62,7 @@ const CLAUDE_CODE_HEADERS = {
   "x-stainless-package-version": "0.52.0",
   "x-stainless-retry-count": "0",
   "x-stainless-runtime": "node",
-  "x-stainless-runtime-version": "v22.12.0",
+  "x-stainless-runtime-version": "v22.22.0",
 }
 
 /**
@@ -313,12 +315,21 @@ export async function POST(req: NextRequest) {
       enableWeatherTool = true,
     } = body as ChatRequest
 
-    // Get token from header
+    // Get token from header - supports both OAuth tokens (sk-ant-oat01-...) and API keys (sk-ant-api03-...)
     const token = req.headers.get("x-anthropic-token")
+    const apiKey = req.headers.get("x-anthropic-api-key")
+    
+    // Determine which auth method to use
+    const isOAuthToken = token?.startsWith("sk-ant-oat")
+    const isApiKey = apiKey?.startsWith("sk-ant-api") || apiKey?.startsWith("sk-ant-")
+    const authToken = isApiKey ? apiKey : token
 
-    if (!token) {
+    if (!authToken) {
       return NextResponse.json(
-        { error: "Claude Code token required. Please add your token in Settings > API Keys." },
+        { 
+          error: "Authentication required. Please add your Claude Code CLI token (sk-ant-oat01-...) or Anthropic API key (sk-ant-api03-...) in Settings > API Keys.",
+          hint: "Run 'claude setup-token' to get an OAuth token, or create an API key at console.anthropic.com"
+        },
         { status: 401 }
       )
     }
@@ -326,6 +337,7 @@ export async function POST(req: NextRequest) {
     console.log("[Anthropic] ===== API ROUTE CALLED =====")
     console.log("[Anthropic] Model:", model)
     console.log("[Anthropic] Stream:", stream)
+    console.log("[Anthropic] Auth type:", isOAuthToken ? "OAuth token" : isApiKey ? "API key" : "unknown")
     console.log("[Anthropic] Tools enabled:", enableAutoToolUse && !!searchApiKey)
 
     // Convert model ID to Anthropic API model ID
@@ -391,15 +403,18 @@ export async function POST(req: NextRequest) {
       console.log("[Anthropic] Thinking enabled with budget:", budgetMap[reasoningDepth])
     }
 
-    // Build beta headers - must match Claude Code's exact pattern
-    // See: https://github.com/anomalyco/opencode-anthropic-auth/pull/15
-    // IMPORTANT: claude-code-20250219 identifies request as coming from Claude Code
-    // This must ALWAYS be included for OAuth tokens to work
-    const betaParts = [ANTHROPIC_BETA_OAUTH, ANTHROPIC_BETA_CLAUDE_CODE]
+    // Build beta headers - different for OAuth tokens vs API keys
+    // For OAuth tokens: must match Claude Code's exact pattern
+    // For API keys: standard Anthropic API headers
+    const betaParts: string[] = []
+    if (isOAuthToken) {
+      // OAuth tokens need claude-code identification
+      betaParts.push(ANTHROPIC_BETA_OAUTH, ANTHROPIC_BETA_CLAUDE_CODE)
+    }
     if (reasoning) {
       betaParts.push(ANTHROPIC_BETA_THINKING)
     }
-    const betaFeatures = betaParts.join(",")
+    const betaFeatures = betaParts.length > 0 ? betaParts.join(",") : undefined
 
     console.log("[Anthropic] Beta features:", betaFeatures)
     console.log("[Anthropic] Request (without messages):", JSON.stringify({
@@ -433,26 +448,38 @@ export async function POST(req: NextRequest) {
           )
         )
 
-        // Build headers object for logging
-        const requestHeaders = {
+        // Build headers based on auth type
+        // OAuth tokens need Claude Code CLI headers; API keys use standard headers
+        const baseHeaders: Record<string, string> = {
           "Content-Type": "application/json",
           "anthropic-version": ANTHROPIC_VERSION,
-          "anthropic-beta": betaFeatures,
-          Authorization: `Bearer ${token.substring(0, 20)}...`,
-          ...CLAUDE_CODE_HEADERS,
         }
-        console.log("[Anthropic] Headers being sent:", JSON.stringify(requestHeaders, null, 2))
+        
+        if (betaFeatures) {
+          baseHeaders["anthropic-beta"] = betaFeatures
+        }
+        
+        // OAuth tokens use Bearer auth + Claude Code headers; API keys use x-api-key
+        if (isOAuthToken) {
+          baseHeaders["Authorization"] = `Bearer ${authToken}`
+          Object.assign(baseHeaders, CLAUDE_CODE_HEADERS)
+        } else {
+          baseHeaders["x-api-key"] = authToken!
+        }
+        
+        // Log headers (with token truncated)
+        const logHeaders = { ...baseHeaders }
+        if (logHeaders["Authorization"]) {
+          logHeaders["Authorization"] = `Bearer ${authToken!.substring(0, 20)}...`
+        }
+        if (logHeaders["x-api-key"]) {
+          logHeaders["x-api-key"] = `${authToken!.substring(0, 15)}...`
+        }
+        console.log("[Anthropic] Headers being sent:", JSON.stringify(logHeaders, null, 2))
 
         const response = await fetch(ANTHROPIC_API_URL, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "anthropic-version": ANTHROPIC_VERSION,
-            "anthropic-beta": betaFeatures,
-            Authorization: `Bearer ${token}`,
-            // Claude Code CLI headers - required for OAuth tokens to work
-            ...CLAUDE_CODE_HEADERS,
-          },
+          headers: baseHeaders,
           body: JSON.stringify(anthropicRequest),
         })
 
@@ -482,12 +509,30 @@ export async function POST(req: NextRequest) {
           console.error("[Anthropic] API Error Status:", response.status)
           console.error("[Anthropic] Error Type:", errorType)
           console.error("[Anthropic] Error Message:", originalError)
-          console.error("[Anthropic] Token prefix:", token.substring(0, 25))
+          console.error("[Anthropic] Auth type:", isOAuthToken ? "OAuth token" : "API key")
+          console.error("[Anthropic] Token prefix:", authToken?.substring(0, 25))
           console.error("[Anthropic] ==========================================")
 
-          // Check for token-specific errors - show full error for debugging
-          if (response.status === 401 || errorMessage.includes("only authorized for use with Claude Code")) {
-            errorMessage = `Auth Error (${response.status}): ${originalError}`
+          // Provide helpful error messages based on auth type and error
+          if (response.status === 401) {
+            if (isOAuthToken && originalError.includes("only authorized for use with Claude Code")) {
+              // This specific error means the OAuth token is restricted
+              errorMessage = `OAuth Token Restricted: This token is limited to Claude Code CLI only. Options:\n` +
+                `1. Use an Anthropic API key instead (recommended)\n` +
+                `2. Try running 'claude setup-token' again for a fresh token\n` +
+                `Original: ${originalError}`
+            } else if (isOAuthToken && (originalError.includes("expired") || originalError.includes("invalid"))) {
+              errorMessage = `OAuth Token Expired/Invalid: Run 'claude setup-token' to get a new token.\n` +
+                `Original: ${originalError}`
+            } else {
+              errorMessage = `Authentication Error (${response.status}): ${originalError}`
+            }
+          } else if (response.status === 403) {
+            errorMessage = `Permission Denied: Your ${isOAuthToken ? "OAuth token" : "API key"} doesn't have access to this model.\n` +
+              `Original: ${originalError}`
+          } else if (response.status === 429) {
+            errorMessage = `Rate Limited: Too many requests. Please wait and try again.\n` +
+              `Original: ${originalError}`
           }
 
           await writer.write(encoder.encode(`data: ${JSON.stringify({ error: errorMessage })}\n\n`))

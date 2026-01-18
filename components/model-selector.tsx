@@ -23,8 +23,8 @@ export function ModelSelector() {
   const currentChat = chats.find((c) => c.id === currentChatId)
   const currentModel = currentChat?.model || settings.selectedModel
 
-  // Check if Claude Code token is available
-  const hasClaudeCodeToken = Boolean(settings.apiKeys?.claudeCode)
+  // Check if direct Anthropic auth is available (API key preferred, OAuth fallback)
+  const hasAnthropicAuth = Boolean(settings.apiKeys?.anthropicApiKey || settings.apiKeys?.claudeCode)
 
   // Load user's selected models from localStorage
   const loadModels = () => {
@@ -107,8 +107,8 @@ export function ModelSelector() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[280px] max-h-[500px] overflow-y-auto">
-        {/* Anthropic Direct Models - only shown when token is set */}
-        {hasClaudeCodeToken && (
+        {/* Anthropic Direct Models - shown when API key or OAuth token is set */}
+        {hasAnthropicAuth && (
           <>
             <DropdownMenuLabel className="flex items-center justify-between">
               <span>Claude (Direct)</span>

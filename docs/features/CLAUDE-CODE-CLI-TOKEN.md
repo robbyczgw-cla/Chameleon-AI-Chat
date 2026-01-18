@@ -1,17 +1,23 @@
-# Claude Code CLI Token Integration
+# Direct Anthropic API Integration
 
-> Use your Claude Pro/Max subscription directly in Chameleon Chat without paying for API credits
+> Use Claude models directly without OpenRouter — via API key (recommended) or Claude Pro/Max subscription
 
 ## Overview
 
-This feature allows you to use your existing Claude subscription (Pro or Max) to access Claude models directly through the Anthropic API, bypassing OpenRouter. This is similar to how [Clawd.bot](https://docs.clawd.bot/gateway/authentication#anthropic:-claude-code-cli-setup-token-supported) works.
+This feature allows you to access Claude models directly through the Anthropic API, bypassing OpenRouter. You have two authentication options:
+
+1. **Anthropic API Key (Recommended)** — Pay-per-use, most reliable
+2. **Claude Code CLI Token (OAuth)** — Use your Claude Pro/Max subscription credits
+
+This implementation is inspired by how [Clawd.bot](https://docs.clawd.bot/gateway/authentication#anthropic:-claude-code-cli-setup-token-supported) handles Anthropic authentication.
 
 ### Benefits
 
-- **Use your subscription**: If you have Claude Pro ($20/mo) or Claude Max ($100/mo), you can use those credits
 - **Direct API access**: Requests go directly to Anthropic, not through a proxy
 - **Full model access**: Access to Claude Opus 4.5, Sonnet 4.5, and Haiku 4.5
 - **Extended thinking**: Support for Claude's extended thinking mode
+- **Flexible auth**: Use API key (pay-per-use) or OAuth token (subscription-based)
+- **Better reliability**: API key method avoids OAuth token restrictions
 
 ### How It Works
 
@@ -27,9 +33,26 @@ This feature allows you to use your existing Claude subscription (Pro or Max) to
 
 ## Setup Instructions
 
-### Step 1: Install Claude Code CLI
+### Option A: Anthropic API Key (Recommended)
 
-If you don't have Claude Code CLI installed:
+This is the most reliable method. You pay per token used.
+
+1. Go to [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
+2. Create a new API key
+3. Open Chameleon Chat → **Settings** → **API Keys**
+4. Paste your key in **Anthropic API Key** field (`sk-ant-api03-...`)
+5. Click **Save**
+
+**Benefits:**
+- ✅ Most reliable — no OAuth restrictions
+- ✅ Doesn't expire
+- ✅ Consistent behavior
+
+### Option B: Claude Code CLI Token (Subscription-based)
+
+Use your Claude Pro/Max subscription credits. Requires Claude Code CLI.
+
+#### Step 1: Install Claude Code CLI
 
 ```bash
 # macOS/Linux
@@ -39,9 +62,7 @@ curl -fsSL https://claude.ai/install.sh | sh
 npm install -g @anthropic-ai/claude-code
 ```
 
-### Step 2: Generate Setup Token
-
-Run this command in your terminal:
+#### Step 2: Generate Setup Token
 
 ```bash
 claude setup-token
@@ -54,18 +75,20 @@ This will:
 
 The token looks like: `sk-ant-oat01-XXXXXXXXXXXXXXXXXXXXX`
 
-### Step 3: Add Token to Chameleon
+#### Step 3: Add Token to Chameleon
 
-1. Open Chameleon Chat
-2. Go to **Settings** (gear icon)
-3. Navigate to **API Keys** tab
-4. Scroll to **Claude Code CLI Token** section
-5. Paste your token
-6. Click **Save**
+1. Open Chameleon Chat → **Settings** → **API Keys**
+2. Paste your token in **Claude Code CLI Token** field
+3. Click **Save**
 
-### Step 4: Select a Claude (Direct) Model
+**Caveats:**
+- ⚠️ Token expires after ~8 hours
+- ⚠️ Some tokens are restricted to Claude Code CLI only (you'll see "only authorized for use with Claude Code" error)
+- ⚠️ If OAuth fails, use an API key instead
 
-After adding the token, "Claude (Direct)" models will appear at the top of the model selector with a lightning bolt icon:
+### Step 3: Select a Claude (Direct) Model
+
+After adding either auth method, "Claude (Direct)" models appear at the top of the model selector with a ⚡ icon:
 
 - ⚡ Claude Opus 4.5 (Direct)
 - ⚡ Claude Sonnet 4.5 (Direct)
@@ -147,15 +170,26 @@ COMMENT ON COLUMN user_settings.claude_code_token IS
 
 ## Troubleshooting
 
-### "Claude Code token required"
+### "Authentication required"
 
-**Cause**: No token configured or token is empty.
+**Cause**: No auth method configured.
 
-**Solution**: Add your token in Settings > API Keys > Claude Code CLI Token.
+**Solution**: Add either:
+- Anthropic API key (`sk-ant-api03-...`) — recommended
+- Claude Code CLI token (`sk-ant-oat01-...`)
 
-### "This token may have expired or is restricted"
+### "OAuth Token Restricted" / "Only authorized for use with Claude Code"
 
-**Cause**: The OAuth token has expired or Anthropic rejected it.
+**Cause**: Anthropic restricts some OAuth tokens to only work with the official Claude Code CLI.
+
+**Solution** (in order of preference):
+1. **Use an Anthropic API key instead** — Most reliable option. Get one at [console.anthropic.com](https://console.anthropic.com/settings/keys)
+2. Try generating a fresh OAuth token with `claude setup-token`
+3. Use OpenRouter as fallback (with `anthropic/` models)
+
+### "OAuth Token Expired/Invalid"
+
+**Cause**: OAuth tokens expire after ~8 hours.
 
 **Solution**:
 1. Run `claude setup-token` in terminal
@@ -164,27 +198,31 @@ COMMENT ON COLUMN user_settings.claude_code_token IS
 
 ### "Claude (Direct) models not appearing"
 
-**Cause**: Token not saved or page needs refresh.
+**Cause**: No auth method configured or page needs refresh.
 
 **Solution**:
-1. Verify token is saved in Settings
+1. Verify an API key or OAuth token is saved in Settings > API Keys
 2. Refresh the page
 3. Check browser console for errors
 
-### "Only authorized for use with Claude Code"
+### "Permission Denied"
 
-**Cause**: Anthropic may restrict some tokens to only work with the official CLI.
+**Cause**: Your auth method doesn't have access to the selected model.
 
-**Solution**: This is a known limitation. Try generating a fresh token, or use OpenRouter as fallback.
+**Solution**:
+- Ensure you have Claude Pro/Max subscription (for OAuth)
+- Ensure your API key has access to the model tier
+- Try a different model (e.g., Haiku instead of Opus)
 
 ### Streaming stops mid-response
 
 **Cause**: Token expired during generation or rate limit hit.
 
 **Solution**:
-1. Generate fresh token with `claude setup-token`
-2. If on Claude Pro, you may have hit usage limits
+1. If using OAuth: Generate fresh token with `claude setup-token`
+2. If on Claude Pro: You may have hit usage limits
 3. Wait a few minutes and try again
+4. Consider using an API key for longer sessions
 
 ## Architecture
 

@@ -6,6 +6,41 @@ This project is now **v1.0 Beta** - feature-complete and ready for public releas
 
 ---
 
+## [1.4.1] - 2026-01-18
+
+### 🔐 Direct Anthropic Auth Improvements
+
+Enhanced authentication for direct Anthropic API access with better reliability and error handling.
+
+#### New Features
+
+- **Anthropic API Key Support (Recommended)** — Use a standard Anthropic API key (`sk-ant-api03-...`) as a more reliable alternative to OAuth tokens
+- **Dual Auth Options** — Choose between pay-per-use API key or subscription-based OAuth token
+- **Better Error Messages** — Clear guidance when authentication fails, including specific help for "only authorized for use with Claude Code" errors
+- **Updated CLI Headers** — Now matches Claude Code CLI v2.1.12 for better OAuth compatibility
+
+#### Bug Fixes
+
+- Fixed Haiku model ID: Updated from `claude-3-5-haiku-20241022` to `claude-haiku-4-5-20250501`
+- Fixed CLI version in headers: Updated from v2.1.7 to v2.1.12
+- API keys now use `x-api-key` header (standard Anthropic auth) instead of Bearer token
+
+#### Technical Details
+
+- API keys skip Claude Code CLI headers (not needed)
+- OAuth tokens use Claude Code CLI headers + beta features for compatibility
+- Added proper header selection based on auth type
+- Database sync now includes `anthropic_api_key` column
+
+#### Migration Notes
+
+If you see "only authorized for use with Claude Code" errors with your OAuth token:
+1. Create an API key at [console.anthropic.com](https://console.anthropic.com/settings/keys)
+2. Add it in Settings > API Keys > Anthropic API Key
+3. The API key will be used automatically (preferred over OAuth token)
+
+---
+
 ## [1.4.0] - 2026-01-17
 
 ### ⚡ Claude Code CLI Token Support

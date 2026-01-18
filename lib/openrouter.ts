@@ -213,6 +213,7 @@ export async function streamChatMessage(
     presencePenalty?: number
     apiKey?: string
     claudeCodeToken?: string // Claude Code CLI token for direct Anthropic access
+    anthropicApiKey?: string // Anthropic API key for direct API access (recommended)
     signal?: AbortSignal
     reasoning?: boolean
     reasoningDepth?: "minimal" | "low" | "medium" | "high"
@@ -269,6 +270,7 @@ export async function streamChatMessage(
     presencePenalty = 0,
     apiKey,
     claudeCodeToken,
+    anthropicApiKey,
     signal,
     reasoning = false,
     reasoningDepth = "medium",
@@ -303,16 +305,23 @@ export async function streamChatMessage(
 
   // ============================================================================
   // ANTHROPIC DIRECT ROUTING
-  // If model is anthropic:xxx and we have a Claude Code token, route to Anthropic API
+  // If model is anthropic:xxx and we have auth (API key preferred, OAuth fallback), route to Anthropic API
   // ============================================================================
-  if (isAnthropicDirectModel(model) && claudeCodeToken) {
+  const hasAnthropicAuth = anthropicApiKey || claudeCodeToken
+  if (isAnthropicDirectModel(model) && hasAnthropicAuth) {
     console.log("[v0] ===== ANTHROPIC DIRECT STREAM =====")
     console.log("[v0] Model:", model)
-    console.log("[v0] Using Claude Code token for direct Anthropic access")
+    console.log("[v0] Auth type:", anthropicApiKey ? "API key (recommended)" : "OAuth token")
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      "x-anthropic-token": claudeCodeToken,
+    }
+    
+    // Prefer API key over OAuth token (more reliable)
+    if (anthropicApiKey) {
+      headers["x-anthropic-api-key"] = anthropicApiKey
+    } else if (claudeCodeToken) {
+      headers["x-anthropic-token"] = claudeCodeToken
     }
 
     const requestBody: Record<string, any> = {
