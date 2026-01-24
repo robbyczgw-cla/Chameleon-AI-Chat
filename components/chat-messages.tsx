@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowsClockwise, CaretDown, CaretRight, Check, Copy, FloppyDisk, Lightbulb, Pencil, Play, Robot, SpeakerHigh, SpeakerSlash, Stop, Trash, User, X } from "@phosphor-icons/react";
+import { CaretDown, CaretRight, Check, Copy, FloppyDisk, Lightbulb, Pencil, Play, Robot, SpeakerHigh, SpeakerSlash, Stop, Trash, User, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import { useState, memo, useCallback, useMemo } from "react"
 import dynamic from "next/dynamic"
@@ -583,18 +583,6 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
     setTimeout(() => setSpeakingId(null), estimatedDuration)
   }
 
-  const handleRegenerate = async (messageIndex: number) => {
-    if (!currentChat) return
-
-    const updatedMessages = currentChat.messages.slice(0, messageIndex)
-    updateChat(currentChat.id, { messages: updatedMessages })
-
-    toast({
-      title: "Regenerating response",
-      description: "This will be implemented with the chat input integration",
-    })
-  }
-
   const handleDelete = (messageIndex: number) => {
     if (!currentChat) return
 
@@ -848,7 +836,7 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                         className="h-7 px-2"
                       >
                         <FloppyDisk className="h-3 w-3 mr-1" />
-                        Save & Regenerate
+                        Save
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -1129,17 +1117,6 @@ export const ChatMessages = memo(({ currentPersona }: ChatMessagesProps = {}) =>
                     title={speakingId === message.id ? "Stop speaking" : "Read aloud"}
                   >
                     {speakingId === message.id ? <SpeakerSlash className="h-3 w-3" /> : <SpeakerHigh className="h-3 w-3" />}
-                  </Button>
-                )}
-                {message.role === "assistant" && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 sm:h-7 sm:w-7"
-                    onClick={() => handleRegenerate(index)}
-                    title="Regenerate response"
-                  >
-                    <ArrowsClockwise className="h-3 w-3" />
                   </Button>
                 )}
                 {message.role === "user" && editingMessageId !== message.id && (
