@@ -570,6 +570,16 @@ export async function streamChatMessage(
       }
     }
   } finally {
+    // CRITICAL FIX: Properly cancel and release the reader
+    // On iOS Safari, not canceling the reader before releasing the lock
+    // can cause the underlying connection to remain in an uncertain state,
+    // which causes subsequent requests to fail with "Could not get response"
+    try {
+      await reader.cancel()
+    } catch (cancelError) {
+      // Ignore cancel errors - the stream might already be closed
+      console.log("[v0] Reader cancel completed (or already closed)")
+    }
     reader.releaseLock()
   }
 }
