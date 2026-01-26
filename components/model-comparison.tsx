@@ -283,6 +283,12 @@ export function ModelComparison() {
         } catch (streamError) {
           console.log(`[v0] Stream ended for ${panel.model} (this is normal)`)
         } finally {
+          // CRITICAL FIX: Properly cancel and release the reader for iOS Safari compatibility
+          try {
+            await reader.cancel()
+          } catch (e) {
+            // Ignore cancel errors - stream might already be closed
+          }
           try {
             reader.releaseLock()
           } catch (e) {}
