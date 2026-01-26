@@ -353,12 +353,20 @@ export async function streamChatMessage(
 
   // REMOVED: Large console.log of full request body was causing memory pressure during streaming
 
-  const response = await fetch("/api/chat", {
-    method: "POST",
-    headers,
-    body: JSON.stringify(requestBody),
-    signal,
-  })
+  let response: Response
+  try {
+    response = await fetch("/api/chat", {
+      method: "POST",
+      headers,
+      body: JSON.stringify(requestBody),
+      signal,
+    })
+  } catch (fetchError) {
+    // Network error or connection issue (common on iOS when connection is interrupted)
+    const errorMessage = fetchError instanceof Error ? fetchError.message : "Network request failed"
+    console.error("[v0] Fetch failed:", errorMessage)
+    throw new Error(`Network error: ${errorMessage}`)
+  }
 
   console.log("[v0] Response received - status:", response.status)
   console.log("[v0] Response content-type:", response.headers.get("content-type"))
@@ -368,10 +376,14 @@ export async function streamChatMessage(
     console.error("[v0] Stream error response:", errorText)
     try {
       const error = JSON.parse(errorText)
-      throw new Error(error.error || "Failed to send message")
+      throw new Error(`HTTP ${response.status}: ${error.error || "Failed to send message"}`)
     } catch {
-      throw new Error(errorText || "Failed to send message")
+      throw new Error(`HTTP ${response.status}: ${errorText || "Failed to send message"}`)
     }
+  }
+
+  if (!response.body) {
+    throw new Error("Response has no body - connection may have been interrupted")
   }
 
   const reader = response.body?.getReader()
