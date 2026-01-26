@@ -1434,9 +1434,14 @@ export function SimpleChatInput({ selectedPersona, webSearchEnabled: initialWebS
       }
       addMessage(chatId, errorMessage)
 
+      // Enhanced debugging: Include actual error in description for iOS debugging
+      const debugInfo = error instanceof Error
+        ? `${error.name}: ${error.message.substring(0, 100)}`
+        : String(error).substring(0, 100)
+
       toast({
         title: errorTitle,
-        description: errorDescription,
+        description: `${errorDescription} [${debugInfo}]`,
         variant: "destructive",
       })
     } finally {
