@@ -589,13 +589,28 @@ async function handleNonStreamingRequest(
   while (iterations < MAX_ITERATIONS) {
     iterations++
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    // OpenClaw Gateway integration - use local OpenClaw instance instead of OpenRouter
+    const isOpenClawMode = process.env.OPENCLAW_MODE === "true"
+    const openClawUrl = process.env.OPENCLAW_GATEWAY_URL || "https://ubuntu-16gb-nbg1-1.tail8a9ea9.ts.net/v1/chat/completions"
+    const openClawToken = process.env.OPENCLAW_GATEWAY_TOKEN || "fae07cb6f0c955c4b6592f12d695230c5466123be51e1f4b"
+    const openClawAgent = process.env.OPENCLAW_AGENT_ID || "main"
+
+    const apiUrl = isOpenClawMode ? openClawUrl : "https://openrouter.ai/api/v1/chat/completions"
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    }
+
+    if (isOpenClawMode) {
+      headers["Authorization"] = `Bearer ${openClawToken}`
+      headers["x-openclaw-agent-id"] = openClawAgent
+    } else {
+      headers["Authorization"] = `Bearer ${apiKey}`
+      Object.assign(headers, getOpenRouterHeaders())
+    }
+
+    const response = await fetch(apiUrl, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        ...getOpenRouterHeaders(),
-      },
+      headers,
       body: JSON.stringify({ ...openRouterBody, messages: currentMessages }),
     })
 
@@ -797,13 +812,28 @@ async function handleStreamingRequest(
           })
         }
 
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        // OpenClaw Gateway integration - use local OpenClaw instance instead of OpenRouter
+        const isOpenClawMode = process.env.OPENCLAW_MODE === "true"
+        const openClawUrl = process.env.OPENCLAW_GATEWAY_URL || "https://ubuntu-16gb-nbg1-1.tail8a9ea9.ts.net/v1/chat/completions"
+        const openClawToken = process.env.OPENCLAW_GATEWAY_TOKEN || "fae07cb6f0c955c4b6592f12d695230c5466123be51e1f4b"
+        const openClawAgent = process.env.OPENCLAW_AGENT_ID || "main"
+
+        const apiUrl = isOpenClawMode ? openClawUrl : "https://openrouter.ai/api/v1/chat/completions"
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        }
+
+        if (isOpenClawMode) {
+          headers["Authorization"] = `Bearer ${openClawToken}`
+          headers["x-openclaw-agent-id"] = openClawAgent
+        } else {
+          headers["Authorization"] = `Bearer ${apiKey}`
+          Object.assign(headers, getOpenRouterHeaders())
+        }
+
+        const response = await fetch(apiUrl, {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-            ...getOpenRouterHeaders(),
-          },
+          headers,
           body: JSON.stringify({ ...openRouterBody, messages: currentMessages }),
         })
 
