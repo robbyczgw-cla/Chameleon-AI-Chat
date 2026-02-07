@@ -2171,7 +2171,7 @@ OpenRouter provides unified access to 100+ AI models from multiple providers:
 // Request headers:
 {
   "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-  "HTTP-Referer": "https://chameleon-ai.app", // For analytics
+  "HTTP-Referer": "http://localhost:3000", // For analytics
   "X-Title": "Chameleon AI Chat",            // App identification
   "Content-Type": "application/json"
 }

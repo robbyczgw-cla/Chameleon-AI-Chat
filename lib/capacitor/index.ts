@@ -21,7 +21,7 @@ export const isPluginAvailable = (pluginName: string): boolean => {
 export const getServerUrl = (): string => {
   if (isNative) {
     // In native, we use the configured server URL
-    return process.env.NEXT_PUBLIC_API_URL || 'https://chameleon-ai.vercel.app'
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
   }
   return typeof window !== 'undefined' ? window.location.origin : ''
 }
