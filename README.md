@@ -3,6 +3,7 @@
 An open-source AI chat application with real-time cost tracking, 31 conversational personas, semantic memory, and training data export. Access 100+ AI models through a beautiful, privacy-focused interface.
 
 <p align="center">
+  <a href="https://vercel.com/new/clone?repository-url=https://github.com/robbyczgw-cla/Chameleon-AI-Chat"><img src="https://vercel.com/button" alt="Deploy with Vercel"></a>
 </p>
 
 <p align="center">
