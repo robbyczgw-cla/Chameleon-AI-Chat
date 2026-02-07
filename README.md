@@ -22,7 +22,7 @@ An open-source AI chat application with real-time cost tracking, 31 conversation
 
 ## Table of Contents
 
-- [Try It Now](#try-it-now)
+- [Getting Started](#getting-started)
 - [Why Chameleon?](#why-chameleon)
 - [Features](#features)
 - [Personas](#personas)
@@ -39,26 +39,18 @@ An open-source AI chat application with real-time cost tracking, 31 conversation
 
 ---
 
-## Try It Now
+## Getting Started
 
-### Hosted Version (Recommended)
+```bash
+git clone https://github.com/robbyczgw-cla/Chameleon-AI-Chat.git
+cd Chameleon-AI-Chat && npm install
+cp .env.example .env.local  # Add your API keys
+npm run dev
+```
 
-
-- Bring your own API keys (OpenRouter, etc.)
-- Start chatting with 100+ AI models immediately
-- All features available - personas, themes, voice, and more
-- Free to use - you only pay for your API usage
-
-### Self-Hosted Version
-
-Want full control? Self-host your own instance:
-
-1. Clone the repo and run `npm install`
-2. Set up Supabase (free tier works great)
-3. Configure environment variables
-4. Deploy to Vercel, Netlify, or your own server
-
-See [Quick Start](#quick-start) for detailed instructions.
+1. Set up [Supabase](https://supabase.com) (free tier works great)
+2. Add your OpenRouter API key
+3. See [Quick Start](#quick-start) for detailed setup
 
 ---
 
