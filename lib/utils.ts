@@ -59,7 +59,7 @@ export function generateCompositeKey(...parts: (string | number | undefined)[]):
  * These ensure consistent app attribution in OpenRouter dashboard
  */
 export const APP_NAME = "Chameleon AI Chat"
-export const APP_URL = "https://camiai.xyz"
+export const APP_URL = "http://localhost:3000"
 
 /**
  * Get OpenRouter headers for API requests

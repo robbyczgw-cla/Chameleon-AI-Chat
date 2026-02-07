@@ -98,7 +98,7 @@ export async function fetchUrlContent(url: string): Promise<{
 
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; ChameleonBot/1.0; +https://chameleon-ai-chat.vercel.app)',
+        'User-Agent': 'Mozilla/5.0 (compatible; ChameleonBot/1.0; +http://localhost:3000)',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.5',
       },

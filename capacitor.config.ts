@@ -9,7 +9,7 @@ const config: CapacitorConfig = {
   // Server configuration - loads from deployed web app for full API support
   server: {
     // Production: Load from deployed URL (comment out for local development)
-    url: process.env.CAPACITOR_SERVER_URL || 'https://chameleon-ai-chat.vercel.app',
+    url: process.env.CAPACITOR_SERVER_URL || 'http://localhost:3000',
     // For local development, use:
     // url: 'http://10.0.2.2:3000', // Android emulator
     // url: 'http://localhost:3000', // Web

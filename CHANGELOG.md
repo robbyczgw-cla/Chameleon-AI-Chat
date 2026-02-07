@@ -422,7 +422,7 @@ Improved icon choices for better visual communication:
 
 **Chameleon AI Chat is now open source and available to everyone!**
 
-**Try it now:** [camiai.xyz](https://camiai.xyz) - No installation required, bring your own API keys.
+**Self-host it:** Clone the repo and run `npm install && npm run dev` to get started.
 
 ### ✨ Highlights
 

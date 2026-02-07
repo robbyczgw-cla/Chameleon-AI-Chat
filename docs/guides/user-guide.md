@@ -10,9 +10,7 @@ Complete guide to getting the most out of Chameleon Chat's power user features.
 
 ### Option 1: Hosted Version (Easiest)
 
-**[camiai.xyz](https://camiai.xyz)** - Start chatting in seconds!
 
-1. Go to [camiai.xyz](https://camiai.xyz)
 2. Click "Continue as Guest" or create an account
 3. Go to Settings → API Keys
 4. Add your OpenRouter API key

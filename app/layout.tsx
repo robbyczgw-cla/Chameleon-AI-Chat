@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Chameleon AI Chat - Stop Guessing Your AI Costs",
     description: "The only AI chat with real-time cost tracking, 31 expert personas, and training data export. 100+ AI models. Know exactly what you're spending.",
-    url: "https://chameleon-ai-chat.vercel.app",
+    url: "http://localhost:3000",
     siteName: "Chameleon AI Chat",
     type: "website",
     locale: "en_US",

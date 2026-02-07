@@ -19,7 +19,7 @@
 The Chameleon AI Android app uses a **remote URL loading strategy** rather than bundling static assets. The WebView loads the app directly from the deployed Vercel URL:
 
 ```
-https://chameleon-ai-chat.vercel.app
+http://localhost:3000
 ```
 
 **Why Remote Loading?**
@@ -32,7 +32,7 @@ https://chameleon-ai-chat.vercel.app
 **Configuration** (`capacitor.config.ts`):
 ```typescript
 server: {
-  url: 'https://chameleon-ai-chat.vercel.app',
+  url: 'http://localhost:3000',
   cleartext: true,
   androidScheme: 'https',
   allowNavigation: [
@@ -442,7 +442,7 @@ await nativeNotifications.showBackgroundTask('Generating...', 'Please wait')
 const result = await nativeShare.share({
   title: 'Chameleon AI Chat',
   text: 'Check out this conversation',
-  url: 'https://chameleon-ai-chat.vercel.app',
+  url: 'http://localhost:3000',
 })
 // result: { shared: boolean, platform: 'native' | 'web' | 'clipboard' }
 
@@ -522,7 +522,7 @@ await nativeKeyboard.show()
     <category android:name="android.intent.category.BROWSABLE" />
     <data
         android:scheme="https"
-        android:host="chameleon-ai-chat.vercel.app"
+        android:host="localhost"
         android:pathPrefix="/auth/callback" />
 </intent-filter>
 

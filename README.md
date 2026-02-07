@@ -3,7 +3,6 @@
 An open-source AI chat application with real-time cost tracking, 31 conversational personas, semantic memory, and training data export. Access 100+ AI models through a beautiful, privacy-focused interface.
 
 <p align="center">
-  <a href="https://camiai.xyz"><img src="https://img.shields.io/badge/Try_It_Now-camiai.xyz-22c55e?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwSj0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xOCA4QTYgNiAwIDAgMCA2IDhjMCA3LTMgOS0zIDloMThjMC0zLTMtMi0zLTlaIi8+PC9zdmc+" alt="Try It Now"></a>
 </p>
 
 <p align="center">
@@ -44,7 +43,6 @@ An open-source AI chat application with real-time cost tracking, 31 conversation
 
 ### Hosted Version (Recommended)
 
-**No installation required!** Use Chameleon AI Chat instantly at **[camiai.xyz](https://camiai.xyz)**
 
 - Bring your own API keys (OpenRouter, etc.)
 - Start chatting with 100+ AI models immediately
